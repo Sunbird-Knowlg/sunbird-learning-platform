@@ -9,6 +9,8 @@ info:
     name: EkStep License
     url: 'http:www.EkStep.in'
 securityDefinitions: {}
+schemes:
+  - https
 consumes:
   - application/json
 produces:

@@ -10,7 +10,11 @@
     }
   },
   "basePath": "/v1",
+  "host": "api.ekstep.in",
   "securityDefinitions": {},
+  "schemes": [
+    "https"
+  ],
   "consumes": [
     "application/json"
   ],

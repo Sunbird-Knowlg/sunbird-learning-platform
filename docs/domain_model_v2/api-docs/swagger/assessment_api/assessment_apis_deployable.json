@@ -9,8 +9,12 @@
       "url": "http:www.EkStep.in"
     }
   },
+  "host": "api.ekstep.in",
   "basePath": "/v1",
   "securityDefinitions": {},
+  "schemes": [
+    "https"
+  ],
   "consumes": [
     "application/json"
   ],

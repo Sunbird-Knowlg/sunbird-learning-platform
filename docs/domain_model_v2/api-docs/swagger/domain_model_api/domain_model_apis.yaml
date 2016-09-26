@@ -3,11 +3,11 @@ info:
   version: 2.0.0
   title: Domain Model API
   description: >-
-    Domain model encapsulates the WHAT TO TEACH (Dimensions and Concepts) and
-    HOW TO TEACH (Methods) aspects of Ekstep Learning Platform
+    Domain Model encapsulates WHAT TO TEACH (Dimensions and Concepts) and HOW TO
+    TEACH (Methods) aspects of EkStep Learning Platform
   license:
-    name: Ekstep License
-host: dev.ekstep.in
+    name: EkStep License
+host: api.EkStep.in
 basePath: /v2
 schemes:
   - https
@@ -18,16 +18,16 @@ produces:
   - application/json
 tags:
   - name: Domains
-    description: Everything related to the Domian operations
+    description: Everything related to Domian Operations
   - name: Domain Objects
-    description: Everything related to all Domain Objects & Operations
+    description: Everything related to Domain Objects & their Operations
 paths:
   /domains:
     get:
       summary: Gets All Live Domains
       description: >-
-        This _domains_ endpoint is used to get the list of all live domains
-        available in the  _EkStep Learning Platform_
+        This API  is used to get list of all live domains available in the 
+        _EkStep Learning Platform_
       operationId: domain.list
       produces:
         - application/json
@@ -35,9 +35,9 @@ paths:
         - Domains
       responses:
         '200':
-          description: Gets All live Domains
+          description: All live Domains fetched successfully
           schema:
-            $ref: '#/definitions/getAllDomains'
+            $ref: '#/definitions/getAllDomainsResponse'
         '400':
           description: >-
             Error While fetching all domains! | Error occurred while operation,
@@ -57,9 +57,9 @@ paths:
     get:
       summary: Gets Specific Domain
       description: >-
-        The _domain/{domainId}_ endpoint with 'GET' method is used to fetch the
-        specific domain from the _EkStep Platform_. This endpoint returns the
-        entire domain Object with default fields and relations 
+        This API is used to get specific domain from _EkStep Learning Platform_.
+        This endpoint returns specific domain response object with properties
+        and relations
       tags:
         - Domains
       operationId: domain.info
@@ -73,9 +73,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Gets details of specific domain
+          description: Specific domain fetched successfully
           schema:
-            $ref: '#/definitions/getSpecificDomain'
+            $ref: '#/definitions/getSpecificDomainResponse'
         '400':
           description: >-
             Error While fetching the Specific domain! | Error occurred while
@@ -95,8 +95,8 @@ paths:
     get:
       summary: Gets Specific Domain Graph
       description: >-
-        This API gets details of specific domain. The functionality of the API
-        is identical to Domain Search based on the field values
+        This API gets details of specific domain graph. The functionality of the
+        API is identical to Domain Search based on the field values
       tags:
         - Domains
       operationId: domain.graph
@@ -115,9 +115,9 @@ paths:
           type: number
       responses:
         '200':
-          description: Gets details about domain
+          description: Specific Domain Graph fetched successfully
           schema:
-            $ref: '#/definitions/getDomainsGraph'
+            $ref: '#/definitions/getDomainsGraphResponse'
         '400':
           description: >-
             Error While fetching the domain graph! | Error occurred while
@@ -137,10 +137,9 @@ paths:
     get:
       summary: Gets All Live Dimensions
       description: >-
-        This _dimension_ endpoint with 'GET' method is used to get all the live
-        dimensions of given domainId from the domain graph of Ekstep
-        Platform,This API Returns the details of all dimension, and optionally,
-        the sub-graph within it
+        This API is used to get all the live dimensions of given domainId from
+        the EkStep Platform. This API Returns the details of all dimensions,
+        with properties and relations
       tags:
         - Domain Objects
       operationId: domain.dimension.list
@@ -154,11 +153,9 @@ paths:
           type: string
       responses:
         '200':
-          description: all dimension objects returned successfully
+          description: All live Dimensions fetched successfully
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/getAllDimensions'
+            $ref: '#/definitions/getAllDimensionsResponse'
         '400':
           description: >-
             Error While fetching all dimensions within the specified domain! |
@@ -178,12 +175,11 @@ paths:
     post:
       summary: Creates New Dimension
       description: >-
-        The _dimension_ endpoint is used to create the dimension into the
-        _EkStep Platform_ with the metadata provided as part of request body,
-        there are certain fields marked as mandatory for which the value has to
-        be given in order to create the dimension into the platfrom, The
-        _dimension_ endpoint returns the node id as _node_id_ i.e. the
-        identifier of created dimension.
+        This API is used to create a dimension into the _EkStep Platform_ with
+        the metadata provided as part of request body, there are certain fields
+        marked as mandatory for which the value has to be given in order to
+        create the dimension into the platfrom, This endpoint returns the node
+        id as _node_id_ i.e. the identifier of created dimension.
       tags:
         - Domain Objects
       operationId: domain.object.create
@@ -195,14 +191,16 @@ paths:
           required: true
           description: domain ID to query the details
           type: string
-        - $ref: '#/parameters/createDimension'
+        - name: create Dimension request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/createDimensionRequest'
       responses:
         '200':
-          description: >-
-            domainId - Domain ID within which the dimension is created
-            successfully
+          description: Dimension created successfully
           schema:
-            $ref: '#/definitions/createDimension'
+            $ref: '#/definitions/createDimensionResponse'
         '400':
           description: >-
             Error While creating dimension within domain | Error occurred while
@@ -222,9 +220,9 @@ paths:
     get:
       summary: Gets Specific Dimension
       description: >-
-        This _dimension_ endpoint with 'GET' method is used to get the dimension
-        Object from the domain graph of Ekstep Platform,This API Returns the
-        details of the given dimension, and optionally, the sub-graph within it.
+        This API is used to get specific dimension from the EkStep Platform.This
+        endpoint returns the details of the specific dimension, and optionally
+        the sub-graph within it.
       tags:
         - Domain Objects
       operationId: domain.dimension.info
@@ -243,9 +241,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Returns the details of the given dimension
+          description: Dimension fetched successfully
           schema:
-            $ref: '#/definitions/getSpecificDimension'
+            $ref: '#/definitions/getSpecificDimensionResponse'
         '400':
           description: >-
             Error While fetching specified dimension  | Error occurred while
@@ -264,12 +262,11 @@ paths:
     patch:
       summary: Updates Specific Dimension
       description: >-
-        This _dimension_  update API with 'PATCH' method is used to update the
-        given dimension, with the metadata provided as part of request body,
-        there are certain fields marked as mandatory for which the value has to
-        be given in order to update the dimension into the platfrom, The
-        _dimension_ endpoint returns the node id as _node_id_ i.e. the
-        identifier of updated dimension
+        This API is used to update the given dimension with the metadata
+        provided as part of request body, there are certain fields marked as
+        mandatory for which the value has to be given in order to update the
+        dimension into the platfrom, This endpoint returns the node id as
+        _node_id_ i.e. the identifier of updated dimension
       tags:
         - Domain Objects
       operationId: domain.dimension.update
@@ -286,14 +283,16 @@ paths:
           required: true
           description: dimension ID to query the details
           type: string
-        - $ref: '#/parameters/updateDimension'
+        - name: update Dimension request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/updateDimensionRequest'
       responses:
         '200':
-          description: >-
-            domainId - Domain ID within which the dimension is created
-            successfully
+          description: Dimension updated successfully
           schema:
-            $ref: '#/definitions/updateDimension'
+            $ref: '#/definitions/updateDimensionResponse'
         '400':
           description: >-
             Error While updating the dimension! | Error occurred while
@@ -313,10 +312,10 @@ paths:
     post:
       summary: Search Dimensions Based On Search Criteria
       description: >-
-        This _dimension_  search API with 'POST' method is used run a search
-        query on the domian graph for a given domainId to fetch the dimensions
-        from the domain of the Ekstep platform.This API returns the dimensions
-        based on the search criteria provided in the request body
+        This API is used run a search query on the domian graph for a given
+        domainId to fetch the dimensions from the EkStep platform.This API
+        returns the dimensions based on the search criteria provided in the
+        request body
       tags:
         - Domain Objects
       operationId: domain.dimension.search
@@ -328,16 +327,16 @@ paths:
           required: true
           description: domain ID to query the details
           type: string
-        - $ref: '#/parameters/searchDimension'
+        - name: search Dimension request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/searchDimensionRequest'
       responses:
         '200':
-          description: >-
-            domainId - Domain ID within which the dimension is searched
-            successfully
+          description: Dimension searched successfully
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/searchDimension'
+            $ref: '#/definitions/searchDimensionResponse'
         '400':
           description: >-
             Error While searching dimensions within the domain! | Error occurred
@@ -356,12 +355,10 @@ paths:
       security: []
   '/domains/{domainId}/dimensions/{dimensionId1}/merge?{dimensionId2}':
     post:
-      summary: Merge Given Dimension with Another Dimension
+      summary: Merge two dimensions into one
       description: >-
-        This _dimension_  merge API with 'POST' method is used to merge the
-        given dimension with the new dimensionId, This _dimension_ endpoint
-        returns the node id as _node_id_ i.e. the identifier of mergerd
-        dimension
+        This API is used to Merge two dimensions into one. This endpoint returns
+        the node id as _node_id_ i.e. the identifier of merged dimension
       tags:
         - Domain Objects
       operationId: domain.dimension.merge
@@ -385,11 +382,9 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            domainId - Domain ID within which the dimension is created
-            successfully
+          description: Merged two dimensions into one successfully
           schema:
-            $ref: '#/definitions/mergeDimension'
+            $ref: '#/definitions/mergeDimensionResponse'
         '400':
           description: >-
             Error While updating the dimension! | Error occurred while
@@ -409,8 +404,8 @@ paths:
     get:
       summary: Gets All Live Concepts
       description: >-
-        The _concept_ endpoint is used to get the list of concepts  and their
-        properties and relations as definied in the  _EkStep Platform_
+        This API is used to get the list of concepts and their properties and
+        relations from the _EkStep Platform_
       tags:
         - Domain Objects
       operationId: domain.concept.list
@@ -424,11 +419,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Gets all Concepts of given domainId
+          description: All live Concepts fetched successfully
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/getAllConcepts'
+            $ref: '#/definitions/getAllConceptsResponse'
         '400':
           description: >-
             Error While fetching all Concepts ! | Error occurred while
@@ -447,11 +440,11 @@ paths:
     post:
       summary: Creates New Concept
       description: >-
-        The _concept_ endpoint is used to create the concept into the _EkStep
-        Platform_ with the metadata provided as part of request body, there are
-        certain fields marked as mandatory for which the value has to be given
-        in order to create the content into the platfrom, The _concept_ endpoint
-        returns the node id as _node_id_ i.e. the identifier of created concept.
+        This API is used to create a concept into the _EkStep Platform_ with the
+        metadata provided as part of request body, there are certain fields
+        marked as mandatory for which the value has to be given in order to
+        create the concept into the platfrom, This endpoint returns the node id
+        as _node_id_ i.e. the identifier of created concept.
       tags:
         - Domain Objects
       operationId: domain.concept.save
@@ -463,12 +456,16 @@ paths:
           required: true
           description: domain for which all concepts are required
           type: string
-        - $ref: '#/parameters/createConcept'
+        - name: create Concept request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/createConceptRequest'
       responses:
         '200':
-          description: Node ID created in the graph
+          description: Concept created successfully
           schema:
-            $ref: '#/definitions/createConcept'
+            $ref: '#/definitions/createConceptResponse'
         '400':
           description: >-
             Error While Concept Creation! | Error occurred while operation,
@@ -487,7 +484,7 @@ paths:
   '/domains/{domainId}/concepts/{conceptId1}/{relationName}/{conceptId2}':
     delete:
       summary: Deletes Relation Between Existing Concepts
-      description: This API Deletes the given relation between two existing Concepts
+      description: This API Deletes given relation between two existing Concepts
       tags:
         - Domain Objects
       operationId: domain.concept.delete
@@ -518,7 +515,7 @@ paths:
         '200':
           description: Deletes relation between two existing Concepts
           schema:
-            $ref: '#/definitions/deleteRelation'
+            $ref: '#/definitions/deleteRelationResponse'
         '400':
           description: >-
             Error While deleting the relation between two Concepts ! | Error
@@ -568,9 +565,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Node ID created in the graph
+          description: Concept retired successfully
           schema:
-            $ref: '#/definitions/retireConcept'
+            $ref: '#/definitions/retireConceptResponse'
         '400':
           description: >-
             Error While retiring the specified concept! | Error occurred while
@@ -622,7 +619,7 @@ paths:
         '200':
           description: Concept moved successfully
           schema:
-            $ref: '#/definitions/moveConcept'
+            $ref: '#/definitions/moveConceptResponse'
         '400':
           description: >-
             Error While moving the concept ! | Error occurred while operation,
@@ -642,9 +639,8 @@ paths:
     get:
       summary: Gets Specific Concept
       description: >-
-        The _concept/{conceptId}_ endpoint with 'GET' method is used to fetch
-        the specific concept from the _EkStep Platform_. This endpoint returns
-        the entire concept Object with default fields.
+        This is used to fetch the specific concept from the _EkStep Platform_.
+        This endpoint returns the entire concept object with default fields.
       tags:
         - Domain Objects
       operationId: domain.concept.info
@@ -663,9 +659,9 @@ paths:
           type: string
       responses:
         '200':
-          description: OK
+          description: Specific Concept fetched successfully
           schema:
-            $ref: '#/definitions/getSpecificConcept'
+            $ref: '#/definitions/getSpecificConceptResponse'
         '400':
           description: >-
             Error While fetching the specific concept! | Error occurred while
@@ -684,12 +680,11 @@ paths:
     patch:
       summary: Updates Specific Concept
       description: >-
-        This _concept_  update API with 'PATCH' method is used to update the
-        given concept, with the metadata provided as part of request body, there
-        are certain fields marked as mandatory for which the value has to be
-        given in order to update the concept into the platfrom, The _concept_
-        endpoint returns the node id as _node_id_ i.e. the identifier of updated
-        concept.
+        This API is used to update the given concept, with the metadata provided
+        as part of request body, there are certain fields marked as mandatory
+        for which the value has to be given in order to update the concept into
+        the platfrom, This endpoint returns the node id as _node_id_ i.e. the
+        identifier of updated concept.
       tags:
         - Domain Objects
       operationId: domain.concept.update
@@ -706,12 +701,16 @@ paths:
           required: true
           description: Concept identifier (concepts are unique within a domain)
           type: string
-        - $ref: '#/parameters/updateConceptData'
+        - name: upadate Concept request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/updateConceptDataRequest'
       responses:
         '200':
-          description: Updates the concept data
+          description: Concept Updated successfully
           schema:
-            $ref: '#/definitions/updateConceptData'
+            $ref: '#/definitions/updateConceptDataResponse'
         '400':
           description: >-
             Error While updating the concept! | Error occurred while operation,
@@ -731,9 +730,9 @@ paths:
     get:
       summary: Gets Hierarchy of Concepts
       description: >-
-        This _concept_ endpoint with 'GET' method is used to get the hierarchy
-        of concepts from the domain graph of Ekstep Platform. This returns 
-        graph of concepts connected to a concept with the given relation
+        This API is used to get the hierarchy of concepts from the EkStep
+        Platform. This endpoint returns graph of concepts connected to a concept
+        with the given relation
       tags:
         - Domain Objects
       operationId: domain.concept.graph
@@ -764,11 +763,9 @@ paths:
           type: string
       responses:
         '200':
-          description: List of concept objects
+          description: List of Concepts fetched successfully
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/getConceptGraph'
+            $ref: '#/definitions/getConceptGraphResponse'
         '400':
           description: >-
             Error While fetching hierarchy of concepts in the domain | Error
@@ -788,10 +785,9 @@ paths:
     post:
       summary: Search Concepts Based On Search Criteria
       description: >-
-        This _Concepts_  search API with 'POST' method is used run a search
-        query on the domian graph for a given domainId to fetch the concepts
-        from the domain of the Ekstep platform.This API returns the concepts
-        based on the search criteria provided in the request body
+        This API is used run a search query on the domian graph of EkStep
+        platform.This endpoint returns the concepts based on the search criteria
+        provided in the request body
       tags:
         - Domain Objects
       operationId: domain.concepts.search
@@ -803,16 +799,16 @@ paths:
           required: true
           description: domain ID to query the details
           type: string
-        - $ref: '#/parameters/searchConcepts'
+        - name: search concepts request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/searchConceptsRequest'
       responses:
         '200':
-          description: >-
-            domainId - Domain ID within which the concept is searched
-            successfully
+          description: searched concepts successfully
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/searchConcepts'
+            $ref: '#/definitions/searchConceptsResponse'
         '400':
           description: >-
             Error While searching concepts within domain! | Error occurred while
@@ -832,9 +828,8 @@ paths:
     get:
       summary: Gets All Live Methods
       description: >-
-        This _methods_ endpoint with 'GET' method is used to get all the live
-        methods of given domainId from the domain graph of Ekstep Platform,This
-        API Returns the details of all methods
+        This API is used to get all the live methods from the EkStep Platform.
+        This enpoint returns details of all methods
       tags:
         - Domain Objects
       operationId: domain.methods.list
@@ -848,9 +843,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Returns all methods in a domain
+          description: All live Methods fetched successfully
           schema:
-            $ref: '#/definitions/getAllMethods'
+            $ref: '#/definitions/getAllMethodsResponse'
         '400':
           description: >-
             Error While fetching all methods within the specified domain! |
@@ -870,11 +865,11 @@ paths:
     post:
       summary: Creates New Method
       description: >-
-        The _method_ endpoint is used to create the method into the _EkStep
-        Platform_ with the metadata provided as part of request body, there are
-        certain fields marked as mandatory for which the value has to be given
-        in order to create the method into the platfrom, The _method_ endpoint
-        returns the node id as _node_id_ i.e. the identifier of created method.
+        This API is used to create a method into the _EkStep Platform_ with the
+        metadata provided as part of request body, there are certain fields
+        marked as mandatory for which the value has to be given in order to
+        create the method into the platfrom, The _method_ endpoint returns the
+        node id as _node_id_ i.e. the identifier of created method.
       tags:
         - Domain Objects
       operationId: domain.method.save
@@ -886,12 +881,16 @@ paths:
           required: true
           description: domain for the method
           type: string
-        - $ref: '#/parameters/createMethod'
+        - name: create Method request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/createMethodRequest'
       responses:
         '200':
-          description: node_id - Node ID created in the graph
+          description: Method created successsfully
           schema:
-            $ref: '#/definitions/createMethod'
+            $ref: '#/definitions/createMethodResponse'
         '400':
           description: >-
             Error While Creating method within the specified domain! | Error
@@ -911,9 +910,9 @@ paths:
     get:
       summary: Gets Specific Method
       description: >-
-        This _method_ endpoint with 'GET' method is used to get specific method
-        object of given domainId from the domain graph of Ekstep Platform,This
-        API Returns the details of specific method and its relations
+        This API is used to get specific method object from theEkStep Platform.
+        This endpoint returns the details of specific method, its properties and
+        relations
       tags:
         - Domain Objects
       operationId: domain.method.info
@@ -934,9 +933,9 @@ paths:
           type: string
       responses:
         '200':
-          description: Returns the details of specific Method
+          description: Specific Method fetched successfully
           schema:
-            $ref: '#/definitions/getSpecificMethod'
+            $ref: '#/definitions/getSpecificMethodResponse'
         '400':
           description: >-
             Error While fetching all methods within specified domain! | Error
@@ -955,12 +954,11 @@ paths:
     patch:
       summary: Updates Specific Method
       description: >-
-        This _method_  update API with 'PATCH' method is used to update the
-        given method, with the metadata provided as part of request body, there
-        are certain fields marked as mandatory for which the value has to be
-        given in order to update the concept into the platfrom, The _method_
-        endpoint returns the node id as _node_id_ i.e. the identifier of updated
-        method.
+        This API is used to update the given method, with the metadata provided
+        as part of request body, there are certain fields marked as mandatory
+        for which the value has to be given in order to update the concept into
+        the platfrom, The _method_ endpoint returns the node id as _node_id_
+        i.e. the identifier of updated method.
       tags:
         - Domain Objects
       operationId: domain.method.update
@@ -977,12 +975,16 @@ paths:
           required: true
           description: method ID to query the details
           type: string
-        - $ref: '#/parameters/updateMethod'
+        - name: update Dimension request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/updateMethodRequest'
       responses:
         '200':
-          description: method updated successfully
+          description: Updated Method successfully
           schema:
-            $ref: '#/definitions/updateMethod'
+            $ref: '#/definitions/updateMethodResponse'
         '400':
           description: >-
             Error While updating the method within the specified domain! | Error
@@ -1001,10 +1003,9 @@ paths:
     delete:
       summary: Deletes Specific Method
       description: >-
-        This _method_  update API with 'DELETE' method is used to delete the
-        given method.Deletion is only marked as deprecated and the method data
-        is still retained in the system. Deleted methods are not returned by the
-        APIs.
+        This API is used to delete the specified method.Deletion is only marked
+        as deprecated and the method data is still retained in the system.
+        Deleted methods are not returned by the APIs.
       tags:
         - Domain Objects
       operationId: domain.method.delete
@@ -1025,7 +1026,7 @@ paths:
         '200':
           description: specified method deleted successfully
           schema:
-            $ref: '#/definitions/deleteMethod'
+            $ref: '#/definitions/deleteMethodResponse'
         '400':
           description: >-
             Error while deleting the specified method within the domain! | Error
@@ -1045,10 +1046,9 @@ paths:
     post:
       summary: Search Methods Based On Search Criteria
       description: >-
-        This _methods_ search API with 'POST' method is used run a search query
-        on the domian graph for a given domainId to fetch the methods from the
-        domain of the Ekstep platform.This API returns the methods based on the
-        search criteria provided in the request body
+        This API is used run a search query on the domian graph of EkStep
+        platform.This API returns the methods based on the search criteria
+        provided in the request body
       tags:
         - Domain Objects
       operationId: domain.object.search
@@ -1060,12 +1060,16 @@ paths:
           required: true
           description: domain ID to query the details
           type: string
-        - $ref: '#/parameters/searchMethods'
+        - name: search method request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/searchMethodsRequest'
       responses:
         '200':
-          description: domain objects retreived successfully
+          description: Methods searched successfully
           schema:
-            $ref: '#/definitions/searchMethods'
+            $ref: '#/definitions/searchMethodsResponse'
         '400':
           description: >-
             Error While searching the methods within the domain! | Error
@@ -1085,9 +1089,8 @@ paths:
     get:
       summary: Gets All Misconceptions
       description: >-
-        This _misconceptions_ endpoint with 'GET' method is used to get all the
-        live misconceptions of given domainId from the domain graph of Ekstep
-        Platform,This API Returns the details of all misconceptions
+        This API is used to get all live misconceptions from the EkStep
+        Platform.This endpoint returns details of all misconceptions
       tags:
         - Domain Objects
       operationId: domain.misconceptions.list
@@ -1097,23 +1100,23 @@ paths:
         - name: domainId
           in: path
           required: true
-          description: domainId for which all misconceptions are required
+          description: domainId for which all misconception are required
           type: string
       responses:
         '200':
-          description: Returns all misconceptions in a domain
+          description: All Misconceptions fetched successfully
           schema:
-            $ref: '#/definitions/getAllMisconceptions'
+            $ref: '#/definitions/getAllMisconceptionsResponse'
         '400':
           description: >-
-            Error While fetching all misconceptions within the specified domain!
+            Error While fetching all misconception within the specified domain!
             | Error occurred while operation, mostly because of the input given
             by client, In general it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
-            Error While fetching all misconceptions within the specified domain!
+            Error While fetching all misconception within the specified domain!
             | Error occurred while operation, mostly because of erroneous
             condition on server, In general it is 'Server Exception' or
             'Exception'
@@ -1123,15 +1126,14 @@ paths:
     post:
       summary: Creates New Misconception
       description: >-
-        The _misconception_ endpoint with 'POST' method is used to create
-        misconception into the _EkStep Platform_ with the metadata provided as
-        part of request body, there are certain fields marked as mandatory for
-        which the value has to be given in order to create the misconceptions
-        into the platfrom, The _misconceptions_ endpoint returns the node id as
-        _node_id_ i.e. the identifier of created misconceptions.
+        This API is used to create misconception into the _EkStep Platform_ with
+        the metadata provided as part of request body, there are certain fields
+        marked as mandatory for which the value has to be given in order to
+        create the misconception into the platfrom, This endpoint returns the
+        node id as _node_id_ i.e. the identifier of created misconception.
       tags:
         - Domain Objects
-      operationId: domain.misconceptions.save
+      operationId: domain.misconception.save
       produces:
         - application/json
       parameters:
@@ -1140,22 +1142,26 @@ paths:
           required: true
           description: domain for the misconceptions
           type: string
-        - $ref: '#/parameters/createMisconceptions'
+        - name: create misconception request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/createMisconceptionsRequest'
       responses:
         '200':
-          description: node_id - Node ID created in the graph
+          description: Created Misconception successfully
           schema:
-            $ref: '#/definitions/createMisconceptions'
+            $ref: '#/definitions/createMisconceptionsResponse'
         '400':
           description: >-
-            Error While Creating misconceptions within the specified domain! |
+            Error While Creating misconception within the specified domain! |
             Error occurred while operation, mostly because of the input given by
             client, In general it is 'Client Exception' 
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
-            Error While Creating misconceptions within the specified domain! |
+            Error While Creating misconception within the specified domain! |
             Error occurred while operation, mostly because of erroneous
             condition on server, In general it is 'Server Exception' or
             'Exception'.
@@ -1166,13 +1172,12 @@ paths:
     get:
       summary: Gets Specific Misconception
       description: >-
-        This _misconceptions_ endpoint with 'GET' method is used to get specific
-        misconceptions object of given domainId from the domain graph of Ekstep
-        Platform,This API Returns the details of specific misconceptions and its
-        relations
+        This API is used to fetch specific misconception from the EkStep
+        Platform. This endpoint returns details of specific misconception, its
+        properties and relations
       tags:
         - Domain Objects
-      operationId: domain.misconceptions.info
+      operationId: domain.misconception.info
       produces:
         - application/json
       parameters:
@@ -1190,19 +1195,19 @@ paths:
           type: string
       responses:
         '200':
-          description: Returns the details of specific misconceptions
+          description: Specific misconception fetched successfully
           schema:
-            $ref: '#/definitions/getSpecificMisconception'
+            $ref: '#/definitions/getSpecificMisconceptionResponse'
         '400':
           description: >-
-            Error While fetching all misconceptions within specified domain! |
+            Error While fetching all misconception within specified domain! |
             Error occurred while operation, mostly because of the input given by
             client, In general it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
-            Error While fetching all misconceptions within specified domain! |
+            Error While fetching all misconception within specified domain! |
             Error occurred while operation, mostly because of erroneous
             condition on server, In general it is 'Server Exception' or
             'Exception'
@@ -1212,15 +1217,14 @@ paths:
     patch:
       summary: Updates Specific Misconception
       description: >-
-        This _misconceptions_  update API with 'PATCH' method is used to update
-        the given misconceptions, with the metadata provided as part of request
-        body, there are certain fields marked as mandatory for which the value
-        has to be given in order to update the misconceptions into the platfrom,
-        The _misconceptions_ endpoint returns the node id as _node_id_ i.e. the
-        identifier of updated misconceptions.
+        This API is used to update specific misconception, with the metadata
+        provided as part of request body, there are certain fields marked as
+        mandatory for which the value has to be given in order to update the
+        misconception into the platfrom, This endpoint returns the node id as
+        _node_id_ i.e. the identifier of updated misconception.
       tags:
         - Domain Objects
-      operationId: domain.misconceptions.update
+      operationId: domain.misconception.update
       produces:
         - application/json
       parameters:
@@ -1234,22 +1238,26 @@ paths:
           required: true
           description: misconception ID to query the details
           type: string
-        - $ref: '#/parameters/updateMisconceptions'
+        - name: update misconception request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/updateMisconceptionsRequest'
       responses:
         '200':
-          description: misconceptions updated successfully
+          description: Misconception updated successfully
           schema:
-            $ref: '#/definitions/updateMisconceptions'
+            $ref: '#/definitions/updateMisconceptionsResponse'
         '400':
           description: >-
-            Error While updating the misconceptions within the specified domain!
+            Error While updating the misconception within the specified domain!
             | Error occurred while operation, mostly because of the input given
             by client, In general it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
-            Error While updating the misconceptions within the specified domain!
+            Error While updating the misconception within the specified domain!
             | Error occurred while operation, mostly because of erroneous
             condition on server, In general it is 'Server Exception' or
             'Exception'
@@ -1259,10 +1267,9 @@ paths:
     delete:
       summary: Deletes Specific Misconception
       description: >-
-        This _misconceptions_  update API with 'DELETE' method is used to delete
-        the given misconceptions.Deletion is only marked as deprecated and the
-        misconceptions data is still retained in the system. Deleted
-        misconceptions are not returned by the APIs.
+        This API is used to delete specific misconception.Deletion is only
+        marked as deprecated and the misconceptions data is still retained in
+        the system. Deleted misconceptions are not returned by the APIs.
       tags:
         - Domain Objects
       operationId: domain.misconception.delete
@@ -1281,19 +1288,19 @@ paths:
           type: string
       responses:
         '200':
-          description: specified misconceptions deleted successfully
+          description: Misconception deleted successfully
           schema:
-            $ref: '#/definitions/deleteMisconceptions'
+            $ref: '#/definitions/deleteMisconceptionsResponse'
         '400':
           description: >-
-            Error while deleting the specified misconceptions within the domain!
+            Error while deleting the specified misconception within the domain!
             | Error occurred while operation, mostly because of the input given
             by client, In general it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
-            Error while deleting the specified misconceptions within the domain!
+            Error while deleting the specified misconception within the domain!
             | Error occurred while operation, mostly because of erroneous
             condition on server, In general it is 'Server Exception' or
             'Exception'.
@@ -1304,11 +1311,9 @@ paths:
     post:
       summary: Search Misconceptions Based On Search Criteria
       description: >-
-        This _misconceptions_ search API with 'POST' method is used run a search
-        query on the domian graph for a given domainId to fetch the
-        misconceptions from the domain of the Ekstep platform.This API returns
-        the misconceptions based on the search criteria provided in the request
-        body
+        This API is used run a search query on domian graph of the EkStep
+        platform.This endpoint returns misconceptions based on the search
+        criteria provided in the request body
       tags:
         - Domain Objects
       operationId: domain.misconceptions.search
@@ -1320,12 +1325,16 @@ paths:
           required: true
           description: domain ID to query the details
           type: string
-        - $ref: '#/parameters/searchMisconceptions'
+        - name: search Misconception request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/searchMisconceptionsRequest'
       responses:
         '200':
-          description: domain objects retreived successfully
+          description: Searched Misconceptions successfully
           schema:
-            $ref: '#/definitions/searchMisconceptions'
+            $ref: '#/definitions/searchMisconceptionsResponse'
         '400':
           description: >-
             Error While searching the misconceptions within the domain! | Error
@@ -1341,333 +1350,857 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-parameters:
-  createDimension:
-    name: Request
-    in: body
-    description: dimension Request Object which contains the dimension object
-    required: true
-    schema:
-      $ref: '#/definitions/dimensions'
-  updateDimension:
-    name: Request
-    in: body
-    description: dimension Request Object which contains the dimension object
-    required: true
-    schema:
-      $ref: '#/definitions/dimensions'
-  searchDimension:
-    name: Request
-    in: body
-    description: search Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/dimensions'
-  createConcept:
-    name: Request
-    in: body
-    description: Concept Request Object which contains the concept object
-    required: true
-    schema:
-      $ref: '#/definitions/concept'
-  updateConceptData:
-    name: Request
-    in: body
-    description: Concept Request Object which contains the concept object
-    required: true
-    schema:
-      $ref: '#/definitions/concept'
-  searchConcepts:
-    name: Request
-    in: body
-    description: search Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/concept'
-  createMethod:
-    name: Request
-    in: body
-    description: method Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/methods'
-  updateMethod:
-    name: Request
-    in: body
-    description: method Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/methods'
-  searchMethods:
-    name: Request
-    in: body
-    description: search Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/methods'
-  createMisconceptions:
-    name: Request
-    in: body
-    description: method Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/misconceptions'
-  updateMisconceptions:
-    name: Request
-    in: body
-    description: method Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/misconceptions'
-  searchMisconceptions:
-    name: Request
-    in: body
-    description: method Request Object
-    required: true
-    schema:
-      $ref: '#/definitions/misconceptions'
 definitions:
-  getAllDomains:
+  createDimensionRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/dimensions'
+  updateDimensionRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/dimensions'
+  searchDimensionRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/dimensions'
+  createConceptRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/concept'
+  updateConceptDataRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/concept'
+  searchConceptsRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/concept'
+  createMethodRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/methods'
+  updateMethodRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/methods'
+  searchMethodsRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/methods'
+  createMisconceptionsRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/misconceptions'
+  updateMisconceptionsRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/misconceptions'
+  searchMisconceptionsRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/misconceptions'
+  getAllDomainsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
-        $ref: '#/definitions/getAllDomainsObject'
-  getAllDomainsObject:
-    title: getAllDomains
+        $ref: '#/definitions/allDomainsObject'
+  allDomainsObject:
     properties:
       domains:
         type: array
         items:
           $ref: '#/definitions/allDomains'
-  getSpecificDomain:
+  getSpecificDomainResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
+        $ref: '#/definitions/getDomainObject'
+  getDomainObject:
+    properties:
+      domain:
         $ref: '#/definitions/domains'
-  getDomainsGraph:
+  getDomainsGraphResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
-        $ref: '#/definitions/domains'
-  getAllConcepts:
+        $ref: '#/definitions/getDomainObject'
+  getAllConceptsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        type: array
-        items:
-          $ref: '#/definitions/conceptObject'
-  conceptObject:
-    properties:
-      concept:
-        $ref: '#/definitions/conceptMetadata1'
-      owner:
-        $ref: '#/definitions/conceptMetadata2'
-      relation:
-        $ref: '#/definitions/conceptMetadata3'
-      metadata:
-        $ref: '#/definitions/concept'
-  getSpecificConcept:
-    type: object
-    properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        $ref: '#/definitions/concept'
-  createConcept:
-    type: object
-    properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        $ref: '#/definitions/NodeId'
-  deleteRelation:
-    type: object
-    properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        $ref: '#/definitions/result'
-  retireConcept:
-    type: object
-    properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      body:
-        $ref: '#/definitions/result'
-  moveConcept:
-    type: object
-    properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        $ref: '#/definitions/result'
-  updateConceptData:
-    type: object
-    properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        $ref: '#/definitions/NodeId'
-  getConceptGraph:
-    type: object
-    properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/conceptObject'
-  searchConcepts:
-    type: object
+  conceptObject:
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
+      concepts:
         type: array
         items:
-          $ref: '#/definitions/conceptObject'
-  getAllDimensions:
+          allOf:
+            - $ref: '#/definitions/conceptMetadata1'
+            - $ref: '#/definitions/conceptMetadata2'
+            - $ref: '#/definitions/conceptMetadata3'
+            - $ref: '#/definitions/concept'
+  getSpecificConceptResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
+        $ref: '#/definitions/getConceptObject'
+  getConceptObject:
+    properties:
+      concept:
+        $ref: '#/definitions/concept'
+  createConceptResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/NodeId'
+  deleteRelationResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/result'
+  retireConceptResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/result'
+  moveConceptResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/result'
+  updateConceptDataResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/NodeId'
+  getConceptGraphResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/conceptObject'
+  searchConceptsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/conceptObject'
+  getAllDimensionsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/getAllDimensionObject'
+  getAllDimensionObject:
+    properties:
+      dimensions:
         type: array
         items:
           $ref: '#/definitions/dimensions'
-  getSpecificDimension:
+  getSpecificDimensionResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
+        $ref: '#/definitions/getDimensionObject'
+  getDimensionObject:
+    properties:
+      dimension:
         $ref: '#/definitions/dimensions'
-  createDimension:
+  createDimensionResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
-  updateDimension:
+  updateDimensionResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
-  mergeDimension:
+  mergeDimensionResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
-  searchDimension:
+  searchDimensionResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
-        type: array
-        items:
-          $ref: '#/definitions/dimensions'
-  getAllMisconceptions:
+        $ref: '#/definitions/getAllDimensionObject'
+  getAllMisconceptionsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
+        $ref: '#/definitions/getAllMisconceptionObject'
+  getAllMisconceptionObject:
+    properties:
+      misconceptions:
         type: array
         items:
           $ref: '#/definitions/misconceptions'
-  deleteMisconceptions:
+  deleteMisconceptionsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/result'
-  createMisconceptions:
+  createMisconceptionsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
-  updateMisconceptions:
+  updateMisconceptionsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
-  getSpecificMisconception:
+  getSpecificMisconceptionResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
+        $ref: '#/definitions/getMisconceptionObject'
+  getMisconceptionObject:
+    properties:
+      misconception:
         $ref: '#/definitions/misconceptions'
-  searchMisconceptions:
+  searchMisconceptionsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: object
+        description: API response code
       result:
-        type: array
-        items:
-          $ref: '#/definitions/misconceptions'
-  searchMethods:
-    type: object
+        $ref: '#/definitions/getAllMisconceptionObject'
+  allMethods:
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
-      result:
+      methods:
         type: array
         items:
           $ref: '#/definitions/methods'
-  getAllMethods:
+  searchMethodsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
-        type: array
-        items:
-          $ref: '#/definitions/methods'
-  getSpecificMethod:
+        $ref: '#/definitions/allMethods'
+  getAllMethodsResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
+        $ref: '#/definitions/allMethods'
+  getMethod:
+    properties:
+      method:
         $ref: '#/definitions/methods'
-  deleteMethod:
+  getSpecificMethodResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
+      result:
+        $ref: '#/definitions/getMethod'
+  deleteMethodResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/result'
-  createMethod:
+  createMethodResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
-  updateMethod:
+  updateMethodResponse:
     type: object
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
   misconceptions:
@@ -1706,7 +2239,10 @@ definitions:
       parent:
         $ref: '#/definitions/Children'
       externalValidation:
-        $ref: '#/definitions/externalValidation'
+        type: array
+        items:
+          type: object
+          description: ''
       osId:
         type: string
         description: osId
@@ -1714,9 +2250,15 @@ definitions:
         type: string
         description: mimeTYpe
       tags:
-        $ref: '#/definitions/tags'
+        type: array
+        items:
+          type: object
+          description: ''
       gradeLevel:
-        $ref: '#/definitions/gradelevel'
+        type: array
+        items:
+          type: object
+          description: s
   conceptMetadata1:
     properties:
       identifier:
@@ -1738,7 +2280,10 @@ definitions:
         type: string
         description: 'status about the domain eg: LIVE, RETIRED, DRAFT'
       gradeLevel:
-        $ref: '#/definitions/gradelevel'
+        type: array
+        items:
+          type: object
+          description: ''
       lastUpdatedOn:
         type: string
         description: ''
@@ -1746,7 +2291,10 @@ definitions:
         type: string
         description: ''
       tags:
-        $ref: '#/definitions/tags'
+        type: array
+        items:
+          type: object
+          description: ''
   conceptMetadata2:
     properties:
       identifier:
@@ -1779,7 +2327,10 @@ definitions:
         type: string
         description: ''
       tags:
-        $ref: '#/definitions/tags'
+        type: array
+        items:
+          type: object
+          description: ''
       osId:
         type: string
         description: osId
@@ -1787,9 +2338,15 @@ definitions:
         type: string
         description: mimeTYpe
       gradeLevel:
-        $ref: '#/definitions/gradelevel'
+        type: array
+        items:
+          type: object
+          description: ''
       learningObjective:
-        $ref: '#/definitions/learningObjective'
+        type: array
+        items:
+          type: object
+          description: ''
       pre_requisite:
         $ref: '#/definitions/pre_requisite'
       co_occurrence:
@@ -1824,7 +2381,10 @@ definitions:
         type: string
         description: ''
       tags:
-        $ref: '#/definitions/tags'
+        type: array
+        items:
+          type: object
+          description: ''
       osId:
         type: string
         description: osId
@@ -1832,9 +2392,15 @@ definitions:
         type: string
         description: mimeTYpe
       gradeLevel:
-        $ref: '#/definitions/gradelevel'
+        type: array
+        items:
+          type: object
+          description: ''
       learningObjective:
-        $ref: '#/definitions/learningObjective'
+        type: array
+        items:
+          type: object
+          description: ''
   pre_requisite:
     properties:
       identifier:
@@ -1879,8 +2445,10 @@ definitions:
         type: string
         description: 'status about the domain eg: LIVE, RETIRED, DRAFT'
       tags:
-        type: object
-        description: tags
+        type: array
+        items:
+          description: tags
+          type: object
   domains:
     title: domain
     type: object
@@ -1908,8 +2476,10 @@ definitions:
         type: string
         description: 'status about the domain eg: LIVE, RETIRED, DRAFT'
       tags:
-        type: object
-        description: tags
+        type: array
+        items:
+          description: tags
+          type: object
       dimension_count:
         type: integer
         description: number of dimensions under specified domain
@@ -1984,30 +2554,12 @@ definitions:
     allOf:
       - $ref: '#/definitions/index'
       - $ref: '#/definitions/methodMetaData'
-  complexity:
-    type: object
-  skills:
-    type: object
-  interactivity:
-    type: object
-  cognitiveProcessing:
-    type: object
-  material:
-    type: object
-  gradelevel:
-    type: object
-  tags:
-    type: object
-  externalValidation:
-    type: object
-  learningObjective:
-    type: object
   methodMetaData:
     properties:
       complexity:
         type: array
         items:
-          $ref: '#/definitions/complexity'
+          type: object
       learningStyle:
         type: string
         description: learningStyle
@@ -2017,22 +2569,22 @@ definitions:
       skills:
         type: array
         items:
-          $ref: '#/definitions/skills'
+          type: object
       cognitiveProcessing:
         type: array
         items:
-          $ref: '#/definitions/cognitiveProcessing'
+          type: object
       lastUpdatedOn:
         type: number
         description: latest Update
       material:
         type: array
         items:
-          $ref: '#/definitions/material'
+          type: object
       interactivity:
         type: array
         items:
-          $ref: '#/definitions/interactivity'
+          type: object
   index:
     properties:
       identifier:
@@ -2053,24 +2605,14 @@ definitions:
       status:
         type: string
         description: 'status about the domain eg: LIVE, RETIRED, DRAFT'
-  ResponseHeader:
-    title: ResponseHeader
+  RequestParams:
     type: object
+    required:
+      - msgid
     properties:
-      id:
+      msgid:
         type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: object
-        description: API response code
+    title: Params
   ResponseParams:
     title: Response Params
     type: object
@@ -2108,5 +2650,3 @@ definitions:
       responseCode:
         type: object
         description: 'API response code '
-      result:
-        type: string

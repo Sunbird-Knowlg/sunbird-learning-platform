@@ -11,7 +11,10 @@ info:
     name: EkStep License
     url: 'http:www.EkStep.in'
 basePath: /v1
+host: api.ekstep.in
 securityDefinitions: {}
+schemes:
+ - "https"
 consumes:
   - application/json
 produces:
