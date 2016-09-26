@@ -733,7 +733,7 @@
       "properties":{
         "filterProperty": {
           "type": "string",
-          "description": "Search request can contain multiple filters. Each filter has a kay, which is one of the properties of word object and value can be an array (to do an IN search) or a single value (to do an exact match search)"
+          "description": "Search request can contain multiple filters. Each filter has a key, which is one of the properties of word object and value can be an array (to do an IN search) or a single value (to do an exact match search)"
         },
         "limit": {
           "type": "number",
