@@ -370,7 +370,7 @@ paths:
     post:
       summary: Search an ItemSet
       description: >-
-        This API is used to search and retriEve all ItemSets from the Item
+        This API is used to search and retrieve all ItemSets from the Item
         repository based on the given search criteria in the request body
       tags:
         - ItemSet
