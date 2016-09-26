@@ -20,23 +20,30 @@ proc isNotEmpty {list} {
 set graph_id "language"
 set object_type "GradeLevelComplexity"
 
-set searchProperty [java::new HashMap]
-$searchProperty put "gradeLevel" $gradeLevel
-$searchProperty put "languageLevel" $languageLevel
-$searchProperty put "languageId" $language_id
+set map [java::new HashMap]
+$map put "nodeType" "DATA_NODE"
+$map put "objectType" $object_type
+$map put "gradeLevel" $gradeLevel
+$map put "languageLevel" $languageLevel
+$map put "languageId" $language_id
+set search_criteria [create_search_criteria $map]
+set search_response [searchNodes $graph_id $search_criteria]
 
-set property [create_search_property $searchProperty]
-set search_response [getNodesByProperty $graph_id $property]
-set nodeExist true
+set nodeExist false
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	#return $search_response;
-	set nodeExist false
+	return $search_response;
 } else {
 	set graph_nodes [get_resp_value $search_response "node_list"]	
+	set hasNode [isNotEmpty $graph_nodes]
+	if {$hasNode} {
+		set gradelevel_complexity_node [$graph_nodes get 0]	
+		set nodeExist true
+	} else {
+		set nodeExist false
+	}
 }
 
-#set nodeExist [isNotEmpty $graph_nodes]
 set text_complexity_response [computeTextComplexity $language_id $text]
 set check_error [check_response_error $text_complexity_response]
 if {$check_error} {
@@ -44,6 +51,7 @@ if {$check_error} {
 } 
 set text_complexity [get_resp_value $text_complexity_response "text_complexity"]
 set text_mean_complexity [java::prop $text_complexity "meanComplexity"]
+
 set resp_def_node [getDefinition $graph_id $object_type]
 set check_error [check_response_error $resp_def_node]
 if {$check_error} {
@@ -61,7 +69,6 @@ $source_list add $source
 set node_id ""
 
 if {$nodeExist} {
-	set gradelevel_complexity_node [$graph_nodes get 0]
 	set gradelevel_complexity_node [java::cast Node $gradelevel_complexity_node]
 	set metadata [java::prop $gradelevel_complexity_node "metadata"]
 	set node_id [java::prop $gradelevel_complexity_node "identifier"]
@@ -78,47 +85,36 @@ if {$nodeExist} {
 
 	set averageComplexity [$metadata get "averageComplexity"]
 	set averageComplexity [$averageComplexity toString]
-
 	set totalComplexity [expr {$text_mean_complexity + $averageComplexity}]
 	set totalComplexity [expr {$totalComplexity / 2}]
 	set text_mean_complexity $totalComplexity
 }
-set result_map [java::new HashMap]
-java::try {
 
-	set text_mean_complexity [java::new Double $text_mean_complexity]
-	$gradelevel_complexity put "averageComplexity" $text_mean_complexity
-	$gradelevel_complexity put "sources" $source_list
-	set gradelevel_complexity_node [convert_to_graph_node $gradelevel_complexity $def_node]
+set text_mean_complexity [java::new Double $text_mean_complexity]
+$gradelevel_complexity put "averageComplexity" $text_mean_complexity
+$gradelevel_complexity put "sources" $source_list
+set gradelevel_complexity_node [convert_to_graph_node $gradelevel_complexity $def_node]
 
-	#call validating Complexity range
-	set resp_validate [validateComplexityRange $language_id $gradelevel_complexity_node ]
-	set check_error [check_response_error $resp_validate]
-	if {$check_error} {
-		return $resp_validate
-	}
-
-	if {$nodeExist} {
-		set response [updateDataNode $graph_id $node_id $gradelevel_complexity_node]		
-	} else {
-		set response [createDataNode $graph_id $gradelevel_complexity_node]
-	}
-
-	set check_error [check_response_error $response]
-	if {$check_error} {
-		return $response
-	}
-	set load_response [loadGradeLevelComplexityCache $language_id $gradelevel_complexity_node]
-	return $load_response
-
-} catch {Exception err} {
-    	$result_map put "error" [$err getMessage]
+#call validating Complexity range
+set resp_validate [validateComplexityRange $language_id $gradelevel_complexity_node ]
+set check_error [check_response_error $resp_validate]
+if {$check_error} {
+	return $resp_validate;
 }
-set response_list [create_response $result_map]
-return $response_list
 
+if {$nodeExist} {
+	set response [updateDataNode $graph_id $node_id $gradelevel_complexity_node]		
+} else {
+	set response [createDataNode $graph_id $gradelevel_complexity_node]
+}
 
+set check_error [check_response_error $response]
+if {$check_error} {
+	return $response;
+} 
+set node_id [get_resp_value $response "node_id"]
+set load_response [loadGradeLevelComplexity $language_id $node_id]
 
-
+return $load_response;
 
 

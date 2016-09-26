@@ -36,8 +36,8 @@ public class LanguageCacheActor extends LanguageBaseActor {
 				GradeComplexityCache.getInstance().loadGradeLevelComplexityFromGraph(languageId);
 				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.loadGradeLevelComplexity.name(), operation)) {
-				Node gradeLevelComplexity = (Node) request.get(LanguageParams.grade_level_complexity.name());
-				GradeComplexityCache.getInstance().loadGradeLevelComplexity(languageId, gradeLevelComplexity);
+				String node_id = (String) request.get(LanguageParams.node_id.name());
+				GradeComplexityCache.getInstance().loadGradeLevelComplexity(languageId, node_id);
 				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.getGradeLevelComplexities.name(), operation)) {
 				List<Node> gradeLevelComplexities = GradeComplexityCache.getInstance()

@@ -33,9 +33,6 @@ public class GradeComplexityCache extends BaseManager {
 
 	private final Map<String, Map<Double, List<Node>>> gradeComplexityOrderedCacheMap = new HashMap<>();
 	private final Map<String, Map<String, Map<String, Node>>> gradeComplexityMatrixMap = new HashMap<>();
-
-	private List<String> orderedGradeLevel = null;
-	private List<String> orderedLanguageLevel = null;
 	private static String languageGraphName = "language";
 	private static GradeComplexityCache instance = null;
 
@@ -83,35 +80,43 @@ public class GradeComplexityCache extends BaseManager {
 	}
 
 	@SuppressWarnings("unused")
-	public void loadGradeLevelComplexity(String languageId, Node gradeLevelComplexity) {
+	public void loadGradeLevelComplexity(String languageId, String node_id) {
 
-		Double averageComplexity = (Double) gradeLevelComplexity.getMetadata().get("averageComplexity");
-		Map<Double, List<Node>> sortedGradeComplexityMap = (TreeMap<Double, List<Node>>) gradeComplexityOrderedCacheMap
-				.get(languageId);
-		if (sortedGradeComplexityMap == null)
-			sortedGradeComplexityMap = new TreeMap<Double, List<Node>>();
-
-		List<Node> gradeComplexityList = sortedGradeComplexityMap.get(averageComplexity);
-		if (gradeComplexityList == null)
-			gradeComplexityList = new ArrayList<Node>();
-
-		gradeComplexityList.add(gradeLevelComplexity);
-		sortedGradeComplexityMap.put(averageComplexity, gradeComplexityList);
-		gradeComplexityOrderedCacheMap.put(languageId, sortedGradeComplexityMap);
-
-		// store node into matrix map
-		Map<String, Map<String, Node>> gradeComplexityMatrix = gradeComplexityMatrixMap.get(languageId);
-		if (gradeComplexityMatrix == null)
-			gradeComplexityMatrix = new HashMap<String, Map<String, Node>>();
-		String gradeLevel = (String) gradeLevelComplexity.getMetadata().get("gradeLevel");
-		String languageLevel = (String) gradeLevelComplexity.getMetadata().get("languageLevel");
-		Map<String, Node> languageLevelMap = gradeComplexityMatrix.get(gradeLevel);
-		if (languageLevelMap == null)
-			languageLevelMap = new HashMap<String, Node>();
-		languageLevelMap.put(languageLevel, gradeLevelComplexity);
-		gradeComplexityMatrix.put(gradeLevel, languageLevelMap);
-		gradeComplexityMatrixMap.put(languageId, gradeComplexityMatrix);
-
+		Request request = getRequest(languageGraphName, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
+		request.put(GraphDACParams.node_id.name(), node_id);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response findRes = getResponse(request, LOGGER);
+		if (!checkError(findRes)) {
+			Node gradeLevelComplexity =  (Node) findRes.get(GraphDACParams.node.name());
+			
+			Double averageComplexity = (Double) gradeLevelComplexity.getMetadata().get("averageComplexity");
+			Map<Double, List<Node>> sortedGradeComplexityMap = (TreeMap<Double, List<Node>>) gradeComplexityOrderedCacheMap
+					.get(languageId);
+			if (sortedGradeComplexityMap == null)
+				sortedGradeComplexityMap = new TreeMap<Double, List<Node>>();
+	
+			List<Node> gradeComplexityList = sortedGradeComplexityMap.get(averageComplexity);
+			if (gradeComplexityList == null)
+				gradeComplexityList = new ArrayList<Node>();
+	
+			gradeComplexityList.add(gradeLevelComplexity);
+			sortedGradeComplexityMap.put(averageComplexity, gradeComplexityList);
+			gradeComplexityOrderedCacheMap.put(languageId, sortedGradeComplexityMap);
+	
+			// store node into matrix map
+			Map<String, Map<String, Node>> gradeComplexityMatrix = gradeComplexityMatrixMap.get(languageId);
+			if (gradeComplexityMatrix == null)
+				gradeComplexityMatrix = new HashMap<String, Map<String, Node>>();
+			String gradeLevel = (String) gradeLevelComplexity.getMetadata().get("gradeLevel");
+			String languageLevel = (String) gradeLevelComplexity.getMetadata().get("languageLevel");
+			Map<String, Node> languageLevelMap = gradeComplexityMatrix.get(gradeLevel);
+			if (languageLevelMap == null)
+				languageLevelMap = new HashMap<String, Node>();
+			languageLevelMap.put(languageLevel, gradeLevelComplexity);
+			gradeComplexityMatrix.put(gradeLevel, languageLevelMap);
+			gradeComplexityMatrixMap.put(languageId, gradeComplexityMatrix);
+		}
+		
 	}
 
 	public List<Node> getSuitableGrades(String languageId, Double complexity) {

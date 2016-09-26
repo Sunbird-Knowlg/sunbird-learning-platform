@@ -1,5 +1,5 @@
 {
-  "name": "loadGradeLevelComplexityCache",
+  "name": "loadGradeLevelComplexity",
   "type": "COMMAND",
   "parameters": [
     {
@@ -8,16 +8,14 @@
       "routingParam": true
     },
     {
-      "name": "grade_level_complexity",
+      "name": "node_id",
       "index": 1,
-      "routingParam": false,
-      "datatype": "com.ilimi.graph.dac.model.Node"
-
+      "routingParam": false
     }
   ],
   "actorPath": {
     "manager": "LANGUAGE_CACHE_ACTOR",
-    "operation": "loadGradeLevelComplexityCache",
+    "operation": "loadGradeLevelComplexity",
     "router": "LANGUAGE_REQUEST_ROUTER"
   }
 }

@@ -53,18 +53,18 @@ public class GradeLevelComplexityUtil extends BaseLanguageManager {
 		if (nextLanguageLevel != null) {
 			Double nextLanguageComplexity = GradeComplexityCache.getInstance().getGradeLevelComplexity(languageId,
 					gradeLevel, nextLanguageLevel);
-			if (nextLanguageComplexity != null && nextLanguageComplexity < averageComplexity)
+			if (nextLanguageComplexity != null && nextLanguageComplexity > averageComplexity)
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_COMPLEXITY_RANGE.name(),
-						"Complexity of given text(" + averageComplexity + ") is greater than its " + nextLanguageLevel
+						"Complexity of given text(" + averageComplexity + ") is lesser than its " + nextLanguageLevel
 								+ " language level complexity(" + nextLanguageComplexity + ")");
 		}
 
 		if (previousLanguageLevel != null) {
 			Double previousLanguageComplexity = GradeComplexityCache.getInstance().getGradeLevelComplexity(languageId,
 					gradeLevel, previousLanguageLevel);
-			if (previousLanguageComplexity != null && previousLanguageComplexity > averageComplexity)
+			if (previousLanguageComplexity != null && previousLanguageComplexity < averageComplexity)
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_COMPLEXITY_RANGE.name(),
-						"Complexity of given text(" + averageComplexity + ") is lesser than its "
+						"Complexity of given text(" + averageComplexity + ") is greater than its "
 								+ previousLanguageLevel + " language level complexity(" + previousLanguageComplexity
 								+ ")");
 		}
