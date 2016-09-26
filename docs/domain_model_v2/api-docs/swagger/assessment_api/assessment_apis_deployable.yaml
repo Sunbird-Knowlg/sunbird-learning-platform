@@ -3,11 +3,13 @@ info:
   version: '2.0'
   title: Assessment - Service
   description: >-
-    Assessment API of learning platform provides the resources to create, manage
-    and search assessment items, items sets.Assessment Item API provides the
-    resources to work with questions in the platform.
+    Assessment Service of Ekstep Learning Platform provides resources to create,
+    manage and search Assessment Items and ItemSets. AssessmentItem API provides
+    resources to work with questions in the platform and ItemSet API provides
+    resources to create and manage ItemSets.
   license:
     name: Ekstep License
+    url: 'http:www.ekstep.in'
 basePath: /v1
 securityDefinitions: {}
 consumes:
@@ -16,103 +18,124 @@ produces:
   - application/json
 tags:
   - name: AssessmentItem
-    description: Everything related to the CRUD operations of the AssessmentItem
+    description: Everything related to CRUD Operations of the AssessmentItem
   - name: ItemSet
-    description: Eventhing related to CRUD operations of the ItemSet
+    description: Everything related to CRUD Operations of the ItemSet
 paths:
   /assessmentitem/search:
     post:
       summary: Search an AssessmentItem
       description: >-
-        This _assessmentItem_ endpoint searches and retrives an assessmentitem
-        or question based on the filter and relation types specified in the
-        request body
+        This API searches and retrieves an assessmentitem/question based on the
+        filter and relation types specified in the request body
       tags:
         - AssessmentItem
       operationId: assessment_item.search
       produces:
         - application/json
       parameters:
-        - name: Request
+        - name: assessmentSearchRequest
           in: body
-          description: search request object
           required: true
+          description: searchAssessmentRequest
           schema:
-            title: request
+            type: object
+            required:
+              - id
+              - params
+              - request
+              - ts
+              - ver
             properties:
-              metadata:
+              id:
+                type: string
+              ver:
+                type: string
+              ts:
+                type: string
+              params:
+                type: object
+                required:
+                  - msgid
                 properties:
-                  filter:
-                    title: filters
+                  msgid:
+                    type: string
+                title: Params
+              request:
+                properties:
+                  metadata:
                     properties:
-                      property:
-                        type: string
-                        description: ''
-                      operator:
-                        type: string
-                        description: ''
-                      value:
-                        type: string
-                        description: ''
-                      relations:
-                        type: string
-                        description: ''
-                  sortOrder:
-                    title: sortOrder
-                    properties:
-                      sortFields:
-                        type: string
-                        description: field to be sorted
+                      filter:
+                        type: array
+                        items:
+                          title: filters
+                          properties:
+                            property:
+                              type: string
+                              description: ''
+                            operator:
+                              type: string
+                              description: ''
+                            value:
+                              type: string
+                              description: ''
+                            relations:
+                              type: string
+                              description: ''
                       sortOrder:
-                        type: string
-                        description: sort order
-                  resultSize:
-                    type: number
-                    description: resultSize
-                  startPosition:
-                    type: number
-                    description: startPosition
+                        type: array
+                        items:
+                          title: sortOrder
+                          properties:
+                            sortFields:
+                              type: string
+                              description: field to be sorted
+                            sortOrder:
+                              type: string
+                              description: sort order
+                      resultSize:
+                        type: number
+                        description: resultSize
+                      startPosition:
+                        type: number
+                        description: startPosition
       responses:
         '200':
-          description: assessmentItem searched Successfully
+          description: AssessmentItem searched Successfully
           schema:
             title: search Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 type: array
                 items:
@@ -262,9 +285,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While searching for an AssessmentItem! | Error occurred while
@@ -305,239 +325,170 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
   /assessmentitem:
     post:
-      summary: Creates a Question/AssessmentItem based on the type
+      summary: Creates an AssessmentItem
       description: >-
-        This _assessmentItem_ endpoint creates a assessmentItem/question of type
-        MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match
-        the following) based on the request body
+        This API creates an assessmentItem/question of type MCQ(multiple choice
+        questions) or FTB(fill in the blanks) or MTF(match the following) based
+        on the request body
       tags:
         - AssessmentItem
       operationId: assessment_item.create
       produces:
         - application/json
       parameters:
-        - name: Request
+        - name: assessmentCreateRequest
           in: body
-          description: create request object
           required: true
+          description: assessment request Object
           schema:
             type: object
-            title: Create Assessment Request
-            allOf:
-              - description: select any one request body to create/update AssessmentItem
-              - properties:
-                  identifier:
+            required:
+              - id
+              - params
+              - request
+              - ts
+              - ver
+            properties:
+              id:
+                type: string
+              ver:
+                type: string
+              ts:
+                type: string
+              params:
+                type: object
+                required:
+                  - msgid
+                properties:
+                  msgid:
                     type: string
-                    description: assessmentId
-                  objectType:
-                    type: string
-                    description: objectType
-                  metadata:
-                    allOf:
-                      - title: assessmentItem
-                        properties:
-                          template:
-                            type: string
-                            description: type of template
-                          code:
-                            type: string
-                            description: code of assessmentItem
-                          keywords:
-                            type: object
-                          subject:
-                            type: string
-                            description: subject of assessmentItem
-                          qlevel:
-                            type: string
-                            description: qlevel of assessmentItem
-                          portalOwner:
-                            type: string
-                            description: ownerName
-                          identifier:
-                            type: string
-                            description: assessmentId
-                          language:
-                            type: object
-                          partial_scoring:
-                            type: string
-                            description: scores
-                          type:
-                            type: string
-                            description: assessmentItem type
-                          title:
-                            type: string
-                            description: title
-                          usedIn:
-                            type: string
-                            description: where the assessment is used used
-                          createdOn:
-                            type: string
-                            description: date of creation
-                          gradeLevel:
-                            type: object
-                          conceptIds:
-                            type: object
-                          question:
-                            type: string
-                            description: qid
-                          options:
+                title: Params
+              request:
+                type: object
+                title: Create Assessment Request
+                allOf:
+                  - description: >-
+                      select any one request body to create/update
+                      AssessmentItem
+                  - properties:
+                      identifier:
+                        type: string
+                        description: assessmentId
+                      objectType:
+                        type: string
+                        description: objectType
+                      metadata:
+                        allOf:
+                          - title: assessmentItem
                             properties:
-                              type:
+                              template:
                                 type: string
-                                description: ''
-                              asset:
+                                description: type of template
+                              code:
                                 type: string
-                                description: ''
-                              font:
+                                description: code of assessmentItem
+                              keywords:
+                                type: object
+                              subject:
                                 type: string
-                                description: ''
-                              color:
+                                description: subject of assessmentItem
+                              qlevel:
                                 type: string
-                                description: ''
-                          concepts:
-                            properties:
+                                description: qlevel of assessmentItem
+                              portalOwner:
+                                type: string
+                                description: ownerName
                               identifier:
                                 type: string
-                                description: Identifier
+                                description: assessmentId
+                              language:
+                                type: object
+                              partial_scoring:
+                                type: string
+                                description: scores
+                              type:
+                                type: string
+                                description: assessmentItem type
+                              title:
+                                type: string
+                                description: title
+                              usedIn:
+                                type: string
+                                description: where the assessment is used used
+                              createdOn:
+                                type: string
+                                description: date of creation
+                              gradeLevel:
+                                type: object
+                              conceptIds:
+                                type: object
+                              question:
+                                type: string
+                                description: qid
+                              options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                              concepts:
+                                properties:
+                                  identifier:
+                                    type: string
+                                    description: Identifier
+                                  name:
+                                    type: string
+                                    description: name
+                                  objectType:
+                                    type: string
+                                    description: objectType
+                                  description:
+                                    type: string
+                                    description: description
+                                  relation:
+                                    type: string
+                                    description: relationType
+                                  index:
+                                    type: string
+                                    description: index
+                              rownum:
+                                type: number
+                                description: rownum
+                              maxScore:
+                                type: object
+                              domain:
+                                type: string
+                                description: domain
+                              num_answers:
+                                type: number
+                                description: number of answers
+                              template_Id:
+                                type: string
+                                description: template Id
+                              usedFor:
+                                type: string
+                                description: where the ItemSET is used For
+                              max_score:
+                                type: number
+                                description: maximum score
                               name:
                                 type: string
                                 description: name
-                              objectType:
+                              lastUpdatedOn:
                                 type: string
-                                description: objectType
-                              description:
-                                type: string
-                                description: description
-                              relation:
-                                type: string
-                                description: relationType
-                              index:
-                                type: string
-                                description: index
-                          rownum:
-                            type: number
-                            description: rownum
-                          maxScore:
-                            type: object
-                          domain:
-                            type: string
-                            description: domain
-                          num_answers:
-                            type: number
-                            description: number of answers
-                          template_Id:
-                            type: string
-                            description: template Id
-                          usedFor:
-                            type: string
-                            description: where the ItemSET is used For
-                          max_score:
-                            type: number
-                            description: maximum score
-                          name:
-                            type: string
-                            description: name
-                          lastUpdatedOn:
-                            type: string
-                            description: last updated date
-                      - properties:
-                          type:
-                            type: string
-                            description: ''
-                          asset:
-                            type: string
-                            description: ''
-                          font:
-                            type: string
-                            description: ''
-                          color:
-                            type: string
-                            description: ''
-                      - properties:
-                          values:
-                            type: object
-                            description: values
-                          score:
-                            type: number
-                            description: score
-                      - properties:
-                          type:
-                            type: string
-                            description: type
-                          asset:
-                            type: string
-                            description: asset
-                  outRelations:
-                    properties:
-                      endNodeId:
-                        type: string
-                        description: ''
-                      relationType:
-                        type: string
-                        description: ''
-              - properties:
-                  identifier:
-                    type: string
-                    description: assessmentId
-                  objectType:
-                    type: string
-                    description: objectType
-                  metadata:
-                    allOf:
-                      - title: assessmentItem
-                        properties:
-                          template:
-                            type: string
-                            description: type of template
-                          code:
-                            type: string
-                            description: code of assessmentItem
-                          keywords:
-                            type: object
-                          subject:
-                            type: string
-                            description: subject of assessmentItem
-                          qlevel:
-                            type: string
-                            description: qlevel of assessmentItem
-                          portalOwner:
-                            type: string
-                            description: ownerName
-                          identifier:
-                            type: string
-                            description: assessmentId
-                          language:
-                            type: object
-                          partial_scoring:
-                            type: string
-                            description: scores
-                          type:
-                            type: string
-                            description: assessmentItem type
-                          title:
-                            type: string
-                            description: title
-                          usedIn:
-                            type: string
-                            description: where the assessment is used used
-                          createdOn:
-                            type: string
-                            description: date of creation
-                          gradeLevel:
-                            type: object
-                          conceptIds:
-                            type: object
-                          question:
-                            type: string
-                            description: qid
-                          options:
-                            properties:
+                                description: last updated date
+                          - properties:
                               type:
                                 type: string
                                 description: ''
@@ -550,273 +501,360 @@ paths:
                               color:
                                 type: string
                                 description: ''
-                          concepts:
+                          - properties:
+                              values:
+                                type: object
+                                description: values
+                              score:
+                                type: number
+                                description: score
+                          - properties:
+                              type:
+                                type: string
+                                description: type
+                              asset:
+                                type: string
+                                description: asset
+                      outRelations:
+                        properties:
+                          endNodeId:
+                            type: string
+                            description: ''
+                          relationType:
+                            type: string
+                            description: ''
+                  - properties:
+                      identifier:
+                        type: string
+                        description: assessmentId
+                      objectType:
+                        type: string
+                        description: objectType
+                      metadata:
+                        allOf:
+                          - title: assessmentItem
                             properties:
+                              template:
+                                type: string
+                                description: type of template
+                              code:
+                                type: string
+                                description: code of assessmentItem
+                              keywords:
+                                type: object
+                              subject:
+                                type: string
+                                description: subject of assessmentItem
+                              qlevel:
+                                type: string
+                                description: qlevel of assessmentItem
+                              portalOwner:
+                                type: string
+                                description: ownerName
                               identifier:
                                 type: string
-                                description: Identifier
+                                description: assessmentId
+                              language:
+                                type: object
+                              partial_scoring:
+                                type: string
+                                description: scores
+                              type:
+                                type: string
+                                description: assessmentItem type
+                              title:
+                                type: string
+                                description: title
+                              usedIn:
+                                type: string
+                                description: where the assessment is used used
+                              createdOn:
+                                type: string
+                                description: date of creation
+                              gradeLevel:
+                                type: object
+                              conceptIds:
+                                type: object
+                              question:
+                                type: string
+                                description: qid
+                              options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                              concepts:
+                                properties:
+                                  identifier:
+                                    type: string
+                                    description: Identifier
+                                  name:
+                                    type: string
+                                    description: name
+                                  objectType:
+                                    type: string
+                                    description: objectType
+                                  description:
+                                    type: string
+                                    description: description
+                                  relation:
+                                    type: string
+                                    description: relationType
+                                  index:
+                                    type: string
+                                    description: index
+                              rownum:
+                                type: number
+                                description: rownum
+                              maxScore:
+                                type: object
+                              domain:
+                                type: string
+                                description: domain
+                              num_answers:
+                                type: number
+                                description: number of answers
+                              template_Id:
+                                type: string
+                                description: template Id
+                              usedFor:
+                                type: string
+                                description: where the ItemSET is used For
+                              max_score:
+                                type: number
+                                description: maximum score
                               name:
                                 type: string
                                 description: name
-                              objectType:
+                              lastUpdatedOn:
                                 type: string
-                                description: objectType
-                              description:
-                                type: string
-                                description: description
-                              relation:
-                                type: string
-                                description: relationType
-                              index:
-                                type: string
-                                description: index
-                          rownum:
-                            type: number
-                            description: rownum
-                          maxScore:
-                            type: object
-                          domain:
-                            type: string
-                            description: domain
-                          num_answers:
-                            type: number
-                            description: number of answers
-                          template_Id:
-                            type: string
-                            description: template Id
-                          usedFor:
-                            type: string
-                            description: where the ItemSET is used For
-                          max_score:
-                            type: number
-                            description: maximum score
-                          name:
-                            type: string
-                            description: name
-                          lastUpdatedOn:
-                            type: string
-                            description: last updated date
-                      - properties:
-                          type:
-                            type: string
-                            description: type
-                          asset:
-                            type: string
-                            description: asset
-                      - properties:
-                          index:
-                            type: number
-                            description: index
-                          Options:
-                            properties:
+                                description: last updated date
+                          - properties:
                               type:
                                 type: string
-                                description: ''
+                                description: type
                               asset:
                                 type: string
-                                description: ''
-                              font:
-                                type: string
-                                description: ''
-                              color:
-                                type: string
-                                description: ''
-                      - allOf:
+                                description: asset
                           - properties:
                               index:
                                 type: number
                                 description: index
-                          - properties:
-                              type:
-                                type: string
-                                description: ''
-                              asset:
-                                type: string
-                                description: ''
-                              font:
-                                type: string
-                                description: ''
-                              color:
-                                type: string
-                                description: ''
-              - properties:
-                  identifier:
-                    type: string
-                    description: assessmentId
-                  objectType:
-                    type: string
-                    description: objectType
-                  metadata:
-                    allOf:
-                      - title: assessmentItem
-                        properties:
-                          template:
-                            type: string
-                            description: type of template
-                          code:
-                            type: string
-                            description: code of assessmentItem
-                          keywords:
-                            type: object
-                          subject:
-                            type: string
-                            description: subject of assessmentItem
-                          qlevel:
-                            type: string
-                            description: qlevel of assessmentItem
-                          portalOwner:
-                            type: string
-                            description: ownerName
-                          identifier:
-                            type: string
-                            description: assessmentId
-                          language:
-                            type: object
-                          partial_scoring:
-                            type: string
-                            description: scores
-                          type:
-                            type: string
-                            description: assessmentItem type
-                          title:
-                            type: string
-                            description: title
-                          usedIn:
-                            type: string
-                            description: where the assessment is used used
-                          createdOn:
-                            type: string
-                            description: date of creation
-                          gradeLevel:
-                            type: object
-                          conceptIds:
-                            type: object
-                          question:
-                            type: string
-                            description: qid
-                          options:
+                              Options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                          - allOf:
+                              - properties:
+                                  index:
+                                    type: number
+                                    description: index
+                              - properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                  - properties:
+                      identifier:
+                        type: string
+                        description: assessmentId
+                      objectType:
+                        type: string
+                        description: objectType
+                      metadata:
+                        allOf:
+                          - title: assessmentItem
                             properties:
-                              type:
+                              template:
                                 type: string
-                                description: ''
-                              asset:
+                                description: type of template
+                              code:
                                 type: string
-                                description: ''
-                              font:
+                                description: code of assessmentItem
+                              keywords:
+                                type: object
+                              subject:
                                 type: string
-                                description: ''
-                              color:
+                                description: subject of assessmentItem
+                              qlevel:
                                 type: string
-                                description: ''
-                          concepts:
-                            properties:
+                                description: qlevel of assessmentItem
+                              portalOwner:
+                                type: string
+                                description: ownerName
                               identifier:
                                 type: string
-                                description: Identifier
+                                description: assessmentId
+                              language:
+                                type: object
+                              partial_scoring:
+                                type: string
+                                description: scores
+                              type:
+                                type: string
+                                description: assessmentItem type
+                              title:
+                                type: string
+                                description: title
+                              usedIn:
+                                type: string
+                                description: where the assessment is used used
+                              createdOn:
+                                type: string
+                                description: date of creation
+                              gradeLevel:
+                                type: object
+                              conceptIds:
+                                type: object
+                              question:
+                                type: string
+                                description: qid
+                              options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                              concepts:
+                                properties:
+                                  identifier:
+                                    type: string
+                                    description: Identifier
+                                  name:
+                                    type: string
+                                    description: name
+                                  objectType:
+                                    type: string
+                                    description: objectType
+                                  description:
+                                    type: string
+                                    description: description
+                                  relation:
+                                    type: string
+                                    description: relationType
+                                  index:
+                                    type: string
+                                    description: index
+                              rownum:
+                                type: number
+                                description: rownum
+                              maxScore:
+                                type: object
+                              domain:
+                                type: string
+                                description: domain
+                              num_answers:
+                                type: number
+                                description: number of answers
+                              template_Id:
+                                type: string
+                                description: template Id
+                              usedFor:
+                                type: string
+                                description: where the ItemSET is used For
+                              max_score:
+                                type: number
+                                description: maximum score
                               name:
                                 type: string
                                 description: name
-                              objectType:
+                              lastUpdatedOn:
                                 type: string
-                                description: objectType
-                              description:
+                                description: last updated date
+                          - properties:
+                              value:
                                 type: string
-                                description: description
-                              relation:
+                                description: values
+                              score:
                                 type: string
-                                description: relationType
-                              index:
+                                description: scores
+                          - properties:
+                              type:
                                 type: string
-                                description: index
-                          rownum:
-                            type: number
-                            description: rownum
-                          maxScore:
-                            type: object
-                          domain:
+                                description: type
+                              asset:
+                                type: string
+                                description: asset
+                      outRelations:
+                        properties:
+                          endNodeId:
                             type: string
-                            description: domain
-                          num_answers:
-                            type: number
-                            description: number of answers
-                          template_Id:
+                            description: ''
+                          relationType:
                             type: string
-                            description: template Id
-                          usedFor:
-                            type: string
-                            description: where the ItemSET is used For
-                          max_score:
-                            type: number
-                            description: maximum score
-                          name:
-                            type: string
-                            description: name
-                          lastUpdatedOn:
-                            type: string
-                            description: last updated date
-                      - properties:
-                          value:
-                            type: string
-                            description: values
-                          score:
-                            type: string
-                            description: scores
-                      - properties:
-                          type:
-                            type: string
-                            description: type
-                          asset:
-                            type: string
-                            description: asset
-                  outRelations:
-                    properties:
-                      endNodeId:
-                        type: string
-                        description: ''
-                      relationType:
-                        type: string
-                        description: ''
+                            description: ''
       responses:
         '200':
           description: AssessmentItem Created Successfully
           schema:
             title: Create Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 title: Node Id
                 type: object
@@ -864,9 +902,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While Creating assessmentItem! | Error occurred while
@@ -907,17 +942,14 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
   '/assessmentitem/{assessmentId}':
     get:
-      summary: Fetch an item from the repository
+      summary: Gets an AssessmentItem
       description: >-
-        This _assessmentItem/{assessmentItemId}_ endpoint is used to fetch the
-        assessmentItem from the _EkStep Platform_. This endpoint returns the
-        entire assessmentItem Object with default fields. 
+        This API is used to fetch an assessmentItem from the _EkStep
+        Platform_.This endpoint returns the entire assessmentItem Object with
+        default fields. 
       tags:
         - AssessmentItem
       operationId: assessment_Item.find
@@ -935,41 +967,37 @@ paths:
           schema:
             title: get Response
             properties:
-              header:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 title: assessmentItem
                 properties:
@@ -1117,9 +1145,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While fetching the assessmentItem! | Error occurred while
@@ -1160,16 +1185,10 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
     delete:
-      summary: Deletes the particular Question or AssessmentItem
-      description: >-
-        This _assessmentItem_ endpoint is used to delete assessmentItem based on
-        the assessmentId provided from the _EkStep Platform_. This endpoint
-        returns success message on deletion
+      summary: Deletes an AssessmentItem
+      description: This API is used to delete an assessmentItem from the EkStep Platform
       tags:
         - AssessmentItem
       operationId: assessment_item.delete
@@ -1182,45 +1201,41 @@ paths:
           type: string
       responses:
         '200':
-          description: assessmentItem deleted Successfully
+          description: AssessmentItem deleted Successfully
           schema:
             title: Delete Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 properties: {}
         '400':
@@ -1263,9 +1278,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While deleting the assessmentItem! | Error occurred while
@@ -1306,16 +1318,13 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
     patch:
       summary: Updates the given assessmentItem
       description: >-
-        This _assessmentItem_ endpoint is used to update assessmentItem based on
-        the request body provided from the _EkStep Platform_. This endpoint
-        returns success message on updation
+        This API is used to update an assessmentItem based on the request body
+        provided from the _EkStep Platform_. This endpoint return node_Id on
+        updation
       tags:
         - AssessmentItem
       operationId: assessment_item.patch
@@ -1326,222 +1335,155 @@ paths:
           in: path
           required: true
           type: string
-        - name: Request
+        - name: update assessment request
           in: body
-          description: update request object
           required: true
           schema:
             type: object
-            title: Create Assessment Request
-            allOf:
-              - description: select any one request body to create/update AssessmentItem
-              - properties:
-                  identifier:
+            required:
+              - id
+              - params
+              - request
+              - ts
+              - ver
+            properties:
+              id:
+                type: string
+              ver:
+                type: string
+              ts:
+                type: string
+              params:
+                type: object
+                required:
+                  - msgid
+                properties:
+                  msgid:
                     type: string
-                    description: assessmentId
-                  objectType:
-                    type: string
-                    description: objectType
-                  metadata:
-                    allOf:
-                      - title: assessmentItem
-                        properties:
-                          template:
-                            type: string
-                            description: type of template
-                          code:
-                            type: string
-                            description: code of assessmentItem
-                          keywords:
-                            type: object
-                          subject:
-                            type: string
-                            description: subject of assessmentItem
-                          qlevel:
-                            type: string
-                            description: qlevel of assessmentItem
-                          portalOwner:
-                            type: string
-                            description: ownerName
-                          identifier:
-                            type: string
-                            description: assessmentId
-                          language:
-                            type: object
-                          partial_scoring:
-                            type: string
-                            description: scores
-                          type:
-                            type: string
-                            description: assessmentItem type
-                          title:
-                            type: string
-                            description: title
-                          usedIn:
-                            type: string
-                            description: where the assessment is used used
-                          createdOn:
-                            type: string
-                            description: date of creation
-                          gradeLevel:
-                            type: object
-                          conceptIds:
-                            type: object
-                          question:
-                            type: string
-                            description: qid
-                          options:
+                title: Params
+              request:
+                type: object
+                title: Create Assessment Request
+                allOf:
+                  - description: >-
+                      select any one request body to create/update
+                      AssessmentItem
+                  - properties:
+                      identifier:
+                        type: string
+                        description: assessmentId
+                      objectType:
+                        type: string
+                        description: objectType
+                      metadata:
+                        allOf:
+                          - title: assessmentItem
                             properties:
-                              type:
+                              template:
                                 type: string
-                                description: ''
-                              asset:
+                                description: type of template
+                              code:
                                 type: string
-                                description: ''
-                              font:
+                                description: code of assessmentItem
+                              keywords:
+                                type: object
+                              subject:
                                 type: string
-                                description: ''
-                              color:
+                                description: subject of assessmentItem
+                              qlevel:
                                 type: string
-                                description: ''
-                          concepts:
-                            properties:
+                                description: qlevel of assessmentItem
+                              portalOwner:
+                                type: string
+                                description: ownerName
                               identifier:
                                 type: string
-                                description: Identifier
+                                description: assessmentId
+                              language:
+                                type: object
+                              partial_scoring:
+                                type: string
+                                description: scores
+                              type:
+                                type: string
+                                description: assessmentItem type
+                              title:
+                                type: string
+                                description: title
+                              usedIn:
+                                type: string
+                                description: where the assessment is used used
+                              createdOn:
+                                type: string
+                                description: date of creation
+                              gradeLevel:
+                                type: object
+                              conceptIds:
+                                type: object
+                              question:
+                                type: string
+                                description: qid
+                              options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                              concepts:
+                                properties:
+                                  identifier:
+                                    type: string
+                                    description: Identifier
+                                  name:
+                                    type: string
+                                    description: name
+                                  objectType:
+                                    type: string
+                                    description: objectType
+                                  description:
+                                    type: string
+                                    description: description
+                                  relation:
+                                    type: string
+                                    description: relationType
+                                  index:
+                                    type: string
+                                    description: index
+                              rownum:
+                                type: number
+                                description: rownum
+                              maxScore:
+                                type: object
+                              domain:
+                                type: string
+                                description: domain
+                              num_answers:
+                                type: number
+                                description: number of answers
+                              template_Id:
+                                type: string
+                                description: template Id
+                              usedFor:
+                                type: string
+                                description: where the ItemSET is used For
+                              max_score:
+                                type: number
+                                description: maximum score
                               name:
                                 type: string
                                 description: name
-                              objectType:
+                              lastUpdatedOn:
                                 type: string
-                                description: objectType
-                              description:
-                                type: string
-                                description: description
-                              relation:
-                                type: string
-                                description: relationType
-                              index:
-                                type: string
-                                description: index
-                          rownum:
-                            type: number
-                            description: rownum
-                          maxScore:
-                            type: object
-                          domain:
-                            type: string
-                            description: domain
-                          num_answers:
-                            type: number
-                            description: number of answers
-                          template_Id:
-                            type: string
-                            description: template Id
-                          usedFor:
-                            type: string
-                            description: where the ItemSET is used For
-                          max_score:
-                            type: number
-                            description: maximum score
-                          name:
-                            type: string
-                            description: name
-                          lastUpdatedOn:
-                            type: string
-                            description: last updated date
-                      - properties:
-                          type:
-                            type: string
-                            description: ''
-                          asset:
-                            type: string
-                            description: ''
-                          font:
-                            type: string
-                            description: ''
-                          color:
-                            type: string
-                            description: ''
-                      - properties:
-                          values:
-                            type: object
-                            description: values
-                          score:
-                            type: number
-                            description: score
-                      - properties:
-                          type:
-                            type: string
-                            description: type
-                          asset:
-                            type: string
-                            description: asset
-                  outRelations:
-                    properties:
-                      endNodeId:
-                        type: string
-                        description: ''
-                      relationType:
-                        type: string
-                        description: ''
-              - properties:
-                  identifier:
-                    type: string
-                    description: assessmentId
-                  objectType:
-                    type: string
-                    description: objectType
-                  metadata:
-                    allOf:
-                      - title: assessmentItem
-                        properties:
-                          template:
-                            type: string
-                            description: type of template
-                          code:
-                            type: string
-                            description: code of assessmentItem
-                          keywords:
-                            type: object
-                          subject:
-                            type: string
-                            description: subject of assessmentItem
-                          qlevel:
-                            type: string
-                            description: qlevel of assessmentItem
-                          portalOwner:
-                            type: string
-                            description: ownerName
-                          identifier:
-                            type: string
-                            description: assessmentId
-                          language:
-                            type: object
-                          partial_scoring:
-                            type: string
-                            description: scores
-                          type:
-                            type: string
-                            description: assessmentItem type
-                          title:
-                            type: string
-                            description: title
-                          usedIn:
-                            type: string
-                            description: where the assessment is used used
-                          createdOn:
-                            type: string
-                            description: date of creation
-                          gradeLevel:
-                            type: object
-                          conceptIds:
-                            type: object
-                          question:
-                            type: string
-                            description: qid
-                          options:
-                            properties:
+                                description: last updated date
+                          - properties:
                               type:
                                 type: string
                                 description: ''
@@ -1554,273 +1496,360 @@ paths:
                               color:
                                 type: string
                                 description: ''
-                          concepts:
+                          - properties:
+                              values:
+                                type: object
+                                description: values
+                              score:
+                                type: number
+                                description: score
+                          - properties:
+                              type:
+                                type: string
+                                description: type
+                              asset:
+                                type: string
+                                description: asset
+                      outRelations:
+                        properties:
+                          endNodeId:
+                            type: string
+                            description: ''
+                          relationType:
+                            type: string
+                            description: ''
+                  - properties:
+                      identifier:
+                        type: string
+                        description: assessmentId
+                      objectType:
+                        type: string
+                        description: objectType
+                      metadata:
+                        allOf:
+                          - title: assessmentItem
                             properties:
+                              template:
+                                type: string
+                                description: type of template
+                              code:
+                                type: string
+                                description: code of assessmentItem
+                              keywords:
+                                type: object
+                              subject:
+                                type: string
+                                description: subject of assessmentItem
+                              qlevel:
+                                type: string
+                                description: qlevel of assessmentItem
+                              portalOwner:
+                                type: string
+                                description: ownerName
                               identifier:
                                 type: string
-                                description: Identifier
+                                description: assessmentId
+                              language:
+                                type: object
+                              partial_scoring:
+                                type: string
+                                description: scores
+                              type:
+                                type: string
+                                description: assessmentItem type
+                              title:
+                                type: string
+                                description: title
+                              usedIn:
+                                type: string
+                                description: where the assessment is used used
+                              createdOn:
+                                type: string
+                                description: date of creation
+                              gradeLevel:
+                                type: object
+                              conceptIds:
+                                type: object
+                              question:
+                                type: string
+                                description: qid
+                              options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                              concepts:
+                                properties:
+                                  identifier:
+                                    type: string
+                                    description: Identifier
+                                  name:
+                                    type: string
+                                    description: name
+                                  objectType:
+                                    type: string
+                                    description: objectType
+                                  description:
+                                    type: string
+                                    description: description
+                                  relation:
+                                    type: string
+                                    description: relationType
+                                  index:
+                                    type: string
+                                    description: index
+                              rownum:
+                                type: number
+                                description: rownum
+                              maxScore:
+                                type: object
+                              domain:
+                                type: string
+                                description: domain
+                              num_answers:
+                                type: number
+                                description: number of answers
+                              template_Id:
+                                type: string
+                                description: template Id
+                              usedFor:
+                                type: string
+                                description: where the ItemSET is used For
+                              max_score:
+                                type: number
+                                description: maximum score
                               name:
                                 type: string
                                 description: name
-                              objectType:
+                              lastUpdatedOn:
                                 type: string
-                                description: objectType
-                              description:
-                                type: string
-                                description: description
-                              relation:
-                                type: string
-                                description: relationType
-                              index:
-                                type: string
-                                description: index
-                          rownum:
-                            type: number
-                            description: rownum
-                          maxScore:
-                            type: object
-                          domain:
-                            type: string
-                            description: domain
-                          num_answers:
-                            type: number
-                            description: number of answers
-                          template_Id:
-                            type: string
-                            description: template Id
-                          usedFor:
-                            type: string
-                            description: where the ItemSET is used For
-                          max_score:
-                            type: number
-                            description: maximum score
-                          name:
-                            type: string
-                            description: name
-                          lastUpdatedOn:
-                            type: string
-                            description: last updated date
-                      - properties:
-                          type:
-                            type: string
-                            description: type
-                          asset:
-                            type: string
-                            description: asset
-                      - properties:
-                          index:
-                            type: number
-                            description: index
-                          Options:
-                            properties:
+                                description: last updated date
+                          - properties:
                               type:
                                 type: string
-                                description: ''
+                                description: type
                               asset:
                                 type: string
-                                description: ''
-                              font:
-                                type: string
-                                description: ''
-                              color:
-                                type: string
-                                description: ''
-                      - allOf:
+                                description: asset
                           - properties:
                               index:
                                 type: number
                                 description: index
-                          - properties:
-                              type:
-                                type: string
-                                description: ''
-                              asset:
-                                type: string
-                                description: ''
-                              font:
-                                type: string
-                                description: ''
-                              color:
-                                type: string
-                                description: ''
-              - properties:
-                  identifier:
-                    type: string
-                    description: assessmentId
-                  objectType:
-                    type: string
-                    description: objectType
-                  metadata:
-                    allOf:
-                      - title: assessmentItem
-                        properties:
-                          template:
-                            type: string
-                            description: type of template
-                          code:
-                            type: string
-                            description: code of assessmentItem
-                          keywords:
-                            type: object
-                          subject:
-                            type: string
-                            description: subject of assessmentItem
-                          qlevel:
-                            type: string
-                            description: qlevel of assessmentItem
-                          portalOwner:
-                            type: string
-                            description: ownerName
-                          identifier:
-                            type: string
-                            description: assessmentId
-                          language:
-                            type: object
-                          partial_scoring:
-                            type: string
-                            description: scores
-                          type:
-                            type: string
-                            description: assessmentItem type
-                          title:
-                            type: string
-                            description: title
-                          usedIn:
-                            type: string
-                            description: where the assessment is used used
-                          createdOn:
-                            type: string
-                            description: date of creation
-                          gradeLevel:
-                            type: object
-                          conceptIds:
-                            type: object
-                          question:
-                            type: string
-                            description: qid
-                          options:
+                              Options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                          - allOf:
+                              - properties:
+                                  index:
+                                    type: number
+                                    description: index
+                              - properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                  - properties:
+                      identifier:
+                        type: string
+                        description: assessmentId
+                      objectType:
+                        type: string
+                        description: objectType
+                      metadata:
+                        allOf:
+                          - title: assessmentItem
                             properties:
-                              type:
+                              template:
                                 type: string
-                                description: ''
-                              asset:
+                                description: type of template
+                              code:
                                 type: string
-                                description: ''
-                              font:
+                                description: code of assessmentItem
+                              keywords:
+                                type: object
+                              subject:
                                 type: string
-                                description: ''
-                              color:
+                                description: subject of assessmentItem
+                              qlevel:
                                 type: string
-                                description: ''
-                          concepts:
-                            properties:
+                                description: qlevel of assessmentItem
+                              portalOwner:
+                                type: string
+                                description: ownerName
                               identifier:
                                 type: string
-                                description: Identifier
+                                description: assessmentId
+                              language:
+                                type: object
+                              partial_scoring:
+                                type: string
+                                description: scores
+                              type:
+                                type: string
+                                description: assessmentItem type
+                              title:
+                                type: string
+                                description: title
+                              usedIn:
+                                type: string
+                                description: where the assessment is used used
+                              createdOn:
+                                type: string
+                                description: date of creation
+                              gradeLevel:
+                                type: object
+                              conceptIds:
+                                type: object
+                              question:
+                                type: string
+                                description: qid
+                              options:
+                                properties:
+                                  type:
+                                    type: string
+                                    description: ''
+                                  asset:
+                                    type: string
+                                    description: ''
+                                  font:
+                                    type: string
+                                    description: ''
+                                  color:
+                                    type: string
+                                    description: ''
+                              concepts:
+                                properties:
+                                  identifier:
+                                    type: string
+                                    description: Identifier
+                                  name:
+                                    type: string
+                                    description: name
+                                  objectType:
+                                    type: string
+                                    description: objectType
+                                  description:
+                                    type: string
+                                    description: description
+                                  relation:
+                                    type: string
+                                    description: relationType
+                                  index:
+                                    type: string
+                                    description: index
+                              rownum:
+                                type: number
+                                description: rownum
+                              maxScore:
+                                type: object
+                              domain:
+                                type: string
+                                description: domain
+                              num_answers:
+                                type: number
+                                description: number of answers
+                              template_Id:
+                                type: string
+                                description: template Id
+                              usedFor:
+                                type: string
+                                description: where the ItemSET is used For
+                              max_score:
+                                type: number
+                                description: maximum score
                               name:
                                 type: string
                                 description: name
-                              objectType:
+                              lastUpdatedOn:
                                 type: string
-                                description: objectType
-                              description:
+                                description: last updated date
+                          - properties:
+                              value:
                                 type: string
-                                description: description
-                              relation:
+                                description: values
+                              score:
                                 type: string
-                                description: relationType
-                              index:
+                                description: scores
+                          - properties:
+                              type:
                                 type: string
-                                description: index
-                          rownum:
-                            type: number
-                            description: rownum
-                          maxScore:
-                            type: object
-                          domain:
+                                description: type
+                              asset:
+                                type: string
+                                description: asset
+                      outRelations:
+                        properties:
+                          endNodeId:
                             type: string
-                            description: domain
-                          num_answers:
-                            type: number
-                            description: number of answers
-                          template_Id:
+                            description: ''
+                          relationType:
                             type: string
-                            description: template Id
-                          usedFor:
-                            type: string
-                            description: where the ItemSET is used For
-                          max_score:
-                            type: number
-                            description: maximum score
-                          name:
-                            type: string
-                            description: name
-                          lastUpdatedOn:
-                            type: string
-                            description: last updated date
-                      - properties:
-                          value:
-                            type: string
-                            description: values
-                          score:
-                            type: string
-                            description: scores
-                      - properties:
-                          type:
-                            type: string
-                            description: type
-                          asset:
-                            type: string
-                            description: asset
-                  outRelations:
-                    properties:
-                      endNodeId:
-                        type: string
-                        description: ''
-                      relationType:
-                        type: string
-                        description: ''
+                            description: ''
       responses:
         '200':
           description: AssessmentItem Updated Successfully
           schema:
             title: Update Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 title: Node Id
                 type: object
@@ -1868,9 +1897,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While Updating the assessmentItem! | Error occurred while
@@ -1911,307 +1937,162 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
-      security: []
-  /graph/domain/count:
-    post:
-      summary: Gives the count of nodes of given ObjectType in the Respository
-      description: >-
-        This _domainCount_ is used to return the count of nodes in the 
-        repository based on the request Body provided
-      tags:
-        - ItemSet
-      operationId: nodes.count
-      produces:
-        - application/json
-      parameters:
-        - name: Request
-          in: body
-          description: get count request object
-          required: true
-          schema:
-            properties:
-              nodeType:
-                type: string
-                description: nodeType
-              objectType:
-                type: string
-                description: objectType
-              metadata:
-                type: object
-                description: metadata
-      responses:
-        '200':
-          description: Gives the Count of nodes of given ObjectType
-          schema:
-            title: Count Response
-            properties:
-              headers:
-                title: ResponseHeader
-                type: object
-                properties:
-                  id:
-                    type: string
-                    description: API Identifier
-                  ver:
-                    type: string
-                    description: API version information
-                  ts:
-                    type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
-                    type: string
-                    description: API response code
-              result:
-                properties:
-                  count:
-                    type: number
-                    description: count
-        '400':
-          description: >-
-            Error While returning the count of nodes! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            title: Failure Response
-            type: object
-            properties:
-              id:
-                type: string
-                description: API Identifier
-              ver:
-                type: string
-                description: API version information
-              ts:
-                type: string
-                description: API execution timespan
-              params:
-                title: Failed Response Parameter
-                type: object
-                properties:
-                  resmsgid:
-                    type: string
-                    description: Response Message Id
-                  msgid:
-                    type: string
-                    description: Message Id
-                  err:
-                    type: string
-                    description: Error Code
-                  status:
-                    type: string
-                    description: Response Status
-                  errmsg:
-                    type: string
-                    description: Error Message
-              responseCode:
-                type: string
-                description: responseCode
-              result:
-                type: string
-                description: result
-        '500':
-          description: >-
-            Error While returning the count of nodes! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            title: Failure Response
-            type: object
-            properties:
-              id:
-                type: string
-                description: API Identifier
-              ver:
-                type: string
-                description: API version information
-              ts:
-                type: string
-                description: API execution timespan
-              params:
-                title: Failed Response Parameter
-                type: object
-                properties:
-                  resmsgid:
-                    type: string
-                    description: Response Message Id
-                  msgid:
-                    type: string
-                    description: Message Id
-                  err:
-                    type: string
-                    description: Error Code
-                  status:
-                    type: string
-                    description: Response Status
-                  errmsg:
-                    type: string
-                    description: Error Message
-              responseCode:
-                type: string
-                description: responseCode
-              result:
-                type: string
-                description: result
       security: []
   /assessmentitemset:
     post:
-      summary: Creates a new item set in the item repository
+      summary: Creates an ItemSet
       description: >-
-        This _Itemset_ is used to create the Item into the _EkStep Platform_
-        based on the request Body provided. This endpoint returns the response
-        Object with SetId created
+        This API is used to create an ItemSet into the _EkStep Platform_ based
+        on the request body provided. This endpoint returns the response Object
+        with SetId created
       tags:
         - ItemSet
-      operationId: ItemSet.create
+      operationId: itemSet.create
       produces:
         - application/json
       parameters:
-        - name: Request
+        - name: ItemSet create Request
           in: body
-          description: create request object
           required: true
           schema:
+            type: object
+            required:
+              - id
+              - params
+              - request
+              - ts
+              - ver
             properties:
-              identifier:
+              id:
                 type: string
-                description: assessmentId
-              objectType:
+              ver:
                 type: string
-                description: objectType
-              metadata:
+              ts:
+                type: string
+              params:
                 type: object
-                title: creates ItemSet
-                allOf:
-                  - properties:
-                      owner:
-                        type: string
-                        description: ownerName
-                      difficulty_level:
-                        type: string
-                        description: defficulty_level
-                      identifier:
-                        type: string
-                        description: assessmentId
-                      code:
-                        type: string
-                        description: code of assessmentItem
-                      subject:
-                        type: string
-                        description: subject of assessmentItem
-                      SET_OBJECT_TYPE_KEY:
-                        type: string
-                        description: set object type
-                      description:
-                        type: string
-                        description: description
-                      language:
-                        type: object
-                        description: languages
-                      type:
-                        type: string
-                        description: assessmentItem type
-                      title:
-                        type: string
-                        description: title
-                      createdOn:
-                        type: string
-                        description: creation date
-                      totalItems:
-                        type: number
-                        description: total number of items
-                      gradeLevel:
-                        type: object
-                        description: gradelevel
-                      maxScore:
-                        type: object
-                        description: maxScore
-                      lastUpdatedOn:
-                        type: string
-                        description: last updated date
-                      usedFor:
-                        type: string
-                        description: where the ItemSET is used For
-                      SET_TYPE:
-                        type: string
-                        description: Item Set Type
-                  - properties:
-                      memberIds:
-                        type: array
-                        items:
-                          properties:
-                            membersIds:
-                              type: string
-                              description: list of memberIds
-                  - properties:
-                      endNodeId:
-                        type: string
-                        description: ''
-                      relationType:
-                        type: string
-                        description: ''
+                required:
+                  - msgid
+                properties:
+                  msgid:
+                    type: string
+                title: Params
+              request:
+                properties:
+                  identifier:
+                    type: string
+                    description: assessmentId
+                  objectType:
+                    type: string
+                    description: objectType
+                  metadata:
+                    type: object
+                    title: creates ItemSet
+                    allOf:
+                      - properties:
+                          owner:
+                            type: string
+                            description: ownerName
+                          difficulty_level:
+                            type: string
+                            description: defficulty_level
+                          identifier:
+                            type: string
+                            description: assessmentId
+                          code:
+                            type: string
+                            description: code of assessmentItem
+                          subject:
+                            type: string
+                            description: subject of assessmentItem
+                          SET_OBJECT_TYPE_KEY:
+                            type: string
+                            description: set object type
+                          description:
+                            type: string
+                            description: description
+                          language:
+                            type: object
+                            description: languages
+                          type:
+                            type: string
+                            description: assessmentItem type
+                          title:
+                            type: string
+                            description: title
+                          createdOn:
+                            type: string
+                            description: creation date
+                          totalItems:
+                            type: number
+                            description: total number of items
+                          gradeLevel:
+                            type: object
+                            description: gradelevel
+                          maxScore:
+                            type: object
+                            description: maxScore
+                          lastUpdatedOn:
+                            type: string
+                            description: last updated date
+                          usedFor:
+                            type: string
+                            description: where the ItemSET is used For
+                          SET_TYPE:
+                            type: string
+                            description: Item Set Type
+                      - properties:
+                          memberIds:
+                            type: array
+                            items:
+                              properties:
+                                membersIds:
+                                  type: string
+                                  description: list of memberIds
+                      - properties:
+                          endNodeId:
+                            type: string
+                            description: ''
+                          relationType:
+                            type: string
+                            description: ''
       responses:
         '200':
           description: Item Created Successfully
           schema:
             title: Create Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 title: Set Id
                 type: object
@@ -2259,9 +2140,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While creating Item! | Error occurred while operation, mostly
@@ -2302,20 +2180,17 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
   '/assessmentitemset/{ItemSetId}':
     get:
-      summary: ' Fetch an item set from the repository'
+      summary: Gets an ItemSet
       description: >-
-        This _ItemSet/{ItemSetId}_ endpoint is used to fetch the ItemSet from
-        Item Repository of _EkStep Platform_. This endpoint returns the entire
-        ItemSet Object with default fields. 
+        This API is used to fetch an ItemSet from Item Repository of EkStep
+        Platform. This endpoint returns the entire ItemSet Object with default
+        fields.
       tags:
         - ItemSet
-      operationId: ItemSet.find
+      operationId: itemSet.find
       produces:
         - application/json
       parameters:
@@ -2330,41 +2205,37 @@ paths:
           schema:
             title: Get Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 properties:
                   owner:
@@ -2458,9 +2329,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While fetching the ItemSet! | Error occurred while operation,
@@ -2501,19 +2369,15 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
     delete:
-      summary: Deletes an item set from the repository
+      summary: Deletes an ItemSet
       description: >-
-        This _ItemSet_ endpoint is used to delete Item set from the Tem
-        repository based on the ItemSet Id provided from the _EkStep Platform_.
-        This endpoint returns success message on deletion
+        This API is used to delete an Item set from the ItemSet repository of
+        Ekstep Platform.
       tags:
         - ItemSet
-      operationId: ItemSet.delete
+      operationId: itemSet.delete
       produces:
         - application/json
       parameters:
@@ -2527,41 +2391,37 @@ paths:
           schema:
             title: Delete Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 properties: {}
         '400':
@@ -2604,9 +2464,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While deleting the ItemSet! | Error occurred while operation,
@@ -2647,19 +2504,16 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
     patch:
-      summary: Updates an existing item set in the repository
+      summary: Updates an ItemSet
       description: >-
-        This _ItemSet_ endpoint is used to update existing ItemSet in the
-        repository  based on the request body provided from the _EkStep
-        Platform_. This endpoint returns success message on updation
+        This API is used to update an existing ItemSet in the Item repository 
+        based on the request body provided from the _EkStep Platform_. This
+        endpoint returns responseObject with SetId on updation
       tags:
         - ItemSet
-      operationId: ItemSet.patch
+      operationId: itemSet.patch
       produces:
         - application/json
       parameters:
@@ -2667,125 +2521,143 @@ paths:
           in: path
           required: true
           type: string
-        - name: Request
+        - name: ItemSetUpdateRequest
           in: body
-          description: create request object
           required: true
           schema:
+            type: object
+            required:
+              - id
+              - params
+              - request
+              - ts
+              - ver
             properties:
-              identifier:
+              id:
                 type: string
-                description: assessmentId
-              objectType:
+              ver:
                 type: string
-                description: objectType
-              metadata:
+              ts:
+                type: string
+              params:
                 type: object
-                allOf:
-                  - properties:
-                      owner:
-                        type: string
-                        description: ownerName
-                      difficulty_level:
-                        type: string
-                        description: defficulty_level
-                      identifier:
-                        type: string
-                        description: assessmentId
-                      code:
-                        type: string
-                        description: code of assessmentItem
-                      subject:
-                        type: string
-                        description: subject of assessmentItem
-                      SET_OBJECT_TYPE_KEY:
-                        type: string
-                        description: set object type
-                      description:
-                        type: string
-                        description: description
-                      language:
-                        type: object
-                        description: languages
-                      type:
-                        type: string
-                        description: assessmentItem type
-                      title:
-                        type: string
-                        description: title
-                      createdOn:
-                        type: string
-                        description: creation date
-                      totalItems:
-                        type: number
-                        description: total number of items
-                      gradeLevel:
-                        type: object
-                        description: gradelevel
-                      maxScore:
-                        type: object
-                        description: maxScore
-                      lastUpdatedOn:
-                        type: string
-                        description: last updated date
-                      usedFor:
-                        type: string
-                        description: where the ItemSET is used For
-                      SET_TYPE:
-                        type: string
-                        description: Item Set Type
-                  - properties:
-                      membersIds:
-                        type: string
-                        description: list of memberIds
-                  - properties:
-                      endNodeId:
-                        type: string
-                        description: ''
-                      relationType:
-                        type: string
-                        description: ''
+                required:
+                  - msgid
+                properties:
+                  msgid:
+                    type: string
+                title: Params
+              request:
+                properties:
+                  identifier:
+                    type: string
+                    description: assessmentId
+                  objectType:
+                    type: string
+                    description: objectType
+                  metadata:
+                    type: object
+                    allOf:
+                      - properties:
+                          owner:
+                            type: string
+                            description: ownerName
+                          difficulty_level:
+                            type: string
+                            description: defficulty_level
+                          identifier:
+                            type: string
+                            description: assessmentId
+                          code:
+                            type: string
+                            description: code of assessmentItem
+                          subject:
+                            type: string
+                            description: subject of assessmentItem
+                          SET_OBJECT_TYPE_KEY:
+                            type: string
+                            description: set object type
+                          description:
+                            type: string
+                            description: description
+                          language:
+                            type: object
+                            description: languages
+                          type:
+                            type: string
+                            description: assessmentItem type
+                          title:
+                            type: string
+                            description: title
+                          createdOn:
+                            type: string
+                            description: creation date
+                          totalItems:
+                            type: number
+                            description: total number of items
+                          gradeLevel:
+                            type: object
+                            description: gradelevel
+                          maxScore:
+                            type: object
+                            description: maxScore
+                          lastUpdatedOn:
+                            type: string
+                            description: last updated date
+                          usedFor:
+                            type: string
+                            description: where the ItemSET is used For
+                          SET_TYPE:
+                            type: string
+                            description: Item Set Type
+                      - properties:
+                          membersIds:
+                            type: string
+                            description: list of memberIds
+                      - properties:
+                          endNodeId:
+                            type: string
+                            description: ''
+                          relationType:
+                            type: string
+                            description: ''
       responses:
         '200':
-          description: Item set Updated Successfully
+          description: Itemset Updated Successfully
           schema:
             title: Update Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 title: Set Id
                 type: object
@@ -2833,9 +2705,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While Updating the Item Set! | Error occurred while operation,
@@ -2876,86 +2745,101 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
   /assessmentitemset/search:
     post:
-      summary: Searches an ItemSet
+      summary: Search an ItemSet
       description: >-
-        This _ItemSet_ endpoint searches and retrives all item setd from the
-        Item repository based on the given search creteria in the request body
+        This API is used to search and retrive all ItemSets from the Item
+        repository based on the given search creteria in the request body
       tags:
         - ItemSet
-      operationId: ItemSet.search
+      operationId: itemSet.search
       produces:
         - application/json
       parameters:
-        - name: Request
+        - name: assessmentSearchRequest
           in: body
-          description: search request object
           required: true
           schema:
+            type: object
+            required:
+              - id
+              - params
+              - request
+              - ts
+              - ver
             properties:
-              metadata:
-                type: array
-                items:
-                  title: filters
-                  properties:
-                    property:
-                      type: string
-                      description: ''
-                    operator:
-                      type: string
-                      description: ''
-                    value:
-                      type: string
-                      description: ''
-                    relations:
-                      type: string
-                      description: ''
+              id:
+                type: string
+              ver:
+                type: string
+              ts:
+                type: string
+              params:
+                type: object
+                required:
+                  - msgid
+                properties:
+                  msgid:
+                    type: string
+                title: Params
+              request:
+                properties:
+                  metadata:
+                    type: array
+                    items:
+                      title: filters
+                      properties:
+                        property:
+                          type: string
+                          description: ''
+                        operator:
+                          type: string
+                          description: ''
+                        value:
+                          type: string
+                          description: ''
+                        relations:
+                          type: string
+                          description: ''
       responses:
         '200':
-          description: ItemSets reterived Successfully
+          description: ItemSets searched Successfully
           schema:
             title: Get Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 type: array
                 items:
@@ -3051,9 +2935,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While searching for an ItemSet! | Error occurred while
@@ -3094,20 +2975,17 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []
   '/assessmentitemset/generate/{ItemSetId}':
     get:
-      summary: ' Geneartes an ItemSet'
+      summary: ' Genearates an ItemSet'
       description: >-
-        This _ItemSet/{ItemSetId}_ endpoint is used to generate the ItemSet from
-        Item Repository of _EkStep Platform_. This endpoint returns the entire
-        ItemSet Object with default fields. 
+        This API is used to generate an ItemSet from ItemSet Repository of
+        EkStep Platform. This endpoint returns the entire ItemSet Object with
+        default fields. 
       tags:
         - ItemSet
-      operationId: ItemSet.generate
+      operationId: itemSet.generate
       produces:
         - application/json
       parameters:
@@ -3122,41 +3000,37 @@ paths:
           schema:
             title: Generate Response
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 allOf:
                   - properties:
@@ -3265,9 +3139,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
         '500':
           description: >-
             Error While generating the ItemSet! | Error occurred while
@@ -3308,7 +3179,4 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                type: string
-                description: result
       security: []

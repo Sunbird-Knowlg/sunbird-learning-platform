@@ -3,11 +3,13 @@ info:
   version: '2.0'
   title: Assessment - Service
   description: >-
-    Assessment API of learning platform provides the resources to create, manage
-    and search assessment items, items sets.Assessment Item API provides the
-    resources to work with questions in the platform.
+    Assessment Service of Ekstep Learning Platform provides resources to create,
+    manage and search Assessment Items and ItemSets. AssessmentItem API provides
+    resources to work with questions in the platform and ItemSet API provides
+    resources to create and manage ItemSets.
   license:
     name: Ekstep License
+    url: 'http:www.ekstep.in'
 basePath: /v1
 securityDefinitions: {}
 consumes:
@@ -16,27 +18,31 @@ produces:
   - application/json
 tags:
   - name: AssessmentItem
-    description: Everything related to the CRUD operations of the AssessmentItem
+    description: Everything related to CRUD Operations of the AssessmentItem
   - name: ItemSet
-    description: Eventhing related to CRUD operations of the ItemSet
+    description: Everything related to CRUD Operations of the ItemSet
 paths:
   /assessmentitem/search:
     post:
       summary: Search an AssessmentItem
       description: >-
-        This _assessmentItem_ endpoint searches and retrives an assessmentitem
-        or question based on the filter and relation types specified in the
-        request body
+        This API searches and retrieves an assessmentitem/question based on the
+        filter and relation types specified in the request body
       tags:
         - AssessmentItem
       operationId: assessment_item.search
       produces:
         - application/json
       parameters:
-        - $ref: '#/parameters/searchAssessmentRequest'
+        - name: assessmentSearchRequest
+          in: body
+          required: true
+          description: searchAssessmentRequest
+          schema:
+            $ref: '#/definitions/searchAssessmentRequest'
       responses:
         '200':
-          description: assessmentItem searched Successfully
+          description: AssessmentItem searched Successfully
           schema:
             $ref: '#/definitions/searchAssessmentItemResponse'
         '400':
@@ -56,18 +62,23 @@ paths:
       security: []
   /assessmentitem:
     post:
-      summary: Creates a Question/AssessmentItem based on the type
+      summary: Creates an AssessmentItem
       description: >-
-        This _assessmentItem_ endpoint creates a assessmentItem/question of type
-        MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match
-        the following) based on the request body
+        This API creates an assessmentItem/question of type MCQ(multiple choice
+        questions) or FTB(fill in the blanks) or MTF(match the following) based
+        on the request body
       tags:
         - AssessmentItem
       operationId: assessment_item.create
       produces:
         - application/json
       parameters:
-        - $ref: '#/parameters/createAssessmentRequest'
+        - name: assessmentCreateRequest
+          in: body
+          required: true
+          description: assessment request Object
+          schema:
+            $ref: '#/definitions/createAssessmentRequest'
       responses:
         '200':
           description: AssessmentItem Created Successfully
@@ -90,11 +101,11 @@ paths:
       security: []
   '/assessmentitem/{assessmentId}':
     get:
-      summary: Fetch an item from the repository
+      summary: Gets an AssessmentItem
       description: >-
-        This _assessmentItem/{assessmentItemId}_ endpoint is used to fetch the
-        assessmentItem from the _EkStep Platform_. This endpoint returns the
-        entire assessmentItem Object with default fields. 
+        This API is used to fetch an assessmentItem from the _EkStep
+        Platform_.This endpoint returns the entire assessmentItem Object with
+        default fields. 
       tags:
         - AssessmentItem
       operationId: assessment_Item.find
@@ -127,11 +138,8 @@ paths:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
     delete:
-      summary: Deletes the particular Question or AssessmentItem
-      description: >-
-        This _assessmentItem_ endpoint is used to delete assessmentItem based on
-        the assessmentId provided from the _EkStep Platform_. This endpoint
-        returns success message on deletion
+      summary: Deletes an AssessmentItem
+      description: This API is used to delete an assessmentItem from the EkStep Platform
       tags:
         - AssessmentItem
       operationId: assessment_item.delete
@@ -144,7 +152,7 @@ paths:
           type: string
       responses:
         '200':
-          description: assessmentItem deleted Successfully
+          description: AssessmentItem deleted Successfully
           schema:
             $ref: '#/definitions/assessmentDeleteResponse'
         '400':
@@ -165,9 +173,9 @@ paths:
     patch:
       summary: Updates the given assessmentItem
       description: >-
-        This _assessmentItem_ endpoint is used to update assessmentItem based on
-        the request body provided from the _EkStep Platform_. This endpoint
-        returns success message on updation
+        This API is used to update an assessmentItem based on the request body
+        provided from the _EkStep Platform_. This endpoint return node_Id on
+        updation
       tags:
         - AssessmentItem
       operationId: assessment_item.patch
@@ -178,7 +186,11 @@ paths:
           in: path
           required: true
           type: string
-        - $ref: '#/parameters/updateAssessmentRequest'
+        - name: update assessment request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/updateAssessmentRequest'
       responses:
         '200':
           description: AssessmentItem Updated Successfully
@@ -199,53 +211,24 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /graph/domain/count:
-    post:
-      summary: Gives the count of nodes of given ObjectType in the Respository
-      description: >-
-        This _domainCount_ is used to return the count of nodes in the 
-        repository based on the request Body provided
-      tags:
-        - ItemSet
-      operationId: nodes.count
-      produces:
-        - application/json
-      parameters:
-        - $ref: '#/parameters/getNodesCountRequest'
-      responses:
-        '200':
-          description: Gives the Count of nodes of given ObjectType
-          schema:
-            $ref: '#/definitions/getNodesCountResponse'
-        '400':
-          description: >-
-            Error While returning the count of nodes! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While returning the count of nodes! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
   /assessmentitemset:
     post:
-      summary: Creates a new item set in the item repository
+      summary: Creates an ItemSet
       description: >-
-        This _Itemset_ is used to create the Item into the _EkStep Platform_
-        based on the request Body provided. This endpoint returns the response
-        Object with SetId created
+        This API is used to create an ItemSet into the _EkStep Platform_ based
+        on the request body provided. This endpoint returns the response Object
+        with SetId created
       tags:
         - ItemSet
-      operationId: ItemSet.create
+      operationId: itemSet.create
       produces:
         - application/json
       parameters:
-        - $ref: '#/parameters/creatItemSetRequest'
+        - name: ItemSet create Request
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/creatItemSetRequest'
       responses:
         '200':
           description: Item Created Successfully
@@ -268,14 +251,14 @@ paths:
       security: []
   '/assessmentitemset/{ItemSetId}':
     get:
-      summary: ' Fetch an item set from the repository'
+      summary: Gets an ItemSet
       description: >-
-        This _ItemSet/{ItemSetId}_ endpoint is used to fetch the ItemSet from
-        Item Repository of _EkStep Platform_. This endpoint returns the entire
-        ItemSet Object with default fields. 
+        This API is used to fetch an ItemSet from Item Repository of EkStep
+        Platform. This endpoint returns the entire ItemSet Object with default
+        fields.
       tags:
         - ItemSet
-      operationId: ItemSet.find
+      operationId: itemSet.find
       produces:
         - application/json
       parameters:
@@ -305,14 +288,13 @@ paths:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
     delete:
-      summary: Deletes an item set from the repository
+      summary: Deletes an ItemSet
       description: >-
-        This _ItemSet_ endpoint is used to delete Item set from the Tem
-        repository based on the ItemSet Id provided from the _EkStep Platform_.
-        This endpoint returns success message on deletion
+        This API is used to delete an Item set from the ItemSet repository of
+        Ekstep Platform.
       tags:
         - ItemSet
-      operationId: ItemSet.delete
+      operationId: itemSet.delete
       produces:
         - application/json
       parameters:
@@ -341,14 +323,14 @@ paths:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
     patch:
-      summary: Updates an existing item set in the repository
+      summary: Updates an ItemSet
       description: >-
-        This _ItemSet_ endpoint is used to update existing ItemSet in the
-        repository  based on the request body provided from the _EkStep
-        Platform_. This endpoint returns success message on updation
+        This API is used to update an existing ItemSet in the Item repository 
+        based on the request body provided from the _EkStep Platform_. This
+        endpoint returns responseObject with SetId on updation
       tags:
         - ItemSet
-      operationId: ItemSet.patch
+      operationId: itemSet.patch
       produces:
         - application/json
       parameters:
@@ -356,10 +338,14 @@ paths:
           in: path
           required: true
           type: string
-        - $ref: '#/parameters/updateItemSetRequest'
+        - name: ItemSetUpdateRequest
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/updateItemSetRequest'
       responses:
         '200':
-          description: Item set Updated Successfully
+          description: Itemset Updated Successfully
           schema:
             $ref: '#/definitions/ItemSetUpdateResponse'
         '400':
@@ -379,20 +365,24 @@ paths:
       security: []
   /assessmentitemset/search:
     post:
-      summary: Searches an ItemSet
+      summary: Search an ItemSet
       description: >-
-        This _ItemSet_ endpoint searches and retrives all item setd from the
-        Item repository based on the given search creteria in the request body
+        This API is used to search and retrive all ItemSets from the Item
+        repository based on the given search creteria in the request body
       tags:
         - ItemSet
-      operationId: ItemSet.search
+      operationId: itemSet.search
       produces:
         - application/json
       parameters:
-        - $ref: '#/parameters/searchItemSetRequest'
+        - name: assessmentSearchRequest
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/searchItemSetRequest'
       responses:
         '200':
-          description: ItemSets reterived Successfully
+          description: ItemSets searched Successfully
           schema:
             $ref: '#/definitions/ItemSetSearchResponse'
         '400':
@@ -412,14 +402,14 @@ paths:
       security: []
   '/assessmentitemset/generate/{ItemSetId}':
     get:
-      summary: ' Geneartes an ItemSet'
+      summary: ' Genearates an ItemSet'
       description: >-
-        This _ItemSet/{ItemSetId}_ endpoint is used to generate the ItemSet from
-        Item Repository of _EkStep Platform_. This endpoint returns the entire
-        ItemSet Object with default fields. 
+        This API is used to generate an ItemSet from ItemSet Repository of
+        EkStep Platform. This endpoint returns the entire ItemSet Object with
+        default fields. 
       tags:
         - ItemSet
-      operationId: ItemSet.generate
+      operationId: itemSet.generate
       produces:
         - application/json
       parameters:
@@ -448,57 +438,121 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-parameters:
-  getNodesCountRequest:
-    name: Request
-    in: body
-    description: get count request object
-    required: true
-    schema:
-      $ref: '#/definitions/searchCriteria'
-  createAssessmentRequest:
-    name: Request
-    in: body
-    description: create request object
-    required: true
-    schema:
-      $ref: '#/definitions/createAssessmentObject'
-  searchAssessmentRequest:
-    name: Request
-    in: body
-    description: search request object
-    required: true
-    schema:
-      $ref: '#/definitions/searchObject'
-  updateAssessmentRequest:
-    name: Request
-    in: body
-    description: update request object
-    required: true
-    schema:
-      $ref: '#/definitions/createAssessmentObject'
-  creatItemSetRequest:
-    name: Request
-    in: body
-    description: create request object
-    required: true
-    schema:
-      $ref: '#/definitions/createItemWithMembersObject'
-  updateItemSetRequest:
-    name: Request
-    in: body
-    description: create request object
-    required: true
-    schema:
-      $ref: '#/definitions/updateItemSetWithMembers'
-  searchItemSetRequest:
-    name: Request
-    in: body
-    description: search request object
-    required: true
-    schema:
-      $ref: '#/definitions/searchItemSetObject'
 definitions:
+  searchAssessmentRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/searchObject'
+  updateAssessmentRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/createAssessmentObject'
+  creatItemSetRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/createItemWithMembersObject'
+  updateItemSetRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/updateItemSetWithMembers'
+  searchItemSetRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/searchItemSetObject'
+  createAssessmentRequest:
+    type: object
+    required:
+      - id
+      - params
+      - request
+      - ts
+      - ver
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/createAssessmentObject'
   createAssessmentObject:
     type: object
     title: Create Assessment Request
@@ -561,15 +615,39 @@ definitions:
   getAssessmentItemResponse:
     title: get Response
     properties:
-      header:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/assessmentItemMetadata'
   searchAssessmentItemResponse:
     title: search Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         type: array
         items:
@@ -577,64 +655,153 @@ definitions:
   assessmentDeleteResponse:
     title: Delete Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/result'
   assessmentUpdateResponse:
     title: Update Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
-  getNodesCountResponse:
-    title: Count Response
-    properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        $ref: '#/definitions/results'
   assessmentCreateResponse:
     title: Create Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/NodeId'
   ItemSetDeleteResponse:
     title: Delete Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/result'
   ItemSetCreateResponse:
     title: Create Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/SetId'
   ItemSetUpdateResponse:
     title: Update Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/SetId'
   ItemSetgetResponse:
     title: Get Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         $ref: '#/definitions/assessment_item_set'
   ItemSetSearchResponse:
     title: Get Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         type: array
         items:
@@ -690,8 +857,20 @@ definitions:
   generateItemSetResponse:
     title: Generate Response
     properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+        description: API response code
       result:
         allOf:
           - $ref: '#/definitions/assessment_item_set'
@@ -916,16 +1095,19 @@ definitions:
         type: string
         description: index
   searchObject:
-    title: request
     properties:
       metadata:
         $ref: '#/definitions/searchMetadata'
   searchMetadata:
     properties:
       filter:
-        $ref: '#/definitions/filters'
+        type: array
+        items:
+          $ref: '#/definitions/filters'
       sortOrder:
-        $ref: '#/definitions/sortOrder'
+        type: array
+        items:
+          $ref: '#/definitions/sortOrder'
       resultSize:
         type: number
         description: resultSize
@@ -947,24 +1129,6 @@ definitions:
       relations:
         type: string
         description: ''
-  ResponseHeader:
-    title: ResponseHeader
-    type: object
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
   ResponseParams:
     title: Response Parameter
     type: object
@@ -984,6 +1148,14 @@ definitions:
       errmsg:
         type: string
         description: Error Message
+  RequestParams:
+    type: object
+    required:
+      - msgid
+    properties:
+      msgid:
+        type: string
+    title: Params
   FailedResponseHeader:
     title: Failure Response
     type: object
@@ -1002,9 +1174,6 @@ definitions:
       responseCode:
         type: string
         description: responseCode
-      result:
-        type: string
-        description: result
   FailedResponseParams:
     title: Failed Response Parameter
     type: object
@@ -1043,22 +1212,6 @@ definitions:
       sortOrder:
         type: string
         description: sort order
-  searchCriteria:
-    properties:
-      nodeType:
-        type: string
-        description: nodeType
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        type: object
-        description: metadata
-  results:
-    properties:
-      count:
-        type: number
-        description: count
   NodeId:
     title: Node Id
     type: object

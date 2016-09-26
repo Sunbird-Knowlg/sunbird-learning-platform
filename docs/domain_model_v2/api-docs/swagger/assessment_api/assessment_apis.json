@@ -3,9 +3,10 @@
   "info": {
     "version": "2.0",
     "title": "Assessment - Service",
-    "description": "Assessment API of learning platform provides the resources to create, manage and search assessment items, items sets.Assessment Item API provides the resources to work with questions in the platform.",
+    "description": "Assessment Service of Ekstep Learning Platform provides resources to create, manage and search Assessment Items and ItemSets. AssessmentItem API provides resources to work with questions in the platform and ItemSet API provides resources to create and manage ItemSets.",
     "license": {
-      "name": "Ekstep License"
+      "name": "Ekstep License",
+      "url": "http:www.ekstep.in"
     }
   },
   "basePath": "/v1",
@@ -19,18 +20,18 @@
   "tags": [
     {
       "name": "AssessmentItem",
-      "description": "Everything related to the CRUD operations of the AssessmentItem"
+      "description": "Everything related to CRUD Operations of the AssessmentItem"
     },
     {
-       "name":"ItemSet",
-       "description": "Eventhing related to CRUD operations of the ItemSet"
+      "name": "ItemSet",
+      "description": "Everything related to CRUD Operations of the ItemSet"
     }
   ],
   "paths": {
     "/assessmentitem/search": {
       "post": {
         "summary": "Search an AssessmentItem",
-        "description": "This _assessmentItem_ endpoint searches and retrives an assessmentitem or question based on the filter and relation types specified in the request body",
+        "description": "This API searches and retrieves an assessmentitem/question based on the filter and relation types specified in the request body",
         "tags": [
           "AssessmentItem"
         ],
@@ -40,14 +41,20 @@
         ],
         "parameters": [
           {
-            "$ref": "#/parameters/searchAssessmentRequest"
+            "name": "assessmentSearchRequest",
+            "in": "body",
+            "required": true,
+            "description": "searchAssessmentRequest",
+            "schema": {
+              "$ref": "#/definitions/searchAssessmentRequest"
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "assessmentItem searched Successfully",
+            "description": "AssessmentItem searched Successfully",
             "schema": {
-                 "$ref": "#/definitions/searchAssessmentItemResponse"
+              "$ref": "#/definitions/searchAssessmentItemResponse"
             }
           },
           "400": {
@@ -68,8 +75,8 @@
     },
     "/assessmentitem": {
       "post": {
-        "summary": "Creates a Question/AssessmentItem based on the type",
-        "description": "This _assessmentItem_ endpoint creates a assessmentItem/question of type MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match the following) based on the request body",
+        "summary": "Creates an AssessmentItem",
+        "description": "This API creates an assessmentItem/question of type MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match the following) based on the request body",
         "tags": [
           "AssessmentItem"
         ],
@@ -79,7 +86,13 @@
         ],
         "parameters": [
           {
-            "$ref": "#/parameters/createAssessmentRequest"
+            "name": "assessmentCreateRequest",
+            "in": "body",
+            "required": true,
+            "description": "assessment request Object",
+            "schema": {
+              "$ref": "#/definitions/createAssessmentRequest"
+            }
           }
         ],
         "responses": {
@@ -107,8 +120,8 @@
     },
     "/assessmentitem/{assessmentId}": {
       "get": {
-        "summary": "Fetch an item from the repository",
-        "description": "This _assessmentItem/{assessmentItemId}_ endpoint is used to fetch the assessmentItem from the _EkStep Platform_. This endpoint returns the entire assessmentItem Object with default fields. ",
+        "summary": "Gets an AssessmentItem",
+        "description": "This API is used to fetch an assessmentItem from the _EkStep Platform_.This endpoint returns the entire assessmentItem Object with default fields. ",
         "tags": [
           "AssessmentItem"
         ],
@@ -148,8 +161,8 @@
         "security": []
       },
       "delete": {
-        "summary": "Deletes the particular Question or AssessmentItem",
-        "description": "This _assessmentItem_ endpoint is used to delete assessmentItem based on the assessmentId provided from the _EkStep Platform_. This endpoint returns success message on deletion",
+        "summary": "Deletes an AssessmentItem",
+        "description": "This API is used to delete an assessmentItem from the EkStep Platform",
         "tags": [
           "AssessmentItem"
         ],
@@ -167,7 +180,7 @@
         ],
         "responses": {
           "200": {
-            "description": "assessmentItem deleted Successfully",
+            "description": "AssessmentItem deleted Successfully",
             "schema": {
               "$ref": "#/definitions/assessmentDeleteResponse"
             }
@@ -189,7 +202,7 @@
       },
       "patch": {
         "summary": "Updates the given assessmentItem",
-        "description": "This _assessmentItem_ endpoint is used to update assessmentItem based on the request body provided from the _EkStep Platform_. This endpoint returns success message on updation",
+        "description": "This API is used to update an assessmentItem based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation",
         "tags": [
           "AssessmentItem"
         ],
@@ -205,7 +218,12 @@
             "type": "string"
           },
           {
-            "$ref": "#/parameters/updateAssessmentRequest"
+            "name": "update assessment request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/updateAssessmentRequest"
+            }
           }
         ],
         "responses": {
@@ -231,373 +249,447 @@
         "security": []
       }
     },
-    "/graph/domain/count":{
-       "post":{
-            "summary": "Gives the count of nodes of given ObjectType in the Respository",
-            "description": "This _domainCount_ is used to return the count of nodes in the  repository based on the request Body provided",
-            "tags": [
-              "ItemSet"
-            ],
-            "operationId": "nodes.count",
-            "produces": [
-              "application/json"
-            ],
-            "parameters": [
-              {
-                "$ref": "#/parameters/getNodesCountRequest"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Gives the Count of nodes of given ObjectType",
-                "schema": {
-                  "$ref": "#/definitions/getNodesCountResponse"
-                }
-              },
-              "400": {
-                "description": "Error While returning the count of nodes! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              },
-              "500": {
-                "description": "Error While returning the count of nodes! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              }
-            },
-            "security": []
+    "/assessmentitemset": {
+      "post": {
+        "summary": "Creates an ItemSet",
+        "description": "This API is used to create an ItemSet into the _EkStep Platform_ based on the request body provided. This endpoint returns the response Object with SetId created",
+        "tags": [
+          "ItemSet"
+        ],
+        "operationId": "itemSet.create",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ItemSet create Request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/creatItemSetRequest"
             }
-      },
-    "/assessmentitemset":{
-         "post":{
-            "summary": "Creates a new item set in the item repository",
-            "description": "This _Itemset_ is used to create the Item into the _EkStep Platform_ based on the request Body provided. This endpoint returns the response Object with SetId created",
-            "tags": [
-              "ItemSet"
-            ],
-            "operationId": "ItemSet.create",
-            "produces": [
-              "application/json"
-            ],
-            "parameters": [
-              {
-                "$ref": "#/parameters/creatItemSetRequest"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Item Created Successfully",
-                "schema": {
-                 
-                  "$ref": "#/definitions/ItemSetCreateResponse"
-                }
-              },
-              "400": {
-                "description": "Error While creating Item! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              },
-              "500": {
-                "description": "Error While creating Item! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              }
-            },
-            "security": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item Created Successfully",
+            "schema": {
+              "$ref": "#/definitions/ItemSetCreateResponse"
             }
-      },
-      "/assessmentitemset/{ItemSetId}":{
-           "get": {
-            "summary": " Fetch an item set from the repository",
-            "description": "This _ItemSet/{ItemSetId}_ endpoint is used to fetch the ItemSet from Item Repository of _EkStep Platform_. This endpoint returns the entire ItemSet Object with default fields. ",
-            "tags": [
-              "ItemSet"
-            ],
-            "operationId": "ItemSet.find",
-            "produces": [
-              "application/json"
-            ],
-            "parameters": [
-              {
-                "name": "ItemSetId",
-                "in": "path",
-                "required": true,
-                "description": "itemSetId",
-                "type": "string"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "ItemSet fetched Successfully",
-                "schema": {
-                  "$ref": "#/definitions/ItemSetgetResponse"
-                }
-              },
-              "400": {
-                "description": "Error While fetching the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              },
-              "500": {
-                "description": "Error While fetching the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              }
-            },
-            "security": []
           },
-          "delete": {
-            "summary": "Deletes an item set from the repository",
-            "description": "This _ItemSet_ endpoint is used to delete Item set from the Tem repository based on the ItemSet Id provided from the _EkStep Platform_. This endpoint returns success message on deletion",
-            "tags": [
-              "ItemSet"
-            ],
-            "operationId": "ItemSet.delete",
-            "produces": [
-              "application/json"
-            ],
-            "parameters": [
-              {
-                "name": "ItemSetId",
-                "in": "path",
-                "required": true,
-                "type": "string"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "ItemSet deleted Successfully",
-                "schema": {
-                  "$ref": "#/definitions/ItemSetDeleteResponse"
-                }
-              },
-              "400": {
-                "description": "Error While deleting the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              },
-              "500": {
-                "description": "Error While deleting the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              }
-            },
-            "security": []
+          "400": {
+            "description": "Error While creating Item! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
           },
-          "patch": {
-            "summary": "Updates an existing item set in the repository",
-            "description": "This _ItemSet_ endpoint is used to update existing ItemSet in the repository  based on the request body provided from the _EkStep Platform_. This endpoint returns success message on updation",
-            "tags": [
-              "ItemSet"
-            ],
-            "operationId": "ItemSet.patch",
-            "produces": [
-              "application/json"
-            ],
-            "parameters": [
-              {
-                "name": "ItemSetId",
-                "in": "path",
-                "required": true,
-                "type": "string"
-              },
-              {
-                "$ref": "#/parameters/updateItemSetRequest"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "Item set Updated Successfully",
-                "schema": {
-                  "$ref": "#/definitions/ItemSetUpdateResponse"
-                }
-              },
-              "400": {
-                "description": "Error While Updating the Item Set! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              },
-              "500": {
-                "description": "Error While Updating the Item Set! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              }
-            },
-            "security": []
+          "500": {
+            "description": "Error While creating Item! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
           }
         },
-        "/assessmentitemset/search":{
-              "post": {
-                  "summary": "Searches an ItemSet",
-                  "description": "This _ItemSet_ endpoint searches and retrives all item setd from the Item repository based on the given search creteria in the request body",
-                  "tags": [
-                    "ItemSet"
-                  ],
-                  "operationId": "ItemSet.search",
-                  "produces": [
-                    "application/json"
-                  ],
-                  "parameters": [
-                      {
-                        "$ref": "#/parameters/searchItemSetRequest"
-                      }
-                    ],
-                  "responses": {
-                    "200": {
-                      "description": "ItemSets reterived Successfully",
-                      "schema": {
-                           "$ref": "#/definitions/ItemSetSearchResponse"
-                      }
-                    },
-                    "400": {
-                      "description": "Error While searching for an ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
-                      "schema": {
-                        "$ref": "#/definitions/FailedResponseHeader"
-                      }
-                    },
-                    "500": {
-                      "description": "Error While searching for an ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
-                      "schema": {
-                        "$ref": "#/definitions/FailedResponseHeader"
-                      }
-                    }
-                  },
-                  "security": []
+        "security": []
+      }
+    },
+    "/assessmentitemset/{ItemSetId}": {
+      "get": {
+        "summary": "Gets an ItemSet",
+        "description": "This API is used to fetch an ItemSet from Item Repository of EkStep Platform. This endpoint returns the entire ItemSet Object with default fields.",
+        "tags": [
+          "ItemSet"
+        ],
+        "operationId": "itemSet.find",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ItemSetId",
+            "in": "path",
+            "required": true,
+            "description": "itemSetId",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ItemSet fetched Successfully",
+            "schema": {
+              "$ref": "#/definitions/ItemSetgetResponse"
             }
-      },
-      "/assessmentitemset/generate/{ItemSetId}":{
-          "get": {
-            "summary": " Geneartes an ItemSet",
-            "description": "This _ItemSet/{ItemSetId}_ endpoint is used to generate the ItemSet from Item Repository of _EkStep Platform_. This endpoint returns the entire ItemSet Object with default fields. ",
-            "tags": [
-              "ItemSet"
-            ],
-            "operationId": "ItemSet.generate",
-            "produces": [
-              "application/json"
-            ],
-            "parameters": [
-              {
-                "name": "ItemSetId",
-                "in": "path",
-                "required": true,
-                "description": "itemSetId",
-                "type": "string"
-              }
-            ],
-            "responses": {
-              "200": {
-                "description": "ItemSet generated Successfully",
-                "schema": {
-                  "$ref": "#/definitions/generateItemSetResponse"
-                }
-              },
-              "400": {
-                "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              },
-              "500": {
-                "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                "schema": {
-                  "$ref": "#/definitions/FailedResponseHeader"
-                }
-              }
-            },
-            "security": []
           },
+          "400": {
+            "description": "Error While fetching the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "Deletes an ItemSet",
+        "description": "This API is used to delete an Item set from the ItemSet repository of Ekstep Platform.",
+        "tags": [
+          "ItemSet"
+        ],
+        "operationId": "itemSet.delete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ItemSetId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ItemSet deleted Successfully",
+            "schema": {
+              "$ref": "#/definitions/ItemSetDeleteResponse"
+            }
+          },
+          "400": {
+            "description": "Error While deleting the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While deleting the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary": "Updates an ItemSet",
+        "description": "This API is used to update an existing ItemSet in the Item repository  based on the request body provided from the _EkStep Platform_. This endpoint returns responseObject with SetId on updation",
+        "tags": [
+          "ItemSet"
+        ],
+        "operationId": "itemSet.patch",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ItemSetId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "ItemSetUpdateRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/updateItemSetRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Itemset Updated Successfully",
+            "schema": {
+              "$ref": "#/definitions/ItemSetUpdateResponse"
+            }
+          },
+          "400": {
+            "description": "Error While Updating the Item Set! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While Updating the Item Set! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
       }
+    },
+    "/assessmentitemset/search": {
+      "post": {
+        "summary": "Search an ItemSet",
+        "description": "This API is used to search and retrive all ItemSets from the Item repository based on the given search creteria in the request body",
+        "tags": [
+          "ItemSet"
+        ],
+        "operationId": "itemSet.search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "assessmentSearchRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/searchItemSetRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ItemSets searched Successfully",
+            "schema": {
+              "$ref": "#/definitions/ItemSetSearchResponse"
+            }
+          },
+          "400": {
+            "description": "Error While searching for an ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While searching for an ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/assessmentitemset/generate/{ItemSetId}": {
+      "get": {
+        "summary": " Genearates an ItemSet",
+        "description": "This API is used to generate an ItemSet from ItemSet Repository of EkStep Platform. This endpoint returns the entire ItemSet Object with default fields. ",
+        "tags": [
+          "ItemSet"
+        ],
+        "operationId": "itemSet.generate",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "ItemSetId",
+            "in": "path",
+            "required": true,
+            "description": "itemSetId",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ItemSet generated Successfully",
+            "schema": {
+              "$ref": "#/definitions/generateItemSetResponse"
+            }
+          },
+          "400": {
+            "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    }
   },
-  "parameters": {
-    "getNodesCountRequest":{
-      "name": "Request",
-      "in": "body",
-      "description": "get count request object",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/searchCriteria"
-      }
-    },
-    "createAssessmentRequest": {
-      "name": "Request",
-      "in": "body",
-      "description": "create request object",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/createAssessmentObject"
-      }
-    },
+  "definitions": {
     "searchAssessmentRequest": {
-      "name": "Request",
-      "in": "body",
-      "description": "search request object",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/searchObject"
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/searchObject"
+        }
       }
     },
     "updateAssessmentRequest": {
-      "name": "Request",
-      "in": "body",
-      "description": "update request object",
-      "required": true,
-      "schema": {
-        "$ref": "#/definitions/createAssessmentObject"
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/createAssessmentObject"
+        }
       }
     },
-    "creatItemSetRequest":{
-      "name": "Request",
-      "in": "body",
-      "description": "create request object",
-      "required": true,
-      "schema": {
-         "$ref": "#/definitions/createItemWithMembersObject"
+    "creatItemSetRequest": {
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/createItemWithMembersObject"
+        }
       }
-   },
-   "updateItemSetRequest":{
-     "name": "Request",
-      "in": "body",
-      "description": "create request object",
-      "required": true,
-      "schema": {
-         "$ref": "#/definitions/updateItemSetWithMembers"
+    },
+    "updateItemSetRequest": {
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/updateItemSetWithMembers"
+        }
       }
-   },
-   "searchItemSetRequest":{
-      "name": "Request",
-      "in": "body",
-      "description": "search request object",
-      "required": true,
-      "schema": {
-         "$ref": "#/definitions/searchItemSetObject"
+    },
+    "searchItemSetRequest": {
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/searchItemSetObject"
+        }
       }
-   }
-  },
-  "definitions": {
+    },
+    "createAssessmentRequest": {
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/createAssessmentObject"
+        }
+      }
+    },
     "createAssessmentObject": {
-      "type":"object",
-       "title":"Create Assessment Request",
+      "type": "object",
+      "title": "Create Assessment Request",
       "allOf": [
-        "description":"select any one request body to create/update AssessmentItem",
         {
-              "$ref": "#/definitions/createMcqObject"
+          "description": "select any one request body to create/update AssessmentItem"
         },
         {
-             "$ref": "#/definitions/createMtfObject"
+          "$ref": "#/definitions/createMcqObject"
         },
         {
-            "$ref": "#/definitions/createFtbObject"
+          "$ref": "#/definitions/createMtfObject"
+        },
+        {
+          "$ref": "#/definitions/createFtbObject"
         }
       ]
     },
@@ -614,13 +706,13 @@
         "metadata": {
           "$ref": "#/definitions/mcqMetadataObject"
         },
-        "outRelations":{
-           "$ref":"#/definitions/outRelations"
+        "outRelations": {
+          "$ref": "#/definitions/outRelations"
         }
       }
     },
-    "createFtbObject":{
-       "properties": {
+    "createFtbObject": {
+      "properties": {
         "identifier": {
           "type": "string",
           "description": "assessmentId"
@@ -632,13 +724,13 @@
         "metadata": {
           "$ref": "#/definitions/ftbMetadataObject"
         },
-        "outRelations":{
-           "$ref":"#/definitions/outRelations"
+        "outRelations": {
+          "$ref": "#/definitions/outRelations"
         }
       }
     },
-    "createMtfObject":{
-       "properties": {
+    "createMtfObject": {
+      "properties": {
         "identifier": {
           "type": "string",
           "description": "assessmentId"
@@ -650,175 +742,330 @@
         "metadata": {
           "$ref": "#/definitions/mtfMetadataObject"
         }
-       }
+      }
     },
-     "mcqMetadataObject":{
-       "allOf": [{
-          "$ref":"#/definitions/assessmentItemMetadata"
-       },
-       {
-         "$ref":"#/definitions/values"
-       },
-       {
-         "$ref":"#/definitions/response"
-       },
-       {
-          "$ref":"#/definitions/model"
-       }]
-    },
-    "ftbMetadataObject":{
-       "allOf": [{
-          "$ref":"#/definitions/assessmentItemMetadata"
-       },
-       {
-         "$ref":"#/definitions/answers"
-       },
-       {
-          "$ref":"#/definitions/model"
-       }]
-    },
-    "mtfMetadataObject":{
-       "allOf":[{
-          "$ref":"#/definitions/assessmentItemMetadata"
-       },
+    "mcqMetadataObject": {
+      "allOf": [
         {
-          "$ref":"#/definitions/model"
-       },
-       {
-        "$ref":"#/definitions/lhs_options"
-       },
-       {
-         "$ref":"#/definitions/rhs_options"
-       }]
+          "$ref": "#/definitions/assessmentItemMetadata"
+        },
+        {
+          "$ref": "#/definitions/values"
+        },
+        {
+          "$ref": "#/definitions/response"
+        },
+        {
+          "$ref": "#/definitions/model"
+        }
+      ]
+    },
+    "ftbMetadataObject": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/assessmentItemMetadata"
+        },
+        {
+          "$ref": "#/definitions/answers"
+        },
+        {
+          "$ref": "#/definitions/model"
+        }
+      ]
+    },
+    "mtfMetadataObject": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/assessmentItemMetadata"
+        },
+        {
+          "$ref": "#/definitions/model"
+        },
+        {
+          "$ref": "#/definitions/lhs_options"
+        },
+        {
+          "$ref": "#/definitions/rhs_options"
+        }
+      ]
     },
     "getAssessmentItemResponse": {
-      "title":"get Response",
-      "properties":{ 
-         "header":{
-          "$ref": "#/definitions/ResponseHeader"
-          },
-          "result":{
+      "title": "get Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/assessmentItemMetadata"
         }
       }
     },
-    "searchAssessmentItemResponse":{
-      "title":"search Response",
-       "properties":{
-          "headers":{
-             "$ref": "#/definitions/ResponseHeader"
-          },
-         "result":{
-           "type":"array",
-           "items":{
-                "$ref": "#/definitions/assessmentItemMetadata"
-           }
+    "searchAssessmentItemResponse": {
+      "title": "search Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/assessmentItemMetadata"
+          }
         }
       }
     },
     "assessmentDeleteResponse": {
       "title": "Delete Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/result"
         }
       }
     },
     "assessmentUpdateResponse": {
-     "title": "Update Response",
-     "properties":{
-      "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+      "title": "Update Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/NodeId"
         }
-     }
-    },
-    "getNodesCountResponse":{
-       "title":"Count Response",
-       "properties":{
-         "headers":{
-          "$ref": "#/definitions/ResponseHeader"
-        },
-        "result":{
-          "$ref": "#/definitions/results"
-        }
-       }
+      }
     },
     "assessmentCreateResponse": {
-      "title":"Create Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+      "title": "Create Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/NodeId"
         }
       }
     },
     "ItemSetDeleteResponse": {
-      "title":"Delete Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+      "title": "Delete Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/result"
         }
       }
     },
     "ItemSetCreateResponse": {
-      "title":"Create Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+      "title": "Create Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/SetId"
         }
       }
     },
-     "ItemSetUpdateResponse": {
-       "title": "Update Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+    "ItemSetUpdateResponse": {
+      "title": "Update Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/SetId"
         }
       }
     },
     "ItemSetgetResponse": {
-      "title":"Get Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+      "title": "Get Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
           "$ref": "#/definitions/assessment_item_set"
         }
       }
     },
-    "ItemSetSearchResponse":{
-       "title":"Get Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+    "ItemSetSearchResponse": {
+      "title": "Get Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
         },
-        "result":{
-          "type":"array",
-          "items":{
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
+          "type": "array",
+          "items": {
             "$ref": "#/definitions/assessment_item_set"
           }
         }
       }
     },
-    "createItemWithMembersObject":{
+    "createItemWithMembersObject": {
       "properties": {
         "identifier": {
           "type": "string",
@@ -831,30 +1078,32 @@
         "metadata": {
           "$ref": "#/definitions/createItemObject"
         }
-       }
+      }
     },
-    "createItemObject":{
+    "createItemObject": {
       "type": "object",
-      "title":"creates ItemSet",
-       "allOf":[{
-          "$ref":"#/definitions/assessment_item_set"
-       },
-       {
-         "properties":{
-            "memberIds":{
-                "type":"array",
-                "items":{
-                    "$ref":"#/definitions/members"
-                }
+      "title": "creates ItemSet",
+      "allOf": [
+        {
+          "$ref": "#/definitions/assessment_item_set"
+        },
+        {
+          "properties": {
+            "memberIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/members"
+              }
             }
-         }
-       },
-       {
-         "$ref":"#/definitions/outRelations"
-      }]
+          }
+        },
+        {
+          "$ref": "#/definitions/outRelations"
+        }
+      ]
     },
-    "updateItemSetWithMembers":{
-       "properties": {
+    "updateItemSetWithMembers": {
+      "properties": {
         "identifier": {
           "type": "string",
           "description": "assessmentId"
@@ -866,155 +1115,174 @@
         "metadata": {
           "$ref": "#/definitions/updateItemSetObject"
         }
-       }
+      }
     },
-    "updateItemSetObject":{
+    "updateItemSetObject": {
       "type": "object",
-      "allOf":[{
-          "$ref":"#/definitions/assessment_item_set"
+      "allOf": [
+        {
+          "$ref": "#/definitions/assessment_item_set"
         },
         {
-          "$ref":"#/definitions/members"
-           
-       },
-       {
-         "$ref":"#/definitions/outRelations"
-      }
+          "$ref": "#/definitions/members"
+        },
+        {
+          "$ref": "#/definitions/outRelations"
+        }
       ]
     },
-     "members":{
-       "properties":{
-         "membersIds":{
-                "type":"string",
-                "description":"list of memberIds"
-            }
-       }
-     },
-    "searchItemSetObject":{
-          "properties":{
-             "metadata":{
-                "type":"array",
-                "items":{
-                   "$ref":"#/definitions/filters"
-                }
-             }
-          }
-    },
-    "generateItemSetResponse":{
-      "title":"Generate Response",
-      "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
-        },
-        "result":{
-            "allOf":[{
-              "$ref":"#/definitions/assessment_item_set"
-            },{
-              "$ref":"#/definitions/item_sets"
-            }]
+    "members": {
+      "properties": {
+        "membersIds": {
+          "type": "string",
+          "description": "list of memberIds"
         }
       }
     },
-     "item_sets":{
-      "properties":{
-        "item_sets":{
-           "type":"array",
-           "items": {
-              "$ref":"#/definitions/item_set"
-           }
-        },
-        "items":{
-           "type":"object",
-           "description":"items"
+    "searchItemSetObject": {
+      "properties": {
+        "metadata": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/filters"
+          }
         }
       }
     },
-    "item_set":{
-       "properties":{
-          "count":{
-             "type":"number",
-             "description":"count"
-          },
-          "id":{
-             "type":"string",
-              "description":"id"
-          }
-       }
-    },
-    "assessment_item_set":{
-       "properties":{
-            "owner": {
-              "type": "string",
-              "description": "ownerName"
+    "generateItemSetResponse": {
+      "title": "Generate Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/assessment_item_set"
             },
-            "difficulty_level":{
-              "type":"string",
-              "description":"defficulty_level"
-            },
-            "identifier": {
-              "type": "string",
-              "description": "assessmentId"
-            },
-            "code": {
-              "type": "string",
-              "description": "code of assessmentItem"
-            },
-            "subject": {
-              "type": "string",
-              "description": "subject of assessmentItem"
-            },
-            "SET_OBJECT_TYPE_KEY":{
-               "type":"string",
-               "description":"set object type"
-            },
-            "description":{
-               "type":"string",
-               "description":"description"
-            },
-            "language":{
-               "type": "object",
-               "description":"languages"
-            },
-             "type": {
-              "type": "string",
-              "description": "assessmentItem type"
-            },
-            "title": {
-              "type": "string",
-              "description": "title"
-            },
-            "createdOn": {
-              "type": "string",
-              "description": "creation date"
-            },
-            "totalItems":{
-               "type":"number",
-               "description":"total number of items"
-            },
-            "gradeLevel":{
-                "type":"object",
-                "description":"gradelevel"
-            },
-            "maxScore":{
-               "type":"object",
-               "description":"maxScore"
-            },
-            "lastUpdatedOn": {
-              "type": "string",
-              "description": "last updated date"
-            },
-             "usedFor": {
-              "type": "string",
-              "description": "where the ItemSET is used For"
-            },
-            "SET_TYPE":{
-               "type":"string",
-               "description":"Item Set Type"
+            {
+              "$ref": "#/definitions/item_sets"
             }
-       }
+          ]
+        }
+      }
+    },
+    "item_sets": {
+      "properties": {
+        "item_sets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/item_set"
+          }
+        },
+        "items": {
+          "type": "object",
+          "description": "items"
+        }
+      }
+    },
+    "item_set": {
+      "properties": {
+        "count": {
+          "type": "number",
+          "description": "count"
+        },
+        "id": {
+          "type": "string",
+          "description": "id"
+        }
+      }
+    },
+    "assessment_item_set": {
+      "properties": {
+        "owner": {
+          "type": "string",
+          "description": "ownerName"
+        },
+        "difficulty_level": {
+          "type": "string",
+          "description": "defficulty_level"
+        },
+        "identifier": {
+          "type": "string",
+          "description": "assessmentId"
+        },
+        "code": {
+          "type": "string",
+          "description": "code of assessmentItem"
+        },
+        "subject": {
+          "type": "string",
+          "description": "subject of assessmentItem"
+        },
+        "SET_OBJECT_TYPE_KEY": {
+          "type": "string",
+          "description": "set object type"
+        },
+        "description": {
+          "type": "string",
+          "description": "description"
+        },
+        "language": {
+          "type": "object",
+          "description": "languages"
+        },
+        "type": {
+          "type": "string",
+          "description": "assessmentItem type"
+        },
+        "title": {
+          "type": "string",
+          "description": "title"
+        },
+        "createdOn": {
+          "type": "string",
+          "description": "creation date"
+        },
+        "totalItems": {
+          "type": "number",
+          "description": "total number of items"
+        },
+        "gradeLevel": {
+          "type": "object",
+          "description": "gradelevel"
+        },
+        "maxScore": {
+          "type": "object",
+          "description": "maxScore"
+        },
+        "lastUpdatedOn": {
+          "type": "string",
+          "description": "last updated date"
+        },
+        "usedFor": {
+          "type": "string",
+          "description": "where the ItemSET is used For"
+        },
+        "SET_TYPE": {
+          "type": "string",
+          "description": "Item Set Type"
+        }
+      }
     },
     "assessmentItemMetadata": {
-      "title":"assessmentItem",
+      "title": "assessmentItem",
       "properties": {
         "template": {
           "type": "string",
@@ -1024,8 +1292,8 @@
           "type": "string",
           "description": "code of assessmentItem"
         },
-        "keywords":{
-           "type":"object",
+        "keywords": {
+          "type": "object"
         },
         "subject": {
           "type": "string",
@@ -1043,8 +1311,8 @@
           "type": "string",
           "description": "assessmentId"
         },
-        "language":{
-           "type": "object"
+        "language": {
+          "type": "object"
         },
         "partial_scoring": {
           "type": "string",
@@ -1062,15 +1330,15 @@
           "type": "string",
           "description": "where the assessment is used used"
         },
-        "createdOn":{
-           "type":"string",
-           "description":"date of creation"
+        "createdOn": {
+          "type": "string",
+          "description": "date of creation"
         },
-        "gradeLevel":{
-           "type":"object"
+        "gradeLevel": {
+          "type": "object"
         },
-        "conceptIds":{
-           "type":"object",
+        "conceptIds": {
+          "type": "object"
         },
         "question": {
           "type": "string",
@@ -1082,28 +1350,28 @@
         "concepts": {
           "$ref": "#/definitions/concepts"
         },
-        "rownum":{
-          "type":"number",
-          "description":"rownum"
+        "rownum": {
+          "type": "number",
+          "description": "rownum"
         },
-        "maxScore":{
-           "type":"object"
-         },
-         "domain":{
-            "type":"string",
-            "description":"domain"
-         },
-         "num_answers":{
-           "type":"number",
-           "description":"number of answers"
-         },
-         "template_Id":{
-           "type":"string",
-           "description":"template Id"
-         },
+        "maxScore": {
+          "type": "object"
+        },
+        "domain": {
+          "type": "string",
+          "description": "domain"
+        },
+        "num_answers": {
+          "type": "number",
+          "description": "number of answers"
+        },
+        "template_Id": {
+          "type": "string",
+          "description": "template Id"
+        },
         "usedFor": {
-            "type": "string",
-            "description": "where the ItemSET is used For"
+          "type": "string",
+          "description": "where the ItemSET is used For"
         },
         "max_score": {
           "type": "number",
@@ -1119,65 +1387,67 @@
         }
       }
     },
-    "response":{
-      "properties":{
-        "values":{
-            "type":"object",
-            "description":"values"
+    "response": {
+      "properties": {
+        "values": {
+          "type": "object",
+          "description": "values"
         },
-        "score":{
-           "type":"number",
-           "description":"score"
+        "score": {
+          "type": "number",
+          "description": "score"
         }
-    }
-    },
-    "answers":{
-       "properties":{ 
-          "value":{
-             "type":"string",
-             "description":"values"
-          },
-          "score":{
-             "type":"string",
-             "description":"scores"
-          }
-       }
-    },
-    "model":{
-       "properties":{
-          "type":{
-             "type":"string",
-             "description":"type"
-          },
-          "asset":{
-            "type":"string",
-            "description":"asset"
-          }
-       }
-    },
-    "lhs_options":{
-      "properties":{
-         "index":{
-            "type":"number",
-            "description":"index"
-         },
-         "Options": {
-            "$ref": "#/definitions/values"
-         }
       }
     },
-     "rhs_options":{
-       "allOf":[{
-        "properties":{
-           "index":{
-              "type":"number",
-              "description":"index"
+    "answers": {
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "values"
+        },
+        "score": {
+          "type": "string",
+          "description": "scores"
+        }
+      }
+    },
+    "model": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "type"
+        },
+        "asset": {
+          "type": "string",
+          "description": "asset"
+        }
+      }
+    },
+    "lhs_options": {
+      "properties": {
+        "index": {
+          "type": "number",
+          "description": "index"
+        },
+        "Options": {
+          "$ref": "#/definitions/values"
+        }
+      }
+    },
+    "rhs_options": {
+      "allOf": [
+        {
+          "properties": {
+            "index": {
+              "type": "number",
+              "description": "index"
             }
           }
-         },
-         {
-           "$ref": "#/definitions/values"
-         }]
+        },
+        {
+          "$ref": "#/definitions/values"
+        }
+      ]
     },
     "values": {
       "properties": {
@@ -1228,33 +1498,38 @@
       }
     },
     "searchObject": {
-      "title":"request",
-      "properties":{
-         "metadata":{
-           "$ref":"#/definitions/searchMetadata"
-         }
+      "properties": {
+        "metadata": {
+          "$ref": "#/definitions/searchMetadata"
+        }
       }
     },
-    "searchMetadata":{
-       "properties":{
-          "filter":{
-             "$ref":"#/definitions/filters"
-          },
-          "sortOrder":{
-             "$ref":"#/definitions/sortOrder"
-          },
-           "resultSize": {
-              "type": "number",
-              "description": "resultSize"
-           },
-          "startPosition":{
-              "type":"number",
-              "description":"startPosition"
+    "searchMetadata": {
+      "properties": {
+        "filter": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/filters"
           }
-       }
-    },          
+        },
+        "sortOrder": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/sortOrder"
+          }
+        },
+        "resultSize": {
+          "type": "number",
+          "description": "resultSize"
+        },
+        "startPosition": {
+          "type": "number",
+          "description": "startPosition"
+        }
+      }
+    },
     "filters": {
-      "title":"filters",
+      "title": "filters",
       "properties": {
         "property": {
           "type": "string",
@@ -1271,31 +1546,6 @@
         "relations": {
           "type": "string",
           "description": ""
-        }
-      }
-    },
-    "ResponseHeader": {
-      "title": "ResponseHeader",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "API Identifier"
-        },
-        "ver": {
-          "type": "string",
-          "description": "API version information"
-        },
-        "ts": {
-          "type": "string",
-          "description": "API execution timespan"
-        },
-        "params": {
-          "$ref": "#/definitions/ResponseParams"
-        },
-        "responseCode": {
-          "type": "string",
-          "description": "API response code"
         }
       }
     },
@@ -1325,6 +1575,18 @@
         }
       }
     },
+    "RequestParams": {
+      "type": "object",
+      "required": [
+        "msgid"
+      ],
+      "properties": {
+        "msgid": {
+          "type": "string"
+        }
+      },
+      "title": "Params"
+    },
     "FailedResponseHeader": {
       "title": "Failure Response",
       "type": "object",
@@ -1342,15 +1604,11 @@
           "description": "API execution timespan"
         },
         "params": {
-           "$ref":"#/definitions/FailedResponseParams"
+          "$ref": "#/definitions/FailedResponseParams"
         },
         "responseCode": {
-           "type":"string",
-           "description":"responseCode"
-        },
-        "result": {
-               "type":"string",
-               "description":"result"
+          "type": "string",
+          "description": "responseCode"
         }
       }
     },
@@ -1393,45 +1651,20 @@
       }
     },
     "result": {
+      "properties": {}
+    },
+    "sortOrder": {
+      "title": "sortOrder",
       "properties": {
+        "sortFields": {
+          "type": "string",
+          "description": "field to be sorted"
+        },
+        "sortOrder": {
+          "type": "string",
+          "description": "sort order"
+        }
       }
-    },
-    "sortOrder":{
-      "title":"sortOrder",
-       "properties":{
-          "sortFields":{
-             "type":"string",
-             "description":"field to be sorted"
-          },
-          "sortOrder":{
-            "type":"string",
-            "description":"sort order"
-          }
-       }
-    },
-    "searchCriteria":{
-      "properties":{
-           "nodeType":{
-             "type":"string",
-             "description":"nodeType"
-           },
-           "objectType":{
-              "type":"string",
-              "description":"objectType"
-           },
-           "metadata":{
-              "type":"object",
-              "description":"metadata"
-           }
-      }
-    },
-    "results": {
-        "properties": {
-             "count":{
-                "type":"number",
-                "description":"count"
-             }
-          }
     },
     "NodeId": {
       "title": "Node Id",
