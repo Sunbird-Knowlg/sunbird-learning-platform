@@ -431,7 +431,7 @@
     "/assessmentitemset/search": {
       "post": {
         "summary": "Search an ItemSet",
-        "description": "This API is used to search and retrive all ItemSets from the Item repository based on the given search creteria in the request body",
+        "description": "This API is used to search and retrieve all ItemSets from the Item repository based on the given search creteria in the request body",
         "tags": [
           "ItemSet"
         ],
@@ -1265,7 +1265,7 @@
         },
         "gradeLevel": {
           "type": "object",
-          "description": "gradelevel"
+          "description": "gradeLevel"
         },
         "maxScore": {
           "type": "object",

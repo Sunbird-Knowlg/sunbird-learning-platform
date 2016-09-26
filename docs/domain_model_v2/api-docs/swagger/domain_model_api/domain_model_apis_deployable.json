@@ -23,7 +23,7 @@
   "tags": [
     {
       "name": "Domains",
-      "description": "Everything related to Domian Operations"
+      "description": "Everything related to domain Operations"
     },
     {
       "name": "Domain Objects",
@@ -124,7 +124,7 @@
                                 },
                                 "relation": {
                                   "type": "string",
-                                  "description": "realtion"
+                                  "description": "relation"
                                 },
                                 "description": {
                                   "type": "string",
@@ -374,7 +374,7 @@
                               },
                               "relation": {
                                 "type": "string",
-                                "description": "realtion"
+                                "description": "relation"
                               },
                               "description": {
                                 "type": "string",
@@ -650,7 +650,7 @@
                               },
                               "relation": {
                                 "type": "string",
-                                "description": "realtion"
+                                "description": "relation"
                               },
                               "description": {
                                 "type": "string",
@@ -935,7 +935,7 @@
                                 },
                                 "relation": {
                                   "type": "string",
-                                  "description": "realtion"
+                                  "description": "relation"
                                 },
                                 "description": {
                                   "type": "string",
@@ -966,7 +966,7 @@
                                 },
                                 "relation": {
                                   "type": "string",
-                                  "description": "realtion"
+                                  "description": "relation"
                                 },
                                 "description": {
                                   "type": "string",
@@ -1189,7 +1189,7 @@
                           },
                           "relation": {
                             "type": "string",
-                            "description": "realtion"
+                            "description": "relation"
                           },
                           "description": {
                             "type": "string",
@@ -1220,7 +1220,7 @@
                           },
                           "relation": {
                             "type": "string",
-                            "description": "realtion"
+                            "description": "relation"
                           },
                           "description": {
                             "type": "string",
@@ -1527,7 +1527,7 @@
                               },
                               "relation": {
                                 "type": "string",
-                                "description": "realtion"
+                                "description": "relation"
                               },
                               "description": {
                                 "type": "string",
@@ -1558,7 +1558,7 @@
                               },
                               "relation": {
                                 "type": "string",
-                                "description": "realtion"
+                                "description": "relation"
                               },
                               "description": {
                                 "type": "string",
@@ -1787,7 +1787,7 @@
                           },
                           "relation": {
                             "type": "string",
-                            "description": "realtion"
+                            "description": "relation"
                           },
                           "description": {
                             "type": "string",
@@ -1818,7 +1818,7 @@
                           },
                           "relation": {
                             "type": "string",
-                            "description": "realtion"
+                            "description": "relation"
                           },
                           "description": {
                             "type": "string",
@@ -2007,7 +2007,7 @@
     "/domains/{domainId}/dimensions/search": {
       "post": {
         "summary": "Search Dimensions Based On Search Criteria",
-        "description": "This API is used run a search query on the domian graph for a given domainId to fetch the dimensions from the EkStep platform.This API returns the dimensions based on the search criteria provided in the request body",
+        "description": "This API is used run a search query on the domain graph for a given domainId to fetch the dimensions from the EkStep platform.This API returns the dimensions based on the search criteria provided in the request body",
         "tags": [
           "Domain Objects"
         ],
@@ -2102,7 +2102,7 @@
                           },
                           "relation": {
                             "type": "string",
-                            "description": "realtion"
+                            "description": "relation"
                           },
                           "description": {
                             "type": "string",
@@ -2133,7 +2133,7 @@
                           },
                           "relation": {
                             "type": "string",
-                            "description": "realtion"
+                            "description": "relation"
                           },
                           "description": {
                             "type": "string",
@@ -2248,7 +2248,7 @@
                                 },
                                 "relation": {
                                   "type": "string",
-                                  "description": "realtion"
+                                  "description": "relation"
                                 },
                                 "description": {
                                   "type": "string",
@@ -2279,7 +2279,7 @@
                                 },
                                 "relation": {
                                   "type": "string",
-                                  "description": "realtion"
+                                  "description": "relation"
                                 },
                                 "description": {
                                   "type": "string",
@@ -2773,7 +2773,7 @@
                                   },
                                   "relation": {
                                     "type": "string",
-                                    "description": "realtion"
+                                    "description": "relation"
                                   },
                                   "description": {
                                     "type": "string",
@@ -2987,7 +2987,7 @@
                                   },
                                   "relation": {
                                     "type": "string",
-                                    "description": "realtion"
+                                    "description": "relation"
                                   },
                                   "description": {
                                     "type": "string",
@@ -3238,7 +3238,7 @@
                         },
                         "relation": {
                           "type": "string",
-                          "description": "realtion"
+                          "description": "relation"
                         },
                         "description": {
                           "type": "string",
@@ -4170,7 +4170,7 @@
                             },
                             "relation": {
                               "type": "string",
-                              "description": "realtion"
+                              "description": "relation"
                             },
                             "description": {
                               "type": "string",
@@ -4425,7 +4425,7 @@
                         },
                         "relation": {
                           "type": "string",
-                          "description": "realtion"
+                          "description": "relation"
                         },
                         "description": {
                           "type": "string",
@@ -4826,7 +4826,7 @@
                                   },
                                   "relation": {
                                     "type": "string",
-                                    "description": "realtion"
+                                    "description": "relation"
                                   },
                                   "description": {
                                     "type": "string",
@@ -5040,7 +5040,7 @@
                                   },
                                   "relation": {
                                     "type": "string",
-                                    "description": "realtion"
+                                    "description": "relation"
                                   },
                                   "description": {
                                     "type": "string",
@@ -5200,7 +5200,7 @@
     "/domains/{domainId}/concepts/search": {
       "post": {
         "summary": "Search Concepts Based On Search Criteria",
-        "description": "This API is used run a search query on the domian graph of EkStep platform.This endpoint returns the concepts based on the search criteria provided in the request body",
+        "description": "This API is used run a search query on the domain graph of EkStep platform.This endpoint returns the concepts based on the search criteria provided in the request body",
         "tags": [
           "Domain Objects"
         ],
@@ -5293,7 +5293,7 @@
                         },
                         "relation": {
                           "type": "string",
-                          "description": "realtion"
+                          "description": "relation"
                         },
                         "description": {
                           "type": "string",
@@ -5486,7 +5486,7 @@
                                   },
                                   "relation": {
                                     "type": "string",
-                                    "description": "realtion"
+                                    "description": "relation"
                                   },
                                   "description": {
                                     "type": "string",
@@ -5700,7 +5700,7 @@
                                   },
                                   "relation": {
                                     "type": "string",
-                                    "description": "realtion"
+                                    "description": "relation"
                                   },
                                   "description": {
                                     "type": "string",
@@ -7183,7 +7183,7 @@
     "/domains/{domainId}/methods/search": {
       "post": {
         "summary": "Search Methods Based On Search Criteria",
-        "description": "This API is used run a search query on the domian graph of EkStep platform.This API returns the methods based on the search criteria provided in the request body",
+        "description": "This API is used run a search query on the domain graph of EkStep platform.This API returns the methods based on the search criteria provided in the request body",
         "tags": [
           "Domain Objects"
         ],
@@ -8748,7 +8748,7 @@
     "/domains/{domainId}/misconceptions/search": {
       "post": {
         "summary": "Search Misconceptions Based On Search Criteria",
-        "description": "This API is used run a search query on domian graph of the EkStep platform.This endpoint returns misconceptions based on the search criteria provided in the request body",
+        "description": "This API is used run a search query on domain graph of the EkStep platform.This endpoint returns misconceptions based on the search criteria provided in the request body",
         "tags": [
           "Domain Objects"
         ],

@@ -11,7 +11,7 @@
   },
   "host": "api.ekstep.in",
   "securityDefinitions": {},
-   "schemes": [
+  "schemes": [
     "https"
   ],
   "consumes": [
@@ -126,7 +126,7 @@
                               },
                               "category": {
                                 "type": "string",
-                                "description": "catergory"
+                                "description": "category"
                               },
                               "displayProperty": {
                                 "type": "string",
@@ -353,7 +353,7 @@
         "security": []
       }
     },
-    "/taxonomy/domian/definition/{objectType}": {
+    "/taxonomy/domain/definition/{objectType}": {
       "get": {
         "summary": "Gets Specific Definition",
         "description": "This API returns specific definition,its properties and relations based on the specified object type",
@@ -459,7 +459,7 @@
                             },
                             "category": {
                               "type": "string",
-                              "description": "catergory"
+                              "description": "category"
                             },
                             "displayProperty": {
                               "type": "string",
@@ -683,6 +683,1081 @@
           }
         },
         "security": []
+      }
+    }
+  },
+  "definitions": {
+    "getAllDefinitionsResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "title": "Response Parameter",
+          "type": "object",
+          "properties": {
+            "resmsgid": {
+              "type": "string",
+              "description": "Response Message Id"
+            },
+            "msgid": {
+              "type": "string",
+              "description": "Message Id"
+            },
+            "err": {
+              "type": "string",
+              "description": "Error Code"
+            },
+            "status": {
+              "type": "string",
+              "description": "Response Status"
+            },
+            "errmsg": {
+              "type": "string",
+              "description": "Error Message"
+            }
+          }
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
+          "properties": {
+            "definition_nodes": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "identifier": {
+                    "type": "string",
+                    "description": "Identifier"
+                  },
+                  "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                  },
+                  "properties": {
+                    "type": "object",
+                    "title": "properties",
+                    "properties": {
+                      "required": {
+                        "type": "boolean",
+                        "description": "required"
+                      },
+                      "dataType": {
+                        "type": "string",
+                        "description": "dataType"
+                      },
+                      "propertyName": {
+                        "type": "string",
+                        "description": "propertyName"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "title"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "description"
+                      },
+                      "category": {
+                        "type": "string",
+                        "description": "category"
+                      },
+                      "displayProperty": {
+                        "type": "string",
+                        "description": "displayProperty"
+                      },
+                      "range": {
+                        "type": "string",
+                        "description": "range"
+                      },
+                      "defaultValue": {
+                        "type": "string",
+                        "description": "defaultValue"
+                      },
+                      "renderingHints": {
+                        "type": "string",
+                        "description": "renderingHints"
+                      },
+                      "indexed": {
+                        "type": "string",
+                        "description": "indexed"
+                      },
+                      "draft": {
+                        "type": "string",
+                        "description": "draft"
+                      }
+                    }
+                  },
+                  "inRelations": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "relationName": {
+                          "type": "string",
+                          "description": "relationName"
+                        },
+                        "objectTypes": {
+                          "type": "object",
+                          "description": "objectTypes"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "title"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description"
+                        },
+                        "required": {
+                          "type": "boolean",
+                          "description": "required"
+                        },
+                        "renderingHints": {
+                          "type": "string",
+                          "description": "renderingHints"
+                        }
+                      }
+                    }
+                  },
+                  "outRelations": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "relationName": {
+                          "type": "string",
+                          "description": "relationName"
+                        },
+                        "objectTypes": {
+                          "type": "object",
+                          "description": "objectTypes"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "title"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description"
+                        },
+                        "required": {
+                          "type": "boolean",
+                          "description": "required"
+                        },
+                        "renderingHints": {
+                          "type": "string",
+                          "description": "renderingHints"
+                        }
+                      }
+                    }
+                  },
+                  "systemTags": {
+                    "type": "array",
+                    "items": {
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "name"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description"
+                        }
+                      }
+                    }
+                  },
+                  "metadata": {
+                    "properties": {
+                      "lastUpdatedOn": {
+                        "type": "string",
+                        "description": "last update"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "getDefinitionResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "title": "Response Parameter",
+          "type": "object",
+          "properties": {
+            "resmsgid": {
+              "type": "string",
+              "description": "Response Message Id"
+            },
+            "msgid": {
+              "type": "string",
+              "description": "Message Id"
+            },
+            "err": {
+              "type": "string",
+              "description": "Error Code"
+            },
+            "status": {
+              "type": "string",
+              "description": "Response Status"
+            },
+            "errmsg": {
+              "type": "string",
+              "description": "Error Message"
+            }
+          }
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
+          "properties": {
+            "definition_node": {
+              "properties": {
+                "identifier": {
+                  "type": "string",
+                  "description": "Identifier"
+                },
+                "objectType": {
+                  "type": "string",
+                  "description": "objectType"
+                },
+                "properties": {
+                  "type": "object",
+                  "title": "properties",
+                  "properties": {
+                    "required": {
+                      "type": "boolean",
+                      "description": "required"
+                    },
+                    "dataType": {
+                      "type": "string",
+                      "description": "dataType"
+                    },
+                    "propertyName": {
+                      "type": "string",
+                      "description": "propertyName"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description"
+                    },
+                    "category": {
+                      "type": "string",
+                      "description": "category"
+                    },
+                    "displayProperty": {
+                      "type": "string",
+                      "description": "displayProperty"
+                    },
+                    "range": {
+                      "type": "string",
+                      "description": "range"
+                    },
+                    "defaultValue": {
+                      "type": "string",
+                      "description": "defaultValue"
+                    },
+                    "renderingHints": {
+                      "type": "string",
+                      "description": "renderingHints"
+                    },
+                    "indexed": {
+                      "type": "string",
+                      "description": "indexed"
+                    },
+                    "draft": {
+                      "type": "string",
+                      "description": "draft"
+                    }
+                  }
+                },
+                "inRelations": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "relationName": {
+                        "type": "string",
+                        "description": "relationName"
+                      },
+                      "objectTypes": {
+                        "type": "object",
+                        "description": "objectTypes"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "title"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "description"
+                      },
+                      "required": {
+                        "type": "boolean",
+                        "description": "required"
+                      },
+                      "renderingHints": {
+                        "type": "string",
+                        "description": "renderingHints"
+                      }
+                    }
+                  }
+                },
+                "outRelations": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "relationName": {
+                        "type": "string",
+                        "description": "relationName"
+                      },
+                      "objectTypes": {
+                        "type": "object",
+                        "description": "objectTypes"
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "title"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "description"
+                      },
+                      "required": {
+                        "type": "boolean",
+                        "description": "required"
+                      },
+                      "renderingHints": {
+                        "type": "string",
+                        "description": "renderingHints"
+                      }
+                    }
+                  }
+                },
+                "systemTags": {
+                  "type": "array",
+                  "items": {
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "description": "name"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "description"
+                      }
+                    }
+                  }
+                },
+                "metadata": {
+                  "properties": {
+                    "lastUpdatedOn": {
+                      "type": "string",
+                      "description": "last update"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "getAllDefinitionNode": {
+      "properties": {
+        "definition_nodes": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "identifier": {
+                "type": "string",
+                "description": "Identifier"
+              },
+              "objectType": {
+                "type": "string",
+                "description": "objectType"
+              },
+              "properties": {
+                "type": "object",
+                "title": "properties",
+                "properties": {
+                  "required": {
+                    "type": "boolean",
+                    "description": "required"
+                  },
+                  "dataType": {
+                    "type": "string",
+                    "description": "dataType"
+                  },
+                  "propertyName": {
+                    "type": "string",
+                    "description": "propertyName"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "title"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description"
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "category"
+                  },
+                  "displayProperty": {
+                    "type": "string",
+                    "description": "displayProperty"
+                  },
+                  "range": {
+                    "type": "string",
+                    "description": "range"
+                  },
+                  "defaultValue": {
+                    "type": "string",
+                    "description": "defaultValue"
+                  },
+                  "renderingHints": {
+                    "type": "string",
+                    "description": "renderingHints"
+                  },
+                  "indexed": {
+                    "type": "string",
+                    "description": "indexed"
+                  },
+                  "draft": {
+                    "type": "string",
+                    "description": "draft"
+                  }
+                }
+              },
+              "inRelations": {
+                "type": "array",
+                "items": {
+                  "properties": {
+                    "relationName": {
+                      "type": "string",
+                      "description": "relationName"
+                    },
+                    "objectTypes": {
+                      "type": "object",
+                      "description": "objectTypes"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "required"
+                    },
+                    "renderingHints": {
+                      "type": "string",
+                      "description": "renderingHints"
+                    }
+                  }
+                }
+              },
+              "outRelations": {
+                "type": "array",
+                "items": {
+                  "properties": {
+                    "relationName": {
+                      "type": "string",
+                      "description": "relationName"
+                    },
+                    "objectTypes": {
+                      "type": "object",
+                      "description": "objectTypes"
+                    },
+                    "title": {
+                      "type": "string",
+                      "description": "title"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description"
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "required"
+                    },
+                    "renderingHints": {
+                      "type": "string",
+                      "description": "renderingHints"
+                    }
+                  }
+                }
+              },
+              "systemTags": {
+                "type": "array",
+                "items": {
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "description": "name"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description"
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "properties": {
+                  "lastUpdatedOn": {
+                    "type": "string",
+                    "description": "last update"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "result": {
+      "properties": {
+        "definition_node": {
+          "properties": {
+            "identifier": {
+              "type": "string",
+              "description": "Identifier"
+            },
+            "objectType": {
+              "type": "string",
+              "description": "objectType"
+            },
+            "properties": {
+              "type": "object",
+              "title": "properties",
+              "properties": {
+                "required": {
+                  "type": "boolean",
+                  "description": "required"
+                },
+                "dataType": {
+                  "type": "string",
+                  "description": "dataType"
+                },
+                "propertyName": {
+                  "type": "string",
+                  "description": "propertyName"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "title"
+                },
+                "description": {
+                  "type": "string",
+                  "description": "description"
+                },
+                "category": {
+                  "type": "string",
+                  "description": "category"
+                },
+                "displayProperty": {
+                  "type": "string",
+                  "description": "displayProperty"
+                },
+                "range": {
+                  "type": "string",
+                  "description": "range"
+                },
+                "defaultValue": {
+                  "type": "string",
+                  "description": "defaultValue"
+                },
+                "renderingHints": {
+                  "type": "string",
+                  "description": "renderingHints"
+                },
+                "indexed": {
+                  "type": "string",
+                  "description": "indexed"
+                },
+                "draft": {
+                  "type": "string",
+                  "description": "draft"
+                }
+              }
+            },
+            "inRelations": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "relationName": {
+                    "type": "string",
+                    "description": "relationName"
+                  },
+                  "objectTypes": {
+                    "type": "object",
+                    "description": "objectTypes"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "title"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "required"
+                  },
+                  "renderingHints": {
+                    "type": "string",
+                    "description": "renderingHints"
+                  }
+                }
+              }
+            },
+            "outRelations": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "relationName": {
+                    "type": "string",
+                    "description": "relationName"
+                  },
+                  "objectTypes": {
+                    "type": "object",
+                    "description": "objectTypes"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "title"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description"
+                  },
+                  "required": {
+                    "type": "boolean",
+                    "description": "required"
+                  },
+                  "renderingHints": {
+                    "type": "string",
+                    "description": "renderingHints"
+                  }
+                }
+              }
+            },
+            "systemTags": {
+              "type": "array",
+              "items": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "description"
+                  }
+                }
+              }
+            },
+            "metadata": {
+              "properties": {
+                "lastUpdatedOn": {
+                  "type": "string",
+                  "description": "last update"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "propertiesMetadata": {
+      "type": "object",
+      "title": "properties",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "description": "required"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "dataType"
+        },
+        "propertyName": {
+          "type": "string",
+          "description": "propertyName"
+        },
+        "title": {
+          "type": "string",
+          "description": "title"
+        },
+        "description": {
+          "type": "string",
+          "description": "description"
+        },
+        "category": {
+          "type": "string",
+          "description": "category"
+        },
+        "displayProperty": {
+          "type": "string",
+          "description": "displayProperty"
+        },
+        "range": {
+          "type": "string",
+          "description": "range"
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "defaultValue"
+        },
+        "renderingHints": {
+          "type": "string",
+          "description": "renderingHints"
+        },
+        "indexed": {
+          "type": "string",
+          "description": "indexed"
+        },
+        "draft": {
+          "type": "string",
+          "description": "draft"
+        }
+      }
+    },
+    "relations": {
+      "properties": {
+        "relationName": {
+          "type": "string",
+          "description": "relationName"
+        },
+        "objectTypes": {
+          "type": "object",
+          "description": "objectTypes"
+        },
+        "title": {
+          "type": "string",
+          "description": "title"
+        },
+        "description": {
+          "type": "string",
+          "description": "description"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "required"
+        },
+        "renderingHints": {
+          "type": "string",
+          "description": "renderingHints"
+        }
+      }
+    },
+    "definitionNode": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Identifier"
+        },
+        "objectType": {
+          "type": "string",
+          "description": "objectType"
+        },
+        "properties": {
+          "type": "object",
+          "title": "properties",
+          "properties": {
+            "required": {
+              "type": "boolean",
+              "description": "required"
+            },
+            "dataType": {
+              "type": "string",
+              "description": "dataType"
+            },
+            "propertyName": {
+              "type": "string",
+              "description": "propertyName"
+            },
+            "title": {
+              "type": "string",
+              "description": "title"
+            },
+            "description": {
+              "type": "string",
+              "description": "description"
+            },
+            "category": {
+              "type": "string",
+              "description": "category"
+            },
+            "displayProperty": {
+              "type": "string",
+              "description": "displayProperty"
+            },
+            "range": {
+              "type": "string",
+              "description": "range"
+            },
+            "defaultValue": {
+              "type": "string",
+              "description": "defaultValue"
+            },
+            "renderingHints": {
+              "type": "string",
+              "description": "renderingHints"
+            },
+            "indexed": {
+              "type": "string",
+              "description": "indexed"
+            },
+            "draft": {
+              "type": "string",
+              "description": "draft"
+            }
+          }
+        },
+        "inRelations": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "relationName": {
+                "type": "string",
+                "description": "relationName"
+              },
+              "objectTypes": {
+                "type": "object",
+                "description": "objectTypes"
+              },
+              "title": {
+                "type": "string",
+                "description": "title"
+              },
+              "description": {
+                "type": "string",
+                "description": "description"
+              },
+              "required": {
+                "type": "boolean",
+                "description": "required"
+              },
+              "renderingHints": {
+                "type": "string",
+                "description": "renderingHints"
+              }
+            }
+          }
+        },
+        "outRelations": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "relationName": {
+                "type": "string",
+                "description": "relationName"
+              },
+              "objectTypes": {
+                "type": "object",
+                "description": "objectTypes"
+              },
+              "title": {
+                "type": "string",
+                "description": "title"
+              },
+              "description": {
+                "type": "string",
+                "description": "description"
+              },
+              "required": {
+                "type": "boolean",
+                "description": "required"
+              },
+              "renderingHints": {
+                "type": "string",
+                "description": "renderingHints"
+              }
+            }
+          }
+        },
+        "systemTags": {
+          "type": "array",
+          "items": {
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "name"
+              },
+              "description": {
+                "type": "string",
+                "description": "description"
+              }
+            }
+          }
+        },
+        "metadata": {
+          "properties": {
+            "lastUpdatedOn": {
+              "type": "string",
+              "description": "last update"
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "properties": {
+        "lastUpdatedOn": {
+          "type": "string",
+          "description": "last update"
+        }
+      }
+    },
+    "systemTag": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "name"
+        },
+        "description": {
+          "type": "string",
+          "description": "description"
+        }
+      }
+    },
+    "ResponseParams": {
+      "title": "Response Parameter",
+      "type": "object",
+      "properties": {
+        "resmsgid": {
+          "type": "string",
+          "description": "Response Message Id"
+        },
+        "msgid": {
+          "type": "string",
+          "description": "Message Id"
+        },
+        "err": {
+          "type": "string",
+          "description": "Error Code"
+        },
+        "status": {
+          "type": "string",
+          "description": "Response Status"
+        },
+        "errmsg": {
+          "type": "string",
+          "description": "Error Message"
+        }
+      }
+    },
+    "FailedResponseHeader": {
+      "title": "Failure Response",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "title": "Failed Response Parameter",
+          "type": "object",
+          "properties": {
+            "resmsgid": {
+              "type": "string",
+              "description": "Response Message Id"
+            },
+            "msgid": {
+              "type": "string",
+              "description": "Message Id"
+            },
+            "err": {
+              "type": "string",
+              "description": "Error Code"
+            },
+            "status": {
+              "type": "string",
+              "description": "Response Status"
+            },
+            "errmsg": {
+              "type": "string",
+              "description": "Error Message"
+            }
+          }
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "responseCode"
+        }
+      }
+    },
+    "FailedResponseParams": {
+      "title": "Failed Response Parameter",
+      "type": "object",
+      "properties": {
+        "resmsgid": {
+          "type": "string",
+          "description": "Response Message Id"
+        },
+        "msgid": {
+          "type": "string",
+          "description": "Message Id"
+        },
+        "err": {
+          "type": "string",
+          "description": "Error Code"
+        },
+        "status": {
+          "type": "string",
+          "description": "Response Status"
+        },
+        "errmsg": {
+          "type": "string",
+          "description": "Error Message"
+        }
       }
     }
   }

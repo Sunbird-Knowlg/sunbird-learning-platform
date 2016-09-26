@@ -3,13 +3,13 @@ info:
   version: '2.0'
   title: Definitions
   description: >-
-    The Definitions API of Ekstep Learning Platform provides details of all
+    The Definitions API of EkStep Learning Platform provides details of all
     definitions of all objectTypes supported by the Platform
   license:
-    name: Ekstep License
-    url: 'http:www.ekstep.in'
+    name: EkStep License
+    url: 'http:www.EkStep.in'
 securityDefinitions: {}
-host: api.ekstep.in
+host: api.EkStep.in
 schemes:
   - https
 consumes:
@@ -25,7 +25,7 @@ paths:
       summary: Gets All Definitions
       description: >-
         This API returns all the definitions of all ObjectTypes supported by the
-        Ekstep Learning Platform
+        EkStep Learning Platform
       tags:
         - Definitions
       operationId: definition.list
@@ -51,7 +51,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  '/taxonomy/domian/definition/{objectType}':
+  '/taxonomy/domain/definition/{objectType}':
     get:
       summary: Gets Specific Definition
       description: >-
@@ -158,7 +158,7 @@ definitions:
         description: description
       category:
         type: string
-        description: catergory
+        description: category
       displayProperty:
         type: string
         description: displayProperty

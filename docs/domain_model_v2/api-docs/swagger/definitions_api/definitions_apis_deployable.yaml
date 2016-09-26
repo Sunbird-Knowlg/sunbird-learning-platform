@@ -259,7 +259,7 @@ paths:
                 type: string
                 description: responseCode
       security: []
-  '/taxonomy/domian/definition/{objectType}':
+  '/taxonomy/domain/definition/{objectType}':
     get:
       summary: Gets Specific Definition
       description: >-
@@ -344,7 +344,7 @@ paths:
                             description: description
                           category:
                             type: string
-                            description: catergory
+                            description: category
                           displayProperty:
                             type: string
                             description: displayProperty
