@@ -3,10 +3,10 @@
   "info": {
     "version": "2.0",
     "title": "Assessment - Service",
-    "description": "Assessment Service of Ekstep Learning Platform provides resources to create, manage and search Assessment Items and ItemSets. AssessmentItem API provides resources to work with questions in the platform and ItemSet API provides resources to create and manage ItemSets.",
+    "description": "Assessment Service of EkStep Learning Platform provides resources to create, manage and search Assessment Items and ItemSets. AssessmentItem API provides resources to work with questions in the platform and ItemSet API provides resources to create and manage ItemSets.",
     "license": {
-      "name": "Ekstep License",
-      "url": "http:www.ekstep.in"
+      "name": "EkStep License",
+      "url": "http:www.EkStep.in"
     }
   },
   "basePath": "/v1",
@@ -3302,7 +3302,7 @@
       },
       "delete": {
         "summary": "Deletes an ItemSet",
-        "description": "This API is used to delete an Item set from the ItemSet repository of Ekstep Platform.",
+        "description": "This API is used to delete an Item set from the ItemSet repository of EkStep Platform.",
         "tags": [
           "ItemSet"
         ],
@@ -4122,7 +4122,7 @@
     },
     "/assessmentitemset/generate/{ItemSetId}": {
       "get": {
-        "summary": " Genearates an ItemSet",
+        "summary": " Generates an ItemSet",
         "description": "This API is used to generate an ItemSet from ItemSet Repository of EkStep Platform. This endpoint returns the entire ItemSet Object with default fields. ",
         "tags": [
           "ItemSet"

@@ -3,10 +3,11 @@ info:
   version: '2.0'
   title: Definitions
   description: >-
-    The Definitions API of Ekstep Learning Platform provides details of all
-    definitions of different objectTypes supported by the Platform 
+    The Definitions API of EkStep Learning Platform provides details of all
+    definitions of all objectTypes supported by the Platform
   license:
-    name: Ekstep License
+    name: EkStep License
+    url: 'http:www.EkStep.in'
 securityDefinitions: {}
 consumes:
   - application/json
@@ -14,14 +15,14 @@ produces:
   - application/json
 tags:
   - name: Definitions
-    description: Everything related to the GET operations of the Definitions
+    description: Provides Details about All Definitions of the Platform
 paths:
   /taxonomy/domain/definition:
     get:
       summary: Gets All Definitions
       description: >-
-        This _definitions_ endpoint returns all the difinitions available in the
-        Ekstep Platform fo different Object types
+        This API returns all the definitions of all ObjectTypes supported by the
+        EkStep Learning Platform
       tags:
         - Definitions
       operationId: definition.list
@@ -32,43 +33,38 @@ paths:
           description: All Definitions Returned Successfully
           schema:
             type: object
-            title: result
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 properties:
                   definition_nodes:
@@ -220,11 +216,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                properties:
-                  result:
-                    type: string
-                    description: result
         '500':
           description: >-
             Error While fetching for all definitions! | Error occurred while
@@ -265,18 +256,13 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                properties:
-                  result:
-                    type: string
-                    description: result
       security: []
   '/taxonomy/domian/definition/{objectType}':
     get:
-      summary: Gets specific Definition
+      summary: Gets Specific Definition
       description: >-
-        This _definition_ endpoint returns of specific difinition from the
-        Ekstep platform based on the specified object type from the user
+        This API returns specific definition,its properties and relations based
+        on the specified object type
       tags:
         - Definitions
       operationId: definition.find
@@ -294,41 +280,37 @@ paths:
           schema:
             type: object
             properties:
-              headers:
-                title: ResponseHeader
+              id:
+                type: string
+                description: API Identifier
+              ver:
+                type: string
+                description: API version information
+              ts:
+                type: string
+                description: API execution timespan
+              params:
+                title: Response Parameter
                 type: object
                 properties:
-                  id:
+                  resmsgid:
                     type: string
-                    description: API Identifier
-                  ver:
+                    description: Response Message Id
+                  msgid:
                     type: string
-                    description: API version information
-                  ts:
+                    description: Message Id
+                  err:
                     type: string
-                    description: API execution timespan
-                  params:
-                    title: Response Parameter
-                    type: object
-                    properties:
-                      resmsgid:
-                        type: string
-                        description: Response Message Id
-                      msgid:
-                        type: string
-                        description: Message Id
-                      err:
-                        type: string
-                        description: Error Code
-                      status:
-                        type: string
-                        description: Response Status
-                      errmsg:
-                        type: string
-                        description: Error Message
-                  responseCode:
+                    description: Error Code
+                  status:
                     type: string
-                    description: API response code
+                    description: Response Status
+                  errmsg:
+                    type: string
+                    description: Error Message
+              responseCode:
+                type: string
+                description: API response code
               result:
                 properties:
                   definition_node:
@@ -478,11 +460,6 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                properties:
-                  result:
-                    type: string
-                    description: result
         '500':
           description: >-
             Error While fetching for definition of specified objectType! | Error
@@ -523,9 +500,4 @@ paths:
               responseCode:
                 type: string
                 description: responseCode
-              result:
-                properties:
-                  result:
-                    type: string
-                    description: result
       security: []

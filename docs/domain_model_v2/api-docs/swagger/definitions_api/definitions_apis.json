@@ -3,9 +3,10 @@
   "info": {
     "version": "2.0",
     "title": "Definitions",
-    "description": "The Definitions API of Ekstep Learning Platform provides details of all definitions of different objectTypes supported by the Platform ",
+    "description": "The Definitions API of EkStep Learning Platform provides details of all definitions of all objectTypes supported by the Platform",
     "license": {
-      "name": "Ekstep Lisence"
+      "name": "EkStep License",
+      "url": "http:www.EkStep.in"
     }
   },
   "securityDefinitions": {},
@@ -18,14 +19,14 @@
   "tags": [
     {
       "name": "Definitions",
-      "description": "Everything related to the GET operations of the Definitions"
+      "description": "Provides Details about All Definitions of the Platform"
     }
   ],
   "paths": {
     "/taxonomy/domain/definition": {
       "get": {
         "summary": "Gets All Definitions",
-        "description": "This _definitions_ endpoint returns all the difinitions available in the Ekstep Platform fo different Object types",
+        "description": "This API returns all the definitions of all ObjectTypes supported by the EkStep Learning Platform",
         "tags": [
           "Definitions"
         ],
@@ -58,8 +59,8 @@
     },
     "/taxonomy/domian/definition/{objectType}": {
       "get": {
-        "summary": "Gets specific Definition",
-        "description": "This _definition_ endpoint returns of specific difinition from the Ekstep platform based on the specified object type from the user",
+        "summary": "Gets Specific Definition",
+        "description": "This API returns specific definition,its properties and relations based on the specified object type",
         "tags": [
           "Definitions"
         ],
@@ -103,10 +104,25 @@
   "definitions": {
     "getAllDefinitionsResponse": {
       "type": "object",
-      "title": "result",
       "properties":{
-        "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
         },
         "result":{
           "$ref": "#/definitions/getAllDefinitionNode"
@@ -116,8 +132,24 @@
     "getDefinitionResponse": {
       "type": "object",
       "properties":{
-         "headers":{
-          "$ref": "#/definitions/ResponseHeader"
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
         },
         "result":{
           "$ref": "#/definitions/result"
@@ -279,31 +311,6 @@
         }
       }
     },
-    "ResponseHeader": {
-      "title": "ResponseHeader",
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "API Identifier"
-        },
-        "ver": {
-          "type": "string",
-          "description": "API version information"
-        },
-        "ts": {
-          "type": "string",
-          "description": "API execution timespan"
-        },
-        "params": {
-          "$ref": "#/definitions/ResponseParams"
-        },
-        "responseCode": {
-          "type": "string",
-          "description": "API response code"
-        }
-      }
-    },
     "ResponseParams": {
       "title": "Response Parameter",
       "type": "object",
@@ -352,14 +359,6 @@
         "responseCode": {
           "type": "string",
           "description": "responseCode"
-        },
-        "result": {
-          "properties": {
-            "result": {
-              "type": "string",
-              "description": "result"
-            }
-          }
         }
       }
     },
