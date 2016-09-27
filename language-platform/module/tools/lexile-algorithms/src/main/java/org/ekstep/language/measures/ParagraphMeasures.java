@@ -71,7 +71,9 @@ public class ParagraphMeasures {
                 summary.put("word_count", pc.getWordCount());
                 summary.put("syllable_count", pc.getSyllableCount());
                 summary.put("averageTotalComplexity", pc.getMeanComplexity());
-                summary.put("gradeSuitable", getSuitableGradeSummaryInfo(languageId, pc.getMeanComplexity()));
+                List<Map<String, String>> suitableGradeSummary = getSuitableGradeSummaryInfo(languageId, pc.getMeanComplexity()); 
+                if(suitableGradeSummary != null)
+                	summary.put("gradeLevels", suitableGradeSummary);
                 
                 Map<String, Integer> wordFrequency = pc.getWordFrequency();
                 Map<String, ComplexityMeasures> wordMeasures = pc.getWordMeasures();
@@ -466,14 +468,16 @@ public class ParagraphMeasures {
     private static List<Map<String, String>> getSuitableGradeSummaryInfo(String languageId, Double value){
     	List<com.ilimi.graph.dac.model.Node> suitableGrade = GradeComplexityCache.getInstance().getSuitableGrades(languageId, value);
         List<Map<String, String>> suitableGradeSummary = new ArrayList<Map<String,String>>();
-        if(suitableGrade!=null)
+        if(suitableGrade!=null) {
 	        for(com.ilimi.graph.dac.model.Node sg : suitableGrade){
 	        	Map<String, String> gradeInfo = new HashMap<>();
-	        	gradeInfo.put("Grade Level", (String) sg.getMetadata().get("gradeLevel"));
+	        	gradeInfo.put("Grade", (String) sg.getMetadata().get("gradeLevel"));
 	        	gradeInfo.put("Language Level", (String) sg.getMetadata().get("languageLevel"));
 	        	suitableGradeSummary.add(gradeInfo);
 	        }
-        return suitableGradeSummary;
+        	return suitableGradeSummary;
+        }
+        return null;
     }
 
     private static void computeMeans(ParagraphComplexity pc, Map<String, WordComplexity> wordComplexities, Map<String, Double> wcMap) {
@@ -502,7 +506,7 @@ public class ParagraphMeasures {
         pc.setMeanPhonicComplexity(formatDoubleValue(phonicComplexity / count));
         pc.setMeanWordComplexity(formatDoubleValue(wordComplexity / count));
         double totalComplexity = orthoComplexity + phonicComplexity;
-        pc.setMeanComplexity(formatDoubleValue(totalComplexity / count));
+        pc.setMeanComplexity(formatDoubleValue(totalComplexity / pc.getWordCount()));
     }
 
     private static Double formatDoubleValue(Double d) {

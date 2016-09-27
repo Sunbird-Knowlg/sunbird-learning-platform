@@ -17,6 +17,6 @@
   {
     "pathParams":["language_id"],
     "type":"GET",
-    "url":"/v1/language/*/GradeLevelComplexity"
+    "url":"/v1/language/*/gradeLevelComplexity"
   }
 }

@@ -5,13 +5,17 @@
       "properties": [
         {
           "required": true,
-          "dataType": "Text",
+          "dataType": "Select",
           "propertyName": "languageId",
           "title": "Language Id",
-          "description": "",
+          "description": "languageId represents id of the language in Graph as defined in range",
           "category": "general",
           "displayProperty": "Editable",
-          "range": [],
+          "range": [
+          "hi",
+          "ka",
+          "te"
+          ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
           "indexed": true,
@@ -22,7 +26,7 @@
           "dataType": "Select",
           "propertyName": "gradeLevel",
           "title": "Grade Level",
-          "description": "",
+          "description": "gradeLevel represents Grade Level information as defined in range",
           "category": "Pedagogy",
           "displayProperty": "Editable",
           "range": [
@@ -42,7 +46,7 @@
           "dataType": "Select",
           "propertyName": "languageLevel",
           "title": "Language Level",
-          "description": "",
+          "description": "languageLevel represents Language Level as defined in range",
           "category": "general",
           "displayProperty": "Editable",
           "range": [
@@ -58,7 +62,7 @@
         {
           "propertyName": "sources",
           "title": "Sources",
-          "description": "",
+          "description": "sources represents list of source from where complexity of textbook was calculated and stored ex- rajastan, andhra pradesh",
           "category": "general",
           "dataType": "List",
           "required": false,

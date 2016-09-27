@@ -18,11 +18,26 @@ import com.ilimi.graph.dac.model.Node;
 
 import akka.actor.ActorRef;
 
+/**
+ * The Class LanguageCacheActor, to provide basic akka actor functionality for language caching
+ * operations
+ *
+ * @author karthik
+ */
 public class LanguageCacheActor extends LanguageBaseActor {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(LanguageCacheActor.class.getName());
+
+	/** The util. */
 	private GradeLevelComplexityUtil util = new GradeLevelComplexityUtil();
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
@@ -33,7 +48,7 @@ public class LanguageCacheActor extends LanguageBaseActor {
 		String operation = request.getOperation();
 		try {
 			if (StringUtils.equalsIgnoreCase(LanguageOperations.loadGradeLevelComplexityCache.name(), operation)) {
-				GradeComplexityCache.getInstance().loadGradeLevelComplexityFromGraph(languageId);
+				GradeComplexityCache.getInstance().loadGradeLevelComplexity(languageId);
 				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.loadGradeLevelComplexity.name(), operation)) {
 				String node_id = (String) request.get(LanguageParams.node_id.name());
@@ -59,6 +74,13 @@ public class LanguageCacheActor extends LanguageBaseActor {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * .dto.Request, akka.actor.ActorRef)
+	 */
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 	}
