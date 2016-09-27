@@ -1,17 +1,20 @@
 ---
 swagger: "2.0"
 info:
-  description: "Language Platform API provides the resources to manage & access dictionaries\
+  description: "Language Platform API provides resources to manage & access dictionaries\
     \ of multiple languages, and to use tools provided by the platform"
   version: "2.0"
   title: "Language Platform - API"
   license:
-    name: "Ekstep Lisence"
+    name: "EkStep License"
+     url: 'http:www.ekstep.in'
 tags:
 - name: "Word"
   description: "APIs for CRUD and search of word objects"
 - name: "Tools"
   description: "APIs to access language tools"
+  schemes:
+  - https
 consumes:
 - "application/json"
 produces:
@@ -21,9 +24,9 @@ paths:
     post:
       tags:
       - "Tools"
-      summary: "Parset API"
-      description: "This endpoint parses a given text and returns available information\
-        \ in EkStep language platform about that word"
+      summary: "Parser API"
+      description: "This endpoint parses a given text and returns available information
+         in EkStep language platform about that word"
       operationId: "tools.parser"
       produces:
       - "application/json"
@@ -266,19 +269,19 @@ paths:
           schema:
             $ref: "#/definitions/getWordResponse"
         400:
-          description: "Error While fetching word for the specified word identifer!\
+          description: "Error While fetching word for the specified word identifier!\
             \ | Error occurred while operation, mostly because of the input given\
             \ by client, In general it is 'Client Exception'"
           schema:
             $ref: "#/definitions/FailedResponseHeader"
         404:
-          description: "Error While fetching word for the specified word identifer!\
+          description: "Error While fetching word for the specified word identifier!\
             \ | Error occurred when word is not found in the specified language, In\
             \ general it is 'Resource Not Found Exception'"
           schema:
             $ref: "#/definitions/FailedResponseHeader"
         500:
-          description: "Error While fetching word for the specified word identifer!\
+          description: "Error While fetching word for the specified word identifier!\
             \ | Error occurred while operation, mostly because of erroneous condition\
             \ on server, In general it is 'Server Exception' or 'Exception'"
           schema:
@@ -321,7 +324,7 @@ paths:
           schema:
             $ref: "#/definitions/FailedResponseHeader"
         404:
-          description: "Error While fetching word for the specified word identifer!\
+          description: "Error While fetching word for the specified word identifier!\
             \ | Error occurred when word is not found in the specified language, In\
             \ general it is 'Resource Not Found Exception'"
           schema:
@@ -593,7 +596,7 @@ definitions:
         description: "Unique code of the language of the input text"
       text:
         type: "string"
-        description: "Text to be analysed"
+        description: "Text to be analyzed"
   parserReqObject:
     properties:
       language_id:

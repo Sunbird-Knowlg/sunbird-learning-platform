@@ -5,10 +5,14 @@
     "title": "Language Platform - API",
     "description": "Language Platform API provides the resources to manage & access dictionaries of multiple languages, and to use tools provided by the platform",
     "license": {
-      "name": "Ekstep Lisence"
+      "name": "EkStep License",
+      "url":"www.ektep.in"
     }
   },
   "securityDefinitions": {},
+   "schemes": [
+    "https"
+  ],
   "consumes": [
     "application/json"
   ],
@@ -155,19 +159,19 @@
             }
           },
           "400": {
-            "description": "Error While fetching word for the specified word identifer! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "description": "Error While fetching word for the specified word identifier! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "404": {
-            "description": "Error While fetching word for the specified word identifer! | Error occurred when word is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "description": "Error While fetching word for the specified word identifier! | Error occurred when word is not found in the specified language, In general it is 'Resource Not Found Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While fetching word for the specified word identifer! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "description": "Error While fetching word for the specified word identifier! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -224,7 +228,7 @@
             }
           },
           "404": {
-            "description": "Error While fetching word for the specified word identifer! | Error occurred when word is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "description": "Error While fetching word for the specified word identifier! | Error occurred when word is not found in the specified language, In general it is 'Resource Not Found Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -383,7 +387,7 @@
     },
     "/v1/language/parser": {
       "post": {
-        "summary": "Parset API",
+        "summary": "Parser API",
         "description": "This endpoint parses a given text and returns available information in EkStep language platform about that word",
         "tags": [
           "Tools"
@@ -764,7 +768,7 @@
         },
         "text": {
           "type": "string",
-          "description": "Text to be analysed"
+          "description": "Text to be analyzed"
         }
       }
     },
