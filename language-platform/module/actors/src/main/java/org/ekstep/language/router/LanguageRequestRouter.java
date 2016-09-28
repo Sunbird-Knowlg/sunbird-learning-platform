@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.language.actor.EnrichActor;
 import org.ekstep.language.actor.IndexesActor;
 import org.ekstep.language.actor.IndowordnetActor;
+import org.ekstep.language.actor.LanguageCacheActor;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -108,6 +109,11 @@ public class LanguageRequestRouter extends UntypedActor {
 		Props indowordnetProps = Props.create(IndowordnetActor.class);
 		ActorRef indowordnetMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(indowordnetProps));
 		LanguageActorPool.addActorRefToPool(null, LanguageActorNames.INDOWORDNET_ACTOR.name(), indowordnetMgr);
+
+		Props languageCacheProps = Props.create(LanguageCacheActor.class);
+        ActorRef languageCacheMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(languageCacheProps));
+        LanguageActorPool.addActorRefToPool(null, LanguageActorNames.LANGUAGE_CACHE_ACTOR.name(), languageCacheMgr);
+
 	}
 
 	/**
@@ -206,4 +212,5 @@ public class LanguageRequestRouter extends UntypedActor {
 			res.setResponseCode(ResponseCode.SERVER_ERROR);
 		}
 	}
+
 }

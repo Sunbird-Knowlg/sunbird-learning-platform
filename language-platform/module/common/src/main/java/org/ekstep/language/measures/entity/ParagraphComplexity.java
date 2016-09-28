@@ -42,6 +42,9 @@ public class ParagraphComplexity implements Serializable {
 	/** The total word complexity. */
 	private Double totalWordComplexity;
 
+	/** The mean complexity. */
+	private Double meanComplexity;
+
 	/** The word measures. */
 	private Map<String, ComplexityMeasures> wordMeasures = new HashMap<String, ComplexityMeasures>();
 
@@ -309,5 +312,26 @@ public class ParagraphComplexity implements Serializable {
 	public void setSyllableCountMap(Map<String, Integer> syllableCountMap) {
 		this.syllableCountMap = syllableCountMap;
 	}
+
+	/**
+	 * Gets the meanComplexity.
+	 *
+	 * @param meanComplexity
+	 *            meanComplexity
+	 */
+	public Double getMeanComplexity() {
+		return meanComplexity;
+	}
+
+	/**
+	 * Sets the meanComplexity.
+	 *
+	 * @param meanComplexity
+	 *            meanComplexity
+	 */
+	public void setMeanComplexity(Double meanComplexity) {
+		this.meanComplexity = meanComplexity;
+	}
+
 
 }

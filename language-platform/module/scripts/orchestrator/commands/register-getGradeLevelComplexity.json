@@ -1,0 +1,22 @@
+{
+  "name": "getGradeLevelComplexity",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    }
+  ],
+  "actorPath": {
+    "manager": "LANGUAGE_CACHE_ACTOR",
+    "operation": "getGradeLevelComplexities",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "requestPath":
+  {
+    "pathParams":["language_id"],
+    "type":"GET",
+    "url":"/v1/language/*/gradeLevelComplexity"
+  }
+}
