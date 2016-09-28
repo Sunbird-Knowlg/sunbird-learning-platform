@@ -25,14 +25,12 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.logger.LogHelper;
-import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
-import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 @Controller
@@ -43,9 +41,6 @@ public class ContentController extends BaseController {
 
     @Autowired
     private IContentManager contentManager;
-
-    @Autowired
-    IAuditLogManager auditLogManager;
 
     private static final Map<String, String> objectTypeMap = new HashMap<String, String>();
 
@@ -72,9 +67,6 @@ public class ContentController extends BaseController {
             try {
                 Response response = contentManager.create(taxonomyId, objectType, request);
                 LOGGER.info("Create | Response: " + response);
-                AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId,
-                        map.get("request").toString(), (String) map.get("COMMENT"));
-                auditLogManager.saveAuditRecord(audit);
                 return getResponseEntity(response, apiId,
                         (null != request.getParams()) ? request.getParams().getMsgid() : null);
             } catch (Exception e) {
@@ -106,9 +98,6 @@ public class ContentController extends BaseController {
             try {
                 Response response = contentManager.update(id, taxonomyId, objectType, request);
                 LOGGER.info("Update | Response: " + response);
-                AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId,
-                        (String) map.get("request").toString(), (String) map.get("COMMENT"));
-                auditLogManager.saveAuditRecord(audit);
                 return getResponseEntity(response, apiId,
                         (null != request.getParams()) ? request.getParams().getMsgid() : null);
             } catch (Exception e) {

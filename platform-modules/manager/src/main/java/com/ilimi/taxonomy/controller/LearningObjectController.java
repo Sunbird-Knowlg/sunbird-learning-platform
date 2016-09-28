@@ -20,12 +20,10 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
-import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.enums.LearningObjectAPIParams;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
-import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.taxonomy.mgr.ILearningObjectManager;
 
 @Controller
@@ -36,9 +34,6 @@ public class LearningObjectController extends BaseController {
 
     @Autowired
     private ILearningObjectManager lobManager;
-
-    @Autowired
-    IAuditLogManager auditLogManager;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
@@ -87,9 +82,6 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
-                    (String) map.get("COMMENT"));
-            auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
@@ -108,9 +100,6 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.createMedia(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
-                    (String) map.get("COMMENT"));
-            auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
@@ -130,9 +119,6 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId, (String) map.get("request")
-                    .toString(), (String) map.get("COMMENT"));
-            auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Update | Exception: " + e.getMessage(), e);
