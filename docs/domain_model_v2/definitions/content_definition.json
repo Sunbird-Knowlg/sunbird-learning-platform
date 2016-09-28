@@ -1101,6 +1101,18 @@
           "indexed": true
         },
         {
+          "propertyName": "instructions",
+          "title": "Instructions",
+          "description": "Instructions",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'textarea', 'order': 4}",
+          "indexed": true
+        },
+        {
           "required": false,
           "dataType": "XML",
           "propertyName": "body",

@@ -1,21 +1,12 @@
 
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.response.Response;
-
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.when;
-import static com.jayway.restassured.RestAssured.with;
 //import static com.jayway.restassured.RestAssured.parameters; 
-import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.RestAssured.baseURI;
+import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 //import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.neo4j.cypher.internal.compiler.v1_9.parser.Body;
-//import org.junit.runners.MethodSorters;
 
 public class RestAssuredExample {
 	

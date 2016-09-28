@@ -17,7 +17,7 @@ public class DomainAPITests extends BaseTest
 	public void getDomainsExpectSuccess200()
 	{
 		setURI();
-		given().
+		given().	
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
 			get("v2/domains").

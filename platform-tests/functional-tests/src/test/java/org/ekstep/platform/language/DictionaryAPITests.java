@@ -30,7 +30,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/language").
+			get("language/v1/language").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -44,7 +44,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/languages").
+			get("language/v1/languages").
 		then().
 			//log().all().
 			spec(get500ResponseSpec());
@@ -60,7 +60,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/language/dictionary/word/hi/synonym/hi:W:000209946").
+			get("language/v1/language/dictionary/word/hi/synonym/hi:W:000209946").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -73,7 +73,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/language/dictionary/word/hi/synonym/xyz").
+			get("language/v1/language/dictionary/word/hi/synonym/xyz").
 		then().
 			//log().all().
 			spec(get404ResponseSpec());
@@ -86,7 +86,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/language/dictionary/word/hin/synonym/hi:W:000209946").
+			get("language/v1/language/dictionary/word/hin/synonym/hi:W:000209946").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -100,7 +100,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/language/dictionary/word/en/relation/63736?relations=antonyms").
+			get("language/v1/language/dictionary/word/en/relation/63736?relations=antonyms").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -113,10 +113,10 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/language/dictionary/word/eng/relation/63736?relations=antonyms").
+			get("language/v1/language/dictionary/word/eng/relation/63736?relations=antonyms").
 		then().
 			//log().all().
-			spec(get400ResponseSpec());
+			spec(get404ResponseSpec());
 	}
 	
 	@Test
@@ -126,7 +126,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/language/dictionary/word/en/relatin/63736?relations=antonyms").
+			get("language/v1/language/dictionary/word/en/relatin/63736?relations=antonyms").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -144,7 +144,7 @@ public class DictionaryAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/dictionary/word/en/").
+			post("language/dictionary/word/en/").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -159,7 +159,7 @@ public class DictionaryAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/dictionary/word/en/").
+			post("language/v1/language/dictionary/word/en/").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -174,7 +174,7 @@ public class DictionaryAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/dictionary/word/en/").
+			post("language/v1/language/dictionary/word/en/").
 		then().
 			log().all().
 			spec(get200ResponseSpec()).
@@ -191,7 +191,7 @@ public class DictionaryAPITests extends BaseTest
 			with().
 				contentType(JSON).
 			when().
-				post("v1/language/dictionary/word/en/").
+				post("language/v1/language/dictionary/word/en/").
 			then().
 				log().all().
 				spec(get400ResponseSpec()).
@@ -205,7 +205,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("v1/language/dictionary/word/en").
+			get("language/v1/language/dictionary/word/en").
 	then().
 		log().all().
 		spec(get200ResponseSpec());
@@ -217,7 +217,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		when().
-			patch("v1/language/dictionary/word/abc").
+			patch("language/v1/language/dictionary/word/abc").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -231,7 +231,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("v1/language/dictionary/word/en/en:W:Test QA1").
+			get("language/v1/language/dictionary/word/en/en:W:Test QA1").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -243,7 +243,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		when().
-			patch("v1/language/dictionary/word/en/en:W:TestXYZ").
+			patch("language/v1/language/dictionary/word/en/en:W:TestXYZ").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -260,7 +260,7 @@ public class DictionaryAPITests extends BaseTest
 		with().
 			contentType("application/json").
 		when().
-			post("v1/language/dictionary/search/en").
+			post("language/v1/language/dictionary/search/en").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -276,7 +276,7 @@ public class DictionaryAPITests extends BaseTest
 		with().
 			contentType("application/json").
 		when().
-			post("v1/language/dictionary/search/en").
+			post("language/v1/language/dictionary/search/en").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -288,7 +288,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		when().
-			post("v1/language/dictionary/word/en/en:W:Test QA2/synonym/en:S:Test QA45").
+			post("language/v1/language/dictionary/word/en/en:W:Test QA2/synonym/en:S:Test QA45").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -301,7 +301,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		when().
-			post("v1/language/dictionary/word/en/en:W:Test QA4/synonym/en:W:Test QA45").
+			post("language/v1/language/dictionary/word/en/en:W:Test QA4/synonym/en:W:Test QA45").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -313,7 +313,7 @@ public class DictionaryAPITests extends BaseTest
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		when().
-			post("v1/language/dictionary/word/en/en:W:Test QA28/synonym/en:W:Test QA44").
+			post("language/v1/language/dictionary/word/en/en:W:Test QA28/synonym/en:W:Test QA44").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
