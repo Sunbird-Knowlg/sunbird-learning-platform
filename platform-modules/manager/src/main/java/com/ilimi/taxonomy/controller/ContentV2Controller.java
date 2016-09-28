@@ -1,7 +1,9 @@
 package com.ilimi.taxonomy.controller;
 
+import java.io.File;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -42,9 +44,6 @@ public class ContentV2Controller extends BaseController {
 	private static LogHelper LOGGER = LogHelper.getInstance(ContentV2Controller.class.getName());
 
 	@Autowired
-	private ContentController contentController;
-
-	@Autowired
 	private IContentManager contentManager;
 
 	/** The graph id. */
@@ -70,14 +69,23 @@ public class ContentV2Controller extends BaseController {
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = true) MultipartFile file,
 			@RequestHeader(value = "user-id") String userId) {
-
+		String apiId = "content.upload";
 		LOGGER.debug("Upload Content | Content Id: " + contentId);
-
 		LOGGER.info("Uploaded File Name: " + file.getName());
 		LOGGER.info("User Id: " + userId);
-
 		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
-		return contentController.upload(contentId, file, "domain", userId, null);
+        try {
+            String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
+                    + FilenameUtils.getExtension(file.getOriginalFilename());
+            File uploadedFile = new File(name);
+            file.transferTo(uploadedFile);
+            Response response = contentManager.upload(contentId, "domain", uploadedFile, "");
+            LOGGER.info("Upload | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
 	}
 
 	/**

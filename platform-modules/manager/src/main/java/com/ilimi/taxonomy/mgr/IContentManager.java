@@ -4,7 +4,6 @@ import java.io.File;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.taxonomy.mgr.impl.ContentManagerImpl;
 
 /**
@@ -19,110 +18,6 @@ import com.ilimi.taxonomy.mgr.impl.ContentManagerImpl;
  * @see ContentManagerImpl
  */
 public interface IContentManager {
-
-	/**
-	 * Creates the Content Node into the Graph Database with all the minimum set
-	 * of required fields.
-	 *
-	 * @param taxonomyId
-	 *            the graph id for the content node.
-	 * @param objectType
-	 *            the content type of content.
-	 * @param request
-	 *            the request body is the map of all other properties.
-	 * @return the response contains the created node id as 'node_id' in its
-	 *         result set.
-	 */
-	Response create(String taxonomyId, String objectType, Request request);
-
-	/**
-	 * Find all the Content Nodes into the Graph defined in the request body
-	 * along with other Search Criteria.
-	 *
-	 * @param taxonomyId
-	 *            the graph id for the content node.
-	 * @param objectType
-	 *            the content type of content.
-	 * @param offset
-	 *            the offset of search responses.
-	 * @param limit
-	 *            the limit of records should be shown
-	 * @param gfields
-	 *            the gfields is the name of fields by which the result should
-	 *            be grouped.
-	 * @return the response contains an Array of found nodes map and an empty
-	 *         array when none of the content nodes matches the criteria.
-	 * 
-	 * @see SearchCriteria
-	 */
-	Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit, String[] gfields);
-
-	/**
-	 * Finds the specified Content Node by ID.
-	 *
-	 * @param id
-	 *            the id of the Content node
-	 * @param taxonomyId
-	 *            the graph id of content
-	 * @param fields
-	 *            the fields is an array of properties needed in response.
-	 * @return the response contains a map if node found otherwise
-	 *         "RESOURCE_NOT_FOUND" response code.
-	 */
-	Response find(String id, String taxonomyId, String[] fields);
-
-	/**
-	 * Update the specified content Node ID. with the given meta-data in the
-	 * body of request.
-	 *
-	 * @param id
-	 *            the id
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param objectType
-	 *            the object type
-	 * @param request
-	 *            the request object
-	 * @return the response object
-	 */
-	Response update(String id, String taxonomyId, String objectType, Request request);
-
-	/**
-	 * Delete.
-	 *
-	 * @param id
-	 *            the id
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @return the response object
-	 */
-	Response delete(String id, String taxonomyId);
-
-	/**
-	 * List contents.
-	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param objectType
-	 *            the object type
-	 * @param request
-	 *            the request object
-	 * @return the response object
-	 */
-	Response listContents(String taxonomyId, String objectType, Request request);
-
-	/**
-	 * Search.
-	 *
-	 * @param taxonomyId
-	 *            the taxonomy id
-	 * @param objectType
-	 *            the object type
-	 * @param request
-	 *            the request object
-	 * @return the response object
-	 */
-	Response search(String taxonomyId, String objectType, Request request);
 
 	/**
 	 * Upload is High level Content Operation uploads the content package over
