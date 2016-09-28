@@ -212,5 +212,5 @@ public class LanguageRequestRouter extends UntypedActor {
 			res.setResponseCode(ResponseCode.SERVER_ERROR);
 		}
 	}
->>>>>>> master
+
 }
