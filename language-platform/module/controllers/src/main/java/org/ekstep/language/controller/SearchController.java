@@ -2,10 +2,6 @@ package org.ekstep.language.controller;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ekstep.language.common.enums.LanguageObjectTypes;
-import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
 /**
@@ -29,12 +24,8 @@ import com.ilimi.common.dto.Response;
 @RequestMapping("v1/language/dictionary/search")
 public class SearchController extends BaseController {
 
-	/** The dictionary manager. */
 	@Autowired
-	private IDictionaryManager dictionaryManager;
-
-	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ParserController.class.getName());
+	private SearchControllerV2 searchController;
 
 	/**
 	 * List the words based on input query
@@ -49,20 +40,9 @@ public class SearchController extends BaseController {
 	 */
 	@RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> search(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "word.search";
-		Request request = getRequest(map);
-		try {
-			Response response = dictionaryManager.list(languageId, LanguageObjectTypes.Word.name(), request);
-			LOGGER.info("Search | Response: " + response);
-			return getResponseEntity(response, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-		} catch (Exception e) {
-			LOGGER.error("Search | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-		}
+		return searchController.search(languageId, map, userId, API_VERSION);
 	}
 
 }

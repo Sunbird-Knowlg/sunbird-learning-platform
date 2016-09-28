@@ -1,6 +1,7 @@
 
 package org.ekstep.language.controller;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -8,10 +9,12 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
+import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
@@ -28,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 /**
@@ -42,10 +46,6 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	@Autowired
 	private IDictionaryManager dictionaryManager;
 
-	/** The word controller. */
-	@Autowired
-	private WordController wordController;
-
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(DictionaryControllerV2.class.getName());
 
@@ -59,7 +59,20 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	@RequestMapping(value = "/media/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@RequestParam(value = "file", required = true) MultipartFile file) {
-		return wordController.upload(file);
+		String apiId = "media.upload";
+		LOGGER.info("Upload | File: " + file);
+		try {
+			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
+					+ FilenameUtils.getExtension(file.getOriginalFilename());
+			File uploadedFile = new File(name);
+			file.transferTo(uploadedFile);
+			Response response = dictionaryManager.upload(uploadedFile);
+			LOGGER.info("Upload | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**
@@ -196,11 +209,12 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	public ResponseEntity<Response> find(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "objectId") String objectId,
 			@RequestParam(value = "fields", required = false) String[] fields,
-			@RequestHeader(value = "user-id") String userId) {
+			@RequestHeader(value = "user-id") String userId,
+			@RequestParam(value = "version", required = false, defaultValue = API_VERSION_2) String version) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
-			Response response = dictionaryManager.findV2(languageId, objectId, fields);
+			Response response = dictionaryManager.find(languageId, objectId, fields, version);
 			LOGGER.info("Find | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -227,11 +241,12 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	public ResponseEntity<Response> findAll(@PathVariable(value = "languageId") String languageId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "limit", required = false) Integer limit,
-			@RequestHeader(value = "user-id") String userId) {
+			@RequestHeader(value = "user-id") String userId,
+			@RequestParam(value = "version", required = false, defaultValue = API_VERSION_2) String version) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".list";
 		try {
-			Response response = dictionaryManager.findAllV2(languageId, objectType, fields, limit);
+			Response response = dictionaryManager.findAll(languageId, objectType, fields, limit, version);
 			LOGGER.info("Find All | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -257,7 +272,19 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	public ResponseEntity<Response> findWordsCSV(@PathVariable(value = "languageId") String languageId,
 			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse response) {
-		return wordController.findWordsCSV(languageId, file, userId, response);
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".findWordsCSV";
+		try {
+			response.setContentType("text/csv");
+			response.setHeader("Content-Disposition", "attachment; filename=words.csv");
+			dictionaryManager.findWordsCSV(languageId, objectType, file.getInputStream(), response.getOutputStream());
+			LOGGER.info("Find CSV | Response");
+			response.getOutputStream().close();
+			Response resp = new Response();
+			return getResponseEntity(resp, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**
@@ -280,7 +307,16 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	public ResponseEntity<Response> deleteRelation(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "objectId1") String objectId1, @PathVariable(value = "relation") String relation,
 			@PathVariable(value = "objectId2") String objectId2, @RequestHeader(value = "user-id") String userId) {
-		return wordController.deleteRelation(languageId, objectId1, relation, objectId2, userId);
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".relation.delete";
+		try {
+			Response response = dictionaryManager.deleteRelation(languageId, objectType, objectId1, relation,
+					objectId2);
+			LOGGER.info("Delete Relation | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**
@@ -298,61 +334,29 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            User making the request
 	 * @return the response entity
 	 */
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> addRelation(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "objectId1") String objectId1, @PathVariable(value = "relation") String relation,
 			@PathVariable(value = "objectId2") String objectId2, @RequestHeader(value = "user-id") String userId) {
-		return wordController.addRelation(languageId, objectId1, relation, objectId2, userId);
-	}
-
-	/**
-	 * Gets the synonyms of a given word.
-	 *
-	 * @param languageId
-	 *            Graph Id
-	 * @param objectId
-	 *            word Id
-	 * @param relation
-	 *            relation of the word
-	 * @param fields
-	 *            List of fields in the response
-	 * @param relations
-	 *            the relations
-	 * @param userId
-	 *            User making the request
-	 * @return the synonyms
-	 */
-	@RequestMapping(value = "/{languageId}/{relation}/{objectId:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> getSynonyms(@PathVariable(value = "languageId") String languageId,
-			@PathVariable(value = "objectId") String objectId, @PathVariable(value = "relation") String relation,
-			@RequestParam(value = "fields", required = false) String[] fields,
-			@RequestParam(value = "relations", required = false) String[] relations,
-			@RequestHeader(value = "user-id") String userId) {
-		return wordController.getSynonyms(languageId, objectId, relation, fields, relations, userId);
-	}
-
-	/**
-	 * Get translations of the given words in other languages.
-	 *
-	 * @param languageId
-	 *            Graph Id
-	 * @param words
-	 *            List of lemmas
-	 * @param languages
-	 *            List of languages
-	 * @param userId
-	 *            User making the request
-	 * @return the translations
-	 */
-	@RequestMapping(value = "/{languageId}/translation", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> getTranslations(@PathVariable(value = "languageId") String languageId,
-			@RequestParam(value = "words", required = false) String[] words,
-			@RequestParam(value = "languages", required = false) String[] languages,
-			@RequestHeader(value = "user-id") String userId) {
-		return wordController.getTranslations(languageId, words, languages, userId);
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".relation.add";
+		try {
+			Response response = dictionaryManager.addRelation(languageId, objectType, objectId1, relation, objectId2);
+			List<String> messages = (List<String>) response.get("messages");
+			if (messages != null) {
+				String finalMessage = "";
+				for (String message : messages) {
+					finalMessage = finalMessage + ", " + message;
+				}
+				throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), finalMessage.substring(2));
+			}
+			LOGGER.info("Add Relation | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/*

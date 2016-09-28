@@ -30,8 +30,8 @@ import com.ilimi.common.exception.ResponseCode;
 public abstract class BaseController {
 
     private static final String API_ID_PREFIX = "ekstep";
-    protected static final String API_VERSION = "1.0";
-    protected static final String API_VERSION_2 = "2.0";
+    public static final String API_VERSION = "1.0";
+    public static final String API_VERSION_2 = "2.0";
     protected ObjectMapper mapper = new ObjectMapper();
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {

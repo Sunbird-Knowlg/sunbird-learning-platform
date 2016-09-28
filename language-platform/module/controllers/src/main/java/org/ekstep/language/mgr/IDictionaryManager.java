@@ -26,34 +26,6 @@ public interface IDictionaryManager {
 	Response upload(File uploadedFile);
 
 	/**
-	 * Creates the word.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param objectType
-	 *            the object type
-	 * @param request
-	 *            the word object body
-	 * @return the response
-	 */
-	Response create(String languageId, String objectType, Request request);
-
-	/**
-	 * Updates the word.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param id
-	 *            the id
-	 * @param objectType
-	 *            the object type
-	 * @param request
-	 *            the word object body
-	 * @return the response
-	 */
-	Response update(String languageId, String id, String objectType, Request request);
-
-	/**
 	 * Find the word.
 	 *
 	 * @param languageId
@@ -62,12 +34,14 @@ public interface IDictionaryManager {
 	 *            the word id
 	 * @param fields
 	 *            the fields to be returned in the result
+	 * @param version
+	 *            version number of the API
 	 * @return the response
 	 */
-	Response find(String languageId, String id, String[] fields);
+	Response find(String languageId, String id, String[] fields, String version);
 
 	/**
-	 * Find all the words.
+	 * Find all the words. For version v2, finds all words and populates primary meanings and relations.
 	 *
 	 * @param languageId
 	 *            the language id
@@ -77,9 +51,11 @@ public interface IDictionaryManager {
 	 *            the fields to be returned in the result
 	 * @param limit
 	 *            the result limit
+	 * @param version
+	 *            version number of the API
 	 * @return the response
 	 */
-	Response findAll(String languageId, String objectType, String[] fields, Integer limit);
+	Response findAll(String languageId, String objectType, String[] fields, Integer limit, String version);
 
 	/**
 	 * Deletes relation between nodes.
@@ -99,7 +75,8 @@ public interface IDictionaryManager {
 	Response deleteRelation(String languageId, String objectType, String objectId1, String relation, String objectId2);
 
 	/**
-	 * List the words.
+	 * List the words. For version 2, lists all words based on the filters and populates primary meanings and
+	 * relations.
 	 *
 	 * @param languageId
 	 *            the language id
@@ -107,9 +84,11 @@ public interface IDictionaryManager {
 	 *            the object type
 	 * @param request
 	 *            the filter body
+	 * @param version
+	 *            version number of the API
 	 * @return the response
 	 */
-	Response list(String languageId, String objectType, Request request);
+	Response list(String languageId, String objectType, Request request, String version);
 
 	/**
 	 * Adds the relation between nodes.
@@ -127,39 +106,6 @@ public interface IDictionaryManager {
 	 * @return the response
 	 */
 	Response addRelation(String languageId, String objectType, String objectId1, String relation, String objectId2);
-
-	/**
-	 * Returns the Related objects.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param objectType
-	 *            the object type
-	 * @param objectId
-	 *            the word id
-	 * @param relation
-	 *            the relation name
-	 * @param fields
-	 *            the fields to be returned in the result
-	 * @param relations
-	 *            the relations to be returned
-	 * @return the response
-	 */
-	Response relatedObjects(String languageId, String objectType, String objectId, String relation, String[] fields,
-			String[] relations);
-
-	/**
-	 * Returns the word Translations in given languages.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param words
-	 *            the words
-	 * @param languages
-	 *            the languages
-	 * @return the response
-	 */
-	Response translation(String languageId, String[] words, String[] languages);
 
 	/**
 	 * Imports words and synsets from a CSV file.
@@ -219,48 +165,6 @@ public interface IDictionaryManager {
 	 * @return the response
 	 */
 	Response updateWordV2(String languageId, String id, String objectType, Request request, boolean forceUpdate);
-
-	/**
-	 * Finds the word and populates primary meanings and relations.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param id
-	 *            the id
-	 * @param fields
-	 *            the fields
-	 * @return the response
-	 */
-	Response findV2(String languageId, String id, String[] fields);
-
-	/**
-	 * Find all words and populates primary meanings and relations.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param objectType
-	 *            the object type
-	 * @param fields
-	 *            the fields
-	 * @param limit
-	 *            the limit
-	 * @return the response
-	 */
-	Response findAllV2(String languageId, String objectType, String[] fields, Integer limit);
-
-	/**
-	 * List all words based on the filters and populates primary meanings and
-	 * relations.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param name
-	 *            the name
-	 * @param request
-	 *            the request
-	 * @return the response
-	 */
-	Response listV2(String languageId, String name, Request request);
 
 	/**
 	 * Load english words arpabets map into Redis.

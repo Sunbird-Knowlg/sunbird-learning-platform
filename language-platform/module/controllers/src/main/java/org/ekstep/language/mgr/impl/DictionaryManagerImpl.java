@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -125,144 +126,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         return response;
     }
 
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.language.mgr.IDictionaryManager#create(java.lang.String,
-	 * java.lang.String, com.ilimi.common.dto.Request)
-	 */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-	public Response create(String languageId, String objectType, Request request) {
-		if (StringUtils.isBlank(languageId))
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-		if (StringUtils.isBlank(objectType))
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
-		try {
-			List<Map> items = (List<Map>) request.get(LanguageParams.words.name());
-			List<Node> nodeList = new ArrayList<Node>();
-			if (null == items || items.size() <= 0)
-				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(),
-						objectType + " Object is blank");
-			try {
-				if (null != items && !items.isEmpty()) {
-					Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER,
-							"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
-					Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-					if (checkError(responseDefiniton)) {
-						return responseDefiniton;
-					}
-					DefinitionDTO definition = (DefinitionDTO) responseDefiniton
-							.get(GraphDACParams.definition_node.name());
-					for (Map item : items) {
-						String lemma = (String) item.get(LanguageParams.lemma.name());
-						String language = LanguageMap.getLanguage(languageId).toUpperCase();
-						boolean isValid = isValidWord(lemma, language);
-						if (!isValid) {
-							return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-									"Lemma cannot be in a different language than " + language,
-									ResponseCode.CLIENT_ERROR);
-						}
-						Node node = convertToGraphNode(languageId, objectType, item, definition);
-						nodeList.add(node);
-					}
-				}
-			} catch (Exception e) {
-				LOGGER.error(e.getMessage(), e);
-				throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), e.getMessage());
-			}
-			Response createRes = new Response();
-			Response errResponse = null;
-			List<String> lstNodeId = new ArrayList<String>();
-			for (Node node : nodeList) {
-				node.setObjectType(objectType);
-				Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-				validateReq.put(GraphDACParams.node.name(), node);
-				Response validateRes = getResponse(validateReq, LOGGER);
-				if (checkError(validateRes)) {
-					return validateRes;
-				} else {
-					Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-					createReq.put(GraphDACParams.node.name(), node);
-					Response res = getResponse(createReq, LOGGER);
-					if (checkError(res)) {
-						errResponse = res;
-					} else {
-						Map<String, Object> result = res.getResult();
-						if (result != null) {
-							String nodeId = (String) result.get("node_id");
-							if (nodeId != null) {
-								lstNodeId.add(nodeId);
-							}
-						}
-					}
-					createRes = res;
-				}
-			}
-			if (null == errResponse) {
-				createRes.getResult().remove(GraphDACParams.node_id.name());
-				createRes.put(GraphDACParams.node_ids.name(), lstNodeId);
-				return createRes;
-			} else {
-				errResponse.getResult().remove(GraphDACParams.node_id.name());
-				errResponse.put(GraphDACParams.node_ids.name(), lstNodeId);
-				return errResponse;
-			}
-		} catch (ClassCastException e) {
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
-		}
-	}
-
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.language.mgr.IDictionaryManager#update(java.lang.String,
-	 * java.lang.String, java.lang.String, com.ilimi.common.dto.Request)
-	 */
-	@SuppressWarnings({ "unchecked" })
-	@Override
-	public Response update(String languageId, String id, String objectType, Request request) {
-		if (StringUtils.isBlank(languageId))
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-		if (StringUtils.isBlank(id))
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
-		if (StringUtils.isBlank(objectType))
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
-		try {
-			Map<String, Object> item = (Map<String, Object>) request.get(objectType.toLowerCase().trim());
-			if (null == item)
-				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(),
-						objectType + " Object is blank");
-			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-					GraphDACParams.object_type.name(), objectType);
-			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-			Node node = null;
-			if (checkError(responseDefiniton)) {
-				return responseDefiniton;
-			} else {
-				String lemma = (String) item.get(LanguageParams.lemma.name());
-				String language = LanguageMap.getLanguage(languageId).toUpperCase();
-				boolean isValid = isValidWord(lemma, language);
-				if (!isValid) {
-					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-							"Lemma cannot be in a different language than " + language,
-							ResponseCode.CLIENT_ERROR);
-				}
-				DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
-				node = convertToGraphNode(languageId, objectType, item, definition);
-				node.setIdentifier(id);
-				node.setObjectType(objectType);
-			}
-			Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-			updateReq.put(GraphDACParams.node.name(), node);
-			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-			Response updateRes = getResponse(updateReq, LOGGER);
-			return updateRes;
-		} catch (ClassCastException e) {
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
-		}
-	}
-	
 	/**
 	 * Checks if is valid word.
 	 *
@@ -302,42 +165,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         return result;
     }
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.language.mgr.IDictionaryManager#find(java.lang.String,
-	 * java.lang.String, java.lang.String[])
-	 */
-    @Override
-    public Response find(String languageId, String id, String[] fields) {
-        if (StringUtils.isBlank(languageId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-        if (StringUtils.isBlank(id))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
-        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-                GraphDACParams.node_id.name(), id);
-        request.put(GraphDACParams.get_tags.name(), true);
-        Response getNodeRes = getResponse(request, LOGGER);
-        if (checkError(getNodeRes)) {
-            return getNodeRes;
-        } else {
-            Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-            Map<String, Object> map = convertGraphNode(node, languageId, "Word", fields, true);
-            Response response = copyResponse(getNodeRes);
-            response.put(LanguageObjectTypes.Word.name(), map);
-            return response;
-        }
-    }
-
     /*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.ekstep.language.mgr.IDictionaryManager#findAll(java.lang.String,
-	 * java.lang.String, java.lang.String[], java.lang.Integer)
+	 * java.lang.String, java.lang.String[], java.lang.Integer, java.lang.String)
 	 */
     @SuppressWarnings("unchecked")
     @Override
-    public Response findAll(String languageId, String objectType, String[] fields, Integer limit) {
+    public Response findAll(String languageId, String objectType, String[] fields, Integer limit, String version) {
         if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (StringUtils.isBlank(objectType))
@@ -362,7 +198,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
                 for (Node node : nodes) {
-                    Map<String, Object> map = convertGraphNode(node, languageId, objectType, fields, false);
+                	Map<String, Object> map = null;
+                	if (StringUtils.equalsIgnoreCase(BaseController.API_VERSION, version))
+                		map = convertGraphNode(node, languageId, objectType, fields, false);
+                	else
+                		map = addPrimaryAndOtherMeaningsToWord(node, languageId);
                     if (null != map && !map.isEmpty()) {
                         list.add(map);
                     }
@@ -706,160 +546,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     /*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.language.mgr.IDictionaryManager#relatedObjects(java.lang.
-	 * String, java.lang.String, java.lang.String, java.lang.String,
-	 * java.lang.String[], java.lang.String[])
-	 */
-    @SuppressWarnings("unchecked")
-    @Override
-    public Response relatedObjects(String languageId, String objectType, String objectId, String relation,
-            String[] fields, String[] relations) {
-        if (StringUtils.isBlank(languageId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-        if (StringUtils.isBlank(objectType))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
-        if (StringUtils.isBlank(objectId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
-        if (StringUtils.isBlank(relation))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_RELATION_NAME.name(), "Relation name is blank");
-        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-                GraphDACParams.node_id.name(), objectId);
-        request.put(GraphDACParams.get_tags.name(), true);
-        Response getNodeRes = getResponse(request, LOGGER);
-        if (checkError(getNodeRes)) {
-            return getNodeRes;
-        } else {
-            Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-            Map<String, Object> map = convertGraphNode(node, languageId, objectType, fields, false);
-            if (StringUtils.equalsIgnoreCase("synonym", relation)) {
-                List<Map<String, Object>> synonyms = (List<Map<String, Object>>) map.get("synonyms");
-                getSynsetMembers(languageId, synonyms);
-                Response response = copyResponse(getNodeRes);
-                response.put(LanguageParams.synonyms.name(), synonyms);
-                return response;
-            } else {
-                Map<String, List<NodeDTO>> relationMap = new HashMap<String, List<NodeDTO>>();
-                if (null != relations && relations.length > 0) {
-                    for (String rel : relations) {
-                        if (map.containsKey(rel)) {
-                            try {
-                                List<NodeDTO> list = (List<NodeDTO>) map.get(rel);
-                                relationMap.put(rel, list);
-                            } catch (Exception e) {
-                            }
-                        }
-                    }
-                }
-                Response response = copyResponse(getNodeRes);
-                response.put(LanguageParams.relations.name(), relationMap);
-                return response;
-            }
-        }
-    }
-
-    /**
-	 * Gets the synset members.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param synonyms
-	 *            the synonyms
-	 * @return the synset members
-	 */
-    @SuppressWarnings("unchecked")
-    private void getSynsetMembers(String languageId, List<Map<String, Object>> synonyms) {
-        if (null != synonyms && !synonyms.isEmpty()) {
-            List<String> synsetIds = new ArrayList<String>();
-            for (Map<String, Object> synonymObj : synonyms) {
-                String synsetId = (String) synonymObj.get("identifier");
-                if (StringUtils.isNotBlank(synsetId))
-                    synsetIds.add(synsetId);
-            }
-            Request synsetReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
-                    GraphDACParams.node_ids.name(), synsetIds);
-            Response synsetRes = getResponse(synsetReq, LOGGER);
-            List<Node> synsets = (List<Node>) synsetRes.get(GraphDACParams.node_list.name());
-            Map<String, List<String>> membersMap = new HashMap<String, List<String>>();
-            if (null != synsets && !synsets.isEmpty()) {
-                for (Node synset : synsets) {
-                    List<String> words = getSynsetMemberWords(synset);
-                    membersMap.put(synset.getIdentifier(), words);
-                }
-            }
-            for (Map<String, Object> synonymObj : synonyms) {
-                String synsetId = (String) synonymObj.get("identifier");
-                if (membersMap.containsKey(synsetId)) {
-                    List<String> words = membersMap.get(synsetId);
-                    synonymObj.put("words", words);
-                }
-            }
-        }
-    }
-
-    /**
-	 * Gets the synset member words.
-	 *
-	 * @param synset
-	 *            the synset
-	 * @return the synset member words
-	 */
-    private List<String> getSynsetMemberWords(Node synset) {
-        List<String> words = new ArrayList<String>();
-        List<Relation> outRels = synset.getOutRelations();
-        if (null != outRels && !outRels.isEmpty()) {
-            for (Relation outRel : outRels) {
-                if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), outRel.getRelationType())) {
-                    String word = getOutRelationWord(outRel);
-                    if (StringUtils.isNotBlank(word))
-                        words.add(word);
-                }
-            }
-        }
-        return words;
-    }
-
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.ekstep.language.mgr.IDictionaryManager#translation(java.lang.String,
-	 * java.lang.String[], java.lang.String[])
-	 */
-    @Override
-    public Response translation(String languageId, String[] words, String[] languages) {
-        if (StringUtils.isBlank(languageId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-        if (null == words || words.length <= 0)
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Word list is empty");
-        if (null == languages || languages.length <= 0)
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "language list is empty");
-        Map<String, Object> map = new HashMap<String, Object>();
-        Response response = null;
-        for (String word : words) {
-            Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-                    GraphDACParams.node_id.name(), word);
-            request.put(GraphDACParams.get_tags.name(), true);
-            Response getNodeRes = getResponse(request, LOGGER);
-            if (checkError(getNodeRes)) {
-                return getNodeRes;
-            } else {
-            	response = copyResponse(getNodeRes);
-                Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-                map.put(word, node.getMetadata().get("translations"));
-                response.put("translations", map);
-            }
-        }
-        return response;
-    }
-
-    /*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.ekstep.language.mgr.IDictionaryManager#list(java.lang.String,
-	 * java.lang.String, com.ilimi.common.dto.Request)
+	 * java.lang.String, com.ilimi.common.dto.Request, java.lang.String)
 	 */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Response list(String languageId, String objectType, Request request) {
+    public Response list(String languageId, String objectType, Request request, String version) {
         if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         SearchCriteria sc = new SearchCriteria();
@@ -923,90 +614,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             if (null != nodes && !nodes.isEmpty()) {
                 String[] fields = getFields(request);
                 for (Node node : nodes) {
-                    Map<String, Object> map = convertGraphNode(node, languageId, objectType, fields, false);
-                    if (null != map && !map.isEmpty()) {
-                        list.add(map);
-                    }
-                }
-            }
-            Response response = copyResponse(listRes);
-            response.put("words", list);
-            return response;
-        }
-    }
-    
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.language.mgr.IDictionaryManager#listV2(java.lang.String,
-	 * java.lang.String, com.ilimi.common.dto.Request)
-	 */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public Response listV2(String languageId, String objectType, Request request) {
-        if (StringUtils.isBlank(languageId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-        SearchCriteria sc = new SearchCriteria();
-        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
-        sc.setObjectType(objectType);
-        sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
-        setLimit(request, sc);
-
-        List<Filter> filters = new ArrayList<Filter>();
-        List<String> statusList = new ArrayList<String>();
-        Object statusParam = request.get(PARAM_STATUS);
-        if (null != statusParam) {
-            statusList = getList(mapper, statusParam, true);
-            if (null != statusList && !statusList.isEmpty())
-                filters.add(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList));
-        }
-        if (null != request.getRequest() && !request.getRequest().isEmpty()) {
-            for (Entry<String, Object> entry : request.getRequest().entrySet()) {
-                if (!StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
-                        && !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
-                        && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
-                        && !StringUtils.equalsIgnoreCase("word-lists", entry.getKey())
-                        && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                    Object val = entry.getValue();
-                    List list = getList(mapper, val, false);
-                    if (null != list && !list.isEmpty()) {
-                        if (list.size() > 1)
-                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
-                        else {
-                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, list.get(0)));
-                        }
-                    } else if (null != val && StringUtils.isNotBlank(val.toString())) {
-                        if (val instanceof String)
-                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
-                        else
-                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
-                    }
-                } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                    Object val = entry.getValue();
-                    List<String> tags = getList(mapper, val, true);
-                    if (null != tags && !tags.isEmpty()) {
-                        TagCriterion tc = new TagCriterion(tags);
-                        sc.setTag(tc);
-                    }
-                }
-            }
-        }
-        if (null != filters && !filters.isEmpty()) {
-            MetadataCriterion mc = MetadataCriterion.create(filters);
-            sc.addMetadata(mc);
-        }
-        Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-                GraphDACParams.search_criteria.name(), sc);
-        req.put(GraphDACParams.get_tags.name(), true);
-        Response listRes = getResponse(req, LOGGER);
-        if (checkError(listRes))
-            return listRes;
-        else {
-            List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
-            List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-            if (null != nodes && !nodes.isEmpty()) {
-                String[] fields = getFields(request);
-                for (Node node : nodes) {
-                	Map<String, Object> map = addPrimaryAndOtherMeaningsToWord(node, languageId);
+                	Map<String, Object> map = null;
+                	if (StringUtils.equalsIgnoreCase(BaseController.API_VERSION, version))
+                		map = convertGraphNode(node, languageId, objectType, fields, false);
+                	else
+                		map = addPrimaryAndOtherMeaningsToWord(node, languageId);
                     if (null != map && !map.isEmpty()) {
                         list.add(map);
                     }
@@ -2732,10 +2344,10 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * (non-Javadoc)
 	 * 
 	 * @see org.ekstep.language.mgr.IDictionaryManager#findV2(java.lang.String,
-	 * java.lang.String, java.lang.String[])
+	 * java.lang.String, java.lang.String[], java.lang.String)
 	 */
 	@Override
-	public Response findV2(String languageId, String id, String[] fields) {
+	public Response find(String languageId, String id, String[] fields, String version) {
 		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(id))
@@ -2749,7 +2361,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		} else {
 			try {
 				Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-				Map<String, Object> map = addPrimaryAndOtherMeaningsToWord(node, languageId);
+				Map<String, Object> map = null;
+				if (StringUtils.equalsIgnoreCase(BaseController.API_VERSION, version))
+					map = convertGraphNode(node, languageId, "Word", fields, true);
+				else
+					map = addPrimaryAndOtherMeaningsToWord(node, languageId);
 				Response response = copyResponse(getNodeRes);
 				response.put(LanguageObjectTypes.Word.name(), map);
 				return response;
@@ -2971,52 +2587,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			}
 		}
 		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.ekstep.language.mgr.IDictionaryManager#findAllV2(java.lang.String,
-	 * java.lang.String, java.lang.String[], java.lang.Integer)
-	 */
-	@SuppressWarnings("unchecked")
-	@Override
-	public Response findAllV2(String languageId, String objectType, String[] fields, Integer limit) {
-		if (StringUtils.isBlank(languageId))
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-		if (StringUtils.isBlank(objectType))
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is blank");
-		LOGGER.info("Find All Content : " + languageId + ", ObjectType: " + objectType);
-		SearchCriteria sc = new SearchCriteria();
-		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
-		sc.setObjectType(objectType);
-		sc.sort(new Sort(PARAM_STATUS, Sort.SORT_ASC));
-		if (null != limit && limit.intValue() > 0)
-			sc.setResultSize(limit);
-		else
-			sc.setResultSize(DEFAULT_LIMIT);
-		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-				GraphDACParams.search_criteria.name(), sc);
-		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
-		if (checkError(findRes))
-			return findRes;
-		else {
-			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-			if (null != nodes && !nodes.isEmpty()) {
-				for (Node node : nodes) {
-					Map<String, Object> map = addPrimaryAndOtherMeaningsToWord(node, languageId);
-					if (null != map && !map.isEmpty()) {
-						list.add(map);
-					}
-				}
-			}
-			Response response = copyResponse(findRes);
-			response.put("words", list);
-			return response;
-		}
 	}
 
 	/*
