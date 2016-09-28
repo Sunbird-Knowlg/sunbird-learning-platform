@@ -274,6 +274,30 @@ public class ElasticSearchUtil {
 		}
 		return documents;
 	}
+	
+	@SuppressWarnings({ "rawtypes" })
+	public List<Map> textSearchReturningId(Map<String, Object> matchCriterias, String IndexName,
+			String IndexType) throws IOException {
+		SearchResult result = search(matchCriterias, null, IndexName, IndexType, null, false);
+		return getDocumentsFromSearchResultWithId(result);
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Map> getDocumentsFromSearchResultWithId(SearchResult result) {
+		List<Hit<Map, Void>> hits = result.getHits(Map.class);
+		return getDocumentsFromHitsWithId(hits);
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<Map> getDocumentsFromHitsWithId(List<Hit<Map, Void>> hits) {
+		List<Map> documents = new ArrayList<Map>();
+		for (Hit hit : hits) {
+			Map<String, Object> hitDocument = (Map) hit.source;
+			hitDocument.put("id", hit.index);
+			documents.add(hitDocument);
+		}
+		return documents;
+	}
 
 	@SuppressWarnings({ "rawtypes" })
 	public List<Object> wildCardSearch(Class objectClass, String textKeyWord, String wordWildCard, String indexName,

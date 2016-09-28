@@ -41,6 +41,9 @@
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
+		<Logger name="WordEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="WordEventAppender" />
+		</Logger>
 		<Root level="INFO">
 			<AppenderRef ref="RollingFileAppender" />
 		</Root>

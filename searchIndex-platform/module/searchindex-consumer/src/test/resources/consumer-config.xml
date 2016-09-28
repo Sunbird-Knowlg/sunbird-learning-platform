@@ -23,5 +23,10 @@
 				<Consumer partitions="8" />
 			</Consumers>
 		</ConsumerGroup>
+		<ConsumerGroup id="word-translation-group" messageProcessor="org.ekstep.searchindex.processor.WordTranslationMessageProcessor">
+			<Consumers>
+				<Consumer partitions="8" />
+			</Consumers>
+		</ConsumerGroup>
 	</ConsumerGroups>
 </ConsumerConfig>

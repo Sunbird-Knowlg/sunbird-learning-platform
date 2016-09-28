@@ -70,4 +70,14 @@ public class TelemetryBEEvent {
 		eks.put("size", size);
 		edata.put("eks", eks);
 	}
+	
+	public void setEdata(String id, Object state, Object prevState, Object lemma) {
+		this.edata = new HashMap<String, Object>();
+		Map<String, Object> eks = new HashMap<String, Object>();
+		eks.put("id", id);
+		eks.put("state", state);
+		eks.put("prevstate", prevState);
+		eks.put("lemma", lemma);		
+		edata.put("eks", eks);
+	}
 }
