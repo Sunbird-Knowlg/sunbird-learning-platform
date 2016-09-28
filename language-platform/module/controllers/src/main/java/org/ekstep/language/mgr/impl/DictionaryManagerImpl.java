@@ -37,6 +37,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.IWordnetConstants;
+import org.ekstep.language.util.LogWordEventUtil;
 import org.ekstep.language.util.WordCacheUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -171,6 +172,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 							String nodeId = (String) result.get("node_id");
 							if (nodeId != null) {
 								lstNodeId.add(nodeId);
+								if(null!=node.getMetadata().get(LanguageParams.status.name()) 
+										&& StringUtils.equalsIgnoreCase((String)node.getMetadata().get(LanguageParams.status.name()),LanguageParams.live.name()))
+								{
+									LogWordEventUtil.logWordLifecycleEvent(nodeId, node.getMetadata());
+								}
 							}
 						}
 					}
@@ -229,6 +235,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 			Response updateRes = getResponse(updateReq, LOGGER);
+			if(null!=node.getMetadata().get(LanguageParams.status.name()) 
+					&& StringUtils.equalsIgnoreCase((String)node.getMetadata().get(LanguageParams.status.name()),LanguageParams.live.name()))
+			{
+				LogWordEventUtil.logWordLifecycleEvent(node.getIdentifier(), node.getMetadata());
+			}
 			return updateRes;
 		} catch (ClassCastException e) {
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
