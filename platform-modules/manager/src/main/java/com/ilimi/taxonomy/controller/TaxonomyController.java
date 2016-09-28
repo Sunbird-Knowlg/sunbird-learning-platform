@@ -30,7 +30,6 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.OutputStreamValue;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
-import com.ilimi.taxonomy.mgr.IConceptManager;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 @Controller
@@ -41,9 +40,6 @@ public class TaxonomyController extends BaseController {
 
 	@Autowired
 	private ITaxonomyManager taxonomyManager;
-
-	@Autowired
-	private IConceptManager conceptManager;
 
 	@RequestMapping(value = "/{graphId:.+}/{objectType:.+}", method = RequestMethod.GET)
 	@ResponseBody
@@ -199,27 +195,6 @@ public class TaxonomyController extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.error("Delete Definition | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
-	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> getTaxonomyHierarchy(@PathVariable(value = "id") String id,
-			@RequestParam(value = "cfields", required = false) String[] cfields,
-			@RequestHeader(value = "user-id") String userId) {
-		if (cfields == null)
-			cfields = new String[] { "name", "code" };
-		String apiId = "taxonomy.hierarchy";
-		LOGGER.info("Get Taxonomy Hierarchy | TaxonomyId: " + id + " | Id: " + id + " | Relation: " + "isParentOf"
-				+ " | Depth: " + 0 + " | user-id: " + userId);
-		try {
-			Response response = conceptManager.getConcepts(id, "isParentOf", 0, id, cfields, true);
-			LOGGER.info("Get Taxonomy Hierarchy | Response: " + response);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("Get Taxonomy Hierarchy | Exception: " + e.getMessage(), e);
-			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
