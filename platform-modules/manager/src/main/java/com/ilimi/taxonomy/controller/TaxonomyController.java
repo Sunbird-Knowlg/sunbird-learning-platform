@@ -9,7 +9,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -46,22 +45,6 @@ public class TaxonomyController extends BaseController {
 	@Autowired
 	private IConceptManager conceptManager;
 
-	@RequestMapping(value = "", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> findAll(@RequestParam(value = "tfields", required = false) String[] tfields,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "taxonomy.list";
-		LOGGER.info("FindAll | tfields: " + tfields + " | user-id: " + userId);
-		try {
-			Response response = taxonomyManager.findAll(tfields);
-			LOGGER.info("FindAll | Response: " + response);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("FindAll | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
 	@RequestMapping(value = "/{graphId:.+}/{objectType:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAllByObjectType(@PathVariable(value = "graphId") String graphId,
@@ -73,26 +56,6 @@ public class TaxonomyController extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.error("FindAll | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
-	@RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-			@RequestParam(value = "subgraph", defaultValue = "false") boolean subgraph,
-			@RequestParam(value = "tfields", required = false) String[] tfields,
-			@RequestParam(value = "cfields", required = false) String[] cfields,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "taxonomy.find";
-		LOGGER.info("Find | Id: " + id + " | subgraph: " + subgraph + " | tfields: " + tfields + " | cfields: "
-				+ cfields + " | user-id: " + userId);
-		try {
-			Response response = taxonomyManager.find(id, subgraph, tfields, cfields);
-			LOGGER.info("Find | Response: " + response);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("Find | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -173,43 +136,6 @@ public class TaxonomyController extends BaseController {
 			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
-	}
-
-	@RequestMapping(value = "/{id:.+}/concepts", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Response> search(@PathVariable(value = "id") String id, @RequestBody Map<String, Object> map,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "concept.search";
-		Request request = getRequestObject(map);
-		LOGGER.info("Search | Id: " + id + " | Request: " + request + " | user-id: " + userId);
-		try {
-			Response response = taxonomyManager.search(id, request);
-			LOGGER.info("Search | Response: " + response);
-			return getResponseEntity(response, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-		} catch (Exception e) {
-			LOGGER.error("Search | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-		}
-	}
-
-	private Request getRequestObject(Map<String, Object> requestMap) {
-		Request request = getRequest(requestMap);
-		Map<String, Object> map = request.getRequest();
-		ObjectMapper mapper = new ObjectMapper();
-		if (null != map && !map.isEmpty()) {
-			try {
-				Object objConcept = map.get(TaxonomyAPIParams.search_criteria.name());
-				if (null != objConcept) {
-					SearchCriteria searchDTO = (SearchCriteria) mapper.convertValue(objConcept, SearchCriteria.class);
-					request.put(TaxonomyAPIParams.search_criteria.name(), searchDTO);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		return request;
 	}
 
 	@RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.POST)
