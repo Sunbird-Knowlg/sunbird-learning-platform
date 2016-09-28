@@ -31,12 +31,30 @@ import com.ilimi.common.exception.ResponseCode;
 
 import akka.actor.ActorRef;
 
+/**
+ * The Class IndexesActor is an AKKA actor that processes all requests from
+ * IndexesController to provide operations on Word Index, Word Info Index and
+ * Citation indexes in Elasticsearch.
+ * 
+ * @author Amarnath
+ */
 public class IndexesActor extends LanguageBaseActor {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(IndexesActor.class.getName());
 
+	/** The default limit. */
 	private int DEFAULT_LIMIT = 10000;
+	
+	/** The mapper. */
+	private ObjectMapper mapper = new ObjectMapper();
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
@@ -143,10 +161,24 @@ public class IndexesActor extends LanguageBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
+			LOGGER.error("List | Exception: " + e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}
 
+	/**
+	 * Gets the root words of the given words and Gets the morphological variants of a given words
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @return the morphological variants
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@SuppressWarnings("unchecked")
 	private void getMorphologicalVariants(List<String> words, String languageId, int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
@@ -161,6 +193,19 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.morphological_variants.name(), variantsMap, getSender());
 	}
 
+	/**
+	 * Gets the morphological variants of words from its root words
+	 *
+	 * @param rootWords
+	 *            the root words
+	 * @param util
+	 *            the util
+	 * @param languageId
+	 *            the language id
+	 * @return the variants
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private Map<String, ArrayList<String>> getVariants(ArrayList<String> rootWords, ElasticSearchUtil util,
 			String languageId) throws IOException {
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
@@ -183,6 +228,18 @@ public class IndexesActor extends LanguageBaseActor {
 		return variantsMap;
 	}
 
+	/**
+	 * Performs a wild card search for a word on ES.
+	 *
+	 * @param wordWildCard
+	 *            the word wild card
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @throws Exception
+	 *             the exception
+	 */
 	private void wordWildCard(String wordWildCard, String languageId, int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
@@ -192,21 +249,26 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.words.name(), words, getSender());
 	}
 
+	/**
+	 * Adds the citations request to ES.
+	 *
+	 * @param citations
+	 *            the citations
+	 * @param languageId
+	 *            the language id
+	 * @throws Exception
+	 *             the exception
+	 */
 	@SuppressWarnings("rawtypes")
 	private void addCitations(List<Map<String, String>> citations, String languageId) throws Exception {
 		WordUtil wordUtil = new WordUtil();
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, List> indexes = new HashMap<String, List>();
 		ArrayList<CitationBean> citationBeanList = new ArrayList<CitationBean>();
-		//ArrayList<WordInfoBean> wordInfoBeanList = new ArrayList<WordInfoBean>();
 		for (Map<String, String> map : citations) {
 			String jsonString = mapper.writeValueAsString(map);
 			CitationBean citation = mapper.readValue(jsonString, CitationBean.class);
 			citationBeanList.add(citation);
-			//Testing
-			/*WordInfoBean wordInfo = mapper.readValue(jsonString, WordInfoBean.class);
-			wordInfo.setRootWord(wordInfo.getWord());
-			wordInfoBeanList.add(wordInfo);*/
 		}
 
 		ArrayList<String> errorList = wordUtil.validateCitationsList(citationBeanList);
@@ -215,40 +277,45 @@ public class IndexesActor extends LanguageBaseActor {
 					getSender());
 		} else {
 			indexes.put(Constants.CITATION_INDEX_COMMON_NAME, citationBeanList);
-			//indexes.put(Constants.WORD_INFO_INDEX_COMMON_NAME, wordInfoBeanList);
 			wordUtil.addIndexesToElasticSearch(indexes, languageId);
 			OK(getSender());
 		}
 	}
 
+	/**
+	 * Gets the word metrics from ES grouped by facets.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @return the word metrics
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private void getWordMetrics(String languageId) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;
 		String distinctKey = "rootWord";
+		
 		List<Map<String, Object>> groupByList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> sourceType = new HashMap<String, Object>();
 		sourceType.put("groupBy", "sourceType");
 		sourceType.put("distinctKey", distinctKey);
 		groupByList.add(sourceType);
+		
 		Map<String, Object> source = new HashMap<String, Object>();
 		source.put("groupBy", "source");
 		source.put("distinctKey", distinctKey);
 		groupByList.add(source);
+		
 		Map<String, Object> pos = new HashMap<String, Object>();
 		pos.put("groupBy", "pos");
 		pos.put("distinctKey", distinctKey);
 		groupByList.add(pos);
+		
 		Map<String, Object> grade = new HashMap<String, Object>();
 		grade.put("groupBy", "grade");
 		grade.put("distinctKey", distinctKey);
 		groupByList.add(grade);
-		/*
-		 * Map<String, Object> fileName = new HashMap<String, Object>();
-		 * fileName.put("groupBy", "fileName"); fileName.put("distinctKey",
-		 * distinctKey); groupByList.add(fileName); Map<String, Object> date =
-		 * new HashMap<String, Object>(); date.put("groupBy", "date");
-		 * date.put("distinctKey", distinctKey); groupByList.add(date);
-		 */
 
 		Map<String, Object> wordMetrics = (Map<String, Object>) util.getDistinctCountOfSearch(null, citationIndexName,
 				Constants.CITATION_INDEX_TYPE, groupByList);
@@ -256,6 +323,20 @@ public class IndexesActor extends LanguageBaseActor {
 
 	}
 
+	/**
+	 * Adds the word indexes to ES.
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @throws JsonGenerationException
+	 *             the json generation exception
+	 * @throws JsonMappingException
+	 *             the json mapping exception
+	 * @throws Exception
+	 *             the exception
+	 */
 	private void addWordIndex(List<Map<String, String>> words, String languageId)
 			throws JsonGenerationException, JsonMappingException, Exception {
 		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
@@ -276,12 +357,40 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(getSender());
 	}
 
+	/**
+	 * Gets the root words for a given list of words.
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @return the root words
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private void getRootWords(List<String> words, String languageId, int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		Map<String, Object> rootWordsMap = getRootWordsMap(words, languageId, limit, util);
 		OK(LanguageParams.root_words.name(), rootWordsMap, getSender());
 	}
 
+	/**
+	 * Gets the root words as a map for a given list of words.
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @param util
+	 *            the util
+	 * @return the root words map
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private Map<String, Object> getRootWordsMap(List<String> words, String languageId, int limit,
 			ElasticSearchUtil util) throws IOException {
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
@@ -300,6 +409,19 @@ public class IndexesActor extends LanguageBaseActor {
 		return rootWordsMap;
 	}
 
+	/**
+	 * Gets the root word info for the given list of words.
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @return the root word info
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@SuppressWarnings("unchecked")
 	private void getRootWordInfo(List<String> words, String languageId, int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
@@ -324,8 +446,19 @@ public class IndexesActor extends LanguageBaseActor {
 
 	}
 
-	private ObjectMapper mapper = new ObjectMapper();
-
+	/**
+	 * Gets the word info index document of the words.
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @return the word info
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@SuppressWarnings("unchecked")
 	private void getWordInfo(List<String> words, String languageId, int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
@@ -344,6 +477,19 @@ public class IndexesActor extends LanguageBaseActor {
 
 	}
 
+	/**
+	 * Gets the word ids of the given words from ES.
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @return the word ids
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private void getWordIds(List<String> words, String languageId, int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
@@ -362,6 +508,21 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.word_ids.name(), wordIdsMap, getSender());
 	}
 
+	/**
+	 * Gets the index info details of a word.
+	 *
+	 * @param words
+	 *            the words
+	 * @param groupByFinalList
+	 *            the group by final list
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @return the index info
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@SuppressWarnings("unchecked")
 	private void getIndexInfo(List<String> words, List<Map<String, Object>> groupByFinalList, String languageId,
 			int limit) throws IOException {
@@ -390,6 +551,19 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.index_info.name(), wordIdsMap, getSender());
 	}
 
+	/**
+	 * Gets the citations count grouped by different facets.
+	 *
+	 * @param words
+	 *            the words
+	 * @param languageId
+	 *            the language id
+	 * @param groupByList
+	 *            the group by list
+	 * @return the citations count
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@SuppressWarnings("unchecked")
 	private void getCitationsCount(List<String> words, String languageId, List<Map<String, Object>> groupByList)
 			throws IOException {
@@ -404,6 +578,33 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.citation_count.name(), wordMap, getSender());
 	}
 
+	/**
+	 * Gets the citations of the words from ES.
+	 *
+	 * @param words
+	 *            the words
+	 * @param sourceType
+	 *            the source type
+	 * @param source
+	 *            the source
+	 * @param grade
+	 *            the grade
+	 * @param pos
+	 *            the pos
+	 * @param fileName
+	 *            the file name
+	 * @param fromDate
+	 *            the from date
+	 * @param toDate
+	 *            the to date
+	 * @param languageId
+	 *            the language id
+	 * @param limit
+	 *            the limit
+	 * @return the citations
+	 * @throws Exception
+	 *             the exception
+	 */
 	private void getCitations(List<String> words, Object sourceType, Object source, Object grade, Object pos,
 			Object fileName, String fromDate, String toDate, String languageId, int limit) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
@@ -446,6 +647,13 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.citations.name(), citationsList, getSender());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * .dto.Request, akka.actor.ActorRef)
+	 */
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 	}

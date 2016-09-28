@@ -12,82 +12,134 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
+// TODO: Auto-generated Javadoc
+/**
+ * The Class PhoneticBoundarySet, provides functionality to add word into its
+ * corresponding PrefixBoundary and SuffixBoundary WordSets
+ *
+ * @author karthik
+ */
 public class PhoneticBoundarySet extends BaseWordSet {
 
-	private static Logger LOGGER =  LogManager.getLogger(RhymingSoundSet.class.getName());
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(RhymingSoundSet.class.getName());
+
+	/** The starts with akshara. */
 	private String startsWithAkshara;
-	private List<String> endsWithAkshara;
+
+	/** The ends with akshara. */
+	private List<String> endsWithAksharas;
+
+	/** The Constant STARTS_WITH. */
 	private static final String STARTS_WITH = "startsWith";
+
+	/** The Constant ENDS_WITH. */
 	private static final String ENDS_WITH = "endsWith";
 
-	
-	public PhoneticBoundarySet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordChainRelatios) {
+	/**
+	 * Instantiates a new phonetic boundary set.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordNode
+	 *            the word node
+	 * @param wc
+	 *            the wc
+	 * @param existingWordChainRelatios
+	 *            the existing word chain relatios
+	 */
+	public PhoneticBoundarySet(String languageId, Node wordNode, WordComplexity wc,
+			List<Relation> existingWordChainRelatios) {
 		super(languageId, wordNode, wc, existingWordChainRelatios, LOGGER);
 		init();
 	}
 
-	private void init(){
-		if(languageId.equalsIgnoreCase("en")){
-			EnglishWordUtil util = new EnglishWordUtil(wordNode); 
+	/**
+	 * Inits startWithAkshara and endsWithAkshara based on its language.
+	 */
+	private void init() {
+		if (languageId.equalsIgnoreCase("en")) {
+			EnglishWordUtil util = new EnglishWordUtil(wordNode);
 			startsWithAkshara = util.getFirstAkshara();
-			endsWithAkshara = util.getLastAkshara();
-		}else{
+			endsWithAksharas = util.getLastAksharas();
+		} else {
 			IndicWordUtil util = new IndicWordUtil(languageId, wc);
 			startsWithAkshara = util.getFirstAkshara();
-			endsWithAkshara = util.getLastAkshara();
+			endsWithAksharas = util.getLastAksharas();
 		}
 	}
-	
-	public void create(){
 
-		if(!isExist(LanguageParams.PrefixBoundary.name(), STARTS_WITH + "_" + startsWithAkshara))
+	/**
+	 * Creates the PhoneticBoundarySets for startsWithAkshara and
+	 * endsWithAkshara if it is not found in existing relations
+	 */
+	public void create() {
+
+		if (!isExist(LanguageParams.PrefixBoundary.name(), STARTS_WITH + "_" + startsWithAkshara))
 			createPhoneticBoundarySet(startsWithAkshara, LanguageParams.PrefixBoundary.name());
-		
-		if(!isExist(LanguageParams.SuffixBoundary.name(), endsWithAkshara)){
-			for(String lemma : endsWithAkshara){
-				createPhoneticBoundarySet(lemma, LanguageParams.SuffixBoundary.name());						
-			}			
+
+		if (!isExist(LanguageParams.SuffixBoundary.name(), endsWithAksharas)) {
+			for (String lemma : endsWithAksharas) {
+				createPhoneticBoundarySet(lemma, LanguageParams.SuffixBoundary.name());
+			}
 		}
 
 	}
 
-	private void createPhoneticBoundarySet(String lemma, String type){
+	/**
+	 * Creates the phonetic boundary sets. each PhoneticBoundary set will have
+	 * its own connecting PhonecticBoundary set. for ex: startsWith_T set will
+	 * be associated with endsWith_T set with "follows" relation to form
+	 * word_chains through traversal
+	 * 
+	 * @param lemma
+	 *            the lemma
+	 * @param type
+	 *            the type
+	 */
+	private void createPhoneticBoundarySet(String lemma, String type) {
 
 		String phoneticBoundarySetID;
 		String connectingPBSetID;
 		String actualLemma;
 		String connectingLemma;
-		
-		if(type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name())){
+
+		LOGGER.info("create " + type + " set " + lemma + "for the word"
+				+ (String) wordNode.getMetadata().get(LanguageParams.lemma.name()));
+
+		if (type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name())) {
 			actualLemma = STARTS_WITH + "_" + lemma;
 			connectingLemma = ENDS_WITH + "_" + lemma;
 			phoneticBoundarySetID = getWordSet(actualLemma, type);
 			connectingPBSetID = getWordSet(connectingLemma, LanguageParams.SuffixBoundary.name());
-		}else{
+		} else {
 			actualLemma = ENDS_WITH + "_" + lemma;
 			connectingLemma = STARTS_WITH + "_" + lemma;
 			phoneticBoundarySetID = getWordSet(actualLemma, type);
 			connectingPBSetID = getWordSet(connectingLemma, LanguageParams.PrefixBoundary.name());
 		}
-		
+
 		boolean followRelCreate = false;
 
-		if(StringUtils.isBlank(phoneticBoundarySetID) && StringUtils.isNotBlank(connectingPBSetID)){
+		// when connecting PhoneticBoundary set is found and actual
+		// PhonecticBoundary set is yet to be created
+		// need to create follows relation between them first time
+		if (StringUtils.isBlank(phoneticBoundarySetID) && StringUtils.isNotBlank(connectingPBSetID)) {
 			followRelCreate = true;
 		}
-		
-		if(StringUtils.isBlank(phoneticBoundarySetID)){
+
+		if (StringUtils.isBlank(phoneticBoundarySetID)) {
 			phoneticBoundarySetID = createWordSetCollection(actualLemma, type);
-		}else{
+		} else {
 			addMemberToSet(phoneticBoundarySetID);
 		}
 
-		if(followRelCreate){
-			if(type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name()))
+		if (followRelCreate) {
+			if (type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name()))
 				createRelation(connectingPBSetID, phoneticBoundarySetID, RelationTypes.FOLLOWS.relationName());
 			else
 				createRelation(phoneticBoundarySetID, connectingPBSetID, RelationTypes.FOLLOWS.relationName());
 		}
 	}
-	
+
 }

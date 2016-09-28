@@ -36,16 +36,38 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
+/**
+ * The Class ImportController.Entry point for all import related API
+ *
+ * @author rayulu, amarnath and karthik
+ */
 @Controller
 @RequestMapping("v1/language")
 public class ImportController extends BaseLanguageController {
 
+	/** The import manager. */
 	@Autowired
 	private IImportManager importManager;
+	
+	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
 
+	/**
+	 * Import wordnet data from JSON.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param zipFile
+	 *            the zip file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId:.+}/importJSON", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importJSON(@PathVariable(value = "languageId") String languageId,
@@ -62,7 +84,6 @@ public class ImportController extends BaseLanguageController {
 			LOGGER.info("Import | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
@@ -75,6 +96,21 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Transform data.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param sourceId
+	 *            the source id
+	 * @param file
+	 *            the file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId:.+}/transform/{sourceId:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> transformData(@PathVariable(value = "languageId") String languageId,
@@ -103,6 +139,21 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Import synset File and word file data.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param synsetFile
+	 *            the synset file
+	 * @param wordFile
+	 *            the word file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId:.+}/importData", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importData(@PathVariable(value = "languageId") String languageId,
@@ -130,7 +181,6 @@ public class ImportController extends BaseLanguageController {
 			}
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
@@ -145,6 +195,17 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Import wordnet data
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param map
+	 *            the map
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/importwordnet/{languageId:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importwordnet(@PathVariable(value = "languageId") String languageId,
@@ -169,6 +230,22 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Enrich words by updating posList, wordComplexity, lexileMeasures and
+	 * frequencyCount
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param sourceId
+	 *            the source id
+	 * @param wordListFile
+	 *            the word list file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId:.+}/enrich/{sourceId:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> enrich(@PathVariable(value = "languageId") String languageId,
@@ -213,7 +290,6 @@ public class ImportController extends BaseLanguageController {
 			Response response = new Response();
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
@@ -226,6 +302,17 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Import CSV.
+	 *
+	 * @param id
+	 *            the id
+	 * @param file
+	 *            the file
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{id:.+}/importCSV", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importCSV(@PathVariable(value = "id") String id,
@@ -252,6 +339,15 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Import definition.
+	 *
+	 * @param id
+	 *            the id
+	 * @param json
+	 *            the json
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{id:.+}/importDefinition", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importDefinition(@PathVariable(value = "id") String id, @RequestBody String json) {
@@ -263,11 +359,17 @@ public class ImportController extends BaseLanguageController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
-			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
+	/**
+	 * Find all definitions.
+	 *
+	 * @param id
+	 *            the id
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id) {
@@ -283,6 +385,17 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * get the definition of given id
+	 *
+	 * @param id
+	 *            the id
+	 * @param objectType
+	 *            the object type
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{id:.+}/definition/{defId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
@@ -299,6 +412,14 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Enrich words.
+	 *
+	 * @param node_ids
+	 *            the node ids
+	 * @param languageId
+	 *            the language id
+	 */
 	private void enrichWords(ArrayList<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map = new HashMap<String, Object>();
@@ -311,6 +432,14 @@ public class ImportController extends BaseLanguageController {
 		makeAsyncRequest(request, LOGGER);
 	}
 
+	/**
+	 * Adds the word index.
+	 *
+	 * @param wordInfoList
+	 *            the word info list
+	 * @param languageId
+	 *            the language id
+	 */
 	private void addWordIndex(ArrayList<Map<String, String>> wordInfoList, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(LanguageParams.words.name(), wordInfoList);

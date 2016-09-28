@@ -14,13 +14,31 @@ import com.ilimi.taxonomy.content.operation.initializer.PublishInitializer;
 import com.ilimi.taxonomy.content.operation.initializer.UploadInitializer;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 
+/**
+ * The Class InitializePipeline is a PipelineClass, extends the BasePipline which holds all 
+ * commmon methods for a ContentNode and its operations
+ * Based on the ContentOperation specfied InitializePipeline Initiates the respective OperationIntializers
+ */
 public class InitializePipeline extends BasePipeline {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(InitializePipeline.class.getName());
 
+	/** The basePath. */
 	protected String basePath;
+	
+	/** The contentId. */
 	protected String contentId;
 
+	/**
+	 * InitializePipeline()
+	 * sets the basePath and ContentId
+	 *
+	 * @param BasePath the basePath
+	 * @param contentId the contentId
+	 * checks if the basePath is valid else throws ClientException
+	 * checks if the ContentId is not null else throws ClientException
+	 */
 	public InitializePipeline(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -32,6 +50,16 @@ public class InitializePipeline extends BasePipeline {
 		this.contentId = contentId;
 	}
 
+	/**
+	 * Init() which marks the begin of the InitializePipeline
+	 *
+	 * @param operation the Operation
+	 * @param Map the parameterMap
+	 * checks if operation or parameterMap is empty, throws ClientException
+	 * else based on the OPERATION(upload, publish or bundle) initializes 
+	 * respective ContentOperationInitializers
+	 * @return the response
+	 */
 	public Response init(String operation, Map<String, Object> parameterMap) {
 		Response response = new Response();
 		if (StringUtils.isBlank(operation))

@@ -25,30 +25,82 @@ import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.exception.ClientException;
 
+/**
+ * SSFParser parses files in Simple Shakti Format(SSF) and retrieves citations,
+ * word Info and word index documents and loads them into ElasticSearch (ES).
+ * 
+ * @author Amarnath
+ * 
+ */
 public class SSFParser {
 
+	/** The sentence splitter. */
 	private static String SENTENCE_SPLITTER = " ";
+
+	/** The attributes separator. */
 	private static String ATTRIBUTES_SEPARATOR = ",";
+
+	/** The default token count after word. */
 	private static int defaultTokenCountAfterWord = Integer
 			.parseInt(PropertiesUtil.getProperty("defaultTokenCountAfterWord"));
+
+	/** The ignore start words. */
 	private static String[] ignoreStartWords;
+
+	/** The tag names. */
 	private static String[] tagNames;
+
+	/** The discard tokens. */
 	private static String[] discardTokens;
+
+	/** The attributes tag identifier. */
 	private static String attributesTagIdentifier;
+
+	/** The special char reg ex. */
 	private static String specialCharRegEx = PropertiesUtil.getProperty("specialCharRegEx");
+
+	/** The number reg ex. */
 	private static String numberRegEx = PropertiesUtil.getProperty("numberRegEx");
+
+	/** The word util. */
 	private static WordUtil wordUtil = new WordUtil();
 
+	// Gets properties required for processing
 	static {
+		// all words starting with any of these properties will be ignored
 		String ignoreStartWordsList = PropertiesUtil.getProperty("ignoreStartWordsList");
 		ignoreStartWords = ignoreStartWordsList.split(",");
+
+		// tag names in the in SSF file
 		String tagNamesList = PropertiesUtil.getProperty("tagNamesList");
 		tagNames = tagNamesList.split(",");
+
+		// tokens that need to be discarded
 		String discardTokensList = PropertiesUtil.getProperty("discardTokensList");
 		discardTokens = discardTokensList.split(",");
+
+		// Tag that identifies the word properties
 		attributesTagIdentifier = PropertiesUtil.getProperty("attributesTagIdentifier");
 	}
 
+	/**
+	 * Parses the SSF files, recursively if the file path is a folder.
+	 *
+	 * @param filePath
+	 *            the file path
+	 * @param sourceType
+	 *            the source type
+	 * @param source
+	 *            the source
+	 * @param grade
+	 *            the grade
+	 * @param skipCitations
+	 *            the skip citations
+	 * @param languageId
+	 *            the language id
+	 * @throws Exception
+	 *             the exception
+	 */
 	public static void parseSsfFiles(String filePath, String sourceType, String source, String grade,
 			boolean skipCitations, String languageId) throws Exception {
 		final File file = new File(filePath);
@@ -61,6 +113,25 @@ public class SSFParser {
 		}
 	}
 
+	/**
+	 * Parses the SSF file, forms and adds citation, word index and word info
+	 * index documents into ES.
+	 *
+	 * @param filePath
+	 *            the file path
+	 * @param sourceType
+	 *            the source type
+	 * @param source
+	 *            the source
+	 * @param grade
+	 *            the grade
+	 * @param skipCitations
+	 *            the skip citations
+	 * @param languageId
+	 *            the language id
+	 * @throws Exception
+	 *             the exception
+	 */
 	public static void parseSsfFile(String filePath, String sourceType, String source, String grade,
 			boolean skipCitations, String languageId) throws Exception {
 		String sentence = null;
@@ -68,11 +139,18 @@ public class SSFParser {
 		try {
 			File file = new File(filePath);
 			String fileName = file.getName();
+
+			// remove unwanted characters from the file
 			fixFileFormat(filePath);
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF8"));
+
+			// process file one line at a time
 			while ((sentence = br.readLine()) != null) {
+
+				// create and add indexes
 				wordUtil.addIndexesToElasticSearch(
-						processSentence(sentence, sourceType, source, grade, skipCitations, fileName, languageId), languageId);
+						processSentence(sentence, sourceType, source, grade, skipCitations, fileName, languageId),
+						languageId);
 			}
 		} finally {
 			if (br != null) {
@@ -81,6 +159,14 @@ public class SSFParser {
 		}
 	}
 
+	/**
+	 * Fixes file by removing unwanted characters and split data logically.
+	 *
+	 * @param fileName
+	 *            the file name
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private static void fixFileFormat(String fileName) throws IOException {
 		Path path = Paths.get(fileName);
 		Charset charset = StandardCharsets.UTF_8;
@@ -88,14 +174,38 @@ public class SSFParser {
 		content = content.replaceAll("\n", "");
 		content = content.replaceAll("<Sentence", "\n<Sentence");
 		content = content.replaceAll("\\x{A0}", " ");
-		// content = content.replaceAll("\\x{9}", " ");
 		Files.write(path, content.getBytes(charset));
 	}
 
+	/**
+	 * Process a line form the file and create index documents.
+	 *
+	 * @param sentence
+	 *            the sentence
+	 * @param sourceType
+	 *            the source type
+	 * @param source
+	 *            the source
+	 * @param grade
+	 *            the grade
+	 * @param skipCitations
+	 *            the skip citations
+	 * @param fileName
+	 *            the file name
+	 * @param languageId
+	 *            the language id
+	 * @return the map
+	 * @throws Exception
+	 *             the exception
+	 */
 	@SuppressWarnings("rawtypes")
 	private static Map<String, List> processSentence(String sentence, String sourceType, String source, String grade,
 			boolean skipCitations, String fileName, String languageId) throws Exception {
+
+		// split the line by "space"
 		String[] sentenceTokens = sentence.split(SENTENCE_SPLITTER);
+		
+		//enhance the sentence tokens
 		ArrayList<String> enhancedSentenceTokens = enhanceSentenceTokens(sentenceTokens);
 		boolean wordFound = false;
 		String word = null;
@@ -106,28 +216,39 @@ public class SSFParser {
 		List<WordInfoBean> wordInfoList = new ArrayList<WordInfoBean>();
 		for (String token : enhancedSentenceTokens) {
 			tokenCountAfterWord++;
-
+			
+			//get the pos
 			if (isTagName(token)) {
 				if (wordFound && word != null) {
 					pos = token;
 				}
 				continue;
 			}
+			
+			//ignore the ignore key words
 			if (ignoreToken(token)) {
 				continue;
 			}
+			
+			//ignore numbers
 			if (isNumber(token)) {
 				continue;
 			}
+			
+			//Discard if no word properties are found or if the token is marked to be a discarded
 			if (discardWord(token) || (wordFound && tokenCountAfterWord > defaultTokenCountAfterWord)) {
 				wordFound = false;
 				word = null;
 				pos = null;
 				continue;
 			}
+			
+			//Discard if Special Character
 			if (isSpecialCharacter(token)) {
 				continue;
 			}
+			
+			//if it is an attribute tag, extract word properties
 			if (token.startsWith(attributesTagIdentifier)) {
 				if (wordFound && word != null) {
 					wordFound = false;
@@ -145,11 +266,14 @@ public class SSFParser {
 							String rts = cleanAttribute(afAttributes[Constants.TAG_INDEX_RTS]);
 							if (rootWord != null && !rootWord.isEmpty()) {
 								if (!skipCitations) {
+									// create citation bean
 									CitationBean citationObj = new CitationBean(word, rootWord, pos,
 											wordUtil.getFormattedDateTime(System.currentTimeMillis()), sourceType,
 											source, grade, fileName);
 									citationList.add(citationObj);
 								}
+								
+								//create word info bean
 								WordInfoBean wordInfo = new WordInfoBean(word, rootWord, pos, category, gender, number,
 										pers, wordCase, inflection, rts);
 								wordInfoList.add(wordInfo);
@@ -166,16 +290,16 @@ public class SSFParser {
 				}
 				continue;
 			}
-			
+
 			if (wordFound && word != null && tokenCountAfterWord == 1) {
 				pos = token;
 				continue;
 			}
-			//if (expectedLanguage(token, languageId)) {
-				wordFound = true;
-				word = token;
-				tokenCountAfterWord = 0;
-			//}
+			
+			//if the token is not rejected till this point, treat it as a word
+			wordFound = true;
+			word = token;
+			tokenCountAfterWord = 0;
 		}
 		if (!skipCitations) {
 			indexes.put(Constants.CITATION_INDEX_COMMON_NAME, citationList);
@@ -183,13 +307,14 @@ public class SSFParser {
 		indexes.put(Constants.WORD_INFO_INDEX_COMMON_NAME, wordInfoList);
 		return indexes;
 	}
-	
-	@SuppressWarnings("unused")
-	private static boolean expectedLanguage(String token, String languageId) {
-		Boolean c = TokenValidation.getUnicode(token, languageId);
-		return c;
-	}
 
+	/**
+	 * Discard token if it matches the discard tokens criteria
+	 *
+	 * @param token
+	 *            the token
+	 * @return true, if successful
+	 */
 	private static boolean discardWord(String token) {
 		if (ArrayUtils.contains(discardTokens, token)) {
 			return true;
@@ -197,6 +322,13 @@ public class SSFParser {
 		return false;
 	}
 
+	/**
+	 * Checks if is special character.
+	 *
+	 * @param token
+	 *            the token
+	 * @return true, if is special character
+	 */
 	private static boolean isSpecialCharacter(String token) {
 		if (token.matches(specialCharRegEx)) {
 			return true;
@@ -204,6 +336,13 @@ public class SSFParser {
 		return false;
 	}
 
+	/**
+	 * Checks if is number.
+	 *
+	 * @param token
+	 *            the token
+	 * @return true, if is number
+	 */
 	private static boolean isNumber(String token) {
 		if (token.matches(numberRegEx)) {
 			return true;
@@ -211,6 +350,13 @@ public class SSFParser {
 		return false;
 	}
 
+	/**
+	 * Checks if token is to be ignored.
+	 *
+	 * @param token
+	 *            the token
+	 * @return true, if successful
+	 */
 	private static boolean ignoreToken(String token) {
 		for (String ignoreStr : ignoreStartWords) {
 			if (token.startsWith(ignoreStr)) {
@@ -220,6 +366,13 @@ public class SSFParser {
 		return false;
 	}
 
+	/**
+	 * Checks if is tag name.
+	 *
+	 * @param token
+	 *            the token
+	 * @return true, if is tag name
+	 */
 	private static boolean isTagName(String token) {
 		if (ArrayUtils.contains(tagNames, token)) {
 			return true;
@@ -227,6 +380,13 @@ public class SSFParser {
 		return false;
 	}
 
+	/**
+	 * Clean attribute.
+	 *
+	 * @param attribute
+	 *            the attribute
+	 * @return the string
+	 */
 	private static String cleanAttribute(String attribute) {
 		attribute = attribute.replace("'", "");
 		attribute = attribute.replace("<", "");
@@ -235,6 +395,13 @@ public class SSFParser {
 		return attribute;
 	}
 
+	/**
+	 * Enhance sentence tokens.
+	 *
+	 * @param sentenceTokens
+	 *            the sentence tokens
+	 * @return the array list
+	 */
 	private static ArrayList<String> enhanceSentenceTokens(String[] sentenceTokens) {
 		ArrayList<String> enhancedSentenceTokens = new ArrayList<String>();
 		for (String token : sentenceTokens) {

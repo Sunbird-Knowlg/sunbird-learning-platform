@@ -39,11 +39,23 @@ import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
-
+/**
+ * The Class XMLContentParser is a utility 
+ * used to parse Content to XML
+ * holds Util Methods to get ContentMetadata and Properties
+ */
 public class XMLContentParser {
-
+	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(XMLContentParser.class.getName());
 
+	/**
+	 * parse the Content(XML)
+	 *
+	 * @param xml the xml
+	 * process the ContentDocument
+	 * @return plugin
+	 */
 	public Plugin parseContent(String xml) {
 		DocumentBuilderFactory factory = null;
 		DocumentBuilder builder = null;
@@ -72,7 +84,13 @@ public class XMLContentParser {
 		}
 		return plugin;
 	}
-
+	
+	/**
+	 * process the ContentDocument
+	 *
+	 * @param elementroot the root
+	 * @return plugin
+	 */
 	private Plugin processContentDocument(Element root) {
 		Plugin plugin = new Plugin();
 		if (null != root) {
@@ -88,7 +106,15 @@ public class XMLContentParser {
 		}
 		return plugin;
 	}
-
+	
+	/**
+	 * gets the ContentManifest
+	 *
+	 * @param manfifestNodeList
+	 * gets all mediaNodes and childNodes
+	 * sets all manifestProperties
+	 * @return Manifest
+	 */
 	private Manifest getContentManifest(NodeList manifestNodes) {
 		Manifest manifest = new Manifest();
 		if (null != manifestNodes && manifestNodes.getLength() > 0) {
@@ -114,7 +140,15 @@ public class XMLContentParser {
 		}
 		return manifest;
 	}
-
+	
+	/**
+	 * gets the ContentMedia
+	 * 
+	 * @param mediaNode the mediaNode
+	 * if mediaNode is not null sets all MediaMetadata
+	 * else throw ClientException
+	 * @return media
+	 */
 	private Media getContentMedia(Node mediaNode) {
 		Media media = new Media();
 		if (null != mediaNode) {
@@ -140,7 +174,15 @@ public class XMLContentParser {
 		}
 		return media;
 	}
-
+	
+	/**
+	 * gets the AttributeMap
+	 * 
+	 * @param node the Node
+	 * if Node is not null and node has Attributes
+	 * gets all AttributeProperties
+	 * @return AttributesMap
+	 */
 	private Map<String, Object> getAttributeMap(Node node) {
 		Map<String, Object> attributes = new HashMap<String, Object>();
 		if (null != node && node.hasAttributes()) {
@@ -153,7 +195,15 @@ public class XMLContentParser {
 		}
 		return attributes;
 	}
-
+	
+	/**
+	 * gets the List of Controllers
+	 *
+	 * @param controllerNodes the controllerNodes 
+	 * if controllerNode is not null and controllerNodeLenghth > 0
+	 * sets all controllerMetadata
+	 * @return ControllersList
+	 */
 	private List<Controller> getControllers(NodeList controllerNodes) {
 		List<Controller> controllers = new ArrayList<Controller>();
 		if (null != controllerNodes && controllerNodes.getLength() > 0) {
@@ -187,7 +237,13 @@ public class XMLContentParser {
 		}
 		return controllers;
 	}
-
+	
+	/**
+	 * gets the Cdata
+	 *
+	 * @param node the Node
+	 * @return CData
+	 */
 	private String getCData(Node node) {
 		String cData = "";
 		if (null != node && node.hasChildNodes()) {
@@ -200,7 +256,14 @@ public class XMLContentParser {
 		}
 		return cData;
 	}
-
+	
+	/**
+	 * gets the plugin
+	 *
+	 * @param node the Node
+	 * if node is not null set all PluginProperties
+	 * @return plugin
+	 */
 	private Plugin getPlugin(Node node) {
 		Plugin plugin = new Plugin();
 		if (null != node) {
@@ -218,6 +281,12 @@ public class XMLContentParser {
 		return plugin;
 	}
 
+	/**
+	 * gets the InnerText
+	 *
+	 * @param node the Node
+	 * @return InnerText
+	 */
 	private String getInnerText(Node node) {
 		String innerText = "";
 		if (null != node && node.getNodeType() == Node.ELEMENT_NODE && node.hasChildNodes()) {
@@ -228,7 +297,13 @@ public class XMLContentParser {
 		}
 		return innerText;
 	}
-
+	
+	/**
+	 * gets the list of ChildrenPlugins
+	 *
+	 * @param Node the node
+	 * @return childrenPluginList
+	 */
 	private List<Plugin> getChildrenPlugins(Node node) {
 		List<Plugin> childrenPlugins = new ArrayList<Plugin>();
 		if (null != node && node.hasChildNodes()) {
@@ -244,8 +319,14 @@ public class XMLContentParser {
 		}
 		return childrenPlugins;
 	}
-
-	private List<Event> getEvents(Node node) {
+	
+	/**
+	 * gets the Events
+	 *
+	 * @param node the Node
+	 * @return EventList
+	 */
+	private List<Event> getEvents(Node node) {				
 		List<Event> events = new ArrayList<Event>();
 		if (null != node && node.hasChildNodes()) {
 			NodeList nodes = node.getChildNodes();
@@ -262,7 +343,13 @@ public class XMLContentParser {
 		}
 		return events;
 	}
-
+	
+	/**
+	 * gets the Event
+	 *
+	 * @param node the Node
+	 * @return Event
+	 */
 	private Event getEvent(Node node) {
 		Event event = new Event();
 		if (null != node) {
@@ -274,7 +361,13 @@ public class XMLContentParser {
 		}
 		return event;
 	}
-
+	
+	/**
+	 * gets the NodesString
+	 *
+	 * @param node the Node
+	 * @return nodeString
+	 */
 	private String getNodeString(Node node) {
 		try {
 			try (StringWriter writer = new StringWriter()) {
@@ -290,7 +383,13 @@ public class XMLContentParser {
 		}
 		return node.getTextContent();
 	}
-
+	
+	/**
+	 * gets the Id(identifier)as String 
+	 *
+	 * @param node the Node
+	 * @return Id
+	 */
 	private String getId(Node node) {
 		return getAttributValueByName(node, ContentWorkflowPipelineParams.id.name());
 	}
@@ -305,7 +404,14 @@ public class XMLContentParser {
 		}
 		return value;
 	}
-
+	
+	/**
+	 * gets the dataMap
+	 *
+	 * @param node the Node
+	 * gets attributeMap
+	 * @return dataMap
+	 */
 	private Map<String, Object> getDataMap(Node node) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != node) {
@@ -315,10 +421,22 @@ public class XMLContentParser {
 		return map;
 	}
 
+	/**
+	 * checks isPlugin
+	 *
+	 * @param elementName the elementName
+	 * @return true/false
+	 */
 	private boolean isPlugin(String elementName) {
 		return ElementMap.isPlugin(elementName);
 	}
 
+	/**
+	 * checks isEvent
+	 *
+	 * @param elementName the elementName
+	 * @return true/false
+	 */
 	private boolean isEvent(String elementName) {
 		return ElementMap.isEvent(elementName);
 	}

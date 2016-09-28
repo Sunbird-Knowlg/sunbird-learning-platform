@@ -3,19 +3,42 @@ package org.ekstep.searchindex.util;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Loads properties from a properties file and supports operations to retrieve properties.
+ * 
+ * @author Amarnath
+ * 
+ */
 public class PropertiesUtil {
 
+	/** The properties object. */
 	private static Properties prop = new Properties();
+
+	/** The input. */
 	private static InputStream input = null;
 
+	//load elasticsearch.properties by default
 	static {
 		loadProperties("elasticsearch.properties");
 	}
 
+	/**
+	 * Gets the property.
+	 *
+	 * @param key
+	 *            the key
+	 * @return the property
+	 */
 	public static String getProperty(String key) {
 		return prop.getProperty(key);
 	}
-	
+
+	/**
+	 * Load properties from a file.
+	 *
+	 * @param filename
+	 *            the filename
+	 */
 	public static void loadProperties(String filename) {
 		try {
 			input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);

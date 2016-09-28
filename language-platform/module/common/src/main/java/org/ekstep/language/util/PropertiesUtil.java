@@ -7,17 +7,28 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Loads properties from a properties file and supports operations to retrieve
+ * properties.
+ * 
+ * @author Amarnath
+ * 
+ */
 public class PropertiesUtil {
 
+	/** The properties object. */
 	private static Properties prop = new Properties();
-	private static InputStream input = null;
-	private static Logger LOGGER = LogManager.getLogger(PropertiesUtil.class
-			.getName());
 
+	/** The input. */
+	private static InputStream input = null;
+
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(PropertiesUtil.class.getName());
+
+	//load language-indexes.properties by default
 	static {
 		String filename = "language-indexes.properties";
-		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(
-				filename);
+		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
 		if (input == null) {
 			LOGGER.error("Unable to find " + filename);
 		}
@@ -27,8 +38,15 @@ public class PropertiesUtil {
 			e.printStackTrace();
 		}
 	}
-	
-	public static String getProperty(String key){
+
+	/**
+	 * Gets the property.
+	 *
+	 * @param key
+	 *            the key
+	 * @return the property
+	 */
+	public static String getProperty(String key) {
 		return prop.getProperty(key);
 	}
 }

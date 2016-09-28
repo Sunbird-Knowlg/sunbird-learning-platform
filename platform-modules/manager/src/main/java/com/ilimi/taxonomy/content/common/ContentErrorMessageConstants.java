@@ -1,5 +1,8 @@
 package com.ilimi.taxonomy.content.common;
 
+/** ContentErrorMessageConstants Class holds all the ErrorMessageConstants
+ *  used in the ContentModel
+ */
 public class ContentErrorMessageConstants {
 	
 	public static final String XML_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Content XML file.";

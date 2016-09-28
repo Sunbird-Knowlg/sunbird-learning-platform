@@ -58,17 +58,41 @@ import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
 
+/**
+ * The Class ImportManagerImpl provides implementations of various import
+ * operations through which words and synsets can be imported into the platform.
+ * 
+ * @author Amarnath, Azhar
+ * 
+ */
 @Component
 public class ImportManagerImpl extends BaseLanguageManager implements IImportManager {
 
+	/** The Constant CSV_SEPARATOR. */
 	private static final String CSV_SEPARATOR = ",";
+
+	/** The Constant NEW_LINE. */
 	private static final String NEW_LINE = "\n";
+
+	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();
+
+	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/temp/";
 
+	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
+
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(IImportManager.class.getName());
 
+	/**
+	 * Gets the word list.
+	 *
+	 * @param wordJSONArrObj
+	 *            the word JSON arr obj
+	 * @return the word list
+	 */
 	private List<String> getWordList(Object wordJSONArrObj) {
 		String JSONarrStr;
 		try {
@@ -77,11 +101,19 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			});
 			return list;
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
 	}
 
+	/**
+	 * Gets the related synsets.
+	 *
+	 * @param wordJSONArrObj
+	 *            the word JSON arr obj
+	 * @return the related synsets
+	 */
 	private List<Map<String, Object>> getRelatedSynsets(Object wordJSONArrObj) {
 		String JSONarrStr;
 		try {
@@ -91,18 +123,36 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					});
 			return list;
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
 	}
 
+	/** The Constant KEY_NAME_IDENTIFIER. */
 	private static final String KEY_NAME_IDENTIFIER = "sid";
+
+	/** The Constant KEY_NAME_GLOSS. */
 	private static final String KEY_NAME_GLOSS = "gloss";
+
+	/** The Constant KEY_NAME_GLOSS_ENG. */
 	private static final String KEY_NAME_GLOSS_ENG = "gloss_eng";
+
+	/** The Constant KEY_NAME_EXAM_STMT. */
 	private static final String KEY_NAME_EXAM_STMT = "example_stmt";
+
+	/** The Constant KEY_NAME_POS. */
 	private static final String KEY_NAME_POS = "pos";
+
+	/** The Constant KEY_NAME_TRANSLATIONS. */
 	private static final String KEY_NAME_TRANSLATIONS = "translations";
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.language.mgr.IImportManager#importJSON(java.lang.String,
+	 * java.io.InputStream)
+	 */
 	@Override
 	public Response importJSON(String languageId, InputStream synsetsStreamInZIPStream) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -145,6 +195,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			}
 			asyncUpdate(nodeIDcache.values(), languageId);
 		} catch (Exception ex) {
+			LOGGER.error(ex.getMessage(), ex);
 			errorMessages.append(", ").append(ex.getMessage());
 		} finally {
 			File zipFileDirectory = new File(tempFileDwn);
@@ -154,6 +205,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					delete(zipFileDirectory);
 				} catch (IOException e) {
+					LOGGER.error(e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -167,6 +219,14 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return importResponse;
 	}
 
+	/**
+	 * Async update.
+	 *
+	 * @param wordIds
+	 *            the word ids
+	 * @param languageId
+	 *            the language id
+	 */
 	private void asyncUpdate(Collection<String> wordIds, String languageId) {
 		if (null != wordIds && !wordIds.isEmpty()) {
 			System.out.println("Async update | Words count: " + wordIds.size());
@@ -183,6 +243,24 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/**
+	 * Creates the synsets.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param word
+	 *            the word
+	 * @param synsetIds
+	 *            the synset ids
+	 * @param jsonObj
+	 *            the json obj
+	 * @param nodeIDcache
+	 *            the node I dcache
+	 * @param errorMessages
+	 *            the error messages
+	 * @param manager
+	 *            the manager
+	 */
 	private void createSynsets(String languageId, String word, List<String> synsetIds,
 			List<Map<String, Object>> jsonObj, Map<String, String> nodeIDcache, StringBuilder errorMessages,
 			DictionaryManagerImpl manager) {
@@ -212,6 +290,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 							continue;
 					}
 				}
+
+				// for each synset relkations in the request, create the words
+				// and the relations betwen the nodes
 				List<Map<String, Object>> hypernyms = getRelatedSynsets(synsetJSON.get("hypernyms"));
 				createRelations(languageId, hypernyms, identifier, RelationTypes.HYPERNYM.relationName(), nodeIDcache,
 						synsetIds, manager, errorMessages, true);
@@ -251,6 +332,28 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/**
+	 * Creates the relations.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param synsets
+	 *            the synsets
+	 * @param synsetId
+	 *            the synset id
+	 * @param relationName
+	 *            the relation name
+	 * @param nodeIDcache
+	 *            the node I dcache
+	 * @param synsetIds
+	 *            the synset ids
+	 * @param manager
+	 *            the manager
+	 * @param errorMessages
+	 *            the error messages
+	 * @param hypernym
+	 *            the hypernym
+	 */
 	private void createRelations(String languageId, List<Map<String, Object>> synsets, String synsetId,
 			String relationName, Map<String, String> nodeIDcache, List<String> synsetIds, DictionaryManagerImpl manager,
 			StringBuilder errorMessages, boolean hypernym) {
@@ -287,6 +390,17 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/**
+	 * Creates/updates the synset object.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param identifier
+	 *            the identifier
+	 * @param synset
+	 *            the synset
+	 * @return the string
+	 */
 	private String createSynset(String languageId, String identifier, Map<String, Object> synset) {
 		Node synsetNode = new Node();
 		synsetNode.setGraphId(languageId);
@@ -307,11 +421,31 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return synsetNodeId;
 	}
 
+	/**
+	 * Creates/updates the word.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param sWord
+	 *            the s word
+	 * @param identifier
+	 *            the identifier
+	 * @param manager
+	 *            the manager
+	 * @param nodeIDcache
+	 *            the node I dcache
+	 * @param errorMessages
+	 *            the error messages
+	 * @return true, if successful
+	 */
 	private boolean createWord(String languageId, String sWord, String identifier, DictionaryManagerImpl manager,
 			Map<String, String> nodeIDcache, StringBuilder errorMessages) {
 		String nodeId;
 		WordUtil wordUtil = new WordUtil();
+
+		// check if word is in the execution cache
 		if (nodeIDcache.get(sWord) == null) {
+			// check if word is in the graph
 			Node node = wordUtil.searchWord(languageId, sWord);
 			if (null == node)
 				nodeId = wordUtil.createWord(languageId, sWord, Enums.ObjectType.Word.name());
@@ -322,6 +456,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			nodeId = nodeIDcache.get(sWord);
 		}
 		if (StringUtils.isNotBlank(identifier)) {
+			// create relation
 			Response relationResponse = manager.addRelation(languageId, Enums.ObjectType.Synset.name(), identifier,
 					RelationTypes.SYNONYM.relationName(), nodeId);
 			if (checkError(relationResponse)) {
@@ -333,6 +468,14 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return true;
 	}
 
+	/**
+	 * Deletes the file.
+	 *
+	 * @param file
+	 *            the file
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public void delete(File file) throws IOException {
 		if (file.isDirectory()) {
 			// directory is empty, then delete it
@@ -359,8 +502,20 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/**
+	 * Updates the node object in the graph.
+	 *
+	 * @param node
+	 *            the node
+	 * @param objectType
+	 *            the object type
+	 * @param languageId
+	 *            the language id
+	 * @return the string
+	 */
 	public String updateNode(Node node, String objectType, String languageId) {
 		node.setObjectType(objectType);
+		// validate the request
 		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 		validateReq.put(GraphDACParams.node.name(), node);
 		String lstNodeId = StringUtils.EMPTY;
@@ -384,6 +539,13 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return lstNodeId;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.language.mgr.IImportManager#transformData(java.lang.String,
+	 * java.lang.String, java.io.InputStream)
+	 */
 	@Override
 	public Response transformData(String languageId, String sourceId, InputStream stream) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -404,6 +566,16 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return importRes;
 	}
 
+	/**
+	 * Imports data from an input stream asynchronously.
+	 *
+	 * @param source
+	 *            the source
+	 * @param languageId
+	 *            the language id
+	 * @param taskId
+	 *            the task id
+	 */
 	public void importDataAsync(String source, String languageId, String taskId) {
 		try (InputStream in = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8))) {
 			Request request = getLanguageRequest(languageId, LanguageActorNames.ENRICH_ACTOR.name(),
@@ -418,6 +590,15 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/**
+	 * Converts stream To byte array.
+	 *
+	 * @param input
+	 *            Stream the input Stream
+	 * @return the byte[]
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public static byte[] toByteArrayUsingJava(InputStream is) throws IOException {
 		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			int reads = is.read();
@@ -429,16 +610,16 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.language.mgr.IImportManager#importData(java.lang.String,
+	 * java.io.InputStream, java.io.InputStream)
+	 */
 	@Override
 	public Response importData(String languageId, InputStream synsetStream, InputStream wordStream) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-		/*
-		 * if (StringUtils.isBlank(sourceId) ||
-		 * !LanguageSourceTypeMap.containsLanguage(sourceId)) throw new
-		 * ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
-		 * "Invalid Source Id");
-		 */
 		if (null == synsetStream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Synset object is emtpy");
 		if (null == wordStream)
@@ -474,7 +655,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		StringBuffer synsetContentBuffer = new StringBuffer();
 
 		try {
-			// For Word
+			// Form word models and word content buffer
 			wordContentBuffer.append("identifier,Lemma,objectType");
 			wordContentBuffer.append(NEW_LINE);
 			reader = new InputStreamReader(wordStream, "UTF8");
@@ -489,6 +670,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					wordContentBuffer.append(line);
 					wordContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
+					LOGGER.error(e.getMessage(), e);
 					continue;
 				}
 			}
@@ -500,7 +682,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			if (null != br)
 				br.close();
 
-			// For Synset
+			// Form Synset Models and synset content buffer
 			synsetContentBuffer.append(
 					"identifier,rel:synonym,rel:hasAntonym,rel:hasHyponym,rel:hasMeronym,rel:hasHolonym,rel:hasHypernym,gloss,exampleSentences,pos,objectType");
 			synsetContentBuffer.append(NEW_LINE);
@@ -524,6 +706,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					synsetContentBuffer.append(line);
 					synsetContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
+					LOGGER.error(e.getMessage(), e);
 					continue;
 				}
 			}
@@ -531,8 +714,10 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			String wordIdList = "";
 			String wordContent = "";
 			String synsetContent = "";
+
+			// replace words with word ids from ElasticSearch index and import
+			// the streams.
 			if (lstWord.size() > 0) {
-				// callAddCitationToIndex(languageId, lstWord);
 				dictionaryObject = replaceWordsIfPresentAlready(languageId, lstWord, lstSynset);
 				if (null != dictionaryObject) {
 					lstEnrichedWord = dictionaryObject.getLstWord();
@@ -547,13 +732,16 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				}
 			}
 
+			// creates a task node whose status will determine the next task
+			// execution
 			String taskId = controllerUtil.createTaskNode(languageId);
+			// performs the import asynchronously
 			controllerUtil.importNodesFromStreamAsync(wordContent, languageId, taskId);
+			// imports the data asynchronously once the task is completed
 			importDataAsync(synsetContent, languageId, taskId);
-			// controllerUtil.importWordsAndSynsets(wordContent, synsetContent,
-			// languageId);
 			return OK("wordList", wordIdList);
 		} catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
 			e.printStackTrace();
 		} finally {
 			line = "";
@@ -561,20 +749,29 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					br.close();
 				} catch (IOException e) {
-					LOGGER.error("Error! While Closing the Input Stream.", e);
+					LOGGER.error(e.getMessage(), e);
+					e.printStackTrace();
 				}
 			}
 			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e) {
-					LOGGER.error("Error! While Closing the Input Stream.", e);
+					LOGGER.error(e.getMessage(), e);
+					e.printStackTrace();
 				}
 			}
 		}
 		return null;
 	}
 
+	/**
+	 * Gets the words list as CSV output.
+	 *
+	 * @param lstEnrichedWord
+	 *            the lst enriched word
+	 * @return the words list as CSV string
+	 */
 	private String getWordsListAsCSVString(List<WordModel> lstEnrichedWord) {
 		StringBuffer oneLine = new StringBuffer();
 		oneLine.append("identifier,Lemma,objectType");
@@ -590,6 +787,13 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return oneLine.toString();
 	}
 
+	/**
+	 * Gets the synsets list as CSV output.
+	 *
+	 * @param lstEnrichedSynset
+	 *            the lst enriched synset
+	 * @return the synsets list as CSV string
+	 */
 	private String getSynsetsListAsCSVString(List<SynsetModel> lstEnrichedSynset) {
 		StringBuffer oneLine = new StringBuffer();
 		oneLine.append(
@@ -628,6 +832,15 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return oneLine.toString();
 	}
 
+	/**
+	 * Write words and word ids into CSV.
+	 *
+	 * @param lstEnrichedWord
+	 *            the lst enriched word
+	 * @return the string
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private String writeWordsAndIdstoCSV(List<WordModel> lstEnrichedWord) throws IOException {
 		StringBuffer oneLine = new StringBuffer();
 		oneLine.append("identifier");
@@ -643,46 +856,17 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return oneLine.toString();
 	}
 
-	/*
-	 * private void callAddCitationToIndex(String languageId, List<WordModel>
-	 * lstWord) { if (!StringUtils.isBlank(languageId) &&
-	 * LanguageMap.containsLanguage(languageId) && null != lstWord) {
-	 * LOGGER.info("Enrich - callAddCitationToIndex :- Word List : " + lstWord +
-	 * ", Language Id : " + languageId); Request request =
-	 * getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
-	 * LanguageOperations.addCitationIndex.name());
-	 * request.put(LanguageParams.citations.name(), getWordMapList(lstWord));
-	 * LOGGER.info("List | Request: " + request); Response addCitationRes =
-	 * getLanguageResponse(request, LOGGER); if (checkError(addCitationRes)) {
-	 * throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-	 * addCitationRes.getParams().getErrmsg()); } } }
-	 * 
-	 * private List<Map<String, String>> getWordMapList( List<WordModel>
-	 * lstWord) { List<Map<String, String>> lstMap = new ArrayList<Map<String,
-	 * String>>(); for (WordModel word : lstWord) { Map<String, String> map =
-	 * new HashMap<String, String>(); map.put(LanguageParams.word.name(),
-	 * word.getWordLemma()); //map.put(LanguageParams.date.name(),
-	 * DateTime.now().toString()); map.put(LanguageParams.sourceType.name(),
-	 * "iwn"); map.put(LanguageParams.grade.name(), "1");
-	 * map.put(LanguageParams.source.name(),
-	 * LanguageSourceTypeMap.getSourceType("iwn")); lstMap.add(map); } return
-	 * lstMap; }
+	/**
+	 * Gets the word index info from ElasticSearch.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param indexesMap
+	 *            the indexes map
+	 * @param lstWord
+	 *            the lst word
+	 * @return the index info
 	 */
-	@SuppressWarnings("unused")
-	private Response callGetIndexInfo(String languageId, List<WordModel> lstWord) {
-		if (lstWord.size() > 0) {
-			List<String> lstLemma = getWordLemmaList(lstWord);
-			if (lstLemma.size() > 0) {
-				Request request = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
-						LanguageOperations.getIndexInfo.name());
-				request.put(LanguageParams.words.name(), lstLemma);
-				Response getIndexInfoRes = getLanguageResponse(request, LOGGER);
-				return getIndexInfoRes;
-			}
-		}
-		return null;
-	}
-
 	@SuppressWarnings("unchecked")
 	private void getIndexInfo(String languageId, Map<String, Object> indexesMap, List<WordModel> lstWord) {
 		if (null != lstWord && !lstWord.isEmpty()) {
@@ -695,6 +879,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				for (int i = start; i < batch; i++) {
 					list.add(lstWord.get(i).getWordLemma());
 				}
+
+				// gets the word index info by passing a message to the Indexes
+				// actor
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.getIndexInfo.name());
 				langReq.put(LanguageParams.words.name(), list);
@@ -713,16 +900,23 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/**
+	 * Replace word ids in the input stream if present already in the platform.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param lstWord
+	 *            the lst word
+	 * @param lstSynset
+	 *            the lst synset
+	 * @return the dictionary object
+	 */
 	@SuppressWarnings("unchecked")
 	private DictionaryObject replaceWordsIfPresentAlready(String languageId, List<WordModel> lstWord,
 			List<SynsetModel> lstSynset) {
 		Map<String, Object> indexesMap = new HashMap<String, Object>();
-		// Map<String, Object> wordInfoMap = new HashMap<String, Object>();
 		if (lstWord.size() > 0) {
-			// Response getIndexInfoResponse = callGetIndexInfo(languageId,
-			// lstWord);
 			getIndexInfo(languageId, indexesMap, lstWord);
-			// Response response = copyResponse(getIndexInfoResponse);
 			DictionaryObject dictionaryObject = new DictionaryObject();
 			Map<String, String> replacedWordIdMap = new HashMap<String, String>();
 
@@ -743,6 +937,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 							break;
 						}
 					} catch (Exception e) {
+						LOGGER.error(e.getMessage(), e);
 						e.printStackTrace();
 						continue;
 					}
@@ -782,15 +977,12 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return null;
 	}
 
-	private List<String> getWordLemmaList(List<WordModel> lstWord) {
-		List<String> lstLemma = new ArrayList<String>();
-		for (WordModel word : lstWord) {
-			if (!lstLemma.contains(word.getWordLemma()) && !StringUtils.isBlank(word.getWordLemma()))
-				lstLemma.add(word.getWordLemma().trim());
-		}
-		return lstLemma;
-	}
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.language.mgr.IImportManager#importCSV(java.lang.String,
+	 * java.io.InputStream)
+	 */
 	@Override
 	public Response importCSV(String languageId, InputStream stream) {
 		if (StringUtils.isBlank(languageId))
@@ -819,6 +1011,13 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.language.mgr.IImportManager#updateDefinition(java.lang.String,
+	 * java.lang.String)
+	 */
 	@Override
 	public Response updateDefinition(String languageId, String json) {
 		if (StringUtils.isBlank(languageId))
@@ -832,6 +1031,12 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return getResponse(request, LOGGER);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.language.mgr.IImportManager#findAllDefinitions(java.lang.
+	 * String)
+	 */
 	@Override
 	public Response findAllDefinitions(String id) {
 		if (StringUtils.isBlank(id))
@@ -841,6 +1046,13 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return getResponse(request, LOGGER);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.language.mgr.IImportManager#findDefinition(java.lang.String,
+	 * java.lang.String)
+	 */
 	@Override
 	public Response findDefinition(String id, String objectType) {
 		if (StringUtils.isBlank(id))

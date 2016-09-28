@@ -14,6 +14,13 @@ public class ContentMimeTypeFactory {
     @Autowired @Qualifier("APKMimeTypeMgrImpl") IMimeTypeManager APKMimeTypeMgr;
     @Autowired @Qualifier("CollectionMimeTypeMgrImpl") IMimeTypeManager CollectionMimeTypeMgr;
     @Autowired @Qualifier("AssetsMimeTypeMgrImpl") IMimeTypeManager AssetsMimeTypeMgr;
+    
+    /**
+     * Gets the impl for service.
+     *
+     * @param mimeType the mime type
+     * @return the impl for service
+     */
     public IMimeTypeManager getImplForService(String mimeType){
     	IMimeTypeManager manager = AssetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {

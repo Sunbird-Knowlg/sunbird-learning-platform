@@ -1,3 +1,4 @@
+
 package org.ekstep.language.util;
 
 import java.io.IOException;
@@ -65,13 +66,28 @@ import com.ilimi.graph.model.node.RelationDefinition;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
+/**
+ * Provides utility methods required by the Dictionary controller to search,
+ * create/update words and interact with Graph actors.
+ * 
+ * @author Amarnath, Karthik, Rayulu
+ */
+
 @Component
 public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
-	
+
+	/**
+	 * Returns akka request for a given request map
+	 * 
+	 * @param requestMap
+	 *            request body
+	 * 
+	 * @return Request object
+	 */
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -99,6 +115,15 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return request;
 	}
 
+	/**
+	 * Sets the limit in a search criteria
+	 * 
+	 * @param Request
+	 * 
+	 * @param SearchCriteria
+	 * 
+	 * @return none
+	 */
 	private void setLimit(Request request, SearchCriteria sc) {
 		Integer limit = null;
 		Object obj = request.get(PARAM_LIMIT);
@@ -111,6 +136,20 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		sc.setResultSize(limit);
 	}
 
+	/**
+	 * Given an object, returns the list of objects
+	 * 
+	 * @param mapper
+	 *            to convert between json and map
+	 * 
+	 * @param object
+	 *            object to be converted to list
+	 * 
+	 * @param propName
+	 *            not used.
+	 * 
+	 * @return list of objects
+	 */
 	@SuppressWarnings("rawtypes")
 	public List getList(ObjectMapper mapper, Object object, String propName) {
 		if (null != object) {
@@ -119,6 +158,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List list = mapper.readValue(strObject.toString(), List.class);
 				return list;
 			} catch (Exception e) {
+				LOGGER.error(e.getMessage(), e);
 				List<String> list = new ArrayList<String>();
 				list.add(object.toString());
 				return list;
@@ -127,6 +167,16 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
+	/**
+	 * Retrieves the identifier of a word using the lemma from Graph DB
+	 * 
+	 * @param languageId
+	 * 
+	 * @param word
+	 *            Lemma of the word
+	 * 
+	 * @return Word ID
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public String getWordIdentifierFromGraph(String languageId, String word) throws Exception {
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
@@ -144,6 +194,16 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
+	/**
+	 * Retrieves the identifier of a word using the lemma, from Elasticsearch
+	 * 
+	 * @param languageId
+	 * 
+	 * @param word
+	 *            Lemma of the word
+	 * 
+	 * @return Word ID
+	 */
 	@SuppressWarnings("unchecked")
 	public String getWordIdentifierFromIndex(String languageId, String word) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil();
@@ -151,21 +211,34 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
+
+		// perform a text search on ES
 		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
 				Constants.WORD_INDEX_TYPE);
 		Map<String, Object> wordIdsMap = new HashMap<String, Object>();
+
+		// form a map of word Ids to word
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
 			Map<String, Object> wordMap = new HashMap<String, Object>();
 			wordMap.put("wordId", wordIndex.getWordIdentifier());
 			wordIdsMap.put(wordIndex.getWord(), wordMap);
 		}
+
+		// get word Id from the map
 		if (wordIdsMap.get(word) != null) {
 			return (String) ((Map<String, Object>) wordIdsMap.get(word)).get("wordId");
 		}
 		return null;
 	}
 
+	/**
+	 * Returns the formatted string of a date time
+	 * 
+	 * @param dateTime
+	 * 
+	 * @return formatted date time
+	 */
 	public String getFormattedDateTime(long dateTime) {
 		String dateTimeString = "";
 		try {
@@ -174,11 +247,23 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			dateTimeString = "";
 		}
 		return dateTimeString;
 	}
 
+	/**
+	 * Adds citation, word index and Word info indexes to Elasticsearch
+	 * 
+	 * @param indexes
+	 *            Map of type of indexes to List of indexes
+	 * 
+	 * @param language
+	 *            graph Id of the language
+	 * 
+	 * @return void
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void addIndexesToElasticSearch(Map<String, List> indexes, String language) throws Exception {
 
@@ -265,6 +350,21 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Creates word info index with predefined settings and mappings
+	 * 
+	 * @param indexName
+	 *            name of the index
+	 * 
+	 * @param indexType
+	 *            index type name
+	 * 
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
+	 * 
+	 * @return void
+	 */
+	// TODO: Use ElasticSearchUtil's generic index creator
 	private void createWordInfoIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
 			throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
@@ -290,6 +390,21 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
+	/**
+	 * Creates word index with predefined settings and mappings
+	 * 
+	 * @param indexName
+	 *            name of the index
+	 * 
+	 * @param indexType
+	 *            index type name
+	 * 
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
+	 * 
+	 * @return void
+	 */
+	// TODO: Use ElasticSearchUtil's generic index creator
 	public void createWordIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
 			throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
@@ -311,6 +426,21 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
+	/**
+	 * Creates citation index with predefined settings and mappings
+	 * 
+	 * @param indexName
+	 *            name of the index
+	 * 
+	 * @param indexType
+	 *            index type name
+	 * 
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
+	 * 
+	 * @return void
+	 */
+	// TODO: Use ElasticSearchUtil's generic index creator
 	public void createCitationIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
 			throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
@@ -337,6 +467,20 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
+	/**
+	 * Gets root words from Elasticsearch for a given word and language Id
+	 * 
+	 * @param word
+	 *            word for which the root word needs to be found
+	 * 
+	 * @param languageId
+	 *            index type name
+	 * 
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
+	 * 
+	 * @return void
+	 */
 	@SuppressWarnings({ "unchecked" })
 	public String getRootWordsFromIndex(String word, String languageId) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil();
@@ -360,6 +504,23 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
+	/**
+	 * Returns the word index DTO for a given word
+	 * 
+	 * @param word
+	 *            lemma of the word
+	 * 
+	 * @param rootWord
+	 *            lemma of the root word
+	 * 
+	 * @param wordIdentifier
+	 *            ID of the word in the graph
+	 * 
+	 * @param mapper
+	 *            objectMapper for JSON operations
+	 * 
+	 * @return void
+	 */
 	public String getWordIndex(String word, String rootWord, String wordIdentifier, ObjectMapper mapper)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		String wordIndexJson = null;
@@ -371,6 +532,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return wordIndexJson;
 	}
 
+	/**
+	 * Searches the graph for given object type, and request
+	 * 
+	 * @param languageId
+	 *            graphId for the language
+	 * @param objectType
+	 *            object type of nodes to be searched
+	 * @param request
+	 *            Map of filters
+	 * @return Response from Graph
+	 */
 	@SuppressWarnings("unchecked")
 	public Response list(String languageId, String objectType, Request request) {
 		if (StringUtils.isBlank(languageId))
@@ -437,6 +609,13 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Returns the fields property from the request
+	 * 
+	 * @param request
+	 *            Map of filters
+	 * @return Array of fields
+	 */
 	@SuppressWarnings("unchecked")
 	private String[] getFields(Request request) {
 		Object objFields = request.get(PARAM_FIELDS);
@@ -450,6 +629,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
+	/**
+	 * Converts a Node DTO into a MAP based on the array of fields provided
+	 * 
+	 * @param node
+	 *            Node object that needs to be converted
+	 * @param languageId
+	 *            Graph Id for the language
+	 * @param fields
+	 *            array of fields that should be returned from the node DTO
+	 * @return
+	 */
 	private Map<String, Object> convertGraphNode(Node node, String languageId, String[] fields) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != node) {
@@ -473,6 +663,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return map;
 	}
 
+	/**
+	 * Adds relations data to the Word map from the Word Node
+	 * 
+	 * @param node
+	 *            Node object of the Word
+	 * @param map
+	 *            Word map
+	 */
 	private void addRelationsData(Node node, Map<String, Object> map) {
 		List<Map<String, Object>> synonyms = new ArrayList<Map<String, Object>>();
 		List<NodeDTO> antonyms = new ArrayList<NodeDTO>();
@@ -503,6 +701,35 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			map.put("meronyms", meronyms);
 	}
 
+	/**
+	 * Retrieves the IN relations from a word node and populates the respective
+	 * relations list
+	 * 
+	 * @param node
+	 *            Word node DTO
+	 * @param synonyms
+	 *            List of synonyms
+	 * @param antonyms
+	 *            List of antonyms
+	 * @param hypernyms
+	 *            List of hypernyms
+	 * @param hyponyms
+	 *            List of hyponyms
+	 * @param homonyms
+	 *            List of homonyms
+	 * @param meronyms
+	 *            List of meronyms
+	 * @param tools
+	 *            List of tools
+	 * @param workers
+	 *            List of workers
+	 * @param actions
+	 *            List of actions
+	 * @param objects
+	 *            List of objects
+	 * @param converse
+	 *            List of converse
+	 */
 	private void getInRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
 			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms,
 			List<NodeDTO> tools, List<NodeDTO> workers, List<NodeDTO> actions, List<NodeDTO> objects,
@@ -553,6 +780,35 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Retrieves the OUT relations from a word node and populates the respective
+	 * relations list
+	 * 
+	 * @param node
+	 *            Word node DTO
+	 * @param synonyms
+	 *            List of synonyms
+	 * @param antonyms
+	 *            List of antonyms
+	 * @param hypernyms
+	 *            List of hypernyms
+	 * @param hyponyms
+	 *            List of hyponyms
+	 * @param homonyms
+	 *            List of homonyms
+	 * @param meronyms
+	 *            List of meronyms
+	 * @param tools
+	 *            List of tools
+	 * @param workers
+	 *            List of workers
+	 * @param actions
+	 *            List of actions
+	 * @param objects
+	 *            List of objects
+	 * @param converse
+	 *            List of converse
+	 */
 	private void getOutRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
 			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms,
 			List<NodeDTO> tools, List<NodeDTO> workers, List<NodeDTO> actions, List<NodeDTO> objects,
@@ -606,6 +862,20 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Creates a Node on the Graph
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectType
+	 *            Type of the Object
+	 * @param request
+	 *            Map of request body, contains list of words
+	 * @return Response object
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response create(String languageId, String objectType, Request request)
 			throws JsonGenerationException, JsonMappingException, IOException {
@@ -668,6 +938,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Converts the given map into a Node object
+	 * 
+	 * @param map
+	 *            Map represnetation of object
+	 * @param definition
+	 *            DefintiionDTO of the object
+	 * @return Node object
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition)
 			throws JsonGenerationException, JsonMappingException, IOException {
@@ -718,6 +1000,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return node;
 	}
 
+	/**
+	 * Returns both IN relations and OUT relation deinfitions from a given
+	 * Definition DTO
+	 * 
+	 * @param definition
+	 *            Defintion DTO
+	 * @param inRelDefMap
+	 *            Map of relation title to relation name for IN relations
+	 * @param outRelDefMap
+	 *            Map of relation title to relation name for OUT relations
+	 */
 	private void getRelDefMaps(DefinitionDTO definition, Map<String, String> inRelDefMap,
 			Map<String, String> outRelDefMap) {
 		if (null != definition) {
@@ -738,6 +1031,13 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Validate word citations request for null or empty words
+	 * 
+	 * @param citationBeanList
+	 *            List of Citation beans
+	 * @return List of error messages
+	 */
 	public ArrayList<String> validateCitationsList(List<CitationBean> citationBeanList) {
 		ArrayList<String> errorMessageList = new ArrayList<String>();
 		for (CitationBean citation : citationBeanList) {
@@ -747,89 +1047,127 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return errorMessageList;
 	}
-	
+
+	/**
+	 * Search words based on list of lemmas
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param lemmas
+	 *            list of lemmas
+	 * @return Map of lemma to Word Node
+	 */
 	@SuppressWarnings("unchecked")
-    public Map<String, Node> searchWords(String languageId, List<String> lemmas) {
-	    Map<String, Node> nodeMap = new HashMap<String, Node>();
-        Set<String> words = new HashSet<String>();
-        words.addAll(lemmas);
-        Response findRes = getSearchWordsResponse(languageId, ATTRIB_LEMMA, lemmas);
-        if (!checkError(findRes)) {
-            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-            if (null != nodes && nodes.size() > 0) {
-                for (Node node : nodes) {
-                    String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
-                    nodeMap.put(wordLemma, node);
-                    words.remove(wordLemma);
-                }
-            }
-        }
-        if (null != words && !words.isEmpty()) {
-            Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
-            if (!checkError(searchRes)) {
-                List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
-                if (null != nodes && nodes.size() > 0) {
-                    for (Node node : nodes) {
-                        String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
-                        nodeMap.put(wordLemma, node);
-                    }
-                }
-            }
-        }
-        System.out.println("returning nodemap size: " + nodeMap.size());
-        return nodeMap;
-    }
-	
-	@SuppressWarnings("unchecked")
-    public Map<String, Node> searchWordsForComplexity(String languageId, List<String> lemmas) {
-	    Map<String, Node> nodeMap = new HashMap<String, Node>();
-        Set<String> words = new HashSet<String>();
-        words.addAll(lemmas);
-        Response findRes = getSearchWordsResponse(languageId, ATTRIB_LEMMA, lemmas);
-        if (!checkError(findRes)) {
-            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-            if (null != nodes && nodes.size() > 0) {
-                for (Node node : nodes) {
-                    String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
-                    nodeMap.put(wordLemma, node);
-                    words.remove(wordLemma);
-                }
-            }
-        }
-        if (null != words && !words.isEmpty()) {
-            Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
-            if (!checkError(searchRes)) {
-                List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
-                if (null != nodes && nodes.size() > 0) {
-                    for (Node node : nodes) {
-                    	node.getMetadata().put(LanguageParams.morphology.name(),true);
-                        String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
-                        if(node.getMetadata().get(ATTRIB_VARIANTS) != null){
-                        	String[] variants = (String[]) node.getMetadata().get(ATTRIB_VARIANTS);
-                        	for(String variant: variants){
-                        		 nodeMap.put(variant, node);
-                        	}
-                        }
-                        nodeMap.put(wordLemma, node);
-                    }
-                }
-            }
-        }
-        System.out.println("returning nodemap size: " + nodeMap.size());
-        return nodeMap;
-    }
-	
-	private Response getSearchWordsResponse(String languageId, String property, List<String> words) {
-	    SearchCriteria sc = new SearchCriteria();
-        sc.setObjectType("Word");
-        sc.addMetadata(MetadataCriterion
-                .create(Arrays.asList(new Filter(property, SearchConditions.OP_IN, words))));
-        Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
-        req.put(GraphDACParams.search_criteria.name(), sc);
-        Response searchRes = getResponse(req, LOGGER);
-        return searchRes;
+	public Map<String, Node> searchWords(String languageId, List<String> lemmas) {
+		Map<String, Node> nodeMap = new HashMap<String, Node>();
+		Set<String> words = new HashSet<String>();
+		words.addAll(lemmas);
+		Response findRes = getSearchWordsResponse(languageId, ATTRIB_LEMMA, lemmas);
+		if (!checkError(findRes)) {
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+			if (null != nodes && nodes.size() > 0) {
+				for (Node node : nodes) {
+					String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+					nodeMap.put(wordLemma, node);
+					words.remove(wordLemma);
+				}
+			}
+		}
+		if (null != words && !words.isEmpty()) {
+			Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
+			if (!checkError(searchRes)) {
+				List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+				if (null != nodes && nodes.size() > 0) {
+					for (Node node : nodes) {
+						String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+						nodeMap.put(wordLemma, node);
+					}
+				}
+			}
+		}
+		LOGGER.info("returning nodemap size: " + nodeMap.size());
+		return nodeMap;
 	}
 
+	/**
+	 * Search words based on either lemma or variants fields
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param lemmas
+	 *            list of lemmas
+	 * @return Map of lemma to Word Node
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, Node> searchWordsForComplexity(String languageId, List<String> lemmas) {
+		Map<String, Node> nodeMap = new HashMap<String, Node>();
+		Set<String> words = new HashSet<String>();
+		words.addAll(lemmas);
+		Response findRes = getSearchWordsResponse(languageId, ATTRIB_LEMMA, lemmas);
+		if (!checkError(findRes)) {
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+			if (null != nodes && nodes.size() > 0) {
+				for (Node node : nodes) {
+					String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+					nodeMap.put(wordLemma, node);
+					words.remove(wordLemma);
+				}
+			}
+		}
+		if (null != words && !words.isEmpty()) {
+			Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
+			if (!checkError(searchRes)) {
+				List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+				if (null != nodes && nodes.size() > 0) {
+					for (Node node : nodes) {
+						node.getMetadata().put(LanguageParams.morphology.name(), true);
+						String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+						if (node.getMetadata().get(ATTRIB_VARIANTS) != null) {
+							String[] variants = (String[]) node.getMetadata().get(ATTRIB_VARIANTS);
+							for (String variant : variants) {
+								nodeMap.put(variant, node);
+							}
+						}
+						nodeMap.put(wordLemma, node);
+					}
+				}
+			}
+		}
+		LOGGER.info("returning nodemap size: " + nodeMap.size());
+		return nodeMap;
+	}
+
+	/**
+	 * Performs a search on the graph using a property and a list of property
+	 * values
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param property
+	 *            field that will be used for search
+	 * @param words
+	 *            List of property values
+	 * @return
+	 */
+	private Response getSearchWordsResponse(String languageId, String property, List<String> words) {
+		SearchCriteria sc = new SearchCriteria();
+		sc.setObjectType("Word");
+		sc.addMetadata(MetadataCriterion.create(Arrays.asList(new Filter(property, SearchConditions.OP_IN, words))));
+		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+		req.put(GraphDACParams.search_criteria.name(), sc);
+		Response searchRes = getResponse(req, LOGGER);
+		return searchRes;
+	}
+
+	/**
+	 * Searches for a word in the graph using the lemma
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param lemma
+	 *            lemma of thw word
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public Node searchWord(String languageId, String lemma) {
 		Node node = null;
@@ -860,7 +1198,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return node;
 	}
-	
+
+	/**
+	 * Searches for a word in the graph using the lemma or variants property
+	 * 
+	 * @param languageId
+	 * @param lemma
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public Node searchWordForComplexity(String languageId, String lemma) {
 		Node node = null;
@@ -887,12 +1232,21 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 				if (null != nodes && nodes.size() > 0)
 					node = nodes.get(0);
-					node.getMetadata().put(LanguageParams.morphology.name(), true);
+				node.getMetadata().put(LanguageParams.morphology.name(), true);
 			}
 		}
 		return node;
 	}
 
+	/**
+	 * Creates a cache of word Ids using the lemma or variant as the key
+	 * 
+	 * @param languageId
+	 * @param wordLemmaMap
+	 *            Map of Lemma/Variant to Word Id
+	 * @param errorMessages
+	 *            List of error messages during this operation
+	 */
 	public void cacheAllWords(String languageId, Map<String, String> wordLemmaMap, List<String> errorMessages) {
 		try {
 			long startTime = System.currentTimeMillis();
@@ -914,10 +1268,19 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			errorMessages.add(e.getMessage());
 		}
 	}
 
+	/**
+	 * Gets all objects of a given object type
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectType
+	 * @return List of nodes
+	 */
 	@SuppressWarnings("unchecked")
 	public List<Node> getAllObjects(String languageId, String objectType) {
 		Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType);
@@ -932,6 +1295,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
+	/**
+	 * Get the data node from Graph based on the node Id
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param nodeId
+	 * @return Node
+	 */
 	public Node getDataNode(String languageId, String nodeId) {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		request.put(GraphDACParams.node_id.name(), nodeId);
@@ -948,6 +1319,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
+	/**
+	 * Creates word node in the Graph
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param word
+	 *            lemma of the word
+	 * @param objectType
+	 *            object type of the node to be created
+	 * @return
+	 */
 	public String createWord(String languageId, String word, String objectType) {
 		Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
 		Map<String, Object> metadata = new HashMap<String, Object>();
@@ -963,6 +1345,12 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return nodeId;
 	}
 
+	/**
+	 * Returns the error message from the response
+	 * 
+	 * @param response
+	 *            Response from akka request
+	 */
 	@SuppressWarnings("unchecked")
 	public String getErrorMessage(Response response) {
 		String errorMessage = "";
@@ -982,6 +1370,23 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return response.getResponseCode().name();
 	}
 
+	/**
+	 * Given a words with relations to other words, creates the related words in
+	 * the graph
+	 * 
+	 * @param synsetRelations
+	 *            Map of relation name to list of words
+	 * @param languageId
+	 * @param errorMessages
+	 *            List of error messages
+	 * @param wordDefintion
+	 *            Definition DTO of the word
+	 * @param wordLemmaMap
+	 *            Cache of word lemma to word Id
+	 * @param nodeIds
+	 *            List of word Ids
+	 * @return List of word Ids created
+	 */
 	private List<String> processRelationWords(List<Map<String, Object>> synsetRelations, String languageId,
 			List<String> errorMessages, DefinitionDTO wordDefintion, Map<String, String> wordLemmaMap,
 			ArrayList<String> nodeIds) {
@@ -998,6 +1403,22 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return wordIds;
 	}
 
+	/**
+	 * Creates or updates words without processing words in the relations
+	 * 
+	 * @param word
+	 *            Word object as a map
+	 * @param languageId
+	 * @param errorMessages
+	 *            List of error messages
+	 * @param definition
+	 *            Definition DTO of the word
+	 * @param wordLemmaMap
+	 *            Cache of word lemma to word Id
+	 * @param nodeIds
+	 *            List of word Ids
+	 * @return
+	 */
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
 			List<String> errorMessages, DefinitionDTO definition, Map<String, String> wordLemmaMap,
 			ArrayList<String> nodeIds) {
@@ -1011,13 +1432,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				if (identifier != null) {
 					return identifier;
 				}
-				/*
-				 * Node existingWordNode = searchWord(languageId, lemma); if
-				 * (existingWordNode != null) { identifier =
-				 * existingWordNode.getIdentifier(); wordLemmaMap.put(lemma,
-				 * identifier); word.put(LanguageParams.identifier.name(),
-				 * identifier); return identifier; }
-				 */
 			}
 			Response wordResponse;
 			List<String> sources = new ArrayList<String>();
@@ -1041,6 +1455,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Creates word in the graph
+	 * 
+	 * @param node
+	 *            Node object of the word
+	 * @param languageId
+	 * @return Response
+	 */
 	private Response createWord(Node node, String languageId) {
 		Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 		createReq.put(GraphDACParams.node.name(), node);
@@ -1048,6 +1470,16 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return res;
 	}
 
+	/**
+	 * Updates the word in the graph
+	 * 
+	 * @param node
+	 *            Node object of the word
+	 * @param languageId
+	 * @param wordId
+	 *            Id of the word that needs to be updated
+	 * @return
+	 */
 	public Response updateWord(Node node, String languageId, String wordId) {
 		Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		createReq.put(GraphDACParams.node.name(), node);
@@ -1056,6 +1488,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return res;
 	}
 
+	/**
+	 * Updates the cache of Word ids using lemma as the key, with new words
+	 * 
+	 * @param lemmaIdMap
+	 *            Existing cache
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectType
+	 * @param words
+	 *            Set of words
+	 */
 	@SuppressWarnings("unchecked")
 	private void getWordIdMap(Map<String, String> lemmaIdMap, String languageId, String objectType, Set<String> words) {
 		if (null != words && !words.isEmpty()) {
@@ -1094,6 +1537,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Converts a map object into a node object
+	 * 
+	 * @param languageId
+	 * @param objectType
+	 * @param map
+	 *            Map representation of graph node
+	 * @param definition
+	 *            Defintion DTO of the result node
+	 * @return Node object
+	 */
+	// TODO: Must Refactor and/or remove
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node convertToGraphNode(String languageId, String objectType, Map<String, Object> map,
 			DefinitionDTO definition) {
@@ -1118,6 +1573,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						if (null != tags && !tags.isEmpty())
 							node.setTags(tags);
 					} catch (Exception e) {
+						LOGGER.error(e.getMessage(), e);
 						e.printStackTrace();
 					}
 				} else if (StringUtils.equalsIgnoreCase("synonyms", entry.getKey())) {
@@ -1304,12 +1760,32 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return node;
 	}
 
+	/**
+	 * Crates the word in the Graph and adds to word ID cache
+	 * 
+	 * @param lemmaIdMap
+	 *            Word Id cache
+	 * @param languageId
+	 * @param word
+	 *            lemma of the word
+	 * @param objectType
+	 *            object type of the word
+	 * @return Id of the word
+	 */
 	private String createWord(Map<String, String> lemmaIdMap, String languageId, String word, String objectType) {
 		String nodeId = createWord(languageId, word, objectType);
 		lemmaIdMap.put(word, nodeId);
 		return nodeId;
 	}
 
+	/**
+	 * Gets the Definition DTO for a given object type
+	 * 
+	 * @param definitionName
+	 *            Object type
+	 * @param graphId
+	 * @return
+	 */
 	public DefinitionDTO getDefinitionDTO(String definitionName, String graphId) {
 		Request requestDefinition = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), definitionName);
@@ -1322,6 +1798,15 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Creates the Synset node in the graph
+	 * 
+	 * @param languageId
+	 * @param synsetObj
+	 * @param synsetDefinition
+	 * @return
+	 * @throws Exception
+	 */
 	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition)
 			throws Exception {
 		String operation = "updateDataNode";
@@ -1330,8 +1815,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			operation = "createDataNode";
 		}
 
-		// synsetObj.put(GraphDACParams.object_type.name(),
-		// LanguageParams.Synset.name());
 		Node synsetNode = convertToGraphNode(synsetObj, synsetDefinition);
 		synsetNode.setObjectType(LanguageParams.Synset.name());
 		Request synsetReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, operation);
@@ -1343,6 +1826,21 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return res;
 	}
 
+	/**
+	 * Creates or updates a word with a primary meaning and processes all
+	 * relation words
+	 * 
+	 * @param item
+	 *            Word object from request
+	 * @param languageId
+	 * @param wordLemmaMap
+	 *            Cahce of word lemma to word Id
+	 * @param wordDefinition
+	 * @param nodeIds
+	 *            List of nodes created
+	 * @param synsetDefinition
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public List<String> createOrUpdateWord(Map<String, Object> item, String languageId,
 			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition, ArrayList<String> nodeIds,
@@ -1405,21 +1903,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				addSynsetRelation(wordIds, relationName, languageId, primaryMeaningId, errorMessages);
 			}
 
-			// get Synset data
-			/*
-			 * Node synsetNode = getDataNode(languageId, primaryMeaningId); if
-			 * (synsetNode != null) { Map<String, Object> synsetMetadata =
-			 * synsetNode.getMetadata(); String category = (String)
-			 * synsetMetadata.get(LanguageParams.category.name()); if (category
-			 * != null) { item.put(LanguageParams.category.name(), category); }
-			 * 
-			 * List<String> tags = synsetNode.getTags(); if (tags != null) {
-			 * List<String> wordTags = (List<String>)
-			 * item.get(LanguageParams.tags.name()); if (wordTags == null) {
-			 * wordTags = new ArrayList<String>(); } wordTags.addAll(tags);
-			 * item.put(LanguageParams.tags.name(), wordTags); } }
-			 */
-
 			// create Word
 			item.remove(LanguageParams.primaryMeaning.name());
 			List<String> words = (List<String>) item.get(LanguageParams.words.name());
@@ -1437,16 +1920,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List<String> sources = new ArrayList<String>();
 				sources.add(ATTRIB_SOURCE_IWN);
 				wordMap.put(ATTRIB_SOURCES, sources);
-				/*
-				 * if (wordIdentifier == null) { Node existingWordNode =
-				 * searchWord(languageId, lemma); if (existingWordNode != null)
-				 * { wordIdentifier = existingWordNode.getIdentifier();
-				 * wordMap.put(LanguageParams.identifier.name(),
-				 * wordIdentifier); createFlag = false; } }
-				 */
 				Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition);
-				// System.out.println("Time to convert word to node: " +
-				// (endTime-startTime));
 				node.setObjectType(LanguageParams.Word.name());
 				if (createFlag) {
 					createRes = createWord(node, languageId);
@@ -1464,12 +1938,24 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}
 		return errorMessages;
 	}
 
+	/**
+	 * Processes and creates a synonym relation for the word
+	 * 
+	 * @param languageId
+	 * @param wordId
+	 *            ID of the word
+	 * @param synsetId
+	 *            ID of the synset
+	 * @param errorMessages
+	 *            List of error messages
+	 */
 	private void addSynonymRelation(String languageId, String wordId, String synsetId, List<String> errorMessages) {
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
 		request.put(GraphDACParams.start_node_id.name(), synsetId);
@@ -1481,6 +1967,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Get word from graph
+	 * 
+	 * @param wordId
+	 *            Id of the word
+	 * @param languageId
+	 *            Graph ID
+	 * @param errorMessages
+	 *            List of error messages
+	 * @return
+	 */
 	private Node getWord(String wordId, String languageId, List<String> errorMessages) {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), wordId);
@@ -1493,6 +1990,19 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return node;
 	}
 
+	/**
+	 * Creates relations between list of words and a synset
+	 * 
+	 * @param wordIds
+	 *            List of word Ids
+	 * @param relationType
+	 *            Type of relation to be created
+	 * @param languageId
+	 * @param synsetId
+	 *            Id of the synset
+	 * @param errorMessages
+	 *            List of error messages
+	 */
 	private void addSynsetRelation(List<String> wordIds, String relationType, String languageId, String synsetId,
 			List<String> errorMessages) {
 		if (wordIds != null) {
@@ -1518,6 +2028,20 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
+	/**
+	 * Creates relation between word and synset
+	 * 
+	 * @param wordId
+	 *            Id of the word
+	 * @param relationType
+	 *            Type of relation
+	 * @param languageId
+	 *            Graph Id
+	 * @param synsetId
+	 *            Id of the synset
+	 * @param errorMessages
+	 *            List of error messages
+	 */
 	private void addSynsetRelation(String wordId, String relationType, String languageId, String synsetId,
 			List<String> errorMessages) {
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
@@ -1529,40 +2053,64 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			errorMessages.add(getErrorMessage(response));
 		}
 	}
-	
+
+	/**
+	 * Transliterates an english text into the specified language
+	 * 
+	 * @param languageId
+	 *            language into which the text needs to be transliterated
+	 * @param text
+	 *            the text which needs to be transliterated
+	 * @param addEndVirama
+	 *            if virama needs to be added at the end of words that end with
+	 *            a consonant
+	 * @return the transliterated text
+	 */
 	public String transliterateText(String languageId, String text, boolean addEndVirama) {
 		if (StringUtils.isNotBlank(text)) {
 			Map<String, String> tokenMap = new HashMap<String, String>();
 			StringBuilder result = new StringBuilder();
 			StringTokenizer st = new StringTokenizer(text);
-            while (st.hasMoreTokens()) {
-            	String word = st.nextToken().trim();
-            	String token = LanguageUtil.replacePunctuations(word);
-            	if (tokenMap.containsKey(token)) {
-            		result.append(tokenMap.get(token)).append(" ");
-            	} else {
-            		String arpabets = WordCacheUtil.getArpabets(token);
-                	if (StringUtils.isNotBlank(arpabets)) {
-                		List<Node> varnas = new ArrayList<Node>();
-                		boolean found = getVarnasForWord(languageId, arpabets, varnas);
-                		if (found) {
-                			List<String> unicodes = getUnicodes(languageId, varnas, addEndVirama);
-                			String output = getTextFromUnicode(unicodes);
-                			tokenMap.put(token, output);
-                			result.append(output).append(" ");
-                		} else {
-                			result.append(word).append(" ");
-                		}
-                	} else {
-                		result.append(word).append(" ");
-                	}
-            	}
-            }
+			while (st.hasMoreTokens()) {
+				String word = st.nextToken().trim();
+				String token = LanguageUtil.replacePunctuations(word);
+				if (tokenMap.containsKey(token)) {
+					result.append(tokenMap.get(token)).append(" ");
+				} else {
+					String arpabets = WordCacheUtil.getArpabets(token);
+					if (StringUtils.isNotBlank(arpabets)) {
+						List<Node> varnas = new ArrayList<Node>();
+						boolean found = getVarnasForWord(languageId, arpabets, varnas);
+						if (found) {
+							List<String> unicodes = getUnicodes(languageId, varnas, addEndVirama);
+							String output = getTextFromUnicode(unicodes);
+							tokenMap.put(token, output);
+							result.append(output).append(" ");
+						} else {
+							result.append(word).append(" ");
+						}
+					} else {
+						result.append(word).append(" ");
+					}
+				}
+			}
 			return result.toString();
 		}
 		return text;
 	}
-	
+
+	/**
+	 * Returns the list of unicodes for the given list of varna objects.
+	 * 
+	 * @param languageId
+	 *            code of the language to which the varnas belong to
+	 * @param varnas
+	 *            list of varnas whose unicodes are returned
+	 * @param addEndVirama
+	 *            if virama needs to be added after the last varna (if it is a
+	 *            consonant)
+	 * @return the list of unicodes for the input list of varnas
+	 */
 	private List<String> getUnicodes(String languageId, List<Node> varnas, boolean addEndVirama) {
 		VarnaCache cache = VarnaCache.getInstance();
 		List<String> unicodes = new ArrayList<String>();
@@ -1580,7 +2128,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					if (StringUtils.isNotEmpty(viramaUnicode))
 						unicodes.add(viramaUnicode);
 					else
-						throw new ServerException(LanguageErrorCodes.ERROR_VIRAMA_NOT_FOUND.name(), "Virama is not found in "+languageId +" graph");
+						throw new ServerException(LanguageErrorCodes.ERROR_VIRAMA_NOT_FOUND.name(),
+								"Virama is not found in " + languageId + " graph");
 				}
 				unicodes.add(varnaUnicode);
 			} else if (varnaType.equalsIgnoreCase("Vowel")) {
@@ -1592,46 +2141,84 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						unicodes.add(vowelSignUnicode);
 					start_of_syllable = true;
 				}
-			}else{
+			} else {
 				unicodes.add(varnaUnicode);
 				start_of_syllable = true;
 			}
 		}
-		if (addEndVirama && StringUtils.equalsIgnoreCase("Consonant", lastVarna) && StringUtils.isNotBlank(viramaUnicode))
+		if (addEndVirama && StringUtils.equalsIgnoreCase("Consonant", lastVarna)
+				&& StringUtils.isNotBlank(viramaUnicode))
 			unicodes.add(viramaUnicode);
 		return unicodes;
 	}
-	
+
+	/**
+	 * Returns list of varnas in the specified language for a given english word
+	 * (in arpabet notation)
+	 * 
+	 * @param languageId
+	 *            language of the varnas
+	 * @param arpabets
+	 *            arpabet notation of the english word
+	 * @param varnas
+	 *            list of varnas for the input english word
+	 * @return true if varnas are found for all arpabets of the word, else false
+	 */
 	private boolean getVarnasForWord(String languageId, String arpabets, List<Node> varnas) {
 		VarnaCache cache = VarnaCache.getInstance();
 		String arpabetArr[] = arpabets.split("\\s");
 		boolean found = true;
 		for (String arpabet : arpabetArr) {
+			// get iso symbol of the arpabet
 			String isoSymbol = cache.getISOSymbol("en", arpabet);
+
+			// get matching varnas for the iso symbol of the arpabet
 			found = getVarnas(isoSymbol, languageId, cache, varnas);
+
+			// get varnas for alternate ISO symbol of the arpabet if varnas are
+			// not found for the main iso symbol
 			if (!found) {
+				// get iso symbol of the arpabet
 				String altISOSymbol = cache.getAltISOSymbol("en", arpabet);
+
+				// get matching varnas for the alternate iso symbol of the
+				// arpabet
 				found = getVarnas(altISOSymbol, languageId, cache, varnas);
 			}
 		}
 		return found;
 	}
-	
+
+	/**
+	 * Get the list of varnas for a give isoSymbol. This method also accepts
+	 * input in the form of 'iso1+iso2+iso3' and returns a list of varnas
+	 * matching for all the iso symbols in the input.
+	 * 
+	 * @param isoSymbol
+	 *            one or more iso symbols (separated by +)
+	 * @param languageId
+	 *            language of the varnas
+	 * @param cache
+	 *            the VarnaCache object
+	 * @param varnas
+	 *            list of varnas for the input iso symbol(s)
+	 * @return true if varnas are found for all iso symbols, else false
+	 */
 	private boolean getVarnas(String isoSymbol, String languageId, VarnaCache cache, List<Node> varnas) {
 		boolean found = true;
 		if (StringUtils.isNotBlank(isoSymbol)) {
-			if(isoSymbol.contains("+")){
+			if (isoSymbol.contains("+")) {
 				String isoSymbols[] = isoSymbol.split("\\+");
-				for(String iso : isoSymbols) {
+				for (String iso : isoSymbols) {
 					Node node = cache.getVarnaNode(languageId, iso);
 					if (null != node)
-						varnas.add(node);	
+						varnas.add(node);
 					else {
 						found = false;
 						break;
 					}
 				}
-			} else{
+			} else {
 				Node node = cache.getVarnaNode(languageId, isoSymbol);
 				if (null != node)
 					varnas.add(node);
@@ -1644,32 +2231,60 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return found;
 	}
-	
+
+	/**
+	 * Returns the phonetic spelling (transliterated form) of the given english
+	 * word into the specified language.
+	 * 
+	 * @param languageId
+	 *            language into which the text needs to be transliterated
+	 * @param word
+	 *            the word that needs to be trans
+	 * @param addEndVirama
+	 *            if virama needs to be added at the end of words that end with
+	 *            a consonant
+	 * @return the transliterated text of the given english word
+	 */
 	public String getPhoneticSpellingByLanguage(String languageId, String word, boolean addEndVirama) {
-		String arpabets = WordCacheUtil.getArpabets(word);		
-    	if (StringUtils.isNotBlank(arpabets)) {
-    		List<Node> varnas = new ArrayList<Node>();
-    		boolean found = getVarnasForWord(languageId, arpabets, varnas);
-    		if (found) {
-    			List<String> unicodes = getUnicodes(languageId, varnas, addEndVirama);
-    			return getTextFromUnicode(unicodes);
-    		}
-    	}
-    	return "";
+		String arpabets = WordCacheUtil.getArpabets(word);
+		if (StringUtils.isNotBlank(arpabets)) {
+			List<Node> varnas = new ArrayList<Node>();
+			boolean found = getVarnasForWord(languageId, arpabets, varnas);
+			if (found) {
+				List<String> unicodes = getUnicodes(languageId, varnas, addEndVirama);
+				return getTextFromUnicode(unicodes);
+			}
+		}
+		// return empty string if arpabets for the given word are not found
+		return "";
 	}
-	
+
+	/**
+	 * Returns the text from a list of unicodes
+	 * 
+	 * @param unicodes
+	 * @return Text
+	 */
 	private String getTextFromUnicode(List<String> unicodes) {
 
 		String text = "";
 		for (String unicode : unicodes) {
-			if(StringUtils.isNotEmpty(unicode)){
+			if (StringUtils.isNotEmpty(unicode)) {
 				int hexVal = Integer.parseInt(unicode, 16);
-				text += (char) hexVal;				
+				text += (char) hexVal;
 			}
 		}
 		return text;
 	}
 
+	/**
+	 * Returns a list of syllables for a given word
+	 * 
+	 * @param languageId
+	 * @param word
+	 *            lemma of the word
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public List<String> buildSyllables(String languageId, String word) {
 		String syllables = "";
@@ -1700,7 +2315,15 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 		return syllables.length() > 0 ? Arrays.asList(syllables.split(", ")) : ListUtils.EMPTY_LIST;
 	}
-	
+
+	/**
+	 * Gets node by given property
+	 * 
+	 * @param languageId
+	 * @param property
+	 *            Property filter
+	 * @return Node object
+	 */
 	@SuppressWarnings("unchecked")
 	private Node getVarnaNodeByProperty(String languageId, Property property) {
 		Node node = null;
@@ -1715,42 +2338,74 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return node;
 	}
-	
-    public Double getWordComplexity(String lemma, String languageId) throws Exception {
-	    Node word = searchWordForComplexity(languageId, lemma);
-        if (word == null)
-            throw new ResourceNotFoundException(LanguageErrorCodes.ERR_WORDS_NOT_FOUND.name(), "Word not found: " + lemma);
-        return getWordComplexity(word, languageId);
-	}
-    
-    public Map<String, Double> getWordComplexity(List<String> lemmas, String languageId) {
-        Map<String, Node> nodeMap = searchWordsForComplexity(languageId, lemmas);
-        Map<String, Double> map = new HashMap<String, Double>();
-        if (null != lemmas && !lemmas.isEmpty()) {
-            for (String lemma : lemmas) {
-                Node node = nodeMap.get(lemma);
-                if (null != node) {
-                    try {
-                        Double complexity = getWordComplexity(node, languageId);
-                        map.put(lemma, complexity);
-                    } catch (Exception e) {
-                        map.put(lemma, null);
-                    }
-                } else {
-                    map.put(lemma, null);
-                }
-            }
-        }
-        return map;
-    }
 
+	/**
+	 * Gets the word complexity of the given word
+	 * 
+	 * @param lemma
+	 *            lemma of the word
+	 * @param languageId
+	 * @return Word complexity value
+	 * @throws Exception
+	 */
+	public Double getWordComplexity(String lemma, String languageId) throws Exception {
+		Node word = searchWordForComplexity(languageId, lemma);
+		if (word == null)
+			throw new ResourceNotFoundException(LanguageErrorCodes.ERR_WORDS_NOT_FOUND.name(),
+					"Word not found: " + lemma);
+		return getWordComplexity(word, languageId);
+	}
+
+	/**
+	 * Gets the word complexity for a given list of lemmas
+	 * 
+	 * @param lemmas
+	 *            List of lemmas
+	 * @param languageId
+	 * @return Map of lemma to word complexity
+	 */
+	public Map<String, Double> getWordComplexity(List<String> lemmas, String languageId) {
+		Map<String, Node> nodeMap = searchWordsForComplexity(languageId, lemmas);
+		Map<String, Double> map = new HashMap<String, Double>();
+		if (null != lemmas && !lemmas.isEmpty()) {
+			for (String lemma : lemmas) {
+				Node node = nodeMap.get(lemma);
+				if (null != node) {
+					try {
+						Double complexity = getWordComplexity(node, languageId);
+						map.put(lemma, complexity);
+					} catch (Exception e) {
+						LOGGER.error(e.getMessage(), e);
+						map.put(lemma, null);
+					}
+				} else {
+					map.put(lemma, null);
+				}
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * Computes the word complexity of the given word node using the word
+	 * complexity definition
+	 * 
+	 * @param word
+	 *            Node object of the word
+	 * @param languageId
+	 *            Graph Id
+	 * @return
+	 * @throws Exception
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Double getWordComplexity(Node word, String languageId) throws Exception {
 		Map<String, Object> wordMap = convertGraphNode(word, languageId, null);
 		String languageGraphName = "language";
-		DefinitionDTO wordComplexityDefinition = DefinitionDTOCache.getDefinitionDTO(LanguageObjectTypes.WordComplexity.name(), languageGraphName);
-		if(wordComplexityDefinition == null)
-		    throw new ResourceNotFoundException(LanguageErrorCodes.ERR_DEFINITION_NOT_FOUND.name(), "Definition not found for " + LanguageObjectTypes.WordComplexity.name());
+		DefinitionDTO wordComplexityDefinition = DefinitionDTOCache
+				.getDefinitionDTO(LanguageObjectTypes.WordComplexity.name(), languageGraphName);
+		if (wordComplexityDefinition == null)
+			throw new ResourceNotFoundException(LanguageErrorCodes.ERR_DEFINITION_NOT_FOUND.name(),
+					"Definition not found for " + LanguageObjectTypes.WordComplexity.name());
 		List<MetadataDefinition> properties = wordComplexityDefinition.getProperties();
 		Double complexity = 0.0;
 		for (MetadataDefinition property : properties) {
@@ -1949,15 +2604,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		}
-		
+
 		BigDecimal bd = new BigDecimal(complexity);
 		bd = bd.setScale(2, RoundingMode.HALF_UP);
-		
+
 		word.getMetadata().put(LanguageParams.word_complexity.name(), bd.doubleValue());
-		//remove temporary "morphology" metadata
+		// remove temporary "morphology" metadata
 		word.getMetadata().remove(LanguageParams.morphology.name());
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
 	}
 }
-

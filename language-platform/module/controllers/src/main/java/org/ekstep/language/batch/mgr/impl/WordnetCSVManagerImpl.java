@@ -29,12 +29,28 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 
+/**
+ * WordnetCSVManagerImpl provides implementations to process words from a CSV,
+ * extract citations and load data in the Graph and ElasticSearch DB.
+ *
+ * @author Rayulu, Amarnath
+ */
 @Component
 public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordnetCSVManager {
 
+	/** The Constant NEW_LINE_SEPARATOR. */
 	private static final String NEW_LINE_SEPARATOR = "\n";
+	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(IWordnetCSVManager.class.getName());
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.language.batch.mgr.IWordnetCSVManager#createWordnetCitations(
+	 * java.lang.String, java.lang.String)
+	 */
 	@Override
 	public Response createWordnetCitations(String languageId, String wordsCSV) {
 		CSVFormat format = CSVFormat.DEFAULT;
@@ -52,6 +68,13 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		return OK("status", "OK");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.language.batch.mgr.IWordnetCSVManager#addWordnetIndexes(java.
+	 * lang.String, java.lang.String)
+	 */
 	@Override
 	public Response addWordnetIndexes(String languageId, String wordsCSV) {
 		CSVFormat format = CSVFormat.DEFAULT;
@@ -77,6 +100,13 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		return OK("status", "OK");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.language.batch.mgr.IWordnetCSVManager#replaceWordnetIds(java.
+	 * lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
 	@Override
 	public Response replaceWordnetIds(String languageId, String wordsCSV, String synsetCSV, String outputDir) {
 		CSVFormat format = CSVFormat.DEFAULT;
@@ -104,6 +134,15 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		return OK("status", "OK");
 	}
 
+	/**
+	 * Parses the CSV file and retrieves records.
+	 *
+	 * @param format
+	 *            the format
+	 * @param path
+	 *            the path
+	 * @return the list
+	 */
 	private List<CSVRecord> readCSV(CSVFormat format, String path) {
 		File f = new File(path);
 		try (FileInputStream fis = new FileInputStream(f); InputStreamReader isReader = new InputStreamReader(fis)) {
@@ -118,6 +157,13 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		}
 	}
 
+	/**
+	 * Form a cache map of Word lemma to word Id
+	 *
+	 * @param wordRecords
+	 *            the word records
+	 * @return the word net id map
+	 */
 	private Map<String, String> getWordNetIdMap(List<CSVRecord> wordRecords) {
 		Map<String, String> wordnetIdMap = new HashMap<String, String>();
 		if (null != wordRecords && !wordRecords.isEmpty()) {
@@ -133,6 +179,14 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		return wordnetIdMap;
 	}
 
+	/**
+	 * Adds the citation indexes into ES using the Indexes actor.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordnetIdMap
+	 *            the wordnet id map
+	 */
 	private void addCitationIndexes(String languageId, Map<String, String> wordnetIdMap) {
 		if (null != wordnetIdMap && !wordnetIdMap.isEmpty()) {
 			Set<String> keys = wordnetIdMap.keySet();
@@ -162,6 +216,14 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		}
 	}
 
+	/**
+	 * Adds the word indexes into ES using the Indexes actor.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordnetIdMap
+	 *            the wordnet id map
+	 */
 	private void addWordIndexes(String languageId, Map<String, String> wordnetIdMap) {
 		if (null != wordnetIdMap && !wordnetIdMap.isEmpty()) {
 			Set<String> keys = wordnetIdMap.keySet();
@@ -194,6 +256,22 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		}
 	}
 
+	/**
+	 * Gets the word index info data from ES and populates the lemma against the
+	 * word Id.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordnetIdMap
+	 *            the wordnet id map
+	 * @param wordIdMap
+	 *            the word id map
+	 * @param rootWordMap
+	 *            the root word map
+	 * @param newWordnetIds
+	 *            the new wordnet ids
+	 * @return the index info
+	 */
 	@SuppressWarnings("unchecked")
 	private void getIndexInfo(String languageId, Map<String, String> wordnetIdMap, Map<String, String> wordIdMap,
 			Map<String, String> rootWordMap, Map<String, String> newWordnetIds) {
@@ -241,6 +319,14 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		}
 	}
 
+	/**
+	 * Write new word net ids into a CSV file.
+	 *
+	 * @param newWordnetIds
+	 *            the new wordnet ids
+	 * @param outputDir
+	 *            the output dir
+	 */
 	private void writeNewWordNetIds(Map<String, String> newWordnetIds, String outputDir) {
 		if (null != newWordnetIds && newWordnetIds.size() > 0) {
 			try {
@@ -267,6 +353,18 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		}
 	}
 
+	/**
+	 * Write updated words ids from wordId cache into CSV.
+	 *
+	 * @param wordRecords
+	 *            the word records
+	 * @param wordIdMap
+	 *            the word id map
+	 * @param rootWordMap
+	 *            the root word map
+	 * @param outputDir
+	 *            the output dir
+	 */
 	private void writeUpdatedWordsCSV(List<CSVRecord> wordRecords, Map<String, String> wordIdMap,
 			Map<String, String> rootWordMap, String outputDir) {
 		if (null != wordRecords && wordRecords.size() > 0) {
@@ -310,6 +408,16 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 		}
 	}
 
+	/**
+	 * Write synsets with updated WordIds into CSV.
+	 *
+	 * @param synsetRecords
+	 *            the synset records
+	 * @param wordIdMap
+	 *            the word id map
+	 * @param outputDir
+	 *            the output dir
+	 */
 	private void writeUpdatedSynsetsCSV(List<CSVRecord> synsetRecords, Map<String, String> wordIdMap,
 			String outputDir) {
 		if (null != synsetRecords && synsetRecords.size() > 0) {

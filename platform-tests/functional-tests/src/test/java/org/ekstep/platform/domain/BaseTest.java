@@ -4,13 +4,18 @@ package org.ekstep.platform.domain;
 
 /// hi this is test to check smartgit sync.
 import static com.jayway.restassured.RestAssured.baseURI;
-import static com.jayway.restassured.RestAssured.basePath;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.JSON;
+//import static com.jayway.restassured.RestAssured.basePath;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+
+import java.util.Random;
+
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import static org.hamcrest.CoreMatchers.*;
-import java.util.Random;
 
 public class BaseTest 
 {
@@ -18,9 +23,9 @@ public class BaseTest
 	
 	public String liveStatus = "Live";
 	public String contentType = "application/json";
+	public String uploadContentType = "multipart/mixed";
 	public String validuserId = "rayuluv";
 	public String invalidUserId = "abc";
-	//public String apiVersion = "v2";
 	
 	/**
 	 * sets baseURI and basePath
@@ -28,10 +33,11 @@ public class BaseTest
 	public void setURI()
 	{
 		//TO-DO: This will be read from config file, soon.
-		baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
-		//baseURI ="http://localhost:9090/ekstep-service"; 
-		//basePath = apiVersion;
+		//baseURI = "http://localhost:8080/taxonomy-service";
+		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
+		baseURI ="https://qa.ekstep.in/api/"; 
 	}
+		
 	/**
 	 * adds the given content_type and user_id to the header of RequestSpecBuilder
 	 * 
@@ -165,6 +171,20 @@ public class BaseTest
 		int randomInt = random.nextInt((max - min) + 1) + min;
 		return randomInt;
 		
+	}
+	
+	public void contentCleanUp(String jsonContentClean){
+		setURI();
+		given().
+		spec(getRequestSpec(contentType, validuserId)).
+		body(jsonContentClean).
+	with().
+		contentType(JSON).
+	when().
+		post("v1/exec/content_qe_deleteContentBySearchStringInField").
+	then().
+		log().all().
+		spec(get200ResponseSpec());	
 	}
 	
 }

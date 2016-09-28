@@ -1,3 +1,4 @@
+
 package org.ekstep.language.controller;
 
 import java.util.Arrays;
@@ -29,27 +30,56 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
+/**
+ * End points for v2 word CRUD operations and relation CRUD operations. V2
+ * implementation Handles primary meaning and related words
+ * 
+ * @author Amarnath
+ */
 public abstract class DictionaryControllerV2 extends BaseLanguageController {
 
+	/** The dictionary manager. */
 	@Autowired
 	private IDictionaryManager dictionaryManager;
-	
+
+	/** The word controller. */
 	@Autowired
 	private WordController wordController;
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(DictionaryControllerV2.class.getName());
 
+	/**
+	 * Upload.
+	 *
+	 * @param file
+	 *            the file
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/media/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@RequestParam(value = "file", required = true) MultipartFile file) {
 		return wordController.upload(file);
 	}
 
+	/**
+	 * Creates word by processing primary meaning and related words.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param forceUpdate
+	 *            Indicates if the update should be forced
+	 * @param map
+	 *            Request map
+	 * @param userId
+	 *            User making the request
+	 * @return the response entity
+	 */
 	@SuppressWarnings("unchecked")
-    @RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@PathVariable(value = "languageId") String languageId,
-	        @RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
+			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".save";
@@ -58,17 +88,17 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			Response response = dictionaryManager.createWordV2(languageId, objectType, request, forceUpdate);
 			LOGGER.info("Create | Response: " + response);
 			if (!checkError(response)) {
-			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
-			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
-			    asyncUpdate(nodeIds, languageId);
-	            response.getResult().remove(GraphDACParams.node_ids.name());
-	            response.getResult().remove(GraphDACParams.node_id.name());
-	            if (StringUtils.isNotBlank(nodeId))
-	                response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
+				String nodeId = (String) response.get(GraphDACParams.node_id.name());
+				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
+				asyncUpdate(nodeIds, languageId);
+				response.getResult().remove(GraphDACParams.node_ids.name());
+				response.getResult().remove(GraphDACParams.node_id.name());
+				if (StringUtils.isNotBlank(nodeId))
+					response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
 			} else {
-                response.getResult().remove(GraphDACParams.node_ids.name());
-                response.getResult().remove(GraphDACParams.node_id.name());
-            }
+				response.getResult().remove(GraphDACParams.node_ids.name());
+				response.getResult().remove(GraphDACParams.node_id.name());
+			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
@@ -78,6 +108,21 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Updates word by processing primary meaning and related words.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectId
+	 *            Id of the object that needs to be updated
+	 * @param map
+	 *            Request map
+	 * @param forceUpdate
+	 *            Indicates if the update should be forced
+	 * @param userId
+	 *            User making the request
+	 * @return the response entity
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
@@ -92,16 +137,16 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			Response response = dictionaryManager.updateWordV2(languageId, objectId, objectType, request, forceUpdate);
 			LOGGER.info("Update | Response: " + response);
 			if (!checkError(response)) {
-			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
+				String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
-			    asyncUpdate(nodeIds, languageId);
-	            response.getResult().remove(GraphDACParams.node_ids.name());
-	            response.getResult().remove(GraphDACParams.node_id.name());
-	            if (StringUtils.isNotBlank(nodeId))
-                    response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
+				asyncUpdate(nodeIds, languageId);
+				response.getResult().remove(GraphDACParams.node_ids.name());
+				response.getResult().remove(GraphDACParams.node_id.name());
+				if (StringUtils.isNotBlank(nodeId))
+					response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
 			} else {
-			    response.getResult().remove(GraphDACParams.node_ids.name());
-                response.getResult().remove(GraphDACParams.node_id.name());
+				response.getResult().remove(GraphDACParams.node_ids.name());
+				response.getResult().remove(GraphDACParams.node_id.name());
 			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
@@ -111,19 +156,41 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
 	}
-	
+
+	/**
+	 * Makes an Async call to Enrich actor to enrich the words.
+	 *
+	 * @param nodeIds
+	 *            List of word Ids that has to be enriched
+	 * @param languageId
+	 *            Graph Id
+	 */
 	private void asyncUpdate(List<String> nodeIds, String languageId) {
-	    Map<String, Object> map = new HashMap<String, Object>();
-        map = new HashMap<String, Object>();
-        map.put(LanguageParams.node_ids.name(), nodeIds);
-        Request request = new Request();
-        request.setRequest(map);
-        request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
-        request.setOperation(LanguageOperations.enrichWords.name());
-        request.getContext().put(LanguageParams.language_id.name(), languageId);
-        makeAsyncRequest(request, LOGGER);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = new HashMap<String, Object>();
+		map.put(LanguageParams.node_ids.name(), nodeIds);
+		Request request = new Request();
+		request.setRequest(map);
+		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+		request.setOperation(LanguageOperations.enrichWords.name());
+		request.getContext().put(LanguageParams.language_id.name(), languageId);
+		makeAsyncRequest(request, LOGGER);
 	}
 
+	/**
+	 * Searches for a given word using the object Id with its primary meaning
+	 * and related words.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectId
+	 *            Id of the word that needs to be searched
+	 * @param fields
+	 *            List of fields that should be part of the result
+	 * @param userId
+	 *            User making the request
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "languageId") String languageId,
@@ -142,6 +209,19 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Get all words with their primary meanings and related words.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param fields
+	 *            List of fields that should be part of the result
+	 * @param limit
+	 *            Limit of results
+	 * @param userId
+	 *            User making the request
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAll(@PathVariable(value = "languageId") String languageId,
@@ -158,15 +238,43 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
-	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> findWordsCSV(@PathVariable(value = "languageId") String languageId,
-            @RequestParam("file") MultipartFile file,
-            @RequestHeader(value = "user-id") String userId, HttpServletResponse response) {
-	    return wordController.findWordsCSV(languageId, file, userId, response);
-    }
 
+	/**
+	 * Retrieve words from the lemma in the CSV.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param file
+	 *            Input CSV with list of lemmas
+	 * @param userId
+	 *            User making the request
+	 * @param response
+	 *            the response
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> findWordsCSV(@PathVariable(value = "languageId") String languageId,
+			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
+			HttpServletResponse response) {
+		return wordController.findWordsCSV(languageId, file, userId, response);
+	}
+
+	/**
+	 * Delete a given relation.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectId1
+	 *            Start object
+	 * @param relation
+	 *            Relation name
+	 * @param objectId2
+	 *            End object
+	 * @param userId
+	 *            User making the request
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> deleteRelation(@PathVariable(value = "languageId") String languageId,
@@ -175,6 +283,21 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		return wordController.deleteRelation(languageId, objectId1, relation, objectId2, userId);
 	}
 
+	/**
+	 * Creates a relation between two objects.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectId1
+	 *            Start object
+	 * @param relation
+	 *            Relation name
+	 * @param objectId2
+	 *            End object
+	 * @param userId
+	 *            User making the request
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> addRelation(@PathVariable(value = "languageId") String languageId,
@@ -183,6 +306,23 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		return wordController.addRelation(languageId, objectId1, relation, objectId2, userId);
 	}
 
+	/**
+	 * Gets the synonyms of a given word.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param objectId
+	 *            word Id
+	 * @param relation
+	 *            relation of the word
+	 * @param fields
+	 *            List of fields in the response
+	 * @param relations
+	 *            the relations
+	 * @param userId
+	 *            User making the request
+	 * @return the synonyms
+	 */
 	@RequestMapping(value = "/{languageId}/{relation}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getSynonyms(@PathVariable(value = "languageId") String languageId,
@@ -190,9 +330,22 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "relations", required = false) String[] relations,
 			@RequestHeader(value = "user-id") String userId) {
-	    return wordController.getSynonyms(languageId, objectId, relation, fields, relations, userId);
+		return wordController.getSynonyms(languageId, objectId, relation, fields, relations, userId);
 	}
 
+	/**
+	 * Get translations of the given words in other languages.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param words
+	 *            List of lemmas
+	 * @param languages
+	 *            List of languages
+	 * @param userId
+	 *            User making the request
+	 * @return the translations
+	 */
 	@RequestMapping(value = "/{languageId}/translation", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getTranslations(@PathVariable(value = "languageId") String languageId,
@@ -202,10 +355,20 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		return wordController.getTranslations(languageId, words, languages, userId);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.common.controller.BaseController#getAPIVersion()
+	 */
 	protected String getAPIVersion() {
-        return API_VERSION_2;
-    }
-	
+		return API_VERSION_2;
+	}
+
+	/**
+	 * Gets the object type of the extending object.
+	 *
+	 * @return the object type
+	 */
 	protected abstract String getObjectType();
 
 }
