@@ -44,8 +44,8 @@ public class AssessmentItemSetController extends BaseController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(
-            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+    	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.create";
         Request request = getRequestObject(map);
         LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
@@ -64,8 +64,8 @@ public class AssessmentItemSetController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+    	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.update";
         Request request = getRequestObject(map);
         LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request
@@ -85,10 +85,9 @@ public class AssessmentItemSetController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestParam(value = "isfields", required = false) String[] isfields,
             @RequestHeader(value = "user-id") String userId) {
-
+    	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.find";
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
                 + userId);
@@ -105,10 +104,9 @@ public class AssessmentItemSetController extends BaseController {
     @RequestMapping(value = "/generate/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> generate(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestParam(value = "isfields", required = false) String[] isfields,
             @RequestHeader(value = "user-id") String userId) {
-
+    	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.find";
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
                 + userId);
@@ -125,8 +123,8 @@ public class AssessmentItemSetController extends BaseController {
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search(
-            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+    	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.search";
         LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
         try {
@@ -143,8 +141,8 @@ public class AssessmentItemSetController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestHeader(value = "user-id") String userId) {
+    	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.delete";
         LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
