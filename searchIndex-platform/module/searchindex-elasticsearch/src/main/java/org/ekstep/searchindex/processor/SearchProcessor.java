@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
@@ -21,6 +23,7 @@ import net.sf.json.util.JSONStringer;
 public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+	private ObjectMapper mapper = new ObjectMapper();
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
@@ -57,6 +60,66 @@ public class SearchProcessor {
 
 		CountResult countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		response.put("count", countResult.getCount());
+
+		return response;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Map<String, Object> multiDocSearch(List<String> synsetIds) throws Exception {
+		Map<String, Object> response = new HashMap<String, Object>();
+		Map<String, Object> translations = new HashMap<String, Object>();
+		Map<String, Object> synsets = new HashMap<String, Object>();
+		if(synsetIds!=null && synsetIds.size()>0)
+		{
+			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
+			
+			for(String synsetDoc: resultList)
+			{
+				Map<String, Object> wordTranslationList = new HashMap<String, Object>();				
+				Map<String, Object> indexDocument = new HashMap<String, Object>();
+				if (synsetDoc != null && !synsetDoc.isEmpty()) {
+					indexDocument = mapper.readValue(synsetDoc, new TypeReference<Map<String, Object>>() {});
+					//IN_Synset_synonym
+					Object words = indexDocument.get("synonyms");
+					String identifier = (String)indexDocument.get("identifier");
+					String gloss = (String)indexDocument.get("gloss");
+					wordTranslationList.put("gloss", gloss);
+					if(words!=null)
+					{
+						List<String> wordIdList = (List<String>)words;
+						if(wordIdList!=null && wordIdList.size()>0)
+						{
+							List<String> wordResultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
+									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, wordIdList);
+							for(String wordDoc: wordResultList)
+							{
+								List<Map> synsetWordLangList = new ArrayList<Map>();
+								Map<String, Object> indexWordDocument = new HashMap<String, Object>();
+								indexWordDocument = mapper.readValue(wordDoc, new TypeReference<Map<String, Object>>() {});
+								String wordId = (String)indexWordDocument.get("identifier");
+								String graphId = (String)indexWordDocument.get("graphId");
+								if(wordTranslationList.containsKey(graphId))
+								{
+									synsetWordLangList = (List<Map>)wordTranslationList.get(graphId);
+								}
+								String lemma = (String)indexWordDocument.get("lemma");
+								Map<String,String> wordMap = new HashMap<String,String>();
+								wordMap.put("id", wordId);
+								wordMap.put("lemma", lemma);
+								synsetWordLangList.add(wordMap);
+								wordTranslationList.put(graphId, synsetWordLangList);
+							}
+							
+						}
+					}
+					synsets.put(identifier,wordTranslationList);
+				}
+				
+			}
+			translations.put("translations", synsets);
+			response.put("results", translations);
+		}
 
 		return response;
 	}

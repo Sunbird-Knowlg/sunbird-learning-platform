@@ -61,6 +61,10 @@ public class SearchManager extends SearchBaseActor {
 				Map<String, Object> searchResponse = (Map<String, Object>) request.get("searchResult");
 				OK(getCompositeSearchResponse(searchResponse), parent);
 
+			}else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
+				List<String> synsetIdList = (List<String>) request.get("synset_ids");
+				Map<String, Object> lstResult = processor.multiDocSearch(synsetIdList);
+				OK(lstResult, parent);
 			} else {
 				LOGGER.info("Unsupported operation: " + operation);
 				throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),

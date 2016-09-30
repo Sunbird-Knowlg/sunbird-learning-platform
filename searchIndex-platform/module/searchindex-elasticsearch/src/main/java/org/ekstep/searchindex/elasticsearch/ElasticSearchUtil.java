@@ -16,6 +16,8 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.transformer.IESResultTransformer;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import com.ilimi.common.logger.LogHelper;
 
@@ -30,6 +32,7 @@ import io.searchbox.core.CountResult;
 import io.searchbox.core.Delete;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
+import io.searchbox.core.MultiGet;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import io.searchbox.core.SearchResult.Hit;
@@ -184,6 +187,21 @@ public class ElasticSearchUtil {
 		Get get = new Get.Builder(indexName, documentId).type(documentType).build();
 		JestResult result = client.execute(get);
 		return result.getSourceAsString();
+	}
+	
+	public List<String> getMultiDocumentAsStringByIdList(String indexName, String documentType, List<String> documentIdList) throws IOException {
+		List<String> finalResult = new ArrayList<String>();
+		MultiGet get = new MultiGet.Builder.ById(indexName, documentType).addId(documentIdList).build();
+		JestResult result = client.execute(get);
+		JsonArray actualDocs = result.getJsonObject().getAsJsonArray("docs");
+        for(int i=0;i<actualDocs.size();i++)
+        {
+        	JsonObject actualDoc1 = actualDocs.get(0).getAsJsonObject();
+        	JsonObject actualSource = actualDoc1.getAsJsonObject("_source");
+        	finalResult.add(mapper.writeValueAsString(actualSource));
+        }
+		return finalResult;
+		
 	}
 
 	public boolean isIndexExists(String indexName) throws IOException {

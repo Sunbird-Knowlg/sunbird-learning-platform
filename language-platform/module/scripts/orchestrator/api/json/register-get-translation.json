@@ -1,0 +1,33 @@
+{
+    "name": "getTranslation",
+    "parameters": [
+        {
+			"name":"language_id",
+			"index": 0,
+			"routingParam": false
+		},{
+			"name":"word_id",
+			"index": 1,
+			"routingParam": false
+		},
+        {
+            "name": "languages",
+            "index": 2,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/language/translations/*/*",
+        "pathParams": [
+          "language_id",
+		  "word_id"
+        ],
+        "requestParams": [
+          "languages"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.translations.get"
+}

@@ -1,0 +1,24 @@
+{
+    "name": "createTranslation",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"word_id",
+    	"index": 1,
+    	"routingParam": true
+    },{
+        "name": "translations",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/language/translations/*/*",
+        "pathParams": ["language_id","word_id"]
+    },
+    "body": "",
+    "apiId": "ekstep.translations.save"
+}

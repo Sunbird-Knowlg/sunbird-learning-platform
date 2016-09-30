@@ -57,3 +57,5 @@ node registerCommand.js commands/register-traverse.json update
 node registerCommand.js commands/register-get-traverser.json update
 
 node registerCommand.js commands/register-execute-commands-concurrently.json update
+
+node registerCommand.js commands/register-logWordTranslationEvent.json update
