@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -25,7 +24,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class VarnaCache extends BaseManager {
 	
-	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(VarnaCache.class.getName());
 
 	private final Map<String, List<Node>> varnaMap = new HashMap<String, List<Node>>();
 	private final Map<String, Map<String, String>> isoSymbolMap = new HashMap<String, Map<String, String>>();

@@ -9,17 +9,15 @@ import org.junit.Test;
 import com.ilimi.taxonomy.content.entity.Plugin;
 
 public class ECRFConversionUtilityTest {
-	
+
 	@SuppressWarnings("unused")
 	@Test
 	public void getECRF_Test01() {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("Sample_XML_1.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-//		String strContent = getFileString("Sample_JSON_1.json");
-//		Plugin plugin = fixture.getEcrfFromJson(strContent);
 	}
-	
+
 	private String getFileString(String fileName) {
 		String fileString = "";
 		File file = new File(getClass().getResource("/Contents/" + fileName).getFile());
@@ -30,5 +28,4 @@ public class ECRFConversionUtilityTest {
 		}
 		return fileString;
 	}
-	
 }

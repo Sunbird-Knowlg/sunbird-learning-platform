@@ -1,0 +1,21 @@
+{
+  "name": "loadGradeLevelComplexity",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+      "name": "node_id",
+      "index": 1,
+      "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "LANGUAGE_CACHE_ACTOR",
+    "operation": "loadGradeLevelComplexity",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  }
+}

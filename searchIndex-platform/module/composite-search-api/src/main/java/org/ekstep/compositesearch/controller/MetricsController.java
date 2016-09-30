@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ekstep.search.mgr.CompositeSearchManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,13 +29,8 @@ public class MetricsController extends BaseCompositeSearchController {
     		@RequestHeader(value = "user-id") String userId,
             HttpServletResponse resp) {
         String apiId = "composite-search.metrics";
-        try {
-        	Request request = getRequest(map);
-            Response response = compositeSearchManager.metrics(request);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            return getExceptionResponseEntity(e, apiId, null);
-        }
+        Request request = getRequest(map);
+        Response response = compositeSearchManager.metrics(request);
+        return getResponseEntity(response, apiId, null);
     }
-
 }

@@ -79,10 +79,4 @@
 	</bean>
 
 	<bean id="auditHistoryDao" class="com.ilimi.dac.impl.entity.dao.AuditHistoryDao" p:sessionFactory-ref="sessionFactory" />
-	<bean id="auditLogDao" class="com.ilimi.dac.impl.entity.dao.AuditLogDao"
-		p:sessionFactory-ref="sessionFactory" />
-	<bean id="commentDao" class="com.ilimi.dac.impl.entity.dao.CommentDao"
-		p:sessionFactory-ref="sessionFactory" />
-	<bean id="versionDao" class="com.ilimi.dac.impl.entity.dao.VersionDao"
-		p:sessionFactory-ref="sessionFactory" />
 </beans>

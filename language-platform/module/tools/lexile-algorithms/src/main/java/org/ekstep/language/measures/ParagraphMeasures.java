@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.language.cache.GradeComplexityCache;
 import org.ekstep.language.measures.entity.ComplexityMeasures;
 import org.ekstep.language.measures.entity.ParagraphComplexity;
 import org.ekstep.language.measures.entity.WordComplexity;
@@ -69,6 +70,10 @@ public class ParagraphMeasures {
                 summary.put("avg_phonologic_complexity", pc.getMeanPhonicComplexity());
                 summary.put("word_count", pc.getWordCount());
                 summary.put("syllable_count", pc.getSyllableCount());
+                summary.put("averageTotalComplexity", pc.getMeanComplexity());
+                List<Map<String, String>> suitableGradeSummary = getSuitableGradeSummaryInfo(languageId, pc.getMeanComplexity()); 
+                if(suitableGradeSummary != null)
+                	summary.put("gradeLevels", suitableGradeSummary);
                 
                 Map<String, Integer> wordFrequency = pc.getWordFrequency();
                 Map<String, ComplexityMeasures> wordMeasures = pc.getWordMeasures();
@@ -459,6 +464,21 @@ public class ParagraphMeasures {
             return null;
         }
     }
+    
+    private static List<Map<String, String>> getSuitableGradeSummaryInfo(String languageId, Double value){
+    	List<com.ilimi.graph.dac.model.Node> suitableGrade = GradeComplexityCache.getInstance().getSuitableGrades(languageId, value);
+        List<Map<String, String>> suitableGradeSummary = new ArrayList<Map<String,String>>();
+        if(suitableGrade!=null) {
+	        for(com.ilimi.graph.dac.model.Node sg : suitableGrade){
+	        	Map<String, String> gradeInfo = new HashMap<>();
+	        	gradeInfo.put("Grade", (String) sg.getMetadata().get("gradeLevel"));
+	        	gradeInfo.put("Language Level", (String) sg.getMetadata().get("languageLevel"));
+	        	suitableGradeSummary.add(gradeInfo);
+	        }
+        	return suitableGradeSummary;
+        }
+        return null;
+    }
 
     private static void computeMeans(ParagraphComplexity pc, Map<String, WordComplexity> wordComplexities, Map<String, Double> wcMap) {
         int count = 0;
@@ -485,6 +505,8 @@ public class ParagraphMeasures {
         pc.setMeanOrthoComplexity(formatDoubleValue(orthoComplexity / count));
         pc.setMeanPhonicComplexity(formatDoubleValue(phonicComplexity / count));
         pc.setMeanWordComplexity(formatDoubleValue(wordComplexity / count));
+        double totalComplexity = orthoComplexity + phonicComplexity;
+        pc.setMeanComplexity(formatDoubleValue(totalComplexity / pc.getWordCount()));
     }
 
     private static Double formatDoubleValue(Double d) {

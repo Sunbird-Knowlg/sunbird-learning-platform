@@ -1,14 +1,8 @@
 package com.ilimi.taxonomy.content.util;
 
-import java.io.IOException;
-
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.xml.sax.SAXException;
-
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.BaseTest;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
@@ -44,7 +38,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_01() {
 		exception.expect(ClientException.class);
-		exception.expectMessage(ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR);
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_PARSE_CONFIG_EXCEPTION);
@@ -57,7 +50,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_02() {
 		exception.expect(ClientException.class);
-		exception.expectMessage(ContentErrorMessageConstants.XML_NOT_WELL_FORMED_ERROR);
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_SAX_EXCEPTION);
@@ -70,7 +62,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_03() {
 		exception.expect(ClientException.class);
-		exception.expectMessage(ContentErrorMessageConstants.XML_IO_ERROR);
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_IO_EXCEPTION);
@@ -84,7 +75,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_04() {
 		exception.expect(ClientException.class);
-		exception.expectMessage("Error! Invalid Media ('id' is required.) in '");
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_INVALID_MEDIA_ERROR_1);
@@ -98,7 +88,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_05() {
 		exception.expect(ClientException.class);
-		exception.expectMessage("Error! Invalid Media ('type' is required.) in '");
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_INVALID_MEDIA_ERROR_2);
@@ -112,7 +101,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_06() {
 		exception.expect(ClientException.class);
-		exception.expectMessage("Error! Invalid Media ('src' is required.) in '");
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_INVALID_MEDIA_ERROR_3);
@@ -140,7 +128,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_08() {
 		exception.expect(ClientException.class);
-		exception.expectMessage("Error! Invalid Controller ('id' is required.) in '");
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_1);
@@ -154,7 +141,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_09() {
 		exception.expect(ClientException.class);
-		exception.expectMessage("Error! Invalid Controller ('type' is required.) in '");
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_2);
@@ -168,7 +154,6 @@ public class XMLContentParserErrorTest extends BaseTest {
 	@Test
 	public void parseContentTest_10() {
 		exception.expect(ClientException.class);
-		exception.expectMessage("Error! Invalid Controller ('type' should be either 'items' or 'data') in '");
 
 		XMLContentParser fixture = new XMLContentParser();
 		String xml = getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_3);

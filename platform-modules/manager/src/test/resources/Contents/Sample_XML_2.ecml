@@ -1,0 +1,2690 @@
+<theme startStage="splash" id="theme" ver="0.2">
+    <manifest>
+		<media id="grey" src="mtf1/grey.png" type="image" />
+		<media id="icon_home" src="icon_home.png" type="image" />
+		<media id="icon_reload" src="icon_reload.png" type="image" />
+		<media id="old" src="mtf1/tree.png" type="image" />
+		<media id="new" src="mtf1/cap.png" type="image" />
+		<media id="day" src="mtf1/sun.png" type="image" />
+		<media id="night" src="mtf1/moon.png" type="image" />
+        <media id="level_band" src="level_band.png" type="image" />
+        <media id="publisher_logo" src="publisher_logo.jpg" type="image" />
+        <media id="previous" src="icon_previous.png" type="image" />
+        <media id="next" src="icon_next.png" type="image" />
+        <media id="icon_sound" src="icon_sound.png" type="image" />
+        <media id="icon_hint" src="icon_hint.png" type="image" />
+        <media id="start" src="start.png" type="image" />
+        <media id="page1" src="scenes/image_1.jpg" type="image" />
+        <media id="page2" src="scenes/image_2.jpg" type="image" />
+        <media id="page3" src="scenes/image_3.jpg" type="image" />
+        <media id="page4" src="cap_flying/bg.png" type="image" />
+        <media id="page5" src="scenes/image_5.jpg" type="image" />
+        <media id="page6" src="scenes/image_6.jpg" type="image" />
+        <media id="page7" src="scenes/image_7.jpg" type="image" />
+        <media id="page8" src="scenes/image_8.jpg" type="image" />
+        <media id="page9" src="scenes/image_9.jpg" type="image" />
+        <media id="page10" src="scenes/image_10.jpg" type="image" />
+        <media id="page11" src="scenes/image_11.jpg" type="image" />
+        <media id="flying_cap1" src="cap_flying/fc1.png" type="image" />
+        <media id="flying_cap2" src="cap_flying/fc2.png" type="image" />
+        
+		
+		<!-- Definitions -->
+		<media id="speech_bubble" src="speech_bubble.png" type="image" />
+        <media id="ravan" src="definition/ravana.png" type="image" />
+        <media id="fair" src="definition/fair.png" type="image" />
+        <media id="candy" src="definition/candy.png" type="image" />
+        <media id="strongweak" src="definition/strongweak.png" type="image" />
+        <media id="leaf" src="definition/leaf.png" type="image" />
+        <media id="oldnew" src="definition/new.png" type="image" />
+        <media id="fancyDef" src="definition/fancy.png" type="image" />
+        <media id="boughtDef" src="definition/bought.png" type="image" />
+        <media id="brightDef" src="definition/bright.png" type="image" />
+        <media id="branchDef" src="definition/branch.png" type="image" />
+        <media id="dinnerDef" src="definition/dinner.png" type="image" />
+        <media id="smileDef" src="definition/smile.png" type="image" />
+        
+		<!-- glow images -->
+        <media id="glow_page1_ramu" src="glow/image_2/ramu.png" type="image" />
+        
+		<media id="glow_page2_fancy" src="glow/image_3/fancyglasses.png" type="image" />
+        <media id="glow_page2_candy" src="glow/image_3/candy.png" type="image" />
+        <media id="glow_page2_chintu" src="glow/image_3/chintu.png" type="image" />
+        <media id="glow_page2_baby" src="glow/image_3/baby.png" type="image" />
+        <media id="glow_page2_blueCap" src="glow/image_3/bluecap.png" type="image" />
+        <media id="glow_page2_ramu" src="glow/image_3/ramu.png" type="image" />
+        
+		<media id="glow_page3_ramu" src="glow/image_4/ramu.png" type="image" />
+        
+		<media id="glow_page4_blueCap" src="glow/image_5/bluecap.png" type="image" />
+        <media id="glow_page4_chintu" src="glow/image_5/chintu.png" type="image" />
+        <media id="glow_page4_ramu" src="glow/image_5/ramu.png" type="image" />
+        <media id="glow_page4_tree" src="glow/image_5/tree.png" type="image" />
+        
+		<media id="glow_page5_chintu" src="glow/image_6/chintu.png" type="image" />
+        <media id="glow_page5_crying" src="glow/image_6/crying.png" type="image" />
+        <media id="glow_page5_dinner" src="glow/image_6/dinner.png" type="image" />
+        <media id="glow_page5_fancy" src="glow/image_6/fancyglasses.png" type="image" />
+        
+		<media id="glow_page6_blueCap" src="glow/image_7/bluecap.png" type="image" />
+        <media id="glow_page6_pipalTree" src="glow/image_7/pipaltree.png" type="image" />
+        <media id="glow_page6_ramu" src="glow/image_7/ramu.png" type="image" />
+        <media id="glow_page6_moon" src="glow/image_7/moon.png" type="image" />
+        
+		<media id="glow_page7_ramu" src="glow/image_8/ramu.png" type="image" />
+		<media id="glow_page7_tree" src="glow/image_8/tree.png" type="image" />
+		<media id="glow_page7_star" src="glow/image_8/star.png" type="image" />
+		<media id="glow_page7_moon" src="glow/image_8/moon.png" type="image" />
+		<media id="glow_page7_blueSky" src="glow/image_8/bluesky.png" type="image" />
+		<media id="glow_page7_blueCap" src="glow/image_8/cap.png" type="image" />
+		
+		<media id="glow_page8_ramu" src="glow/image_9/ramu.png" type="image" />
+		<media id="glow_page8_redCap" src="glow/image_9/redcap.png" type="image" />
+		<media id="glow_page8_hand" src="glow/image_9/hand.png" type="image" />
+		
+		<media id="glow_page9_ramu" src="glow/image_10/ramu.png" type="image" />
+		<media id="glow_page9_redCap" src="glow/image_10/redcap.png" type="image" />
+		<media id="glow_page9_tree" src="glow/image_10/tree.png" type="image" />
+		<media id="glow_page9_moon" src="glow/image_10/smilingmoon.png" type="image" />
+		<media id="glow_page9_star" src="glow/image_10/shiningstar.png" type="image" />
+		
+		<media id="glow_page10_fancy" src="glow/image_11/fancyglasses.png" type="image" />
+		<media id="glow_page10_icecream" src="glow/image_11/icecream.png" type="image" />
+		<media id="glow_page10_juice" src="glow/image_11/juice.png" type="image" />
+		<media id="glow_page10_ramu" src="glow/image_11/ramu.png" type="image" />
+		<media id="glow_page10_redCap" src="glow/image_11/redcap.png" type="image" />
+		<media id="glow_page10_sun" src="glow/image_11/sun.png" type="image" />
+		<media id="glow_page10_chintu" src="glow/image_11/chintu.png" type="image" />
+		
+		<!-- spritesheets -->
+		<media id="capAnim" src="capAnimation.json" type="spritesheet" />
+		<media id="grant_sprite" src="grant_sprite.json" type="spritesheet" />
+		<media id="windAnim" src="windAnimation.json" type="spritesheet" />
+		<media id="moonAnim" src="moonAnimation.json" type="spritesheet" />
+		
+		<!-- Worksheets -->
+		<media id="ws_ramu" src="worksheet/me.png" type="image" />
+		<media id="ws_chintu" src="worksheet/chintu_icon_1.png" type="image" />
+		<media id="ws_baby" src="worksheet/baby.png" type="image" />
+		<media id="ws_fancyglasses" src="worksheet/fancyglasses.png" type="image" />
+		<media id="ws_bluecap" src="worksheet/bluecap.png" type="image" />
+		<media id="ws_candy" src="worksheet/Candy.png" type="image" />
+		<media id="ws_sun" src="worksheet/sun.png" type="image" />
+		<media id="ws_moon" src="worksheet/moon.png" type="image" />
+		<media id="ws_tree" src="worksheet/tree.png" type="image" />
+		<media id="ws_breakfast" src="worksheet/breakfast.png" type="image" />
+		<media id="ws_lunch" src="worksheet/lunch.png" type="image" />
+		<media id="ws_dinner" src="worksheet/dinner.png" type="image" />
+		<media id="ws_red" src="worksheet/red.png" type="image" />
+		<media id="ws_green" src="worksheet/green.png" type="image" />
+		<media id="ws_blue" src="worksheet/blue.png" type="image" />
+		<media id="ws_yellow" src="worksheet/yellow.png" type="image" />
+		
+		<media id="fto_glasses" src="fto/fto_glasses.png" type="image" />
+		<media id="fto_redcap" src="fto/fto_redcap.png" type="image" />
+		<media id="fto_sun" src="fto/fto_sun.png" type="image" />
+        
+		
+		<!-- Audio -->
+		<media src="sounds/Hotspot/page2.ogg" id="hs_p1_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s1_ramu_sound" startTime="386" duration="804.0"></audioSprite>
+                <audioSprite id="hs_s1_fair_sound" startTime="7775" duration="772.0"></audioSprite>
+                <audioSprite id="hs_s1_dial_sound" startTime="1836" duration="4553.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page3.ogg" id="hs_p2_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s2_ramu_sound" startTime="1021" duration="798.0"></audioSprite>
+                <audioSprite id="hs_s2_chintu_sound" startTime="3526" duration="862.0"></audioSprite>
+                <audioSprite id="hs_s2_baby_sound" startTime="5936" duration="957.0"></audioSprite>
+                <audioSprite id="hs_s2_fancyglasses_sound" startTime="8728" duration="1596.0"></audioSprite>
+                <audioSprite id="hs_s2_bluecap_sound" startTime="11999" duration="1069.0"></audioSprite>
+                <audioSprite id="hs_s2_candy_sound" startTime="14887" duration="766.0"></audioSprite>
+                <audioSprite id="hs_s2_fair_sound" startTime="17137" duration="782.0"></audioSprite>
+                
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page4.ogg" id="hs_p3_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s3_wind_sound" startTime="5033" duration="548.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page5.ogg" id="hs_p4_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s4_pipal_sound" startTime="9993" duration="1104.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page6.ogg" id="hs_p5_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s5_crying_sound" startTime="934" duration="979.0"></audioSprite>
+                <audioSprite id="hs_s5_dinner_sound" startTime="7172" duration="671.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page7.ogg" id="hs_p6_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s6_night_sound" startTime="6902" duration="478.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page8.ogg" id="hs_p7_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s7_moon_sound" startTime="2893" duration="1554.0"></audioSprite>
+                <audioSprite id="hs_s7_star_sound" startTime="14895" duration="1410.0"></audioSprite>
+                <audioSprite id="hs_s7_sky_sound" startTime="5814" duration="1151.0"></audioSprite>
+                <audioSprite id="hs_s7_tree_sound" startTime="12866" duration="705.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page9.ogg" id="hs_p8_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s8_redcap_sound" startTime="2776" duration="1073.0"></audioSprite>
+                <audioSprite id="hs_s8_hand_sound" startTime="5109" duration="590.0"></audioSprite>
+                <audioSprite id="hs_s8_ramu_sound" startTime="656" duration="828.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page10.ogg" id="hs_p9_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s9_ramu_sound" startTime="988" duration="879.0"></audioSprite>
+                <audioSprite id="hs_s9_moon_sound" startTime="3144" duration="1494.0"></audioSprite>
+                <audioSprite id="hs_s9_night_sound" startTime="5733" duration="843.0"></audioSprite>
+                <audioSprite id="hs_s9_redcap_sound" startTime="7781" duration="1036.0"></audioSprite>
+                <audioSprite id="hs_s9_tree_sound" startTime="10250" duration="614.0"></audioSprite>
+                <audioSprite id="hs_s9_star_sound" startTime="12021" duration="1373.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Hotspot/page11.ogg" id="hs_p10_audio" type="audiosprite">
+            <data>
+                <audioSprite id="hs_s10_sun_sound" startTime="4708" duration="823.0"></audioSprite>
+                <audioSprite id="hs_s10_ramu_sound" startTime="547" duration="891.0"></audioSprite>
+                <audioSprite id="hs_s10_chintu_sound" startTime="2514" duration="868.0"></audioSprite>
+                <audioSprite id="hs_s10_icecream_sound" startTime="12341" duration="1051.0"></audioSprite>
+                <audioSprite id="hs_s10_fancyglasses_sound" startTime="6810" duration="1874.0"></audioSprite>
+                <audioSprite id="hs_s10_redcap_sound" startTime="9553" duration="1348.0"></audioSprite>
+                <audioSprite id="hs_s10_juice_sound" startTime="14329" duration="960.0"></audioSprite>
+            </data>
+        </media>
+		<!-- hotspot end -->
+		<!-- questions -->
+		<media src="sounds/Questions/1.ogg" id="ws_1_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_1_sound" startTime="0" duration="13642.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Questions/2.ogg" id="ws_2_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_2_sound" startTime="0" duration="9302.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Questions/3.ogg" id="ws_3_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_3_sound" startTime="870" duration="2628.0"></audioSprite>
+                <audioSprite id="ws_3_sun_sound" startTime="4813" duration="783.0"></audioSprite>
+                <audioSprite id="ws_3_redcap_sound" startTime="6692" duration="1166.0"></audioSprite>
+                <audioSprite id="ws_3_glasses_sound" startTime="8946" duration="1097.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Questions/4.ogg" id="ws_4_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_4_sound" startTime="826" duration="4227.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Questions/5.ogg" id="ws_5_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_5_sound" startTime="826" duration="10225.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Questions/6.ogg" id="ws_6_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_6_sound" startTime="1011" duration="10758.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Questions/7.ogg" id="ws_7_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_7_sound" startTime="1009" duration="12946.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Questions/8.ogg" id="ws_8_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ws_8_sound" startTime="723" duration="9183.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/funtime/1.ogg" id="ft_1_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ft_1_sound" startTime="0" duration="9625.0"></audioSprite>
+                <audioSprite id="hs_s6_moon_sound" startTime="4780" duration="729.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/funtime/3.ogg" id="ft_3_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ft_3_cap_sound" startTime="739" duration="671.0"></audioSprite>
+                <audioSprite id="ft_3_map_sound" startTime="2065" duration="823.0"></audioSprite>
+                <audioSprite id="ft_3_tap_sound" startTime="3592" duration="839.0"></audioSprite>
+                <audioSprite id="ft_3_lap_sound" startTime="4969" duration="906.0"></audioSprite>
+                <audioSprite id="ft_3_tree_sound" startTime="6900" duration="604.0"></audioSprite>
+                <audioSprite id="ft_3_see_sound" startTime="8377" duration="722.0"></audioSprite>
+                <audioSprite id="ft_3_me_sound" startTime="9921" duration="638.0"></audioSprite>
+                <audioSprite id="ft_3_free_sound" startTime="11415" duration="755.0"></audioSprite>
+                <audioSprite id="ft_3_moon_sound" startTime="13631" duration="755.0"></audioSprite>
+                <audioSprite id="ft_3_soon_sound" startTime="15327" duration="806.0"></audioSprite>
+                <audioSprite id="ft_3_noon_sound" startTime="16921" duration="772.0"></audioSprite>
+                <audioSprite id="ft_3_goon_sound" startTime="18365" duration="839.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/funtime/4.ogg" id="ft_4_audio" type="audiosprite">
+            <data>
+                <audioSprite id="ft_4_sound" startTime="603" duration="1580.0"></audioSprite>
+                <audioSprite id="ft_4_breakfast_sound" startTime="3235" duration="1022.0"></audioSprite>
+                <audioSprite id="ft_4_lunch_sound" startTime="5364" duration="900.0"></audioSprite>
+                <audioSprite id="ft_4_dinner_sound" startTime="7325" duration="717.0"></audioSprite>
+            </data>
+        </media>
+		<!-- questions end -->
+		
+		<!-- definition -->
+		<media src="sounds/wam/1.ogg" id="df_dasara_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_dasara_sound" startTime="0" duration="6844.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/2.ogg" id="df_fair_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_fair_sound" startTime="0" duration="6002.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/3.ogg" id="df_bright_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_bright_sound" startTime="0" duration="7616.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/4.ogg" id="df_bought_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_bought_sound" startTime="831" duration="2493.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/5.ogg" id="df_fancy_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_fancy_sound" startTime="971" duration="3986.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/6.ogg" id="df_candy_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_candy_sound" startTime="1166" duration="2625.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/7.ogg" id="df_branch_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_branch_sound" startTime="752" duration="3342.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/8.ogg" id="df_dinner_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_dinner_sound" startTime="370" duration="4019.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/9.ogg" id="df_new_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_new_sound" startTime="704" duration="10061.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/wam/10.ogg" id="df_smile_audio" type="audiosprite">
+            <data>
+                <audioSprite id="df_smile_sound" startTime="604" duration="2746.0"></audioSprite>
+            </data>
+        </media>
+		<!-- definition end-->
+		<media src="sounds/dialogues.ogg" id="scene_audio" type="audiosprite">
+            <data>
+                <audioSprite id="splash_sound" startTime="880" duration="1972.0"></audioSprite>
+                <audioSprite id="scene1_sound" startTime="4197" duration="3034.0"></audioSprite>
+                <audioSprite id="scene2_sound" startTime="8064" duration="9328.0"></audioSprite>
+                <audioSprite id="scene3_sound" startTime="18177" duration="6851.0"></audioSprite>
+                <audioSprite id="scene4_sound" startTime="26393" duration="5435.0"></audioSprite>
+                <audioSprite id="scene5_sound" startTime="33016" duration="4222.0"	></audioSprite>
+                <audioSprite id="scene6_sound" startTime="38274" duration="7382.0"></audioSprite>
+                <audioSprite id="scene7_sound" startTime="46642" duration="7382.0"></audioSprite>
+                <audioSprite id="scene8_sound" startTime="54808" duration="8570.0"></audioSprite>
+                <audioSprite id="scene9_sound" startTime="64515" duration="7635.0"></audioSprite>
+                <audioSprite id="scene10_sound" startTime="73490" duration="2654.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/ambient/intro_outro.mp3" id="intro_audio" type="audiosprite">
+            <data>
+                <audioSprite id="intro_sound" startTime="0" duration="7228.0"></audioSprite>
+                <audioSprite id="outro_sound" startTime="181847" duration="8883.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/ambient/intro_with_delay.mp3" id="delayed_intro_audio" type="audiosprite">
+			<data>
+                <audioSprite id="delayed_intro_sound" startTime="0" duration="10037"></audioSprite>
+            </data>
+		</media>
+		
+		<media src="sounds/ambient/fair_sound.mp3" id="fair_audio" type="audiosprite">
+            <data>
+                <audioSprite id="fair_sound" startTime="0" duration="6000"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/ambient/strong_wind.mp3" id="wind_audio" type="audiosprite">
+            <data>
+                <audioSprite id="wind_sound" startTime="19913" duration="3259.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/ambient/leaves_rustling_delayed.mp3" id="leaves_audio" type="audiosprite">
+            <data>
+                <audioSprite id="leaves_sound" startTime="0" duration="9272.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/ambient/child_crying_delayed.mp3" id="crying_audio" type="audiosprite">
+            <data>
+                <audioSprite id="crying_sound" startTime="0" duration="6885.0"></audioSprite>
+            </data>
+        </media>
+		<media src="sounds/ambient/warm_evening.mp3" id="evening_audio" type="audiosprite">
+            <data>
+                <audioSprite id="evening_sound" startTime="0" duration="4000.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Q1.mp3" id="Q1_audio" type="audiosprite">
+            <data>
+                <audioSprite id="Q1_sound" startTime="0" duration="3000.0"></audioSprite>
+            </data>
+        </media>
+		
+    </manifest>
+    <controller name="storyData" type="data" id="Moonandthecap"/>
+    <controller name="assessment" type="items" id="assessment"/>
+    <controller name="funtime" type="items" id="funtime"/>
+	
+    <stage id="baseStage" preload="true">
+        <image asset = "new"/>
+		<image asset = "old"/>
+		<image asset = "day"/>
+		<image asset = "night"/>
+		<image asset = "grey"/>
+		<image asset = "previous"/>
+		<image asset = "next"/>
+		<image asset = "ws_candy"/>
+		<image asset = "ws_fancyglasses"/>
+		<image asset = "ws_bluecap"/>
+		<image asset = "ws_tree"/>
+		<image asset = "ws_moon"/>
+		<image asset = "ws_sun"/>
+		<image asset = "ws_breakfast"/>
+		<image asset = "ws_dinner"/>
+		<image asset = "ws_lunch"/>
+		<image asset = "ws_green"/>
+		<image asset = "ws_yellow"/>
+		<image asset = "ws_red"/>
+		<image asset = "ws_blue"/>
+		<image asset = "fto_sun"/>
+		<image asset = "fto_redcap"/>
+		<image asset = "fto_glasses"/>
+		
+    </stage>
+    <stage id="storyBaseStage" preload="true">
+        <!--<image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
+        <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </shape>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
+        <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" transitionType="previous"/>
+            </event>
+        </shape> -->
+        <text param="body" x="9" y="2" w="85" h="4" font="Georgia" fontsize="45"/>
+    </stage>
+    <stage id="splash" x="0" y="0" w="100" h="100">
+        <param name="next" value="scene1"/>
+        <param name="instructions" value="Stage 1 instructions"/>
+        <audio asset="scene_audio" />
+        <audio asset="delayed_intro_audio" />
+        <image asset="page1" x="2" y="2" w="96" h="70" />
+        <image asset="publisher_logo" x="2" y="75" w="13" h="17" />
+        <image asset="level_band" x="2" y="94" w="13" h="5" />
+        <image asset="next" x="92" y="80" w="6" h="10" id="next"/>
+        <shape id="nextContainer" type="rect" x="87" y="75" w="13" h="20" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </shape>
+        <text x="35" y="80" w="35" h="5" font="Arial" fontsize="48">
+            The Moon And The Cap
+        </text>
+        <text x="35" y="86" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Author:
+        </text>
+        <text x="41" y="86" w="20" h="5" font="Georgia" fontsize="28">
+            Rohini Nilekani
+        </text>
+        <text x="35" y="90" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Illustrator:
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="splash_sound" loop="1" />
+				<action type="command" command="play" asset="delayed_intro_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="splash_sound" audio="true" loop="1" />
+				<action type="command" command="stop" asset="delayed_intro_sound" audio = "true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene1" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <audio asset="scene_audio" />
+        <audio asset="fair_audio" />
+        <audio asset="hs_p1_audio" />
+        <audio asset="df_fair_audio" />
+        <audio asset="df_dasara_audio" />
+		
+        <param name="next" value="scene2" />
+        <param name="previous" value="splash" />
+        <param name="instructions" value="Stage 2 instructions"/>
+        <param name="body" model="storyData.scene1_body"/>
+        <!-- <shape x="2" y="90" w="96" h="10.5" type="rect" fill="#F3CCDE" /> -->
+        <image asset="page2" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="hs_s1_dial_sound" />
+                <action type="command" command="togglePlay" asset="fair_sound" />
+            </event>
+        </shape>
+		
+	    <!-- <sprite asset="windAnim" start="wind" x="10" y="10" id="windAnim"/> -->
+	    <!-- <sprite asset="moonAnim" start="moon" x="10" y="10" id="moonAnim"/> -->
+		
+		<!-- HotSpots -->
+        <g x = "2" y="12" w="96" h="86">
+		<shape type="rect" x="47" y="30" w="20" h="55" hitArea="true" >
+			<event type="click">
+                <action type="command" command="toggleShow" asset="glow_ramu" />
+				<action type="command" command="hide" asset="dasara_definition" />
+                <action type="command" command="hide" asset="fair_definition" />
+                <action type="command" command="play" audio="true" asset="hs_s1_ramu_sound" loop="1" />
+				<action type="command" command="stop" audio="true" asset="df_dasara_sound" loop="1" />
+				<action type="command" command="stop" audio="true" asset="df_fair_sound" loop="1" />
+            </event>
+		</shape>
+		
+		<shape type="rect" x="2" y="0	" w="30" h="98" hitArea="true" >
+			<event type="click">
+				<action type="command" command="play" audio="true" asset="hs_s1_fair_sound" loop="1" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="stop" audio="true" asset="df_dasara_sound" loop="1" />
+				<action type="command" command="stop" audio="true" asset="df_fair_sound" loop="1" />
+            </event>
+		</shape>
+		<shape type="rect" x="72" y="0	" w="28" h="98" hitArea="true">
+			<event type="click">
+				<action type="command" command="play" audio="true" asset="hs_s1_fair_sound" loop="1" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="stop" audio="true" asset="df_dasara_sound" loop="1" />
+				<action type="command" command="stop" audio="true" asset="df_fair_sound" loop="1" />
+            </event>
+		</shape>
+		<shape type="rect" x="2" y="0	" w="96" h="20" hitArea="true" >
+			<event type="click">
+				<action type="command" command="play" audio="true" asset="hs_s1_fair_sound" loop="1" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="stop" audio="true" asset="df_dasara_sound" loop="1" />
+				<action type="command" command="stop" audio="true" asset="df_fair_sound" loop="1" />
+            </event>
+		</shape>
+		
+		<!-- <image asset="page2" x="0" y="0" w="100" h="100" /> -->
+		<image asset="glow_page1_ramu" x="41.5" y="17.8" w="32.8" h="76.2" id="glow_ramu" visible = "false"/>
+		</g>
+		
+        <!-- word hint: Dasara  -->
+		 <shape type="rect" x="52" y="3" w="7" h="4" hitArea="true" >
+            <event type="click">
+				<action type="command" command="togglePlay" audio="true" asset="df_dasara_sound" loop="1" />
+				<action type="command" command="stop" audio="true" asset="df_fair_sound" loop="1" />
+				
+                <action type="command" command="toggleShow" asset="dasara_definition" />
+                <action type="command" command="hide" asset="fair_definition" />
+                <action type="command" command="hide" asset="glow_ramu" />
+				
+				<action type="command" command="stop" asset="hs_s1_dial_sound" audio="true" loop="1" />
+				<action type="command" command="stop" asset="fair_sound" audio = "true" loop="1" />
+				
+            </event>
+        </shape>
+		
+		<!-- word hint: Fair  -->
+		 <shape type="rect" x="60" y="3" w="5" h="4" hitArea="true" >
+            <event type="click">
+                <action type="command" command="stop" audio="true" asset="df_dasara_sound" loop="1" />
+				<action type="command" command="togglePlay" audio="true" asset="df_fair_sound" loop="1" />
+								
+				<action type="command" command="toggleShow" asset="fair_definition" />
+                <action type="command" command="hide" asset="dasara_definition" />
+                <action type="command" command="hide" asset="glow_ramu" />
+				
+				<action type="command" command="stop" asset="hs_s1_dial_sound" audio="true" loop="1" />
+				<action type="command" command="stop" asset="fair_sound" audio = "true" loop="1" />
+            </event>
+        </shape>
+
+		
+		<!-- Dasara definition -->
+		<g x="27" y="12" w="50" h="60"  id="dasara_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="dasara_definition" />
+					<action type="command" command="stop" audio="true" asset="df_dasara_sound" loop="1" />
+                </event>
+            </image>
+            <image asset="ravan" x="50" y="15" w="40" h="50"/>
+			
+			<text x="8" y="18" w="40" h="80" font="Georgia" fontsize="120" >
+			Dasara:
+			</text>
+            <text x="8" y="30" w="40" h="80" font="Georgia" fontsize="80" >
+			Dasara is a festival in India.
+			</text>
+        </g>
+		
+		<!-- Fair definition -->
+		<g x="27" y="12" w="50" h="60"  id="fair_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="fair_definition" />
+					<action type="command" command="stop" audio="true" asset="df_fair_sound" loop="1" />
+                </event>
+            </image>
+            <image asset="fair" x="50" y="15" w="40" h="50"/>
+			
+			<text x="8" y="18" w="40" h="80" font="Georgia" fontsize="120" >
+			Fair:
+			</text>
+            <text x="8" y="30" w="40" h="80" font="Georgia" fontsize="80" >
+			A place to shop and have fun
+			</text>
+        </g>
+
+		 
+		
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="hs_s1_dial_sound" loop="1" />
+                <action type="command" command="play" asset="fair_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="hs_s1_dial_sound" audio="true" loop="1" />
+				<action type="command" command="stop" asset="fair_sound" audio = "true" loop="1" />
+            </event>
+        </events>
+    </stage>
+	
+    <stage id="scene2" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <audio asset="scene_audio" />
+        <audio asset="hs_p2_audio" />
+        <audio asset="hs_p1_audio" />
+        <audio asset="df_bright_audio" />
+        <audio asset="df_bought_audio" />
+        <audio asset="df_fancy_audio" />
+        <audio asset="df_candy_audio" />
+    
+		<param name="next" value="scene3" />
+        <param name="previous" value="scene1" />
+        <param name="instructions" value="Stage 3 instructions"/>
+        <param name="body" model="storyData.scene2_body"/>
+        <image asset="page3" x="2" y="12" w="96" h="86" />
+        
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+		<shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene2_sound" />
+            </event>
+        </shape>
+		
+
+        <!-- <shape x="53" y="3" w="7" h="4" type="rect" fill="#E5F4FB" /> -->
+		
+		<!-- HotSpots -->
+		
+        <g x = "2" y="12" w="96" h="86">
+			
+			<shape type="rect" x="11.3" y="4.7" w="32.7" h="95.3" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s2_chintu_sound" loop="1" />
+					
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="18.6" y="19.4" w="20.6" h="28.7" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s2_fancyglasses_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="35.3" y="6.4" w="32.3" h="93.6" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s2_ramu_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="43.8" y="6" w="29.7" h="25.6" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s2_bluecap_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="63.8" y="32.6" w="24.2" h="45.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s2_baby_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+						
+			<shape type="rect" x="63.7" y="55" w="10.1" h="19.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_candy" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s2_candy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+					
+				</event>
+			</shape>
+			<shape type="rect" x="0" y="0" w="11" h="100" hitArea="true">
+				<event type="click">
+					<action type="command" command="play" asset="hs_s1_fair_sound" loop="1" />
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+			<shape type="rect" x="74" y="0" w="26" h="40" hitArea="true">
+				<event type="click">
+				<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s1_fair_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+			<shape type="rect" x="90" y="40" w="10" h="40" hitArea="true">
+				<event type="click">
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="bright_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+					<action type="command" command="play" asset="hs_s1_fair_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<!-- <image asset="page3" x="0" y="0" w="100" h="100" /> -->
+			<image asset="glow_page2_fancy" x="18.6" y="19.4" w="20.6" h="28.7" id="glow_fancy" visible = "false"/>
+			<image asset="glow_page2_candy" x="63.7" y="55" w="10.1" h="19.4" id="glow_candy" visible = "false"/>
+			<image asset="glow_page2_chintu" x="11.3" y="4.7" w="32.7" h="95.3" id="glow_chintu" visible = "false"/>
+			<image asset="glow_page2_baby" x="63.8" y="32.6" w="24.2" h="67.4" id="glow_baby" visible = "false"/>
+			<image asset="glow_page2_ramu" x="35.3" y="6.4" w="38.3" h="93.6" id="glow_ramu" visible = "false"/>
+			<image asset="glow_page2_blueCap" x="43.8" y="6" w="29.7" h="25.6" id="glow_bluecap" visible = "false"/>
+			
+		</g>
+		
+		<!-- <sprite asset="capAnim" start="cap" x="40" y="38" id="capAnim"/> -->
+		        
+		<!-- word hint: Bright  -->
+		<shape type="rect" x="66" y="3" w="7" h="4" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="bright_definition" />
+                <action type="command" command="hide" asset="fancy_definition" />
+                <action type="command" command="hide" asset="candy_definition" />
+                <action type="command" command="hide" asset="bought_definition" />
+				<action type="command" command="hide" asset="glow_candy" />
+				<action type="command" command="hide" asset="glow_baby" />
+				<action type="command" command="hide" asset="glow_bluecap" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="hide" asset="glow_fancy" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				
+				<action type="command" command="play" asset="df_bright_sound" loop="1" />
+				<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+				<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+				<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+            </event>
+        </shape>		 
+		
+		<!-- bright definition -->
+		<g x="27" y="12" w="50" h="60"  id="bright_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="bright_definition" />
+					<action type="command" command="hide" asset="fancy_definition" />
+					<action type="command" command="hide" asset="candy_definition" />
+					<action type="command" command="hide" asset="bought_definition" />
+				
+					<action type="command" command="hide" asset="glow_candy" />
+					<action type="command" command="hide" asset="glow_baby" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+                </event>
+            </image>
+			
+            <image asset="brightDef" x="42" y="30" w="50" h="50"/>	
+			<text x="8" y="18" w="40" h="80" font="Georgia" fontsize="120" >
+			Bright:
+			</text>
+            <text x="8" y="30" w="40" h="80" font="Georgia" fontsize="80" >
+			To glow; give off light
+			</text>
+        </g>
+		
+		<!-- word hint: Bough  -->
+		<shape type="rect" x="53" y="3" w="7" h="4" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="bought_definition" />
+                <action type="command" command="hide" asset="fancy_definition" />
+                <action type="command" command="hide" asset="candy_definition" />
+                <action type="command" command="hide" asset="bright_definition" />
+				
+				<action type="command" command="hide" asset="glow_candy" />
+				<action type="command" command="hide" asset="glow_baby" />
+				<action type="command" command="hide" asset="glow_bluecap" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="hide" asset="glow_fancy" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				
+				<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+				<action type="command" command="play" asset="df_bought_sound" loop="1" />
+				<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+				<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+            </event>
+        </shape>
+		
+		 <shape type="rect" x="15" y="3" w="7" h="4" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="bought_definition" />
+                <action type="command" command="hide" asset="fancy_definition" />
+                <action type="command" command="hide" asset="candy_definition" />
+                <action type="command" command="hide" asset="bright_definition" />
+				
+				<action type="command" command="hide" asset="glow_candy" />
+				<action type="command" command="hide" asset="glow_baby" />
+				<action type="command" command="hide" asset="glow_bluecap" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="hide" asset="glow_fancy" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				
+				<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+				<action type="command" command="play" asset="df_bought_sound" loop="1" />
+				<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+				<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+            </event>
+        </shape>
+		
+		
+		<!-- bought definition -->
+		<g x="27" y="12" w="50" h="60"  id="bought_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="bought_definition" />
+					<action type="command" command="hide" asset="glow_candy" />
+				<action type="command" command="hide" asset="glow_baby" />
+				<action type="command" command="hide" asset="glow_bluecap" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="hide" asset="glow_fancy" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+				<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+				<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+				<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+                </event>
+            </image>
+			
+            <image asset="boughtDef" x="42" y="20" w="50" h="50"/>	
+			<text x="8" y="18" w="40" h="80" font="Georgia" fontsize="120" >
+			Bought:
+			</text>
+            <text x="8" y="30" w="40" h="80" font="Georgia" fontsize="80" >
+			To buy
+			</text>
+        </g>
+		
+		<!-- word hint: Fancy  -->
+		 <shape type="rect" x="30" y="3" w="6" h="4" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="fancy_definition" />
+                <action type="command" command="hide" asset="candy_definition" />
+                <action type="command" command="hide" asset="bright_definition" />
+                <action type="command" command="hide" asset="bought_definition" />
+				
+				<action type="command" command="hide" asset="glow_candy" />
+				<action type="command" command="hide" asset="glow_baby" />
+				<action type="command" command="hide" asset="glow_bluecap" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="hide" asset="glow_fancy" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				
+				<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+				<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+				<action type="command" command="play" asset="df_fancy_sound" loop="1" />
+				<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+            </event>
+        </shape>
+		
+		<!-- Fancy definition -->
+		<g x="27" y="12" w="50" h="60"  id="fancy_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="fancy_definition" />
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+                </event>
+            </image>
+			
+            <image asset="fancyDef" x="45" y="20" w="50" h="50"/>	
+			<text x="8" y="18" w="40" h="80" font="Georgia" fontsize="120" >
+			Fancy:
+			</text>
+            <text x="8" y="30" w="40" h="80" font="Georgia" fontsize="80" >
+			Nice, Style
+			</text>
+        </g>
+		
+		<!-- word hint: Candy  -->
+		 <shape type="rect" x="19" y="7" w="6.5" h="6" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="candy_definition" />
+                <action type="command" command="hide" asset="fancy_definition" />
+                <action type="command" command="hide" asset="bright_definition" />
+                <action type="command" command="hide" asset="bought_definition" />
+				
+				<action type="command" command="hide" asset="glow_candy" />
+				<action type="command" command="hide" asset="glow_baby" />
+				<action type="command" command="hide" asset="glow_bluecap" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="hide" asset="glow_fancy" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				
+				<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="play" asset="df_candy_sound" loop="1" />
+            </event>
+        </shape>
+		
+		<!-- Candy definition -->
+		<g x="27" y="12" w="50" h="60"  id="candy_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="candy_definition" />
+					
+					<action type="command" command="stop" asset="df_bright_sound" loop="1" />
+					<action type="command" command="stop" asset="df_bought_sound" loop="1" />
+					<action type="command" command="stop" asset="df_fancy_sound" loop="1" />
+					<action type="command" command="stop" asset="df_candy_sound" loop="1" />
+                </event>
+            </image>
+            <image asset="candy" x="50" y="20" w="40" h="50"/>	
+			<text x="8" y="18" w="40" h="80" font="Georgia" fontsize="120" >
+			Candy:
+			</text>
+            <text x="8" y="30" w="40" h="80" font="Georgia" fontsize="80" >
+			sweets.
+			</text>
+        </g>
+		
+		<events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene2_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene2_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene3" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <audio asset="scene_audio" />
+        <audio asset="wind_audio" />
+        <audio asset="hs_p2_audio" />
+        <audio asset="hs_p3_audio" />
+        <image asset="page4" x="2" y="12" w="96" h="86" />
+        <param name="next" value="scene4" />
+        <param name="previous" value="scene2" />
+        <param name="body" model="storyData.scene3_body"/>
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene3_sound" />
+                <!-- <action type="command" command="togglePlay" asset="wind_sound" /> -->
+            </event>
+        </shape>
+		
+		
+		<g x="2" y="12" w="96" h="86">
+			<shape type="rect" x="20.3" y="6.2" w="35.6" h="86" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s2_ramu_sound" loop="1" />
+					
+				</event>
+			</shape>
+			<shape type="rect" x="0" y="0" w="20" h="100" hitArea="true">
+				<event type="click">
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s3_wind_sound" loop="1" />
+				</event>
+			</shape>
+			<shape type="rect" x="55" y="0" w="45" h="70" hitArea="true">
+				<event type="click">
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s3_wind_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<!-- <image asset="page4" x="0" y="0" w="100" h="100" /> -->
+			<image asset="glow_page3_ramu" x="20.4" y="7.9" w="34.3" h="84.3" id="glow_ramu" visible = "false"/>
+			<image asset="flying_cap2" x="34" y="10" w="26" h="33" id="flying_cap2" visible="false"/>
+			<image asset="flying_cap1" x="32" y="0" w="22" h="28" id="flying_cap1" visible = "true"/>
+			
+		</g>	
+		
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene3_sound" loop="1" />
+                <action type="command" command="play" asset="wind_sound" loop="1" />
+				<action type="command" command="hide" asset="flying_cap1" />
+                <action type="command" command="show" asset="flying_cap2" />
+				<action type="animation" asset="flying_cap2">
+                    <tween id="flyingCap2">
+						<to ease="quadOut" duration="300">
+                            <![CDATA[{"x":60,"y":30, "rotation":30}]]>
+                        </to>
+						<to ease="quadOut" duration="400">
+                            <![CDATA[{"x":90,"y":50, "rotation":180}]]>
+                        </to>
+					</tween>
+                </action> 
+				<!-- <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" /> -->
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene3_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="wind_sound" audio = "true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene4" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene5" />
+        <param name="previous" value="scene3" />
+        <param name="body" model="storyData.scene4_body"/>
+        <audio asset="scene_audio" />
+        <audio asset="leaves_audio" />
+        <audio asset="hs_p2_audio" />
+        <audio asset="hs_p4_audio" />
+        <audio asset="df_branch_audio" />
+		
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2" /> -->
+        <image asset="page5" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene4_sound" />
+                <!-- <action type="command" command="togglePlay" asset="leaves_sound" /> -->
+            </event>
+        </shape>
+		
+		<!-- <shape x="32" y="3" w="7" h="4" type="rect" fill="#FFF16E" /> -->
+		<g x="2" y="12" w="96" h="86">
+			
+			<shape type="rect" x="29.7" y="0" w="63.1" h="67.5" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="branch_definition" />
+					<action type="command" command="play" asset="hs_s4_pipal_sound" />
+					
+					<action type="command" command="stop" asset="df_branch_sound" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="22.5" y="56.8" w="14.3" h="34.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="branch_definition" />
+					<action type="command" command="play" asset="hs_s2_ramu_sound" />
+					
+					<action type="command" command="stop" asset="df_branch_sound" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="13.5" y="41.5" w="10.8" h="37.6" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="branch_definition" />
+					<action type="command" command="play" asset="hs_s2_chintu_sound" />
+					
+					<action type="command" command="stop" asset="df_branch_sound" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="48.5" y="21.7" w="13.8" h="32.2" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="branch_definition" />
+					<action type="command" command="play" asset="hs_s2_bluecap_sound" />
+					
+					<action type="command" command="stop" asset="df_branch_sound" />
+				</event>
+			</shape>
+			
+			<!-- <image asset="page5" x="0" y="0" w="100" h="100" /> -->
+			<image asset="glow_page4_ramu" x="22.5" y="56.8" w="14.3" h="34.9" id="glow_ramu" visible = "false"/>
+			<image asset="glow_page4_chintu" x="13.5" y="41.5" w="13.8" h="37.6" id="glow_chintu" visible = "false"/>
+			<image asset="glow_page4_blueCap" x="48.5" y="21.7" w="13.8" h="32.2" id="glow_bluecap" visible = "false"/>
+			<image asset="glow_page4_tree" x="29.7" y="0" w="63.1" h="97.5" id="glow_tree" visible = "false"/>
+			
+		</g>	
+		
+		<!-- word hint: branch  -->
+		 <shape type="rect" x="32" y="3" w="7" h="4" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="branch_definition" />
+				<action type="command" command="hide" asset="glow_bluecap" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				<action type="command" command="hide" asset="glow_ramu" />
+				<action type="command" command="hide" asset="glow_tree" />
+				<action type="command" command="togglePlay" asset="df_branch_sound" />
+				<action type="command" command="stop" asset="scene4_sound" audio="true" loop="1" />
+                <!-- <action type="command" command="hide" asset="pipal_definition" /> -->
+            </event>
+        </shape>
+		
+		<!-- branch definition -->
+		<g x="27" y="12" w="50" h="60"  id="branch_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="branch_definition" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="stop" asset="df_branch_sound" />
+                </event>
+            </image>
+            <image asset="branchDef" x="50" y="8" w="40" h="70"/>
+			<text x="8" y="18" w="50" h="80" font="Georgia" fontsize="120" >
+			Branch:
+			</text>
+            <text x="8" y="30" w="50" h="80" font="Georgia" fontsize="80" >
+			Part of a tree
+			</text>
+        </g>
+		
+		<!-- word hint: Pipal  -->
+		<!--  <shape type="rect" x="50" y="3" w="5.8" h="4.5" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="pipal_definition" />
+                <action type="command" command="hide" asset="old_definition" />
+            </event>
+        </shape>
+		 -->
+		<!-- Pipal definition -->
+		<!-- <g x="37" y="12" w="50" h="60"  id="pipal_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="pipal_definition" />
+                </event>
+            </image>
+            <image asset="leaf" x="58" y="8" w="30" h="80"/>
+			<text x="8" y="18" w="50" h="80" font="Georgia" fontsize="120" >
+			Pipal:
+			</text>
+            <text x="8" y="30" w="50" h="80" font="Georgia" fontsize="80" >
+			Is a  tree native to India and neighbouring countries. <br/>Its also known as the sacred fig tree .<br/>Have you seen a leaf like this?
+			</text>
+        </g> -->
+		
+         <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene4_sound" loop="1" />
+                <action type="command" command="play" asset="leaves_sound" loop = "1"/>
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene4_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="leaves_sound" audio = "true" loop = "1"/>
+            </event>
+        </events>
+    </stage>
+    <stage id="scene5" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene6" />
+        <param name="previous" value="scene4" />
+        <param name="body" model="storyData.scene5_body"/>
+        <audio asset="scene_audio" />
+        <audio asset="crying_audio" />
+        <audio asset="hs_p5_audio" />
+        <audio asset="hs_p2_audio" />
+        <audio asset="df_dinner_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" /> -->
+        <image asset="page6" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene5_sound" />
+                <!-- <action type="command" command="togglePlay" asset="crying_sound" /> -->
+            </event>
+        </shape>
+		
+		<g x="2" y="12" w="96" h="86">
+			<shape type="rect" x="28.5" y="84.7" w="43" h="13.6" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_dinner" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_crying" />
+					<action type="command" command="play" asset="hs_s5_dinner_sound" />
+					<action type="command" command="stop" asset="df_dinner_sound" />
+					<action type="command" command="hide" asset="dinner_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="22.7" y="11.4" w="26.5" h="75.6" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_dinner" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_crying" />
+					<action type="command" command="play" asset="hs_s2_chintu_sound" />
+					<action type="command" command="stop" asset="df_dinner_sound" />
+					<action type="command" command="hide" asset="dinner_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="26.4" y="14.1" w="16.8" h="20.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_dinner" />
+					<action type="command" command="hide" asset="glow_crying" />
+					<action type="command" command="play" asset="hs_s2_fancyglasses_sound" />
+					<action type="command" command="stop" asset="df_dinner_sound" />
+					<action type="command" command="hide" asset="dinner_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="48.4" y="19.4" w="26.6" h="70.1" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_crying" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_dinner" />
+					<action type="command" command="play" asset="hs_s5_crying_sound" />
+					<action type="command" command="stop" asset="df_dinner_sound" />
+					<action type="command" command="hide" asset="dinner_definition" />
+				</event>
+			</shape>
+			
+			<!-- <image asset="page6" x="0" y="0" w="100" h="100" /> -->
+			<image asset="glow_page5_dinner" x="28.5" y="84.7" w="43" h="13.6" id="glow_dinner" visible = "false"/>
+			<image asset="glow_page5_chintu" x="22.7" y="11.4" w="26.5" h="82.6" id="glow_chintu" visible = "false"/>
+			<image asset="glow_page5_crying" x="48.4" y="19.4" w="26.6" h="72.1" id="glow_crying" visible = "false"/>
+			<image asset="glow_page5_fancy" x="26.4" y="14.1" w="16.8" h="30.4" id="glow_fancy" visible = "false"/>
+			
+		</g>	
+		
+		<!-- <shape x="44" y="3" w="6.5" h="4.5" type="rect" fill="#FFF16E" /> -->
+		<!-- word hint: Dinner  -->
+		 <shape type="rect" x="44" y="3" w="6.5" h="4.5" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="dinner_definition" />
+				<action type="command" command="hide" asset="glow_crying" />
+				<action type="command" command="hide" asset="glow_fancy" />
+				<action type="command" command="hide" asset="glow_chintu" />
+				<action type="command" command="hide" asset="glow_dinner" />
+				<action type="command" command="togglePlay" asset="df_dinner_sound" />
+				
+				<action type="command" command="stop" asset="scene5_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="crying_sound" audio="true" loop="1"/>
+            </event>
+        </shape>
+		
+		<!-- Dinner definition -->
+		<g x="27" y="12" w="50" h="60"  id="dinner_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="dinner_definition" />
+					<action type="command" command="hide" asset="glow_crying" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_dinner" />
+					<action type="command" command="stop" asset="df_dinner_sound" />
+				</event>
+            </image>
+            <image asset="dinnerDef" x="40" y="40" w="50" h="35"/>
+			<text x="8" y="18" w="50" h="80" font="Georgia" fontsize="120" >
+			Dinner:
+			</text>
+            <text x="8" y="30" w="50" h="80" font="Georgia" fontsize="80" >
+			Food eaten at night
+			</text>
+        </g>
+		
+		
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene5_sound" loop="1" />
+                <action type="command" command="play" asset="crying_sound" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene5_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="crying_sound" audio="true" loop="1"/>
+            </event>
+        </events>
+    </stage>
+    <stage id="scene6" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene7" />
+        <param name="previous" value="scene5" />
+        <param name="body" model="storyData.scene6_body"/>
+        <audio asset="scene_audio" />
+        <audio asset="evening_audio" />
+        <audio asset="hs_p4_audio" />
+        <audio asset="hs_p6_audio" />
+        <audio asset="ft_1_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800" /> -->
+        <image asset="page7" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene6_sound" />
+                <action type="command" command="togglePlay" asset="evening_sound" />
+            </event>
+        </shape>
+       <!--  <shape type="rect" x="82" y="25" w="16" h="38" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
+            </event>
+        </shape> -->
+		<g x="2" y="12" w="96" h="86">
+			<shape type="rect" x="54.3" y="50" w="13.8" h="34.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_pipal" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s2_ramu_sound" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="11.4" y="0" w="33.1" h="100" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_pipal" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s4_pipal_sound" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="23.9" y="20.9" w="21.9" h="31" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_pipal" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s2_bluecap_sound" />
+					
+				</event>
+			</shape>
+			<shape type="rect" x="45" y="0" w="55" h="50" hitArea="true" >
+				<event type="click">
+					<action type="command" command="hide" asset="glow_pipal" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s6_night_sound"/>
+				</event>
+			</shape>
+			<shape type="rect" x="0" y="0" w="27.0" h="31.0" hitArea="true" >
+				<event type="click">
+					<action type="command" command="hide" asset="glow_pipal" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="toggleShow" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s6_moon_sound"/>
+				</event>
+			</shape>
+			
+			
+			<!-- <image asset="page7" x="0" y="0" w="100" h="100" /> -->
+			<image asset="glow_page6_ramu" x="54.3" y="50" w="13.8" h="34.9" id="glow_ramu" visible = "false"/>
+			<image asset="glow_page6_pipalTree" x="11.4" y="0" w="33.1" h="100" id="glow_pipal" visible = "false"/>
+			<image asset="glow_page6_blueCap" x="23.9" y="20.9" w="21.9" h="31" id="glow_bluecap" visible = "false"/>
+			<image asset="glow_page6_moon" x="0" y="0" w="27.0" h="31.0" id="glow_moon" visible = "false"/>
+		</g>	
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene6_sound" loop="1" />
+                <action type="command" command="play" asset="evening_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene6_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="evening_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene7" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene8" />
+        <param name="previous" value="scene6" />
+        <param name="body" model="storyData.scene7_body"/>
+        <audio asset="scene_audio" />
+        <audio asset="hs_p2_audio" />
+        <audio asset="hs_p7_audio" />
+        <audio asset="df_smile_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8" /> -->
+        <image asset="page8" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene7_sound" />
+            </event>
+        </shape>
+
+		
+		<g x="2" y="12" w="96" h="86">
+			<!-- ramu -->
+			<!-- <shape type="rect" x="20.5" y="41.8" w="18.3" h="54.9" hitArea="true" fill="#112233" /> -->
+			<!-- moon -->
+			<!-- <shape type="rect" x="57.5" y="25.8" w="12.3" h="14.9" hitArea="true" fill="#112233" /> -->
+			<!--bluecap -->
+			<!-- <shape type="rect" x="63.5" y="12.8" w="8.3" h="14.9" hitArea="true" fill="#FF2233" /> -->
+			<!--tree1 -->
+			<!-- <shape type="rect" x="53.5" y="0" w="25" h="14.9" hitArea="true" fill="#FFFF11" /> -->
+			<!--tree2 -->
+			<!-- <shape type="rect" x="74.5" y="16" w="5" h="59.9" hitArea="true" fill="#FFFF11" /> -->
+			<!--star1 -->
+			<!-- <shape type="rect" x="45.5" y="22" w="4" h="8" hitArea="true" fill="#FFFF11" /> -->
+			<!--star2 -->
+			<!-- <shape type="rect" x="48.5" y="38" w="4" h="8" hitArea="true" fill="#FFFF11" /> -->
+			<!--sky -->
+			<!-- <shape type="rect" x="43.5" y="48" w="27" h="35" hitArea="true" fill="#FFFF11" /> -->
+			
+			
+			<!-- <shape type="rect" x="22.5" y="56.8" w="14.3" h="34.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_tree" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="22.5" y="56.8" w="14.3" h="34.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_tree" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="22.5" y="56.8" w="14.3" h="34.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					
+				</event>
+			</shape>
+			 -->
+			 <shape type="rect" x="43.5" y="48" w="27" h="35" hitArea="true" >
+				<event type="click">
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="hide" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s7_sky_sound" />
+					
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="45.5" y="22" w="4" h="8" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s7_star_sound" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="48.5" y="38" w="4" h="8" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s7_star_sound" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+			
+			
+			<shape type="rect" x="63.5" y="12.8" w="8.3" h="14.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s2_bluecap_sound" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="20.5" y="41.8" w="18.3" h="54.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="play" asset="hs_s2_ramu_sound" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="57.5" y="25.8" w="12.3" h="14.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="play" asset="hs_s7_moon_sound" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="53.5" y="0" w="25" h="14.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="play" asset="hs_s7_tree_sound" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+			<shape type="rect" x="74.5" y="16" w="5" h="59.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_star" />
+					<action type="command" command="hide" asset="glow_bluesky" />
+					<action type="command" command="play" asset="hs_s7_tree_sound" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+					<action type="command" command="hide" asset="smile_definition" />
+				</event>
+			</shape>
+
+			
+			<!-- <image asset="page8" x="0" y="0" w="100" h="100" /> -->
+			<image asset="glow_page7_ramu" x="15.5" y="29.5" w="29.2" h="70.5" id="glow_ramu" visible = "false"/>
+			<image asset="glow_page7_moon" x="57.1" y="22.3" w="14.9" h="22.1" id="glow_moon" visible = "false"/>
+			<image asset="glow_page7_tree" x="42.8" y="0" w="36.1" h="85.9" id="glow_tree" visible = "false"/>
+			<image asset="glow_page7_blueSky" x="41.7" y="0" w="34.8" h="86.8" id="glow_bluesky" visible = "false"/>
+			<image asset="glow_page7_star" x="42.9" y="8.1" w="29.2" h="61" id="glow_star" visible = "false"/>
+			<image asset="glow_page7_blueCap" x="56.3" y="12.8" w="17.4" h="18" id="glow_bluecap" visible = "false"/>
+		</g>	
+		<!-- <shape x="39.5" y="3" w="7" h="4.5" type="rect" fill="#FFF16E" /> -->
+		<!-- word hint: Smile  -->
+		 <shape type="rect" x="39.5" y="3" w="7" h="4.5" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="smile_definition" />
+				<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="togglePlay" asset="df_smile_sound" />
+					<action type="command" command="stop" asset="scene7_sound" audio="true" loop="1" />
+            </event>
+        </shape>
+		
+		<!-- Smile definition -->
+		<g x="27" y="12" w="50" h="60"  id="smile_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="smile_definition" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="stop" asset="df_smile_sound" />
+                </event>
+            </image>
+            <image asset="smileDef" x="50" y="25" w="40" h="60"/>
+			<text x="8" y="18" w="50" h="80" font="Georgia" fontsize="120" >
+			Smile:
+			</text>
+            <text x="8" y="30" w="50" h="80" font="Georgia" fontsize="80" >
+			To be happy
+			</text>
+        </g>
+		
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene7_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene7_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene8" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene9" />
+        <param name="previous" value="scene7" />
+        <param name="body" model="storyData.scene8_body"/>
+        <audio asset="scene_audio" />
+        <audio asset="hs_p8_audio" />
+        <audio asset="df_new_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9" /> -->
+        <image asset="page9" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene8_sound" />
+            </event>
+        </shape>
+		
+		<g x="2" y="12" w="96" h="86">
+			
+			<shape type="rect" x="27.2" y="8.1" w="33.1" h="91.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_hand" />
+					<action type="command" command="play" asset="hs_s8_ramu_sound" />
+					<action type="command" command="stop" asset="df_new_sound" />
+					<action type="command" command="hide" asset="new_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="48.8" y="31.4" w="19.1" h="47.7" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_hand" />
+					<action type="command" command="play" asset="hs_s8_redcap_sound" />
+					<action type="command" command="stop" asset="df_new_sound" />
+					<action type="command" command="hide" asset="new_definition" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="10" y="19" w="12.4" h="44.8" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_hand" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s8_hand_sound" />
+					<action type="command" command="stop" asset="df_new_sound" />
+					<action type="command" command="hide" asset="new_definition" />
+					
+				</event>
+			</shape>
+			
+			<!-- <image asset="page9" x="0" y="0" w="100" h="100" />  -->
+			<image asset="glow_page8_ramu" x="27.2" y="8.1" w="33.1" h="91.9" id="glow_ramu" visible = "false"/>	
+			<image asset="glow_page8_redCap" x="48.8" y="31.4" w="19.1" h="47.7" id="glow_redcap" visible = "false"/>	
+			<image asset="glow_page8_hand" x="0" y="19" w="26.4" h="48.8" id="glow_hand" visible = "false"/>	
+		</g>	
+		
+		<!-- <shape x="64.3" y="3" w="5" h="4.5" type="rect" fill="#FFF16E" /> -->
+		<!-- word hint: New  -->
+		 <shape type="rect" x="64.3" y="3" w="5" h="4.5" hitArea="true">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="new_definition" />
+				<action type="command" command="hide" asset="glow_hand" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="togglePlay" asset="df_new_sound" audio="true" loop="1" />
+					<action type="command" command="stop" asset="scene8_sound" audio="true" loop="1" />
+            </event>
+        </shape>
+		
+		<!-- New definition -->
+		<g x="27" y="12" w="50" h="60"  id="new_definition" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="toggleShow" asset="new_definition" />
+					<action type="command" command="hide" asset="glow_hand" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="stop" asset="df_new_sound" audio="true" loop="1" />
+				
+                </event>
+            </image>
+            <image asset="oldnew" x="50" y="38" w="40" h="40"/>
+			<text x="8" y="18" w="50" h="80" font="Georgia" fontsize="120" >
+			New:
+			</text>
+            <text x="8" y="30" w="50" h="80" font="Georgia" fontsize="80" >
+			Something that is recently born, built or created<br/>Opposite: Old
+			</text>
+        </g>
+		
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene8_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene8_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene9" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene10" />
+        <param name="previous" value="scene8" />
+        <param name="body" model="storyData.scene9_body"/>
+        <audio asset="scene_audio" />
+        <audio asset="intro_audio" />
+        <audio asset="hs_p9_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB" /> -->
+        <image asset="page10" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene9_sound" />
+                <action type="command" command="togglePlay" asset="outro_sound" />
+            </event>
+        </shape>
+		
+		<g x="2" y="12" w="96" h="86">
+			<shape type="rect" x="27.5" y="40.3" w="21.7" h="53.9" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s9_ramu_sound" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="83" y="0" w="37" h="100" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s9_tree_sound" />
+				</event>
+			</shape>
+			
+			<!-- <shape type="rect" x="65.1" y="4.7" w="15.2" h="18" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="play" asset="hs_s9_bluecap_sound" />
+				</event>
+			</shape> -->
+			
+			<shape type="rect" x="61.4" y="11.2" w="17.1" h="29.3" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s9_moon_sound" />
+					
+				</event>
+			</shape>
+			<shape type="rect" x="50" y="45" w="35" h="40" hitArea="true">
+				<event type="click">
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s9_night_sound" />
+				</event>
+			</shape>
+			<shape type="rect" x="0" y="0" w="25" h="100" hitArea="true">
+				<event type="click">
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s9_night_sound" />
+				</event>
+			</shape>
+			<shape type="rect" x="25" y="0" w="33" h="40" hitArea="true">
+				<event type="click">
+					<action type="command" command="hide" asset="glow_moon" />
+					<action type="command" command="hide" asset="glow_bluecap" />
+					<action type="command" command="hide" asset="glow_tree" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s9_star_sound" />
+				</event>
+			</shape>
+			
+			<image asset="glow_page9_ramu" x="27.5" y="40.3" w="21.7" h="53.9" id="glow_ramu" visible = "false"/>
+			<image asset="glow_page9_tree" x="63" y="0" w="37" h="100" id="glow_tree" visible = "false"/>
+			<image asset="glow_page9_redCap" x="65.1" y="4.7" w="15.2" h="18" id="glow_bluecap" visible = "false"/>
+			<image asset="glow_page9_moon" x="61.4" y="11.2" w="17.1" h="29.3" id="glow_moon" visible = "false"/>
+			
+		</g>	
+		
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene9_sound" loop="1" />
+                <action type="command" command="play" asset="outro_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene9_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="outro_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene10" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene11" />
+        <param name="previous" value="scene9" />
+        <param name="body" model="storyData.scene10_body"/>
+        <audio asset="scene_audio" />
+        <audio asset="intro_audio" />
+        <audio asset="hs_p10_audio" />
+        <image asset="page11" x="2" y="12" w="96" h="86" />
+        
+		<g x="2" y="12" w="96" h="86">
+			<shape type="rect" x="37.2" y="16.3" w="30.2" h="83.7" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_sun" />
+					<action type="command" command="hide" asset="glow_icecream" />
+					<action type="command" command="hide" asset="glow_juice" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="play" asset="hs_s10_ramu_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="53.4" y="65.3" w="6" h="17.8" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_icecream" />
+					<action type="command" command="hide" asset="glow_sun" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_juice" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="play" asset="hs_s10_icecream_sound" loop="1" />
+				</event>
+			</shape>
+			
+			
+			<shape type="rect" x="19.1" y="40.7" w="20" h="59.3" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_chintu" />
+					<action type="command" command="hide" asset="glow_sun" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_juice" />
+					<action type="command" command="hide" asset="glow_icecream" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="play" asset="hs_s10_chintu_sound" loop="1" />
+					
+				</event>
+			</shape>
+			
+			<shape type="rect" x="30.3" y="63.2" w="8.7" h="21.5" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_juice" />
+					<action type="command" command="hide" asset="glow_sun" />
+					<action type="command" command="hide" asset="glow_icecream" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="play" asset="hs_s10_juice_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="22.4" y="51.6" w="13.7" h="14.7" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_sun" />
+					<action type="command" command="hide" asset="glow_juice" />
+					<action type="command" command="hide" asset="glow_icecream" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="play" asset="hs_s10_fancyglasses_sound" loop="1" />
+					<action type="command" command="hide" asset="glow_chintu" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="37.2" y="16.1" w="27.2" h="32.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_sun" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_juice" />
+					<action type="command" command="hide" asset="glow_icecream" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="play" asset="hs_s10_redcap_sound" loop="1" />
+				</event>
+			</shape>
+			
+			
+			<shape type="rect" x="85.5" y="0" w="14.5" h="31.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="toggleShow" asset="glow_sun" />
+					<action type="command" command="hide" asset="glow_redcap" />
+					<action type="command" command="hide" asset="glow_fancy" />
+					<action type="command" command="hide" asset="glow_juice" />
+					<action type="command" command="hide" asset="glow_icecream" />
+					<action type="command" command="hide" asset="glow_ramu" />
+					<action type="command" command="hide" asset="glow_chintu" />
+					<action type="command" command="play" asset="hs_s10_sun_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<image asset="glow_page10_sun" x="85.5" y="0" w="14.5" h="31.4" id="glow_sun" visible = "false"/>
+			<image asset="glow_page10_ramu" x="37.2" y="16.3" w="30.2" h="83.7" id="glow_ramu" visible = "false"/>
+			<image asset="glow_page10_icecream" x="53.4" y="65.3" w="6" h="17.8" id="glow_icecream" visible = "false"/>
+			<image asset="glow_page10_juice" x="30.3" y="63.2" w="8.7" h="21.5" id="glow_juice" visible = "false"/>
+			<image asset="glow_page10_fancy" x="22.4" y="51.6" w="13.7" h="14.7" id="glow_fancy" visible = "false"/>
+			<image asset="glow_page10_redCap" x="37.2" y="16.1" w="27.2" h="32.4" id="glow_redcap" visible = "false"/>
+			<image asset="glow_page10_chintu" x="19.1" y="40.7" w="20" h="59.3" id="glow_chintu" visible = "false"/>
+			
+		</g>	
+		
+		<!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" /> -->
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene10_sound" />
+                <action type="command" command="togglePlay" asset="intro_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene10_sound" loop="1" />
+                <action type="command" command="play" asset="intro_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene10_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="intro_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+	
+	<!-- Worksheet templates -->
+    <template id="mcq_template_1">
+		<shape x="0" y="14" w="100" h="100" type="rect" fill="#FFF16E" />
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="52"/>
+        <mcq multi_select="false" model="item">
+            <options layout="table" x="20" y="15" w="60" h="85" cols="2" marginX="10" marginY="5" options="options"/>
+        </mcq>
+    </template>
+	<template id="mcq_template_2">
+		<shape x="0" y="14" w="100" h="100" type="rect" fill="#FFF16E" />
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="52"/>
+        <mcq multi_select="false" model="item" shadow = "#FF0000">
+            <options layout="table" x="20" y="45" w="60" h="15" cols="4" marginX="2" marginY="10" padY="20" padX="30" options="options"/>
+        </mcq>
+    </template>
+	
+	<template id="mtf_template_1">
+		<shape x="2" y="14" w="100" h="100" type="rect" fill="#FFF16E" />
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="52"/>
+		<text model="item.lhs_options[0].sub_title" x="18" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[1].sub_title" x="47" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[2].sub_title" x="78" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		
+			
+        <mtf model="item" force="false">
+			
+			<option x="12" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[0]"/>
+            <option x="42" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[1]"/>
+            <option x="72" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[2]"/>
+            
+
+            <option x="12" y="60" w="15" h="25.5" option="rhs_options[0]"/>
+            <option x="42" y="60" w="15" h="25.5" option="rhs_options[1]"/>
+            <option x="72" y="60" w="15" h="25.5" option="rhs_options[2]"/>
+            
+        </mtf>
+	</template>
+	
+	<template id="mtf_template_2">
+		<shape x="2" y="14" w="100" h="100" type="rect" fill="#FFF16E" />
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="52"/>
+		<text model="item.lhs_options[0].sub_title" x="18" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[1].sub_title" x="37" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[2].sub_title" x="58" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[3].sub_title" x="75" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+			
+        <mtf model="item" force="true">
+			
+            <option x="12" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[0]"/>
+            <option x="32" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[1]"/>
+            <option x="52" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[2]"/>
+            <option x="72" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[3]"/>
+
+            <option x="12" y="60" w="15" h="25.5" option="rhs_options[0]"/>
+            <option x="32" y="60" w="15" h="25.5" option="rhs_options[1]"/>
+            <option x="52" y="60" w="15" h="25.5" option="rhs_options[2]"/>
+            <option x="72" y="60" w="15" h="25.5" option="rhs_options[3]"/>
+        </mtf>
+	</template>
+    
+	<template id="mcq_template_aeiou">
+		<shape x="2" y="14" w="100" h="100" type="rect" fill="#FFF16E" />
+		<placeholder model="item.img" x="5" y="15" w="20" h="30"/> 
+		
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="52"/>
+		
+		<text model="item.model.word0" x="45" y="32.5" w="20" h="4" font="Verdana" fontsize="70"/>
+		 <mcq multi_select="false" model="item" shadow = "#0000FF">
+            <options layout="table" x="20" y="50" w="60" h="15" cols="5" marginX="2" marginY="10" padY="0" padX="0" options="options"/>
+        </mcq>
+		
+	</template>
+	
+	<template id="mcq_template_aeiou1">
+		<shape x="2" y="14" w="100" h="100" type="rect" fill="#FFF16E" />
+		<placeholder model="item.img" x="5" y="15" w="20" h="30"/> 
+		
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="52"/>
+		<text x="18" y="52" w="5" h="5" font="Georgia" fontsize="50" >
+			1:
+		</text>
+		<text x="18" y="72" w="5" h="5" font="Georgia" fontsize="50" >
+			2:
+		</text>
+		<text model="item.model.word0" x="45" y="32.5" w="20" h="4" font="Verdana" fontsize="70"/>
+		 <mcq multi_select="true" model="item" shadow = "#0000FF">
+            <options layout="table" x="20" y="50" w="60" h="30" cols="5" marginX="2" marginY="10" padY="0" padX="0" options="options"/>
+        </mcq>
+		
+	</template>
+	
+	
+	<stage id="scene11" x="0" y="0" w="100" h="100" iterate="funtime" var="item">
+        <!-- <param name="next" value="scene12" /> -->
+        <param name="previous" value="scene10" />
+		<audio asset="ft_1_audio" />
+        <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
+        <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click" disableTelemetry="true">
+                <action type="command" command="eval" asset="scene11" success="next_item" failure="next_item"/>
+            </event>
+        </shape>
+        <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" transitionType="previous"/>
+            </event>
+        </shape>
+		
+		<audio asset="Q1_audio" />
+        <embed template="item" var-item="item"/>
+        <appEvents list="next_item"/>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset_model="item.title_audio.asset" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset_model="item.title_audio.asset" audio="true" loop="1" />
+            </event>
+            <event type="next_item">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </events>
+    </stage>
+	
+	<stage id="scene12" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene13" />
+        <param name="previous" value="scene11" />
+		<param name="body" model="storyData.FT3_title"/>
+		<audio asset="ft_3_audio" />
+		<shape x="2" y="14" w="98" h="86" type="rect" fill="#FFF16E" />
+		
+		<!-- Rhyming for cap -->
+		<shape x="45" y="30" w="10" h="5" type="rect" fill="#ADFF2F" />
+		<shape x="45" y="30" w="10" h="5" type="rect" hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_cap_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="47.5" y="29.4" w="10" h="4" font="Georgia" fontsize="52">
+		Cap
+		</text>
+		
+		<shape x="35" y="36.5" w="30" h="6" type="rect" fill="#000000" />
+		<shape x="35.2" y="36.7" w="9.7" h="5.6" type="rect" fill="#FFF16E" />
+		<shape x="45.1" y="36.7" w="9.8" h="5.6" type="rect" fill="#FFF16E" />
+		<shape x="55.1" y="36.7" w="9.7" h="5.6" type="rect" fill="#FFF16E" />
+		
+		<shape x="35" y="37" w="10" h="5" type="rect" hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_map_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="37" y="36.5" w="10" h="4" font="Georgia" fontsize="52">
+		Map
+		</text>
+		
+		<!-- <shape x="45" y="37" w="10" h="5" type="rect" fill="#112255" /> -->
+		<shape x="45" y="37" w="10" h="5" type="rect"  hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_tap_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="47.7" y="36.5" w="10" h="4" font="Georgia" fontsize="52">
+		Tap
+		</text>
+		
+		<!-- <shape x="55" y="37" w="10" h="5" type="rect" fill="#115533" /> -->
+		<shape x="55" y="37" w="10" h="5" type="rect"  hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_lap_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="57.8" y="36.5" w="10" h="4" font="Georgia" fontsize="52">
+		Lap
+		</text>
+		
+		<!-- Rhyming for Tree -->
+		<shape x="45" y="48" w="10" h="5" type="rect" fill="#ADFF2F" />
+		<shape x="45" y="48" w="10" h="5" type="rect"  hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_tree_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="47.5" y="47.6" w="10" h="4" font="Georgia" fontsize="52">
+		Tree
+		</text>
+		
+		<shape x="35" y="54.5" w="30" h="6" type="rect" fill="#000000" />
+		<shape x="35.2" y="54.7" w="9.7" h="5.6" type="rect" fill="#FFF16E" />
+		<shape x="45.1" y="54.7" w="9.8" h="5.6" type="rect" fill="#FFF16E" />
+		<shape x="55.1" y="54.7" w="9.7" h="5.6" type="rect" fill="#FFF16E" />
+		
+		<!-- <shape x="35" y="55" w="10" h="5" type="rect" fill="#115555" /> -->
+		<shape x="35" y="55" w="10" h="5" type="rect"  hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_see_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="38" y="54.5" w="10" h="4" font="Georgia" fontsize="52">
+		See
+		</text>
+		
+		<!-- <shape x="45" y="55" w="10" h="5" type="rect" fill="#112255" /> -->
+		<shape x="45" y="55" w="10" h="5" type="rect"  hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_me_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="48.2" y="54.5" w="10" h="4" font="Georgia" fontsize="52">
+		Me
+		</text>
+		
+		<!-- <shape x="55" y="55" w="10" h="5" type="rect" fill="#115533" /> -->
+		<shape x="55" y="55" w="10" h="5" type="rect"  hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_free_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="57.5" y="54.5" w="10" h="4" font="Georgia" fontsize="52">
+		Free
+		</text>
+		
+		<!-- Rhyming for Moon -->
+		<shape x="45" y="66" w="10" h="5" type="rect" fill="#ADFF2F"/>
+		<shape x="45" y="66" w="10" h="5" type="rect"  hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_moon_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="47" y="65.5" w="10" h="4" font="Georgia" fontsize="52">
+		Moon
+		</text>
+		
+		<shape x="35" y="72.5" w="30" h="6" type="rect" fill="#000000" />
+		<shape x="35.2" y="72.7" w="9.7" h="5.6" type="rect" fill="#FFF16E" />
+		<shape x="45.1" y="72.7" w="9.8" h="5.6" type="rect" fill="#FFF16E" />
+		<shape x="55.1" y="72.7" w="9.7" h="5.6" type="rect" fill="#FFF16E" />
+		
+		<!-- <shape x="35" y="73" w="10" h="5" type="rect" fill="#115555" /> -->
+		<shape x="35" y="73" w="10" h="5" type="rect" hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_soon_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="37" y="72.5" w="10" h="4" font="Georgia" fontsize="52">
+		Soon
+		</text>
+		
+		<!-- <shape x="45" y="73" w="10" h="5" type="rect" fill="#112255" /> -->
+		<shape x="45" y="73" w="10" h="5" type="rect" hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_noon_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="47" y="72.5" w="10" h="4" font="Georgia" fontsize="52">
+		Noon
+		</text>
+		
+		<!-- <shape x="55" y="73" w="10" h="5" type="rect" fill="#115533" /> -->
+		<shape x="55" y="73" w="10" h="5" type="rect" hitArea="true">
+			 <event type="click">
+                <action type="command" command="play" asset="ft_3_goon_sound" loop="1" />
+            </event>
+		</shape>
+		<text x="57" y="72.5" w="10" h="4" font="Georgia" fontsize="52">
+		Goon
+		</text>
+		
+		<image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        
+        <events>
+            <event type="enter">
+                
+            </event>
+            <event type="exit">
+                
+            </event>
+        </events>
+    </stage>
+	
+	<stage id="scene13" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene14_1" />
+        <param name="previous" value="scene12" />
+		<param name="body" model="storyData.FT4_title"/>
+		<audio asset="ft_4_audio" />
+		
+		<shape x="2" y="14" w="98" h="86" type="rect" fill="#FFF16E" />
+		
+		<shape x="12" y="34" w="20" h="30" type="rect" hitArea="true" >
+		<event type="click">
+			 <action type="command" command="play" asset="ft_4_breakfast_sound" loop="1" />
+		</event>
+		</shape>
+		<shape x="42" y="34" w="20" h="30" type="rect" hitArea="true"  >
+			<event type="click">
+			 <action type="command" command="play" asset="ft_4_lunch_sound" loop="1" />
+		</event>
+		</shape>
+		<shape x="72" y="34" w="20" h="30" type="rect" hitArea="true" >
+			<event type="click">
+			 <action type="command" command="play" asset="ft_4_dinner_sound" loop="1" />
+		</event>
+		</shape>
+		
+		<text x="15" y="66" w="10" h="4" font="Verdana" fontsize="52">
+		Breakfast
+		</text>
+		<text x="48" y="66" w="10" h="4" font="Verdana" fontsize="52">
+		Lunch
+		</text>
+		<text x="78" y="66" w="10" h="4" font="Verdana" fontsize="52">
+		Dinner
+		</text>
+		
+		
+		
+		<image asset="ws_breakfast" x="12" y="34" w="20" h="30"/>
+		<image asset="ws_lunch" x="42" y="34" w="20" h="30"/>
+		<image asset="ws_dinner" x="72" y="34" w="20" h="30"/>
+		
+		<image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape x="93" y="88" w="5" h="9" type="rect" hitArea="true" >
+			<event type="click">
+			 <action type="command" command="togglePlay" asset="ft_4_sound" loop="1" />
+			</event>
+		</shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="ft_4_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="ft_4_sound" loop="1" />
+            </event>
+        </events>
+    </stage>
+	
+	<stage id="scene14_1" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene14_2" />
+        <param name="previous" value="scene13" />
+		<param name="body" model="storyData.findInPicture"/>
+		<audio asset="ws_3_audio" />
+		<shape x="2" y="12" w="96" h="86" type="rect" fill="#FFF16E" />
+		
+		<image asset="page11" x="2" y="12" w="96" h="86" />
+		<text x="5" y="15" w="20" h="30" font="Verdana" fontsize="40">
+		Sun 
+		</text>
+		
+		<g x="2" y="12" w="96" h="86">
+						
+			<shape type="rect" x="85.5" y="0" w="14.5" h="31.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_sun_sound" loop="1" />
+					<action type="command" command="show" asset="glow_sun" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="0" y="2" w="10" h="10" hitArea="true" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_sun_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<image asset="glow_page10_fancy" x="22.4" y="51.6" w="13.7" h="14.7" id="glow_fancy" visible = "false"/>
+			<image asset="glow_page10_redCap" x="37.2" y="16.1" w="27.2" h="32.4" id="glow_redcap" visible = "false"/>
+			<image asset="glow_page10_sun" x="85.5" y="0" w="14.5" h="31.4" id="glow_sun" visible = "false"/>
+			
+		</g>
+		
+		<image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="ws_3_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="ws_3_sound" loop="1" />
+            </event>
+        </events>
+    </stage>
+	
+	<stage id="scene14_2" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene14_3" />
+        <param name="previous" value="scene14_1" />
+		<param name="body" model="storyData.findInPicture"/>
+		<audio asset="ws_3_audio" />
+		<shape x="2" y="12" w="96" h="86" type="rect" fill="#FFF16E" />
+		
+		<image asset="page11" x="2" y="12" w="96" h="86" />
+		<text x="5" y="15" w="20" h="30" font="Verdana" fontsize="40">
+		RedCap
+		</text>
+		
+		<g x="2" y="12" w="96" h="86">
+			<!-- <shape type="rect" x="22.4" y="51.6" w="13.7" h="14.7" hitArea="true" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_glasses_sound" loop="1" />
+					<action type="command" command="show" asset="glow_fancy" />
+				</event>
+			</shape> -->
+			
+			<shape type="rect" x="37.2" y="16.1" w="27.2" h="32.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_redcap_sound" loop="1" />
+					<action type="command" command="show" asset="glow_redcap" />
+				</event>
+			</shape>
+			<shape type="rect" x="0" y="2" w="15" h="10" hitArea="true">
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_redcap_sound" loop="1" />
+				</event>
+			</shape>
+			
+			<!-- <shape type="rect" x="85.5" y="0" w="14.5" h="31.4" hitArea="true" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_sun_sound" loop="1" />
+					<action type="command" command="show" asset="glow_sun" />
+				</event>
+			</shape> -->
+			
+			<image asset="glow_page10_fancy" x="22.4" y="51.6" w="13.7" h="14.7" id="glow_fancy" visible = "false"/>
+			<image asset="glow_page10_redCap" x="37.2" y="16.1" w="27.2" h="32.4" id="glow_redcap" visible = "false"/>
+			<image asset="glow_page10_sun" x="85.5" y="0" w="14.5" h="31.4" id="glow_sun" visible = "false"/>
+			
+		</g>
+		
+		<image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="ws_3_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="ws_3_sound" loop="1" />
+            </event>
+        </events>
+    </stage>
+	
+	<stage id="scene14_3" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene15" />
+        <param name="previous" value="scene14_2" />
+		<param name="body" model="storyData.findInPicture"/>
+		<audio asset="ws_3_audio" />
+		<shape x="2" y="12" w="96" h="86" type="rect" fill="#FFF16E" />
+		
+		<image asset="page11" x="2" y="12" w="96" h="86" />
+		<text x="5" y="15" w="20" h="30" font="Verdana" fontsize="40">
+		Glasses 
+		</text>
+		
+		<g x="2" y="12" w="96" h="86">
+			<shape type="rect" x="22.4" y="51.6" w="13.7" h="14.7" hitArea="true" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_glasses_sound" loop="1" />
+					<action type="command" command="show" asset="glow_fancy" />
+				</event>
+			</shape>
+			<shape type="rect" x="0" y="2" w="20" h="10" hitArea="true">
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_glasses_sound" loop="1" />
+				</event>
+			</shape>
+			<!-- 
+			<shape type="rect" x="37.2" y="16.1" w="27.2" h="32.4" hitArea="false" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_redcap_sound" loop="1" />
+					<action type="command" command="show" asset="glow_redcap" />
+				</event>
+			</shape>
+			
+			<shape type="rect" x="85.5" y="0" w="14.5" h="31.4" hitArea="false" >
+				<event type="click">
+					<action type="command" command="play" asset="ws_3_sun_sound" loop="1" />
+					<action type="command" command="show" asset="glow_sun" />
+				</event>
+			</shape>
+			 -->
+			<image asset="glow_page10_fancy" x="22.4" y="51.6" w="13.7" h="14.7" id="glow_fancy" visible = "false"/>
+			<image asset="glow_page10_redCap" x="37.2" y="16.1" w="27.2" h="32.4" id="glow_redcap" visible = "false"/>
+			<image asset="glow_page10_sun" x="85.5" y="0" w="14.5" h="31.4" id="glow_sun" visible = "false"/>
+			
+		</g>
+		
+		<image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="ws_3_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="ws_3_sound" loop="1" />
+            </event>
+        </events>
+    </stage>
+	
+	<stage id="scene15" x="0" y="0" w="100" h="100" iterate="assessment" var="item">
+        <param name="next" value="endScreen" />
+        <param name="previous" value="scene13" />
+		<audio asset="ws_1_audio"/>
+		<audio asset="ws_2_audio"/>
+		<audio asset="ws_4_audio"/>
+		<audio asset="ws_5_audio"/>
+		<audio asset="ws_6_audio"/>
+		<audio asset="ws_7_audio"/>
+		<audio asset="ws_8_audio"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
+        
+		
+		<shape id="hint_audio" type="rect" x="5" y="15" w="20" h="30" visible="false" hitArea="true">
+			
+		</shape>
+		<shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click" disableTelemetry="true">
+				<action type="command" command="stop" asset_model="item.title_audio.asset" />
+                <action type="command" command="eval" asset="scene15" success="next_item" failure="next_item"/>
+            </event>
+        </shape>
+        
+		<shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+				<action type="command" command="stop" asset_model="item.title_audio.asset" />
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" transitionType="previous"/>
+            </event>
+        </shape>
+		
+		<audio asset="Q1_audio" />
+		
+		
+        <embed template="item" var-item="item"/>
+		
+        <appEvents list="next_item"/>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset_model="item.title_audio.asset" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset_model="item.title_audio.asset" />
+            </event>
+            <event type="next_item">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </events>
+    </stage>
+	
+	<stage id="endScreen" x="0" y="0" w="100" h="100">
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
+        <text x="38" y="15" w="30" h="8" font="Georgia" fontsize="96">
+            Thank you
+        </text>
+        
+        <image asset="icon_reload" x="30" y="35" w="15" h="20" />
+        <text x="33" y="57" w="15" h="5" font="Arial" fontsize="48">
+            Replay
+        </text>
+        <shape type="rect" x="30" y="35" w="15" h="30" hitArea="true">
+            <event type="click">
+                <action type="command" command="restart" asset="theme"/>
+            </event>
+        </shape>
+
+        <image asset="icon_home" x="55" y="35" w="15" h="20" />
+        <text x="58" y="57" w="15" h="5" font="Arial" fontsize="48">
+            Home
+        </text>
+        <shape type="rect" x="55" y="35" w="15" h="30" hitArea="true">
+            <event type="click">
+                <action type="command" command="windowEvent" asset="theme" href="#/content/list"/>
+            </event>
+        </shape>
+        
+        <image asset="publisher_logo" x="5" y="75" w="13" h="17" />
+        <image asset="level_band" x="5" y="94" w="13" h="5" />
+        <text x="35" y="80" w="35" h="5" font="Arial" fontsize="48">
+            The Moon And The Cap
+        </text>
+        <text x="35" y="86" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Author:
+        </text>
+        <text x="41" y="86" w="20" h="5" font="Georgia" fontsize="28">
+            Rohini Nilekani
+        </text>
+        <text x="35" y="90" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Illustrator:
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        
+    </stage>
+</theme>

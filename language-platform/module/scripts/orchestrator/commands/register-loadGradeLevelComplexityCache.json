@@ -1,0 +1,21 @@
+{
+  "name": "loadGradeLevelComplexityCache",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    }
+  ],
+  "actorPath": {
+    "manager": "LANGUAGE_CACHE_ACTOR",
+    "operation": "loadGradeLevelComplexityCache",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "requestPath": {
+    "pathParams":["language_id"],
+    "type":"POST",
+    "url":"/v1/language/*/loadGradeLevelComplexityCache"
+  }
+}

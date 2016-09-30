@@ -98,8 +98,8 @@ public class LanguageWordchainsTest {
 				new TypeReference<Map<String, Object>>() {
 				});
 		Request request = RequestResponseTestHelper.getRequest(map);
-		Response response = dictionaryManager.create(TEST_LANGUAGE, "Word",
-				request);
+		Response response = dictionaryManager.createWordV2(TEST_LANGUAGE, "Word",
+				request, true);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 

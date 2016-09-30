@@ -99,16 +99,15 @@
 							<format>xml</format>
 						</formats>
 						<instrumentation>
+							<ignoreTrivial>true</ignoreTrivial>
+							<ignoreMethodAnnotations>
+								<ignoreMethodAnnotation>com.ilimi.common.dto.CoverageIgnore</ignoreMethodAnnotation>
+							</ignoreMethodAnnotations>
 							<excludes>
 								<exclude>**/common/**</exclude>
 								<exclude>**/dto/**</exclude>
 								<exclude>**/enums/**</exclude>
-								<exclude>**/batch/**</exclude>
-								<exclude>**/models/**</exclude>
-								<exclude>**/importer/**</exclude>
-								<exclude>**/services/**</exclude>
-								<!-- Import is not yet implemented -->
-								<exclude>**/Import*/**</exclude>
+								<exclude>**/router/**</exclude>
 							</excludes>
 						</instrumentation>
 						<check>

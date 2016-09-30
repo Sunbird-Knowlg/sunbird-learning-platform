@@ -2,9 +2,6 @@ package org.ekstep.language.controllerstest;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,17 +15,11 @@ import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
@@ -41,8 +32,6 @@ public class LanguageWordchainRelationTest {
 	private static String TEST_LANGUAGE1 = "enTest";
 	private static String TEST_LANGUAGE2 = "kaTest";
 	
-	private List<String> wordIds =  Arrays.asList(new String[]{ "word_test1", "word_test2", "word_test3"});
-
 	static {
 		LanguageRequestRouterPool.init();
 	}
@@ -123,8 +112,8 @@ public class LanguageWordchainRelationTest {
 				new TypeReference<Map<String, Object>>() {
 				});
 		Request request = RequestResponseTestHelper.getRequest(map);
-		Response response = dictionaryManager.create(TEST_LANGUAGE1, "Word",
-				request);
+		Response response = dictionaryManager.createWordV2(TEST_LANGUAGE1, "Word",
+				request, true);
 		Assert.assertEquals("successful", response.getParams().getStatus());		
 		
 		contentString = "{  \"request\": {    \"words\": [      {        \"identifier\": \"word_test2\",        \"lemma\": \"ನೀರು\",        \"status\": \"Live\"      }   ]  }}";
@@ -132,8 +121,8 @@ public class LanguageWordchainRelationTest {
 				new TypeReference<Map<String, Object>>() {
 				});
 		request = RequestResponseTestHelper.getRequest(map);
-		response = dictionaryManager.create(TEST_LANGUAGE2, "Word",
-				request);
+		response = dictionaryManager.createWordV2(TEST_LANGUAGE2, "Word",
+				request, true);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 
 		contentString = "{  \"request\": {    \"words\": [      {        \"identifier\": \"word_test3\",        \"lemma\": \"ಮನೆ\",        \"status\": \"Live\"      }   ]  }}";
@@ -141,8 +130,8 @@ public class LanguageWordchainRelationTest {
 				new TypeReference<Map<String, Object>>() {
 				});
 		request = RequestResponseTestHelper.getRequest(map);
-		response = dictionaryManager.create(TEST_LANGUAGE2, "Word",
-				request);
+		response = dictionaryManager.createWordV2(TEST_LANGUAGE2, "Word",
+				request, true);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 

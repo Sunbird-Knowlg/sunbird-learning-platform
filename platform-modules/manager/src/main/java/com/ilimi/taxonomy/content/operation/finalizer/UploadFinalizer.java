@@ -15,16 +15,37 @@ import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
+/**
+ * The Class UploadFinalizer, extends BaseFinalizer which
+ * mainly holds common methods and operations of a ContentBody.
+ * UploadFinalizer holds methods which perform ContentuploadPipeline operations
+ */
 public class UploadFinalizer extends BaseFinalizer {
 	
-	private static Logger LOGGER = LogManager.getLogger(UploadFinalizer.class.getName());
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(PublishFinalizer.class.getName());
 	
+	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
+	
+	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
 	
+	/** The BasePath. */
 	protected String basePath;
+	
+	/** The ContentId. */
 	protected String contentId;
 
+	/**
+	 * Instantiates a new UploadFinalizer and sets the base
+	 * path and current content id for further processing.
+	 *
+	 * @param basePath
+	 *            the base path is the location for content package file handling and all manipulations. 
+	 * @param contentId
+	 *            the content id is the identifier of content for which the Processor is being processed currently.
+	 */
 	public UploadFinalizer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -36,6 +57,19 @@ public class UploadFinalizer extends BaseFinalizer {
 		this.contentId = contentId;
 	}
 	
+	/**
+	 * finalize()
+	 *
+	 * @param Map the parameterMap
+	 * 
+	 * checks if file,node,ecrfType,ecmlType
+	 * exists in the parameterMap else throws ClientException
+	 * Get Content String
+	 * Upload Package
+	 * Update Body, Reset Editor State and Update Content Node
+	 * Update Node 
+	 * @return the response
+	 */	
 	public Response finalize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		

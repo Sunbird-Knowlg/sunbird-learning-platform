@@ -1,5 +1,8 @@
 package com.ilimi.taxonomy.content.common;
 
+/** ContentErrorMessageConstants Class holds all the ErrorMessageConstants
+ *  used in the ContentModel
+ */
 public class ContentErrorMessageConstants {
 	
 	public static final String XML_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Content XML file.";
@@ -115,6 +118,8 @@ public class ContentErrorMessageConstants {
 	public static final String INVALID_CONTENT_METADATA = "Error! Content Object Metadata is either 'null' or Invalid.";
 	
 	public static final String MISSING_REQUIRED_FIELDS = "Error! Missing One or More Required Fields in Content Object.";
+	
+	public static final String STRING_WRITER_AUTO_CLOSE_ERROR = "Error! While closing the StringWriter.";
 	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();

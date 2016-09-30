@@ -34,17 +34,52 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 
 import akka.actor.ActorRef;
 
+/**
+ * The Class IndowordnetUtil provides utilities to load words form a indoword
+ * net DB into the platform.
+ * 
+ * @author Amarnath
+ * 
+ */
 public class IndowordnetUtil {
 
+	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
+
+	/** The comma separator. */
 	private final String COMMA_SEPARATOR = ",";
+
+	/** The semi colon separator. */
 	private final String SEMI_COLON_SEPARATOR = ";";
+
+	/** The colon separator. */
 	private final String COLON_SEPARATOR = ":";
+
+	/** The double quotes. */
 	private final String DOUBLE_QUOTES = "\"";
+
+	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
+
+	/** The logger. */
 	// private EmailService emailService = new EmailService();
 	private static Logger LOGGER = LogManager.getLogger(IndowordnetUtil.class.getName());
 
+	/**
+	 * Queries words from the Indowordnet DB for a given language, processes the
+	 * words, its relations, transaltions, etc and loads them into the Graph DB.
+	 *
+	 * @param languageGraphId
+	 *            the language graph id
+	 * @param batchSize
+	 *            the batch size
+	 * @param maxRecords
+	 *            the max records
+	 * @param initialOffset
+	 *            the initial offset
+	 * @throws JsonProcessingException
+	 *             the json processing exception
+	 */
 	@SuppressWarnings({ "unchecked" })
 	public void loadWords(String languageGraphId, int batchSize, int maxRecords, int initialOffset)
 			throws JsonProcessingException {
@@ -61,6 +96,8 @@ public class IndowordnetUtil {
 			DefinitionDTO wordDefinition = wordUtil.getDefinitionDTO(LanguageParams.Word.name(), languageGraphId);
 			DefinitionDTO synsetDefinition = wordUtil.getDefinitionDTO(LanguageParams.Synset.name(), languageGraphId);
 			long totalStartTime = System.currentTimeMillis();
+
+			// process wortd in batches
 			do {
 				long batchStartTime = System.currentTimeMillis();
 				Session session = HibernateSessionFactory.getSession();
@@ -68,6 +105,8 @@ public class IndowordnetUtil {
 				Transaction tx = null;
 				try {
 					tx = session.beginTransaction();
+
+					// get records from the indowWordNet DB
 					Query query = session.createQuery("FROM " + languageTableName + " ORDER BY synset_id");
 					query.setFirstResult(offset);
 					query.setMaxResults(batchSize);
@@ -89,18 +128,25 @@ public class IndowordnetUtil {
 							count++;
 							totalCount++;
 							SynsetData synsetData = lSynsetData.getSynsetData();
+
+							// get Word object
 							Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
 							long synsetStartTime = System.currentTimeMillis();
+
+							// Create/update word in the Graph
 							errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId,
 									wordLemmaMap, wordDefinition, nodeIds, synsetDefinition));
 							long synsetEndTime = System.currentTimeMillis();
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
+							LOGGER.error(e.getMessage(), e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
 					}
+
+					// enrich the words
 					asyncUpdate(nodeIds, languageGraphId);
 					System.out.println("Loaded " + count + " synsets for language: " + language);
 					long batchEndTime = System.currentTimeMillis();
@@ -113,6 +159,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
+					LOGGER.error(e.getMessage(), e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -132,6 +179,17 @@ public class IndowordnetUtil {
 		}
 	}
 
+	/**
+	 * Forms the word object as a map.
+	 *
+	 * @param synsetData
+	 *            the synset data
+	 * @param errorMessages
+	 *            the error messages
+	 * @return the word map
+	 * @throws JsonProcessingException
+	 *             the json processing exception
+	 */
 	private Map<String, Object> getWordMap(SynsetData synsetData, List<String> errorMessages)
 			throws JsonProcessingException {
 		byte[] bytesSynset = null;
@@ -146,6 +204,7 @@ public class IndowordnetUtil {
 
 		// words, gloss, pos and example sentences
 
+		// get the list of words from the synset field
 		bytesSynset = synsetData.getSynset();
 		synsetString = new String(bytesSynset, Charsets.UTF_8);
 		String[] words = synsetString.split(COMMA_SEPARATOR);
@@ -167,13 +226,14 @@ public class IndowordnetUtil {
 			gloss = glossString;
 		}
 
+		// From the primary meaning object as a map
 		primaryMeaningMap.put(LanguageParams.gloss.name(), gloss);
 		primaryMeaningMap.put(LanguageParams.exampleSentences.name(), exampleSentences);
 		primaryMeaningMap.put(LanguageParams.pos.name(), StringUtils.capitalize(
 				synsetData.getCategory() != null ? synsetData.getCategory().toLowerCase() : StringUtils.EMPTY));
 		primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
 
-		// Relations
+		// Process and create the relations of the word
 		for (Map.Entry<String, List<SynsetDataLite>> entry : synsetData.getRelations().entrySet()) {
 			String relationName = entry.getKey();
 			List<SynsetDataLite> relationDataList = entry.getValue();
@@ -193,7 +253,7 @@ public class IndowordnetUtil {
 			primaryMeaningMap.put(relationName, relationsList);
 		}
 
-		// translations
+		// Process and cerate the translations
 		/*Map<String, Object> translationsMap = new HashMap<String, Object>();
 		for (Map.Entry<String, List<SynsetDataLite>> entry : synsetData.getTranslations().entrySet()) {
 			String translatedLanguage = entry.getKey();
@@ -220,17 +280,27 @@ public class IndowordnetUtil {
 		return wordMap;
 	}
 
-	public static void main(String[] args) throws JsonProcessingException {
-		IndowordnetUtil util = new IndowordnetUtil();
-		util.loadWords("tamil", 0, 300, 0);
-	}
-
+	/**
+	 * Gets the language table name.
+	 *
+	 * @param language
+	 *            the language
+	 * @return the language table name
+	 */
 	private String getLanguageTableName(String language) {
 		language = StringUtils.capitalize(language.toLowerCase());
 		String tableName = language + IndowordnetConstants.SynsetData.name();
 		return tableName;
 	}
 
+	/**
+	 * Async update to enrich the words.
+	 *
+	 * @param nodeIds
+	 *            the node ids
+	 * @param languageId
+	 *            the language id
+	 */
 	private void asyncUpdate(List<String> nodeIds, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map = new HashMap<String, Object>();
@@ -243,6 +313,14 @@ public class IndowordnetUtil {
 		makeAsyncRequest(request, LOGGER);
 	}
 
+	/**
+	 * Makes the request asynchronously.
+	 *
+	 * @param request
+	 *            the request
+	 * @param logger
+	 *            the logger
+	 */
 	public void makeAsyncRequest(Request request, Logger logger) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {

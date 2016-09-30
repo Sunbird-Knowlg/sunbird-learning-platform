@@ -18,10 +18,32 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
+/**
+ * The Class MissingAssetValidatorProcessor.
+ * 
+ * @author Mohammad Azharuddin
+ * 
+ * @see AssessmentItemCreatorProcessor
+ * @see AssetCreatorProcessor
+ * @see AssetsValidatorProcessor
+ * @see BaseConcreteProcessor
+ * @see EmbedControllerProcessor
+ * @see GlobalizeAssetProcessor
+ * @see LocalizeAssetProcessor
+ * @see MissingControllerValidatorProcessor
+ * 
+ */
 public class MissingAssetValidatorProcessor extends AbstractProcessor {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(MissingAssetValidatorProcessor.class.getName());
 
+	/**
+	 * Instantiates a new missing asset validator processor.
+	 *
+	 * @param basePath the base path
+	 * @param contentId the content id
+	 */
 	public MissingAssetValidatorProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -33,6 +55,9 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 		this.contentId = contentId;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
@@ -47,6 +72,11 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 		return plugin;
 	}
 	
+	/**
+	 * Validate missing assets.
+	 *
+	 * @param plugin the plugin
+	 */
 	private void validateMissingAssets(Plugin plugin) {
 		if (null != plugin) {
 			Manifest manifest = plugin.getManifest();

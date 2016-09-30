@@ -12,11 +12,23 @@ import com.ilimi.common.dto.Request;
 
 import akka.actor.ActorRef;
 
+/**
+ * The Class IndowordnetActor processes Indo-wordnet import related messages from the request router.
+ * 
+ * @author Azhar, Amarnath
+ * 
+ */
 public class IndowordnetActor extends LanguageBaseActor {
 
+    /** The logger. */
     private static Logger LOGGER = LogManager.getLogger(IndowordnetActor.class.getName());
+    
+    /** The util. */
     private IndowordnetUtil util = new IndowordnetUtil();
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+     */
     @Override
     public void onReceive(Object msg) throws Exception {
         LOGGER.info("Received Command: " + msg);
@@ -55,6 +67,9 @@ public class IndowordnetActor extends LanguageBaseActor {
         
     }
     
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common.dto.Request, akka.actor.ActorRef)
+     */
     @Override
     protected void invokeMethod(Request request, ActorRef parent) {
     }

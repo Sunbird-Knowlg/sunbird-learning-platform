@@ -6,6 +6,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -37,21 +39,22 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 public class ActorBootstrap {
+	
+	private static Logger LOGGER = LogManager.getLogger(ActorBootstrap.class.getName());
 
     private static Document document;
     private static ActorSystem system;
     private static final String DEFAULT_SYSTEM_NAME = "ActorSystem";
 
     static {
-        try {
-            InputStream inputStream = ActorBootstrap.class.getClassLoader().getResourceAsStream("actor-config.xml");
+        try (InputStream inputStream = ActorBootstrap.class.getClassLoader().getResourceAsStream("actor-config.xml")) {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             document = dBuilder.parse(inputStream);
             document.getDocumentElement().normalize();
             loadConfiguration();
         } catch (Exception e) {
-            e.printStackTrace();
+			LOGGER.error("Error! While Closing the Input Stream.", e);
         }
     }
 

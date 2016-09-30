@@ -34,212 +34,212 @@ import com.ilimi.orchestrator.mgr.service.OrchestratorScriptMap;
 @Controller
 @RequestMapping("")
 public class ExecutionController extends BaseOrchestratorController {
-    
-    private static LogHelper LOGGER = LogHelper.getInstance(ExecutionController.class.getName());
 
-    @Autowired
-    private IOrchestratorManager manager;
+	private static LogHelper LOGGER = LogHelper.getInstance(ExecutionController.class.getName());
 
-    @Autowired
-    private Executor executor;
+	@Autowired
+	private IOrchestratorManager manager;
 
-    @RequestMapping(value = "/**", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> get(HttpServletRequest request, HttpServletResponse response) {
-        return executeScript(request, response, RequestTypes.GET.name(), null);
-    }
+	@Autowired
+	private Executor executor;
 
-    @RequestMapping(value = "/**", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> post(@RequestBody Map<String, Object> map, HttpServletRequest request,
-            HttpServletResponse response) {
-        return executeScript(request, response, RequestTypes.POST.name(), map);
-    }
+	@RequestMapping(value = "/**", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> get(HttpServletRequest request, HttpServletResponse response) {
+		return executeScript(request, response, RequestTypes.GET.name(), null);
+	}
 
-    @RequestMapping(value = "/**", method = RequestMethod.PATCH)
-    @ResponseBody
-    public ResponseEntity<Response> patch(@RequestBody Map<String, Object> map, HttpServletRequest request,
-            HttpServletResponse response) {
-        return executeScript(request, response, RequestTypes.PATCH.name(), map);
-    }
+	@RequestMapping(value = "/**", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> post(@RequestBody Map<String, Object> map, HttpServletRequest request,
+			HttpServletResponse response) {
+		return executeScript(request, response, RequestTypes.POST.name(), map);
+	}
 
-    @RequestMapping(value = "/**", method = RequestMethod.DELETE)
-    @ResponseBody
-    public ResponseEntity<Response> delete(HttpServletRequest request, HttpServletResponse response) {
-        return executeScript(request, response, RequestTypes.DELETE.name(), null);
-    }
-    
-    private ResponseEntity<Response> executeScript(HttpServletRequest request, HttpServletResponse response,
-            String type, Map<String, Object> map) {
-        String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        OrchestratorScript script = getScript(path, type);
-        if (null == script) {
-            return getExceptionResponseEntity(new MiddlewareException(ExecutionErrorCodes.ERR_SCRIPT_NOT_FOUND.name(),
-                    "Invalid request path: " + path), path);
-        } else {
-            try {
-                Map<String, Object> params = getParams(request, script, path, map);
-                LOGGER.info(script.getName() + "," + params);
-                Response resp = executor.execute(script, params);
-                String format = request.getParameter("format");
-                if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
-                    String csv = (String) resp.getResult().get("result");
-                    if (StringUtils.isNotBlank(csv)) {
-                        byte[] bytes = csv.getBytes();
-                        response.setContentType("text/csv");
-                        response.setHeader("Content-Disposition", "attachment; filename=graph.csv");
-                        response.getOutputStream().write(bytes);
-                        response.getOutputStream().close();
-                    }
-                }
-                return getResponseEntity(resp, script);
-            } catch (Exception e) {
-                LOGGER.error("Error executing script: " + script.getName(), e);
-                return getExceptionResponseEntity(e, script);
-            }
-        }
-    }
+	@RequestMapping(value = "/**", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> patch(@RequestBody Map<String, Object> map, HttpServletRequest request,
+			HttpServletResponse response) {
+		return executeScript(request, response, RequestTypes.PATCH.name(), map);
+	}
 
-    @PostConstruct
-    public void init() {
-        List<OrchestratorScript> commands = manager.getAllCommands();
-        List<OrchestratorScript> scripts = manager.getAllScripts();
-        OrchestratorScriptMap.loadScripts(scripts, commands);
-    }
-    
-    private String escapeSpecialChars(String param) {
-        if (StringUtils.isNotBlank(param)) {
-            param = param.replace("\\", "\\\\");
-            param = param.replace("$", "\\$");
-        }
-        return param;
-    }
-    
-    private OrchestratorScript getScript(String path, String type) {
-        Map<String, OrchestratorScript> map = OrchestratorScriptMap.scriptMap.get(type);
-        if (null != map && !map.isEmpty()) {
-            int pathParams = -1;
-            OrchestratorScript script = null;
-            for (Entry<String, OrchestratorScript> entry : map.entrySet()) {
-                String url = entry.getKey();
-                OrchestratorScript scriptObj = entry.getValue();
-                List<String> params = scriptObj.getRequestPath().getPathParams();
-                int index = url.indexOf("*", 0);
-                if (null != params && !params.isEmpty()) {
-                    for (int i = 0; i < params.size(); i++) {
-                        if (index > -1) {
-                            int lastIndex = path.indexOf("/", index);
-                            String param = null;
-                            if (index < path.length()) {
-                                if (lastIndex >= 0) {
-                                    param = path.substring(index, lastIndex);
-                                } else {
-                                    param = path.substring(index);
-                                }
-                                param = escapeSpecialChars(param);
-                                url = url.replaceFirst("\\*", param);
-                            }
-                            index = url.indexOf("*", 0);
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                if (StringUtils.equals(url, path)) {
-                    int paramsCount = null == params ? 0 : params.size();
-                    if (pathParams == -1 || paramsCount < pathParams)
-                        script = entry.getValue();
-                }
-            }
-            return script;
-        }
-        return null;
-    }
+	@RequestMapping(value = "/**", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Response> delete(HttpServletRequest request, HttpServletResponse response) {
+		return executeScript(request, response, RequestTypes.DELETE.name(), null);
+	}
 
-    private Map<String, Object> getParams(HttpServletRequest request, OrchestratorScript script, String path,
-            Map<String, Object> map) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        RequestPath reqPath = script.getRequestPath();
-        Map<String, Object> pathParamMap = new HashMap<String, Object>();
-        Map<String, Object> reqParamMap = new HashMap<String, Object>();
-        Map<String, Object> bodyParamMap = new HashMap<String, Object>();
-        getPathParamMap(pathParamMap, reqPath, path);
-        getRequestParamMap(reqParamMap, reqPath, request);
-        getBodyParamMap(bodyParamMap, map);
-        if (null != script.getParameters() && !script.getParameters().isEmpty()) {
-            for (ScriptParams param : script.getParameters()) {
-                params.put(param.getName(), getParamValue(param.getName(), pathParamMap, reqParamMap, bodyParamMap));
-            }
-        }
-        return params;
-    }
+	private ResponseEntity<Response> executeScript(HttpServletRequest request, HttpServletResponse response,
+			String type, Map<String, Object> map) {
+		String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		OrchestratorScript script = getScript(path, type);
+		if (null == script) {
+			return getExceptionResponseEntity(new MiddlewareException(ExecutionErrorCodes.ERR_SCRIPT_NOT_FOUND.name(),
+					"Invalid request path: " + path), path);
+		} else {
+			try {
+				Map<String, Object> params = getParams(request, script, path, map);
+				LOGGER.info(script.getName() + "," + params);
+				Response resp = executor.execute(script, params);
+				String format = request.getParameter("format");
+				if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
+					String csv = (String) resp.getResult().get("result");
+					if (StringUtils.isNotBlank(csv)) {
+						byte[] bytes = csv.getBytes();
+						response.setContentType("text/csv");
+						response.setHeader("Content-Disposition", "attachment; filename=graph.csv");
+						response.getOutputStream().write(bytes);
+						response.getOutputStream().close();
+					}
+				}
+				return getResponseEntity(resp, script);
+			} catch (Exception e) {
+				LOGGER.error("Error executing script: " + script.getName(), e);
+				return getExceptionResponseEntity(e, script);
+			}
+		}
+	}
 
-    private Object getParamValue(String name, Map<String, Object> pathParamMap, Map<String, Object> reqParamMap,
-            Map<String, Object> bodyParamMap) {
-        if (null != pathParamMap.get(name))
-            return pathParamMap.get(name);
-        if (null != reqParamMap.get(name))
-            return reqParamMap.get(name);
-        if (null != bodyParamMap.get(name))
-            return bodyParamMap.get(name);
-        return null;
-    }
+	@PostConstruct
+	public void init() {
+		List<OrchestratorScript> commands = manager.getAllCommands();
+		List<OrchestratorScript> scripts = manager.getAllScripts();
+		OrchestratorScriptMap.loadScripts(scripts, commands);
+	}
 
-    private void getPathParamMap(Map<String, Object> pathParamMap, RequestPath reqPath, String path) {
-        String url = reqPath.getUrl();
-        if (null != reqPath.getPathParams() && !reqPath.getPathParams().isEmpty()) {
-            int index = url.indexOf("*", 0);
-            for (int i = 0; i < reqPath.getPathParams().size(); i++) {
-                if (index > -1) {
-                    int lastIndex = path.indexOf("/", index);
-                    String param = null;
-                    if (lastIndex >= 0) {
-                        param = path.substring(index, lastIndex);
-                    } else {
-                        param = path.substring(index);
-                    }
-                    pathParamMap.put(reqPath.getPathParams().get(i), param);
-                    param = escapeSpecialChars(param);
-                    url = url.replaceFirst("\\*", param);
-                    index = url.indexOf("*", 0);
-                } else {
-                    break;
-                }
-            }
-        }
-    }
+	private String escapeSpecialChars(String param) {
+		if (StringUtils.isNotBlank(param)) {
+			param = param.replace("\\", "\\\\");
+			param = param.replace("$", "\\$");
+		}
+		return param;
+	}
 
-    private void getRequestParamMap(Map<String, Object> reqParamMap, RequestPath reqPath, HttpServletRequest request) {
-        if (null != reqPath.getRequestParams() && !reqPath.getRequestParams().isEmpty()) {
-            for (String paramName : reqPath.getRequestParams()) {
-                String value = request.getParameter(paramName);
-                if (StringUtils.isNotBlank(paramName)) {
-                    if (StringUtils.isNotBlank(value)) {
-                        if (value.indexOf(",") >= 0) {
-                            reqParamMap.put(paramName, value.split(","));
-                        } else {
-                            reqParamMap.put(paramName, value);
-                        }
-                    }
-                }
-            }
-        }
-    }
+	private OrchestratorScript getScript(String path, String type) {
+		Map<String, OrchestratorScript> map = OrchestratorScriptMap.scriptMap.get(type);
+		if (null != map && !map.isEmpty()) {
+			int pathParams = -1;
+			OrchestratorScript script = null;
+			for (Entry<String, OrchestratorScript> entry : map.entrySet()) {
+				String url = entry.getKey();
+				OrchestratorScript scriptObj = entry.getValue();
+				List<String> params = scriptObj.getRequestPath().getPathParams();
+				int index = url.indexOf("*", 0);
+				if (null != params && !params.isEmpty()) {
+					for (int i = 0; i < params.size(); i++) {
+						if (index > -1) {
+							int lastIndex = path.indexOf("/", index);
+							String param = null;
+							if (index < path.length()) {
+								if (lastIndex >= 0) {
+									param = path.substring(index, lastIndex);
+								} else {
+									param = path.substring(index);
+								}
+								param = escapeSpecialChars(param);
+								url = url.replaceFirst("\\*", param);
+							}
+							index = url.indexOf("*", 0);
+						} else {
+							break;
+						}
+					}
+				}
+				if (StringUtils.equals(url, path)) {
+					int paramsCount = null == params ? 0 : params.size();
+					if (pathParams == -1 || paramsCount < pathParams)
+						script = entry.getValue();
+				}
+			}
+			return script;
+		}
+		return null;
+	}
 
-    @SuppressWarnings("unchecked")
-    private void getBodyParamMap(Map<String, Object> bodyParamMap, Map<String, Object> map) {
-        if (null != map && !map.isEmpty()) {
-            Object requestObj = map.get("request");
-            if (null != requestObj) {
-                try {
-                    String strRequest = mapper.writeValueAsString(requestObj);
-                    Map<String, Object> requestMap = mapper.readValue(strRequest, Map.class);
-                    if (null != requestMap && !requestMap.isEmpty())
-                        bodyParamMap.putAll(requestMap);
-                } catch (Exception e) {
-                }
-            }
-        }
+	private Map<String, Object> getParams(HttpServletRequest request, OrchestratorScript script, String path,
+			Map<String, Object> map) {
+		Map<String, Object> params = new HashMap<String, Object>();
+		RequestPath reqPath = script.getRequestPath();
+		Map<String, Object> pathParamMap = new HashMap<String, Object>();
+		Map<String, Object> reqParamMap = new HashMap<String, Object>();
+		Map<String, Object> bodyParamMap = new HashMap<String, Object>();
+		getPathParamMap(pathParamMap, reqPath, path);
+		getRequestParamMap(reqParamMap, reqPath, request);
+		getBodyParamMap(bodyParamMap, map);
+		if (null != script.getParameters() && !script.getParameters().isEmpty()) {
+			for (ScriptParams param : script.getParameters()) {
+				params.put(param.getName(), getParamValue(param.getName(), pathParamMap, reqParamMap, bodyParamMap));
+			}
+		}
+		return params;
+	}
 
-    }
+	private Object getParamValue(String name, Map<String, Object> pathParamMap, Map<String, Object> reqParamMap,
+			Map<String, Object> bodyParamMap) {
+		if (null != pathParamMap.get(name))
+			return pathParamMap.get(name);
+		if (null != reqParamMap.get(name))
+			return reqParamMap.get(name);
+		if (null != bodyParamMap.get(name))
+			return bodyParamMap.get(name);
+		return null;
+	}
+
+	private void getPathParamMap(Map<String, Object> pathParamMap, RequestPath reqPath, String path) {
+		String url = reqPath.getUrl();
+		if (null != reqPath.getPathParams() && !reqPath.getPathParams().isEmpty()) {
+			int index = url.indexOf("*", 0);
+			for (int i = 0; i < reqPath.getPathParams().size(); i++) {
+				if (index > -1) {
+					int lastIndex = path.indexOf("/", index);
+					String param = null;
+					if (lastIndex >= 0) {
+						param = path.substring(index, lastIndex);
+					} else {
+						param = path.substring(index);
+					}
+					pathParamMap.put(reqPath.getPathParams().get(i), param);
+					param = escapeSpecialChars(param);
+					url = url.replaceFirst("\\*", param);
+					index = url.indexOf("*", 0);
+				} else {
+					break;
+				}
+			}
+		}
+	}
+
+	private void getRequestParamMap(Map<String, Object> reqParamMap, RequestPath reqPath, HttpServletRequest request) {
+		if (null != reqPath.getRequestParams() && !reqPath.getRequestParams().isEmpty()) {
+			for (String paramName : reqPath.getRequestParams()) {
+				String value = request.getParameter(paramName);
+				if (StringUtils.isNotBlank(paramName)) {
+					if (StringUtils.isNotBlank(value)) {
+						if (value.indexOf(",") >= 0) {
+							reqParamMap.put(paramName, value.split(","));
+						} else {
+							reqParamMap.put(paramName, value);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void getBodyParamMap(Map<String, Object> bodyParamMap, Map<String, Object> map) {
+		if (null != map && !map.isEmpty()) {
+			Object requestObj = map.get("request");
+			if (null != requestObj) {
+				try {
+					String strRequest = mapper.writeValueAsString(requestObj);
+					Map<String, Object> requestMap = mapper.readValue(strRequest, Map.class);
+					if (null != requestMap && !requestMap.isEmpty())
+						bodyParamMap.putAll(requestMap);
+				} catch (Exception e) {
+				}
+			}
+		}
+
+	}
 }

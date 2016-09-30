@@ -38,6 +38,8 @@ node registerScript.js api/get-rhymingsound-rule-word-chains.tcl api/json/get-rh
 
 node registerScript.js api/getWordChainsByIndex.tcl api/json/groupBy.json register
 
+node registerScript.js api/update-GradeLevelComplexity.tcl api/json/register-update-GradeLevelComplexity.json register
+
 node registerScript.js api/create-translation.tcl api/json/register-create-translation.json register
 
 node registerScript.js api/get-translation.tcl api/json/register-get-translation.json register

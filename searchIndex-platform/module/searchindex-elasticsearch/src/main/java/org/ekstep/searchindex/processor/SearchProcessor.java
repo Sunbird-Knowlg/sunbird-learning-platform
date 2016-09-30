@@ -57,7 +57,6 @@ public class SearchProcessor {
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		String query = processSearchQuery(searchDTO, null, false);
-
 		CountResult countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		response.put("count", countResult.getCount());
 

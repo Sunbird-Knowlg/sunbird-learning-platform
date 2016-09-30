@@ -15,11 +15,11 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.mgr.IReferenceManager;
-import com.ilimi.taxonomy.util.IReferenceConstants;
 
 @Component
-public class ReferenceManagerImpl extends BaseManager implements IReferenceManager, IReferenceConstants {
+public class ReferenceManagerImpl extends BaseManager implements IReferenceManager {
 
     private static Logger LOGGER = LogManager.getLogger(ReferenceManagerImpl.class.getName());
 
@@ -50,7 +50,7 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
 		}
 		
 		Node referenceNode = (Node) res.get(GraphDACParams.node.name());
-		referenceNode.getMetadata().put(ATTRIBUTE_DOWNLOAD_URL, url);
+		referenceNode.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), url);
 		
 		Request createReq = getRequest(V2_GRAPH_ID, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		createReq.put(GraphDACParams.node.name(), referenceNode);
@@ -61,7 +61,7 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
 			return createRes;
 		}
 		
-		Response response = OK(RESPONSE_PARAM_URL, url);
+		Response response = OK(ContentWorkflowPipelineParams.url.name(), url);
         return response;
 	}
 }

@@ -20,16 +20,37 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.util.ContentBundle;
 
+/**
+ * The Class BundleFinalizer, extends BaseFinalizer which
+ * mainly holds common methods and operations of a ContentBody.
+ * PublishFinalizer holds methods which perform ContentPublishPipeline operations
+ */
 public class PublishFinalizer extends BaseFinalizer {
 	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(PublishFinalizer.class.getName());
 	
+	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
+	
+	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
 	
+	/** The BasePath. */
 	protected String basePath;
+	
+	/** The ContentId. */
 	protected String contentId;
 
+	/**
+	 * Instantiates a new PublishFinalizer and sets the base
+	 * path and current content id for further processing.
+	 *
+	 * @param basePath
+	 *            the base path is the location for content package file handling and all manipulations. 
+	 * @param contentId
+	 *            the content id is the identifier of content for which the Processor is being processed currently.
+	 */
 	public PublishFinalizer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -41,6 +62,28 @@ public class PublishFinalizer extends BaseFinalizer {
 		this.contentId = contentId;
 	}
 	
+	/**
+	 * finalize()
+	 *
+	 * @param Map the parameterMap
+	 * 
+	 * checks if Node, ecrfType,ecmlType
+	 * exists in the parameterMap else throws ClientException
+	 * Output only ECML format
+	 * create 'artifactUrl'
+	 * Get Content String
+	 * write ECML File
+	 * Create 'ZIP' Package
+	 * Upload Package
+	 * Upload to S3
+	 * Set artifact file For Node
+	 * Download App Icon and create thumbnail
+	 * Set Package Version
+	 * Create ECAR Bundle
+	 * Delete local compressed artifactFile
+	 * Populate Fields and Update Node
+	 * @return the response
+	 */	
 	public Response finalize(Map<String, Object> parameterMap) {
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());

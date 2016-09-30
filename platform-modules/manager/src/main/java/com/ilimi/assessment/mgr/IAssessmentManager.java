@@ -111,12 +111,6 @@ public interface IAssessmentManager {
      *           input does not have identifier specified.
      */
     public Response updateItemSet(String id, String taxonomyId, Request request);
-    
-    /**
-     * 
-     * 
-     */
-    public Response searchQuestionnaire(String taxonomyId, Request request);
 
     /**
      * Gets Assessment Item Set for the set identifier
@@ -147,41 +141,5 @@ public interface IAssessmentManager {
     public Response deleteItemSet(String id, String taxonomyId);
 
     // Assessment Item Set - END
-
-    
-    
-    // Questionnaire - START
-
-    /**
-     * Creates Questionnaire. The identifier of the saved QuestionPaper is returned in
-     * response.
-     * 
-     */
-    public Response createQuestionnaire(String taxonomyId, Request request);
-    
-    /**
-     * 
-     * Updates Questionnaire. The identifier of the saved QuestionPaper is returned in
-     * response.
-     */
-    
-    public Response updateQuestionnaire(String id, String taxonomyId, Request request);
-
-    /**
-     * Gets Questionnaire for the identifier
-     *        
-     */
-    public Response getQuestionnaire(String id, String taxonomyId, String[] qrfields);
-    
-    /**
-     * Deletes the Question paper for given id.
-     * 
-     */
-    public Response deleteQuestionnaire(String id, String taxonomyId);
-    
-    /**
-     * Deliver Questionnaire.
-     */
-    public Response deliverQuestionnaire(String id, String taxonomyId);
 
 }

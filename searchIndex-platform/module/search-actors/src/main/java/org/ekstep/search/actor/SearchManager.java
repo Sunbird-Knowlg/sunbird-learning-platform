@@ -23,6 +23,7 @@ import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
@@ -391,6 +392,7 @@ public class SearchManager extends SearchBaseActor {
 		return respResult;
 	}
 
+	@CoverageIgnore
 	private String getResultParamKey(String objectType) {
 		if (StringUtils.isNotBlank(objectType)) {
 			if (StringUtils.equalsIgnoreCase("Domain", objectType))

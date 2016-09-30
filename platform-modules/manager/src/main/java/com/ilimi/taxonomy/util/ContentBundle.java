@@ -42,18 +42,38 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
+/**
+ * The Class ContentBundle.
+ */
 @Component
 public class ContentBundle {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentBundle.class.getName());
+	
+	/** The Constant bucketName. */
 	private static final String bucketName = "ekstep-public";
+	
+	/** The Constant ecarFolderName. */
 	private static final String ecarFolderName = "ecar_files";
 
+	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
+	/** The Constant URL_FIELD. */
 	protected static final String URL_FIELD = "URL";
+	
+	/** The Constant BUNDLE_PATH. */
 	protected static final String BUNDLE_PATH = "/data/contentBundle";
 
+	/**
+	 * Creates the content manifest data.
+	 *
+	 * @param contents the contents
+	 * @param children the children
+	 * @param expiresOn the expires on
+	 * @return the map
+	 */
 	public Map<Object, List<String>> createContentManifestData(List<Map<String, Object>> contents,
 			List<String> children, String expiresOn) {
 		List<String> urlFields = new ArrayList<String>();
@@ -102,13 +122,23 @@ public class ContentBundle {
 		return downloadUrls;
 	}
 
+	/**
+	 * Creates the content bundle.
+	 *
+	 * @param contents the contents
+	 * @param fileName the file name
+	 * @param version the version
+	 * @param downloadUrls the download urls
+	 * @return the string[]
+	 */
 	public String[] createContentBundle(List<Map<String, Object>> contents, String fileName, String version,
 			Map<Object, List<String>> downloadUrls) {
 		String bundleFileName = BUNDLE_PATH + File.separator + fileName;
 		String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
 		List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
 		try {
-			File manifestFile = new File(bundlePath + File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
+			File manifestFile = new File(
+					bundlePath + File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
 			createManifestFile(manifestFile, version, null, contents);
 			if (null != downloadedFiles) {
 				if (null != manifestFile)
@@ -116,7 +146,6 @@ public class ContentBundle {
 				try {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
 					String[] url = AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
-					System.out.println("AWS Upload is complete.... on URL : " + url);
 					downloadedFiles.add(contentBundle);
 					return url;
 				} catch (Throwable e) {
@@ -128,11 +157,17 @@ public class ContentBundle {
 			}
 			return null;
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), e.getMessage());
 		}
 	}
 	
+	/**
+	 * Creates the bundle.
+	 *
+	 * @param files the files
+	 * @param bundleFileName the bundle file name
+	 * @return the file
+	 */
 	public File createBundle(List<File> files, String bundleFileName) {
 		File bundleFile = new File(bundleFileName);
 		try {
@@ -142,9 +177,9 @@ public class ContentBundle {
 			if (StringUtils.isBlank(bundleFileName))
 				throw new ClientException(ContentErrorCodeConstants.BUNDLE_FILE_WRITE.name(),
 						ContentErrorMessageConstants.INVALID_BUNDLE_FILE_NAME + " | [Bundle File Name is Required.]");
-			FileOutputStream stream = new FileOutputStream(bundleFileName);
-			stream.write(createECAR(files));
-			stream.close();
+			try (FileOutputStream stream = new FileOutputStream(bundleFileName)) {
+				stream.write(createECAR(files));
+			}
 		} catch (Throwable e) {
 			throw new ServerException(ContentErrorCodeConstants.BUNDLE_FILE_WRITE.name(),
 					ContentErrorMessageConstants.BUNDLE_FILE_WRITE_ERROR + " | [Unable to Bundle File.]", e);
@@ -152,6 +187,14 @@ public class ContentBundle {
 		return bundleFile;
 	}
 	
+	/**
+	 * Creates the manifest file.
+	 *
+	 * @param manifestFileName the manifest file name
+	 * @param manifestVersion the manifest version
+	 * @param expiresOn the expires on
+	 * @param contents the contents
+	 */
 	public void createManifestFile(File manifestFileName, String manifestVersion, String expiresOn,
 			List<Map<String, Object>> contents) {
 		try {
@@ -182,6 +225,13 @@ public class ContentBundle {
 		}
 	}
 
+	/**
+	 * Adds the download url.
+	 *
+	 * @param downloadUrls the download urls
+	 * @param val the val
+	 * @param identifier the identifier
+	 */
 	private void addDownloadUrl(Map<Object, List<String>> downloadUrls, Object val, String identifier) {
 		List<String> ids = downloadUrls.get(val);
 		if (null == ids) {
@@ -191,6 +241,13 @@ public class ContentBundle {
 		ids.add(identifier.trim());
 	}
 
+	/**
+	 * Gets the content bundle.
+	 *
+	 * @param downloadUrls the download urls
+	 * @param bundlePath the bundle path
+	 * @return the content bundle
+	 */
 	private List<File> getContentBundle(final Map<Object, List<String>> downloadUrls, final String bundlePath) {
 		List<File> files = new ArrayList<File>();
 		try {
@@ -262,44 +319,55 @@ public class ContentBundle {
 		return files;
 	}
 	
+	/**
+	 * Creates the ECAR.
+	 *
+	 * @param files the files
+	 * @return the byte[]
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	private byte[] createECAR(List<File> files) throws IOException {
 		// creating byteArray stream, make it bufforable and passing this buffor
 		// to ZipOutputStream
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
-		ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
-		// packing files
-		for (File file : files) {
-			if (null != file) {
-				String fileName = null;
-				if (file.getName().toLowerCase().endsWith("manifest.json")) {
-					fileName = file.getName();
-				} else {
-					fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
-							+ File.separator + file.getName();
+		try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
+				ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream)) {
+			// packing files
+			for (File file : files) {
+				if (null != file) {
+					String fileName = null;
+					if (file.getName().toLowerCase().endsWith("manifest.json")) {
+						fileName = file.getName();
+					} else {
+						fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
+								+ File.separator + file.getName();
+					}
+					// new zip entry and copying inputstream with file to
+					// zipOutputStream, after all closing streams
+					zipOutputStream.putNextEntry(new ZipEntry(fileName));
+					try (FileInputStream fileInputStream = new FileInputStream(file)) {
+						IOUtils.copy(fileInputStream, zipOutputStream);
+						zipOutputStream.closeEntry();
+					}
 				}
-				// new zip entry and copying inputstream with file to
-				// zipOutputStream, after all closing streams
-				zipOutputStream.putNextEntry(new ZipEntry(fileName));
-				FileInputStream fileInputStream = new FileInputStream(file);
-
-				IOUtils.copy(fileInputStream, zipOutputStream);
-
-				fileInputStream.close();
-				zipOutputStream.closeEntry();
 			}
-		}
 
-		if (zipOutputStream != null) {
-			zipOutputStream.finish();
-			zipOutputStream.flush();
-			IOUtils.closeQuietly(zipOutputStream);
+			if (zipOutputStream != null) {
+				zipOutputStream.finish();
+				zipOutputStream.flush();
+				IOUtils.closeQuietly(zipOutputStream);
+			}
+			IOUtils.closeQuietly(bufferedOutputStream);
+			IOUtils.closeQuietly(byteArrayOutputStream);
+			return byteArrayOutputStream.toByteArray();
 		}
-		IOUtils.closeQuietly(bufferedOutputStream);
-		IOUtils.closeQuietly(byteArrayOutputStream);
-		return byteArrayOutputStream.toByteArray();
 	}
 
+	/**
+	 * Creates the directory if needed.
+	 *
+	 * @param directoryName the directory name
+	 */
 	private void createDirectoryIfNeeded(String directoryName) {
 		File theDir = new File(directoryName);
 		// if the directory does not exist, create it
@@ -308,11 +376,21 @@ public class ContentBundle {
 		}
 	}
 
+	/**
+	 * Gets the response timestamp.
+	 *
+	 * @return the response timestamp
+	 */
 	private String getResponseTimestamp() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
 		return sdf.format(new Date());
 	}
 
+	/**
+	 * Gets the uuid.
+	 *
+	 * @return the uuid
+	 */
 	private String getUUID() {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();

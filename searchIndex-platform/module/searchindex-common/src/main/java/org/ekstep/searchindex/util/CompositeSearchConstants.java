@@ -1,6 +1,7 @@
 package org.ekstep.searchindex.util;
 
 public class CompositeSearchConstants {
+	public static String COMPOSITE_SEARCH_INDEX = "compositesearch";
 	public static final String OPERATION_CREATE = "CREATE";
 	public static final String OPERATION_UPDATE = "UPDATE";
 	public static final String OPERATION_DELETE = "DELETE";
@@ -15,7 +16,6 @@ public class CompositeSearchConstants {
 	public static final String OBJECT_TYPE_ITEM_SET = "ITEM_SET";
 	public static final String NODE_TYPE_DATA = "DATA_NODE";
 	public static final String NODE_TYPE_ROOT = "ROOT_NODE";
-	public static final String COMPOSITE_SEARCH_INDEX = "compositesearch";
 	public static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
 	public static final String INDEX_FIELD_TAGS = "tags";
 	public static final String NODE_TYPE_DEFINITION = "DEFINITION_NODE";

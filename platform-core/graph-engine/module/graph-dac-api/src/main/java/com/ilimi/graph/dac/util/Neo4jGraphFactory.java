@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
@@ -37,6 +39,8 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
 public class Neo4jGraphFactory {
 	
+	private static Logger LOGGER = LogManager.getLogger(Neo4jGraphFactory.class.getName());
+	
 	private static List<String> restrictedGraphList = new ArrayList<String>();
 
     private static Map<String, GraphDatabaseService> graphDbMap = new HashMap<String, GraphDatabaseService>();
@@ -44,11 +48,10 @@ public class Neo4jGraphFactory {
     private static String graphDbPath = "/data/graphDB";
 
     static {
-        try {
-        	restrictedGraphList.add("numeracy");
-        	restrictedGraphList.add("literacy");
-        	restrictedGraphList.add("literacy_v2");
-            InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties");
+    	restrictedGraphList.add("numeracy");
+    	restrictedGraphList.add("literacy");
+    	restrictedGraphList.add("literacy_v2");
+        try (InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties")) {
             if (null != inputStream) {
                 Properties props = new Properties();
                 props.load(inputStream);
@@ -62,7 +65,7 @@ public class Neo4jGraphFactory {
                 }
             }       
         } catch (Exception e) {
-            e.printStackTrace();
+			LOGGER.error("Error! While Closing the Input Stream.", e);
         }
     }
     

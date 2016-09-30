@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
+		</Console>
+		<RollingFile name="SearchLogAppender" fileName="/data/logs/search.log"
+			filePattern="/data/logs/search-%d{MM-dd-yyyy-hh}-%i.log">
+			<PatternLayout>
+				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
+				</Pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="24"
+					modulate="true" />
+			</Policies>
+		</RollingFile>
+		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/search_event.log"
+			filePattern="/data/logs/search_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+		</RollingRandomAccessFile>
+	</Appenders>
+	<Loggers>
+		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="TelemetryEventAppender" />
+		</Logger>
+		<Root level="INFO">
+			<AppenderRef ref="SearchLogAppender" />
+		</Root>
+	</Loggers>
+</Configuration>

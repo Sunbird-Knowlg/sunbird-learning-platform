@@ -24,19 +24,40 @@ import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 import com.ilimi.taxonomy.content.util.ECRFToJSONConvertor;
 import com.ilimi.taxonomy.content.util.ECRFToXMLConvertor;
 
+/**
+ * The Class BaseFinalizer is a BaseClass for all Finalizers, extends BasePipeline which
+ * mainly holds Common Methods and operations of a ContentNode.
+ * BaseFinalizer holds Common methods of ContentNode and ContentPackage
+ */
 public class BaseFinalizer extends BasePipeline {
 	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(BaseFinalizer.class.getName());
 	
+	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
 	
+	/**
+	 * Creates Thumbline.
+	 * 
+	 * @param Node the ContentNode
+	 * @param basePath the filePath
+	 * checks if node metadata contains appIcon and downloadFile
+	 * checks if fileIsNotEmpty & fileIsFile and generates thumbline for it
+	 * checks if thumbline isNotEmpty and creates thumbFile
+	 * uploads thumbFile to s3
+	 */
 	protected void createThumbnail(String basePath, Node node) {
 		try {
 			if (null != node) {
 				String appIcon = (String) node.getMetadata().get(ContentWorkflowPipelineParams.appIcon.name());
+				
+				// checks if node contains appIcon and downloads File
 				if (!StringUtils.isBlank(appIcon)) {
 					LOGGER.info("Content Id: " + node.getIdentifier() + " | App Icon: " + appIcon);
 					File appIconFile = HttpDownloadUtility.downloadFile(appIcon, basePath);
+					
+					// checks if file is not empty and isFile nd generates thumbline
 					if (null != appIconFile && appIconFile.exists() && appIconFile.isFile()) {
 						boolean generated = ThumbnailGenerator.generate(appIconFile);
 						if (generated) {
@@ -44,6 +65,8 @@ public class BaseFinalizer extends BasePipeline {
 									+ FilenameUtils.getBaseName(appIconFile.getPath()) + ".thumb."
 									+ FilenameUtils.getExtension(appIconFile.getPath());
 							File thumbFile = new File(thumbnail);
+					
+							// uploads thumbfile to s3 and set node metadata
 							if (thumbFile.exists()) {
 								LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
 								String[] urlArray = uploadToAWS(thumbFile, getUploadFolderName());
@@ -77,6 +100,15 @@ public class BaseFinalizer extends BasePipeline {
 		}
 	}
 	
+	/**
+	 * writes ECML to File.
+	 * 
+	 * @param ecml the string ECML
+	 * @param type the EcmlType
+	 * @param basePath the filePath
+	 * checks if ecml string or ecmlType is empty, throws ClientException
+	 * else creates a File and writes the ecml to file
+	 */
 	protected void writeECMLFile(String basePath, String ecml, String ecmlType) {
 		try {
 			if (StringUtils.isBlank(ecml))
@@ -97,7 +129,15 @@ public class BaseFinalizer extends BasePipeline {
 					ContentErrorMessageConstants.ECML_FILE_WRITE_ERROR + " | [Unable to Write ECML File.]");
 		}
 	}
-	
+	/**
+	 * gets the ECML string from ECRF Object.
+	 * 
+	 * @param ecrf the ECRF
+	 * @param type the EcmlType
+	 * checks if ecmlType is JSON/ECML
+	 * converts ECRF to ecml
+	 * @return ecml
+	 */
 	protected String getECMLString(Plugin ecrf, String ecmlType) {
 		String ecml = "";
 		if (null != ecrf) {
@@ -113,6 +153,13 @@ public class BaseFinalizer extends BasePipeline {
 		return ecml;
 	}
 	
+	/**
+	 * Creates ZipPackage.
+	 * 
+	 * @param ZipFileName
+	 * @param basePath the filePath
+	 * creates zipPackage from the filePath
+	 */
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
 			LOGGER.info("Creating Zip File: " + zipFileName);
