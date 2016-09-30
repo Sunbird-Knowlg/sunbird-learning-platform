@@ -16,9 +16,6 @@ import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
 import com.ilimi.common.logger.LogHelper;
 
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONStringer;
-
 public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
 	private static LogHelper LOGGER = LogHelper.getInstance(CompositeSearchMessageProcessor.class.getName());
@@ -210,61 +207,5 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
 		LOGGER.info("Updated Index Document for " + uniqueId + " | document: " + indexDocument.size());
 		return indexDocument;
-	}
-
-	public static void main(String arg[]) throws Exception {
-		CompositeSearchMessageProcessor processor = new CompositeSearchMessageProcessor();
-		JSONBuilder builder = new JSONStringer();
-
-		/*
-		 * builder.object().key("operationType").value(Constants.
-		 * OPERATION_CREATE).key("graphId").value("hi")
-		 * .key("nodeGraphId").value("2").key("nodeUniqueId").value("hi_2").key(
-		 * "objectType")
-		 * .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
-		 * NODE_TYPE_DATA) .key("transactionData").object()
-		 * .key("addedProperties").array().object()
-		 * .key("propertyName").value("lemma") .key("value").value("Hi 2")
-		 * .endObject() .endArray() .endObject() .endObject();
-		 */
-
-		/*
-		 * builder.object().key("operationType").value(Constants.
-		 * OPERATION_CREATE).key("graphId").value("hi")
-		 * .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_s_1").
-		 * key( "objectType")
-		 * .value(Constants.OBJECT_TYPE_SYNSET).key("nodeType").value(Constants.
-		 * NODE_TYPE_DATA) .key("transactionData").object()
-		 * .key("addedProperties").array().object()
-		 * .key("propertyName").value("gloss") .key("value").value(
-		 * "Hi how are you") .endObject() .endArray() .endObject() .endObject();
-		 */
-
-		/*
-		 * builder.object().key("operationType").value(Constants.
-		 * OPERATION_DELETE).key("graphId").value("hi")
-		 * .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key(
-		 * "objectType")
-		 * .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
-		 * NODE_TYPE_DATA).endObject();
-		 */
-
-		/*builder.object().key("operationType").value(CompositeSearchConstants.OPERATION_UPDATE).key("graphId")
-				.value("hi").key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key("objectType")
-				.value(CompositeSearchConstants.OBJECT_TYPE_WORD).key("nodeType")
-				.value(CompositeSearchConstants.NODE_TYPE_DEFINITION).endObject();*/
-
-		builder.object().key("operationType").value(CompositeSearchConstants.OPERATION_UPDATE).key("graphId").value("hi")
-		.key("nodeGraphId").value(1).key("nodeUniqueId").value("hi_1").key("objectType")
-		.value("Word").key("nodeType").value(CompositeSearchConstants.NODE_TYPE_DATA)
-		.key("transactionData").object().key("addedProperties").object()
-		.key("lemma").value("இடையேயான கருத்து").key("status").value("Live").endObject()
-		.key("removedProperties").array().value("sourceTypes").endArray().key("addedTags").array()
-		.value("grade one").endArray().key("removedTags").array().value("grade three").endArray().endObject()
-		.endObject();
-		Map<String, Object> message = processor.mapper.readValue(builder.toString(),
-				new TypeReference<Map<String, Object>>() {
-				});
-		processor.processMessage(message);
 	}
 }
