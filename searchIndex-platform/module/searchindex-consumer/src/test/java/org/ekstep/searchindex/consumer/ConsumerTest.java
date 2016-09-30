@@ -4,12 +4,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.processor.AuditHistoryMeassageProcessor;
+import org.ekstep.searchindex.processor.CompositeSearchMessageProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.searchindex.util.PropertiesUtil;
@@ -30,21 +31,18 @@ import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IAuditHistoryDataService;
 
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
-
-//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
-//@RunWith(SpringJUnit4ClassRunner.class)
-//@WebAppConfiguration
-//@ContextConfiguration({ "classpath:servlet-context.xml" })
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration({ "classpath:servlet-context.xml" })
 public class ConsumerTest {
 
-	//@Autowired 
-	//private WebApplicationContext context;
 	@Autowired
 	IAuditHistoryDataService auditHistoryDataService;
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-	private static ProducerConfig producerConfig;
+
+	private CompositeSearchMessageProcessor messagePrcessor = new CompositeSearchMessageProcessor();
+	private AuditHistoryMeassageProcessor auditMessageProcessor = new AuditHistoryMeassageProcessor();
 	private static String TOPIC = PropertiesUtil.getProperty("topic");
 	final static String graphId = "test";
 	private ObjectMapper mapper = new ObjectMapper();
@@ -95,18 +93,18 @@ public class ConsumerTest {
 	
 	@BeforeClass
 	public static void setup(){
-		producerConfig = new ProducerConfig(getProperties());
 		ObjectDefinitionCache.setDefinitionNode("Word", propertyDefinition);
 		ObjectDefinitionCache.setRelationDefinition("Word", outRelationDefinition);		
 	}
 	
-	//@Test
+	@Test
 	public void create(){
 		try {
 			nodeId1 = "test_word" +System.currentTimeMillis() + "_" + Thread.currentThread().getId();
 			//String nodeId = "test_word_100";
 			String create_node_request1=create_node_req.replaceAll("NODEID", nodeId1);
-			sendToKafka(create_node_request1);
+			messagePrcessor.processMessage(create_node_request1);
+			auditMessageProcessor.processMessage(create_node_request1);
 			Thread.sleep(15000);
 			 String documentJson = elasticSearchUtil.getDocumentAsStringById(
 						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -126,13 +124,14 @@ public class ConsumerTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void createNodeProperties(){
 		try {
 			nodeId2 = "test_word" +System.currentTimeMillis() + "_" + Thread.currentThread().getId();
 			//String nodeId = "test_word_100";
 			String create_node_prp_request=create_node_prop_req.replaceAll("NODEID", nodeId2);
-			sendToKafka(create_node_prp_request);
+			messagePrcessor.processMessage(create_node_prp_request);
+			auditMessageProcessor.processMessage(create_node_prp_request);
 			Thread.sleep(15000);
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(
 						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -159,11 +158,13 @@ public class ConsumerTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void update(){
 		try {
 			String update_node_request1=update_node_req.replaceAll("NODEID", nodeId1);
-			sendToKafka(update_node_request1);
+			messagePrcessor.processMessage(update_node_request1);
+			auditMessageProcessor.processMessage(update_node_request1);
+
 			Thread.sleep(15000);
 			 String documentJson = elasticSearchUtil.getDocumentAsStringById(
 						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -198,11 +199,13 @@ public class ConsumerTest {
 	}
 	
 
-	//@Test
+	@Test
 	public void updateNodeRelation(){
 		try {
 			String update_node_relation_request=update_relation_req.replaceAll("NODEID", nodeId1).replaceAll("NODEID2", nodeId2);
-			sendToKafka(update_node_relation_request);
+			messagePrcessor.processMessage(update_node_relation_request);
+			auditMessageProcessor.processMessage(update_node_relation_request);
+			
 			Thread.sleep(15000);
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(
 						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -236,11 +239,13 @@ public class ConsumerTest {
 		}
 	}
 	
-	//@Test
+	@Test
 	public void updateNodeTag(){
 		try {
 			String update_node_tag_request=update_tag_req.replaceAll("NODEID", nodeId1);
-			sendToKafka(update_node_tag_request);
+			messagePrcessor.processMessage(update_node_tag_request);
+			auditMessageProcessor.processMessage(update_node_tag_request);
+
 			Thread.sleep(15000);
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(
 						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -272,18 +277,6 @@ public class ConsumerTest {
 			e.printStackTrace();
 		}
 	}	
-	private static void sendToKafka(String messageBody) {
-        kafka.javaapi.producer.Producer<String,String> producer = new kafka.javaapi.producer.Producer<String, String>(producerConfig);
-        KeyedMessage<String, String> message = new KeyedMessage<String, String>(TOPIC, messageBody);
-        producer.send(message);
-        producer.close();
-	}
-	
-    private static Properties getProperties()  { 
-    	Properties properties = new Properties();
-        properties.put("metadata.broker.list","localhost:9092");
-        properties.put("serializer.class","kafka.serializer.StringEncoder");
-        return properties;
-    }
+
     
 }

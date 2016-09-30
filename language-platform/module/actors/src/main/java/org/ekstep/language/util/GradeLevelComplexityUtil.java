@@ -40,13 +40,19 @@ public class GradeLevelComplexityUtil extends BaseLanguageManager {
 
 	/**
 	 * Validate new complexity of any GradeLevelComplexity is fallen within
-	 * existing range as per its gradeLevel and languageLevel First Second Third
-	 * (Language Level) Grade1 X1 X2 X3 Grade2 X4 X5 X6 Grade3 X7 X8 X9
+	 * existing range as per its gradeLevel and languageLevel 
+	 * 
+	 * 		  First Second Third (Language Level) 
+	 * Grade1 X1 	X2 		X3 
+	 * Grade2 X4 	X5 		X6 
+	 * Grade3 X7 	X8 		X9
 	 *
 	 * X1,X2,... represents AverageComplexity of that GradeLevelComplexity node
 	 *
-	 * X5 should be as below 1) X4 > X5 > X6 (X5 should be lesser than X4 and
-	 * greater then X6) 2) X2 < X5 < X8 (X5 should be greater than X2 and lesser
+	 * X5 should be as below
+	 *  1) X4 > X5 > X6 (X5 should be lesser than X4 and
+	 * greater then X6)
+	 *  2) X2 < X5 < X8 (X5 should be greater than X2 and lesser
 	 * than X8)
 	 *
 	 * @param languageId
