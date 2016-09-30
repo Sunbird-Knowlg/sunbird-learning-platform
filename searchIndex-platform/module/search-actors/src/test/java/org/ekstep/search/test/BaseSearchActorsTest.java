@@ -143,10 +143,12 @@ public class BaseSearchActorsTest {
 			addToIndex(id, content);
 		}
 		Map<String, Object> content = getContentTestRecord("do_10000031", 31);
+		content.put("name", "31 check name match");
 		content.put("description", "हिन्दी description");
 		addToIndex("do_10000031", content);
 		
 		content = getContentTestRecord("do_10000032", 32);
+		content.put("name", "check ends with value32");
 		addToIndex("do_10000032", content);
 	}
 	
