@@ -34,22 +34,17 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "composite-search.search";
 		LOGGER.info(apiId + " | Request : " + map);
-		try {
-			Request request = getRequest(map);
-			Map<String, Object> requestMap = (Map<String, Object>) map.get("request"); 
-			String queryString = (String) requestMap.get(CompositeSearchParams.query.name());
-			Object filters = requestMap.get(CompositeSearchParams.filters.name());
-			Object sort = requestMap.get(CompositeSearchParams.sort_by.name());
-			Response searchResponse = compositeSearchManager.search(request);
-			Response  response = compositeSearchManager.getSearchResponse(searchResponse);
-			String correlationId = UUID.randomUUID().toString();
-			int count = (int) response.getResult().get("count");
-			LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count);
-			return getResponseEntity(response, apiId, null, correlationId);
-		} catch (Exception e) {
-			LOGGER.error("Error: " + apiId, e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
+		Request request = getRequest(map);
+		Map<String, Object> requestMap = (Map<String, Object>) map.get("request"); 
+		String queryString = (String) requestMap.get(CompositeSearchParams.query.name());
+		Object filters = requestMap.get(CompositeSearchParams.filters.name());
+		Object sort = requestMap.get(CompositeSearchParams.sort_by.name());
+		Response searchResponse = compositeSearchManager.search(request);
+		Response  response = compositeSearchManager.getSearchResponse(searchResponse);
+		String correlationId = UUID.randomUUID().toString();
+		int count = (int) response.getResult().get("count");
+		LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count);
+		return getResponseEntity(response, apiId, null, correlationId);
 	}
 
 	@RequestMapping(value = "/count", method = RequestMethod.POST)
@@ -58,14 +53,9 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "composite-search.count";
 		LOGGER.info(apiId + " | Request : " + map);
-		try {
-			Request request = getRequest(map);
-			Response response = compositeSearchManager.count(request);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("Error: " + apiId, e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
+		Request request = getRequest(map);
+		Response response = compositeSearchManager.count(request);
+		return getResponseEntity(response, apiId, null);
 	}
 
 }
