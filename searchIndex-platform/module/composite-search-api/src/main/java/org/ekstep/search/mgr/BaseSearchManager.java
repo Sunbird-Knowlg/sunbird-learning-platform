@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.search.router.SearchRequestRouterPool;
 
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
@@ -30,6 +31,7 @@ public class BaseSearchManager {
         return setSearchContext(request, manager, operation);
     }
 
+    @CoverageIgnore
 	protected Response getSearchResponse(Request request, Logger logger) {
         ActorRef router = SearchRequestRouterPool.getRequestRouter();
         try {
@@ -46,6 +48,7 @@ public class BaseSearchManager {
         }
     }
 
+    @CoverageIgnore
     protected Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
         Response response = new Response();
         response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -53,6 +56,7 @@ public class BaseSearchManager {
         return response;
     }
 
+    @CoverageIgnore
     protected boolean checkError(Response response) {
         ResponseParams params = response.getParams();
         if (null != params) {
@@ -62,7 +66,8 @@ public class BaseSearchManager {
         }
         return false;
     }
-
+    
+    @CoverageIgnore
     protected String getErrorMessage(Response response) {
         ResponseParams params = response.getParams();
         if (null != params) {
@@ -71,6 +76,7 @@ public class BaseSearchManager {
         return null;
     }
 
+    @CoverageIgnore
     private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
         ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
