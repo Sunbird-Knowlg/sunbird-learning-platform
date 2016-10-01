@@ -23,6 +23,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.LogHelper;
 
 @Controller
 @RequestMapping("v2/config")
@@ -32,6 +33,8 @@ public class ConfigController extends BaseController {
 	public static final String folderName = "resources";
 	public static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
 
+	private static LogHelper LOGGER = LogHelper.getInstance(ConfigController.class.getName());
+	
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundles() {
@@ -50,6 +53,7 @@ public class ConfigController extends BaseController {
 					});
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
+					LOGGER.error("Error in fetching all ResourceBundles from s3"+ e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -60,8 +64,10 @@ public class ConfigController extends BaseController {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("ttl", 24.0);
+			LOGGER.info("get All ResourceBundles | Response: " + response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			LOGGER.error("getAllResources | Exception" + e.getMessage(), e);
 			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
@@ -73,6 +79,7 @@ public class ConfigController extends BaseController {
 		String apiId = "ekstep.config.resourebundles.find";
 
 		try {
+			LOGGER.info("ResourceBundle | GET | languageId" + languageId);
 			Response response = new Response();
 			String data = HttpDownloadUtility
 					.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
@@ -87,7 +94,9 @@ public class ConfigController extends BaseController {
 					Map<String, Object> map = mapper.readValue(data, new TypeReference<Map<String, Object>>() {
 					});
 					response.put(languageId, map);
+					LOGGER.info("getResourceBundle | successResponse" + response);
 				} catch (Exception e) {
+					LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
 					e.printStackTrace();
 				}
 				return getResponseEntity(response, apiId, null);
@@ -99,9 +108,11 @@ public class ConfigController extends BaseController {
 				response.setParams(params);
 				response.getResponseCode();
 				response.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
+				LOGGER.info("getResourceBundle | FailureResponse" + response);
 				return getResponseEntity(response, apiId, null);
 			}
 		} catch (Exception e) {
+			LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
 			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
@@ -126,8 +137,10 @@ public class ConfigController extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
+				LOGGER.error("Get Ordinals | Exception" + e.getMessage(), e);
 				e.printStackTrace();
 			}
+			LOGGER.info("Get Ordinals | Response" + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			e.printStackTrace();
