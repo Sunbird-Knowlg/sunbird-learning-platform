@@ -5,6 +5,7 @@ import java.util.Map;
 import org.ekstep.language.util.LogWordEventUtil;
 
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -33,8 +34,8 @@ public class LogTranslationLifecycleEvent extends BaseSystemCommand implements I
                 } else {
                     String wordId = tclObject1.toString();
                     Object obj2 = ReflectObject.get(interp, tclObject2);
-                    Map<String, Object> metadataMap = (Map<String, Object>) obj2;
-                    LogWordEventUtil.logWordLifecycleEvent(wordId, metadataMap);
+                    Node node = (Node) obj2;
+                    LogWordEventUtil.logWordLifecycleEvent(wordId, node.getMetadata());
                     interp.setResult(true);
                 }
             } catch (Exception e) {

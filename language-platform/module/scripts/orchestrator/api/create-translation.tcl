@@ -1,4 +1,5 @@
 package require java
+package require json
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node
@@ -36,17 +37,22 @@ proc getProperty {graph_node prop} {
 	return $property
 }
 
+set dictMap [java::new HashMap]
 set object_type "TranslationSet"
-set node_id $wordId
-set language_id $languageId
+set node_id $word_id
+set language_id $language_id
 set synset_list [java::new ArrayList]
 
-foreach synsetItem [dict keys $translations] {
-	set synset_map [dict get $translations $synsetItem]
-	$synset_list add $synsetItem
-	foreach item [dict keys $synset_map] {
-        set val [dict get $synset_map $item]
-		$synset_list add $val
+set testMap [java::cast HashMap $translations]
+puts "testing"
+
+java::for {String translationKey} [$translations keySet] {
+	puts "testing"
+	$synset_list add $translationKey
+    set testMap [java::cast HashMap [$translations get $translationKey]]
+	java::for {String language} [$testMap keySet] {
+		set synsetList [java::cast List [$testMap get $language]]
+		$synset_list addAll $synsetList
 	}
 	
 	set relationMap [java::new HashMap]
@@ -114,7 +120,6 @@ foreach synsetItem [dict keys $translations] {
 				$node setObjectType "TranslationSet"
 				set members [java::new ArrayList]
 				$members addAll $synset_list
-				$members add $synset_id
 				set graph_id "translations"
 				set object_type "TranslationSet"
 				set member_type "Synset"
@@ -135,10 +140,9 @@ if {$get_node_response_error} {
 }
 
 set word_node [get_resp_value $get_node_response "node"]
-set metadata [$word_node get "metadata"]
-set wordId [$word_node get "identifier"]
-set eventResp [log_translation_lifecycle_event $wordId $metadata]
+set eventResp [log_translation_lifecycle_event $word_id $word_node]
 
 return $searchResponse
+
 
 

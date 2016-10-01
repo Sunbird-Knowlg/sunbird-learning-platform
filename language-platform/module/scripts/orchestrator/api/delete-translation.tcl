@@ -21,16 +21,20 @@ proc getProperty {graph_node prop} {
 }
 
 set object_type "TranslationSet"
-set node_id $wordId
-set language_id $languageId
+set node_id $word_id
+set language_id $language_id
 set synset_list [java::new ArrayList]
 
-foreach synsetItem [dict keys $translations] {
-	set synset_map [dict get $translations $synsetItem]
-	$synset_list add $synsetItem
-	foreach item [dict keys $synset_map] {
-        set val [dict get $synset_map $item]
-		$synset_list add $val
+set testMap [java::cast HashMap $translations]
+puts "testing"
+
+java::for {String translationKey} [$translations keySet] {
+	puts "testing"
+	$synset_list add $translationKey
+    set testMap [java::cast HashMap [$translations get $translationKey]]
+	java::for {String language} [$testMap keySet] {
+		set synsetList [java::cast List [$testMap get $language]]
+		$synset_list addAll $synsetList
 	}
 
 	set relationMap [java::new HashMap]
@@ -89,9 +93,7 @@ if {$get_node_response_error} {
 }
 
 set word_node [get_resp_value $get_node_response "node"]
-set metadata [$word_node get "metadata"]
-set wordId [$word_node get "identifier"]
-set eventResp [log_translation_lifecycle_event $wordId $metadata]
+set eventResp [log_translation_lifecycle_event $word_id $word_node]
 
 return $searchResponse
 
