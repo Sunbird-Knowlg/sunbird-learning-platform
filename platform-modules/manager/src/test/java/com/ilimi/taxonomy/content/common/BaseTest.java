@@ -1,7 +1,10 @@
 package com.ilimi.taxonomy.content.common;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +50,8 @@ public class BaseTest {
 	public static void beforeTest() throws Exception {
 		System.out.println("Loading All Definitions...!!");
 		definitions = loadAllDefinitions(folder);
-		Thread.sleep(30000);
+		System.out.println("Loading all Nodes");
+		loadAllNodes();
 	}
 
 	@AfterClass
@@ -55,7 +59,24 @@ public class BaseTest {
 		System.out.println("deleting Graph...!!");
 		deleteGraph(TEST_GRAPH);
 	}
-
+ 
+	public static void loadAllNodes(){
+		InputStream in =  csvReader("src/test/resources/literacy/literacy_concepts.csv");
+		create(TEST_GRAPH, in);
+		InputStream in1 =  csvReader("src/test/resources/literacy/literacy_dimensions.csv");
+		create(TEST_GRAPH, in1);
+		InputStream in2 =  csvReader("src/test/resources/literacy/literacy_domain.csv");
+		create(TEST_GRAPH, in2);
+	}
+	public static InputStream csvReader(String file){
+		InputStream in = null; 
+		try {
+			 in = new FileInputStream(new File(file));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return in;
+	}
 	public static Map<String, String> loadAllDefinitions(File folder) {
 		for (File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory()) {
@@ -135,6 +156,18 @@ public class BaseTest {
 		Response resp = null;
 		try {
 			resp = taxonomyManager.updateDefinition(graphId, objectType);
+			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resp;
+	}
+	public static Response create(String graphId,InputStream in) {
+		Response resp = null;
+		try {
+			resp = taxonomyManager.create(graphId, in);
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
