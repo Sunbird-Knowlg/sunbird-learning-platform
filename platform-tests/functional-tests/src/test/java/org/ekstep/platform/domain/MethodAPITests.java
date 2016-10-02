@@ -11,10 +11,10 @@ public class MethodAPITests extends BaseTest {
 	
 	String JsonMethodSearchWithTagAndCode = "{ \"request\": {\"search\": {\"tags\": [\"QA\"],\"code\": \"LD4\" }}}";
 	String JsonMethodSearchWithTag = "{ \"request\": {\"search\": {\"tags\": [\"QA\"] }}}";
-	String JsonSaveMethodValid ="{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"Num:C1:QA\"}]}}}";
+	String JsonSaveMethodValid ="{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"LM1\"}]}}}";
 	String JsonSaveMethodWithEmptyParent = "{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"\"}]}}}";
 	String JsonSaveMethodWithInvalidParent = "{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"num\"}]}}}"; 
-	String JsonSaveMethodWithConcepts = "{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"Num:C1:QA_test\"}],\"concepts\": [{\"identifier\": \"concept_Live\"},{\"identifier\": \"concept_active\"}]}}}";
+	String JsonSaveMethodWithConcepts = "{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"LM1\"}],\"concepts\": [{\"identifier\": \"Num:C3:SC1\"}]}}}";
 	String JsonSaveMethodWithDomainAsConceptAndWithNonExistingConcept ="{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"Num:C1:QA_test\"}],\"concepts\": [{\"identifier\": \"literacy\"},{\"identifier\": \"concept_act\"}]}}}";
 	String JsonUpdateMethodValid = "{\"request\":{ \"object\":{ \"description\":\"Updated QA\",\"name\":\"Sort Collections QA updated\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"cp1\", \"cp2\"],\"interactivity\": [\"in1\", \"in2\"],\"parent\": [{\"identifier\": \"Num:C1:QA\"}]}}}";
 	
@@ -25,9 +25,9 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods").
+			get("/learning/v2/domains/literacy/methods").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 	        //body("result.dimensions.status", hasItems(liveStatus));
 	}
@@ -39,7 +39,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/Num:C1:QA").
+			get("/learning/v2/domains/literacy/methods/LM1").
 		then().
 			spec(get200ResponseSpec());
 	}
@@ -51,7 +51,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/abc/methods").
+			get("/learning/v2/domains/abc/methods").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -63,7 +63,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/xyz").
+			get("/learning/v2/domains/literacy/methods/xyz").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -81,9 +81,9 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("v2/domains/literacy/methods").
+			post("/learning/v2/domains/literacy/methods").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 		extract().
 	    	response(); 
@@ -97,9 +97,9 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/"+methodId).
+			get("/learning/v2/domains/literacy/methods/"+methodId).
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());		
 	}
 	
@@ -115,9 +115,9 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("v2/domains/literacy/methods").
+			post("/learning/v2/domains/literacy/methods").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 		extract().
 	    	response(); 
@@ -131,9 +131,9 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/"+methodId).
+			get("/learning/v2/domains/literacy/methods/"+methodId).
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());		
 	}
 	
@@ -148,28 +148,10 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("v2/domains/literacy/methods").
+			post("/learning/v2/domains/literacy/methods").
 		then().
-			log().all().
-			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags","CLIENT_ERROR",""));
-		
-		//getting the identifier of Method from Json
-		System.out.println(JsonSaveMethodWithEmptyParent);
-		int startIndexOfIdentifier = JsonSaveMethodWithEmptyParent.indexOf("identifier");
-		int startIndexOfTags = JsonSaveMethodWithEmptyParent.indexOf("skills");
-		String methodId = JsonSaveMethodWithEmptyParent.substring(startIndexOfIdentifier+13,startIndexOfTags-3);
-		System.out.println(methodId);
-		
-		// verify that the method is not saved in DB. 
-		setURI();
-		given().
-			spec(getRequestSpec(contentType,validuserId)).
-		when().
-			get("v2/domains/literacy/methods/"+methodId).
-		then().
-			log().all().
-			spec(get404ResponseSpec());			
+			//log().all().
+			spec(get400ResponseSpec());			
 	}
 	
 	@Test
@@ -183,28 +165,10 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("v2/domains/literacy/methods").
+			post("/learning/v2/domains/literacy/methods").
 		then().
-			log().all().
-			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags","CLIENT_ERROR",""));
-		
-		//getting the identifier of Method from Json
-		System.out.println(JsonSaveMethodWithEmptyParent);
-		int startIndexOfIdentifier = JsonSaveMethodWithEmptyParent.indexOf("identifier");
-		int startIndexOfTags = JsonSaveMethodWithEmptyParent.indexOf("skills");
-		String methodId = JsonSaveMethodWithEmptyParent.substring(startIndexOfIdentifier+13,startIndexOfTags-3);
-		System.out.println(methodId);
-		
-		// verify that the method is not saved in DB. 
-		setURI();
-		given().
-			spec(getRequestSpec(contentType,validuserId)).
-		when().
-			get("v2/domains/literacy/methods/"+methodId).
-		then().
-			log().all().
-			spec(get404ResponseSpec());			
+			//log().all().
+			spec(get400ResponseSpec());
 	}
 	
 	@Test
@@ -218,28 +182,10 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("v2/domains/literacy/methods").
+			post("/learning/v2/domains/literacy/methods").
 		then().
-			log().all().
-			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags","CLIENT_ERROR",""));
-				
-		//getting the identifier of Method from Json
-		System.out.println(JsonSaveMethodWithInvalidParent);
-		int startIndexOfIdentifier = JsonSaveMethodWithInvalidParent.indexOf("identifier");
-		int startIndexOfTags = JsonSaveMethodWithInvalidParent.indexOf("skills");
-		String methodId = JsonSaveMethodWithInvalidParent.substring(startIndexOfIdentifier+13,startIndexOfTags-3);
-		System.out.println(methodId);
-		
-		// verify that the method is not saved in DB. 
-		given().
-			spec(getRequestSpec(contentType,validuserId)).
-		when().
-			get("v2/domains/literacy/methods/"+methodId).
-		then().
-			log().all().
-			spec(get404ResponseSpec());		
-
+			//log().all().
+			spec(get400ResponseSpec());
 	}
 	
 	//Search Method
@@ -254,83 +200,9 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				post("v2/domains/literacy/methods/search").
+				post("/learning/v2/domains/literacy/methods/search").
 			then().
-			log().all().
-			spec(get200ResponseSpec());
-			//body("id", equalTo("orchestrator.searchDomainObjects"));
-	}
-		
-	//Update Method
-	@Test
-	public void updateMethodValidInputsExpectSuccess200()
-	{
-		//saveMethod API call 
-		setURI();
-		Response response1 = 
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(JsonSaveMethodValid).
-		with().
-			contentType(JSON).
-		when().
-			post("v2/domains/literacy/methods").
-		then().
-			log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response(); 
-				
-		//getting the identifier of created Method
-		JsonPath jp1 = response1.jsonPath();
-		String methodId = jp1.get("result.node_id");
-		
-		//updating the above created method
-		setURI();
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(JsonUpdateMethodValid).
-		with().
-			contentType("application/json").
-		when().
-			patch("v2/domains/literacy/methods/"+methodId).
-		then().
-			log().all().
-			spec(get200ResponseSpec());
-	}	
-		
-	//Delete Method
-	@Test
-	public void deleteMethodValidSuccess200()
-	{
-		//saveMethod API call 
-		setURI();
-		Response response1 = 
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(JsonSaveMethodValid).
-		with().
-			contentType(JSON).
-		when().
-			post("v2/domains/literacy/methods").
-		then().
-			log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response(); 
-				
-		//getting the identifier of created Method
-		JsonPath jp1 = response1.jsonPath();
-		String methodId = jp1.get("result.node_id");
-			
-		//deleting the above created method
-		setURI();
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-		when().
-			delete("v2/domains/literacy/methods/"+methodId).
-		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 			//body("id", equalTo("orchestrator.searchDomainObjects"));
 	}

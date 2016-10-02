@@ -22,9 +22,9 @@ public class ToolsAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/tools/complexityMeasures").
+			post("language/v1/language/tools/complexityMeasures").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 	}
 	
@@ -38,14 +38,14 @@ public class ToolsAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/tools/complexityMeasures").
+			post("language/v1/language/tools/complexityMeasures").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 	}
 	
 	@Test
-	public void  getLexileMeasuresInvalidLanguageExpect4xx() {
+	public void  getLexileMeasuresInvalidLanguageExpect500() {
 		setURI();
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
@@ -53,10 +53,10 @@ public class ToolsAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/tools/complexityMeasures").
+			post("language/v1/language/tools/complexityMeasures").
 		then().
-			log().all().
-			spec(get400ResponseSpec());
+			//log().all().
+			spec(get500ResponseSpec());
 	}
 	
 	

@@ -9,7 +9,7 @@ import static org.hamcrest.CoreMatchers.*;
 public class DomainAPITests extends BaseTest
 {
 	
-	String JsonInPutForConceptSearchWithTag = "{ \"request\": {\"search\": {\"tags\": [\"Class 4\"],\"resultSize\": 5 }}}";
+	String JsonInPutForConceptSearchWithTag = "{\"request\":{\"search\":{\"status\":\"Live\",\"limit\":10}}}";
 	int noOfLiveDomains = 2;
 		
 	//Get Domains
@@ -20,28 +20,13 @@ public class DomainAPITests extends BaseTest
 		given().	
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains").
+			get("/learning/v2/domains").
 		then().
-			log().all().
+			//log().all()
 			spec(get200ResponseSpec()).
 	        body("result.domains.size()", is(noOfLiveDomains)).
-	        body("result.domains.status", hasItems(liveStatus)).
-			body("result.domains.name", hasItems("Numeracy","Literacy V2"));
-	}
-	
-	@Ignore //considered after feb 11th release
-	@Test
-	public void getDomainsWithInvalidUsernameExpectHTTP4xxError()  
-	{
-		setURI();
-		given().
-			spec(getRequestSpec(contentType,invalidUserId)).
-		when().
-			get("v2/domains").
-		then().
-			log().all().
-			spec(get400ResponseSpec());
-	}
+	        body("result.domains.status", hasItems("Live"));
+		}
 	
 	@Test
 	public void getDomainsWithHashExpectHTTP500Error()  
@@ -50,24 +35,23 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains#").
+			get("/learning/v2/domains#").
 		then().
-			log().all().
+			//log().all()
 			spec(get500ResponseSpec());
 	}
 	
-	@Ignore //considered after feb 11th release
 	@Test
-	public void getDomainsEndingWithPercentileExpect400()
+	public void getDomainsEndingWithPercentileExpect500()
 	{
 		setURI();
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains%").
+			get("/learning/v2/domains%").
 		then().
-			log().all().
-			spec(get400ResponseSpec());
+			//log().all()
+			spec(get500ResponseSpec());
 	}
 	
 	@Test
@@ -77,9 +61,9 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains$").
+			get("/learning/v2/domains$").
 		then().
-			log().all().
+			//log().all()
 			spec(get500ResponseSpec());
 	}
 	
@@ -91,7 +75,7 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy").
+			get("/learning/v2/domains/literacy").
 		then().
 			spec(get200ResponseSpec()).
 			body("result.domain.status", equalTo(liveStatus));
@@ -104,14 +88,13 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/nume").
+			get("/learning/v2/domains/nume").
 		then().
-			log().all().
+			//log().all()
 			spec(get404ResponseSpec());
 	}
 		
 	//Search Domains
-	@Ignore
 	@Test
 	public void searchDomainsExpectSuccess()
 	{
@@ -122,49 +105,8 @@ public class DomainAPITests extends BaseTest
 			with().
 				contentType(JSON).
 		when().
-			post("v2/domains/numeracy").
+			post("/learning/v2/domains/numeracy/methods/search").
 		then().
-			log().all().
-			body("id", equalTo("orchestrator.searchDomainObjects"));
-	}
-	
-	//Get Domain Graph
-	@Test
-	public void getDomainGraphExpectSuccess200()
-	{
-		setURI();
-		given().
-			spec(getRequestSpec(contentType,validuserId)).
-		when().
-			get("v2/domains/graph/literacy").
-		then().
-			//log().all().
 			spec(get200ResponseSpec());
-	}
-
-	@Test
-	public void getDomainGraphOfNonExistingDomainExpect4xx()
-	{
-		setURI();
-		given().
-			spec(getRequestSpec(contentType,validuserId)).
-		when().
-			get("v2/domains/graph/xyz").
-		then().
-			//log().all().
-			spec(get404ResponseSpec());
-	}
-		
-	@Test
-	public void getDomainGraphWithoutHeaderExpect400()
-	{
-		setURI();
-		given().
-			//spec(getRequestSpec(contentType,validuserId)).
-		when().
-			get("v2/domains/graph/literacy").
-		then().
-			log().all().
-			spec(get400ResponseSpec());
 	}
 }
