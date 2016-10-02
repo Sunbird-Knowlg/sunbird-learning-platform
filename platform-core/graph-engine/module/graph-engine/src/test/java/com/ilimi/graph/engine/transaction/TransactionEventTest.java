@@ -6,14 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
-import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.neo4j.graphdb.GraphDatabaseService;
 
@@ -47,7 +41,7 @@ public class TransactionEventTest {
     final static String word1 = "test_word1";
     final static String word2 = "test_word2";
 
-	@BeforeClass
+//	@BeforeClass
     public static void setup(){
 		createGraph();
 		message =  new KafkaMessage();
@@ -55,13 +49,13 @@ public class TransactionEventTest {
 		consumer.start();
     }
     
-	@AfterClass
+//	@AfterClass
 	public static void teardown(){
 		deleteGraph();
 		consumer.stopExecuting();
 	}
 	
-	@Before
+//	@Before
 	public void init() throws Exception{
 		reqRouter = TestUtil.initReqRouter();
 		Future<Object> defNodeRes = saveDefinitionNode();
@@ -69,7 +63,7 @@ public class TransactionEventTest {
         Thread.sleep(5000);
 	}
 	
-	@After
+//	@After
 	public void clean(){
 		message.flush();
 	}
@@ -90,7 +84,7 @@ public class TransactionEventTest {
 	
 
 	
-	@Test
+//	@Test
 	public void createNode1(){
         String nodeId = word1;
         String objectType = "Word";
@@ -99,7 +93,7 @@ public class TransactionEventTest {
         handleFutureBlock(nodeReq, "failed"); //lemma is required property of node 'Word
 	}
 	
-	@Test
+//	@Test
 	public void createNode2(){
         try {
             String nodeId = word1;
@@ -127,7 +121,7 @@ public class TransactionEventTest {
         
 	}
 	
-	@Test
+//	@Test
 	public void createNode3(){
         try {
             String nodeId = word2;
@@ -157,7 +151,7 @@ public class TransactionEventTest {
         
 	}
 	
-	@Test
+//	@Test
 	public void updateNode() {
 		
         try {
@@ -194,7 +188,7 @@ public class TransactionEventTest {
 
 	}
 	
-	@Test
+//	@Test
 	public void updateNodeWithRelatoin() {
 		
 
@@ -247,7 +241,7 @@ public class TransactionEventTest {
 
 	}
 	
-	@Test
+//	@Test
 	public void updateNodeWithRelatoinRemoval() {
 		
 
@@ -299,7 +293,8 @@ public class TransactionEventTest {
 		}
 
 	}
-	@Test
+	
+//	@Test
 	public void updateNodeWithTags() {
 		
         try {
@@ -334,7 +329,7 @@ public class TransactionEventTest {
 
 	}
 	
-	@Test
+//	@Test
 	public void updateNodeWithTagsRemoval() {
 		
         try {

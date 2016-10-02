@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 @Component
@@ -21,6 +22,7 @@ public class ContentMimeTypeFactory {
      * @param mimeType the mime type
      * @return the impl for service
      */
+    @CoverageIgnore
     public IMimeTypeManager getImplForService(String mimeType){
     	IMimeTypeManager manager = AssetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {

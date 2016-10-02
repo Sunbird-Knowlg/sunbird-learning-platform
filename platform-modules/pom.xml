@@ -54,11 +54,17 @@
                         	<format>xml</format>
                     	</formats>
                     	<instrumentation>
+                    		<ignoreTrivial>true</ignoreTrivial>
+							<ignoreMethodAnnotations>
+								<ignoreMethodAnnotation>com.ilimi.common.dto.CoverageIgnore</ignoreMethodAnnotation>
+							</ignoreMethodAnnotations>
             				<excludes>
             					<exclude>**/common/**</exclude>
               					<exclude>**/dto/**</exclude>
               					<exclude>**/enums/**</exclude>
+              					<exclude>**/pipeline/**</exclude>
               					<exclude>**/servlet/**</exclude>
+              					<exclude>**/interceptor/**</exclude>
             				</excludes>
           				</instrumentation>
           				<check>

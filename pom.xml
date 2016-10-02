@@ -69,6 +69,9 @@
             					<exclude>**/common/**</exclude>
               					<exclude>**/dto/**</exclude>
               					<exclude>**/enums/**</exclude>
+              					<exclude>**/servlet/**</exclude>
+              					<exclude>**/interceptor/**</exclude>
+              					<exclude>**/HealthCheckController**</exclude>
             				</excludes>
           				</instrumentation>
           				<check>

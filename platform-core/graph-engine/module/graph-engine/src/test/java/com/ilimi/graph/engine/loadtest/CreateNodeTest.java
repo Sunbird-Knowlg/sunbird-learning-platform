@@ -27,7 +27,7 @@ public class CreateNodeTest {
     
     private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
     
-    @BeforeTest
+    //@BeforeTest
     public void init() throws Exception {
         String logFileName = SCENARIO_NAME +"_" + System.currentTimeMillis();
         System.out.println("Logs are captured in "+logFileName+".log file.");
@@ -52,7 +52,7 @@ public class CreateNodeTest {
         return req;
     }
 
-    @AfterTest
+    //@AfterTest
     public void destroy() throws Exception {
         Thread.sleep(10000);
     }

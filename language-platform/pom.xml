@@ -104,14 +104,24 @@
                         	<format>xml</format>
                     	</formats>
                     	<instrumentation>
+                    		<ignoreTrivial>true</ignoreTrivial>
+							<ignoreMethodAnnotations>
+								<ignoreMethodAnnotation>com.ilimi.common.dto.CoverageIgnore</ignoreMethodAnnotation>
+							</ignoreMethodAnnotations>
             				<excludes>
             					<exclude>**/common/**</exclude>
               					<exclude>**/dto/**</exclude>
               					<exclude>**/enums/**</exclude>
               					<exclude>**/batch/**</exclude>
               					<exclude>**/models/**</exclude>
+              					<exclude>**/model/**</exclude>
               					<exclude>**/importer/**</exclude>
               					<exclude>**/services/**</exclude>
+              					<exclude>**/servlet/**</exclude>
+              					<exclude>**/interceptor/**</exclude>
+              					<exclude>**/Base**</exclude>
+              					<exclude>**/ControllerUtil**</exclude>
+              					<exclude>**/Indowordnet**</exclude>
               					<!-- Import is not yet implemented -->
               					<exclude>**/Import*/**</exclude>
             				</excludes>

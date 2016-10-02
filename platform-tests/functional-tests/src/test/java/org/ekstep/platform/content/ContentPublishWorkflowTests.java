@@ -22,8 +22,6 @@ import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONException;
 //import org.hamcrest.CoreMatchers;
 import org.json.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
