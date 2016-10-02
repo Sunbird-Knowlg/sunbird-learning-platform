@@ -17,11 +17,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.ilimi.common.dto.CoverageIgnore;
+
 public class ContentDefinitionCsv {
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	private static final String SPACE_SEPERATOR = "";
 	static Set<String> propertySet = new HashSet<String>();
 	
+	@CoverageIgnore
 	public static void main(String[] args) {
 
 		try {
@@ -67,6 +70,7 @@ public class ContentDefinitionCsv {
 
 	// all properties details
 	@SuppressWarnings("unchecked")
+	@CoverageIgnore
 	public static void getPropertiesDetails(Map<String, Object> definitionMap, CSVPrinter csvFilePrinter) {
 		for (Object properties : (List<String>) definitionMap.get("properties")) {
 
@@ -91,6 +95,7 @@ public class ContentDefinitionCsv {
 
 	// all ranges
 	@SuppressWarnings("unchecked")
+	@CoverageIgnore
 	public static void getAllRange(Map<String, Object> definitionMap, CSVPrinter csvFilePrinter) {
 		for (Object properties : (List<String>) definitionMap.get("properties")) {
 			List<String> range = new ArrayList<String>();
@@ -120,6 +125,7 @@ public class ContentDefinitionCsv {
 
 	// inRelations
 	@SuppressWarnings("unchecked")
+	@CoverageIgnore
 	public static void getAllRelations(Map<String, Object> definitionMap, CSVPrinter csvFilePrinter) {
 		String title = "";
 		String description = "";
@@ -160,6 +166,7 @@ public class ContentDefinitionCsv {
 	}
 
 	// system tags
+	@CoverageIgnore
 	public static void getSystemTags(CSVPrinter csvFilePrinter) {
 		List<String> csvData = new ArrayList<String>();
 		csvData.add("tags");
@@ -173,6 +180,7 @@ public class ContentDefinitionCsv {
 	}
 
 	// write to csv file
+	@CoverageIgnore
 	public static File csvWriter(Map<String, Object> definitionMap) throws IOException {
 
 		final Object[] FILE_HEADER = { "KEY", "DESCRIPTION", "en", "ka", "hi", "te", "ta" };

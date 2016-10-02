@@ -11,11 +11,13 @@ import org.ekstep.common.util.AWSUploader;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.ilimi.common.dto.CoverageIgnore;
 import com.opencsv.CSVReader;
 
 public class ResourceBundleJson {
 	static Map<String, Integer> langHdr = new HashMap<String, Integer>();
 
+	@CoverageIgnore
 	public static void main(String[] args) {
 
 		Map<String, HashMap<String, String>> mapList = new HashMap<String, HashMap<String, String>>();
@@ -27,6 +29,7 @@ public class ResourceBundleJson {
 		}
 	}
 
+	@CoverageIgnore
 	private static Map<String, HashMap<String, String>> readObjectsFromCsv(File input,
 			Map<String, HashMap<String, String>> mapList) throws IOException {
 		CSVReader reader = new CSVReader(new FileReader(input));
@@ -43,6 +46,7 @@ public class ResourceBundleJson {
 		return mapList;
 	}
 
+	@CoverageIgnore
 	private static Map<String, HashMap<String, String>> readRowFromCsv(CSVReader reader,
 			HashMap<String, Integer> langHdr, Map<String, HashMap<String, String>> mapList) {
 		String[] nextLine;
@@ -81,6 +85,7 @@ public class ResourceBundleJson {
 		return mapList;
 	}
 
+	@CoverageIgnore
 	private static void writeAsJson(String file, Map<String, String> map, String Key) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
