@@ -68,6 +68,7 @@ proc getInNodeRelationIds {graph_node relationType property} {
 	if {$hasRelations} {
 		java::for {Relation relation} $inRelations {
 			if {[java::prop $relation "startNodeObjectType"] == $relationType} {
+				puts "getting synset id"
 				set prop_value [java::prop $relation $property]
 				$relationIds add $prop_value
 			}
@@ -77,8 +78,8 @@ proc getInNodeRelationIds {graph_node relationType property} {
 }
 
 set object_type "TranslationSet"
-set node_id $wordId
-set language_id $languageId
+set node_id $word_id
+set language_id $language_id
 set get_node_response [getDataNode $language_id $node_id]
 set get_node_response_error [check_response_error $get_node_response]
 if {$get_node_response_error} {
@@ -87,9 +88,9 @@ if {$get_node_response_error} {
 
 
 set word_node [get_resp_value $get_node_response "node"]
-set synonym_list [getInNodeRelationIds $graph_node "Synset" "startNodeId"]
+set synonym_list [getInNodeRelationIds $word_node "Synset" "startNodeId"]
 set synset_list [java::new ArrayList]
-$synset_list add synonym_list
+$synset_list addAll $synonym_list
 
 set relationMap [java::new HashMap]
 $relationMap put "name" "hasMembers"
@@ -115,9 +116,8 @@ if {$check_error} {
 	set result_map [java::new HashMap]
 	java::try {
 		set graph_nodes [get_resp_value $search_response "node_list"]
-		set set_metadata [java::new HashMap]
-		set word_id_list [java::new ArrayList]
 		java::for {Node graph_node} $graph_nodes {
+		puts "nodes found"
 			set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId" $languages]
 			set not_empty_list [isNotEmpty $synset_ids]
 			if {$not_empty_list} {

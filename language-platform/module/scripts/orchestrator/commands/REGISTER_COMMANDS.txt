@@ -73,3 +73,9 @@ node registerCommand.js commands/register-validateComplexityRange.json register
 node registerCommand.js commands/register-getGradeLevelComplexity.json register
 
 node registerCommand.js commands/register-logWordTranslationEvent.json register
+
+node registerCommand.js commands/register-multiLanguageWordSearch.json register
+
+node registerCommand.js commands/register-createProxyNode.json register
+
+node registerCommand.js commands/register-getProxyNode.json register

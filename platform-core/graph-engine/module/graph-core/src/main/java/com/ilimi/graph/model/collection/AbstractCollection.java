@@ -160,7 +160,7 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
                     if (manager.validateRequired(nodes)) {
                         if (memberIds.size() == nodes.size()) {
                             for (Node node : nodes) {
-                                if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType()))
+                                if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType()) && !StringUtils.equals(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType()))
                                     return false;
                                 if (StringUtils.isNotBlank(getMemberObjectType())) {
                                     if (!StringUtils.equals(getMemberObjectType(), node.getObjectType()))

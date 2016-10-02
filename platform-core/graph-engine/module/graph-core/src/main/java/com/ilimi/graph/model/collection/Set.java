@@ -1,6 +1,7 @@
 package com.ilimi.graph.model.collection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -118,6 +119,10 @@ public class Set extends AbstractCollection {
     public Node toNode() {
         Node node = new Node(getNodeId(), getSystemNodeType(), getFunctionalObjectType());
         Map<String, Object> metadata = getMetadata();
+        if(metadata==null)
+        {
+        	metadata = new HashMap<String, Object>();
+        }
         metadata.put(SET_TYPE_KEY, getSetType());
         if (null != criteria) {
             metadata.put(SET_OBJECT_TYPE_KEY, criteria.getObjectType());

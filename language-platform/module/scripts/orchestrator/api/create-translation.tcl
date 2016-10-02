@@ -37,14 +37,16 @@ proc getProperty {graph_node prop} {
 	return $property
 }
 
-set dictMap [java::new HashMap]
 set object_type "TranslationSet"
 set node_id $word_id
 set language_id $language_id
 set synset_list [java::new ArrayList]
+set graph_synset_list [java::new ArrayList]
+set proxyType "Synset"
 
 set testMap [java::cast HashMap $translations]
 puts "testing"
+set graph_id "translations"
 
 java::for {String translationKey} [$translations keySet] {
 	puts "testing"
@@ -53,6 +55,32 @@ java::for {String translationKey} [$translations keySet] {
 	java::for {String language} [$testMap keySet] {
 		set synsetList [java::cast List [$testMap get $language]]
 		$synset_list addAll $synsetList
+	}
+	
+	set proxyResp [getDataNodes $graph_id $synset_list]
+	set proxy_nodes [get_resp_value $proxyResp "node_list"]
+	set proxyExists [isNotEmpty $proxy_nodes]
+	if {$proxyExists} {
+		java::for {Node proxy_node} $proxy_nodes {
+		set proxy_id [getProperty $proxy_node "identifier"]
+		puts "$proxy_id-->"
+		$graph_synset_list add $proxy_id
+	}
+	} else {
+		puts "data nodes empty"
+	}
+	java::for {String synset_id} $synset_list {
+		if {![$graph_synset_list contains $synset_id]} {
+			set resp_def_node [getDefinition $graph_id $proxyType]
+			set def_node [get_resp_value $resp_def_node "definition_node"]
+			set synsetMap [java::new HashMap]
+			$synsetMap put "objectType" $proxyType
+			$synsetMap put "graphId" $graph_id
+			$synsetMap put "identifier" $synset_id
+			set synset_obj [convert_to_graph_node $synsetMap $def_node]
+			set create_response [createProxyNode $graph_id $synset_obj]
+			puts $synset_id
+		}
 	}
 	
 	set relationMap [java::new HashMap]
@@ -67,8 +95,6 @@ java::for {String translationKey} [$translations keySet] {
 	$criteria_map put "nodeType" "SET"
 	$criteria_map put "objectType" $object_type
 	$criteria_map put "relationCriteria" $criteria_list
-
-	set graph_id "translations"
 
 	set search_criteria [create_search_criteria $criteria_map]
 	set search_response [searchNodes $graph_id $search_criteria]
@@ -85,7 +111,7 @@ java::for {String translationKey} [$translations keySet] {
 			
 				set graph_node [$graph_nodes get 0]
 				set collection_id [getProperty $graph_node "identifier"]
-				set graph_id "translations"
+				
 				set collection_type "SET"
 				set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId"]
 				set not_empty_list [isNotEmpty $synset_ids]
@@ -120,10 +146,8 @@ java::for {String translationKey} [$translations keySet] {
 				$node setObjectType "TranslationSet"
 				set members [java::new ArrayList]
 				$members addAll $synset_list
-				set graph_id "translations"
-				set object_type "TranslationSet"
 				set member_type "Synset"
-				set searchResponse [createSet $node $members $graph_id $object_type $member_type]
+				set searchResponse [createSet $graph_id $members $object_type $member_type $node]
 			}
 			
 

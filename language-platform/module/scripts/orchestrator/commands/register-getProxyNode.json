@@ -1,0 +1,21 @@
+{
+  "name": "getProxyNode",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "graph_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+      "name": "node_id",
+      "index": 1,
+      "routingParam": true
+    }
+  ],
+  "actorPath": {
+    "manager": "com.ilimi.graph.engine.mgr.impl.SearchManagerImpl",
+    "operation": "getProxyNode",
+    "router": "SEARCH_REQUEST_ROUTER"
+  }
+}
