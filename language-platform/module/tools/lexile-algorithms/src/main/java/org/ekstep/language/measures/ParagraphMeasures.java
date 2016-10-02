@@ -465,7 +465,7 @@ public class ParagraphMeasures {
         }
     }
     
-    private static List<Map<String, String>> getSuitableGradeSummaryInfo(String languageId, Double value){
+    public static List<Map<String, String>> getSuitableGradeSummaryInfo(String languageId, Double value){
     	List<com.ilimi.graph.dac.model.Node> suitableGrade = GradeComplexityCache.getInstance().getSuitableGrades(languageId, value);
         List<Map<String, String>> suitableGradeSummary = new ArrayList<Map<String,String>>();
         if(suitableGrade!=null) {

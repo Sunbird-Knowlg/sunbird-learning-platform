@@ -50,7 +50,7 @@ if {$check_error} {
 	return $text_complexity_response
 } 
 set text_complexity [get_resp_value $text_complexity_response "text_complexity"]
-set text_mean_complexity [java::prop $text_complexity "meanComplexity"]
+set text_mean_complexity [$text_complexity get "meanComplexity"]
 
 set resp_def_node [getDefinition $graph_id $object_type]
 set check_error [check_response_error $resp_def_node]
