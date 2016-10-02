@@ -43,7 +43,7 @@ public class GraphImportTest {
         System.out.println("Response from request router: " + response);
     }
     
-    @Test(priority =1, dataProvider="definitions", dataProviderClass=GraphImportDataProvider.class)
+    //@Test(priority =1, dataProvider="definitions", dataProviderClass=GraphImportDataProvider.class)
     public void testImportDefinitions(String graphId, String fileName, String message) {
         try {
             long t1 = System.currentTimeMillis();
@@ -67,7 +67,7 @@ public class GraphImportTest {
     }
     
     
-    @Test(priority =2, dataProvider="csvdata", dataProviderClass=GraphImportDataProvider.class)
+    //@Test(priority =2, dataProvider="csvdata", dataProviderClass=GraphImportDataProvider.class)
     public void testImportData(String graphId, String fileName, String message) {
         try {
             Request request = new Request();

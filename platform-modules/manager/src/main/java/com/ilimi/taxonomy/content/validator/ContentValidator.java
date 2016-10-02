@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
@@ -85,6 +86,7 @@ public class ContentValidator {
 	 * @checks metadata, MimeType, artifact url and Content body
 	 * @return true if ContentNode meets all @checks else return false
 	 */
+	@CoverageIgnore
 	public boolean isValidContentNode(Node node) {
 		boolean isValidContentNode = false;
 		try {
@@ -208,6 +210,7 @@ public class ContentValidator {
 	 * @checks ContentBody and artifact-url
 	 * @return true if the ContentNode meets all @checks else return false
 	 */
+	@CoverageIgnore
 	private boolean isAllRequiredFieldsAvailable(Node node) {
 		boolean isValid = false;
 		if (null != node) {
