@@ -31,29 +31,34 @@ proc getNodeRelationIds {graph_node relationType property languages} {
 	set outRelations [getOutRelations $graph_node]
 	set hasRelations [isNotEmpty $outRelations]
 	if {$hasRelations} {
+		
 		java::for {Relation relation} $outRelations {
+			set index 0
 			if {[java::prop $relation "endNodeObjectType"] == $relationType} {
+				puts "entering if"
 				set prop_value [java::prop $relation $property]
-				set idArray [$prop_value split ":"]
-				set arr_instance [java::instanceof $idArray {String[]}]
-				set index [expr 0 ]
-				if {$arr_instance == 1} {			
-					set idArray [java::cast {String[]} $idArray]
-				set idArrayLength [$idArray length]
-				if {$idArrayLength == 1} {
-					set idArray [$prop_value split "_"]
-					set idArrayLength [$idArray length]
+				puts $prop_value
+				set idArray [split $prop_value ":"]
+				puts "split successfully"
+				foreach entry $idArray {
+				 set languageContains [$languages contains $entry]
+					if {$languageContains == 1} {
+					puts "yes"
+					$relationIds add $prop_value
+				 }
+				 set index [expr $index + 1]
 				}
-				
-				if {$idArrayLength > 1} {
-					set language [$idArray get $index]
-					set synsetContains [$languages contains $language]
-					if {$synsetContains == 1} {
+				puts $index
+				if {$index == 1} {
+					set idArray [split $prop_value "_"]
+					foreach entry $idArray {
+					 set languageContains [$languages contains $entry]
+						if {$languageContains == 1} {
 						$relationIds add $prop_value
-					}
+				 }
+				 }
 				}
-				}
-				
+					
 			}
 		}
 	}
@@ -93,7 +98,7 @@ set synset_list [java::new ArrayList]
 $synset_list addAll $synonym_list
 
 set relationMap [java::new HashMap]
-$relationMap put "name" "hasMembers"
+$relationMap put "name" "hasMember"
 $relationMap put "objectType" "Synset"
 $relationMap put "identifiers" $synset_list
 
@@ -116,6 +121,7 @@ if {$check_error} {
 	set result_map [java::new HashMap]
 	java::try {
 		set graph_nodes [get_resp_value $search_response "node_list"]
+		set synset_id_list [java::new ArrayList]
 		java::for {Node graph_node} $graph_nodes {
 		puts "nodes found"
 			set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId" $languages]

@@ -38,6 +38,7 @@ public class SearchManager extends SearchBaseActor {
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
+		System.out.println("Entering search actor");
 		String operation = request.getOperation();
 		SearchProcessor processor = new SearchProcessor();
 		try {
@@ -63,7 +64,7 @@ public class SearchManager extends SearchBaseActor {
 				OK(getCompositeSearchResponse(searchResponse), parent);
 
 			}else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
-				List<String> synsetIdList = (List<String>) request.get("synset_ids");
+				List<String> synsetIdList = (List<String>) request.get("synset_id_list");
 				Map<String, Object> lstResult = processor.multiWordDocSearch(synsetIdList);
 				OK(lstResult, parent);
 			}else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_SYNSET_SEARCH.name(), operation)) {
