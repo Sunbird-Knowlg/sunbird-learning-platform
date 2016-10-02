@@ -77,6 +77,13 @@ public class BaseLanguageTest {
 				 createDefinition(def_json, TEST_LANGUAGE);
 			}
 		}
+		File languageFolder = new File(definitionFolder+File.separatorChar+"language");
+		for (File fileEntry : languageFolder.listFiles()) {
+			if (!fileEntry.isDirectory() && fileEntry.getName().endsWith(".json")) {
+				String def_json =getJSONString(fileEntry);
+				 createDefinition(def_json, TEST_COMMON_LANGUAGE);
+			}
+		}
 	}
 	
 	protected static String getJSONString(File initialFile) throws IOException{

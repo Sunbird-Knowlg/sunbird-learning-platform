@@ -62,6 +62,7 @@ public class LanguageIndexTest extends BaseLanguageTest{
 //	private static String TEST_LOAD_LANGUAGE = "testoneload";
 
 	static {
+		TEST_LANGUAGE = "test";
 		LanguageRequestRouterPool.init();
 	}
 
