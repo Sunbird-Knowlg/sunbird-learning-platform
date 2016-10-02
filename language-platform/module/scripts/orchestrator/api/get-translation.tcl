@@ -119,6 +119,7 @@ if {$check_error} {
 	return $search_response;
 } else {
 	set result_map [java::new HashMap]
+	set result_list [java::new ArrayList]
 	java::try {
 		set graph_nodes [get_resp_value $search_response "node_list"]
 		set synset_id_list [java::new ArrayList]
@@ -129,12 +130,12 @@ if {$check_error} {
 			if {$not_empty_list} {
 				$synset_id_list addAll $synset_ids
 				set searchResponse [multiLanguageWordSearch $synset_id_list]
-				set searchResultsMap [$searchResponse getResult]
-				return $searchResultsMap
+				set searchResultsMap [$searchResponse get "translations"]
+				$result_list add $searchResultsMap
 			}
 	
 		}
-		
+		$result_map put "translations" $result_list
 
 	} catch {Exception err} {
     	$result_map put "error" [$err getMessage]
