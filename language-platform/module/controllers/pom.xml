@@ -51,15 +51,6 @@
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
-		
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>searchindex-consumer</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
-			<scope>test</scope>
-		</dependency>
-		
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -82,13 +73,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.ilimi</groupId>
-			<artifactId>ekstep-manager</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

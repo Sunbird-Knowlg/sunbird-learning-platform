@@ -1,4 +1,4 @@
-package org.ekstep.language.actorTest;
+package org.ekstep.language.common;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,9 +29,10 @@ public class BaseLanguageTest {
 	private static Logger LOGGER = LogManager.getLogger(BaseLanguageTest.class
 			.getName());
 	private static ObjectMapper mapper = new ObjectMapper();
-	protected static String TEST_LANGUAGE = "hi";
+	protected static String TEST_LANGUAGE = "en";
 	protected static String TEST_COMMON_LANGUAGE = "language";
-
+	private static String definitionFolder = "src/test/resources/definitions";
+	
 	static{
 		ActorBootstrap.loadConfiguration();
 	}
@@ -68,20 +70,13 @@ public class BaseLanguageTest {
 	}
 	
 	protected static void createDefinition() throws IOException{
-		 String gradeComplexity_def_json =getJSONString(new File("src/test/resources/GradeLevelComplexity.json"));
-		 createDefinition(gradeComplexity_def_json, TEST_COMMON_LANGUAGE);
-//		 String wordComplexity_def_json =getJSONString(new File("src/test/resources/WordComplexityDefinition.json"));
-//		 createDefinition(wordComplexity_def_json, TEST_COMMON_LANGUAGE);
-//		 String word_def_json =getJSONString(new File("src/test/resources/WordDefinitionNode.json"));
-//		 createDefinition(word_def_json, TEST_LANGUAGE);
-//		 String synset_def_json =getJSONString(new File("src/test/resources/SynsetDefinition.json"));
-//		 createDefinition(synset_def_json, TEST_LANGUAGE);
-//		 String varna_def_json =getJSONString(new File("src/test/resources/VarnaDefinition.json"));
-//		 createDefinition(varna_def_json, TEST_LANGUAGE);
-//		 String travelRule_def_json =getJSONString(new File("src/test/resources/TraversalRuleDefinition.json"));
-//		 createDefinition(travelRule_def_json, TEST_LANGUAGE);
-//		 String wordSet_def_json =getJSONString(new File("src/test/resources/wordset_definition.json"));
-//		 createDefinition(wordSet_def_json, TEST_LANGUAGE);
+		File folder = new File(definitionFolder);
+		for (File fileEntry : folder.listFiles()) {
+			if (!fileEntry.isDirectory() && fileEntry.getName().endsWith(".json")) {
+				String def_json =getJSONString(fileEntry);
+				 createDefinition(def_json, TEST_LANGUAGE);
+			}
+		}
 	}
 	
 	protected static String getJSONString(File initialFile) throws IOException{
@@ -95,11 +90,6 @@ public class BaseLanguageTest {
 		
 	protected static void createDefinition(String contentString, String graph_id) throws IOException{
 		
-		String apiId = "definition.create";
-//		Map<String, Object> map = mapper.readValue("",
-//				new TypeReference<Map<String, Object>>() {
-//				});
-
 		Request request = new Request();
 		request.setManagerName(GraphEngineManagers.NODE_MANAGER);
 		request.setOperation("importDefinitions");

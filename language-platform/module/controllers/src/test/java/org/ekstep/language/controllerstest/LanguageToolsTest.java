@@ -88,8 +88,8 @@ public class LanguageToolsTest {
         Assert.assertEquals(1.0, (double) cm2.get("orthographic_complexity"), 0.0);
         Assert.assertEquals(14.19, (double) cm2.get("phonologic_complexity"), 0.0);
         
-        Assert.assertEquals(0.99, (double) cm3.get("orthographic_complexity"), 0.0);
-        Assert.assertEquals(16.32, (double) cm3.get("phonologic_complexity"), 0.0);
+        Assert.assertEquals(0.41, (double) cm3.get("orthographic_complexity"), 0.0);
+        Assert.assertEquals(6.35, (double) cm3.get("phonologic_complexity"), 0.0);
 	}
 
 	
