@@ -20,6 +20,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.CollectionTypes;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
 /**
  * <code>ConceptTagger</code> is used to tag additional concepts for a given
@@ -170,8 +171,11 @@ public class ConceptTagger extends BaseManager {
 					if (null != outRelations && !outRelations.isEmpty()) {
 						for (Relation rel : outRelations) {
 							if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())
-									&& !conceptIds.contains(rel.getEndNodeId()))
-								conceptIds.add(rel.getEndNodeId());
+									&& !conceptIds.contains(rel.getEndNodeId())) {
+								String status = (String) rel.getEndNodeMetadata().get(ContentWorkflowPipelineParams.status.name());
+								if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
+									conceptIds.add(rel.getEndNodeId());
+							}
 						}
 					}
 				}
