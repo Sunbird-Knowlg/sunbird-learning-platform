@@ -263,6 +263,19 @@
         },
         {
           "required": false,
+          "dataType": "List",
+          "propertyName": "dimensionse",
+          "title": "Dimensions of the content",
+          "description": "",
+          "category": "Technical",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "Select",
           "propertyName": "idealScreenSize",
           "title": "Ideal Screen Size",
@@ -1332,6 +1345,240 @@
           "defaultValue": "",
           "renderingHints": "{'order': 25}",
           "indexed": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalSessionsCount",
+          "title": "Total Sessions",
+          "description": "Total sessions count of this content by learners",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalTimespent",
+          "title": "Total Time Spent",
+          "description": "Total time spent by learners on this content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalInteractions",
+          "title": "Total Interactions",
+          "description": "Total number of interactions by learners while using this content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_averageInteractionsPerMin",
+          "title": "Average Interactions/min",
+          "description": "Average number of interactions per minute",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_averageSessionsPerDevice",
+          "title": "Average Sessions/device",
+          "description": "Average Number of sessions per device",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalDevices",
+          "title": "Total Devices",
+          "description": "Total number of devices on which the content is played",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_averageTimespentPerSession",
+          "title": "Average Time/session",
+          "description": "Average time spent per session",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_averageRating",
+          "title": "Average Rating",
+          "description": "Overall average rating of the content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalDownloads",
+          "title": "Total Downloads",
+          "description": "Total number of downloads of this content on device",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalSideloads",
+          "title": "Total Sideloads",
+          "description": "Total number of sideloads of this content on device",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalRatings",
+          "title": "Total Ratings",
+          "description": "Total number of ratings given for this content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalComments",
+          "title": "Total Comments",
+          "description": "Total number of comments given for this content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalUsage",
+          "title": "Total Usage Count",
+          "description": "Total number of usages of this content in other content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_totalLiveContentUsage",
+          "title": "Total Live Content Usage",
+          "description": "Total number of usages of this content in other Live content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_usageLastWeek",
+          "title": "Total Usages in last week",
+          "description": "Total number of usages of this content in the last one week",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_deletionsLastWeek",
+          "title": "Total Deletions in last week",
+          "description": "Total number of times this content is removed from a content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Date",
+          "propertyName": "me_lastUsedOn",
+          "title": "Last used timestamp",
+          "description": "Date/time when this content was last used",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Date",
+          "propertyName": "me_lastRemovedOn",
+          "title": "Last time when content is removed",
+          "description": "Date/time when this content was last removed from a content",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
         }
       ],
       "inRelations": [
@@ -1343,7 +1590,17 @@
          "title": "collections",
          "description": "Which all collections is this content part of",
          "required": false
-       }
+       },
+       {
+          "relationName": "associatedTo",
+          "objectTypes": [
+            "Content"
+          ],
+          "title": "usedByContent",
+          "description": "Other content using this content",
+          "required": false,
+          "renderingHints": "{ 'order': 26 }"
+        }
       ],
       "outRelations": [
         {
@@ -1381,8 +1638,8 @@
           "objectTypes": [
             "Content"
           ],
-          "title": "screenshots",
-          "description": "Screenshots and other media for this content",
+          "title": "usesContent",
+          "description": "Screenshots and other media (assets) used by this content",
           "required": false,
           "renderingHints": "{ 'order': 26 }"
         },
