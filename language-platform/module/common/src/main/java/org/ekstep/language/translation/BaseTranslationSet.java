@@ -23,6 +23,7 @@ import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -32,13 +33,15 @@ public class BaseTranslationSet extends BaseManager{
 
 	protected String graphId ;
 	protected Node proxyNode;
+	private Map<String, Object> metadata;
 
 	private Logger LOGGER;
 	
-	public BaseTranslationSet(String graphId, Node proxyNode, Logger LOGGER){
+	public BaseTranslationSet(String graphId, Node proxyNode, Logger LOGGER, Map<String, Object> metadata){
 		this.LOGGER = LOGGER;
 		this.graphId = graphId;
 		this.proxyNode = proxyNode;
+		this.metadata = metadata;
 	}
 	
 	public BaseTranslationSet(String graphId){
@@ -46,6 +49,7 @@ public class BaseTranslationSet extends BaseManager{
 	}
 	
 	public String getTranslationSet(String wordnetId){
+		System.out.println("Logging data:"+wordnetId);
 		Node node = null;
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.SET.name());
@@ -71,12 +75,47 @@ public class BaseTranslationSet extends BaseManager{
         }
 	}
 	
+	public String getTranslationSetWithMember(String id, String wordnetId){
+		System.out.println("Logging data:"+id+":"+wordnetId);
+		Node node = null;
+		RelationCriterion rc = new RelationCriterion("hasMember","Synset");
+		List<String> identifiers = new ArrayList<String>();
+		identifiers.add(id);
+		rc.setIdentifiers(identifiers);
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.SET.name());
+        sc.setObjectType(LanguageObjectTypes.TranslationSet.name());
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(new Filter("indowordnetId", SearchConditions.OP_EQUAL, wordnetId));
+        MetadataCriterion mc = MetadataCriterion.create(filters);
+        sc.addMetadata(mc);
+        sc.addRelationCriterion(rc);
+        sc.setResultSize(1);
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (checkError(findRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0){
+            	node = nodes.get(0);
+            	return node.getIdentifier();
+            }
+            return null;
+        }
+	}
+	
 	public String createTranslationSetCollection(){
+		System.out.println("Creating new set!!!!!!!!!!!!!!!!!");
         Request setReq = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
         //setReq.put(GraphDACParams.criteria.name(), getItemSetCriteria(node));
 
 		Node translationSet = new Node();
 		translationSet.setObjectType(LanguageObjectTypes.TranslationSet.name());
+		if(null!=this.metadata && this.metadata.size()>0)
+			translationSet.setMetadata(this.metadata);
 
 		List<String> members = null;
 		members = Arrays.asList(proxyNode.getIdentifier());
@@ -89,6 +128,7 @@ public class BaseTranslationSet extends BaseManager{
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(),
 					getErrorMessage(res));
 		String setId = (String) res.get(GraphDACParams.set_id.name());
+		System.out.println("Returning id after creation!!!!!!!!!!!!!!!!!");
 		return setId;
 	}
 	

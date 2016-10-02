@@ -101,4 +101,6 @@ public interface INodeManager {
     void  upsertRootNode(Request request);
     
     void createProxyNode(final Request request);
+    
+    void createProxyNodeAndTranslation(Request request);
 }

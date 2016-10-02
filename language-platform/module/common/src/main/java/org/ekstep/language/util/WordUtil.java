@@ -55,6 +55,7 @@ import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
@@ -1808,7 +1809,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @return
 	 * @throws Exception
 	 */
-	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition)
+	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition, int indoWordnetId)
 			throws Exception {
 		String operation = "updateDataNode";
 		String identifier = (String) synsetObj.get(LanguageParams.identifier.name());
@@ -1825,7 +1826,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		Response res = getResponse(synsetReq, LOGGER);
 		String primaryMeaningId = (String) res.get(GraphDACParams.node_id.name());
-		createProxyNode(primaryMeaningId,LanguageParams.translation.name());
+		//createProxyNode(primaryMeaningId,LanguageParams.translations.name(),indoWordnetId);
+		createProxyNodeAndTranslationSet(primaryMeaningId, LanguageParams.translations.name(),indoWordnetId);
 		return res;
 	}
 
@@ -1881,7 +1883,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 			String synsetIdentifer = languageId + ":S:" + String.format("%08d", indowordnetId);
 			primaryMeaning.put(LanguageParams.identifier.name(), synsetIdentifer);
-			Response synsetResponse = createSynset(languageId, primaryMeaning, synsetDefinition);
+			Response synsetResponse = createSynset(languageId, primaryMeaning, synsetDefinition, indowordnetId);
 			if (checkError(synsetResponse)) {
 				errorMessages
 						.add(getErrorMessage(synsetResponse) + ": Id: " + indowordnetId + " Language: " + languageId);
@@ -2625,34 +2627,175 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return bd.doubleValue();
 	}
 	
-	private Response createProxyNode(String primaryMeaningId, String graphId)
+	private Response createProxyNode(String primaryMeaningId, String graphId, int indowordId)
 	{
 		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
 		String operation = "createProxyNode";
 		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
 		proxyReq.put(GraphDACParams.node.name(), node);
 		Response res = getResponse(proxyReq, LOGGER);
-		createOrAddTranslationSet(node, primaryMeaningId, graphId);
+		if (!checkError(res)) {
+			String proxyId = (String) res.get("node_id");
+			LOGGER.info("Proxy node created:"+proxyId);
+			createOrAddTranslationSet(node, proxyId, graphId, indowordId);
+		}
 		return res;
 	}
 	
-	private void createOrAddTranslationSet(Node node, String primaryMeaningId, String graphId)
+	private void createOrAddTranslationSet(Node node, String primaryMeaningId, String graphId, int indowordId)
 	{
-		String[] indoId = primaryMeaningId.split(":");
+		/*		String[] indoId = primaryMeaningId.split(":");
 		if(indoId.length>0 && indoId.length==3){
-			String indoWordId = indoId[2];
-			BaseTranslationSet tranlationSet = new BaseTranslationSet(graphId,node,LOGGER);
-			String nodeId = tranlationSet.getTranslationSet(indoWordId);
+			String indoWordId = indoId[2];*/
+		String id = ""+indowordId;
+		Map<String,Object> metadata = new HashMap<String,Object>();
+		metadata.put("indowordnetId", id);
+		BaseTranslationSet tranlationSet = new BaseTranslationSet(graphId,node,LOGGER,metadata);
+		String nodeId = tranlationSet.getTranslationSetWithMember(primaryMeaningId,id);
+		boolean flag = true;
+		if(nodeId==null)
+		{
+			nodeId = tranlationSet.getTranslationSet(id);
 			if(nodeId==null)
-			{			
-				tranlationSet.createTranslationSetCollection();
-				LOGGER.info("Translation set created:"+primaryMeaningId);
-			}else
 			{
-				tranlationSet.addMemberToSet(nodeId);
-				LOGGER.info("Translation set:"+nodeId + " updated with new member:"+primaryMeaningId);
+				flag = false;
 			}
 		}
+		if(!flag)
+		{
+			String tcollection_id = tranlationSet.createTranslationSetCollection();
+			LOGGER.info("Translation set created:"+tcollection_id);
+		}else
+		{
+			tranlationSet.addMemberToSet(nodeId);
+			LOGGER.info("Translation set:"+nodeId + " updated with new member:"+primaryMeaningId);
+		}
+		//}
 	}
-
+	
+	private void createProxyNodeAndTranslationSet(String primaryMeaningId, String graphId, int indowordId)
+	{
+		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
+		String operation = "createProxyNodeAndTranslation";
+		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
+		proxyReq.put(GraphDACParams.node.name(), node);
+		proxyReq = createTranslationCollection(proxyReq, indowordId, primaryMeaningId);
+		String id = ""+indowordId;
+		boolean create = false;
+		//BaseTranslationSet tranlationSet = new BaseTranslationSet(graphId,node,LOGGER,metadata);
+		String nodeId = getTranslationSetWithMember(primaryMeaningId,id,graphId);
+		if(nodeId==null)
+		{
+			nodeId = getTranslationSet(id, graphId);
+			if(nodeId==null)
+			{
+				create = true;
+			}
+			if(!create)
+			{
+				LOGGER.info("Translation set already exists for indowordnetid:"+nodeId);
+				proxyReq.put(GraphDACParams.collection_id.name(), nodeId);
+			}
+			proxyReq.put("create", create);
+			Response res = getResponse(proxyReq, LOGGER);
+			if (!checkError(res)) {
+				String proxyId = (String) res.get("node_id");
+				LOGGER.info("Proxy node created:"+proxyId);
+				//createOrAddTranslationSet(node, proxyId, graphId, indowordId);
+			}
+		}else
+		{
+			LOGGER.info("Translation set already exists with this member:"+nodeId);
+		}
+		
+		
+		/*if(!flag)
+		{
+			String tcollection_id = tranlationSet.createTranslationSetCollection();
+			LOGGER.info("Translation set created:"+tcollection_id);
+		}else
+		{
+			tranlationSet.addMemberToSet(nodeId);
+			LOGGER.info("Translation set:"+nodeId + " updated with new member:"+primaryMeaningId);
+		}*/
+		
+		
+	}
+	
+	private Request createTranslationCollection(Request proxyReq, int indowordId, String synsetId)
+	{
+		Node translationSet = new Node();
+		String id = ""+indowordId;
+		translationSet.setObjectType(LanguageObjectTypes.TranslationSet.name());
+		Map<String,Object> metadata = new HashMap<String,Object>();
+		metadata.put("indowordnetId", id);
+		translationSet.setMetadata(metadata);
+		List<String> members = null;
+		members = Arrays.asList(synsetId);
+		proxyReq.put(GraphDACParams.members.name(), members);
+		proxyReq.put(GraphDACParams.translationSet.name(), translationSet);
+		proxyReq.put(GraphDACParams.object_type.name(), LanguageObjectTypes.TranslationSet.name());
+		proxyReq.put(GraphDACParams.member_type.name(), LanguageObjectTypes.Synset.name());
+		return proxyReq;
+	}
+	
+	public String getTranslationSet(String wordnetId, String graphId){
+		System.out.println("Logging data:"+wordnetId);
+		Node node = null;
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.SET.name());
+        sc.setObjectType(LanguageObjectTypes.TranslationSet.name());
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(new Filter("indowordnetId", SearchConditions.OP_EQUAL, wordnetId));
+        MetadataCriterion mc = MetadataCriterion.create(filters);
+        sc.addMetadata(mc);
+        sc.setResultSize(1);
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (checkError(findRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0){
+            	node = nodes.get(0);
+            	return node.getIdentifier();
+            }
+            return null;
+        }
+	}
+	
+	public String getTranslationSetWithMember(String id, String wordnetId, String graphId){
+		System.out.println("Logging data:"+id+":"+wordnetId);
+		Node node = null;
+		RelationCriterion rc = new RelationCriterion("hasMember","Synset");
+		List<String> identifiers = new ArrayList<String>();
+		identifiers.add(id);
+		rc.setIdentifiers(identifiers);
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.SET.name());
+        sc.setObjectType(LanguageObjectTypes.TranslationSet.name());
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(new Filter("indowordnetId", SearchConditions.OP_EQUAL, wordnetId));
+        MetadataCriterion mc = MetadataCriterion.create(filters);
+        sc.addMetadata(mc);
+        sc.addRelationCriterion(rc);
+        sc.setResultSize(1);
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (checkError(findRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0){
+            	node = nodes.get(0);
+            	return node.getIdentifier();
+            }
+            return null;
+        }
+	}
+	
 }

@@ -18,11 +18,13 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.mgr.INodeManager;
 import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.Graph;
+import com.ilimi.graph.model.collection.Set;
 import com.ilimi.graph.model.node.DataNode;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.DefinitionNode;
@@ -588,6 +590,95 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         }
                     }
                 }, ec);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+    }
+    
+    @Override
+    public void createProxyNodeAndTranslation(Request request) {
+    	System.out.println("Entering createProxyNodeAndTranslation");
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        final ActorRef parent = getSender();
+        final Node node = (Node) request.get(GraphDACParams.node.name());
+        final Node translationNode = (Node) request.get(GraphDACParams.translationSet.name());
+        final boolean create = (boolean) request.get("create");
+
+        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
+        String setObjectType = (String) request.get(GraphDACParams.object_type.name());
+        String memberObjectType = (String) request.get(GraphDACParams.member_type.name());
+        
+        if (!validateRequired(node) || !validateRequired(translationNode)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
+        } else {
+            try {
+
+                final ExecutionContext ec = getContext().dispatcher();
+                final List<String> messages = new ArrayList<String>();
+
+                final ProxyNode proxyNode = new ProxyNode(this, graphId, node);
+                final Set set = new Set(this, graphId, null, setObjectType, memberObjectType, translationNode.getMetadata(), memberIds);
+            	set.setInRelations(translationNode.getInRelations());
+                set.setOutRelations(translationNode.getOutRelations());
+                Future<String> createFuture = proxyNode.createNode(request);
+                createFuture.onComplete(new OnComplete<String>() {
+                @Override
+                public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                	System.out.println("Completed proxy node creation:"+arg0);
+                    if (null != arg0) {
+                        ERROR(arg0, getSender());
+                    } else {
+                    	System.out.println("Entering else");
+                        if (StringUtils.isNotBlank(arg1)) {
+                        	System.out.println("Entering error case");
+                            messages.add(arg1);
+                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
+                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                        } else {
+                        	System.out.println("Entering second else");
+                        	if (messages.isEmpty()) {
+                                // create the node object
+                        		request.put(GraphDACParams.node.name(), translationNode);
+                        		if(create)
+                        		{
+                        			System.out.println("Creating translation set");
+                        			set.createSetNode(request, ec);
+                        		}
+                        		else
+                        		{
+                        			System.out.println("Updating translation set");
+                        			set.addMembers(request);
+                        		}
+                                /*createFuture.onComplete(new OnComplete<String>() {
+                                    @Override
+                                    public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                                        if (null != arg0) {
+                                            ERROR(arg0, getSender());
+                                        } else {
+                                            if (StringUtils.isNotBlank(arg1)) {
+                                                messages.add(arg1);
+                                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
+                                                        ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                                            } else {
+                                                // if node is created successfully,
+                                                // create relations and tags
+                                                List<Relation> addRels = datanode.getNewRelationList();
+                                                updateRelationsAndTags(parent, node, datanode, request, ec, addRels, null, node.getTags(), null);
+                                            }
+                                        }
+                                    }
+                                }, ec);*/
+                            } else {
+                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+                                        ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                            }
+                        }
+                    }
+                }
+            }, ec);
+
             } catch (Exception e) {
                 handleException(e, getSender());
             }
