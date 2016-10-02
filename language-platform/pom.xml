@@ -115,6 +115,9 @@
               					<exclude>**/batch/**</exclude>
               					<exclude>**/models/**</exclude>
               					<exclude>**/model/**</exclude>
+              					<exclude>**/EnrichActor**</exclude>
+              					<exclude>**/language/controller/**</exclude>
+              					<exclude>**/wordchain/**</exclude>
               					<exclude>**/importer/**</exclude>
               					<exclude>**/services/**</exclude>
               					<exclude>**/servlet/**</exclude>
