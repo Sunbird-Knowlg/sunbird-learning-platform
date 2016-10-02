@@ -65,6 +65,7 @@ public class SearchProcessor {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> multiWordDocSearch(List<String> synsetIds) throws Exception {
+		System.out.println("Entering multi doc search:"+synsetIds.size());
 		Map<String, Object> response = new HashMap<String, Object>();
 		Map<String, Object> translations = new HashMap<String, Object>();
 		Map<String, Object> synsets = new HashMap<String, Object>();
@@ -72,9 +73,10 @@ public class SearchProcessor {
 		{
 			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
-			
+			System.out.println("Synset size:"+resultList.size());
 			for(String synsetDoc: resultList)
 			{
+				System.out.println("DOCUMENT:"+synsetDoc);
 				Map<String, Object> wordTranslationList = new HashMap<String, Object>();				
 				Map<String, Object> indexDocument = new HashMap<String, Object>();
 				if (synsetDoc != null && !synsetDoc.isEmpty()) {
@@ -91,6 +93,7 @@ public class SearchProcessor {
 						{
 							List<String> wordResultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, wordIdList);
+							System.out.println("Word size:"+resultList.size());
 							for(String wordDoc: wordResultList)
 							{
 								List<Map> synsetWordLangList = new ArrayList<Map>();
@@ -116,8 +119,8 @@ public class SearchProcessor {
 				}
 				
 			}
-			translations.put("translations", synsets);
-			response.put("results", translations);
+			//translations.put("translations", synsets);
+			response.put("translations", synsets);
 		}
 
 		return response;
@@ -125,12 +128,13 @@ public class SearchProcessor {
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> multiSynsetDocSearch(List<String> synsetIds) throws Exception {
+		System.out.println("Entering multi doc search");
 		Map<String, Object> synsetDocList = new HashMap<String, Object>();
 		if(synsetIds!=null && synsetIds.size()>0)
 		{
 			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
-			
+			System.out.println("Size of doc list:"+resultList.size());
 			for(String synsetDoc: resultList)
 			{
 				List<String> identifierList = new ArrayList<String>();

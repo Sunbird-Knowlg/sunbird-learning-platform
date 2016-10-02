@@ -84,7 +84,7 @@ java::for {String translationKey} [$translations keySet] {
 	}
 	
 	set relationMap [java::new HashMap]
-	$relationMap put "name" "hasMembers"
+	$relationMap put "name" "hasMember"
 	$relationMap put "objectType" "Synset"
 	$relationMap put "identifiers" $synset_list
 
