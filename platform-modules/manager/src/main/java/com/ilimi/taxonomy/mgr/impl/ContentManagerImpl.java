@@ -39,6 +39,7 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
+import com.ilimi.taxonomy.util.ConceptTagger;
 import com.ilimi.taxonomy.util.Content2VecUtil;
 
 /**
@@ -404,6 +405,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 				LOGGER.info("Invoking Content to Vector. | [Content ID: " + contentId + "]");
 				Content2VecUtil.invokeContent2Vec(contentId, event);
+				
+				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
+				ConceptTagger tagger = new ConceptTagger();
+				tagger.tagConcepts(taxonomyId, contentId, node);
 			}
 		} catch (ClientException e) {
 			throw e;
