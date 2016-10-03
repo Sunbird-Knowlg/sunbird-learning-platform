@@ -122,6 +122,18 @@
             "draft": false
         }, {
             "required": false,
+            "dataType": "Text",
+            "propertyName": "portalOwner",
+            "title": "Portal Owner",
+            "description": "",
+            "category": "ownership",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
             "dataType": "JSON",
             "propertyName": "body",
             "title": "Question",
