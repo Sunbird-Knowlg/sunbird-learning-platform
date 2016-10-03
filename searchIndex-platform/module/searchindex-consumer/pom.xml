@@ -97,4 +97,35 @@
 		    <scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>cobertura-maven-plugin</artifactId>
+					<version>2.7</version>
+					<configuration>
+						<aggregate>true</aggregate>
+						<outputDirectory>coverageReport</outputDirectory>
+						<formats>
+							<format>html</format>
+							<format>xml</format>
+						</formats>
+						<instrumentation>
+							<ignoreTrivial>true</ignoreTrivial>
+							<excludes>
+								<exclude>**/ConsumerThread**</exclude>
+								<exclude>**/AuditHistoryMeassageProcessor**</exclude>
+								<exclude>**/WordCountMessageProcessor**</exclude>
+							</excludes>
+						</instrumentation>
+						<check>
+							<haltOnFailure>false</haltOnFailure>
+						</check>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 </project>

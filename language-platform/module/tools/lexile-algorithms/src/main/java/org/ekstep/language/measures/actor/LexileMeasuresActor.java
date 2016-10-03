@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -31,7 +32,8 @@ import akka.actor.ActorRef;
 public class LexileMeasuresActor extends LanguageBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(LexileMeasuresActor.class.getName());
-	private WordUtil wordUtil = new WordUtil(); 
+	private WordUtil wordUtil = new WordUtil();
+	ObjectMapper mapper = new ObjectMapper();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -48,7 +50,11 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.computeTextComplexity.name(), operation)) {
 				String text = (String) request.get(LanguageParams.text.name());
 				ParagraphComplexity pc = ParagraphMeasures.getTextComplexity(languageId, text);
-				OK(LanguageParams.text_complexity.name(), pc, getSender());
+			    Map<String,Object> props = mapper.convertValue(pc, Map.class);
+			    List<Map<String, String>> suitableGradeSummary = ParagraphMeasures.getSuitableGradeSummaryInfo(languageId, pc.getMeanComplexity()); 
+                if(suitableGradeSummary != null)
+                	props.put("gradeLevels", suitableGradeSummary);
+				OK(LanguageParams.text_complexity.name(), props, getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.analyseTexts.name(), operation)) {
 			    Map<String, String> texts = (Map<String, String>) request.get(LanguageParams.texts.name());
 			    Map<String, Object> response = ParagraphMeasures.analyseTexts(languageId, texts);

@@ -92,7 +92,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 		System.out.println("Total time taken for Sample 1: " + (endTime - startTime) / 1000 + "s");
 	}
 
-	@Test
+//	@Test
 	public void traverseSample2() throws Exception {
 
 		System.out.println("Sample 2: ");

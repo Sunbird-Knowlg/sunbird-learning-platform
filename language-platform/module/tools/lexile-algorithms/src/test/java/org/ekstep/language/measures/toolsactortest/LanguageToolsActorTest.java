@@ -75,8 +75,12 @@ public class LanguageToolsActorTest {
 		Assert.assertEquals(1.0, cm2.getOrthographic_complexity(), 0.0);
         Assert.assertEquals(14.19, cm2.getPhonologic_complexity(), 0.0);
         
-        Assert.assertEquals(0.99, cm3.getOrthographic_complexity(), 0.0);
-        Assert.assertEquals(16.32, cm3.getPhonologic_complexity(), 0.0);
+//        Assert.assertEquals(0.99, cm3.getOrthographic_complexity(), 0.0);
+//        Assert.assertEquals(16.32, cm3.getPhonologic_complexity(), 0.0);
+        
+        Assert.assertEquals(0.41, cm3.getOrthographic_complexity(), 0.0);
+        Assert.assertEquals(6.35, cm3.getPhonologic_complexity(), 0.0);
+
 	}
 	
 	@Test
@@ -130,10 +134,14 @@ public class LanguageToolsActorTest {
 		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
-		ComplexityMeasures textComplexity = (ComplexityMeasures) result
+//		ComplexityMeasures textComplexity = (ComplexityMeasures) result
+//				.get("text_complexity");
+//		Assert.assertEquals(textComplexity.getOrthographic_complexity(), new Double(6.9));
+//		Assert.assertEquals(textComplexity.getPhonologic_complexity(), new Double(114.23));
+		Map<String, Object>	text_complexity = (Map<String, Object>) result
 				.get("text_complexity");
-		Assert.assertEquals(textComplexity.getOrthographic_complexity(), new Double(6.9));
-		Assert.assertEquals(textComplexity.getPhonologic_complexity(), new Double(114.23));
+		Assert.assertEquals((Double)text_complexity.get("totalOrthoComplexity"), new Double(7.36));
+		Assert.assertEquals((Double)text_complexity.get("totalPhonicComplexity"), new Double(114.23));
 	}
 	
 	@SuppressWarnings("unchecked")

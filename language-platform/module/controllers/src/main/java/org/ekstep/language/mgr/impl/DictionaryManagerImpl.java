@@ -45,6 +45,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ilimi.common.controller.BaseController;
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -229,6 +230,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * org.ekstep.language.mgr.IDictionaryManager#findWordsCSV(java.lang.String,
 	 * java.lang.String, java.io.InputStream, java.io.OutputStream)
 	 */
+	@CoverageIgnore
 	@Override
     public void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out) {
         try {
@@ -289,6 +291,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the nodes
 	 * @return the synsets
 	 */
+	@CoverageIgnore
     private void getSynsets(String languageId, Node node, Map<String, Object> rowMap, List<Map<String, Object>> nodes) {
         List<Relation> inRels = node.getInRelations();
         boolean first = true;
@@ -356,6 +359,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @throws Exception
 	 *             the exception
 	 */
+	@CoverageIgnore
     private void getCSV(List<Map<String, Object>> nodes, OutputStream out) throws Exception {
         List<String[]> allRows = new ArrayList<String[]>();
         List<String> headers = new ArrayList<String>();
@@ -396,6 +400,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @param i
 	 *            the i
 	 */
+	@CoverageIgnore
     @SuppressWarnings("rawtypes")
     private void addToDataRow(Object val, String[] row, int i) {
         try {
@@ -442,6 +447,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the lemma
 	 * @return the node
 	 */
+	@CoverageIgnore
     @SuppressWarnings("unchecked")
     private Node searchWord(String languageId, String objectType, String lemma) {
         SearchCriteria sc = new SearchCriteria();
@@ -475,6 +481,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @throws Exception
 	 *             the exception
 	 */
+	@CoverageIgnore
     private List<String[]> getCSVRecords(InputStream is) throws Exception {
         try (InputStreamReader isReader = new InputStreamReader(is);
 				CSVParser csvReader = new CSVParser(isReader, csvFileFormat)) {
@@ -998,6 +1005,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the synset ids
 	 * @return the out relations data
 	 */
+    @CoverageIgnore
     private void getOutRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
             List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms,
             List<NodeDTO> tools, List<NodeDTO> workers, List<NodeDTO> actions, List<NodeDTO> objects, List<NodeDTO> converse, List<String> synsetIds) {
@@ -1069,6 +1077,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the out rel
 	 * @return the out relation word
 	 */
+    @CoverageIgnore
     private String getOutRelationWord(Relation outRel) {
         String name = null;
         if (null != outRel.getEndNodeMetadata() && !outRel.getEndNodeMetadata().isEmpty()) {
@@ -1317,6 +1326,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the object type
 	 * @return the string
 	 */
+    @CoverageIgnore
     private String createWord(Map<String, String> lemmaIdMap, String languageId, String word, String objectType) {
         String nodeId = createWord(languageId, word, objectType);
         lemmaIdMap.put(word, nodeId);
@@ -1334,6 +1344,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the object type
 	 * @return the string
 	 */
+    @CoverageIgnore
     private String createWord(String languageId, String word, String objectType) {
         Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
         Map<String, Object> metadata = new HashMap<String, Object>();
@@ -1362,6 +1373,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the words
 	 * @return the word id map
 	 */
+    @CoverageIgnore
     @SuppressWarnings("unchecked")
     private void getWordIdMap(Map<String, String> lemmaIdMap, String languageId, String objectType, Set<String> words) {
         if (null != words && !words.isEmpty()) {
@@ -1438,6 +1450,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the value
 	 * @return the boolean value
 	 */
+    @CoverageIgnore
     private boolean getBooleanValue(String value) {
         if (StringUtils.isNotBlank(value)) {
             if (StringUtils.equalsIgnoreCase("yes", value.trim().toLowerCase())
@@ -1989,6 +2002,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @param synsetId
 	 *            the synset id
 	 */
+	@CoverageIgnore
 	private void removeSynonymRelation(String languageId, String wordId, String synsetId) {
 	    removeSynsetRelation(wordId, RelationTypes.SYNONYM.relationName(), languageId, synsetId);
     }
@@ -2289,6 +2303,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *             the exception
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@CoverageIgnore
 	public Response updateWord(String languageId, String id, Map wordMap) throws Exception {
 		Node node = null;
 		DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
@@ -2315,6 +2330,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @throws Exception
 	 *             the exception
 	 */
+	@CoverageIgnore
 	public Node getDataNode(String languageId, String nodeId, String objectType) throws Exception {
 		Request getNodeReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		getNodeReq.put(GraphDACParams.node_id.name(), nodeId);
@@ -2392,6 +2408,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the word
 	 * @return the synsets
 	 */
+	@CoverageIgnore
 	private List<Node> getSynsets(Node word) {
 	    List<Node> synsets = new ArrayList<Node>();
 	    if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
@@ -2419,6 +2436,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the def
 	 * @return the synset map
 	 */
+	@CoverageIgnore
 	private Map<String, Object> getSynsetMap(Node synset, DefinitionDTO def) {
 	    Map<String, Object> map = new HashMap<String, Object>();
 	    if (null != synset) {
@@ -2460,6 +2478,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the synset
 	 * @return the other meaning map
 	 */
+	@CoverageIgnore
 	private Map<String, Object> getOtherMeaningMap(Node synset) {
 	    Map<String, Object> map = new HashMap<String, Object>();
 	    if (null != synset) {
@@ -2485,6 +2504,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @return the map
 	 */
 	@SuppressWarnings("unchecked")
+	@CoverageIgnore
 	private Map<String, Object> addPrimaryAndOtherMeaningsToWord(Node node, String languageId) {
 		try {
 			DefinitionDTO defintion = getDefinitionDTO(LanguageParams.Word.name(), languageId);
@@ -2584,6 +2604,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the synset id
 	 * @return true, if is valid synset
 	 */
+	@CoverageIgnore
 	private boolean isValidSynset(List<Node> synsets, String synsetId) {
 		if (synsets != null) {
 			for (Node synsetDTO : synsets) {
@@ -2604,6 +2625,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * String, java.io.InputStream)
 	 */
 	@Override
+	@CoverageIgnore
 	public Response importWordSynset(String languageId, InputStream inputStream) throws Exception {
 		Response importResponse = OK();
 		String delimiter = "::";
@@ -2822,6 +2844,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the node
 	 * @return the response
 	 */
+	@CoverageIgnore
 	private Response createOrUpdateNode(String languageId, Node node) {
 		Response reponse;
 		if(node.getIdentifier() == null){
@@ -2842,6 +2865,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the synset node
 	 * @return the response
 	 */
+	@CoverageIgnore
 	private Response createDataNode(String languageId, Node synsetNode) {
 		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 		updateReq.put(GraphDACParams.node.name(), synsetNode);
@@ -2859,6 +2883,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @param errorMessageMap
 	 *            the error message map
 	 */
+	@CoverageIgnore
 	private void addMessage(int rowNo, String error, Map<Integer, String> errorMessageMap) {
 		String errorMessage = errorMessageMap.get(rowNo);
 		if(errorMessage == null){
@@ -2883,6 +2908,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the start node id
 	 * @return the response
 	 */
+	@CoverageIgnore
 	private Response createRelation(String endNodeId, String relationType, String languageId, String startNodeId) {
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
 		request.put(GraphDACParams.start_node_id.name(), startNodeId);
@@ -2901,6 +2927,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the synset node
 	 * @return the response
 	 */
+	@CoverageIgnore
 	private Response updateDataNode(String languageId, Node synsetNode) {
 		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), synsetNode);
@@ -2919,6 +2946,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 *            the object type
 	 * @return the defintiion
 	 */
+	@CoverageIgnore
 	private DefinitionDTO getDefintiion(String languageId, String objectType) {
 		Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
@@ -2942,6 +2970,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
+	@CoverageIgnore
 	private List<Map<String,String>> readFromCSV(InputStream inputStream) throws JsonProcessingException, IOException {
 		List<Map<String,String>> records =  new ArrayList<Map<String,String>>();
 		try (InputStreamReader isReader = new InputStreamReader(inputStream, "UTF8");
@@ -2980,6 +3009,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @param languageId
 	 *            the language id
 	 */
+	@CoverageIgnore
 	private void asyncUpdate(List<String> nodeIds, String languageId) {
 	    Map<String, Object> map = new HashMap<String, Object>();
         map = new HashMap<String, Object>();
@@ -3000,6 +3030,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * @param logger
 	 *            the logger
 	 */
+	@CoverageIgnore
 	public void makeLanguageAsyncRequest(Request request, Logger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
@@ -3018,6 +3049,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * java.io.InputStream)
 	 */
 	@Override
+	@CoverageIgnore
 	public Response loadEnglishWordsArpabetsMap(InputStream in){
 		WordCacheUtil.loadWordArpabetCollection(in);
 		Response response = new Response();
@@ -3036,6 +3068,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * java.lang.String)
 	 */
 	@Override
+	@CoverageIgnore
 	public Response getSyllables(String languageId, String word){
 		Node wordNode=wordUtil.searchWord(languageId, word);
 
@@ -3079,6 +3112,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * java.lang.String)
 	 */
 	@Override
+	@CoverageIgnore
 	public Response getArpabets(String languageID, String word){
 
 		String arpabets=WordCacheUtil.getArpabets(word);
@@ -3100,6 +3134,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * java.lang.String, java.lang.String, boolean)
 	 */
 	@Override
+	@CoverageIgnore
 	public Response getPhoneticSpellingByLanguage(String languageId, String word, boolean addEndVirama){
 		String phoneticSpellingOfWord=wordUtil.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
 		Response response = new Response();
@@ -3120,6 +3155,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * .String, java.lang.String)
 	 */
 	@Override
+	@CoverageIgnore
 	public Response getSimilarSoundWords(String languageId, String word){
 		Set<String> similarSoundWords=WordCacheUtil.getSimilarSoundWords(word);
 		Response response = new Response();
@@ -3140,6 +3176,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 * .String, com.ilimi.common.dto.Request, boolean)
 	 */
 	@Override
+	@CoverageIgnore
 	public Response transliterate(String languageId, Request request, boolean addEndVirama) {
 		String text = (String) request.get("text");
 		String translatedText = wordUtil.transliterateText(languageId, text, addEndVirama);

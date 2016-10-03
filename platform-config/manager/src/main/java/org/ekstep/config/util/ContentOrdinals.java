@@ -10,13 +10,15 @@ import java.util.Map;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.ilimi.common.dto.CoverageIgnore;
+
 import org.ekstep.common.util.AWSUploader;
 import org.json.simple.JSONObject;
 
 public class ContentOrdinals {
-
 	
 	@SuppressWarnings("unchecked")
+	@CoverageIgnore
 	public static void main(String[] args) {
 		
 		String fileName = "content_definition.json";
@@ -40,6 +42,8 @@ public class ContentOrdinals {
 			e.printStackTrace();
 		}
 	}
+	
+	@CoverageIgnore
 	public static File writeToJson(Map<String, ArrayList<String>> ordinals){
 		File file = null;
 		try {

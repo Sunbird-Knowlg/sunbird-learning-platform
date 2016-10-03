@@ -44,7 +44,7 @@ public class BaseLanguageTest {
 	
 	@AfterClass
 	public static void close() throws IOException, InterruptedException {
-		//deleteGraph();
+		deleteGraph();
 	}
 		
 	protected static void createGraph(){

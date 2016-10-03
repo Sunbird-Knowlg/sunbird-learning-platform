@@ -1,0 +1,816 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "Word",
+      "properties": [
+        {
+          "propertyName": "lemma",
+          "title": "Word",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 1 }"
+        },
+        {
+          "propertyName": "ekstepWordnet",
+          "title": "EkStep Wordnet",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "false",
+          "renderingHints": "{ 'order': 2 }"
+        },
+        {
+          "propertyName": "isPhrase",
+          "title": "Is Phrase",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "false",
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "propertyName": "morphology",
+          "title": "Morphologically modified word",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "false",
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "propertyName": "exampleSentences",
+          "title": "Example Sentences",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
+        },
+        {
+          "propertyName": "hasConnotative",
+          "title": "Has Connotative (non-literal) Meaning",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "synsetCount",
+          "title": "Number of meanings",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "hasSynonyms",
+          "title": "Has Synonyms",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "hasAntonyms",
+          "title": "Has Antonyms",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "isLoanWord",
+          "title": "Is Loan Word",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "word_complexity",
+          "title": "Word Complexity",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 6 }"
+        },
+        {
+          "propertyName": "orthographic_complexity",
+          "title": "Orthographic Complexity",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 6 }"
+        },
+        {
+          "propertyName": "phonologic_complexity",
+          "title": "Phonological Complexity",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 7 }"
+        },
+        {
+          "propertyName": "syllables",
+          "title": "Syllables",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 8 }"
+        },
+        {
+          "propertyName": "sources",
+          "title": "Sources",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 8 }"
+        },
+        {
+          "propertyName": "thresholdLevel",
+          "title": "Threshold Level",
+          "description": "",
+          "category": "grammar",
+          "dataType": "Select",
+          "range": [
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 9 }"
+        },
+        {
+          "propertyName": "grade",
+          "title": "Grade",
+          "description": "",
+          "category": "grammar",
+          "dataType": "Multi-Select",
+          "range": [
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 9 }"
+        },
+        {
+          "propertyName": "sourceTypes",
+          "title": "Source Types",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 10 }"
+        },
+        {
+          "propertyName": "primaryMeaningId",
+          "title": "Primary Meaning",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 11 }"
+        },
+        {
+          "propertyName": "syllableCount",
+          "title": "Syllable Count",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 12 }"
+        },
+        {
+          "propertyName": "syllableNotation",
+          "title": "Syllable Notation",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 13 }"
+        },
+        {
+          "propertyName": "unicodeNotation",
+          "title": "Unicode Notation",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 14 }"
+        },
+        {
+          "propertyName": "pos",
+          "title": "POS (Parts of Speech)",
+          "description": "",
+          "category": "grammar",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 15 }"
+        },
+        {
+          "propertyName": "namedEntityType",
+          "title": "Named Entity Type",
+          "description": "",
+          "category": "grammar",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 16 }"
+        },
+        {
+          "propertyName": "ageBand",
+          "title": "Age Band",
+          "description": "",
+          "category": "pedagogy",
+          "dataType": "Select",
+          "range": [
+            "1-5",
+            "6-10",
+            "11-15",
+            "16-20"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 17 }"
+        },
+        {
+          "propertyName": "difficultyLevel",
+          "title": "Difficulty Level",
+          "description": "",
+          "category": "pedagogy",
+          "dataType": "Select",
+          "range": [
+            "Easy",
+            "Medium",
+            "Difficult"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 18 }"
+        },
+        {
+          "propertyName": "occurrenceCount",
+          "title": "Occurrence Count",
+          "description": "",
+          "category": "frequency",
+          "dataType": "Number",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 19 }"
+        },
+        {
+          "propertyName": "sampleUsages",
+          "title": "Sample Usages",
+          "description": "",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': '', 'order': 20 }"
+        },
+        {
+          "propertyName": "audio",
+          "title": "Audio",
+          "description": "",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': '',  'order': 21 }"
+        },
+        {
+          "propertyName": "pictures",
+          "title": "Pictures",
+          "description": "",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': '',  'order': 22 }"
+        },
+        {
+          "propertyName": "wordImages",
+          "title": "Images",
+          "description": "",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': '',  'order': 22 }"
+        },
+        {
+          "propertyName": "pronunciations",
+          "title": "Pronunciations",
+          "description": "",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': '',  'order': 23 }"
+        },
+        {
+          "propertyName": "reviewers",
+          "title": "Reviewers",
+          "description": "",
+          "category": "audit",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 24 }"
+        },
+        {
+          "propertyName": "lastUpdatedBy",
+          "title": "Last Updated By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 25 }"
+        },
+        {
+          "propertyName": "lastUpdatedOn",
+          "title": "Last Updated On",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+            "propertyName": "status",
+            "title": "Status",
+            "description": "Status of the domain",
+            "category": "audit",
+            "dataType": "Select",
+            "range":
+            [
+                "Draft",
+                "Live",
+                "Review",
+                "Retired"
+            ],
+
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Draft",
+            "renderingHints": "{'inputType': 'select', 'order': 27}"
+        },
+        {
+          "propertyName": "relevancy",
+          "title": "Relevancy",
+          "description": "",
+          "category": "analytics",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 28 }"
+        },
+        {
+          "propertyName": "complexity",
+          "title": "Complexity",
+          "description": "",
+          "category": "analytics",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 29 }"
+        },
+        {
+          "propertyName": "allowedSuffixes",
+          "title": "Allowed Suffixes",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 30 }"
+        },
+        {
+          "propertyName": "allowedPrefixes",
+          "title": "Allowed Prefixes",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 31 }"
+        },
+        {
+          "propertyName": "allowedInfixes",
+          "title": "Allowed Infixes",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 32 }"
+        },
+        {
+          "propertyName": "tenseForms",
+          "title": "Tense Forms",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 33 }"
+        },
+        {
+          "propertyName": "plurality",
+          "title": "Plural Forms",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 34 }"
+        },
+        {
+          "propertyName": "singularForms",
+          "title": "Singular Forms",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 35 }"
+        },
+        {
+          "propertyName": "variants",
+          "title": "Morphological Variants",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 36 }"
+        },
+        {
+          "propertyName": "pos_categories",
+          "title": "POS Categories",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 37 }"
+        },
+        {
+          "propertyName": "wordLists",
+          "title": "WordLists",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
+          "propertyName": "wordListIds",
+          "title": "WordList Ids",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
+          "propertyName": "genders",
+          "title": "Genders",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
+            "propertyName": "category",
+            "title": "Category",
+            "description": "Category",
+            "category": "general",
+            "dataType": "Select",
+            "range":
+            [
+                "Person",
+                "Place",
+                "Thing",
+                "Quality",
+                "Numeral/Time",
+                "Concept",
+                "Action/Event",
+                "Grammatical Word"
+            ],
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'select', 'order': 3}"
+        },
+        {
+          "propertyName": "person",
+          "title": "Person",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 39 }"
+        },
+        {
+          "propertyName": "cases",
+          "title": "Grammatical Cases",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 40 }"
+        },
+        {
+          "propertyName": "theme",
+          "title": "Theme",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 41 }"
+        }
+      ],
+      "inRelations": [
+        {
+          "relationName": "synonym",
+          "title": "synonyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+          "relationName": "hasMember",
+          "objectTypes": [
+            "WordSet"
+          ],
+          "title": "wordsets",
+          "description": "",
+          "required": false,
+          "renderingHints": "{ 'order': 27 }"
+        }
+      ],
+      "outRelations": [
+        {
+          "relationName": "hasAntonym",
+          "title": "antonyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+          "relationName": "hasHypernym",
+          "title": "hypernyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+          "relationName": "hasHolonym",
+          "title": "holonyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+          "relationName": "hasHyponym",
+          "title": "hyponyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+          "relationName": "hasMeronym",
+          "title": "meronyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        }
+      ],
+      "systemTags": [
+        {
+          "name": "Review Tags",
+          "description": "Need to Review this Word."
+        },
+        {
+          "name": "Missing Information",
+          "description": "Some the information is missing."
+        },
+        {
+          "name": "Incorrect Data",
+          "description": "Wrong information about this word."
+        },
+        {
+          "name": "Spelling Mistakes",
+          "description": "Incorrect Spellings"
+        }
+      ],
+      "metadata": {
+        "ttl": 24,
+        "limit": 50,
+        "weightages":"{\"50\": [\"graph_id\",\"objectType\"],\"10\": [\"category\", \"pos\"],\"15\": [\"theme\"],\"1\": [\"not_exists\"],\"5\": [\"exists\"],\"20\":\"lemma\",\"1\":\"default_weightage\"}",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 13 }"
+      }
+    }
+  ]
+}

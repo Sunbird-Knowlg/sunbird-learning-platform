@@ -2,23 +2,24 @@ package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+
 import org.junit.Test;
 
 public class ItemSetAPITests extends BaseTest 
 {
 	int rn = generateRandomInt(0, 500);
 	
-	String JsonCreateItemSetValid = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 1,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_"+rn+"\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\"]}}}}";
-	String JsonCreateItemSetWithtotal_itemsNotEqualToItemsSize = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 4,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\"]}}}}";
+	String JsonCreateItemSetValid = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 1,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_"+rn+"\",\"difficulty_level\": \"low\",\"used_for\": \"assessment\",\"memberIds\": [\"G5Q1\"]}}}}";
+	String JsonCreateItemSetWithtotal_itemsNotEqualToItemsSize = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 4,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"G5Q1\"]}}}}";
 	String JsonCreateItemSetWithConcept = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"identifier\": \"domain_905\",\"max_score\": 3,\"total_items\": 3,\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"Test_ItemSet_{{$randomInt}}\",\"difficulty_level\":\"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"gradeLevel\": [\"Grade 1\"],\"memberIds\": [\"ek.n.q935\"],\"concepts\": [{\"relationName\": \"associatedTo\",\"identifier\": \"LO17\"}]}}}}";
-	String JsonCreateItemSetWithInvalidMembers = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 4,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q931\"]}}}}";
+	String JsonCreateItemSetWithInvalidMembers = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 4,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"G5Q1\"]}}}}";
 	String JsonSearchValid = "{\"request\": {\"resultSize\": 10}}";
 	String JsonSearchWithInValidSearchcriteria = "{\"request\": {\"max_score\": 3,\"resultSize\": 40}}";
-	String JsonUpdateItemSetValid= "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing ItemSet - MCQQ_650.\",\"type\": \"materialised\",\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"ItemSet_650\",\"difficulty_level\": \"high\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"max_score\": 3,\"memberIds\": [\"MCQQ_509\",\"MCQQ_901\",\"MCQQ_622\",\"MMCQQ_577\",\"MMCQQ_44\",\"FTBQ_173\",\"FTBQ_878\"]}}}}";
+	String JsonUpdateItemSetValid= "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing ItemSet - MCQQ_650.\",\"type\": \"materialised\",\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"ItemSet_650\",\"difficulty_level\": \"high\",\"used_for\": \"assessment\",\"max_score\": 3,\"memberIds\": [\"MCQQ_509\",\"MCQQ_901\",\"MCQQ_622\",\"MMCQQ_577\",\"MMCQQ_44\",\"FTBQ_173\",\"FTBQ_878\"]}}}}";
 	String JsonUpdateItemSetWithoutMandatoryFields = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing ItemSet - MCQQ_650.\",\"memberIds\": [\"MCQQ_509\",\"MCQQ_901\",\"MCQQ_622\",\"MMCQQ_577\",\"MMCQQ_44\",\"FTBQ_173\",\"FTBQ_878\"]}}}}";
 	String JsonCreateItemSetWithConceptsAsMembers = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 3,\"total_items\": 3,\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"Test_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\",\"LO17\"]}}}}";
-	String JsonCreateItemSetWithGivenIdentifier = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"identifier\": \"domain_1000\",\"max_score\": 3,\"total_items\": 1,\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"Test_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\"]}}}}";
+	String JsonCreateItemSetWithGivenIdentifier = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"identifier\": \"domain_1000\",\"max_score\": 3,\"total_items\": 1,\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"Test_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"G5Q1\"]}}}}";
 	
 	//Create ItemSet
 	@Test
@@ -31,27 +32,12 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/assessmentitemset").
+			post("/learning/v1/assessmentitemset").
 		then().
 			log().all().
 			spec(get200ResponseSpec());		
 	}
 	
-	@Test
-	public void createItemSetWithInvalidURLExpect500()
-	{
-		setURI();
-		given().
-			spec(getRequestSpec(contentType,validuserId)).
-			body(JsonCreateItemSetValid).
-		with().
-			contentType(JSON).
-		when().
-			post("v1/assessmeitemset").
-		then().
-			//log().all().
-			spec(get500ResponseSpec());
-	}
 	
 	@Test
 	public void createItemSetWithInvalidMembersExpect400()
@@ -63,7 +49,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/assessmentitemset").
+			post("/learning/v1/assessmentitemset").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -79,7 +65,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/assessmentitemset").
+			post("/learning/v1/assessmentitemset").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -95,7 +81,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/assessmentitemset").
+			post("/learning/v1/assessmentitemset").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());		
@@ -111,7 +97,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/assessmentitemset").
+			post("/learning/v1/assessmentitemset").
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -120,7 +106,7 @@ public class ItemSetAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/assessmentitemset/domain_1000"). 
+			get("/learning/v1/assessmentitemset/domain_1000"). 
     	then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -134,7 +120,7 @@ public class ItemSetAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/assessmentitemset/domain_960").
+			get("/learning/v1/assessmentitemset/domain_3250").
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -147,23 +133,10 @@ public class ItemSetAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/assessmentitemset/domain_472").
+			get("/learning/v1/assessmentitemset/domain_472").
 		then().
 			//log().all().
 			spec(get404ResponseSpec());
-	}
-	
-	@Test
-	public void getItemSetWithMisspelledURLExpect500()
-	{
-		setURI();
-		given().
-			spec(getRequestSpec(contentType,validuserId)).
-		when().
-			get("v1/assessmitemset/domain_740").
-		then().
-			//log().all().
-			spec(get500ResponseSpec());
 	}
 	
 	//Search ItemSet
@@ -177,7 +150,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/assessmentitemset/search").
+			post("/learning/v1/assessmentitemset/search").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -194,27 +167,10 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/assessmentitemset/search").
+			post("/learning/v1/assessmentitemset/search").
 		then().
 			//log().all().
 			spec(get500ResponseSpec());
-	}
-	
-	//Update ItemSet
-	@Test
-	public void updateItemSetValidInputsExpectSuccess200()
-	{
-		setURI();
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(JsonUpdateItemSetValid).
-		with().
-			contentType("application/json").
-		when().
-			patch("v1/assessmentitemset/domain_802").
-		then().
-			//log().all().
-			spec(get200ResponseSpec());
 	}
 	
 	@Test
@@ -227,7 +183,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType("application/json").
 		when().
-			patch("v1/assessmentitemset/domain_1111").
+			patch("/learning/v1/assessmentitemset/domain_1111").
 		then().
 			//log().all().
 			spec(get404ResponseSpec());
@@ -243,7 +199,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType("application/json").
 		when().
-			patch("v1/assessmentitemset/domain_804").
+			patch("/learning/v1/assessmentitemset/domain_804").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -258,7 +214,7 @@ public class ItemSetAPITests extends BaseTest
 		with().
 			contentType("application/json").
 		when().
-			patch("v1/assessmentitemset/domain_804").
+			patch("/learning/v1/assessmentitemset/domain_804").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -272,22 +228,22 @@ public class ItemSetAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			delete("v1/assessmentitemset/domain_835").
+			delete("/learning/v1/assessmentitemset/domain_835").
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
 	}
 	
 	@Test
-	public void deleteNonExistingItemSetExpect4xx()
+	public void deleteNonExistingItemSetExpect200()
 	{
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			delete("v1/assessmentitemset/domain_840").
+			delete("/learning/v1/assessmentitemset/domain_840").
 		then().
 			//log().all().
-			spec(get400ResponseSpec());
+			spec(get200ResponseSpec());
 	}
 }

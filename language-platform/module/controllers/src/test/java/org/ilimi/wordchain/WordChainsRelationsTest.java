@@ -32,7 +32,7 @@ public class WordChainsRelationsTest {
 	String graphId = "wcpnew";
 	final String pbObjType = "Phonetic_Boundary";
 
-	@Test
+	//@Test
 	public void createPBandFormRelations() throws Exception {
 
 		GraphDatabaseService graphDb = getGraphDb(graphId);

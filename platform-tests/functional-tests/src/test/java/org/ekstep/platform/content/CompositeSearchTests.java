@@ -5,7 +5,6 @@ import static com.jayway.restassured.http.ContentType.JSON;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
@@ -24,7 +23,7 @@ public class CompositeSearchTests extends BaseTest {
 	String jsonFilteredCompositeSearch = "{\"request\": {\"query\": \"add\",\"filters\": {\"objectType\": [\"content\", \"concept\"]},\"limit\": 10}}"; 
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String invalidContentId = "TestQa_"+rn+"";
-	String jsonCreateValidWord = "{\"request\": {\"words\": [{\"lemma\": \"देखी\",\"phonologic_complexity\": 13.25,\"orthographic_complexity\": 0.7}]}}";
+	String jsonCreateValidWord = "{\"request\":{\"words\":[{\"lemma\":\"देख_ी_"+rn+"\",\"sampleUsages\":[\"महिला एक बाघ को देखीै\"],\"pronunciations\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/dekhi.mp3\"],\"pictures\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/seeing.png\"],\"phonologic_complexity\":13.25,\"orthographic_complexity\":0.7}]}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT_\"}}";
 	
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
@@ -44,7 +43,7 @@ public class CompositeSearchTests extends BaseTest {
 				when().
 				post("/learning/v2/content").
 				then().
-				//log().all().
+				////log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -61,7 +60,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		post("/learning/v2/content/upload/"+ecmlNode).
 		then().
-		//log().all().
+		////log().all().
 		spec(get200ResponseSpec());
 
 		
@@ -72,7 +71,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		get("/learning/v2/content/publish/"+ecmlNode).
 		then().
-		//log().all().
+		////log().all().
 		spec(get200ResponseSpec());
 		
 		// Searching with query
@@ -81,7 +80,7 @@ public class CompositeSearchTests extends BaseTest {
 		JSONObject js = new JSONObject(jsonFilteredCompositeSearch);
 		js.getJSONObject("request").put("query", ecmlNode);
 		String jsonSimpleQuery = js.toString();
-		System.out.println(jsonSimpleQuery);
+		//system.out.println(jsonSimpleQuery);
 		Response R2 =
 		given().
 	 		spec(getRequestSpec(contentType, validuserId)).
@@ -91,7 +90,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search").
 		then().
-		 	log().all().
+		 	//log().all().
 		 	spec(get200ResponseSpec()).
 		 extract().
 		 	response();
@@ -116,7 +115,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search").
 		then().
-		 	log().all().
+		 	//log().all().
 		 	spec(get200ResponseSpec());		
 	}
 	
@@ -135,7 +134,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search").
 		then().
-		 	log().all().
+		 	//log().all().
 		 	spec(get200ResponseSpec());
 		
 		}
@@ -155,7 +154,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search"). 
 		then().
-		 	log().all().
+		 	//log().all().
 		 	spec(get200ResponseSpec());
 		}
 		
@@ -173,7 +172,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 			post("/learning/v2/content").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 		extract().
 			response();
@@ -195,7 +194,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search").
 		then().
-		 	log().all().
+		 	//log().all().
 		 	spec(get200ResponseSpec());
 		
 		// Space after query
@@ -211,8 +210,8 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search").
 		then().
-		 	log().all().
-		 	spec(get400ResponseSpec());		
+		 	//log().all().
+		 	spec(get200ResponseSpec());		
 }
 	
 	// Create and search word without filters in query
@@ -222,21 +221,19 @@ public class CompositeSearchTests extends BaseTest {
 	public void  createNewWordExpectSuccess200() {
 		setURI();
 		given().
-			log().all().
+			//log().all().
 			spec(getRequestSpec(contentType, validuserId)).
 			body(jsonCreateValidWord).
 		with().
 			contentType(JSON).
 		when().
-			post("language/v1/language/dictionary/word/en/").
+			post("language/v1/language/dictionary/word/hi/").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 		
 		// Extracting Lemma
-		JSONObject js = new JSONObject(jsonCreateValidWord);
-		js.getJSONObject("request").get("lemma");
-		String lemma = js.toString();
+		String lemma = "देख_ी_"+rn+"";
 		
 		// Search for the node
 		setURI();
@@ -251,7 +248,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search").
 		then().
-		 	log().all().
+		 	//log().all().
 		 	spec(get200ResponseSpec());
 }
 	
@@ -268,7 +265,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 		 	post("search/v2/search").
 		then().
-		 	log().all().
+		 	//log().all().
 		 	spec(get200ResponseSpec());
 		}
 	
@@ -285,7 +282,7 @@ public class CompositeSearchTests extends BaseTest {
 		when().
 			post("search/v2/search").
 		then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 	}	
 	// Content clean up	

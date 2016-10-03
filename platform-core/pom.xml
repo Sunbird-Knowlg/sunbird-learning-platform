@@ -55,9 +55,7 @@
                     	</formats>
                     	<instrumentation>
             				<excludes>
-            					<exclude>**/common/**</exclude>
-              					<exclude>**/dto/**</exclude>
-              					<exclude>**/enums/**</exclude>
+            					<exclude>**/**</exclude>
             				</excludes>
           				</instrumentation>
           				<check>

@@ -21,13 +21,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
-import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 
 public class LanguageWordchainRelationTest {
 
 	private static DictionaryManagerImpl dictionaryManager = new DictionaryManagerImpl();
-	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String TEST_LANGUAGE1 = "enTest";
 	private static String TEST_LANGUAGE2 = "kaTest";
@@ -36,15 +34,15 @@ public class LanguageWordchainRelationTest {
 		LanguageRequestRouterPool.init();
 	}
 
-	@BeforeClass
+	//@BeforeClass
 	public static void init() throws Exception {
 		createGraph();
-		createDefinition();
+		//createDefinition();
 		createWord();
 		Thread.sleep(5000);
 	}
 
-	@AfterClass
+	//@AfterClass
 	public static void close() throws IOException, InterruptedException {
 		deleteGraph();
 	}
@@ -136,7 +134,7 @@ public class LanguageWordchainRelationTest {
 	}
 
 
-	public static void createDefinition(){
+	/*public static void createDefinition(){
 		createDefinitionsStatic(TEST_LANGUAGE1);
 		createDefinitionsStatic(TEST_LANGUAGE2);
 	}
@@ -152,7 +150,7 @@ public class LanguageWordchainRelationTest {
 
 	public static void deleteDefinitionStatic(String language) {
 		taxonomyManager.delete(language);
-	}
+	}*/
 
 	public static void createGraph(){
 		if (!Neo4jGraphFactory.graphExists(TEST_LANGUAGE1)) 

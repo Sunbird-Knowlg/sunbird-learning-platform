@@ -12,11 +12,6 @@ import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
@@ -29,7 +24,11 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
+
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 
 public class RequestResponseTestHelper {
@@ -84,10 +83,10 @@ public class RequestResponseTestHelper {
 	        ObjectMapper mapper = new ObjectMapper();
 	        if (null != map && !map.isEmpty()) {
 	            try {
-	                Object obj = map.get(ContentAPIParams.content.name());
+	                Object obj = map.get("content");
 	                if (null != obj) {
 	                    Node content = (Node) mapper.convertValue(obj, Node.class);
-	                    request.put(ContentAPIParams.content.name(), content);
+	                    request.put("content", content);
 	                }
 	            } catch (Exception e) {
 	                e.printStackTrace();

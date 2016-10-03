@@ -14,17 +14,14 @@ import org.ekstep.searchindex.util.ConsumerGroup;
 import org.ekstep.searchindex.util.ConsumerInit;
 import org.ekstep.searchindex.util.ConsumerUtil;
 
+import com.ilimi.common.dto.CoverageIgnore;
+
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 
 public class ConsumerRunner {
 
     private static ConsumerUtil consumerUtil = new ConsumerUtil();
-
-    public static void main(String[] args)
-            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        startConsumers();
-    }
 
     private static kafka.consumer.ConsumerConfig createConsumerConfig(String a_zookeeper, String a_groupId) {
         Properties props = new Properties();
@@ -37,6 +34,7 @@ public class ConsumerRunner {
         return new kafka.consumer.ConsumerConfig(props);
     }
 
+    @CoverageIgnore
     public static void startConsumers() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         ConsumerConfig config = consumerUtil.getConsumerConfig();
         List<ConsumerGroup> consumerGroups = config.consumerGroups;
@@ -62,9 +60,9 @@ public class ConsumerRunner {
             }
         }
         Runtime.getRuntime().addShutdownHook(new Thread() {
+        	@CoverageIgnore
             @Override
             public void run() {
-                System.out.println("Shutdown hook");
                 for (ConsumerConnector consumer : consumerList)
                     consumer.commitOffsets();
             }
