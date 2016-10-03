@@ -18,7 +18,6 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.mgr.INodeManager;
 import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -598,7 +597,6 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
     
     @Override
     public void createProxyNodeAndTranslation(Request request) {
-    	System.out.println("Entering createProxyNodeAndTranslation");
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         final ActorRef parent = getSender();
         final Node node = (Node) request.get(GraphDACParams.node.name());
@@ -626,29 +624,24 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 createFuture.onComplete(new OnComplete<String>() {
                 @Override
                 public void onComplete(Throwable arg0, String arg1) throws Throwable {
-                	System.out.println("Completed proxy node creation:"+arg0);
                     if (null != arg0) {
                         ERROR(arg0, getSender());
                     } else {
-                    	System.out.println("Entering else");
+
                         if (StringUtils.isNotBlank(arg1)) {
-                        	System.out.println("Entering error case");
                             messages.add(arg1);
                             ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
                                     ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
                         } else {
-                        	System.out.println("Entering second else");
                         	if (messages.isEmpty()) {
                                 // create the node object
                         		request.put(GraphDACParams.node.name(), translationNode);
                         		if(create)
                         		{
-                        			System.out.println("Creating translation set");
                         			set.createSetNode(request, ec);
                         		}
                         		else
                         		{
-                        			System.out.println("Updating translation set");
                         			set.addMembers(request);
                         		}
                                 /*createFuture.onComplete(new OnComplete<String>() {

@@ -2740,7 +2740,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 	
 	public String getTranslationSet(String wordnetId, String graphId){
-		System.out.println("Logging data:"+wordnetId);
+		LOGGER.info("Logging wordnet id for getting translation set:"+wordnetId);
 		Node node = null;
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.SET.name());
@@ -2767,7 +2767,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 	
 	public String getTranslationSetWithMember(String id, String wordnetId, String graphId){
-		System.out.println("Logging data:"+id+":"+wordnetId);
+		LOGGER.info("Logging synsetid and wordnetid for getting with member:"+id+":"+wordnetId);
 		Node node = null;
 		RelationCriterion rc = new RelationCriterion("hasMember","Synset");
 		List<String> identifiers = new ArrayList<String>();

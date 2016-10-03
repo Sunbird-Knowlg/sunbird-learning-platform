@@ -38,7 +38,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 	}
 
 	public void processMessage(Map<String, Object> message) throws Exception {
-		if (message != null && message.get("eid") != null && StringUtils.equalsIgnoreCase((String)message.get("eid"),"BE_EVENT_LIFECYLE")) {
+		if (message != null && message.get("eid") != null && StringUtils.equalsIgnoreCase((String)message.get("eid"),"BE_WORD_LIFECYCLE")) {
 			if(message.get("edata") != null){
 				Map<String, Object> data = (Map<String, Object>)(message.get("edata"));
 				if(data.get("id") != null && data.get("state") != null && data.get("prevState") != null && data.get("lemma") != null){
