@@ -51,7 +51,6 @@ if {$check_error} {
 } 
 set text_complexity [get_resp_value $text_complexity_response "text_complexity"]
 set text_mean_complexity [$text_complexity get "meanComplexity"]
-
 set resp_def_node [getDefinition $graph_id $object_type]
 set check_error [check_response_error $resp_def_node]
 if {$check_error} {
@@ -85,6 +84,7 @@ if {$nodeExist} {
 
 	set averageComplexity [$metadata get "averageComplexity"]
 	set averageComplexity [$averageComplexity toString]
+	set text_mean_complexity [$text_mean_complexity toString]
 	set totalComplexity [expr {$text_mean_complexity + $averageComplexity}]
 	set totalComplexity [expr {$totalComplexity / 2}]
 	set text_mean_complexity $totalComplexity
