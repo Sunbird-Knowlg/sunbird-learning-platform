@@ -310,6 +310,7 @@ public class Set extends AbstractCollection {
     @SuppressWarnings("unchecked")
     @Override
     public void addMembers(final Request req) {
+    	System.out.println("Adding members to set");
         final String setId = (String) req.get(GraphDACParams.collection_id.name());
         final List<String> members = (List<String>) req.get(GraphDACParams.members.name());
         if (!manager.validateRequired(setId, members)) {
@@ -679,7 +680,8 @@ public class Set extends AbstractCollection {
         }
     }
 
-    private void createSetNode(final Request req, final ExecutionContext ec) {
+    public void createSetNode(final Request req, final ExecutionContext ec) {
+    	System.out.println("Creating set node");
         final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
