@@ -100,7 +100,7 @@ public class SearchProcessor {
 								Map<String, Object> indexWordDocument = new HashMap<String, Object>();
 								indexWordDocument = mapper.readValue(wordDoc, new TypeReference<Map<String, Object>>() {});
 								String wordId = (String)indexWordDocument.get("identifier");
-								String graphId = (String)indexWordDocument.get("graphId");
+								String graphId = (String)indexWordDocument.get("graph_id");
 								if(wordTranslationList.containsKey(graphId))
 								{
 									synsetWordLangList = (List<Map>)wordTranslationList.get(graphId);

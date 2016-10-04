@@ -201,8 +201,8 @@ public class ElasticSearchUtil {
 			if(actualDoc1.get("found").getAsBoolean())
 			{
 				JsonObject actualSource = actualDoc1.getAsJsonObject("_source");
-				System.out.println(actualSource.getAsString());
-				finalResult.add(mapper.writeValueAsString(actualSource));
+				//System.out.println(actualSource.getAsString());
+				finalResult.add(actualSource.toString());
 			}
 		}
 		return finalResult;
