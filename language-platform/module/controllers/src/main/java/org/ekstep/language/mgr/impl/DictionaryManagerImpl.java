@@ -1832,6 +1832,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
 			node.setObjectType(LanguageParams.Word.name());
 			String wordIdentifier = (String) item.get(LanguageParams.identifier.name());
+			String prevState = LanguageParams.draft.name();
 			if(wordIdentifier == null && createFlag){
 				Node existingWordNode = wordUtil.searchWord(languageId, (String) item.get(LanguageParams.lemma.name()));
 				if(existingWordNode != null){
@@ -1845,6 +1846,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 						}
 						node.getMetadata().put(ATTRIB_LAST_UPDATED_BY, stringLastUpdatedBy);
 					}
+					prevState = (String)existingWordNode.getMetadata().get(LanguageParams.status.name());
 					createFlag = false;
 				}
 			}
@@ -1856,9 +1858,10 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			if (!checkError(createRes)) {
 				String wordId = (String) createRes.get("node_id");
 				Node word = getWord(wordId, languageId, errorMessages);
-				if(null!=word.getMetadata().get(LanguageParams.status.name()) 
-						&& StringUtils.equalsIgnoreCase((String)word.getMetadata().get(LanguageParams.status.name()),LanguageParams.live.name()))
+				Object status = word.getMetadata().get(LanguageParams.status.name());
+				if(null!=status && !StringUtils.equalsIgnoreCase((String)status,prevState))
 				{
+					word.getMetadata().put("prevState", prevState);
 					LogWordEventUtil.logWordLifecycleEvent(word.getIdentifier(), word.getMetadata());
 				}
 				if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {

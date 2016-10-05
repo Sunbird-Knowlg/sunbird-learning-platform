@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ConsumerConfigs>
 <ConsumerConfig>
 	<ConsumerInit serverURI="localhost:2181" topic="composite-search-new">
-	</ConsumerInit>
 	<ConsumerGroups>
 		<ConsumerGroup id="composite-search-group" messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">
 			<Consumers>
@@ -22,3 +22,14 @@
 		</ConsumerGroup>
 	</ConsumerGroups>
 </ConsumerConfig>
+<ConsumerConfig>
+	<ConsumerInit serverURI="localhost:2181" topic="word-event-topic">
+	<ConsumerGroups>
+		<ConsumerGroup id="word-translation-group" messageProcessor="org.ekstep.searchindex.processor.WordTranslationMessageProcessor">
+			<Consumers>
+				<Consumer partitions="8" />
+			</Consumers>
+		</ConsumerGroup>
+	</ConsumerGroups>
+</ConsumerConfig>
+</ConsumerConfigs>

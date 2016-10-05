@@ -65,4 +65,7 @@ node registerCommand.js commands/register-loadGradeLevelComplexity.json update
 node registerCommand.js commands/register-validateComplexityRange.json update
 
 node registerCommand.js commands/register-getGradeLevelComplexity.json update
+
 node registerCommand.js commands/register-logWordTranslationEvent.json update
+
+node registerCommand.js commands/register-dropCollection.json update

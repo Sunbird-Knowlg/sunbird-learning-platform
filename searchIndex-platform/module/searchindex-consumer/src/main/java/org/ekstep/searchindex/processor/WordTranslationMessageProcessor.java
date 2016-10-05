@@ -40,23 +40,26 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("eid") != null && StringUtils.equalsIgnoreCase((String)message.get("eid"),"BE_WORD_LIFECYCLE")) {
 			if(message.get("edata") != null){
-				Map<String, Object> data = (Map<String, Object>)(message.get("edata"));
-				if(data.get("id") != null && data.get("state") != null && data.get("prevState") != null && data.get("lemma") != null){
-					String id = (String) data.get("id");
-					String state = (String) data.get("state");
-					createTranslationIndex();
-					String prevState = (String) data.get("prevState");
-					String lemma = (String) data.get("lemma");
-					String languageId = (String) data.get("languageId");
-							
-					Map<String,String> finalDocumentMap = getIndexDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
-							CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, lemma, languageId);
-					LOGGER.info("Adding/Updating translation index document");
-					if(finalDocumentMap!=null && finalDocumentMap.size()>0)
-					{
-						addOrUpdateIndex(id, finalDocumentMap);
+				Map<String, Object> edata = (Map<String, Object>)(message.get("edata"));
+				if(edata!=null)
+				{
+					Map<String, Object> data = (Map<String, Object>)(edata.get("eks"));
+					if(data.get("id") != null && data.get("state") != null && data.get("lemma") != null){
+						String id = (String) data.get("id");
+						String state = (String) data.get("state");
+						createTranslationIndex();
+						//String prevState = (String) data.get("prevState");
+						String lemma = (String) data.get("lemma");
+						String languageId = (String) data.get("languageId");
+						Map<String,String> finalDocumentMap = getIndexDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
+								CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, lemma, languageId);
+						LOGGER.info("Adding/Updating translation index document");
+						if(finalDocumentMap!=null && finalDocumentMap.size()>0)
+						{
+							addOrUpdateIndex(id, finalDocumentMap);
+						}
+						
 					}
-					
 				}
 			}
 		}
@@ -192,7 +195,6 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 					synsetIds = (List<String>) synsets;
 				}
 			}
-		
 		}catch(Exception e)
 		{
 			e.printStackTrace();

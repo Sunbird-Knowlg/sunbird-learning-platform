@@ -194,14 +194,12 @@ public class ElasticSearchUtil {
 		MultiGet get = new MultiGet.Builder.ById(indexName, documentType).addId(documentIdList).build();
 		JestResult result = client.execute(get);
 		JsonArray actualDocs = result.getJsonObject().getAsJsonArray("docs");
-		System.out.println(actualDocs);
 		for(int i=0;i<actualDocs.size();i++)
 		{
 			JsonObject actualDoc1 = actualDocs.get(i).getAsJsonObject();
 			if(actualDoc1.get("found").getAsBoolean())
 			{
 				JsonObject actualSource = actualDoc1.getAsJsonObject("_source");
-				//System.out.println(actualSource.getAsString());
 				finalResult.add(actualSource.toString());
 			}
 		}

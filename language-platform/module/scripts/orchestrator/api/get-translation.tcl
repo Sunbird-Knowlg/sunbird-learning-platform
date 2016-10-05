@@ -35,20 +35,15 @@ proc getNodeRelationIds {graph_node relationType property languages} {
 		java::for {Relation relation} $outRelations {
 			set index 0
 			if {[java::prop $relation "endNodeObjectType"] == $relationType} {
-				puts "entering if"
 				set prop_value [java::prop $relation $property]
-				puts $prop_value
 				set idArray [split $prop_value ":"]
-				puts "split successfully"
 				foreach entry $idArray {
 				 set languageContains [$languages contains $entry]
 					if {$languageContains == 1} {
-					puts "yes"
 					$relationIds add $prop_value
 				 }
 				 set index [expr $index + 1]
 				}
-				puts $index
 				if {$index == 1} {
 					set idArray [split $prop_value "_"]
 					foreach entry $idArray {
@@ -73,7 +68,6 @@ proc getInNodeRelationIds {graph_node relationType property} {
 	if {$hasRelations} {
 		java::for {Relation relation} $inRelations {
 			if {[java::prop $relation "startNodeObjectType"] == $relationType} {
-				puts "getting synset id"
 				set prop_value [java::prop $relation $property]
 				$relationIds add $prop_value
 			}
@@ -124,7 +118,6 @@ if {$check_error} {
 		set graph_nodes [get_resp_value $search_response "node_list"]
 		set synset_id_list [java::new ArrayList]
 		java::for {Node graph_node} $graph_nodes {
-		puts "nodes found"
 			set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId" $languages]
 			set not_empty_list [isNotEmpty $synset_ids]
 			if {$not_empty_list} {

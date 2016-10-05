@@ -1,7 +1,28 @@
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
-java::import -package com.ilimi.graph.dac.model Node
+java::import -package com.ilimi.graph.dac.model Node Relation
+
+proc getOutRelations {graph_node} {
+	set outRelations [java::prop $graph_node "outRelations"]
+	return $outRelations
+}
+
+proc getNodeRelationIds {graph_node relationType property} {
+
+	set relationIds [java::new ArrayList]
+	set outRelations [getOutRelations $graph_node]
+	set hasRelations [isNotEmpty $outRelations]
+	if {$hasRelations} {		
+		java::for {Relation relation} $outRelations {
+			if {[java::prop $relation "endNodeObjectType"] == $relationType} {
+				set prop_value [java::prop $relation $property]
+				$relationIds add $prop_value					
+			}
+		}
+	}
+	return $relationIds
+}
 
 proc isNotEmpty {graph_nodes} {
 	set exist false
@@ -26,11 +47,11 @@ set language_id $language_id
 set synset_list [java::new ArrayList]
 
 set testMap [java::cast HashMap $translations]
-puts "testing"
+set resultmap [java::new HashMap]
+set resultlist [java::new ArrayList]
 
 java::for {String translationKey} [$translations keySet] {
-	puts "testing"
-	$synset_list add $translationKey
+
     set testMap [java::cast HashMap [$translations get $translationKey]]
 	java::for {String language} [$testMap keySet] {
 		set synsetList [java::cast List [$testMap get $language]]
@@ -38,7 +59,7 @@ java::for {String translationKey} [$translations keySet] {
 	}
 
 	set relationMap [java::new HashMap]
-	$relationMap put "name" "hasMembers"
+	$relationMap put "name" "hasMember"
 	$relationMap put "objectType" "Synset"
 	$relationMap put "identifiers" $synset_list
 
@@ -70,13 +91,17 @@ java::for {String translationKey} [$translations keySet] {
 					set not_empty_list [isNotEmpty $synset_ids]
 					if {$not_empty_list} {
 					set members [java::new ArrayList]
-					java::for {java::new String synsetId} $synset_list {
-						set synsetContains [$synset_ids contains synsetId]
-						if {synsetContains}{
-							$members add synsetId					
+					java::for {String synsetId} $synset_list {
+						set synsetContains [$synset_ids contains $synsetId]
+						if {$synsetContains} {
+							$members add $synsetId					
 						}
 					}
-					set searchResponse [removeMembers $graph_id $collection_id $collection_type $members]
+					set membersSize [$members size] 
+					if {$membersSize > 0} {
+						set searchResponse [removeMembers $graph_id $collection_id $collection_type $members]
+						$resultlist add $collection_id
+						}
 					}
 				}
 			} 
@@ -94,6 +119,12 @@ if {$get_node_response_error} {
 
 set word_node [get_resp_value $get_node_response "node"]
 set eventResp [log_translation_lifecycle_event $word_id $word_node]
-
-return $searchResponse
+set resultlistSize [$resultlist size] 
+if {$resultlistSize > 0} {
+	$result_map put "translation" $resultlist
+} else {
+	$result_map put "translation" "No translations found"
+}
+set response_list [create_response $result_map]
+return $response_list
 
