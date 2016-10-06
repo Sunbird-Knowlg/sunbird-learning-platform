@@ -4,6 +4,8 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package java.util HashSet Set
 java::import -package com.ilimi.graph.dac.model Node
+java::import -package com.ilimi.graph.model.node DefinitionDTO
+java::import -package com.ilimi.graph.model.node MetadataDefinition
 
 proc isNotEmpty {list} {
 	set exist false
@@ -19,6 +21,31 @@ proc isNotEmpty {list} {
 
 set graph_id "language"
 set object_type "GradeLevelComplexity"
+
+set resp_def_node [getDefinition $graph_id $object_type]
+set check_error [check_response_error $resp_def_node]
+if {$check_error} {
+	return $resp_def_node
+} 
+set def_node [get_resp_value $resp_def_node "definition_node"]
+set properties [java::prop $def_node "properties"]
+
+java::for {MetadataDefinition property} $properties {
+	set propertyName [java::prop $property "propertyName"]
+	if {$propertyName=="languageId"} {
+		set validLanguages [java::prop $property "range"]
+		if {[$validLanguages contains $language_id]} {
+			break
+		} else {
+			set result_map [java::new HashMap]
+			$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
+			$result_map put "message" "Invalid language Id"
+			$result_map put "responseCode" [java::new Integer 400]
+			set response_list [create_error_response $result_map]
+			return $response_list
+		}
+	}
+}
 
 set map [java::new HashMap]
 $map put "nodeType" "DATA_NODE"
@@ -51,12 +78,6 @@ if {$check_error} {
 } 
 set text_complexity [get_resp_value $text_complexity_response "text_complexity"]
 set text_mean_complexity [$text_complexity get "meanComplexity"]
-set resp_def_node [getDefinition $graph_id $object_type]
-set check_error [check_response_error $resp_def_node]
-if {$check_error} {
-	return $resp_def_node
-} 
-set def_node [get_resp_value $resp_def_node "definition_node"]
 
 set gradelevel_complexity [java::new HashMap]
 $gradelevel_complexity put "objectType" $object_type
