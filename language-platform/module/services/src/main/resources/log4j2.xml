@@ -34,7 +34,7 @@
 			</Policies>
 		</RollingRandomAccessFile>
 		
-		<RollingRandomAccessFile name="WordEventAppender" fileName="/data/logs/lang_graph_event.log"
+		<RollingRandomAccessFile name="WordEventAppender" fileName="/data/logs/word_event.log"
 	            filePattern="/data/logs/word_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 	            <PatternLayout>
 	                <Pattern>%d %msg%n</Pattern>
