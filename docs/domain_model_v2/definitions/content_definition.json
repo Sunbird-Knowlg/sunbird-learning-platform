@@ -162,7 +162,8 @@
             "audio/mpeg",
             "audio/ogg",
             "audio/webm",
-            "audio/x-wav"
+            "audio/x-wav",
+            "audio/wav"
           ],
           "defaultValue": "application/vnd.ekstep.ecml-archive",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
