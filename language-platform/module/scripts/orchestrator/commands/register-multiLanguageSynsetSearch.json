@@ -1,0 +1,17 @@
+{
+  "name": "multiLanguageSynsetSearch",
+  "type": "COMMAND",
+  "parameters": [
+	{
+        "name": "synset_ids",
+        "index": 0,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    }
+ ],
+  "actorPath": {
+    "manager": "SEARCH_MANAGER",
+    "operation": "MULTI_LANGUAGE_SYNSET_SEARCH",
+    "router": "SEARCH_REQUEST_ROUTER"
+  }
+}

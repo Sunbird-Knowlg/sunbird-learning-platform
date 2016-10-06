@@ -41,6 +41,15 @@ proc getProperty {graph_node prop} {
 	return $property
 }
 
+proc getErrorResponse {message code respCode} {
+	set result_map [java::new HashMap]
+	$result_map put "code" $code
+	$result_map put "message" $message
+	$result_map put "responseCode" [java::new Integer $respCode]
+	set err_response [create_error_response $result_map]
+	return $err_response
+}
+
 set object_type "TranslationSet"
 set node_id $word_id
 set language_id $language_id
@@ -121,10 +130,14 @@ set word_node [get_resp_value $get_node_response "node"]
 set eventResp [log_translation_lifecycle_event $word_id $word_node]
 set resultlistSize [$resultlist size] 
 if {$resultlistSize > 0} {
-	$result_map put "translation" $resultlist
+	$result_map put "set_list" $resultlist
+	set response_list [create_response $result_map]
+	return $response_list
 } else {
-	$result_map put "translation" "No translations found"
+	set msg "TRANSLATION NOT FOUND"
+	set code "TRANSLATION_NOT_FOUND"
+	set respCode 404
+	return [getErrorResponse $msg $code $respCode]
 }
-set response_list [create_response $result_map]
-return $response_list
+
 

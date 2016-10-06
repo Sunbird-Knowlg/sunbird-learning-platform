@@ -1809,7 +1809,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @return
 	 * @throws Exception
 	 */
-	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition, int indoWordnetId)
+	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition, int indoWordnetId, int englishTranslationId)
 			throws Exception {
 		String operation = "updateDataNode";
 		String identifier = (String) synsetObj.get(LanguageParams.identifier.name());
@@ -1827,7 +1827,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Response res = getResponse(synsetReq, LOGGER);
 		String primaryMeaningId = (String) res.get(GraphDACParams.node_id.name());
 		//createProxyNode(primaryMeaningId,LanguageParams.translations.name(),indoWordnetId);
-		createProxyNodeAndTranslationSet(primaryMeaningId, LanguageParams.translations.name(),indoWordnetId);
+		createProxyNodeAndTranslationSet(primaryMeaningId, LanguageParams.translations.name(),indoWordnetId, englishTranslationId);
 		return res;
 	}
 
@@ -1849,7 +1849,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	@SuppressWarnings("unchecked")
 	public List<String> createOrUpdateWord(Map<String, Object> item, String languageId,
 			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition, ArrayList<String> nodeIds,
-			DefinitionDTO synsetDefinition) {
+			DefinitionDTO synsetDefinition, int englishTranslationId) {
 		Response createRes = new Response();
 		List<String> errorMessages = new ArrayList<String>();
 		try {
@@ -1883,7 +1883,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 			String synsetIdentifer = languageId + ":S:" + String.format("%08d", indowordnetId);
 			primaryMeaning.put(LanguageParams.identifier.name(), synsetIdentifer);
-			Response synsetResponse = createSynset(languageId, primaryMeaning, synsetDefinition, indowordnetId);
+			Response synsetResponse = createSynset(languageId, primaryMeaning, synsetDefinition, indowordnetId, englishTranslationId);
 			if (checkError(synsetResponse)) {
 				errorMessages
 						.add(getErrorMessage(synsetResponse) + ": Id: " + indowordnetId + " Language: " + languageId);
@@ -2673,16 +2673,23 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		//}
 	}
 	
-	private void createProxyNodeAndTranslationSet(String primaryMeaningId, String graphId, int indowordId)
+	private void createProxyNodeAndTranslationSet(String primaryMeaningId, String graphId, int indowordId, int englishTranslationId)
 	{
-		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
 		String operation = "createProxyNodeAndTranslation";
 		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
+		boolean proxy = proxyNodeExists(graphId,primaryMeaningId);
+		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
 		proxyReq.put(GraphDACParams.node.name(), node);
 		proxyReq = createTranslationCollection(proxyReq, indowordId, primaryMeaningId);
-		String id = ""+indowordId;
+		String id = "";
+		if(englishTranslationId!=0)
+		{
+			id = ""+englishTranslationId;
+		}else{
+			id = ""+indowordId;
+		}
+		LOGGER.info("Primary meaning id and indowordnetid:"+primaryMeaningId+":"+id);
 		boolean create = false;
-		//BaseTranslationSet tranlationSet = new BaseTranslationSet(graphId,node,LOGGER,metadata);
 		String nodeId = getTranslationSetWithMember(primaryMeaningId,id,graphId);
 		if(nodeId==null)
 		{
@@ -2697,6 +2704,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				proxyReq.put(GraphDACParams.collection_id.name(), nodeId);
 			}
 			proxyReq.put("create", create);
+			proxyReq.put("proxy", proxy);
 			Response res = getResponse(proxyReq, LOGGER);
 			if (!checkError(res)) {
 				String proxyId = (String) res.get("node_id");
@@ -2798,4 +2806,19 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
         }
 	}
 	
+	private boolean proxyNodeExists(String graphId, String proxyId)
+	{
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getProxyNode");
+		request.put(GraphDACParams.node_id.name(), proxyId);
+
+		Response findRes = getResponse(request, LOGGER);
+		if (checkError(findRes))
+			return false;
+		else {
+			Node node = (Node) findRes.get(GraphDACParams.node.name());
+			if (null != node)
+				return true;
+		}
+		return true;
+	}
 }

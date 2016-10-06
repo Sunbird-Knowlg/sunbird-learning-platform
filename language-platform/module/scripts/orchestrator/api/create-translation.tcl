@@ -42,6 +42,15 @@ proc getProperty {graph_node prop} {
 	return $property
 }
 
+proc getErrorResponse {message code respCode} {
+	set result_map [java::new HashMap]
+	$result_map put "code" $code
+	$result_map put "message" $message
+	$result_map put "responseCode" [java::new Integer $respCode]
+	set err_response [create_error_response $result_map]
+	return $err_response
+}
+
 set object_type "TranslationSet"
 set node_id $word_id
 set language_id $language_id
@@ -53,6 +62,8 @@ set testMap [java::cast HashMap $translations]
 set graph_id "translations"
 set result_map [java::new HashMap]
 
+set set_list [java::new ArrayList]
+set exists false
 java::for {String translationKey} [$translations keySet] {
 	$synset_list add $translationKey
     set testMap [java::cast HashMap [$translations get $translationKey]]
@@ -60,6 +71,28 @@ java::for {String translationKey} [$translations keySet] {
 		set synsetList [java::cast List [$testMap get $language]]
 		$synset_list addAll $synsetList
 	}
+	set synsetListSize [$synset_list size]
+	
+	if {$synsetListSize > 0} {
+	
+	if {$synsetListSize == 1} {
+		set msg "INVALID REQUEST FORMAT"
+		set code "INVALID_REQUEST_FORMAT"
+		set respCode 400
+		return [getErrorResponse $msg $code $respCode]
+	}
+	
+	set synsetResp [multiLanguageSynsetSearch $synset_list]
+	set synsetIds [java::cast List [$synsetResp get "synsets"]]
+	java::for {String synsetEntry} $synset_list {
+		if {![$synsetIds contains $synsetEntry]} {
+			set msg "SYNSET NOT FOUND"
+			set code "SYNSET_NOT_FOUND"
+			set respCode 404
+			return [getErrorResponse $msg $code $respCode]
+		}
+	}
+	
 	
 	set proxyResp [getDataNodes $graph_id $synset_list]
 	set proxy_nodes [get_resp_value $proxyResp "node_list"]
@@ -103,8 +136,6 @@ java::for {String translationKey} [$translations keySet] {
 	if {$check_error} {
 		return $search_response;
 	} else {
-		
-		java::try {
 			set graph_nodes [get_resp_value $search_response "node_list"]
 			set translationExists [isNotEmpty $graph_nodes]
 			if {$translationExists} {
@@ -140,11 +171,8 @@ java::for {String translationKey} [$translations keySet] {
 					set membersSize [$members size] 
 					if {$membersSize > 0} {
 						set searchResponse [addMembers $graph_id $collection_id $collection_type $members]
-						$result_map put "node_id" $collection_id
-					} else {
-						$result_map put "error" "Members are already part of set"
-					 }
-					
+					}
+					$set_list add $collection_id
 			}
 				
 			} else {
@@ -154,15 +182,19 @@ java::for {String translationKey} [$translations keySet] {
 				$members addAll $synset_list
 				set member_type "Synset"
 				set searchResponse [createSet $graph_id $members $object_type $member_type $node]
+				set set_id [get_resp_value $searchResponse "set_id"]
+				$set_list add $set_id
 			}
-			
-
-		} catch {Exception err} {
-			$result_map put "error" [$err getMessage]
-		}
 
 	}
+	} else {
+		set msg "INVALID REQUEST FORMAT"
+		set code "INVALID_REQUEST_FORMAT"
+		set respCode 400
+		return [getErrorResponse $msg $code $respCode]
+	}
 }
+
 set get_node_response [getDataNode $language_id $node_id]
 set get_node_response_error [check_response_error $get_node_response]
 if {$get_node_response_error} {
@@ -172,8 +204,10 @@ if {$get_node_response_error} {
 set word_node [get_resp_value $get_node_response "node"]
 set eventResp [log_translation_lifecycle_event $word_id $word_node]
 set resultSize [$result_map size] 
+set setListSize [$set_list size] 
 
-if {$resultSize > 0} {
+if {$setListSize > 0} {
+	$result_map put "set_list" $set_list
 	set response_list [create_response $result_map]
 	return $response_list
 } else {

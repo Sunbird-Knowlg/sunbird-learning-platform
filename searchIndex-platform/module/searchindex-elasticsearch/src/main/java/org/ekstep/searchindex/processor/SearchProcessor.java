@@ -130,29 +130,30 @@ public class SearchProcessor {
 	public Map<String, Object> multiSynsetDocSearch(List<String> synsetIds) throws Exception {
 		System.out.println("Entering multi doc search");
 		Map<String, Object> synsetDocList = new HashMap<String, Object>();
+		List<String> identifierList = new ArrayList<String>();
 		if(synsetIds!=null && synsetIds.size()>0)
 		{
 			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
 			System.out.println("Size of doc list:"+resultList.size());
 			for(String synsetDoc: resultList)
-			{
-				List<String> identifierList = new ArrayList<String>();
+			{			
 				Map<String, Object> indexDocument = new HashMap<String, Object>();
 				if (synsetDoc != null && !synsetDoc.isEmpty()) {
 					indexDocument = mapper.readValue(synsetDoc, new TypeReference<Map<String, Object>>() {});
 					String identifier = (String)indexDocument.get("identifier");
-					String graphId = (String)indexDocument.get("graphId");
+					/*String graphId = (String)indexDocument.get("graph_id");
 					if(synsetDocList.containsKey(graphId))
 					{
 						identifierList = (List<String>)synsetDocList.get(graphId);
-					}
+					}*/
 					identifierList.add(identifier);
-					synsetDocList.put(graphId, identifierList);					
+									
 				}
 				
 			}
 		}
+		synsetDocList.put("synsets", identifierList);	
 
 		return synsetDocList;
 	}
