@@ -1932,7 +1932,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				} else {
 					String status = (String) node.getMetadata().get(LanguageParams.status.name());
 					if(!StringUtils.equalsIgnoreCase(languageId, "en") || 
-							(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.draft.name()))){
+							(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.Draft.name()))){
 						createRes = updateWord(node, languageId, wordIdentifier);
 					}/*else if(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.live.name())){
 						createRes = updateWord(node, languageId, wordIdentifier);

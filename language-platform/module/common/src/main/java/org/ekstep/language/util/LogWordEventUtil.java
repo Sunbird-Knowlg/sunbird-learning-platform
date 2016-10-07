@@ -21,7 +21,7 @@ public class LogWordEventUtil {
 		te.setEid("BE_WORD_LIFECYCLE");
 		te.setEts(unixTime);
 		te.setVer("2.0");
-		te.setPdata("org.ekstep.service.lp", "nodel", "1.5.0", "");
+		te.setPdata("org.ekstep.language.platform", "", "1.0", "");
 		te.setEdata(wordId, metadata.get("status"), metadata.get("prevState"), metadata.get("lemma"));
 		String jsonMessage = null;
 		try {

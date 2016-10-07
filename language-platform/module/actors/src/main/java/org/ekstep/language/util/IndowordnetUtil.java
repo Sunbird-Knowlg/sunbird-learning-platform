@@ -268,29 +268,6 @@ public class IndowordnetUtil {
 			}
 			primaryMeaningMap.put(relationName, relationsList);
 		}
-
-		// Process and cerate the translations
-		/*Map<String, Object> translationsMap = new HashMap<String, Object>();
-		for (Map.Entry<String, List<SynsetDataLite>> entry : synsetData.getTranslations().entrySet()) {
-			String translatedLanguage = entry.getKey();
-			List<SynsetDataLite> translatedDataList = entry.getValue();
-			List<String> finalTranslationWords = new ArrayList<String>();
-
-			for (SynsetDataLite translation : translatedDataList) {
-				bytesSynset = translation.getSynset();
-				synsetString = new String(bytesSynset, Charsets.UTF_8);
-				String[] translationWords = synsetString.split(COMMA_SEPARATOR);
-				finalTranslationWords.addAll(Arrays.asList(translationWords));
-			}
-
-			String translatedLanguageGraphId = LanguageMap.getLanguageGraph(translatedLanguage);
-			if (translatedLanguageGraphId == null) {
-				errorMessages.add("Graph not found for Language: " + translatedLanguage);
-			}
-			translationsMap.put(translatedLanguageGraphId, finalTranslationWords);
-		}
-
-		primaryMeaningMap.put(LanguageParams.translations.name(), mapper.writeValueAsString(translationsMap));*/
 		wordMap.put(LanguageParams.primaryMeaning.name(), primaryMeaningMap);
 
 		return wordMap;

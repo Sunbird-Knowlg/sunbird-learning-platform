@@ -153,6 +153,14 @@ public interface ISearchManager {
     
     void searchRelations(Request request);
     
+    /**
+     * Get proxy node for the given id
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - NODE_ID proxy node id
+     * @response - NODE node object
+     * @response - STATUS: API call status
+     */
     void getProxyNode(Request request);
 
 }

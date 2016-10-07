@@ -74,65 +74,6 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		}
 	}
 
-	private Map updateIndex(String uniqueId, Map<String, Object> docMap, Map<String,Object> newTranslationInd) throws Exception {
-		LOGGER.info("Translation index updated: Identifier: " + uniqueId);
-		Map<String, Object> tempDocMap = new HashMap<String, Object>();
-		Map<String, Object> tempNewTranslationIndMap = new HashMap<String, Object>();
-		Map<String,String> synset_ids = (Map<String,String>)docMap.get("synset_ids");
-		Map<String,List<Map<String,String>>> languageId_words = (Map<String,List<Map<String,String>>>)docMap.get("languageId_words");
-		Map<String,String> new_synset_ids = (Map<String,String>)newTranslationInd.get("synset_ids");
-		Map<String,List<Map<String,String>>> new_languageId_words = (Map<String,List<Map<String,String>>>)newTranslationInd.get("languageId_words");
-		tempDocMap.putAll(docMap);
-		tempDocMap.remove("translation_set_id");
-		tempDocMap.remove("synset_ids");
-		
-		tempNewTranslationIndMap.putAll(newTranslationInd);
-		tempDocMap.remove("translation_set_id");
-		tempDocMap.remove("synset_ids");
-		
-		for(Map.Entry<String,Object> entry: tempNewTranslationIndMap.entrySet())
-		{
-			if(tempDocMap.containsKey(entry.getKey())){
-				List<Map<String,String>> newWordListForLanguage = (List<Map<String,String>>)entry.getValue();
-				List<Map<String,String>> curWordListForLanguage = (List<Map<String,String>>)tempDocMap.get(entry.getKey());
-				for(int i=0;i<newWordListForLanguage.size();i++)
-				{
-					boolean flag = false;
-					for(int j=0;j<curWordListForLanguage.size();j++)
-					{
-					if(((String)newWordListForLanguage.get(i).get("id")).equalsIgnoreCase((String)curWordListForLanguage.get(j).get("id")))
-					{
-						curWordListForLanguage.get(i).put("lemma", (String)newWordListForLanguage.get(i).get("lemma"));
-						flag = true;
-					}
-					}
-					if(!flag)
-					{
-						Map<String,String> newWordMap = new HashMap<String,String>();
-						newWordMap.put("id", (String)newWordListForLanguage.get(i).get("id"));
-						newWordMap.put("lemma", (String)newWordListForLanguage.get(i).get("lemma"));
-						curWordListForLanguage.add(newWordMap);
-					}					
-					
-				}
-				tempDocMap.put(entry.getKey(), curWordListForLanguage);
-			}else
-			{
-				tempDocMap.put(entry.getKey(), entry.getValue());
-			}
-		}
-		
-		if(tempDocMap.size()>0)
-		{
-			docMap.putAll(tempDocMap);
-		}
-
-		if(synset_ids!=null && new_synset_ids!=null && new_synset_ids.size()>0)
-		{
-			synset_ids.putAll(new_synset_ids);
-		}
-		return docMap;
-	}
 
 	private void createTranslationIndex() throws IOException {
 		String settings = "{ \"settings\": {   \"index\": {     \"index\": \""+WordTranslationConstants.TRANSLATION_INDEX+"\",     \"type\": \""+WordTranslationConstants.TRANSLATION_INDEX_TYPE+"\",     \"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
@@ -150,23 +91,6 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		if(synsetIds!=null && synsetIds.size()>0)
 		{
 			finalDocumentMap =  getTranslationSetFromComposite(synsetIds,index,type,uniqueId,lemma);
-			/*Map<String,String> documentMap = getTranslationSetFromComposite(synsetIds,index,type,uniqueId,lemma);
-			for(Map.Entry<String, String> entry: documentMap.entrySet())
-			{
-				Map<String, Object> indexDocument = new HashMap<String, Object>();
-				Map<String, Object> docCreated = new HashMap<String, Object>();
-				String documentJson = elasticSearchUtil.getDocumentAsStringById(WordTranslationConstants.TRANSLATION_INDEX,
-						WordTranslationConstants.TRANSLATION_INDEX_TYPE, entry.getKey());
-				if (documentJson != null && !documentJson.isEmpty()) {
-					LOGGER.info("Document exists for " + uniqueId);
-					indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {});
-					docCreated = mapper.readValue(entry.getValue(), new TypeReference<Map<String, Object>>() {});
-					Map doc = updateIndex(uniqueId, indexDocument, docCreated);
-					String finalDocument = mapper.writeValueAsString(doc);
-					finalDocumentMap.put(entry.getKey(), finalDocument);
-				}
-
-			}*/
 		}
 		}catch(Exception e)
 		{
@@ -188,7 +112,6 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 				LOGGER.info("Document exists for " + uniqueId);
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
-				//IN_Synset_synonym
 				Object synsets = indexDocument.get("synonyms");
 				if(synsets!=null)
 				{
@@ -200,20 +123,6 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 			e.printStackTrace();
 		}
 		return synsetIds;
-	}
-	
-	private Map<String, String> createNewTranslationIndex(String index,String type, String uniqueId,String lemma, String languageId)
-	{
-		List<String> synsetIds = getSynsetForWord(index, type, uniqueId);
-		try
-		{			
-			return getTranslationSetFromComposite(synsetIds, index, type, uniqueId, lemma);
-		
-		}catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		return null;
 	}
 	
 	private Map<String, String> getTranslationSetFromComposite(List<String> synsetIds, String index, String type,String id, String lemma)
@@ -281,7 +190,6 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 			LOGGER.info("Document exists for " + id);
 			indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 			});
-			//OUT_Synset_synonym
 			Object words = indexDocument.get("synonyms");
 			if(words!=null)
 			{

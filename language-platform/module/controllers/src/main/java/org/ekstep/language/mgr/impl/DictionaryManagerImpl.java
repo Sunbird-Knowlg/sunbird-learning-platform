@@ -1832,7 +1832,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
 			node.setObjectType(LanguageParams.Word.name());
 			String wordIdentifier = (String) item.get(LanguageParams.identifier.name());
-			String prevState = LanguageParams.draft.name();
+			String prevState = LanguageParams.Draft.name();
 			if(wordIdentifier == null && createFlag){
 				Node existingWordNode = wordUtil.searchWord(languageId, (String) item.get(LanguageParams.lemma.name()));
 				if(existingWordNode != null){
