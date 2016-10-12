@@ -21,6 +21,7 @@ mysql_db_schema = lpqadb
 mysql_db_username = lpsandboxdb
 mysql_db_password = lp5andb0x
 mysql_db_schema = lpqadb
+iwn_db_schema = indowordnet_dump
 search_index_host = 172.31.0.93
 search_index_port = 9200
 environment_id = 20000000

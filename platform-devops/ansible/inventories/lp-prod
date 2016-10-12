@@ -21,6 +21,7 @@ mysql_db_schema = lpproddb
 mysql_db_username = ekstep
 mysql_db_password = 4vUkhpZa9UXz2HnC
 mysql_db_schema = lpproddb
+iwn_db_schema = indowordnet_dump
 search_index_host = 10.10.1.20
 search_index_port = 9200
 environment_id = 30000000

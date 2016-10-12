@@ -7,9 +7,9 @@
 	<session-factory>
 		<!-- Database connection properties - Driver, URL, user, password -->
 		<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-		<property name="hibernate.connection.url">jdbc:mysql://localhost/indowordnet</property>
-		<property name="hibernate.connection.username">root</property>
-		<property name="hibernate.connection.password">welcome</property>
+		<property name="hibernate.connection.url">jdbc:mysql://{{ mysql_db_url }}/{{ iwn_db_schema }}</property>
+		<property name="hibernate.connection.username">{{ mysql_db_username }}</property>
+		<property name="hibernate.connection.password">{{ mysql_db_password }}</property>
 
 		<!-- org.hibernate.HibernateException: No CurrentSessionContext configured! -->
 		<property name="hibernate.current_session_context_class">thread</property>
