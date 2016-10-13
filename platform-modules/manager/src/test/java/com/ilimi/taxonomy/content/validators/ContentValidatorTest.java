@@ -8,8 +8,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
 import com.ilimi.taxonomy.content.common.BaseTest;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.validator.ContentValidator;
@@ -17,6 +20,9 @@ import com.ilimi.taxonomy.content.validator.ContentValidator;
 public class ContentValidatorTest extends BaseTest {
 	
 	ContentValidator validator = new ContentValidator();
+	
+	@Autowired
+	NodeManagerImpl node;
 	
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -78,6 +84,24 @@ public class ContentValidatorTest extends BaseTest {
 		 exception.expect(ClientException.class);
 		 exception.expectMessage(ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_STRUCTURE_ERROR);
 		 validator.isValidContentPackage(invalid_package);
+	}
+	
+//	@Test
+	public void createNode(){
+		Request request = new Request();
+		request.setId(TEST_GRAPH);
+		request.getContext().put("body", "<theme></theme>");
+		request.getContext().put("code","org.ekstep.mar8.story");
+		request.getContext().put("status", "Mock");
+		request.getContext().put("description", "शेर का साथी हा");
+		request.getContext().put("subject", "literacy");
+		request.getContext().put("name", "शेर का साथी हाथ");
+		request.getContext().put("owner", "EkStep");
+		request.getContext().put("mimeType", "application/vnd.ekstep.ecml-archive");
+		request.getContext().put("identifier","org.ekstep.mar8.story");
+		request.getContext().put("contentType", "Story");
+		request.getContext().put("osId", "org.ekstep.quiz.app");
+		node.createDataNode(request);
 	}
 	public static String readFileString(String fileName) {
 		String fileString = "";

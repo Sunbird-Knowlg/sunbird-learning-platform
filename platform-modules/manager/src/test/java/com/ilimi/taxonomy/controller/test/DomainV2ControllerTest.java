@@ -75,8 +75,6 @@ public class DomainV2ControllerTest extends BaseTest {
 						"user-id", "ilimi"));
 				Assert.assertEquals(404, actions.andReturn().getResponse()
 						.getStatus());
-				Response response = jsonToObject(actions);
-				assertEquals("SERVER_ERROR", response.getParams().getStatus());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
