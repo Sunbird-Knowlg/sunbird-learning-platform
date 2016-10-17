@@ -245,7 +245,7 @@ public class IndowordnetUtil {
 		// From the primary meaning object as a map
 		primaryMeaningMap.put(LanguageParams.gloss.name(), gloss);
 		primaryMeaningMap.put(LanguageParams.exampleSentences.name(), exampleSentences);
-		primaryMeaningMap.put(LanguageParams.pos.name(), StringUtils.capitalize(
+		primaryMeaningMap.put(LanguageParams.pos.name(), StringUtils.lowerCase(
 				synsetData.getCategory() != null ? synsetData.getCategory().toLowerCase() : StringUtils.EMPTY));
 		
 

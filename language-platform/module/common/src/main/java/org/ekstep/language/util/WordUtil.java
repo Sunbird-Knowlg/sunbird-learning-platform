@@ -1922,6 +1922,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				Map<String, Object> wordMap = new HashMap<String, Object>();
 				wordMap.put(LanguageParams.lemma.name(), lemma);
 				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+				wordMap.put(LanguageParams.pos.name(), primaryMeaning.get(LanguageParams.pos.name()));
 				List<String> sources = new ArrayList<String>();
 				sources.add(ATTRIB_SOURCE_IWN);
 				wordMap.put(ATTRIB_SOURCES, sources);
