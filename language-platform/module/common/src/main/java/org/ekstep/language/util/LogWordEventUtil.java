@@ -17,7 +17,7 @@ public class LogWordEventUtil {
 
 	public static String logWordLifecycleEvent(String wordId, Map<String, Object> metadata) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
-		long unixTime = System.currentTimeMillis() / 1000L;
+		long unixTime = System.currentTimeMillis();
 		te.setEid("BE_WORD_LIFECYCLE");
 		te.setEts(unixTime);
 		te.setVer("2.0");
