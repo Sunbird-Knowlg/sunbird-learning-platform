@@ -63,9 +63,9 @@ public class AssessmentitemTest extends BaseTest {
 	static int rn = generateRandomNumber(0, 9999);
 
 	// create assessmentItem with valid request body
-	// expect 200 ok response
+	// expect 200 response
 	@Test
-	public void createAssessmentItem_01() {
+	public void createAssessmentItem() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
@@ -83,7 +83,7 @@ public class AssessmentitemTest extends BaseTest {
 	// create an assessmentItem without "code" in request body
 	// expect 400 ok response
 	@Test
-	public void createAssessmentItem_02() {
+	public void createAssessmentItemWithoutCode() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
@@ -101,7 +101,7 @@ public class AssessmentitemTest extends BaseTest {
 	// create assessmentItem without "name" in the request body
 	// expect 400 response
 	@Test
-	public void createAssessmentItem_03() {
+	public void createAssessmentItemWithoutName() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
@@ -119,7 +119,7 @@ public class AssessmentitemTest extends BaseTest {
 	// create assessmentItem without "type" in the request body
 	// expect 400 response
 	@Test
-	public void createAssessmentItem_04() {
+	public void createAssessmentItemWithoutType() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"name\": \"MTF Question 1\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
@@ -137,7 +137,7 @@ public class AssessmentitemTest extends BaseTest {
 	// create assessmentItem without "template"
 	// expect 400 response
 	@Test
-	public void createAssessmentItem_05() {
+	public void createAssessmentItemWithoutTemplate() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
@@ -155,7 +155,7 @@ public class AssessmentitemTest extends BaseTest {
 	// create an already existing assessmentItem
 	// expect 400 response
 	@Test
-	public void createAssessmentItem_06() {
+	public void createNonexistingAssessmentItem() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_01\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"name\": \"MCQ Question 2\", \"type\": \"mcq\", \"num_answers\": 1, \"template\": \"mcq_template_2\", \"qlevel\": \"MEDIUM\", \"owner\": \"username_1\", \"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ. ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\", \"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ. \nಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\", \"model\": { \"img\": { \"type\": \"image\", \"asset\": \"perimeter\" }, \"img2\": { \"type\": \"image\", \"asset\": \"smallSquare\" }, \"subtext\": \"( = 1 ಚದರ ಸೆಂ.ಮೀ)\" }, \"options\": [ { \"value\": { \"type\": \"text\", \"asset\": \"12&10\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"14&7\" } }, { \"value\": { \"type\": \"mixed\", \"text\": \"16&8\", \"image\": \"image1\", \"audio\": \"audio1\" } }, { \"value\": { \"type\": \"mixed\", \"image\": \"image2\", \"audio\": \"audio2\" }, \"answer\": true } ], \"max_score\": 1, \"partial_scoring\": false, \"feedback\": \"\", \"responses\": [ { \"values\": {\"12&10\": true}, \"score\": 1 } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
 			String path = "/v1/assessmentitem";
@@ -170,7 +170,7 @@ public class AssessmentitemTest extends BaseTest {
 	// create an assessmentitem with invalid url
 	// expect 404 response
 	@Test
-	public void createAssessmentItem_07() {
+	public void createAssessmentItemWithInvalidUrl() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_01\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"name\": \"MCQ Question 2\", \"type\": \"mcq\", \"num_answers\": 1, \"template\": \"mcq_template_2\", \"qlevel\": \"MEDIUM\", \"owner\": \"username_1\", \"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ. ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\", \"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ. \nಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\", \"model\": { \"img\": { \"type\": \"image\", \"asset\": \"perimeter\" }, \"img2\": { \"type\": \"image\", \"asset\": \"smallSquare\" }, \"subtext\": \"( = 1 ಚದರ ಸೆಂ.ಮೀ)\" }, \"options\": [ { \"value\": { \"type\": \"text\", \"asset\": \"12&10\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"14&7\" } }, { \"value\": { \"type\": \"mixed\", \"text\": \"16&8\", \"image\": \"image1\", \"audio\": \"audio1\" } }, { \"value\": { \"type\": \"mixed\", \"image\": \"image2\", \"audio\": \"audio2\" }, \"answer\": true } ], \"max_score\": 1, \"partial_scoring\": false, \"feedback\": \"\", \"responses\": [ { \"values\": {\"12&10\": true}, \"score\": 1 } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
 			String path = "/v1/assessmtitem";
@@ -185,7 +185,7 @@ public class AssessmentitemTest extends BaseTest {
 	// create assessmentItem without "question", "qlevel", "title"
 	// expect 400 ok response
 	@Test
-	public void createAssessmentItem_08() {
+	public void createAssessmentItemWithoutAttributes() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\",  \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
@@ -204,7 +204,7 @@ public class AssessmentitemTest extends BaseTest {
 	// assessementitem
 	// expect 400 ok response
 	@Test
-	public void createAssessmentItem_09() {
+	public void createAssessmentItemWithoutOptions() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
@@ -222,7 +222,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Gets an existing assessmentItem with valid assessmentitem Id
 	// expect 200 ok response
 	@Test
-	public void getAssessmentItem_01() {
+	public void getAssessmentItem() {
 		String path = "/v1/assessmentitem/LP_UT_test_01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
@@ -238,7 +238,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Get an non-existing assessmentItem
 	// expect 404 response
 	@Test
-	public void getAssessmentItemTest_02() {
+	public void getNonexistingAssessmentItem() {
 		String path = "/v1/assessmentitem/wings.D.0";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
@@ -254,7 +254,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Get an valid assessmentItem with invalid url
 	// expect 404 response
 	@Test
-	public void getAssessmentItemTest_03() {
+	public void getAssessmentItemTestWithInvalidUrl() {
 		String path = "/v1/assessment/wings.D.01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
@@ -268,7 +268,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Update assessment with valid assessmentitem id
 	// expect 200 ok response
 	@Test
-	public void updateAssessmentItem_01() {
+	public void updateAssessmentItem() {
 		String node_id = "LP_UT_test_01";
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" }, \"subject\": \"domain\", \"qid\": \"G5Q1\", \"qtype\": \"mtf\", \"code\": \"G5Q1\", \"lastUpdatedOn\": \"2016-04-14T07:54:58.073+0000\", \"type\": \"mtf\", \"concepts\": [ { \"identifier\": \"Num:C2:SC2:MC5\", \"name\": \"Ascending & descending order,skip counting, additive reasoning upto 100\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": null, \"index\": null } ], \"feedback\": \"\", \"createdOn\": \"2016-02-08T07:34:43.614+0000\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಎರಡು ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿ, ಸೂಕ್ತ ಚಿಹ್ನೆಯನ್ನು ಆರಿಸಿರಿ \", \"partial_scoring\": true, \"name\": \"G5Q1\", \"usedIn\": \"numeracy_377\", \"max_score\": 6, \"lhs_options\": [ { \"value\": { \"type\": \"image\", \"asset\": \"grey\" }, \"index\": 0 } ], \"gradeLevel\": [ \"Grade 1\" ], \"question\": \"2080\", \"language\": [ \"English\" ], \"identifier\": \"G5Q1\", \"rhs_options\": [ { \"value\": { \"type\": \"text\", \"asset\": \">\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"=\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"<\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" }, \"answer\": 0 } ] } } } }";
 		String path = "/v1/assessmentitem/" + node_id;
@@ -285,7 +285,7 @@ public class AssessmentitemTest extends BaseTest {
 
 	// Update an non-existing assessmentItem
 	@Test
-	public void updateAssessmentItem_02() {
+	public void updateNonExistingAssessmentItem() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" }, \"subject\": \"domain\", \"qid\": \"wings.d.0.1\", \"qtype\": \"mtf\", \"code\": \"G5Q1\", \"lastUpdatedOn\": \"2016-04-14T07:54:58.073+0000\", \"type\": \"mtf\", \"concepts\": [ { \"identifier\": \"Num:C2:SC2:MC5\", \"name\": \"Ascending & descending order,skip counting, additive reasoning upto 100\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": null, \"index\": null } ], \"feedback\": \"\", \"createdOn\": \"2016-02-08T07:34:43.614+0000\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಎರಡು ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿ, ಸೂಕ್ತ ಚಿಹ್ನೆಯನ್ನು ಆರಿಸಿರಿ \", \"partial_scoring\": true, \"name\": \"G5Q1\", \"usedIn\": \"numeracy_377\", \"max_score\": 6, \"lhs_options\": [ { \"value\": { \"type\": \"image\", \"asset\": \"grey\" }, \"index\": 0 } ], \"gradeLevel\": [ \"Grade 1\" ], \"question\": \"2080\", \"language\": [ \"English\" ], \"identifier\": \"G5Q1\", \"rhs_options\": [ { \"value\": { \"type\": \"text\", \"asset\": \">\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"=\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"<\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" }, \"answer\": 0 } ] } } } }";
@@ -304,7 +304,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Update an existing assessmentItem with invalid url
 	// expect 404 respone
 	@Test
-	public void updateAssessmentItem_03() {
+	public void updateAssessmentItemWithInvalidUrl() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" }, \"subject\": \"domain\", \"qid\": \"wings.d.0.1\", \"qtype\": \"mtf\", \"code\": \"G5Q1\", \"lastUpdatedOn\": \"2016-04-14T07:54:58.073+0000\", \"type\": \"mtf\", \"concepts\": [ { \"identifier\": \"Num:C2:SC2:MC5\", \"name\": \"Ascending & descending order,skip counting, additive reasoning upto 100\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": null, \"index\": null } ], \"feedback\": \"\", \"createdOn\": \"2016-02-08T07:34:43.614+0000\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಎರಡು ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿ, ಸೂಕ್ತ ಚಿಹ್ನೆಯನ್ನು ಆರಿಸಿರಿ \", \"partial_scoring\": true, \"name\": \"G5Q1\", \"usedIn\": \"numeracy_377\", \"max_score\": 6, \"lhs_options\": [ { \"value\": { \"type\": \"image\", \"asset\": \"grey\" }, \"index\": 0 } ], \"gradeLevel\": [ \"Grade 1\" ], \"question\": \"2080\", \"language\": [ \"English\" ], \"identifier\": \"G5Q1\", \"rhs_options\": [ { \"value\": { \"type\": \"text\", \"asset\": \">\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"=\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"<\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" }, \"answer\": 0 } ] } } } }";
@@ -321,7 +321,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Update an existing assessmentItem with invalid request body
 	// expect 400 response
 	@Test
-	public void updateAssessmentItem_04() {
+	public void updateInvalidAssessmentItem() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" } } } } }";
@@ -338,7 +338,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Search assessmentItem with appropriate filters
 	// expect 200 ok response
 	@Test
-	public void searchAssessmentItem_01() {
+	public void searchAssessmentItem() {
 		String contentString = "{ \"request\": { \"metadata\": { \"filters\": [ {\"property\" : \"template_id\", \"operator\": \"=\", \"value\": \"domain_3490\"} ] }, \"sortOrder\": [ {\"sortField\": \"code\", \"sortOrder\": \"DESC\"} ], \"startPosition\": 0, \"resultSize\": 10 } }";
 		String path = "/v1/assessmentitem/search";
 		try {
@@ -355,7 +355,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Search for an assessmentItem with invalid url
 	// expect 404 response
 	@Test
-	public void searchAssessmentItem_02() {
+	public void searchAssessmentItemWithInvalidUrl() {
 		String contentString = "{ \"request\": { \"metadata\": { \"filters\": [ {\"property\" : \"template_id\", \"operator\": \"=\", \"value\": \"domain_3490\"} ] }, \"sortOrder\": [ {\"sortField\": \"code\", \"sortOrder\": \"DESC\"} ], \"startPosition\": 0, \"resultSize\": 10 } }";
 		String path = "/v1/assessmetem/search";
 		try {
@@ -370,7 +370,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Delete an assessmentItem with valid assesssmentitem id
 	// expect 200 ok response
 	@Test
-	public void deleteAssessmentItem_01() {
+	public void deleteAssessmentItem() {
 		String node_id = "LP_UT_test_01";
 		String path = "/v1/assessmentitem/" + node_id;
 		try {
@@ -387,7 +387,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Delete an non-existiing assessmentItem
 	// expect 404 response
 	@Test
-	public void deleteAssessmentItem_02() {
+	public void deleteNonexistingAssessmentItem() {
 		String path = "/v1/assessmentitem//q_1_s_urdu_01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
@@ -403,7 +403,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Delete assessmentItem with invalid url
 	// expect 404 response
 	@Test
-	public void deleteAssessmentItem_03() {
+	public void deleteAssessmentItemWithInvalidUrl() {
 		String path = "/v1/essmentitem//q_1_s_urdu";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
