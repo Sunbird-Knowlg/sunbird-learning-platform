@@ -22,6 +22,9 @@
 - name: copy the mongo.properties
   template: src=language/mongo.properties.j2 dest=/data/properties/language/mongo.properties
 
+- name: copy hibernate cofngi file
+  template: src=language/hibernate.cfg.xml.j2 dest=/data/properties/language/hibernate.cfg.xml
+
 #------------------------------------------------------------------------------------
 
 - name: copy the consumer-config.xml

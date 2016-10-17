@@ -60,7 +60,7 @@
             "indexed": true,
             "draft": false
         }, {
-            "required": false,
+            "required": true,
             "dataType": "Text",
             "propertyName": "template_id",
             "title": "Template Id",

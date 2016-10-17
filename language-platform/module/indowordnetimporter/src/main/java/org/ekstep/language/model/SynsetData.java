@@ -7,6 +7,8 @@ import java.util.Map;
 public class SynsetData {
 
 	private int synset_id;
+	
+	private int english_synset_id;
 
 	private byte[] synset;
 
@@ -28,6 +30,15 @@ public class SynsetData {
 
 	public void setRelations(Map<String, List<SynsetDataLite>> relations) {
 		this.relations = relations;
+	}
+
+	
+	public int getEnglish_synset_id() {
+		return english_synset_id;
+	}
+
+	public void setEnglish_synset_id(int english_synset_id) {
+		this.english_synset_id = english_synset_id;
 	}
 
 	public int getSynset_id() {

@@ -100,7 +100,23 @@ public interface INodeManager {
 
     void  upsertRootNode(Request request);
     
+    /**
+     * Creates proxy node in graph
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - NODE as the node to be created
+     */
     void createProxyNode(final Request request);
     
+    /**
+     * Creates proxy node and translation set in graph
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - NODE as the node to be created
+     * @request - TRANSLATIONSET translation set node to be created
+     * @request - OBJECT_TYPE of the translation set to be created
+     * @request - MEMBERS as members to be added to the set
+     * @request - MEMBER_TYPE as object type of the members
+     */
     void createProxyNodeAndTranslation(Request request);
 }

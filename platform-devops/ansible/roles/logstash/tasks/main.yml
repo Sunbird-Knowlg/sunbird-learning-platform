@@ -11,6 +11,7 @@
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'language-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/language-graph-events.conf' }
+    - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
 
 - name: set permissions
   file: path=/home/ec2-user/logstash-2.3.3 owner=ec2-user group=ec2-user mode=0755 recurse=yes 
@@ -20,11 +21,15 @@
   shell: ps -ef | grep logstash | grep logstash-graph-events.conf | grep -v grep | wc -l
   register: logstash_process
 
-
 - name: Check if logstash language graph events is running
   become_user: ec2-user
   shell: ps -ef | grep logstash | grep language-graph-events.conf | grep -v grep | wc -l
   register: language_process
+
+- name: Check if logstash for word events is running
+  become_user: ec2-user
+  shell: ps -ef | grep logstash | grep logstash-word-events.conf | grep -v grep | wc -l
+  register: word_events_process
 
 - name: Run logstash
   become_user: ec2-user
@@ -42,3 +47,11 @@
   async: 60
   poll: 30
   when: "language_process.stdout == '0'"
+
+- name: Run logstash for word events
+  become_user: ec2-user
+  become: yes
+  shell: chdir=/home/ec2-user/logstash-2.3.3  bin/logstash -f /home/ec2-user/logstash-2.3.3/logstash-word-events.conf -v &
+  async: 60
+  poll: 30
+  when: "word_events_process.stdout == '0'"

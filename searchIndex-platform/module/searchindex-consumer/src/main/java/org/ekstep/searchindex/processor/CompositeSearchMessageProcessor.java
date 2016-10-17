@@ -47,6 +47,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			String uniqueId = (String) message.get("nodeUniqueId");
 			//System.out.println("message node type: " + nodeType + " object type: " + objectType);
 			switch (nodeType) {
+			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
 				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
 				Map<String, String> relationMap = ObjectDefinitionCache.getRelationDefinition(objectType, graphId);

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ConsumerConfigs>
 <ConsumerConfig>
 	<ConsumerInit serverURI="{{ zookeeper_url }}" topic="{{ graph_event_topic_id }}"
 		ekstepPlatformURI="{{ platform_api_url }}"
@@ -22,3 +23,17 @@
 		</ConsumerGroup>
 	</ConsumerGroups>
 </ConsumerConfig>
+<ConsumerConfig>
+	<ConsumerInit serverURI="{{ zookeeper_url }}" topic="{{ backend_event_topic_id }}" 
+		ekstepPlatformURI="{{ platform_api_url }}" 
+		ekstepPlatformApiUserId="ilimi">
+	</ConsumerInit>
+	<ConsumerGroups>
+		<ConsumerGroup id="word-translation-group" messageProcessor="org.ekstep.searchindex.processor.WordTranslationMessageProcessor">
+			<Consumers>
+				<Consumer partitions="8" />
+			</Consumers>
+		</ConsumerGroup>
+	</ConsumerGroups>
+</ConsumerConfig>
+</ConsumerConfigs>

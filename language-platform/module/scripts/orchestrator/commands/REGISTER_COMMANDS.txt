@@ -79,3 +79,7 @@ node registerCommand.js commands/register-multiLanguageWordSearch.json register
 node registerCommand.js commands/register-createProxyNode.json register
 
 node registerCommand.js commands/register-getProxyNode.json register
+
+node registerCommand.js commands/register-dropCollection.json register
+
+node registerCommand.js commands/register-multiLanguageSynsetSearch.json register

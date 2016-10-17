@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 
 import org.ekstep.searchindex.util.Consumer;
 import org.ekstep.searchindex.util.ConsumerConfig;
+import org.ekstep.searchindex.util.ConsumerConfigs;
 import org.ekstep.searchindex.util.ConsumerGroup;
 import org.ekstep.searchindex.util.ConsumerInit;
 import org.ekstep.searchindex.util.ConsumerUtil;
@@ -36,29 +37,32 @@ public class ConsumerRunner {
 
     @CoverageIgnore
     public static void startConsumers() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        ConsumerConfig config = consumerUtil.getConsumerConfig();
-        List<ConsumerGroup> consumerGroups = config.consumerGroups;
-        ConsumerInit initConfig = config.consumerInit;
+        ConsumerConfigs configs = consumerUtil.getConsumerConfigs();
         final List<ConsumerConnector> consumerList = new ArrayList<ConsumerConnector>();
-        for (ConsumerGroup consumerGroup : consumerGroups) {
-            String groupId = consumerGroup.id;
-            ConsumerConnector consumer = kafka.consumer.Consumer
-                    .createJavaConsumerConnector(createConsumerConfig(initConfig.serverURI, groupId));
-            consumerList.add(consumer);
-            List<Consumer> consumers = consumerGroup.consumers;
-            int a_numThreads = (null == consumers || consumers.isEmpty()) ? 1 : consumers.size();
-            Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-            topicCountMap.put(initConfig.topic, new Integer(a_numThreads));
-            Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-            List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(initConfig.topic);
-            ExecutorService executor = Executors.newFixedThreadPool(a_numThreads);
-            int threadNumber = 0;
-            String messageProcessor = consumerGroup.messageProcessor;
-            for (final KafkaStream<byte[], byte[]> stream : streams) {
-                executor.submit(new ConsumerThread(stream, threadNumber, messageProcessor, consumer));
-                threadNumber++;
+        for(ConsumerConfig config: configs.consumerConfig){
+        	List<ConsumerGroup> consumerGroups = config.consumerGroups;
+            ConsumerInit initConfig = config.consumerInit;
+            for (ConsumerGroup consumerGroup : consumerGroups) {
+                String groupId = consumerGroup.id;
+                ConsumerConnector consumer = kafka.consumer.Consumer
+                        .createJavaConsumerConnector(createConsumerConfig(initConfig.serverURI, groupId));
+                consumerList.add(consumer);
+                List<Consumer> consumers = consumerGroup.consumers;
+                int a_numThreads = (null == consumers || consumers.isEmpty()) ? 1 : consumers.size();
+                Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
+                topicCountMap.put(initConfig.topic, new Integer(a_numThreads));
+                Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
+                List<KafkaStream<byte[], byte[]>> streams = consumerMap.get(initConfig.topic);
+                ExecutorService executor = Executors.newFixedThreadPool(a_numThreads);
+                int threadNumber = 0;
+                String messageProcessor = consumerGroup.messageProcessor;
+                for (final KafkaStream<byte[], byte[]> stream : streams) {
+                    executor.submit(new ConsumerThread(stream, threadNumber, messageProcessor, consumer));
+                    threadNumber++;
+                }
             }
         }
+        
         Runtime.getRuntime().addShutdownHook(new Thread() {
         	@CoverageIgnore
             @Override

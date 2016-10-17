@@ -602,6 +602,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         final Node node = (Node) request.get(GraphDACParams.node.name());
         final Node translationNode = (Node) request.get(GraphDACParams.translationSet.name());
         final boolean create = (boolean) request.get("create");
+        final boolean proxy = (boolean) request.get("proxy");
 
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         String setObjectType = (String) request.get(GraphDACParams.object_type.name());
@@ -620,58 +621,50 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 final Set set = new Set(this, graphId, null, setObjectType, memberObjectType, translationNode.getMetadata(), memberIds);
             	set.setInRelations(translationNode.getInRelations());
                 set.setOutRelations(translationNode.getOutRelations());
-                Future<String> createFuture = proxyNode.createNode(request);
-                createFuture.onComplete(new OnComplete<String>() {
-                @Override
-                public void onComplete(Throwable arg0, String arg1) throws Throwable {
-                    if (null != arg0) {
-                        ERROR(arg0, getSender());
-                    } else {
-
-                        if (StringUtils.isNotBlank(arg1)) {
-                            messages.add(arg1);
-                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
-                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                if(!proxy){
+                	Future<String> createFuture = proxyNode.createNode(request);
+                    createFuture.onComplete(new OnComplete<String>() {
+                    @Override
+                    public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                        if (null != arg0) {
+                            ERROR(arg0, getSender());
                         } else {
-                        	if (messages.isEmpty()) {
-                                // create the node object
-                        		request.put(GraphDACParams.node.name(), translationNode);
-                        		if(create)
-                        		{
-                        			set.createSetNode(request, ec);
-                        		}
-                        		else
-                        		{
-                        			set.addMembers(request);
-                        		}
-                                /*createFuture.onComplete(new OnComplete<String>() {
-                                    @Override
-                                    public void onComplete(Throwable arg0, String arg1) throws Throwable {
-                                        if (null != arg0) {
-                                            ERROR(arg0, getSender());
-                                        } else {
-                                            if (StringUtils.isNotBlank(arg1)) {
-                                                messages.add(arg1);
-                                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
-                                                        ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
-                                            } else {
-                                                // if node is created successfully,
-                                                // create relations and tags
-                                                List<Relation> addRels = datanode.getNewRelationList();
-                                                updateRelationsAndTags(parent, node, datanode, request, ec, addRels, null, node.getTags(), null);
-                                            }
-                                        }
-                                    }
-                                }, ec);*/
-                            } else {
-                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+
+                            if (StringUtils.isNotBlank(arg1)) {
+                                messages.add(arg1);
+                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
                                         ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                            } else {
+                            	if (messages.isEmpty()) {
+                                    // create the node object
+                            		request.put(GraphDACParams.node.name(), translationNode);
+                            		if(create)
+                            		{
+                            			set.createSetNode(request, ec);
+                            		}
+                            		else
+                            		{
+                            			set.addMembers(request);
+                            		}
+                                } else {
+                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+                                            ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                                }
                             }
                         }
                     }
+                }, ec);
+                } else{
+                	request.put(GraphDACParams.node.name(), translationNode);
+            		if(create)
+            		{
+            			set.createSetNode(request, ec);
+            		}
+            		else
+            		{
+            			set.addMembers(request);
+            		}
                 }
-            }, ec);
-
             } catch (Exception e) {
                 handleException(e, getSender());
             }

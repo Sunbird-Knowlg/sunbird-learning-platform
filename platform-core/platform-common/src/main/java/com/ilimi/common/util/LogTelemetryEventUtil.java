@@ -17,7 +17,7 @@ public class LogTelemetryEventUtil {
 
 	public static String logContentLifecycleEvent(String contentId, Map<String, Object> metadata) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
-		long unixTime = System.currentTimeMillis() / 1000L;
+		long unixTime = System.currentTimeMillis();
 		te.setEid("BE_CONTENT_LIFECYCLE");
 		te.setEts(unixTime);
 		te.setVer("2.0");
@@ -37,7 +37,7 @@ public class LogTelemetryEventUtil {
 
 	public static String logContentSearchEvent(String query, Object filters, Object sort, String correlationId, int size) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
-		long unixTime = System.currentTimeMillis() / 1000L;
+		long unixTime = System.currentTimeMillis();
 		te.setEid("BE_CONTENT_SEARCH");
 		te.setEts(unixTime);
 		te.setVer("2.0");

@@ -1,0 +1,26 @@
+{
+  "name": "dropCollection",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "graph_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+      "name": "collection_id",
+      "index": 1,
+      "routingParam": false
+    },
+    {
+      "name": "collection_type",
+      "index": 2,
+      "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "com.ilimi.graph.engine.mgr.impl.CollectionManagerImpl",
+    "operation": "dropCollection",
+    "router": "GRAPH_REQUEST_ROUTER"
+  }
+}
