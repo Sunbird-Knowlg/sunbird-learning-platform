@@ -52,14 +52,14 @@ console.log();
 
 var client = new Client();
 
-var API_ENDPOINT_PROD = "http://api.ekstep.in/learning-api/";
+var API_ENDPOINT_PROD = "https://api.ekstep.in/learning-api/";
 var API_ENDPOINT_QA = "https://qa.ekstep.in/api/learning/";
-var API_ENDPOINT_DEV = "http://dev.ekstep.in/api/learning/";
+var API_ENDPOINT_DEV = "https://dev.ekstep.in/api/learning/";
 
 var API_ENDPOINT = (options.env == 'prod' ? API_ENDPOINT_PROD : API_ENDPOINT_DEV);
 var API_ENDPOINT = (options.env == 'qa' ? API_ENDPOINT_QA : API_ENDPOINT_DEV);
 
-var CREATE_ITEM_URL = "/v1/assessmentitem/${id}";
+var CREATE_ITEM_URL = "v1/assessmentitem/${id}";
 
 var inputFilePath = options.file;
 var mappingFile = options.mapping;
@@ -117,7 +117,6 @@ function readMappings(callback) {
  */
 function loadAssets(arg1, callback) {
 	cli.info("Reading assets file");
-
 	if (assetsFile) {
 		csv()
 		.from.stream(fs.createReadStream(assetsFile))
@@ -140,6 +139,7 @@ function loadAssets(arg1, callback) {
 					}
 				}
 			}
+
 		})
 		.on('end', function(count){
 			callback(null, 'ok');
@@ -159,11 +159,11 @@ function loadAssets(arg1, callback) {
  */
 function importItems(arg1, callback) {
 	cli.info("Reading items csv");
-	csv()
-	.from.stream(fs.createReadStream(inputFilePath))
+	csv().from.stream(fs.createReadStream(inputFilePath))
 	.on('record', function(row, index) {
 		if (index >= startRow) {
 			var item = {};
+            var responseArray = {};
 			getItemRecord(row, startCol, mappingJson.data, item);
 			processItemRecord(row, item, index);
 		}
@@ -197,7 +197,6 @@ function printAssessmentItems(arg1, callback) {
 			var asyncFns = [];
 			items.forEach(function(item) {
 				var metadata = JSON.stringify(item.metadata);
-				console.log(metadata);
 				console.log();
 			});
 		}
@@ -281,7 +280,7 @@ function finished(arg1, result) {
 function processItemRecord(row, item, index) {
 	// Default fields
 	item['rownum'] = index;
-	item['portalOwner'] = options.user;
+	item['portalOwner'] = '' + options.user;
 	//item['owner'] = options.user;
 	item['language'] =  [item['language']];
 	item['name'] = item['title']; // name is same as title
@@ -299,7 +298,7 @@ function processItemRecord(row, item, index) {
 	}
 	else if (item['type'] == 'mcq') {
 		// De-dup and Shuffle options before loading
-		item['options'] = processOptions(item['options']);;
+		item['options'] = processOptions(item['options']);
 	}
 	else if (item['type'] == 'mtf') {
 		// Shuffle RHS options (LHS options are not shuffled otherwise answer mappings will become wrong)
@@ -351,7 +350,7 @@ function validateQuestion(item) {
 function processAssets(item) {
 	var media = item.media;
 	var success = true;
-
+ 
 	// Set the src from assets map
 	_.each(media, function(m, index) {
 		if (m.id) {
@@ -396,8 +395,6 @@ function processOptions(options, shuffle) {
 function processAnswers(item) {
     var count = 0;
     var answer = {};
-
-    console.log(item.answers);
 
     _.each(item.answers, function(ans, index) {
 		if (typeof ans != 'undefined') {
@@ -448,6 +445,7 @@ function getMWAPICallfunction(item) {
 	    };
 	    var url = API_ENDPOINT + CREATE_ITEM_URL;
 	    client.patch(url, args, function(data, response) {
+	    	console.log("args", args.data.request.assessment_item);
 	        parseResponse(item, data, callback);
 	    }).on('error', function(err) {
 	    	errorMap[item.rownum] = "Connection error: " + err;
@@ -462,13 +460,13 @@ function getMWAPICallfunction(item) {
  */
 function parseResponse(item, data, callback) {
 	cli.progress(++calls / items.length);
-
 	var responseData;
     if(typeof data == 'string') {
         try {
             responseData = JSON.parse(data);
+            
         } catch(err) {
-            errorMap[item.metadata.code] = 'Invalid API response for: ' + item.identifier;
+            errorMap[item.metadata.code] = 'Invalid API response for: ' + item.metadata.identifier;
         }
     } else {
     	responseData = data;
@@ -501,6 +499,7 @@ function parseResponse(item, data, callback) {
  * Parses the CSV to return the item data for the given row, using the mapping definitions
  */
 function getItemRecord(row, startCol, mapping, item) {
+
 	for (var x in mapping) {
 		var data = mapping[x];
 		if (_.isArray(data)) {
