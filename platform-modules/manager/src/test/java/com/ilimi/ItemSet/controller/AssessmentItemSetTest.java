@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testng.annotations.BeforeTest;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.BaseTest;
@@ -52,7 +51,6 @@ public class AssessmentItemSetTest extends BaseTest {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 
-	@BeforeTest
 	public void BeforeClass() {
 		nodes = createAssessmentItem(6);
 		String str = "\"" + StringUtils.join(nodes.toArray(new String[0]), "\",\"") + "\"";
