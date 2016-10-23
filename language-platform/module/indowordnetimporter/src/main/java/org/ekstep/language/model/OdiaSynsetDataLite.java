@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "tbl_all_oriya_synset_data")
-public class OriyaSynsetDataLite implements LanguageSynsetDataLite {
+public class OdiaSynsetDataLite implements LanguageSynsetDataLite {
 
 	@Id
 	private int synset_id;
@@ -15,11 +15,11 @@ public class OriyaSynsetDataLite implements LanguageSynsetDataLite {
 	@Column(name = "synset", unique = false, nullable = false, length = 100000)
 	private byte[] synset;
 
-	public OriyaSynsetDataLite() {
+	public OdiaSynsetDataLite() {
 		super();
 	}
 
-	public OriyaSynsetDataLite(int synset_id, byte[] synset) {
+	public OdiaSynsetDataLite(int synset_id, byte[] synset) {
 		super();
 		this.synset_id = synset_id;
 		this.synset = synset;
@@ -52,10 +52,10 @@ public class OriyaSynsetDataLite implements LanguageSynsetDataLite {
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
-		if (!(o instanceof OriyaSynsetDataLite))
+		if (!(o instanceof OdiaSynsetDataLite))
 			return false;
 
-		OriyaSynsetDataLite other = (OriyaSynsetDataLite) o;
+		OdiaSynsetDataLite other = (OdiaSynsetDataLite) o;
 		if (this.synset_id != other.synset_id)
 			return false;
 
