@@ -76,9 +76,35 @@ proc getInNodeRelationIds {graph_node relationType relationName property} {
 	return $relationIds
 }
 
+set filters [java::new HashMap]
+$filters put "objectType" "Word"
+$filters put "graph_id" $language_id
+$filters put "lemma" $lemma
+$filters put "status" [java::new ArrayList]
+set limit [java::new Integer 1]
+
+set null_var [java::null]
+set empty_list [java::new ArrayList]
+set empty_map [java::new HashMap]
+
+set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $limit]
+set searchResultsMap [$searchResponse getResult]
+set wordsList [java::cast List [$searchResultsMap get "results"]]
+set wordsListNull [java::isnull $wordsList]
+if {$wordsListNull == 1 || [$wordsList size] == 0} {
+	set result_map [java::new HashMap]
+	$result_map put "code" "ERR_WORD_NOT_FOUND"
+	$result_map put "message" "Word not found"
+	$result_map put "responseCode" [java::new Integer 404]
+	set response_list [create_error_response $result_map]
+	return $response_list
+}
+
+set wordObject [java::cast Map [$wordsList get 0]]
+set word_id [$wordObject get "identifier"]
+
 set object_type "TranslationSet"
 set node_id $word_id
-set language_id $language_id
 set get_node_response [getDataNode $language_id $node_id]
 set get_node_response_error [check_response_error $get_node_response]
 if {$get_node_response_error} {
