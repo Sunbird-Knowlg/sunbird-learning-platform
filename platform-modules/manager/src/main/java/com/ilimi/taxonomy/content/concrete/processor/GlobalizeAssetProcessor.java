@@ -105,8 +105,8 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	/**
 	 * Gets the folder path of <code>src</code>.
 	 *
-	 * @param <code>src<code>
-	 *            the <code>src<code> attribute.
+	 * @param <code>src</code>
+	 *            the <code>src</code> attribute.
 	 * @return the folder path.
 	 */
 	private String getFolderPath(String src) {

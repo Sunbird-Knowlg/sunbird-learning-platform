@@ -21,7 +21,7 @@ public class GraphServiceFactory {
 	public static IGraphDatabaseService getDatabaseService(String databasePolicy) {
 		if (StringUtils.isBlank(databasePolicy))
 			throw new ClientException(DACErrorCodeConstants.INVALID_POLICY.name(),
-					DACErrorMessageConstants.INVALID_POLICY_ID + " | [Policy Id " + databasePolicy + "]");
+					DACErrorMessageConstants.ERROR_INVALID_POLICY_ID + " | [Policy Id " + databasePolicy + "]");
 		IGraphDatabaseService service = embedded;
 
 		LOGGER.info("Graph Database Poilicy: " + databasePolicy);
@@ -37,7 +37,7 @@ public class GraphServiceFactory {
 
 		default:
 			throw new ClientException(DACErrorCodeConstants.INVALID_POLICY.name(),
-					DACErrorMessageConstants.INVALID_POLICY_ID + " | [Policy Id " + databasePolicy + "]");
+					DACErrorMessageConstants.ERROR_INVALID_POLICY_ID + " | [Policy Id " + databasePolicy + "]");
 		}
 
 		return service;

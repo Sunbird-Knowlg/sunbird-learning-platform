@@ -2,7 +2,10 @@ package org.ekstep.graph.service.common;
 
 public enum DACErrorCodeConstants {
 	
-	INVALID_POLICY(0, "Invalid Policy Identifier.");
+	INVALID_POLICY(0, "Invalid Policy Identifier."),
+	MISSING_DEFINITION(1, "Missing Definition Node."),
+	INVALID_VERSION(2, "Invalid Node Data Version."),
+	BLANK_VERSION(3, "Blank Node Data Version Information.");
 	
 	private final int code;
 	private final String description;
