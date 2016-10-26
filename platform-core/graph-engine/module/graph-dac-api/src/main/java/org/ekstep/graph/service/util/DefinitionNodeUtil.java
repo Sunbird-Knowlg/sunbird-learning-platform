@@ -15,7 +15,6 @@ import org.neo4j.graphdb.Transaction;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
@@ -51,7 +50,7 @@ public class DefinitionNodeUtil {
 		Node definitionNode = getDefinitionNode(GraphUtil.getGraphId(), objectType, request);
 		if (null == definitionNode)
 			throw new ResourceNotFoundException(DACErrorCodeConstants.MISSING_DEFINITION.name(),
-					DACErrorMessageConstants.ERROR_MISSING_DEFINTION + " | [Object Type: " + objectType + " and Graph Id "
+					DACErrorMessageConstants.MISSING_DEFINTION_ERROR + " | [Object Type: " + objectType + " and Graph Id "
 							+ graphId + "]");
 		
 		Map<String, Object> metadataMap = definitionNode.getMetadata();
@@ -84,7 +83,7 @@ public class DefinitionNodeUtil {
 				while (nodes.hasNext()) {
 					org.neo4j.graphdb.Node neo4jNode = nodes.next();
 					if (StringUtils.equalsIgnoreCase(
-							((String) neo4jNode.getProperty(GraphDACParams.object_type.name())), objectType)) {
+							((String) neo4jNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name())), objectType)) {
 						node = new Node(graphId, neo4jNode);
 						LOGGER.info("Found the Definition Node for Object type " + objectType + " | Graph Id: "
 								+ graphId + " | Node Id:  " + node.getIdentifier());

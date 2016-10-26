@@ -107,7 +107,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 													.get(GraphDACParams.NODE_UPDATE_STATUS.name())),
 											GraphDACParams.STALE_DATA_UPDATED.name()))
 						throw new ClientException(DACErrorCodeConstants.STALE_DATA.name(),
-								DACErrorMessageConstants.WARNING_STALE_DATA_UPDATED + " | [Node Id: "
+								DACErrorMessageConstants.STALE_DATA_UPDATED_WARNING + " | [Node Id: "
 										+ node.getIdentifier() + " and Graph Id: " + graphId + "]");
 				}
 
@@ -183,7 +183,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 													.get(GraphDACParams.NODE_UPDATE_STATUS.name())),
 											GraphDACParams.STALE_DATA_UPDATED.name()))
 						throw new ClientException(DACErrorCodeConstants.STALE_DATA.name(),
-								DACErrorMessageConstants.WARNING_STALE_DATA_UPDATED + " | [Node Id: "
+								DACErrorMessageConstants.STALE_DATA_UPDATED_WARNING + " | [Node Id: "
 										+ node.getIdentifier() + " and Graph Id: " + graphId + "]");
 				}
 				

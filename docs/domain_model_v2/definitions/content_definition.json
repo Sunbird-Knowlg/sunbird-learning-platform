@@ -344,7 +344,7 @@
         },
         {
           "required": false,
-          "dataType": "Number",
+          "dataType": "Text",
           "propertyName": "versionKey",
           "title": "Data Version Key",
           "description": "Version number data in Content Node",

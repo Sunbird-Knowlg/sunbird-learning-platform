@@ -35,7 +35,7 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		LOGGER.info("Fetched the Neo4J Node Id: " + neo4jNode.getId() + " | [Node Id: '" + node.getIdentifier() + "']");
 
 		// Reading Last Updated On time stamp from Neo4J Node
-		String lastUpdateOn = (String) neo4jNode.getProperty(GraphDACParams.versionKey.name());
+		String lastUpdateOn = (String) neo4jNode.getProperty(GraphDACParams.lastUpdatedOn.name());
 		LOGGER.info("Fetched 'lastUpdatedOn' Property from the Neo4J Node Id: " + neo4jNode.getId()
 				+ " as 'lastUpdatedOn': " + lastUpdateOn + " | [Node Id: '" + node.getIdentifier() + "']");
 
@@ -68,12 +68,12 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 
 		if (StringUtils.isBlank(versionKey))
 			throw new ClientException(DACErrorCodeConstants.BLANK_VERSION.name(),
-					DACErrorMessageConstants.ERROR_BLANK_VERSION_KEY + " | [Node Id: " + node.getIdentifier() + "]");
+					DACErrorMessageConstants.BLANK_VERSION_KEY_ERROR + " | [Node Id: " + node.getIdentifier() + "]");
 
 		LOGGER.info("Fetched the Neo4J Node Id: " + neo4jNode.getId() + " | [Node Id: '" + node.getIdentifier() + "']");
 
 		// Reading Last Updated On time stamp from Neo4J Node
-		String lastUpdateOn = (String) neo4jNode.getProperty(GraphDACParams.versionKey.name());
+		String lastUpdateOn = (String) neo4jNode.getProperty(GraphDACParams.lastUpdatedOn.name());
 		LOGGER.info("Fetched 'lastUpdatedOn' Property from the Neo4J Node Id: " + neo4jNode.getId()
 				+ " as 'lastUpdatedOn': " + lastUpdateOn + " | [Node Id: '" + node.getIdentifier() + "']");
 

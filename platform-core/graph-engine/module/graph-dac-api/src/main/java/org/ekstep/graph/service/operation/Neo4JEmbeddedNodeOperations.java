@@ -87,7 +87,7 @@ public class Neo4JEmbeddedNodeOperations {
 						// Checking for Strict Mode
 						if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
 							throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
-									DACErrorMessageConstants.ERROR_INVALID_VERSION_KEY
+									DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR
 											+ " | [Unable to Update the Data.]");
 
 						// Checking for Lenient Mode
@@ -111,10 +111,10 @@ public class Neo4JEmbeddedNodeOperations {
 			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			neo4jNode.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 
 			LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
-			node.getMetadata().put(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'upsertNode' Completed Successfully. | [Node ID: '"
 					+ node.getIdentifier() + "']");
@@ -156,10 +156,10 @@ public class Neo4JEmbeddedNodeOperations {
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			neo4jNode.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 
 			LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
-			node.getMetadata().put(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'addNode' Completed Successfully. | [Node ID: '"
 					+ node.getIdentifier() + "']");
@@ -178,7 +178,8 @@ public class Neo4JEmbeddedNodeOperations {
 	 *            the request
 	 * @return TODO
 	 */
-	public com.ilimi.graph.dac.model.Node updateNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
+	public com.ilimi.graph.dac.model.Node updateNode(String graphId, com.ilimi.graph.dac.model.Node node,
+			Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			LOGGER.info("Transaction Started For 'updateNode' Operation. | [Node ID: '" + node.getIdentifier() + "']");
@@ -206,7 +207,7 @@ public class Neo4JEmbeddedNodeOperations {
 					// Checking for Strict Mode
 					if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
 						throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
-								DACErrorMessageConstants.ERROR_INVALID_VERSION_KEY + " | [Unable to Update the Data.]");
+								DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
 
 					// Checking for Lenient Mode
 					if (StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode))
@@ -218,10 +219,10 @@ public class Neo4JEmbeddedNodeOperations {
 			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			neo4jNode.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
-			
+			neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+
 			LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
-			node.getMetadata().put(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'updateNode' Completed Successfully. | [Node ID: '"
 					+ node.getIdentifier() + "']");
@@ -266,7 +267,7 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 				setNodeData(graphDb, node, neo4jNode);
 				neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-				neo4jNode.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+				neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			}
 			tx.success();
 			LOGGER.info("Transaction For Operation 'importNodes' Completed Successfully.");
@@ -299,7 +300,7 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Property '" + property.getPropertyName() + "' Added For Node ID: " + nodeId);
 			}
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			node.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'updatePropertyValue' Completed Successfully. | [Node ID: '" + nodeId
 					+ "']");
@@ -335,7 +336,7 @@ public class Neo4JEmbeddedNodeOperations {
 					}
 				}
 				node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-				node.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+				node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			}
 			tx.success();
 			LOGGER.info("Transaction For Operation 'updatePropertyValues' Completed Successfully. | [Node ID: '"
@@ -364,7 +365,7 @@ public class Neo4JEmbeddedNodeOperations {
 			node.removeProperty(key);
 			LOGGER.info("Property '" + key + "' Removed For Node ID: " + nodeId);
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			node.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'removePropertyValue' Completed Successfully. | [Node ID: '" + nodeId
 					+ "']");
@@ -394,7 +395,7 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Property '" + key + "' Removed For Node ID: " + nodeId);
 			}
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			node.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'removePropertyValues' Completed Successfully. | [Node ID: '"
 					+ nodeId + "']");
