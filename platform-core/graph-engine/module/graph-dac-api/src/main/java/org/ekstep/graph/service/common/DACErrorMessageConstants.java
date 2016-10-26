@@ -10,6 +10,8 @@ public class DACErrorMessageConstants {
 	
 	public static final String ERROR_BLANK_VERSION_KEY = "Error! Version Key cannot be Blank.";
 	
+	public static final String WARNING_STALE_DATA_UPDATED = "Warning! Object has been Updated with Stale Data.";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

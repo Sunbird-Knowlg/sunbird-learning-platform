@@ -176,8 +176,9 @@ public class Neo4JEmbeddedNodeOperations {
 	 *            the node
 	 * @param request
 	 *            the request
+	 * @return TODO
 	 */
-	public void updateNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
+	public com.ilimi.graph.dac.model.Node updateNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			LOGGER.info("Transaction Started For 'updateNode' Operation. | [Node ID: '" + node.getIdentifier() + "']");
@@ -218,9 +219,13 @@ public class Neo4JEmbeddedNodeOperations {
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			neo4jNode.setProperty(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
+			
+			LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
+			node.getMetadata().put(GraphDACParams.versionKey.name(), DateUtils.parse(date).getTime());
 			tx.success();
 			LOGGER.info("Transaction For Operation 'updateNode' Completed Successfully. | [Node ID: '"
 					+ node.getIdentifier() + "']");
+			return node;
 		}
 	}
 
