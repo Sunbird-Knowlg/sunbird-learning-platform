@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.learning.util.BaseLearningManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -31,7 +32,6 @@ import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -40,6 +40,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
@@ -47,7 +48,7 @@ import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ContentBundle;
 
-public class BaseMimeTypeManager extends BaseManager {
+public class BaseMimeTypeManager extends BaseLearningManager {
 
     @Autowired
     private ContentBundle contentBundle;
@@ -64,6 +65,16 @@ public class BaseMimeTypeManager extends BaseManager {
         return false;
     }
 
+    protected DefinitionDTO getDefinition(String taxonomyId, String objectType) {
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+                GraphDACParams.object_type.name(), objectType);
+        Response response = getResponse(request, LOGGER);
+        if (!checkError(response)) {
+            DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
+            return definition;
+        }
+        return null;
+    }
     public String uploadFile(String folder, String filename) {
         File olderName = new File(folder + filename);
         try {

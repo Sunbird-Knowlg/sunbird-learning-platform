@@ -99,6 +99,19 @@
         },
         {
           "required": false,
+          "dataType": "JSON",
+          "propertyName": "resolutions",
+          "title": "Image Resolutions",
+          "description": "",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "Select",
           "propertyName": "visibility",
           "title": "Visibility",
@@ -1076,7 +1089,8 @@
             "Flagged",
             "Live",
             "Retired",
-            "Mock"
+            "Mock",
+            "Processing"
           ],
           "required": false,
           "displayProperty": "Editable",
@@ -1751,6 +1765,11 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 0.08,
+        "resolutions": {
+         "high": {"dimensions": [1024, 1024], "dpi": 240}, 
+         "medium": {"dimensions": [512, 512], "dpi": 240}, 
+         "low": {"dimensions": [128, 128], "dpi": 240}
+        },
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
@@ -1759,7 +1778,7 @@
         "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount", 
         "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
-        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity"]
+        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "resolutions"]
       }
     }
   ]

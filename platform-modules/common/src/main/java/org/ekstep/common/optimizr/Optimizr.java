@@ -113,6 +113,23 @@ public class Optimizr {
        return output; 	
     }
     
+    public File optimizeImage(File file, double dpi, int width, int height, String resolution) throws Exception{
+    	ResizeImagemagickProcessor proc = new ResizeImagemagickProcessor();
+
+        File output = null;
+        FileType type = FileUtils.getFileType(file);
+        
+        if (proc.isApplicable(type)) {
+            try {
+                output = proc.process(file, dpi, width, height, resolution);
+        	} catch (Exception ex) {
+
+            }
+    	}
+        
+       return output; 	
+    }
+    
     public void delete(File file) throws IOException {
         if (file.isDirectory()) {
             // directory is empty, then delete it
