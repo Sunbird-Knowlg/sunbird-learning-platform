@@ -38,7 +38,8 @@ public class ResizeImagemagickProcessor extends ImageProcessor {
             IMOperation op = new IMOperation();
             op.addImage(inputFileName);
             op.resize(ow, oh);
-            op.resample((int)targetResolution);
+            if((int)targetResolution > 0)
+            	op.resample((int)targetResolution);
             op.addImage(outputFileName);
 
             // execute the operation

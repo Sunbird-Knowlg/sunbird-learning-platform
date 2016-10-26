@@ -34,12 +34,13 @@ public class ImageResolutionUtil {
             String res[] = resString.split("x");
             if(res.length > 0){
             	double xresd = Double.parseDouble(res[0]);
-            	if ( xresd < (double)dpi){
+            	if ( xresd < (double)dpi) {
             		return xresd; 
+            	} else {
+            		return (double)dpi;
             	}
             }
         }
-
-		return (double)dpi;
+        return (double)0;
 	}
 }

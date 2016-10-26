@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -43,7 +44,6 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	/* Logger */
 	private static Logger LOGGER = LogManager.getLogger(AssetsMimeTypeMgrImpl.class.getName());
 
-	private ObjectMapper mapper = new ObjectMapper();
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -65,44 +65,23 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
+		node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+		Map<String, String> resolutionMap = new HashMap<String, String>();
+		node.getMetadata().put(ContentAPIParams.resolutions.name(), resolutionMap);
+		
+		LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
+		Response response = updateContentNode(node, urlArray[1]);
 		
 		FileType type = FileUtils.getFileType(uploadFile);
 		// Call async image optimiser for configured resolutions if asset type is image
 		if(type == FileType.Image){
-			try {
-				//copy uploadFile for async image optimiser
-				String uploadFileName = uploadFile.getName();
-				String baseName = FilenameUtils.getBaseName(uploadFileName);
-				String originalFileName = baseName.substring(0, baseName.lastIndexOf("_"));
-				String name = originalFileName + "_" + System.currentTimeMillis() + "."
-	                    + FilenameUtils.getExtension(uploadFileName);
-	            File uploadedFileCopy = new File(name);
-				Files.copy(uploadFile, uploadedFileCopy);
-				//get content definition to get configured resolution
-				DefinitionDTO contentDefinition = getDefinition("domain", "Content");
-				String resolutionStr = (String)contentDefinition.getMetadata().get("resolutions");
-				Map<String, Object> resolutions = mapper.readValue(resolutionStr, Map.class); 
-				
-				//make async request to image optimiser actor
-				Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(), LearningOperations.optimiseImage.name());
-				request.put(ContentAPIParams.node.name(), node);
-				request.put(ContentAPIParams.uploadFile.name(), uploadedFileCopy);
-				request.put(ContentAPIParams.folder.name(), folder);
-				request.put(ContentAPIParams.resolutions.name(), resolutions);
-				makeAsyncLearningRequest(request, LOGGER);
-
-			} catch (IOException e) {
-				//update content before throwing error
-				updateContentNode(node, urlArray[1]);
-				new ServerException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(), "unable to copy the image for optimization"+ e.getMessage());
-			}
-
+			//make async request to image optimiser actor
+			Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(), LearningOperations.optimiseImage.name());
+			request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
+			makeAsyncLearningRequest(request, LOGGER);
 		}
 		
-		//update content status with "Processing"
-		node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
-		LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
-		return updateContentNode(node, urlArray[1]);
+		return response;
 	}
 
 	/*

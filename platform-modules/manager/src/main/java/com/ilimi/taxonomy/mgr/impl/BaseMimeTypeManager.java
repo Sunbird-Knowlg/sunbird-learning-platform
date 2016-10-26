@@ -65,16 +65,6 @@ public class BaseMimeTypeManager extends BaseLearningManager {
         return false;
     }
 
-    protected DefinitionDTO getDefinition(String taxonomyId, String objectType) {
-        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-                GraphDACParams.object_type.name(), objectType);
-        Response response = getResponse(request, LOGGER);
-        if (!checkError(response)) {
-            DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
-            return definition;
-        }
-        return null;
-    }
     public String uploadFile(String folder, String filename) {
         File olderName = new File(folder + filename);
         try {
