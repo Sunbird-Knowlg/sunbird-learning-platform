@@ -41,7 +41,7 @@ public class LocalizeAssetProcessorTest extends BaseTest{
 		String[] apiUrl = null;
 		for (final File fileEntry : assetFolder.listFiles()) {
 			try {
-				apiUrl = AWSUploader.uploadFile("ekstep-public", assetFolder.getPath(), fileEntry);
+				apiUrl = AWSUploader.uploadFile(assetFolder.getPath(), fileEntry);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -104,7 +104,7 @@ public class LocalizeAssetProcessorTest extends BaseTest{
 
 		for (final File fileEntry : assetFolder.listFiles()) {
 			try {
-				AWSUploader.deleteFile("ekstep-public", fileEntry.getName());
+				AWSUploader.deleteFile(fileEntry.getName());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

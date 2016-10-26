@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 
-import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -33,33 +32,47 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 public class AWSUploader {
 	
 	private static Logger LOGGER = LogManager.getLogger(AWSUploader.class.getName());
+	
+	private static final String s3Bucket = "s3.bucket";
+	private static final String s3Region = "s3.region";
+	private static final String s3 = "s3";
+	private static final String aws = "amazonaws.com";
+	private static final String dotOper = ".";
+	private static final String hyphen = "-";
     
-    public static String[] uploadFile(String bucketName, String folderName, File file) throws Exception {
-        file = Slug.createSlugFile(file);
-        AmazonS3Client s3 = new AmazonS3Client();
-        Region region = Region.getRegion(Regions.AP_SOUTHEAST_1);
-        s3.setRegion(region);
-        String key = file.getName();
-        s3.putObject(new PutObjectRequest(bucketName+"/"+folderName, key, file));
-        s3.setObjectAcl(bucketName+"/"+folderName, key, CannedAccessControlList.PublicRead);
-        URL url = s3.getUrl(bucketName, folderName+"/"+key);
-        LOGGER.info("AWS Upload '" + file.getName() + "' complete");
-        return new String[] {folderName+"/"+key, url.toURI().toString()};
-    }
-    
-    public static void deleteFile(String bucketName, String key) throws Exception {
+	public static String[] uploadFile(String folderName, File file) throws Exception {
+		file = Slug.createSlugFile(file);
+		AmazonS3Client s3 = new AmazonS3Client();
+		String key = file.getName();
+		String bucketRegion = S3PropertyReader.getProperty(s3Region);
+		String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
+		LOGGER.info("Fetching bucket name:"+bucketName);
+		s3.putObject(new PutObjectRequest(bucketName+"/"+folderName, key, file));
+		s3.setObjectAcl(bucketName+"/"+folderName, key, CannedAccessControlList.PublicRead);
+		URL url = s3.getUrl(bucketName, folderName+"/"+key);
+		LOGGER.info("AWS Upload '" + file.getName() + "' complete");
+		return new String[] {folderName+"/"+key, url.toURI().toString()};
+	}
+
+    public static void deleteFile(String key) throws Exception {
         AmazonS3 s3 = new AmazonS3Client();
+        String bucketRegion = S3PropertyReader.getProperty(s3Region);
+        String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
         s3.deleteObject(new DeleteObjectRequest(bucketName, key));
     }
     
-    public static double getObjectSize(String bucket, String key)
+    public static double getObjectSize(String key)
             throws IOException {
     	AmazonS3 s3 = new AmazonS3Client();
+    	String bucketRegion = S3PropertyReader.getProperty(s3Region);
+        String bucket = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
         return s3.getObjectMetadata(bucket, key).getContentLength();
     }
     
-    public static List<String> getObjectList(String bucketName, String prefix){
+    public static List<String> getObjectList(String prefix){
     	AmazonS3 s3 = new AmazonS3Client();
+    	String bucketRegion = S3PropertyReader.getProperty(s3Region);
+        String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
     	ObjectListing listing = s3.listObjects( bucketName, prefix );
     	List<S3ObjectSummary> summaries = listing.getObjectSummaries();
     	List<String> fileList = new ArrayList<String>();	
@@ -72,4 +85,21 @@ public class AWSUploader {
     	}
 		return fileList;
     }
+    
+    public static String updateURL(String url, String oldBucketName)
+    {
+    	String bucketRegion = S3PropertyReader.getProperty(s3Region);
+        String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
+        String updatedUrl = url;
+        LOGGER.info("Existing url:"+url);
+        LOGGER.info("Fetching bucket name for updating urls:"+bucketName);
+        if(bucketRegion!=null && bucketName!=null){
+        String oldString = oldBucketName + dotOper + s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws;
+        String newString = bucketName + dotOper + s3 + dotOper + aws;
+        updatedUrl = url.replace(oldString, newString);
+        LOGGER.info("Updated bucket url:"+updatedUrl);
+        }
+        return updatedUrl;
+    }
+
 }

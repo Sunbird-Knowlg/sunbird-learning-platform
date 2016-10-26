@@ -40,7 +40,7 @@ public class MediaController extends BaseController {
             String folder = "content";
             String[] urlArray = new String[] {};
             try {
-                urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
+                urlArray = AWSUploader.uploadFile(folder, uploadedFile);
             } catch (Exception e) {
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
                         "Error wihile uploading the File.", e);

@@ -193,7 +193,7 @@ public class BasePipeline extends BaseManager {
 		try {
 			if (StringUtils.isBlank(folder))
 				folder = DEF_AWS_FOLDER_NAME;
-			urlArray = AWSUploader.uploadFile(DEF_AWS_BUCKET_NAME, folder, uploadFile);
+			urlArray = AWSUploader.uploadFile(folder, uploadFile);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR, e);
@@ -238,7 +238,7 @@ public class BasePipeline extends BaseManager {
 		Double bytes = null;
 		if (StringUtils.isNotBlank(key)) {
 			try {
-				return AWSUploader.getObjectSize(ContentConfigurationConstants.BUCKET_NAME, key);
+				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
 				LOGGER.error("Error! While getting the file size from AWS", e);
 			}

@@ -145,7 +145,7 @@ public class ContentBundle {
 					downloadedFiles.add(manifestFile);
 				try {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
-					String[] url = AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
+					String[] url = AWSUploader.uploadFile(ecarFolderName, contentBundle);
 					downloadedFiles.add(contentBundle);
 					return url;
 				} catch (Throwable e) {

@@ -93,7 +93,7 @@ public class ResourceBundleJson {
 		String[] apiUrl = null;
 		try {
 			File output = new File(file);
-			apiUrl = AWSUploader.uploadFile("ekstep-public", "src/main/resources/resourceBundle", output);
+			apiUrl = AWSUploader.uploadFile("src/main/resources/resourceBundle", output);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

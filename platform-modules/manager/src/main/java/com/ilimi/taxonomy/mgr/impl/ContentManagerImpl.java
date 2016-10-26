@@ -303,7 +303,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			String folder = getFolderName(downloadUrl);
 			LOGGER.info("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
 
-			String[] arr = AWSUploader.uploadFile(bucketName, folder, minEcar);
+			String[] arr = AWSUploader.uploadFile(folder, minEcar);
 			response.put("url", arr[1]);
 			LOGGER.info("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
 
@@ -421,5 +421,5 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Returning 'Response' Object.");
 		return response;
 	}
-	
+
 }

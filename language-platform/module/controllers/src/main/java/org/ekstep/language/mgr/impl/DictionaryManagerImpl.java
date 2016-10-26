@@ -118,7 +118,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         }
         String[] urlArray = new String[] {};
         try {
-            urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
+            urlArray = AWSUploader.uploadFile(folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(LanguageErrorCodes.ERR_MEDIA_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);

@@ -151,7 +151,7 @@ public class ConfigController extends BaseController {
 	private Map<String, String> getUrlFromS3() {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
-		List<String> res = AWSUploader.getObjectList(bucketName, folderName);
+		List<String> res = AWSUploader.getObjectList(folderName);
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
 				apiUrl = baseUrl + data;

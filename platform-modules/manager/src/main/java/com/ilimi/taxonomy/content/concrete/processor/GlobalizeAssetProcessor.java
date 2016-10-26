@@ -164,8 +164,7 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 								LOGGER.info("Path to Upload: " + path + "| [Content Id '" + contentId + "']");
 								if (StringUtils.isNotBlank(path))
 									folderName = folderName + "/" + path;
-								uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME,
-										folderName, uploadFile);
+								uploadedFileUrl = AWSUploader.uploadFile(folderName, uploadFile);
 								if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 									uploadMap.put(media.getId(),
 											uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);

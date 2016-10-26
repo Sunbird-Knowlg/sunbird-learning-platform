@@ -34,7 +34,7 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
         }
         String[] urlArray = new String[] {};
         try {
-            urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
+            urlArray = AWSUploader.uploadFile(folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(TaxonomyErrorCodes.ERR_MEDIA_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);

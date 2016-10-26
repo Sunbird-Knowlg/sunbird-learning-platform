@@ -72,7 +72,7 @@ public class BaseMimeTypeManager extends BaseManager {
                 File newName = new File(
                         parentFolderName + File.separator + System.currentTimeMillis() + "_" + olderName.getName());
                 olderName.renameTo(newName);
-                String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
+                String[] url = AWSUploader.uploadFile(folderName, newName);
                 return url[1];
             }
         } catch (Exception ex) {
@@ -263,7 +263,7 @@ public class BaseMimeTypeManager extends BaseManager {
         Double bytes = null;
         if (StringUtils.isNotBlank(key)) {
             try {
-                return AWSUploader.getObjectSize(bucketName, key);
+                return AWSUploader.getObjectSize(key);
             } catch (IOException e) {
                 LOGGER.error("Error: While getting the file size from AWS", e);
             }
@@ -435,7 +435,7 @@ public class BaseMimeTypeManager extends BaseManager {
         try {
             if (StringUtils.isBlank(folder))
                 folder = folderName;
-            urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
+            urlArray = AWSUploader.uploadFile(folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);
