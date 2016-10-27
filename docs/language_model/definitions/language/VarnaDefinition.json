@@ -38,10 +38,11 @@
             "range":
             [
                 "Vowel",
-				"VowelSign",
+				        "VowelSign",
                 "Consonant",
                 "Virama",
-                "Other"
+                "Other",
+                "Alphabet"
             ],
             "required": true,
 			"indexed": true,
