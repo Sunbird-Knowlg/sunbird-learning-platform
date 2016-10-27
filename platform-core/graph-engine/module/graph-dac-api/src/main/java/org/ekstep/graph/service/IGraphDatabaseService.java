@@ -69,7 +69,7 @@ public interface IGraphDatabaseService {
 
 	public Node addNode(String graphId, Node node, Request request);
 
-	public void updateNode(String graphId, Node node, Request request);
+	public Node updateNode(String graphId, Node node, Request request);
 
 	public void importNodes(String graphId, List<Node> nodes, Request request);
 

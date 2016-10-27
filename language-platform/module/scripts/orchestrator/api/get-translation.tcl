@@ -60,14 +60,14 @@ proc getNodeRelationIds {graph_node relationType property languages} {
 	return $relationIds
 }
 
-proc getInNodeRelationIds {graph_node relationType property} {
+proc getInNodeRelationIds {graph_node relationType relationName property} {
 
 	set relationIds [java::new ArrayList]
 	set inRelations [getInRelations $graph_node]
 	set hasRelations [isNotEmpty $inRelations]
 	if {$hasRelations} {
 		java::for {Relation relation} $inRelations {
-			if {[java::prop $relation "startNodeObjectType"] == $relationType} {
+			if {[java::prop $relation "startNodeObjectType"] == $relationType && [java::prop $relation "relationType"] == $relationName} {
 				set prop_value [java::prop $relation $property]
 				$relationIds add $prop_value
 			}
@@ -76,9 +76,35 @@ proc getInNodeRelationIds {graph_node relationType property} {
 	return $relationIds
 }
 
+set filters [java::new HashMap]
+$filters put "objectType" "Word"
+$filters put "graph_id" $language_id
+$filters put "lemma" $lemma
+$filters put "status" [java::new ArrayList]
+set limit [java::new Integer 1]
+
+set null_var [java::null]
+set empty_list [java::new ArrayList]
+set empty_map [java::new HashMap]
+
+set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $limit]
+set searchResultsMap [$searchResponse getResult]
+set wordsList [java::cast List [$searchResultsMap get "results"]]
+set wordsListNull [java::isnull $wordsList]
+if {$wordsListNull == 1 || [$wordsList size] == 0} {
+	set result_map [java::new HashMap]
+	$result_map put "code" "ERR_WORD_NOT_FOUND"
+	$result_map put "message" "Word not found"
+	$result_map put "responseCode" [java::new Integer 404]
+	set response_list [create_error_response $result_map]
+	return $response_list
+}
+
+set wordObject [java::cast Map [$wordsList get 0]]
+set word_id [$wordObject get "identifier"]
+
 set object_type "TranslationSet"
 set node_id $word_id
-set language_id $language_id
 set get_node_response [getDataNode $language_id $node_id]
 set get_node_response_error [check_response_error $get_node_response]
 if {$get_node_response_error} {
@@ -87,7 +113,7 @@ if {$get_node_response_error} {
 
 
 set word_node [get_resp_value $get_node_response "node"]
-set synonym_list [getInNodeRelationIds $word_node "Synset" "startNodeId"]
+set synonym_list [getInNodeRelationIds $word_node "Synset" "synonym" "startNodeId"]
 set synset_list [java::new ArrayList]
 $synset_list addAll $synonym_list
 
@@ -113,19 +139,35 @@ if {$check_error} {
 	return $search_response;
 } else {
 	set result_map [java::new HashMap]
-	set result_list [java::new ArrayList]
+	set result_list [java::new HashMap]
 	java::try {
 		set graph_nodes [get_resp_value $search_response "node_list"]
-		set synset_id_list [java::new ArrayList]
 		java::for {Node graph_node} $graph_nodes {
+			set current_language [java::new ArrayList]
+			$current_language add $language_id
+			set synset_id_list [java::new ArrayList]
+			set current_synset_id [getNodeRelationIds $graph_node "Synset" "endNodeId" $current_language]
+			set synsetObjectResponse [multiLanguageWordSearch $current_synset_id]
+			set synsetMap [java::cast Map [$synsetObjectResponse get "translations"]]
+
+			set synsetId [[[$synsetMap keySet] iterator] next]
+			set synsetObjectMap [java::cast Map [$synsetMap get $synsetId]]
+			$synsetObjectMap remove $language_id
+
 			set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId" $languages]
 			set not_empty_list [isNotEmpty $synset_ids]
 			if {$not_empty_list} {
 				$synset_id_list addAll $synset_ids
 				set searchResponse [multiLanguageWordSearch $synset_id_list]
-				set searchResultsMap [$searchResponse get "translations"]
-				$result_list add $searchResultsMap
+				set searchResultsMap [java::cast Map [$searchResponse get "translations"]]
+				set mapValues [$searchResultsMap values]
+				java::for {Object obj} $mapValues {
+					set mapValue [java::cast Map $obj]
+					$mapValue remove "gloss"
+					$synsetObjectMap putAll $mapValue
+				}
 			}
+			$result_list putAll $synsetMap
 	
 		}
 		$result_map put "translations" $result_list

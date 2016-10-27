@@ -1,0 +1,14 @@
+{
+    "name": "getVarnaList",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language/dictionary/varna/*",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}

@@ -344,6 +344,19 @@
         },
         {
           "required": false,
+          "dataType": "Text",
+          "propertyName": "versionKey",
+          "title": "Data Version Key",
+          "description": "Version number data in Content Node",
+          "category": "Technical",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "Multi-Select",
           "propertyName": "resources",
           "title": "Resources",
@@ -1751,6 +1764,7 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 0.08,
+        "versionCheckMode": "OFF",
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
@@ -1759,7 +1773,7 @@
         "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount", 
         "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
-        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity"]
+        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey"]
       }
     }
   ]
