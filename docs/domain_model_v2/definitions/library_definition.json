@@ -152,7 +152,7 @@
       "metadata": {
         "limit": 50,
         "ttl": 0.08,
-        "fields": ["identifier","osId", "mimeType","name","visibility","downloadUrl","description","pkgVersion","status","appIcon","artifactUrl"]
+        "fields": ["identifier","osId", "mimeType","name","visibility","downloadUrl","description","pkgVersion","status","appIcon","artifactUrl","versionKey"]
       }
     }
   ]
