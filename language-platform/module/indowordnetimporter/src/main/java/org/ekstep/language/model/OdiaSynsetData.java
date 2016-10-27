@@ -25,7 +25,7 @@ import org.hibernate.annotations.WhereJoinTable;
 
 @Entity
 @Table(name = "tbl_all_oriya_synset_data")
-public class OriyaSynsetData implements LanguageSynsetData {
+public class OdiaSynsetData implements LanguageSynsetData {
 
 	@Id
 	private int synset_id;
@@ -43,49 +43,49 @@ public class OriyaSynsetData implements LanguageSynsetData {
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_noun_hypernymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "hypernymy_id") })
-	protected List<OriyaSynsetDataLite> hypernyms = new ArrayList<>();
+	protected List<OdiaSynsetDataLite> hypernyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_noun_hyponymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "hyponymy_id") })
-	protected List<OriyaSynsetDataLite> hyponyms = new ArrayList<>();
+	protected List<OdiaSynsetDataLite> hyponyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_meronymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "meronym_id") })
-	protected List<OriyaSynsetDataLite> meronyms = new ArrayList<>();
+	protected List<OdiaSynsetDataLite> meronyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_holonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "holonym_id") })
-	protected List<OriyaSynsetDataLite> holonyms = new ArrayList<>();
+	protected List<OdiaSynsetDataLite> holonyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_antonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "antonym_id") })
-	protected List<OriyaSynsetDataLite> antonyms = new ArrayList<>();
+	protected List<OdiaSynsetDataLite> antonyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "object_id") })
-	protected List<OriyaSynsetDataLite> actions = new ArrayList<>();
+	protected List<OdiaSynsetDataLite> actions = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "object_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "synset_id") })
-	protected List<OriyaSynsetDataLite> objects = new ArrayList<>();
+	protected List<OdiaSynsetDataLite> objects = new ArrayList<>();
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -163,7 +163,7 @@ public class OriyaSynsetData implements LanguageSynsetData {
 	@Cascade(CascadeType.MERGE)
 	private List<EnglishSynsetDataLite> englishTranslations;
 
-	public OriyaSynsetData() {
+	public OdiaSynsetData() {
 		super();
 	}
 
@@ -279,43 +279,43 @@ public class OriyaSynsetData implements LanguageSynsetData {
 		this.kannadaTranslation = kannadaTranslation;
 	}
 
-	public List<OriyaSynsetDataLite> getHypernyms() {
+	public List<OdiaSynsetDataLite> getHypernyms() {
 		return hypernyms;
 	}
 
-	public void setHypernyms(List<OriyaSynsetDataLite> hypernyms) {
+	public void setHypernyms(List<OdiaSynsetDataLite> hypernyms) {
 		this.hypernyms = hypernyms;
 	}
 
-	public List<OriyaSynsetDataLite> getHyponyms() {
+	public List<OdiaSynsetDataLite> getHyponyms() {
 		return hyponyms;
 	}
 
-	public void setHyponyms(List<OriyaSynsetDataLite> hyponyms) {
+	public void setHyponyms(List<OdiaSynsetDataLite> hyponyms) {
 		this.hyponyms = hyponyms;
 	}
 
-	public List<OriyaSynsetDataLite> getMeronyms() {
+	public List<OdiaSynsetDataLite> getMeronyms() {
 		return meronyms;
 	}
 
-	public void setMeronyms(List<OriyaSynsetDataLite> meronyms) {
+	public void setMeronyms(List<OdiaSynsetDataLite> meronyms) {
 		this.meronyms = meronyms;
 	}
 
-	public List<OriyaSynsetDataLite> getHolonyms() {
+	public List<OdiaSynsetDataLite> getHolonyms() {
 		return holonyms;
 	}
 
-	public void setHolonyms(List<OriyaSynsetDataLite> holonyms) {
+	public void setHolonyms(List<OdiaSynsetDataLite> holonyms) {
 		this.holonyms = holonyms;
 	}
 
-	public List<OriyaSynsetDataLite> getAntonyms() {
+	public List<OdiaSynsetDataLite> getAntonyms() {
 		return antonyms;
 	}
 
-	public void setAntonyms(List<OriyaSynsetDataLite> antonyms) {
+	public void setAntonyms(List<OdiaSynsetDataLite> antonyms) {
 		this.antonyms = antonyms;
 	}
 
@@ -363,19 +363,19 @@ public class OriyaSynsetData implements LanguageSynsetData {
 		this.englishTranslations = englishTranslations;
 	}
 
-	public List<OriyaSynsetDataLite> getActions() {
+	public List<OdiaSynsetDataLite> getActions() {
 		return actions;
 	}
 
-	public void setActions(List<OriyaSynsetDataLite> actions) {
+	public void setActions(List<OdiaSynsetDataLite> actions) {
 		this.actions = actions;
 	}
 
-	public List<OriyaSynsetDataLite> getObjects() {
+	public List<OdiaSynsetDataLite> getObjects() {
 		return objects;
 	}
 
-	public void setObjects(List<OriyaSynsetDataLite> objects) {
+	public void setObjects(List<OdiaSynsetDataLite> objects) {
 		this.objects = objects;
 	}
 
@@ -432,9 +432,9 @@ public class OriyaSynsetData implements LanguageSynsetData {
 		return synsetData;
 	}
 
-	private List<SynsetDataLite> getSynsetDataLiteList(List<OriyaSynsetDataLite> oriyaSynsetLiteList) {
+	private List<SynsetDataLite> getSynsetDataLiteList(List<OdiaSynsetDataLite> oriyaSynsetLiteList) {
 		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
-		for (OriyaSynsetDataLite oriyaSynsetDataLite : oriyaSynsetLiteList) {
+		for (OdiaSynsetDataLite oriyaSynsetDataLite : oriyaSynsetLiteList) {
 			SynsetDataLite liteSynsetData = oriyaSynsetDataLite.getSynsetDataLite();
 			if (!synsetDataLiteList.contains(liteSynsetData)) {
 				synsetDataLiteList.add(liteSynsetData);

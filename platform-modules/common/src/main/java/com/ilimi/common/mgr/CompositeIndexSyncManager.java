@@ -359,7 +359,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	@SuppressWarnings("unchecked")
 	private List<Node> getNodes(String graphId, String objectType, int startPosition, int batchSize) {
 		SearchCriteria sc = new SearchCriteria();
-		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		//sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(objectType);
 		sc.setResultSize(batchSize);
 		sc.setStartPosition(startPosition);

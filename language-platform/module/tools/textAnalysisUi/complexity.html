@@ -64,6 +64,21 @@
                     <td>{{data.text_complexity.meanPhonicComplexity}}</td>
                     <td>{{data.text_complexity.wordCount}}</td>
                     <td>{{data.text_complexity.syllableCount}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-bordered" ng-show="show" ng-if="data.text_complexity.gradeLevels">
+            <thead>
+                <tr>
+                    <th>Grade Level</th>
+                    <th>Language Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="grade in data.text_complexity.gradeLevels">
+                    <td>{{grade.Grade}}</td>
+                    <td>{{grade['Language Level']}} Language</td>
+                </tr>
             </tbody>
         </table>
         <h2>Output</h2>

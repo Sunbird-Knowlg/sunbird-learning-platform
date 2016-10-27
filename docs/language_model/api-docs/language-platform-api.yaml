@@ -1,32 +1,80 @@
 ---
 swagger: "2.0"
 info:
-  description: "Language Platform API provides resources to manage & access dictionaries\
+  description: "Language Platform API provides the resources to manage & access dictionaries\
     \ of multiple languages, and to use tools provided by the platform"
   version: "2.0"
   title: "Language Platform - API"
   license:
     name: "EkStep License"
-     url: 'http:www.ekstep.in'
+    url: "www.ektep.in"
 tags:
 - name: "Word"
   description: "APIs for CRUD and search of word objects"
 - name: "Tools"
   description: "APIs to access language tools"
-  schemes:
-  - https
+schemes:
+- "https"
 consumes:
 - "application/json"
 produces:
 - "application/json"
 paths:
+  /v1/language/dictionary/word/{languageId}/transliterate?addClosingVirama=###:
+    post:
+      tags:
+      - "Tools"
+      summary: "Transliteration API"
+      description: "This endpoint takes an english text as input and transliterates\
+        \ it into the specified language"
+      operationId: "tools.transliterate"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "languageId"
+        in: "path"
+        description: "Unique code of the language into which the given english text\
+          \ should be transliterated"
+        required: true
+        type: "string"
+      - name: "addClosingVirama"
+        in: "query"
+        description: "Parameter to specify if the transliterated word should end with\
+          \ a virama if there is no ending vowel"
+        required: false
+        type: "boolean"
+        default: false
+      - in: "body"
+        name: "Body"
+        required: true
+        schema:
+          $ref: "#/definitions/transliterateRequestBody"
+        x-is-map: false
+      responses:
+        200:
+          description: "Successfully transliterated into the specified language"
+          schema:
+            $ref: "#/definitions/transliterateResponse"
+        400:
+          description: "Error during transliteration! | Error occurred while operation,\
+            \ mostly because of the input given by client, In general it is 'Client\
+            \ Exception'"
+          schema:
+            $ref: "#/definitions/FailedResponseHeader"
+        500:
+          description: "Error during transliteration! | Error occurred while operation,\
+            \ mostly because of erroneous condition on server, In general it is 'Server\
+            \ Exception' or 'Exception'"
+          schema:
+            $ref: "#/definitions/FailedResponseHeader"
+      security: []
   /v1/language/parser:
     post:
       tags:
       - "Tools"
       summary: "Parser API"
-      description: "This endpoint parses a given text and returns available information
-         in EkStep language platform about that word"
+      description: "This endpoint parses a given text and returns available information\
+        \ in EkStep language platform about that word"
       operationId: "tools.parser"
       produces:
       - "application/json"
@@ -122,46 +170,6 @@ paths:
             $ref: "#/definitions/FailedResponseHeader"
         500:
           description: "Error during text analysis! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
-          schema:
-            $ref: "#/definitions/FailedResponseHeader"
-      security: []
-  /v2/language/dictionary/search/{languageId}:
-    post:
-      tags:
-      - "Word"
-      summary: "Searches for Words in the specified language"
-      description: "This endpoint searches a word in the specified language using\
-        \ the search criteria provided in the request body"
-      operationId: "words.search"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "languageId"
-        in: "path"
-        description: "Unique code of the language in which the search has to be performed"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/searchWordRequestBody"
-        x-is-map: false
-      responses:
-        200:
-          description: "Word search successful"
-          schema:
-            $ref: "#/definitions/getAllWordsResponse"
-        400:
-          description: "Error While searching Words! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
-          schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While searching Words! | Error occurred while operation,\
             \ mostly because of erroneous condition on server, In general it is 'Server\
             \ Exception' or 'Exception'"
           schema:
@@ -336,6 +344,41 @@ paths:
           schema:
             $ref: "#/definitions/FailedResponseHeader"
       security: []
+  /v2/language/search:
+    post:
+      tags:
+      - "Word"
+      summary: "Searches for Words in the specified language"
+      description: "This endpoint searches a word in the specified language using\
+        \ the search criteria provided in the request body"
+      operationId: "language.search"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "Body"
+        required: true
+        schema:
+          $ref: "#/definitions/searchWordRequestBody"
+        x-is-map: false
+      responses:
+        200:
+          description: "Word search successful"
+          schema:
+            $ref: "#/definitions/searchResponse"
+        400:
+          description: "Error While searching Words! | Error occurred while operation,\
+            \ mostly because of the input given by client, In general it is 'Client\
+            \ Exception'"
+          schema:
+            $ref: "#/definitions/FailedResponseHeader"
+        500:
+          description: "Error While searching Words! | Error occurred while operation,\
+            \ mostly because of erroneous condition on server, In general it is 'Server\
+            \ Exception' or 'Exception'"
+          schema:
+            $ref: "#/definitions/FailedResponseHeader"
+      security: []
 securityDefinitions: {}
 definitions:
   createWordRequestBody:
@@ -458,6 +501,26 @@ definitions:
       request:
         $ref: "#/definitions/parserReqObject"
     title: "Text Analysis Request Body"
+  transliterateRequestBody:
+    type: "object"
+    required:
+    - "id"
+    - "params"
+    - "request"
+    - "ts"
+    - "ver"
+    properties:
+      id:
+        type: "string"
+      ver:
+        type: "string"
+      ts:
+        type: "string"
+      params:
+        $ref: "#/definitions/RequestParams"
+      request:
+        $ref: "#/definitions/transliterateReqObject"
+    title: "Transliterate Request Body"
   getAllWordsResponse:
     type: "object"
     properties:
@@ -503,6 +566,22 @@ definitions:
         type: "string"
       result:
         $ref: "#/definitions/nodeIdsObject"
+  searchResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      ver:
+        type: "string"
+      ts:
+        type: "string"
+      params:
+        $ref: "#/definitions/ResponseParams"
+      responseCode:
+        type: "string"
+      result:
+        $ref: "#/definitions/searchResult"
+    title: "result"
   complexityMeasuresResponse:
     type: "object"
     properties:
@@ -551,6 +630,22 @@ definitions:
       result:
         $ref: "#/definitions/parserObject"
     title: "Parser API result"
+  transliterateResponse:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      ver:
+        type: "string"
+      ts:
+        type: "string"
+      params:
+        $ref: "#/definitions/ResponseParams"
+      responseCode:
+        type: "string"
+      result:
+        $ref: "#/definitions/transliteratedObject"
+    title: "Transliterate API result"
   nodeIdsObject:
     properties:
       node_ids:
@@ -570,15 +665,26 @@ definitions:
         $ref: "#/definitions/wordObject"
   searchWordObject:
     properties:
-      filterProperty:
+      query:
         type: "string"
-        description: "Search request can contain multiple filters. Each filter has\
-          \ a key, which is one of the properties of word object and value can be\
-          \ an array (to do an IN search) or a single value (to do an exact match\
-          \ search)"
+        description: "Text query string to match"
+      filters:
+        $ref: "#/definitions/searchWordObject_filters"
+      exists:
+        type: "array"
+        description: "Filter to match objects which contains a given field"
+        items:
+          type: "string"
+      not_exists:
+        type: "array"
+        description: "Filter to match objects which does not contain a given field"
+        items:
+          type: "string"
       limit:
         type: "number"
-        description: "Maximum number of words to be returned"
+        description: "Maximum number of objects to be returned"
+      sort_by:
+        $ref: "#/definitions/searchWordObject_sort_by"
   complexityMeasuresReqObject:
     properties:
       language_id:
@@ -613,6 +719,12 @@ definitions:
         type: "number"
         description: "Maximum number of equivalent words, per word in the input text,\
           \ to be returned"
+  transliterateReqObject:
+    properties:
+      text:
+        type: "string"
+        description: "English text that needs to be transliterated into the specified\
+          \ language"
   wordResponse:
     properties:
       word:
@@ -623,6 +735,17 @@ definitions:
         type: "array"
         items:
           $ref: "#/definitions/wordObject"
+  searchResult:
+    properties:
+      count:
+        type: "number"
+        description: ""
+      words:
+        type: "array"
+        description: "list of object matching the search criteria, grouped by object\
+          \ type"
+        items:
+          $ref: "#/definitions/wordSearchObject"
   wordObject:
     properties:
       identifier:
@@ -666,6 +789,45 @@ definitions:
         description: "List of other meanings of the word"
         items:
           $ref: "#/definitions/meaningObject"
+  wordSearchObject:
+    properties:
+      identifier:
+        type: "string"
+        description: "Unique identifier of the word"
+      lemma:
+        type: "string"
+        description: "Lemma of the word"
+      primaryMeaningId:
+        type: "string"
+        description: "Identifier of the primary meaning of the word"
+      status:
+        type: "string"
+        description: "Status of the word: Draft, Live or Retired"
+      variants:
+        type: "array"
+        description: "Variants of the word"
+        items:
+          type: "string"
+      pronunciations:
+        type: "array"
+        description: "Pronunciations of the word"
+        items:
+          type: "string"
+      orthographic_complexity:
+        type: "number"
+        format: "double"
+        description: "Orthographic complexity of the word"
+      phonologic_complexity:
+        type: "number"
+        format: "double"
+        description: "Phonological complexity of the word"
+      word_complexity:
+        type: "number"
+        format: "double"
+        description: "Word complexity"
+      thresholdLevel:
+        type: "string"
+        description: "Threshold Level of the word"
   meaningObject:
     properties:
       identifier:
@@ -766,6 +928,12 @@ definitions:
       lemma:
         $ref: "#/definitions/parserObject_lemma"
     description: "map of results for each word in the input text"
+  transliteratedObject:
+    properties:
+      output:
+        type: "string"
+        description: "transliteration of the input english text in the specified language"
+    description: "output of the transliterate API"
   RequestParams:
     type: "object"
     required:
@@ -832,6 +1000,49 @@ definitions:
         type: "string"
         description: "Error Message"
     title: "Failed Response Parameter"
+  searchWordObject_filters:
+    properties:
+      language_id:
+        type: "array"
+        description: "confines the search to the specified languages"
+        items:
+          type: "string"
+      objectType:
+        type: "array"
+        description: "type of objects to be searched for, specifying 'Word' will return\
+          \ only words"
+        items:
+          type: "string"
+      lemma:
+        type: "array"
+        description: "if provided, confines the search to words with the specified\
+          \ list of lemmas"
+        items:
+          type: "string"
+      status:
+        type: "array"
+        description: "if provided, confines the search to the objects having the specified\
+          \ status values. else, the search is confined to Live objects"
+        items:
+          type: "string"
+      filterProperty:
+        type: "string"
+        description: "Search request can contain multiple filters. Each filter has\
+          \ a key, which is one of the properties of object and value can be an array\
+          \ (to do an IN search) or a single value (to do an exact match search) or\
+          \ to check ranges using min/max parameters"
+    description: "Additional filters to apply based on the attributes of the objects"
+  searchWordObject_sort_by:
+    properties:
+      sort_key:
+        type: "string"
+        description: "field on which the result should be sorted - should be one of\
+          \ the properties defined for the object type"
+      sort_order:
+        type: "string"
+        description: "order in which results should be sorted - asc or desc"
+    description: "criteria to sort the results - a map of sort_key and sort_order\
+      \ values"
   complexityMeasuresObject_complexity_measures_lemma:
     properties:
       orthographic_complexity:

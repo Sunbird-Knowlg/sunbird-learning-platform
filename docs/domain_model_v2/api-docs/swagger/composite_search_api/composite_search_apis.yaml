@@ -1,265 +1,265 @@
-swagger: '2.0'
+---
+swagger: "2.0"
 info:
-  version: '2.0'
-  title: Composite Search - API
-  description: >-
-    Composite search API provides a single window access to all indexed data in
-    the platform. The search is backed by an elastic search index, allowing the
-    user to search for different types of objects using a single keyword. The
-    index is updated on every update to the Graph.
+  description: "Composite search API provides a single window access to all indexed\
+    \ data in the platform. The search is backed by an elastic search index, allowing\
+    \ the user to search for different types of objects using a single keyword. The\
+    \ index is updated on every update to the Graph."
+  version: "2.0"
+  title: "Composite Search - API"
   license:
-    name: Ekstep Lisence
-    url: 'http:www.ekstep.in'
-host: api.EkStep.in
-schemes:
-   - https
-securityDefinitions: {}
-consumes:
-  - application/json
-produces:
-  - application/json
+    name: "EkStep License"
+    url: "http:www.ekstep.in"
 tags: []
+schemes:
+- "https"
+consumes:
+- "application/json"
+produces:
+- "application/json"
 paths:
   /v2/search:
     post:
-      summary: Search API to search all indexed data
-      description: >-
-        This is the main API that accepts the search request and returns the
-        response. The API contract is identical to the graph data structures. So
-        the returned data structures for each object type conform to the
-        definition specification for that object type.
       tags: []
-      operationId: words.create
+      summary: "Search API to search all indexed data"
+      description: "This is the main API that accepts the search request and returns\
+        \ the response. The API contract is identical to the graph data structures.\
+        \ So the returned data structures for each object type conform to the definition\
+        \ specification for that object type."
+      operationId: "search"
       consumes:
-        - application/json
+      - "application/json"
       produces:
-        - application/json
+      - "application/json"
       parameters:
-        - in: body
-          name: Body
-          required: true
-          schema:
-            $ref: '#/definitions/searchRequestBody'
-          x-is-map: false
+      - in: "body"
+        name: "Body"
+        required: true
+        schema:
+          $ref: "#/definitions/searchRequestBody"
+        x-is-map: false
       responses:
-        '200':
-          description: Search operation successful
+        200:
+          description: "Search operation successful"
           schema:
-            $ref: '#/definitions/searchResponse'
-        '400':
-          description: >-
-            Error While searching index! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'
+            $ref: "#/definitions/searchResponse"
+        400:
+          description: "Error While searching index! | Error occurred while operation,\
+            \ mostly because of the input given by client, In general it is 'Client\
+            \ Exception'"
           schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While searching index! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'
+            $ref: "#/definitions/FailedResponseHeader"
+        500:
+          description: "Error While searching index! | Error occurred while operation,\
+            \ mostly because of erroneous condition on server, In general it is 'Server\
+            \ Exception' or 'Exception'"
           schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: "#/definitions/FailedResponseHeader"
       security: []
+securityDefinitions: {}
 definitions:
   searchRequestBody:
-    type: object
+    type: "object"
     required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
+    - "id"
+    - "params"
+    - "request"
+    - "ts"
+    - "ver"
     properties:
       id:
-        type: string
+        type: "string"
       ver:
-        type: string
+        type: "string"
       ts:
-        type: string
+        type: "string"
       params:
-        $ref: '#/definitions/RequestParams'
+        $ref: "#/definitions/RequestParams"
       request:
-        $ref: '#/definitions/searchObject'
-    title: Search Word Request Body
+        $ref: "#/definitions/searchObject"
+    title: "Search Request Body"
   searchResponse:
-    type: object
-    title: result
+    type: "object"
     properties:
       id:
-        type: string
+        type: "string"
       ver:
-        type: string
+        type: "string"
       ts:
-        type: string
+        type: "string"
       params:
-        $ref: '#/definitions/ResponseParams'
+        $ref: "#/definitions/ResponseParams"
       responseCode:
-        type: string
+        type: "string"
       result:
-        $ref: '#/definitions/searchResult'
+        $ref: "#/definitions/searchResult"
+    title: "result"
   searchObject:
     properties:
       query:
-        type: string
-        description: Text query string to match
+        type: "string"
+        description: "Text query string to match"
       filters:
-        type: object
-        description: Additional filters to apply based on the attributes of the objects
-        properties:
-          objectType:
-            type: array
-            description: >-
-              if provided, confines the search to the specified list of object
-              types
-            items:
-              type: string
-          identifier:
-            type: array
-            description: >-
-              if provided, confines the search to the objects with the specified
-              list of identifiers
-            items:
-              type: string
-          status:
-            type: array
-            description: >-
-              if provided, confines the search to the objects having the
-              specified status values. else, the search is confined to Live
-              objects
-            items:
-              type: string
-          filterProperty:
-            type: string
-            description: >-
-              Search request can contain multiple filters. Each filter has a
-              key, which is one of the properties of object and value can be an
-              array (to do an IN search) or a single value (to do an exact match
-              search) or to check ranges using min/max parameters
+        $ref: "#/definitions/searchObject_filters"
       exists:
-        type: array
-        description: Filter to match objects which contains a given field
+        type: "array"
+        description: "Filter to match objects which contains a given field"
         items:
-          type: string
+          type: "string"
       not_exists:
-        type: array
-        description: Filter to match objects which does not contain a given field
+        type: "array"
+        description: "Filter to match objects which does not contain a given field"
         items:
-          type: string
+          type: "string"
       facets:
-        type: array
-        description: Presents the aggregated count of the search result by given field(s)
+        type: "array"
+        description: "Presents the aggregated count of the search result by given\
+          \ field(s)"
         items:
-          type: string
+          type: "string"
       sort_by:
-        type: object
-        description: criteria to sort the results - a map of sort_key and sort_order values
-        properties:
-          sort_key:
-            type: string
-            description: >-
-              field on which the result should be sorted - should be one of the
-              properties defined for the object type
-          sort_order:
-            type: string
-            description: order in which results should be sorted - asc or desc
+        $ref: "#/definitions/searchObject_sort_by"
   searchResult:
     properties:
       count:
-        type: number
-        description: ''
+        type: "number"
+        description: ""
       objectType:
-        type: array
-        description: 'list of object matching the search criteria, grouped by object type'
+        type: "array"
+        description: "list of object matching the search criteria, grouped by object\
+          \ type"
         items:
-          type: object
-          description: map of object properties
+          type: "object"
+          description: "map of object properties"
+          properties: {}
       facets:
-        type: array
-        description: aggregated counts grouped by different fields
+        type: "array"
+        description: "aggregated counts grouped by different fields"
         items:
-          type: object
-          properties:
-            name:
-              type: string
-              description: name of the field on which the results are aggregated
-            values:
-              type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: field value
-                  count:
-                    type: number
-                    description: number of objects having the value
+          $ref: "#/definitions/searchResult_facets"
   RequestParams:
-    type: object
+    type: "object"
     required:
-      - msgid
+    - "msgid"
     properties:
       msgid:
-        type: string
-    title: Params
+        type: "string"
+    title: "Params"
   ResponseParams:
-    title: Response Parameter
-    type: object
+    type: "object"
     properties:
       resmsgid:
-        type: string
-        description: Response Message Id
+        type: "string"
+        description: "Response Message Id"
       msgid:
-        type: string
-        description: Message Id
+        type: "string"
+        description: "Message Id"
       err:
-        type: string
-        description: Error Code
+        type: "string"
+        description: "Error Code"
       status:
-        type: string
-        description: Response Status
+        type: "string"
+        description: "Response Status"
       errmsg:
-        type: string
-        description: Error Message
+        type: "string"
+        description: "Error Message"
+    title: "Response Parameter"
   FailedResponseHeader:
-    title: Failure Response
-    type: object
+    type: "object"
     properties:
       id:
-        type: string
-        description: API Identifier
+        type: "string"
+        description: "API Identifier"
       ver:
-        type: string
-        description: API version information
+        type: "string"
+        description: "API version information"
       ts:
-        type: string
-        description: API execution timespan
+        type: "string"
+        description: "API execution timespan"
       params:
-        $ref: '#/definitions/FailedResponseParams'
+        $ref: "#/definitions/FailedResponseParams"
       responseCode:
-        type: string
-        description: responseCode
+        type: "string"
+        description: "responseCode"
       result:
-        properties:
-          result:
-            type: string
-            description: result
+        $ref: "#/definitions/FailedResponseHeader_result"
+    title: "Failure Response"
   FailedResponseParams:
-    title: Failed Response Parameter
-    type: object
+    type: "object"
     properties:
       resmsgid:
-        type: string
-        description: Response Message Id
+        type: "string"
+        description: "Response Message Id"
       msgid:
-        type: string
-        description: Message Id
+        type: "string"
+        description: "Message Id"
       err:
-        type: string
-        description: Error Code
+        type: "string"
+        description: "Error Code"
       status:
-        type: string
-        description: Response Status
+        type: "string"
+        description: "Response Status"
       errmsg:
-        type: string
-        description: Error Message
+        type: "string"
+        description: "Error Message"
+    title: "Failed Response Parameter"
+  searchObject_filters:
+    properties:
+      objectType:
+        type: "array"
+        description: "if provided, confines the search to the specified list of object\
+          \ types"
+        items:
+          type: "string"
+      identifier:
+        type: "array"
+        description: "if provided, confines the search to the objects with the specified\
+          \ list of identifiers"
+        items:
+          type: "string"
+      status:
+        type: "array"
+        description: "if provided, confines the search to the objects having the specified\
+          \ status values. else, the search is confined to Live objects"
+        items:
+          type: "string"
+      filterProperty:
+        type: "string"
+        description: "Search request can contain multiple filters. Each filter has\
+          \ a key, which is one of the properties of object and value can be an array\
+          \ (to do an IN search) or a single value (to do an exact match search) or\
+          \ to check ranges using min/max parameters"
+    description: "Additional filters to apply based on the attributes of the objects"
+  searchObject_sort_by:
+    properties:
+      sort_key:
+        type: "string"
+        description: "field on which the result should be sorted - should be one of\
+          \ the properties defined for the object type"
+      sort_order:
+        type: "string"
+        description: "order in which results should be sorted - asc or desc"
+    description: "criteria to sort the results - a map of sort_key and sort_order\
+      \ values"
+  searchResult_values:
+    properties:
+      name:
+        type: "string"
+        description: "field value"
+      count:
+        type: "number"
+        description: "number of objects having the value"
+  searchResult_facets:
+    properties:
+      name:
+        type: "string"
+        description: "name of the field on which the results are aggregated"
+      values:
+        type: "array"
+        items:
+          $ref: "#/definitions/searchResult_values"
+  FailedResponseHeader_result:
+    properties:
+      result:
+        type: "string"
+        description: "result"
