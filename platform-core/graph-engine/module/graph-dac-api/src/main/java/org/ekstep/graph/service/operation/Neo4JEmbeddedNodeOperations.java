@@ -10,12 +10,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.graph.service.common.DACErrorCodeConstants;
-import org.ekstep.graph.service.common.DACErrorMessageConstants;
-import org.ekstep.graph.service.common.NodeUpdateMode;
 import org.ekstep.graph.service.request.validaor.Neo4JEmbeddedDataVersionKeyValidator;
-import org.ekstep.graph.service.util.DefinitionNodeUtil;
-import org.ekstep.graph.service.util.GraphUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -23,7 +18,6 @@ import org.neo4j.graphdb.Transaction;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.DateUtils;
@@ -45,6 +39,8 @@ public class Neo4JEmbeddedNodeOperations {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedNodeOperations.class.getName());
+	
+	Neo4JEmbeddedDataVersionKeyValidator versionValidator = new Neo4JEmbeddedDataVersionKeyValidator();
 
 	/**
 	 * Upsert node.
@@ -72,40 +68,10 @@ public class Neo4JEmbeddedNodeOperations {
 				validateNodeUpdate(neo4jNode, node);
 				LOGGER.info("Node Update Validated: " + node.getIdentifier());
 
-				// Fetching Version Check Mode ('OFF', 'STRICT', 'LINIENT')
-				String versionCheckMode = DefinitionNodeUtil.getMetadataValue(GraphUtil.getGraphId(),
-						node.getObjectType(), GraphDACParams.versionCheckMode.name(), request);
-				LOGGER.info("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
-						+ node.getObjectType());
-
-				// Checking if the 'versionCheckMode' Property is not specified,
-				// then default Mode is OFF
-				if (StringUtils.isBlank(versionCheckMode))
-					versionCheckMode = NodeUpdateMode.OFF.name();
-
-				// Checking of Node Update Version Checking is either 'STRICT'
-				// or 'LENIENT'.
-				// If Number of Modes are increasing then the Condition should
-				// only be checked for 'OFF' Mode.
-				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
-						|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
-					Neo4JEmbeddedDataVersionKeyValidator versionValidator = new Neo4JEmbeddedDataVersionKeyValidator();
-					boolean isValidVersionKey = versionValidator.isValidVersionKey(neo4jNode, node);
-					LOGGER.info("Is Valid Version Key ? " + isValidVersionKey);
-
-					if (!isValidVersionKey) {
-						// Checking for Strict Mode
-						if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
-							throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
-									DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR
-											+ " | [Unable to Update the Data.]");
-
-						// Checking for Lenient Mode
-						if (StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode))
-							node.getMetadata().put(GraphDACParams.NODE_UPDATE_STATUS.name(),
-									GraphDACParams.STALE_DATA_UPDATED.name());
-					}
-				}
+				LOGGER.info("Validating the Update Operation for Node Id: " + node.getIdentifier());
+				versionValidator.validateUpdateOperation(graphId, neo4jNode, node, request);
+				LOGGER.info("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
+				
 			} catch (ResourceNotFoundException e) {
 				LOGGER.info("Node Doesn't Exist, Creating a New Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode = graphDb.createNode(NODE_LABEL);
@@ -192,7 +158,6 @@ public class Neo4JEmbeddedNodeOperations {
 	 *            the node
 	 * @param request
 	 *            the request
-	 * @return TODO
 	 */
 	public com.ilimi.graph.dac.model.Node updateNode(String graphId, com.ilimi.graph.dac.model.Node node,
 			Request request) {
@@ -208,38 +173,9 @@ public class Neo4JEmbeddedNodeOperations {
 
 			LOGGER.info("Node Update Validated: " + node.getIdentifier());
 
-			// Fetching Version Check Mode ('OFF', 'STRICT', 'LINIENT')
-			String versionCheckMode = DefinitionNodeUtil.getMetadataValue(GraphUtil.getGraphId(), node.getObjectType(),
-					GraphDACParams.versionCheckMode.name(), request);
-			LOGGER.info("Version Check Mode: " + versionCheckMode + " for Object Type: " + node.getObjectType());
-
-			// Checking if the 'versionCheckMode' Property is not specified,
-			// then default Mode is OFF
-			if (StringUtils.isBlank(versionCheckMode))
-				versionCheckMode = NodeUpdateMode.OFF.name();
-
-			// Checking of Node Update Version Checking is either 'STRICT'
-			// or 'LENIENT'.
-			// If Number of Modes are increasing then the Condition should
-			// only be checked for 'OFF' Mode.
-			if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
-					|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
-				Neo4JEmbeddedDataVersionKeyValidator versionValidator = new Neo4JEmbeddedDataVersionKeyValidator();
-				boolean isValidVersionKey = versionValidator.isValidVersionKey(neo4jNode, node);
-				LOGGER.info("Is Valid Version Key ? " + isValidVersionKey);
-
-				if (!isValidVersionKey) {
-					// Checking for Strict Mode
-					if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
-						throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
-								DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
-
-					// Checking for Lenient Mode
-					if (StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode))
-						node.getMetadata().put(GraphDACParams.NODE_UPDATE_STATUS.name(),
-								GraphDACParams.STALE_DATA_UPDATED.name());
-				}
-			}
+			LOGGER.info("Validating the Update Operation for Node Id: " + node.getIdentifier());
+			versionValidator.validateUpdateOperation(graphId, neo4jNode, node, request);
+			LOGGER.info("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 
 			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
@@ -280,6 +216,10 @@ public class Neo4JEmbeddedNodeOperations {
 				try {
 					neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
 					LOGGER.info("Fetched Neo4J Node: " + neo4jNode.getId());
+					
+					LOGGER.info("Validating the Update Operation for Node Id: " + node.getIdentifier());
+					versionValidator.validateUpdateOperation(graphId, neo4jNode, node, request);
+					LOGGER.info("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 				} catch (ResourceNotFoundException e) {
 					LOGGER.info("Node Doesn't Exist, Creating a New Node. | [Node ID: '" + node.getIdentifier() + "']");
 					neo4jNode = graphDb.createNode(NODE_LABEL);
