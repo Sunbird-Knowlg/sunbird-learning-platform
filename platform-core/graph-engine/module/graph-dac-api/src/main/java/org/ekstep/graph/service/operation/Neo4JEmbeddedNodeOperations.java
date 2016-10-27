@@ -75,10 +75,20 @@ public class Neo4JEmbeddedNodeOperations {
 				// Fetching Version Check Mode ('OFF', 'STRICT', 'LINIENT')
 				String versionCheckMode = DefinitionNodeUtil.getMetadataValue(GraphUtil.getGraphId(),
 						node.getObjectType(), GraphDACParams.versionCheckMode.name(), request);
-				LOGGER.info("Version Check Mode: " + versionCheckMode + " for Object Type: " + node.getObjectType());
+				LOGGER.info("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
+						+ node.getObjectType());
 
-				// Checking of Node Update Version Checking is 'OFF'
-				if (!StringUtils.equalsIgnoreCase(NodeUpdateMode.OFF.name(), versionCheckMode)) {
+				// Checking if the 'versionCheckMode' Property is not specified,
+				// then default Mode is OFF
+				if (StringUtils.isBlank(versionCheckMode))
+					versionCheckMode = NodeUpdateMode.OFF.name();
+
+				// Checking of Node Update Version Checking is either 'STRICT'
+				// or 'LENIENT'.
+				// If Number of Modes are increasing then the Condition should
+				// only be checked for 'OFF' Mode.
+				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
+						|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
 					Neo4JEmbeddedDataVersionKeyValidator versionValidator = new Neo4JEmbeddedDataVersionKeyValidator();
 					boolean isValidVersionKey = versionValidator.isValidVersionKey(neo4jNode, node);
 					LOGGER.info("Is Valid Version Key ? " + isValidVersionKey);
@@ -203,8 +213,17 @@ public class Neo4JEmbeddedNodeOperations {
 					GraphDACParams.versionCheckMode.name(), request);
 			LOGGER.info("Version Check Mode: " + versionCheckMode + " for Object Type: " + node.getObjectType());
 
-			// Checking of Node Update Version Checking is 'OFF'
-			if (!StringUtils.equalsIgnoreCase(NodeUpdateMode.OFF.name(), versionCheckMode)) {
+			// Checking if the 'versionCheckMode' Property is not specified,
+			// then default Mode is OFF
+			if (StringUtils.isBlank(versionCheckMode))
+				versionCheckMode = NodeUpdateMode.OFF.name();
+
+			// Checking of Node Update Version Checking is either 'STRICT'
+			// or 'LENIENT'.
+			// If Number of Modes are increasing then the Condition should
+			// only be checked for 'OFF' Mode.
+			if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
+					|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
 				Neo4JEmbeddedDataVersionKeyValidator versionValidator = new Neo4JEmbeddedDataVersionKeyValidator();
 				boolean isValidVersionKey = versionValidator.isValidVersionKey(neo4jNode, node);
 				LOGGER.info("Is Valid Version Key ? " + isValidVersionKey);
