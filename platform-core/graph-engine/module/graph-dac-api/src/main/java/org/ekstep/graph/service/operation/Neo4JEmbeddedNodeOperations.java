@@ -111,10 +111,13 @@ public class Neo4JEmbeddedNodeOperations {
 			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+			if (!StringUtils.isBlank(date)) {
+				neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 
-			LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
-			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+				LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
+				node.getMetadata().put(GraphDACParams.versionKey.name(),
+						Long.toString(DateUtils.parse(date).getTime()));
+			}
 			tx.success();
 			LOGGER.info("Transaction For Operation 'upsertNode' Completed Successfully. | [Node ID: '"
 					+ node.getIdentifier() + "']");
@@ -156,10 +159,13 @@ public class Neo4JEmbeddedNodeOperations {
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+			if (!StringUtils.isBlank(date)) {
+				neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 
-			LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
-			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+				LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
+				node.getMetadata().put(GraphDACParams.versionKey.name(),
+						Long.toString(DateUtils.parse(date).getTime()));
+			}
 			tx.success();
 			LOGGER.info("Transaction For Operation 'addNode' Completed Successfully. | [Node ID: '"
 					+ node.getIdentifier() + "']");
@@ -219,10 +225,13 @@ public class Neo4JEmbeddedNodeOperations {
 			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+			if (!StringUtils.isBlank(date)) {
+				neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 
-			LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
-			node.getMetadata().put(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+				LOGGER.info("Setting Version Key. | [Node ID: '" + node.getIdentifier() + "']");
+				node.getMetadata().put(GraphDACParams.versionKey.name(),
+						Long.toString(DateUtils.parse(date).getTime()));
+			}
 			tx.success();
 			LOGGER.info("Transaction For Operation 'updateNode' Completed Successfully. | [Node ID: '"
 					+ node.getIdentifier() + "']");
@@ -267,7 +276,9 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 				setNodeData(graphDb, node, neo4jNode);
 				neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-				neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+				if (!StringUtils.isBlank(date))
+					neo4jNode.setProperty(GraphDACParams.versionKey.name(),
+							Long.toString(DateUtils.parse(date).getTime()));
 			}
 			tx.success();
 			LOGGER.info("Transaction For Operation 'importNodes' Completed Successfully.");
@@ -300,7 +311,8 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Property '" + property.getPropertyName() + "' Added For Node ID: " + nodeId);
 			}
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+			if (!StringUtils.isBlank(date))
+				node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'updatePropertyValue' Completed Successfully. | [Node ID: '" + nodeId
 					+ "']");
@@ -336,7 +348,8 @@ public class Neo4JEmbeddedNodeOperations {
 					}
 				}
 				node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-				node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+				if (!StringUtils.isBlank(date))
+					node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			}
 			tx.success();
 			LOGGER.info("Transaction For Operation 'updatePropertyValues' Completed Successfully. | [Node ID: '"
@@ -365,7 +378,8 @@ public class Neo4JEmbeddedNodeOperations {
 			node.removeProperty(key);
 			LOGGER.info("Property '" + key + "' Removed For Node ID: " + nodeId);
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+			if (!StringUtils.isBlank(date))
+				node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'removePropertyValue' Completed Successfully. | [Node ID: '" + nodeId
 					+ "']");
@@ -395,7 +409,8 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Property '" + key + "' Removed For Node ID: " + nodeId);
 			}
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-			node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
+			if (!StringUtils.isBlank(date))
+				node.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			tx.success();
 			LOGGER.info("Transaction For Operation 'removePropertyValues' Completed Successfully. | [Node ID: '"
 					+ nodeId + "']");

@@ -132,7 +132,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 							Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
 							if (propertyDefinition != null) {
 								boolean indexed = (boolean) propertyDefinition.get("indexed");
-								if (indexed) {
+								if (indexed || StringUtils.equalsIgnoreCase("versionKey", propertyName)) {
 									indexDocument.put(propertyName, propertyNewValue);
 								}
 							}
