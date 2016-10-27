@@ -16,6 +16,9 @@ public interface IWordnetConstants {
 
 	/** The attrib primary meaning id. */
 	String ATTRIB_PRIMARY_MEANING_ID = "primaryMeaningId";
+	
+	/** The attrib meaning. */
+	String ATTRIB_MEANING = "meaning";
 
 	/** The attrib has synonyms. */
 	String ATTRIB_HAS_SYNONYMS = "hasSynonyms";
@@ -208,5 +211,8 @@ public interface IWordnetConstants {
 
 	/** The pos tag unk. */
 	String POS_TAG_UNK = "unk";
+	
+	/** The attrib gloss. */
+	String ATTRIB_GLOSS = "gloss";
 
 }

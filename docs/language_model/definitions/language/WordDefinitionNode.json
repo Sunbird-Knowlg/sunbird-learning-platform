@@ -255,6 +255,19 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 11 }"
         },
         {
+          "propertyName": "meaning",
+          "title": "Gloss",
+          "description": "Gloss of the primary meaning",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 11 }"
+        },
+        {
           "propertyName": "syllableCount",
           "title": "Syllable Count",
           "description": "",
