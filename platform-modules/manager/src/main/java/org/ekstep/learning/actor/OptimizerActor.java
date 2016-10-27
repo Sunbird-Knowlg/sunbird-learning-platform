@@ -64,7 +64,7 @@ public class OptimizerActor extends BaseGraphManager {
 		Request request = (Request) msg;
 		String operation = request.getOperation();
 		try {
-			if (StringUtils.equalsIgnoreCase(LearningOperations.optimiseImage.name(), operation)) {
+			if (StringUtils.equalsIgnoreCase(LearningOperations.optimizeImage.name(), operation)) {
 				String contentId = (String) request.get(ContentAPIParams.content_id.name());
 				optimiseImage(contentId);
 				OK(sender());
