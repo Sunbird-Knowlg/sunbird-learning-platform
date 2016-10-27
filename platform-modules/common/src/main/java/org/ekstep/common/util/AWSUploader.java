@@ -39,6 +39,7 @@ public class AWSUploader {
 	private static final String aws = "amazonaws.com";
 	private static final String dotOper = ".";
 	private static final String hyphen = "-";
+	private static final String forwardSlash = "/";
     
 	public static String[] uploadFile(String folderName, File file) throws Exception {
 		file = Slug.createSlugFile(file);
@@ -86,20 +87,25 @@ public class AWSUploader {
 		return fileList;
     }
     
-    public static String updateURL(String url, String oldBucketName)
+    public static String updateURL(String url, String oldPublicBucketName, String oldConfigBucketName)
     {
     	String bucketRegion = S3PropertyReader.getProperty(s3Region);
         String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
-        String updatedUrl = url;
         LOGGER.info("Existing url:"+url);
         LOGGER.info("Fetching bucket name for updating urls:"+bucketName);
         if(bucketRegion!=null && bucketName!=null){
-        String oldString = oldBucketName + dotOper + s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws;
+        String oldPublicStringV1 = oldPublicBucketName + dotOper + s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws;
+        String oldPublicStringV2 = s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws + forwardSlash + oldPublicBucketName;
+        String oldConfigStringV1 = oldConfigBucketName + dotOper + s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws;
+        String oldConfigStringV2 = s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws + forwardSlash + oldConfigBucketName;
         String newString = bucketName + dotOper + s3 + dotOper + aws;
-        updatedUrl = url.replace(oldString, newString);
-        LOGGER.info("Updated bucket url:"+updatedUrl);
+        url = url.replaceAll(oldPublicStringV1, newString);
+        url = url.replaceAll(oldPublicStringV2, newString);
+        url = url.replaceAll(oldConfigStringV1, newString);
+        url = url.replaceAll(oldConfigStringV2, newString);
+        LOGGER.info("Updated bucket url:"+url);
         }
-        return updatedUrl;
+        return url;
     }
 
 }

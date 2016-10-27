@@ -13,6 +13,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
+import com.ilimi.common.enums.UrlProperties;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -37,7 +38,10 @@ import com.ilimi.taxonomy.mgr.IAwsUrlUpdateManager;
 public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdateManager {
 
 	/** Old/Existing public AWS Bucket Name. */
-	private static final String oldBucketName = "ekstep-public";
+	private static final String oldPublicBucketName = "ekstep-public";
+	
+	/** Old/Existing config AWS Bucket Name. */
+	private static final String oldConfigBucketName = "ekstep-config";
 
 	protected static final String URL_String = "url";
 
@@ -46,76 +50,77 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 	
 	public Response updateNodesWithUrl(String objectType, String graphId, String apiId)
 	{
-		List<String> propNames = new ArrayList<String>();
-		List<String> failed_Nodes = new ArrayList<String>();
-		Request requestDefinition = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER,
-				"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
-		Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-		if (!checkError(responseDefiniton)) {
-			DefinitionDTO definition = (DefinitionDTO) responseDefiniton
-					.get(GraphDACParams.definition_node.name());
-			List<MetadataDefinition> list = definition.getProperties();
-			for(MetadataDefinition def: list){
-				String datatype = def.getDataType().toLowerCase();
-				String propertyName = def.getPropertyName().toLowerCase();
-				String description = def.getDescription().toLowerCase();
-				String title = def.getTitle().toLowerCase();
-				if(datatype.equalsIgnoreCase(URL_String) || 
-						propertyName.contains(URL_String) || 
-						description.contains(URL_String) || title.contains(URL_String)){
-					propNames.add(def.getPropertyName());
-				}
-			}
-			if(propNames.size()>0)
-			{
-				SearchCriteria sc = new SearchCriteria();
-				sc.setObjectType(objectType);
-				sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
-				Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-						GraphDACParams.search_criteria.name(), sc);
-				Response findRes = getResponse(req, LOGGER);
-				if (checkError(findRes))
-					return null;
-				else {
-					List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-					if (null != nodes && nodes.size() > 0){
-						for(Node node: nodes){
-							boolean updateFlag = false;
-							for(String prop: propNames){
-								if(null!=node.getMetadata().get(prop)){
-									String url = (String)node.getMetadata().get(prop);
-									if(url.contains(oldBucketName)){
-										String updatedUrl = AWSUploader.updateURL(url, oldBucketName);
-										if(!StringUtils.equalsIgnoreCase(url, updatedUrl)){
-											node.getMetadata().put(prop, updatedUrl);
-											updateFlag = true;
+		List<String> failedNodes = new ArrayList<String>();
+		SearchCriteria sc = new SearchCriteria();
+		sc.setObjectType(objectType);
+		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), sc);
+		Response findRes = getResponse(req, LOGGER);
+		if (checkError(findRes))
+			return null;
+		else {
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+			if (null != nodes && nodes.size() > 0){
+				for(Node node: nodes){
+					boolean updateFlag = false;
+					for(UrlProperties prop: UrlProperties.values()){
+						if(null!=node.getMetadata().get(prop.toString())){
+							Object propertyVal = node.getMetadata().get(prop.toString());
+							if(propertyVal instanceof String)
+							{
+								String property = (String)propertyVal;
+								if(property.contains(oldPublicBucketName) ||
+										property.contains(oldConfigBucketName)){
+									String updatedUrl = AWSUploader.updateURL(property, oldPublicBucketName, oldConfigBucketName);
+									if(!StringUtils.equalsIgnoreCase(property, updatedUrl)){
+										node.getMetadata().put(prop.toString(), updatedUrl);
+										updateFlag = true;
+									}
+								}
+							} else if(propertyVal instanceof List){
+								boolean ListUpdateFlag = false;
+								List<String> propertyList = (List<String>)propertyVal;
+								List<String> propertyUpdateList = new ArrayList<String>();
+								for(String property: propertyList){
+									if(property.contains(oldPublicBucketName) ||
+											property.contains(oldConfigBucketName)){
+										String updatedUrl = AWSUploader.updateURL(property, oldPublicBucketName, oldConfigBucketName);
+										propertyUpdateList.add(updatedUrl);
+										if(!StringUtils.equalsIgnoreCase(property, updatedUrl)){
+											ListUpdateFlag = true;
 										}
 									}
 								}
-							}
-							if(updateFlag){
-								Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-								updateReq.put(GraphDACParams.node.name(), node);
-								updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+								if(propertyList.size() == propertyUpdateList.size() && ListUpdateFlag){
+									node.getMetadata().put(prop.toString(), propertyUpdateList);
+									updateFlag = true;
+								}		
 
-								LOGGER.info("Updating the Node id with AWS url: " + node.getIdentifier());
-								Response updateRes = getResponse(updateReq, LOGGER);
-								if (checkError(updateRes)){
-									failed_Nodes.add(node.getIdentifier());
-								}
 							}
 						}
+					}
+					if(updateFlag){
+						Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+						updateReq.put(GraphDACParams.node.name(), node);
+						updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
+						LOGGER.info("Updating the Node id with AWS url: " + node.getIdentifier());
+						Response updateRes = getResponse(updateReq, LOGGER);
+						if (checkError(updateRes)){
+							failedNodes.add(node.getIdentifier());
+						}
 					}
 				}
+
 			}
 		}
 		Response response = new Response();
-        ResponseParams resStatus = new ResponseParams();
-        resStatus.setStatus(StatusType.successful.name());
-        response.setParams(resStatus);
-        response.setResponseCode(ResponseCode.OK);
-        response.put("failed_nodes", failed_Nodes);
+		ResponseParams resStatus = new ResponseParams();
+		resStatus.setStatus(StatusType.successful.name());
+		response.setParams(resStatus);
+		response.setResponseCode(ResponseCode.OK);
+		response.put("failed_nodes", failedNodes);
 		return response;
 	}
 	
