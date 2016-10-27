@@ -34,7 +34,7 @@ public class AWSUploader {
 	private static Logger LOGGER = LogManager.getLogger(AWSUploader.class.getName());
 	
 	private static final String s3Bucket = "s3.bucket";
-	private static final String s3Region = "s3.region";
+	private static final String s3Environment = "s3.env";
 	private static final String s3 = "s3";
 	private static final String aws = "amazonaws.com";
 	private static final String dotOper = ".";
@@ -45,7 +45,7 @@ public class AWSUploader {
 		file = Slug.createSlugFile(file);
 		AmazonS3Client s3 = new AmazonS3Client();
 		String key = file.getName();
-		String bucketRegion = S3PropertyReader.getProperty(s3Region);
+		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
 		LOGGER.info("Fetching bucket name:"+bucketName);
 		s3.putObject(new PutObjectRequest(bucketName+"/"+folderName, key, file));
@@ -57,7 +57,7 @@ public class AWSUploader {
 
     public static void deleteFile(String key) throws Exception {
         AmazonS3 s3 = new AmazonS3Client();
-        String bucketRegion = S3PropertyReader.getProperty(s3Region);
+        String bucketRegion = S3PropertyReader.getProperty(s3Environment);
         String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
         s3.deleteObject(new DeleteObjectRequest(bucketName, key));
     }
@@ -65,14 +65,14 @@ public class AWSUploader {
     public static double getObjectSize(String key)
             throws IOException {
     	AmazonS3 s3 = new AmazonS3Client();
-    	String bucketRegion = S3PropertyReader.getProperty(s3Region);
+    	String bucketRegion = S3PropertyReader.getProperty(s3Environment);
         String bucket = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
         return s3.getObjectMetadata(bucket, key).getContentLength();
     }
     
     public static List<String> getObjectList(String prefix){
     	AmazonS3 s3 = new AmazonS3Client();
-    	String bucketRegion = S3PropertyReader.getProperty(s3Region);
+    	String bucketRegion = S3PropertyReader.getProperty(s3Environment);
         String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
     	ObjectListing listing = s3.listObjects( bucketName, prefix );
     	List<S3ObjectSummary> summaries = listing.getObjectSummaries();
@@ -89,7 +89,7 @@ public class AWSUploader {
     
     public static String updateURL(String url, String oldPublicBucketName, String oldConfigBucketName)
     {
-    	String bucketRegion = S3PropertyReader.getProperty(s3Region);
+    	String bucketRegion = S3PropertyReader.getProperty(s3Environment);
         String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
         LOGGER.info("Existing url:"+url);
         LOGGER.info("Fetching bucket name for updating urls:"+bucketName);
