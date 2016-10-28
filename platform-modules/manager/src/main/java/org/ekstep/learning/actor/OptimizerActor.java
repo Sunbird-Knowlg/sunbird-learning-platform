@@ -94,10 +94,10 @@ public class OptimizerActor extends BaseGraphManager {
 
 		// get content definition to get configured resolution
 		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Content");
-		String resolutionStr = (String) contentDefinition.getMetadata().get("resolutions");
-		Map<String, Object> resolutions = mapper.readValue(resolutionStr, Map.class);
+		String variantsStr = (String) contentDefinition.getMetadata().get(ContentAPIParams.variants.name());
+		Map<String, Object> variants = mapper.readValue(variantsStr, Map.class);
 
-		if (resolutions != null && resolutions.size() > 0) {
+		if (variants != null && variants.size() > 0) {
 			try {
 				Node node = controllerUtil.getNode("domain", contentId);
 				if (node == null)
@@ -111,25 +111,25 @@ public class OptimizerActor extends BaseGraphManager {
 				LOGGER.info("optimiseImage | originalURL=" + originalURL + " | uploadedFile="
 						+ originalFile.getAbsolutePath());
 
-				Map<String, String> resolutionMap = new HashMap<String, String>();
+				Map<String, String> variantsMap = new HashMap<String, String>();
 
 				// run for each resolution
-				for (Map.Entry<String, Object> entry : resolutions.entrySet()) {
+				for (Map.Entry<String, Object> entry : variants.entrySet()) {
 					String resolution = entry.getKey();
-					Map<String, Object> resolutionValueMap = (Map<String, Object>) entry.getValue();
-					List<Integer> dimension = (List<Integer>) resolutionValueMap.get("dimensions");
-					int dpi = (int) resolutionValueMap.get("dpi");
+					Map<String, Object> variantValueMap = (Map<String, Object>) entry.getValue();
+					List<Integer> dimension = (List<Integer>) variantValueMap.get("dimensions");
+					int dpi = (int) variantValueMap.get("dpi");
 
 					if (dimension == null || dimension.size() != 2)
 						throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
-								"Image Resolution is not configured for content optimization");
+								"Image Resolution/variants is not configured for content optimization");
 
 					if (ImageResolutionUtil.isImageOptimizable(originalFile, dimension.get(0), dimension.get(1))) {
 						double targetResolution = ImageResolutionUtil.getOptimalDPI(originalFile, dpi);
 						File optimisedFile = ekstepOptimizr.optimizeImage(originalFile, targetResolution,
 								dimension.get(0), dimension.get(1), resolution);
 						String[] optimisedURLArray = controllerUtil.uploadToAWS(optimisedFile, "");
-						resolutionMap.put(resolution, optimisedURLArray[1]);
+						variantsMap.put(resolution, optimisedURLArray[1]);
 
 						if (null != optimisedFile && optimisedFile.exists()) {
 							try {
@@ -140,7 +140,7 @@ public class OptimizerActor extends BaseGraphManager {
 							}
 						}
 					} else {
-						resolutionMap.put(resolution, originalURL);
+						variantsMap.put(resolution, originalURL);
 					}
 
 				}
@@ -156,7 +156,7 @@ public class OptimizerActor extends BaseGraphManager {
 				// delete folder created for downloading asset file
 				delete(new File(tempFolder));
 
-				node.getMetadata().put(ContentAPIParams.resolutions.name(), resolutionMap);
+				node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 				controllerUtil.updateNode(node);
 

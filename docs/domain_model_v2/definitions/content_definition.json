@@ -100,8 +100,8 @@
         {
           "required": false,
           "dataType": "JSON",
-          "propertyName": "resolutions",
-          "title": "Image Resolutions",
+          "propertyName": "variants",
+          "title": "Image Resolution variants",
           "description": "",
           "category": "General",
           "displayProperty": "Editable",
@@ -1765,7 +1765,7 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 0.08,
-        "resolutions": {
+        "variants": {
          "high": {"dimensions": [1024, 1024], "dpi": 240}, 
          "medium": {"dimensions": [512, 512], "dpi": 240}, 
          "low": {"dimensions": [128, 128], "dpi": 240}
@@ -1778,7 +1778,7 @@
         "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount", 
         "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
-        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "resolutions"]
+        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "variants"]
       }
     }
   ]

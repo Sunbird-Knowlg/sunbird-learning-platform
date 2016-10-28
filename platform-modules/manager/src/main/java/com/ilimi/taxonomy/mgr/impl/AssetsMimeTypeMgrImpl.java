@@ -66,8 +66,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
 		node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-		Map<String, String> resolutionMap = new HashMap<String, String>();
-		node.getMetadata().put(ContentAPIParams.resolutions.name(), resolutionMap);
+		Map<String, String> variantsMap = new HashMap<String, String>();
+		node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 		
 		LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 		Response response = updateContentNode(node, urlArray[1]);
