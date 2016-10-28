@@ -153,7 +153,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
 		ContentBundle contentBundle = new ContentBundle();
 		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
-		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls);
+		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
