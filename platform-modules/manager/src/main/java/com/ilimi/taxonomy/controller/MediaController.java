@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,8 @@ import com.ilimi.taxonomy.enums.ContentErrorCodes;
 public class MediaController extends BaseController {
     
     private static LogHelper LOGGER = LogHelper.getInstance(MediaController.class.getName());
+    
+    private static final String s3Media = "s3.media.folder";
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody
@@ -36,10 +39,11 @@ public class MediaController extends BaseController {
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
-            String bucketName = "ekstep-public";
-            String folder = "content";
+            /*String bucketName = "ekstep-public";
+            String folder = "content";*/
             String[] urlArray = new String[] {};
             try {
+            	String folder = S3PropertyReader.getProperty(s3Media);
                 urlArray = AWSUploader.uploadFile(folder, uploadedFile);
             } catch (Exception e) {
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),

@@ -44,7 +44,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		LOGGER.debug("Uploading to Folder: " + folder);
 
 		LOGGER.info("Calling Upload Content Node For Node ID: " + node.getIdentifier());
-		String[] urlArray = uploadToAWS(uploadFile, folder);
+		String[] urlArray = uploadToAWS(uploadFile, folder,node.getIdentifier());
 
 		LOGGER.info("Updating the Content Node for Node ID: " + node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);

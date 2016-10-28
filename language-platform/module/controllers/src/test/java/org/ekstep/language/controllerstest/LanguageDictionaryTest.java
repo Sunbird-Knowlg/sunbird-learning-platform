@@ -275,7 +275,7 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 		//Will be executed only the upload is successful, need not be moved out
 		String url = (String) result.get("url");
 		String fileName = url.substring(url.lastIndexOf('/') + 1);
-		AWSUploader.deleteFile(bucketName, uploadfolder + "/" + fileName);
+		AWSUploader.deleteFile(uploadfolder + "/" + fileName);
 	}
 
 	@Test

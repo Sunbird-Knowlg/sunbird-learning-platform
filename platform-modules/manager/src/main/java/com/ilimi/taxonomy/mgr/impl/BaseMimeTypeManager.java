@@ -20,8 +20,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.S3PropertyReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -55,8 +57,11 @@ public class BaseMimeTypeManager extends BaseManager {
     private static final String tempFileLocation = "/data/contentBundle/";
     private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
 
-    private static final String bucketName = "ekstep-public";
-    private static final String folderName = "content";
+    /*private static final String bucketName = "ekstep-public";
+    private static final String folderName = "content";*/
+    
+    private static final String s3Content = "s3.content.folder";
+    private static final String s3Artifact = "s3.artifact.folder";
     
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
@@ -72,7 +77,8 @@ public class BaseMimeTypeManager extends BaseManager {
                 File newName = new File(
                         parentFolderName + File.separator + System.currentTimeMillis() + "_" + olderName.getName());
                 olderName.renameTo(newName);
-                String[] url = AWSUploader.uploadFile(folderName, newName);
+                folder = S3PropertyReader.getProperty(s3Content);
+                String[] url = AWSUploader.uploadFile(folder, newName);
                 return url[1];
             }
         } catch (Exception ex) {
@@ -247,7 +253,7 @@ public class BaseMimeTypeManager extends BaseManager {
         getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
         String bundleFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + ".ecar";
         Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
-        String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, "1.1", downloadUrls);
+        String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, "1.1", downloadUrls, node.getIdentifier());
         node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
         node.getMetadata().put("downloadUrl", urlArray[1]);
         node.getMetadata().put("status", "Live");
@@ -430,11 +436,16 @@ public class BaseMimeTypeManager extends BaseManager {
         return response;
     }
 
-    public String[] uploadToAWS(File uploadedFile, String folder) {
+    public String[] uploadToAWS(File uploadedFile, String folder, String identifier) {
         String[] urlArray = new String[] {};
         try {
             if (StringUtils.isBlank(folder))
-                folder = folderName;
+            {
+                //folder = folderName;
+            	folder = S3PropertyReader.getProperty(s3Content);
+            	folder = folder + "/" + Slug.makeSlug(identifier, true) + 
+            			"/" + S3PropertyReader.getProperty(s3Artifact);
+            }
             urlArray = AWSUploader.uploadFile(folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
@@ -444,7 +455,7 @@ public class BaseMimeTypeManager extends BaseManager {
     }
 
     public Response uploadContent(Node node, File uploadedFile, String folder) {
-        String[] urlArray = uploadToAWS(uploadedFile, folder);
+        String[] urlArray = uploadToAWS(uploadedFile, folder, node.getIdentifier());
         node.getMetadata().put("s3Key", urlArray[0]);
         node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
         return updateContentNode(node, urlArray[1]);

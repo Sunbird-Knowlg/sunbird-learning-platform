@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.util.S3PropertyReader;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -37,6 +38,8 @@ public class UploadFinalizer extends BaseFinalizer {
 	/** The ContentId. */
 	protected String contentId;
 
+	private static final String s3Artifact = "s3.artifact.folder";
+	
 	/**
 	 * Instantiates a new UploadFinalizer and sets the base
 	 * path and current content id for further processing.
@@ -98,7 +101,8 @@ public class UploadFinalizer extends BaseFinalizer {
 		LOGGER.info("Generated ECML String From ECRF: " + ecml);
 
 		// Upload Package
-		String[] urlArray = uploadToAWS(file, getUploadFolderName());
+		String folderName = S3PropertyReader.getProperty(s3Artifact);
+		String[] urlArray = uploadToAWS(file, getUploadFolderName(node.getIdentifier(), folderName));
 		LOGGER.info("Package Uploaded to S3.");
 
 		// Update Body, Reset Editor State and Update Content Node

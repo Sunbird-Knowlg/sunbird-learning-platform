@@ -28,6 +28,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -93,6 +94,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     /** The Constant DEFAULT_STATUS. */
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
     
+    private static final String s3Media = "s3.media.folder";
+	
     /** The word util. */
     @Autowired
     private WordUtil wordUtil;
@@ -111,13 +114,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 */
     @Override
     public Response upload(File uploadedFile) {
-        String bucketName = "ekstep-public";
-        String folder = "language_assets";
+        //String bucketName = "ekstep-public";
+        //String folder = "language_assets";
         if (null == uploadedFile) {
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), "Upload file is blank.");
         }
         String[] urlArray = new String[] {};
         try {
+        	String folder = S3PropertyReader.getProperty(s3Media);
             urlArray = AWSUploader.uploadFile(folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(LanguageErrorCodes.ERR_MEDIA_UPLOAD_FILE.name(),

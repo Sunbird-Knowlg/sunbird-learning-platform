@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.ThumbnailGenerator;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.ZipUtility;
 
 import com.ilimi.common.exception.ClientException;
@@ -36,6 +37,8 @@ public class BaseFinalizer extends BasePipeline {
 	
 	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
+	
+	private static final String s3Artifact = "s3.artifact.folder";
 	
 	/**
 	 * Creates Thumbline.
@@ -69,7 +72,8 @@ public class BaseFinalizer extends BasePipeline {
 							// uploads thumbfile to s3 and set node metadata
 							if (thumbFile.exists()) {
 								LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
-								String[] urlArray = uploadToAWS(thumbFile, getUploadFolderName());
+								String folderName = S3PropertyReader.getProperty(s3Artifact);
+								String[] urlArray = uploadToAWS(thumbFile, getUploadFolderName(node.getIdentifier(), folderName));
 								if (null != urlArray && urlArray.length >= 2) {
 									String thumbUrl = urlArray[IDX_S3_URL];
 									node.getMetadata().put(ContentWorkflowPipelineParams.appIcon.name(), thumbUrl);
