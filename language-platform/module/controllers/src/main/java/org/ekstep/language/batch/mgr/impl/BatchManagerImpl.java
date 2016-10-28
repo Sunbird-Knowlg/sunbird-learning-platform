@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -390,22 +391,27 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 	}
 
 	/**
-	 * Gets the synset ids.
+	 * Gets the mapping synset id to gloss.
 	 *
 	 * @param inRels
 	 *            the in rels
-	 * @return the synset ids
+	 * @return the synset id to gloss mapping
 	 */
-	private List<String> getSynsetIds(List<Relation> inRels) {
-		List<String> synsetIds = new ArrayList<String>();
+	private Map<String, String> getSynsetMap(List<Relation> inRels) {
+		Map<String, String> synsetMap = new HashMap<String, String>();
 		if (null != inRels && inRels.size() > 0) {
 			for (Relation inRel : inRels) {
 				if (StringUtils.equalsIgnoreCase(inRel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)
-						&& StringUtils.equalsIgnoreCase(inRel.getRelationType(), RelationTypes.SYNONYM.relationName()))
-					synsetIds.add(inRel.getStartNodeId());
+						&& StringUtils.equalsIgnoreCase(inRel.getRelationType(), RelationTypes.SYNONYM.relationName())) {
+					Map<String, Object> metadata = inRel.getStartNodeMetadata();
+					String gloss = null;
+					if (null != metadata && !metadata.isEmpty())
+						gloss = (String) metadata.get(ATTRIB_GLOSS);
+					synsetMap.put(inRel.getStartNodeId(), gloss);
+				}
 			}
 		}
-		return synsetIds;
+		return synsetMap;
 	}
 
 	/*
@@ -429,7 +435,8 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					Object isPhrase = metadata.get(ATTRIB_IS_PHRASE);
 					Object value = metadata.get(ATTRIB_PRIMARY_MEANING_ID);
 					Integer count = null;
-					List<String> synsetIds = getSynsetIds(node.getInRelations());
+					Map<String, String> synsetMap = getSynsetMap(node.getInRelations());
+					Set<String> synsetIds = synsetMap.keySet();
 					if (null != synsetIds && !synsetIds.isEmpty())
 						count = synsetIds.size();
 					Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
@@ -438,9 +445,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					wordMetadata.put(ATTRIB_SYNSET_COUNT, count);
 					if (null == value || StringUtils.isBlank(value.toString())) {
 						if (null != synsetIds && !synsetIds.isEmpty()) {
-							String id = synsetIds.get(0);
+							String id = synsetIds.iterator().next();
 							wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
+							wordMetadata.put(ATTRIB_MEANING, synsetMap.get(id));
 						}
+					} else {
+						wordMetadata.put(ATTRIB_MEANING, synsetMap.get(value.toString()));
 					}
 					if (null == isPhrase && StringUtils.isNotBlank(lemma) && lemma.trim().contains(" "))
 						wordMetadata.put(ATTRIB_IS_PHRASE, true);

@@ -92,8 +92,8 @@
           "renderingHints": "{ 'inputType': 'textarea', 'order': 6 }"
         },
         {
-          "propertyName": "Audio",
-          "title": "audio",
+          "propertyName": "audio",
+          "title": "Audio",
           "description": "URL",
           "category": "sampleData",
           "dataType": "List",

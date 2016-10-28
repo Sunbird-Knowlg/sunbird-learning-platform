@@ -31,11 +31,30 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.INode;
 
+/**
+ * The Class AbstractNode.
+ * 
+ * @author Mohammad Azharuddin
+ */
 public abstract class AbstractNode extends AbstractDomainObject implements INode {
 
+    /** The node id. */
     private String nodeId;
+    
+    /** The version key. */
+    private String versionKey;
+    
+    /** The metadata. */
     protected Map<String, Object> metadata;
 
+    /**
+     * Instantiates a new abstract node.
+     *
+     * @param manager the manager
+     * @param graphId the graph id
+     * @param nodeId the node id
+     * @param metadata the metadata
+     */
     protected AbstractNode(BaseGraphManager manager, String graphId, String nodeId, Map<String, Object> metadata) {
         super(manager, graphId);
         if (null == manager || StringUtils.isBlank(graphId)) {
@@ -45,6 +64,9 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         this.metadata = metadata;
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.IPropertyContainer#create(com.ilimi.common.dto.Request)
+     */
     @Override
     public void create(final Request req) {
         try {
@@ -74,6 +96,9 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.IPropertyContainer#getProperty(com.ilimi.common.dto.Request)
+     */
     @Override
     public void getProperty(Request req) {
         final String key = (String) req.get(GraphDACParams.property_key.name());
@@ -96,24 +121,36 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.IPropertyContainer#removeProperty(com.ilimi.common.dto.Request)
+     */
     @Override
     public void removeProperty(Request req) {
         throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_UNSUPPORTED_OPERATION.name(),
                 "Remove Property is not supported on this node");
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.IPropertyContainer#setProperty(com.ilimi.common.dto.Request)
+     */
     @Override
     public void setProperty(Request req) {
         throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_UNSUPPORTED_OPERATION.name(),
                 "Set Property is not supported on this node");
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.INode#updateMetadata(com.ilimi.common.dto.Request)
+     */
     @Override
     public void updateMetadata(Request req) {
         throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_UNSUPPORTED_OPERATION.name(),
                 "Update Metadata is not supported on this node");
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.IPropertyContainer#delete(com.ilimi.common.dto.Request)
+     */
     @Override
     public void delete(Request req) {
         try {
@@ -129,6 +166,9 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.INode#toNode()
+     */
     @Override
     public Node toNode() {
         Node node = new Node(this.nodeId, getSystemNodeType(), getFunctionalObjectType());
@@ -136,29 +176,75 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         return node;
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.INode#validateNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public Future<Map<String, List<String>>> validateNode(Request request) {
         Future<List<String>> metadataValidation = Futures.successful(null);
         return getMessageMap(metadataValidation, manager.getContext().dispatcher());
     }
 
+    /**
+     * Gets the metadata.
+     *
+     * @return the metadata
+     */
     public Map<String, Object> getMetadata() {
         return this.metadata;
     }
 
+    /**
+     * Sets the metadata.
+     *
+     * @param metadata the metadata
+     */
     public void setMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
         checkMetadata(this.metadata);
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.model.INode#getNodeId()
+     */
     public String getNodeId() {
         return this.nodeId;
     }
 
+    /**
+     * Sets the node id.
+     *
+     * @param nodeId the new node id
+     */
     protected void setNodeId(String nodeId) {
         this.nodeId = nodeId;
     }
+    
+    /**
+     * Gets the version key.
+     *
+     * @return the version key
+     */
+    public String getVersionKey() {
+		return versionKey;
+	}
 
+	/**
+	 * Sets the version key.
+	 *
+	 * @param versionKey the new version key
+	 */
+	protected void setVersionKey(String versionKey) {
+		this.versionKey = versionKey;
+	}
+
+    /**
+     * Gets the message map.
+     *
+     * @param aggregate the aggregate
+     * @param ec the ec
+     * @return the message map
+     */
     protected Future<Map<String, List<String>>> getMessageMap(Future<List<String>> aggregate, ExecutionContext ec) {
         Future<Map<String, List<String>>> messageMap = aggregate.map(new Mapper<List<String>, Map<String, List<String>>>() {
             @Override
@@ -175,6 +261,12 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         return messageMap;
     }
 
+    /**
+     * Gets the error messages.
+     *
+     * @param messages the messages
+     * @return the error messages
+     */
     protected List<String> getErrorMessages(Iterable<List<String>> messages) {
         List<String> errMessages = new ArrayList<String>();
         if (null != messages) {
@@ -187,6 +279,11 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         return errMessages;
     }
 
+    /**
+     * Check metadata.
+     *
+     * @param metadata the metadata
+     */
     protected void checkMetadata(Map<String, Object> metadata) {
         if (null != metadata && metadata.size() > 0) {
             for (Entry<String, Object> entry : metadata.entrySet()) {
@@ -195,6 +292,12 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         }
     }
 
+    /**
+     * Check metadata.
+     *
+     * @param key the key
+     * @param value the value
+     */
     @SuppressWarnings("rawtypes")
     protected void checkMetadata(String key, Object value) {
         if (SystemProperties.isSystemProperty(key)) {
@@ -242,6 +345,13 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         }
     }
 
+    /**
+     * Gets the array.
+     *
+     * @param key the key
+     * @param list the list
+     * @return the array
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Object[] getArray(String key, List list) {
         Object[] array = null;
@@ -272,6 +382,12 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         return array;
     }
 
+    /**
+     * Convert list to array.
+     *
+     * @param list the list
+     * @return the string[]
+     */
     protected String[] convertListToArray(List<String> list) {
         if (null != list && !list.isEmpty()) {
             String[] array = new String[list.size()];
