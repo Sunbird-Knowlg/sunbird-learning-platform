@@ -1685,6 +1685,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			validateListProperty(primaryMeaning, ATTRIB_PICTURES);
 			validateListProperty(primaryMeaning, ATTRIB_EXAMPLE_SENTENCES);
 			validateListProperty(primaryMeaning, LanguageParams.tags.name());
+			String gloss = (String) primaryMeaning.get(ATTRIB_GLOSS);
 
 			// create or update Primary meaning Synset
 			List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
@@ -1827,6 +1828,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			String lemma = (String) item.get(ATTRIB_LEMMA);
 			lemma = lemma.trim().toLowerCase();
 			item.put(ATTRIB_LEMMA, lemma);
+			item.put(ATTRIB_MEANING, gloss);
 			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
                 Object isPhrase = item.get(ATTRIB_IS_PHRASE);
                 if (null == isPhrase)
@@ -1936,6 +1938,10 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	                        continue;
 	                    } else {
 	                        metadata.put(ATTRIB_PRIMARY_MEANING_ID, synsetId);
+	                        if (null != synsetNode.getMetadata()) {
+	                        	String gloss = (String) synsetNode.getMetadata().get(ATTRIB_GLOSS);
+		                        metadata.put(ATTRIB_MEANING, gloss);
+	                        }
 	                        wordNode.setMetadata(metadata);
 	                        wordNode.setObjectType(LanguageParams.Word.name());
 	                        updateWord(wordNode, languageId, wordId);

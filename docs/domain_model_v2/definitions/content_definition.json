@@ -1764,7 +1764,7 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 0.08,
-        "versionCheckMode": "OFF",
+        "versionCheckMode": "STRICT",
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",

@@ -47,7 +47,7 @@ public class DefinitionNodeUtil {
 		String value = "";
 		
 		LOGGER.info("Fetching the Definition Node to Read Metadata Value. | [Graph Id: " + graphId + "]");
-		Node definitionNode = getDefinitionNode(GraphUtil.getGraphId(), objectType, request);
+		Node definitionNode = getDefinitionNode(graphId, objectType, request);
 		if (null == definitionNode)
 			throw new ResourceNotFoundException(DACErrorCodeConstants.MISSING_DEFINITION.name(),
 					DACErrorMessageConstants.MISSING_DEFINTION_ERROR + " | [Object Type: " + objectType + " and Graph Id "

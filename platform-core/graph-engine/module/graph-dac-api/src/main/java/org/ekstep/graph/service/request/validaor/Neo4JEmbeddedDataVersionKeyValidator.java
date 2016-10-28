@@ -7,7 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
-import org.ekstep.graph.service.util.GraphUtil;
+import org.ekstep.graph.service.common.NodeUpdateMode;
+import org.ekstep.graph.service.util.DefinitionNodeUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
@@ -21,8 +22,59 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 public class Neo4JEmbeddedDataVersionKeyValidator {
 
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedDataVersionKeyValidator.class.getName());
+	
+	public boolean validateUpdateOperation(String graphId, org.neo4j.graphdb.Node neo4jNode, com.ilimi.graph.dac.model.Node node,
+			Request request) {
+		LOGGER.debug("Graph Engine Node: ", node);
+		LOGGER.debug("Neo4J Node: ", neo4jNode);
 
-	public boolean isValidVersionKey(Node node, Request request) {
+		boolean isValidUpdateOperation = false;
+
+		// Fetching Version Check Mode ('OFF', 'STRICT', 'LINIENT')
+		String versionCheckMode = DefinitionNodeUtil.getMetadataValue(graphId, node.getObjectType(),
+				GraphDACParams.versionCheckMode.name(), request);
+		LOGGER.info("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
+				+ node.getObjectType());
+
+		// Checking if the 'versionCheckMode' Property is not specified,
+		// then default Mode is OFF
+		if (StringUtils.isBlank(versionCheckMode))
+			versionCheckMode = NodeUpdateMode.OFF.name();
+
+		// Checking of Node Update Version Checking is either 'STRICT'
+		// or 'LENIENT'.
+		// If Number of Modes are increasing then the Condition should
+		// be checked for 'OFF' Mode Only.
+		if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
+				|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
+			boolean isValidVersionKey = isValidVersionKey(neo4jNode, node);
+			LOGGER.info("Is Valid Version Key ? " + isValidVersionKey);
+
+			if (!isValidVersionKey) {
+				// Checking for Strict Mode
+				LOGGER.info("Checking for Node Update Operation Mode is 'STRICT' for Node Id: " + node.getIdentifier());
+				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
+					throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
+							DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
+
+				// Checking for Lenient Mode
+				LOGGER.info(
+						"Checking for Node Update Operation Mode is 'LENIENT' for Node Id: " + node.getIdentifier());
+				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode))
+					node.getMetadata().put(GraphDACParams.NODE_UPDATE_STATUS.name(),
+							GraphDACParams.STALE_DATA_UPDATED.name());
+
+				// Update Operation is Valid
+				isValidUpdateOperation = true;
+				LOGGER.info("Update Operation is Valid for Node Id: " + node.getIdentifier());
+			}
+		}
+		LOGGER.info("Is Valid Update Operation ? " + isValidUpdateOperation);
+		return isValidUpdateOperation;
+	}
+
+	@SuppressWarnings("unused")
+	private boolean isValidVersionKey(String graphId, Node node, Request request) {
 		LOGGER.debug("Node: ", node);
 
 		boolean isValidVersionKey = false;
@@ -31,7 +83,7 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		LOGGER.info("Data Node Version Key Value: " + versionKey + " | [Node Id: '" + node.getIdentifier() + "']");
 
 		// Fetching Neo4J Node
-		org.neo4j.graphdb.Node neo4jNode = getNeo4jNode(GraphUtil.getGraphId(), node.getIdentifier(), request);
+		org.neo4j.graphdb.Node neo4jNode = getNeo4jNode(graphId, node.getIdentifier(), request);
 		LOGGER.info("Fetched the Neo4J Node Id: " + neo4jNode.getId() + " | [Node Id: '" + node.getIdentifier() + "']");
 
 		// Reading Last Updated On time stamp from Neo4J Node
@@ -57,7 +109,7 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		return isValidVersionKey;
 	}
 
-	public boolean isValidVersionKey(org.neo4j.graphdb.Node neo4jNode, com.ilimi.graph.dac.model.Node node) {
+	private boolean isValidVersionKey(org.neo4j.graphdb.Node neo4jNode, com.ilimi.graph.dac.model.Node node) {
 		LOGGER.debug("Graph Node: ", node);
 		LOGGER.debug("Neo4J Node: ", neo4jNode);
 
