@@ -53,12 +53,6 @@ public class ContentV2ControllerTest extends BaseTest {
 	/** The actions. */
 	private ResultActions actions;
 
-	/** The default Content Bucket */
-	private static final String S3_BUCKET_NAME = "ekstep-public";
-
-	/** The default Content Bucket Folder */
-	private static final String S3_FOLDER_NAME = "content";
-
 	/** The default Content Bucket Folder */
 	private static final String VALID_CONTENT_PACKAGE_FILE = "TEST_PACKAGE_I.zip";
 	

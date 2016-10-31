@@ -49,7 +49,6 @@ import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.content.util.PropertiesUtil;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
@@ -65,9 +64,6 @@ public class BasePipeline extends BaseManager {
 	
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-	
-	/** The Constant DEF_AWS_BUCKET_NAME */
-	private static final String DEF_AWS_BUCKET_NAME = "ekstep-public";
 	
 	/** The Constant DEF_AWS_FOLDER_NAME */
 	private static final String DEF_AWS_FOLDER_NAME = "content";
@@ -164,23 +160,6 @@ public class BasePipeline extends BaseManager {
 		folderName = S3PropertyReader.getProperty(s3Content);
 		if (!StringUtils.isBlank(folderName)) {
 			folderName = folderName + "/" + Slug.makeSlug(identifier, true) + "/" + folder;
-		}
-		return folderName;
-	}
-	
-	/**
-	 * gets the AwsUploadBucket Name
-	 * from the PropertiesUtil class by loading from propertiesFile
-	 * 
-	 * @return AWS Upload BucketName
-	 */
-	protected String getUploadBucketName() {
-		String folderName = DEF_AWS_BUCKET_NAME;
-		String env = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
-		if (!StringUtils.isBlank(env)) {
-			LOGGER.info("Fetching the Upload Bucket (AWS) Name for Environment: " + env);
-			// TODO: Write the logic for fetching the environment(DEV, PROD, QA,
-			// TEST) aware bucket name.
 		}
 		return folderName;
 	}

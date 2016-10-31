@@ -171,6 +171,7 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 								LOGGER.info("Path to Upload: " + path + "| [Content Id '" + contentId + "']");
 								if (StringUtils.isNotBlank(path))
 									folderName = folderName + "/" + path;
+								folderName = folderName + "/" + System.currentTimeMillis();
 								uploadedFileUrl = AWSUploader.uploadFile(folderName, uploadFile);
 								if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 									uploadMap.put(media.getId(),

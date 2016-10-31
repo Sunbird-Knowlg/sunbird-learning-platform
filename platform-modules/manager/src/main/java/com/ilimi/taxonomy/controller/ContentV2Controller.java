@@ -79,7 +79,7 @@ public class ContentV2Controller extends BaseController {
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
-            Response response = contentManager.upload(contentId, "domain", uploadedFile, "");
+            Response response = contentManager.upload(contentId, "domain", uploadedFile);
             LOGGER.info("Upload | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

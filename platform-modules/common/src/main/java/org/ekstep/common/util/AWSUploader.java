@@ -40,6 +40,12 @@ public class AWSUploader {
 	private static final String dotOper = ".";
 	private static final String hyphen = "-";
 	private static final String forwardSlash = "/";
+	
+	public static String getBucketName() {
+		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
+		String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
+		return bucketName;
+	}
     
 	public static String[] uploadFile(String folderName, File file) throws Exception {
 		file = Slug.createSlugFile(file);

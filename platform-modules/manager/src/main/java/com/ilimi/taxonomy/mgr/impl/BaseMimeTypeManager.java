@@ -56,9 +56,6 @@ public class BaseMimeTypeManager extends BaseManager {
     
     private static final String tempFileLocation = "/data/contentBundle/";
     private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
-
-    /*private static final String bucketName = "ekstep-public";
-    private static final String folderName = "content";*/
     
     private static final String s3Content = "s3.content.folder";
     private static final String s3Artifact = "s3.artifact.folder";
@@ -69,24 +66,6 @@ public class BaseMimeTypeManager extends BaseManager {
         return false;
     }
 
-    public String uploadFile(String folder, String filename) {
-        File olderName = new File(folder + filename);
-        try {
-            if (null != olderName && olderName.exists() && olderName.isFile()) {
-                String parentFolderName = olderName.getParent();
-                File newName = new File(
-                        parentFolderName + File.separator + System.currentTimeMillis() + "_" + olderName.getName());
-                olderName.renameTo(newName);
-                folder = S3PropertyReader.getProperty(s3Content);
-                String[] url = AWSUploader.uploadFile(folder, newName);
-                return url[1];
-            }
-        } catch (Exception ex) {
-            throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
-        }
-        return null;
-    }
-    
     public boolean isJSONValid(String content) {
         try {
             ObjectMapper mapper = new ObjectMapper();
@@ -251,7 +230,10 @@ public class BaseMimeTypeManager extends BaseManager {
         List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
         List<String> childrenIds = new ArrayList<String>();
         getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
-        String bundleFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + ".ecar";
+        String bundleFileName = Slug
+				.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true)
+				+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + "_" 
+				+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
         Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
         String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, "1.1", downloadUrls, node.getIdentifier());
         node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
@@ -436,16 +418,12 @@ public class BaseMimeTypeManager extends BaseManager {
         return response;
     }
 
-    public String[] uploadToAWS(File uploadedFile, String folder, String identifier) {
+    public String[] uploadArtifactToAWS(File uploadedFile, String identifier) {
         String[] urlArray = new String[] {};
         try {
-            if (StringUtils.isBlank(folder))
-            {
-                //folder = folderName;
-            	folder = S3PropertyReader.getProperty(s3Content);
-            	folder = folder + "/" + Slug.makeSlug(identifier, true) + 
-            			"/" + S3PropertyReader.getProperty(s3Artifact);
-            }
+        	String folder = S3PropertyReader.getProperty(s3Content);
+        	folder = folder + "/" + Slug.makeSlug(identifier, true) + 
+        			"/" + S3PropertyReader.getProperty(s3Artifact);
             urlArray = AWSUploader.uploadFile(folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
@@ -454,8 +432,8 @@ public class BaseMimeTypeManager extends BaseManager {
         return urlArray;
     }
 
-    public Response uploadContent(Node node, File uploadedFile, String folder) {
-        String[] urlArray = uploadToAWS(uploadedFile, folder, node.getIdentifier());
+    public Response uploadContentArtifact(Node node, File uploadedFile) {
+        String[] urlArray = uploadArtifactToAWS(uploadedFile, node.getIdentifier());
         node.getMetadata().put("s3Key", urlArray[0]);
         node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
         return updateContentNode(node, urlArray[1]);

@@ -114,8 +114,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 */
     @Override
     public Response upload(File uploadedFile) {
-        //String bucketName = "ekstep-public";
-        //String folder = "language_assets";
         if (null == uploadedFile) {
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), "Upload file is blank.");
         }

@@ -42,11 +42,9 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 
 	@Autowired
 	private WebApplicationContext context;
-	private static DictionaryManagerImpl dictionaryManager = new DictionaryManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private String bucketName = "ekstep-public";
 	String uploadfolder = "language_assets";
 	private String uploadFileName = "testSsf.txt";
 

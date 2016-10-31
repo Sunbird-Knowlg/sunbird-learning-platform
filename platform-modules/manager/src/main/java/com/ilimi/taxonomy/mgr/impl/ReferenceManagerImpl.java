@@ -32,8 +32,6 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
     
 	@Override
 	public Response uploadReferenceDocument(File uploadedFile, String referenceId) {
-		/*String bucketName = "ekstep-public";
-        String folder = "content";*/
         if (null == uploadedFile) {
             throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), "Upload file is blank.");
         }

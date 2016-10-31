@@ -39,8 +39,6 @@ public class MediaController extends BaseController {
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
-            /*String bucketName = "ekstep-public";
-            String folder = "content";*/
             String[] urlArray = new String[] {};
             try {
             	String folder = S3PropertyReader.getProperty(s3Media);

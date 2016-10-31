@@ -52,12 +52,6 @@ public class ContentBundle {
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentBundle.class.getName());
 	
-	/** The Constant bucketName. */
-	private static final String bucketName = "ekstep-public";
-	
-	/** The Constant ecarFolderName. */
-	private static final String ecarFolderName = "ecar_files";
-
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 

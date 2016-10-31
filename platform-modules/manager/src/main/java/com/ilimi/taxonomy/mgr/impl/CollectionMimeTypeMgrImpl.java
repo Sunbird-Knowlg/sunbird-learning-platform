@@ -42,13 +42,12 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(Node node, File uploadFile, String folder) {
+	public Response upload(Node node, File uploadFile) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadFile.getName());
-		LOGGER.debug("Uploading to Folder: " + folder);
 
 		LOGGER.info("Calling Upload Content For Node ID: " + node.getIdentifier());
-		return uploadContent(node, uploadFile, folder);
+		return uploadContentArtifact(node, uploadFile);
 	}
 
 	/*

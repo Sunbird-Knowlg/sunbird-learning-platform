@@ -64,9 +64,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentManagerImpl.class.getName());
 
-	/** The default public AWS Bucket Name. */
-	private static final String bucketName = "ekstep-public";
-
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 
@@ -98,11 +95,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public Response upload(String contentId, String taxonomyId, File uploadedFile, String folder) {
+	public Response upload(String contentId, String taxonomyId, File uploadedFile) {
 		LOGGER.debug("Content ID: " + contentId);
 		LOGGER.debug("Graph ID: " + taxonomyId);
 		LOGGER.debug("Uploaded File: " + uploadedFile.getAbsolutePath());
-		LOGGER.debug("Upload Location: " + folder);
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
@@ -134,7 +130,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(node, uploadedFile, folder);
+		Response res = mimeTypeManager.upload(node, uploadedFile);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
 				LOGGER.info("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]");

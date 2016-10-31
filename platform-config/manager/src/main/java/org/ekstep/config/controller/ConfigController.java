@@ -29,9 +29,8 @@ import com.ilimi.common.logger.LogHelper;
 @RequestMapping("v2/config")
 public class ConfigController extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
-	private static final String bucketName = "ekstep-config";
 	public static final String folderName = "resources";
-	public static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
+	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
 
 	private static LogHelper LOGGER = LogHelper.getInstance(ConfigController.class.getName());
 	

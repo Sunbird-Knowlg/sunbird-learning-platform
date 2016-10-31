@@ -27,9 +27,6 @@ public class ContentConfigurationConstants {
 	 */
 	public static final String CONTENT_BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
 
-	/** The Constant BUCKET_NAME is the name of AWS public Bucket. */
-	public static final String BUCKET_NAME = "ekstep-public";
-
 	/** The Constant FOLDER_NAME is the name of AWS Folder. */
 	public static final String FOLDER_NAME = "content";
 
