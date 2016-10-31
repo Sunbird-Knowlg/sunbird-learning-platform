@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.controller;
+package org.ekstep.language.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +27,10 @@ import com.ilimi.common.mgr.IAwsUrlUpdateManager;
  */
 @Controller
 @RequestMapping("/v1/AWS")
-public class AwsUrlUpdateController extends BaseController {
+public class AwsLanguageUrlUpdateController extends BaseController {
 
 	/** The Class Logger. */
-	private static LogHelper LOGGER = LogHelper.getInstance(AwsUrlUpdateController.class.getName());
+	private static LogHelper LOGGER = LogHelper.getInstance(AwsLanguageUrlUpdateController.class.getName());
 
 	@Autowired
 	private IAwsUrlUpdateManager awsUrlUpdateManager;
@@ -89,6 +89,7 @@ public class AwsUrlUpdateController extends BaseController {
 		String apiId = "aws.urls";
 		LOGGER.info(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
 		try {
+			LOGGER.info("Invoking API to update AWS urls of existing nodes:"+apiId);
 			Response response = awsUrlUpdateManager.updateNodesWithIdentifiers(
 					graphId, identifiers, apiId);
 			return getResponseEntity(response, apiId, null);

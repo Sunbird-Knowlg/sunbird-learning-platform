@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.mgr;
+package com.ilimi.common.mgr;
 
 import com.ilimi.common.dto.Response;
 
@@ -33,5 +33,25 @@ public interface IAwsUrlUpdateManager {
 	 * if there are any
 	 */
 	Response updateNodesWithUrl(String objectType, String graphId, String apiId);
+	
+	/**
+	 * This operation fetches all nodes of a particular graph id and identifiers present in the graph and 
+	 * looks for any property which has an AWS url configured and updates the url
+	 * with the modified bucket and region. This helps in accessing the objects once they are
+	 * relocated to a different region or bucket.
+	 * 
+	 * A subclass must provide an implementation of this method.
+	 *
+	 * @param identifiers
+	 *            identifiers of the nodes to be updated.
+	 * 
+	 * @param graphId
+	 *            graphId of the node
+	 * @param apiId
+	 * 			  apiId of the api
+	 * @return the response contains the list of identifiers of the failed nodes 
+	 * if there are any
+	 */
+	Response updateNodesWithIdentifiers(String graphId, String[] identifiers, String apiId);
 
 }
