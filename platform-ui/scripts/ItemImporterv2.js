@@ -18,11 +18,11 @@ Errors are written to itemImport/output.json file
 Example:
 
 MMCQs 
-node ItemImporter.js -e dev -u 128 -f itemImport/test_v2_mmcq.csv -m itemImport/mmcq_mapping_v2.json
+node ItemImporterv2.js -e dev -u 128 -f itemImport/test_v2_mmcq.csv -m itemImport/mmcq_mapping_v2.json
 FTBs
-node ItemImporter.js -e dev -u 128 -f itemImport/test_v2_ftb.csv -m itemImport/ftb_mapping_v2.json
+node ItemImporterv2.js -e dev -u 128 -f itemImport/test_v2_ftb.csv -m itemImport/ftb_mapping_v2.json
 MTFs
-node ItemImporter.js -e dev -u 128 -f itemImport/test_v2_mtf.csv -m itemImport/mtf_mapping_v2.json
+node ItemImporterv2.js -e dev -u 128 -f itemImport/test_v2_mtf.csv -m itemImport/mtf_mapping_v2.json
 
 **/
 
