@@ -22,9 +22,9 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 public class Neo4JEmbeddedDataVersionKeyValidator {
 
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedDataVersionKeyValidator.class.getName());
-	
-	public boolean validateUpdateOperation(String graphId, org.neo4j.graphdb.Node neo4jNode, com.ilimi.graph.dac.model.Node node,
-			Request request) {
+
+	public boolean validateUpdateOperation(String graphId, org.neo4j.graphdb.Node neo4jNode,
+			com.ilimi.graph.dac.model.Node node, Request request) {
 		LOGGER.debug("Graph Engine Node: ", node);
 		LOGGER.debug("Neo4J Node: ", neo4jNode);
 
@@ -73,7 +73,55 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		return isValidUpdateOperation;
 	}
 
-	@SuppressWarnings("unused")
+	public boolean validateUpdateOperation(String graphId, Node node, Request request) {
+		LOGGER.debug("Graph Engine Node: ", node);
+
+		boolean isValidUpdateOperation = false;
+
+		// Fetching Version Check Mode ('OFF', 'STRICT', 'LINIENT')
+		String versionCheckMode = DefinitionNodeUtil.getMetadataValue(graphId, node.getObjectType(),
+				GraphDACParams.versionCheckMode.name(), request);
+		LOGGER.info("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
+				+ node.getObjectType());
+
+		// Checking if the 'versionCheckMode' Property is not specified,
+		// then default Mode is OFF
+		if (StringUtils.isBlank(versionCheckMode))
+			versionCheckMode = NodeUpdateMode.OFF.name();
+
+		// Checking of Node Update Version Checking is either 'STRICT'
+		// or 'LENIENT'.
+		// If Number of Modes are increasing then the Condition should
+		// be checked for 'OFF' Mode Only.
+		if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
+				|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
+			boolean isValidVersionKey = isValidVersionKey(graphId, node, request);
+			LOGGER.info("Is Valid Version Key ? " + isValidVersionKey);
+
+			if (!isValidVersionKey) {
+				// Checking for Strict Mode
+				LOGGER.info("Checking for Node Update Operation Mode is 'STRICT' for Node Id: " + node.getIdentifier());
+				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
+					throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
+							DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
+
+				// Checking for Lenient Mode
+				LOGGER.info(
+						"Checking for Node Update Operation Mode is 'LENIENT' for Node Id: " + node.getIdentifier());
+				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode))
+					node.getMetadata().put(GraphDACParams.NODE_UPDATE_STATUS.name(),
+							GraphDACParams.STALE_DATA_UPDATED.name());
+
+				// Update Operation is Valid
+				isValidUpdateOperation = true;
+				LOGGER.info("Update Operation is Valid for Node Id: " + node.getIdentifier());
+			}
+		}
+		LOGGER.info("Is Valid Update Operation ? " + isValidUpdateOperation);
+
+		return isValidUpdateOperation;
+	}
+
 	private boolean isValidVersionKey(String graphId, Node node, Request request) {
 		LOGGER.debug("Node: ", node);
 

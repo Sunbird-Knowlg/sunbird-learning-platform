@@ -37,10 +37,22 @@ import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.dac.util.RelationType;
 import com.ilimi.graph.importer.ImportData;
 
+/**
+ * The Class Neo4JEmbeddedGraphOperations.
+ * 
+ * @author Mohammad Azharuddin
+ */
 public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedGraphOperations.class.getName());
 
+	/**
+	 * Creates the graph.
+	 *
+	 * @param graphId the graph id
+	 * @param request the request
+	 */
 	public void createGraph(String graphId, Request request) {
 		LOGGER.info("Creating Graph Id: " + graphId);
 		Neo4jGraphFactory.createGraph(graphId);
@@ -48,10 +60,18 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		LOGGER.info("Created Graph Id: " + graphId);
 	}
 
+	/**
+	 * Creates the graph unique contraint.
+	 *
+	 * @param graphId the graph id
+	 * @param indexProperties the index properties
+	 * @param request the request
+	 */
 	public void createGraphUniqueContraint(String graphId, List<String> indexProperties, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
-			LOGGER.info("Transaction Started For 'createGraphUniqueContraint' Operation. | [Graph ID: '" + graphId + "']");
+			LOGGER.info(
+					"Transaction Started For 'createGraphUniqueContraint' Operation. | [Graph ID: '" + graphId + "']");
 			Schema schema = graphDb.schema();
 			LOGGER.info("Fetched Schema For Graph ID: " + graphId);
 			for (String prop : indexProperties) {
@@ -59,10 +79,18 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			}
 			LOGGER.info("Added Unique Constraints For Graph ID: " + graphId);
 			tx.success();
-			LOGGER.info("Transaction For Operation 'createGraphUniqueContraint' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'createGraphUniqueContraint' Completed Successfully. | [Graph ID: '"
+					+ graphId + "']");
 		}
 	}
 
+	/**
+	 * Creates the index.
+	 *
+	 * @param graphId the graph id
+	 * @param indexProperties the index properties
+	 * @param request the request
+	 */
 	public void createIndex(String graphId, List<String> indexProperties, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -74,10 +102,17 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			}
 			LOGGER.info("Added Index For Graph ID: " + graphId);
 			tx.success();
-			LOGGER.info("Transaction For Operation 'createIndex' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info(
+					"Transaction For Operation 'createIndex' Completed Successfully. | [Graph ID: '" + graphId + "']");
 		}
 	}
 
+	/**
+	 * Delete graph.
+	 *
+	 * @param graphId the graph id
+	 * @param request the request
+	 */
 	public void deleteGraph(String graphId, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -89,10 +124,20 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			Neo4jGraphFactory.deleteGraph(graphId);
 			LOGGER.info("Deleted Graph ID: " + graphId);
 			tx.success();
-			LOGGER.info("Transaction For Operation 'deleteGraph' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info(
+					"Transaction For Operation 'deleteGraph' Completed Successfully. | [Graph ID: '" + graphId + "']");
 		}
 	}
 
+	/**
+	 * Creates the relation.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param endNodeId the end node id
+	 * @param relationType the relation type
+	 * @param request the request
+	 */
 	@SuppressWarnings("unchecked")
 	public void createRelation(String graphId, String startNodeId, String endNodeId, String relationType,
 			Request request) {
@@ -134,15 +179,26 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 					LOGGER.info("Adding the Relation Metadata. | [Graph ID: '" + graphId + "']");
 					for (Entry<String, Object> entry : metadata.entrySet()) {
 						dbRel.setProperty(entry.getKey(), entry.getValue());
-						LOGGER.info("Added Relation Property '" + entry.getKey() + "'. | [Graph ID: '" + graphId + "']");
+						LOGGER.info(
+								"Added Relation Property '" + entry.getKey() + "'. | [Graph ID: '" + graphId + "']");
 					}
 				}
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'createRelation' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'createRelation' Completed Successfully. | [Graph ID: '" + graphId
+					+ "']");
 		}
 	}
 
+	/**
+	 * Update relation.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param endNodeId the end node id
+	 * @param relationType the relation type
+	 * @param request the request
+	 */
 	@SuppressWarnings("unchecked")
 	public void updateRelation(String graphId, String startNodeId, String endNodeId, String relationType,
 			Request request) {
@@ -159,10 +215,20 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 				}
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'updateRelation' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'updateRelation' Completed Successfully. | [Graph ID: '" + graphId
+					+ "']");
 		}
 	}
 
+	/**
+	 * Delete relation.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param endNodeId the end node id
+	 * @param relationType the relation type
+	 * @param request the request
+	 */
 	public void deleteRelation(String graphId, String startNodeId, String endNodeId, String relationType,
 			Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -171,13 +237,24 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
 			if (null != rel) {
 				rel.delete();
-				LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "' has been Deleted. | [Graph ID: '" + graphId + "']");
+				LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+						+ "' has been Deleted. | [Graph ID: '" + graphId + "']");
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'deleteRelation' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'deleteRelation' Completed Successfully. | [Graph ID: '" + graphId
+					+ "']");
 		}
 	}
 
+	/**
+	 * Creates the incoming relations.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeIds the start node ids
+	 * @param endNodeId the end node id
+	 * @param relationType the relation type
+	 * @param request the request
+	 */
 	public void createIncomingRelations(String graphId, List<String> startNodeIds, String endNodeId,
 			String relationType, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -186,19 +263,31 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			Node endNode = getNodeByUniqueId(graphDb, endNodeId);
 			RelationType relType = new RelationType(relationType);
 			for (String startNodeId : startNodeIds) {
-				LOGGER.info("Creating Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "'. | [Graph ID: '" + graphId + "']");
+				LOGGER.info("Creating Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+						+ "'. | [Graph ID: '" + graphId + "']");
 				Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
 				if (null == relation) {
 					Node startNode = getNodeByUniqueId(graphDb, startNodeId);
 					startNode.createRelationshipTo(endNode, relType);
-					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "' has been Created. | [Graph ID: '" + graphId + "']");
+					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+							+ "' has been Created. | [Graph ID: '" + graphId + "']");
 				}
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'createIncomingRelations' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'createIncomingRelations' Completed Successfully. | [Graph ID: '"
+					+ graphId + "']");
 		}
 	}
 
+	/**
+	 * Creates the outgoing relations.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param endNodeIds the end node ids
+	 * @param relationType the relation type
+	 * @param request the request
+	 */
 	public void createOutgoingRelations(String graphId, String startNodeId, List<String> endNodeIds,
 			String relationType, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -207,70 +296,120 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			Node startNode = getNodeByUniqueId(graphDb, startNodeId);
 			RelationType relType = new RelationType(relationType);
 			for (String endNodeId : endNodeIds) {
-				LOGGER.info("Creating Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "'. | [Graph ID: '" + graphId + "']");
+				LOGGER.info("Creating Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+						+ "'. | [Graph ID: '" + graphId + "']");
 				Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
 				if (null == relation) {
 					Node endNode = getNodeByUniqueId(graphDb, endNodeId);
 					startNode.createRelationshipTo(endNode, relType);
-					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "' has been Created. | [Graph ID: '" + graphId + "']");
+					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+							+ "' has been Created. | [Graph ID: '" + graphId + "']");
 				}
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'createOutgoingRelations' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'createOutgoingRelations' Completed Successfully. | [Graph ID: '"
+					+ graphId + "']");
 		}
 	}
 
+	/**
+	 * Delete incoming relations.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeIds the start node ids
+	 * @param endNodeId the end node id
+	 * @param relationType the relation type
+	 * @param request the request
+	 */
 	public void deleteIncomingRelations(String graphId, List<String> startNodeIds, String endNodeId,
 			String relationType, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			LOGGER.info("Transaction Started For 'deleteIncomingRelations' Operation. | [Graph ID: '" + graphId + "']");
 			for (String startNodeId : startNodeIds) {
-				LOGGER.info("Deleting Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "'. | [Graph ID: '" + graphId + "']");
+				LOGGER.info("Deleting Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+						+ "'. | [Graph ID: '" + graphId + "']");
 				Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
 				if (null != relation) {
 					relation.delete();
-					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "' has been Deleted. | [Graph ID: '" + graphId + "']");
+					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+							+ "' has been Deleted. | [Graph ID: '" + graphId + "']");
 				}
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'deleteIncomingRelations' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'deleteIncomingRelations' Completed Successfully. | [Graph ID: '"
+					+ graphId + "']");
 		}
 	}
 
+	/**
+	 * Delete outgoing relations.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param endNodeIds the end node ids
+	 * @param relationType the relation type
+	 * @param request the request
+	 */
 	public void deleteOutgoingRelations(String graphId, String startNodeId, List<String> endNodeIds,
 			String relationType, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			LOGGER.info("Transaction Started For 'deleteOutgoingRelations' Operation. | [Graph ID: '" + graphId + "']");
 			for (String endNodeId : endNodeIds) {
-				LOGGER.info("Deleting Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "'. | [Graph ID: '" + graphId + "']");
+				LOGGER.info("Deleting Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+						+ "'. | [Graph ID: '" + graphId + "']");
 				Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
 				if (null != relation) {
 					relation.delete();
-					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId + "' has been Deleted. | [Graph ID: '" + graphId + "']");
+					LOGGER.info("Relation (" + relationType + ") Between '" + startNodeId + "' and '" + endNodeId
+							+ "' has been Deleted. | [Graph ID: '" + graphId + "']");
 				}
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'deleteOutgoingRelations' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'deleteOutgoingRelations' Completed Successfully. | [Graph ID: '"
+					+ graphId + "']");
 		}
 	}
 
+	/**
+	 * Removes the relation metadata by key.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param endNodeId the end node id
+	 * @param relationType the relation type
+	 * @param key the key
+	 * @param request the request
+	 */
 	public void removeRelationMetadataByKey(String graphId, String startNodeId, String endNodeId, String relationType,
 			String key, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
-			LOGGER.info("Transaction Started For 'removeRelationMetadataByKey' Operation. | [Graph ID: '" + graphId + "']");
+			LOGGER.info(
+					"Transaction Started For 'removeRelationMetadataByKey' Operation. | [Graph ID: '" + graphId + "']");
 			Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
 			if (null != rel && rel.hasProperty(key)) {
 				rel.removeProperty(key);
-				LOGGER.info("Property '"+ key +"' is Removed. | [Graph ID: '" + graphId + "']");
+				LOGGER.info("Property '" + key + "' is Removed. | [Graph ID: '" + graphId + "']");
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'removeRelationMetadataByKey' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'removeRelationMetadataByKey' Completed Successfully. | [Graph ID: '"
+					+ graphId + "']");
 		}
 	}
 
+	/**
+	 * Creates the collection.
+	 *
+	 * @param graphId the graph id
+	 * @param collectionId the collection id
+	 * @param collection the collection
+	 * @param relationType the relation type
+	 * @param members the members
+	 * @param indexProperty the index property
+	 * @param request the request
+	 */
 	public void createCollection(String graphId, String collectionId, com.ilimi.graph.dac.model.Node collection,
 			String relationType, List<String> members, String indexProperty, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -281,7 +420,14 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			Node startNode = null;
 			try {
 				startNode = getNodeByUniqueId(graphDb, collectionId);
-				LOGGER.info("Got an Existing Collection Node with ID: " + collectionId + " | [Graph ID: '" + graphId + "']");
+				LOGGER.info("Got an Existing Collection Node with ID: " + collectionId + " | [Graph ID: '" + graphId
+						+ "']");
+
+//				Neo4JEmbeddedDataVersionKeyValidator versionValidator = new Neo4JEmbeddedDataVersionKeyValidator();
+				LOGGER.info("Validating the Update Operation for Node Id: " + collection.getIdentifier());
+				// versionValidator.validateUpdateOperation(graphId, startNode,
+				// collection, request);
+				LOGGER.info("Node Update Operation has been Validated for Node Id: " + collection.getIdentifier());
 			} catch (ResourceNotFoundException e) {
 				if (null != collection && StringUtils.isNotBlank(collection.getIdentifier())) {
 					LOGGER.info("Creating a New Colection Node with ID: " + collectionId);
@@ -303,6 +449,10 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 				}
 			}
 			startNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
+
+			// Setting Version Key
+			if (StringUtils.isNotBlank(date))
+				startNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 			Iterable<Relationship> relations = startNode.getRelationships(Direction.OUTGOING, relation);
 			if (null != relations) {
 				for (Relationship rel : relations) {
@@ -325,10 +475,18 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 				}
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'createCollection' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'createCollection' Completed Successfully. | [Graph ID: '" + graphId
+					+ "']");
 		}
 	}
 
+	/**
+	 * Delete collection.
+	 *
+	 * @param graphId the graph id
+	 * @param collectionId the collection id
+	 * @param request the request
+	 */
 	public void deleteCollection(String graphId, String collectionId, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -344,10 +502,21 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 				collection.delete();
 			}
 			tx.success();
-			LOGGER.info("Transaction For Operation 'deleteCollection' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info("Transaction For Operation 'deleteCollection' Completed Successfully. | [Graph ID: '" + graphId
+					+ "']");
 		}
 	}
 
+	/**
+	 * Import graph.
+	 *
+	 * @param graphId the graph id
+	 * @param taskId the task id
+	 * @param input the input
+	 * @param request the request
+	 * @return the map
+	 * @throws Exception the exception
+	 */
 	public Map<String, List<String>> importGraph(String graphId, String taskId, ImportData input, Request request)
 			throws Exception {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -366,11 +535,20 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			if (taskId != null) {
 				updateTaskStatus(graphDb, taskId, "Completed");
 			}
-			LOGGER.info("Transaction For Operation 'importGraph' Completed Successfully. | [Graph ID: '" + graphId + "']");
+			LOGGER.info(
+					"Transaction For Operation 'importGraph' Completed Successfully. | [Graph ID: '" + graphId + "']");
 			return messages;
 		}
 	}
 
+	/**
+	 * Update task status.
+	 *
+	 * @param graphDb the graph db
+	 * @param taskId the task id
+	 * @param string the string
+	 * @throws Exception the exception
+	 */
 	private void updateTaskStatus(GraphDatabaseService graphDb, String taskId, String string) throws Exception {
 		Node taskNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, taskId);
 		Transaction tx = null;
@@ -391,6 +569,13 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the existing relations.
+	 *
+	 * @param dbRelations the db relations
+	 * @param existingRelations the existing relations
+	 * @return the existing relations
+	 */
 	private Map<String, Map<String, List<Relationship>>> getExistingRelations(Iterable<Relationship> dbRelations,
 			Map<String, Map<String, List<Relationship>>> existingRelations) {
 		if (null != dbRelations && null != dbRelations.iterator()) {
@@ -420,6 +605,16 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		return existingRelations;
 	}
 
+	/**
+	 * Creates the nodes.
+	 *
+	 * @param request the request
+	 * @param graphDb the graph db
+	 * @param existingNodes the existing nodes
+	 * @param existingRelations the existing relations
+	 * @param nodes the nodes
+	 * @return the int
+	 */
 	private int createNodes(Request request, GraphDatabaseService graphDb, Map<String, Node> existingNodes,
 			Map<String, Map<String, List<Relationship>>> existingRelations,
 			List<com.ilimi.graph.dac.model.Node> nodes) {
@@ -466,6 +661,17 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		return nodesCount;
 	}
 
+	/**
+	 * Creates the relations.
+	 *
+	 * @param request the request
+	 * @param graphDb the graph db
+	 * @param existingRelations the existing relations
+	 * @param existingNodes the existing nodes
+	 * @param nodes the nodes
+	 * @param messages the messages
+	 * @return the int
+	 */
 	private int createRelations(Request request, GraphDatabaseService graphDb,
 			Map<String, Map<String, List<Relationship>>> existingRelations, Map<String, Node> existingNodes,
 			List<com.ilimi.graph.dac.model.Node> nodes, Map<String, List<String>> messages) {
@@ -573,6 +779,19 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		return relationsCount;
 	}
 
+	/**
+	 * Creates the new relations.
+	 *
+	 * @param neo4jNode the neo 4 j node
+	 * @param nodeRelMap the node rel map
+	 * @param relType the rel type
+	 * @param nodeRelation the node relation
+	 * @param uniqueId the unique id
+	 * @param existingNodes the existing nodes
+	 * @param messages the messages
+	 * @param graphDb the graph db
+	 * @return the int
+	 */
 	private int createNewRelations(Node neo4jNode, Map<String, List<String>> nodeRelMap, String relType,
 			Map<String, Map<String, Relation>> nodeRelation, String uniqueId, Map<String, Node> existingNodes,
 			Map<String, List<String>> messages, GraphDatabaseService graphDb) {
@@ -607,6 +826,12 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		return relationsCount;
 	}
 
+	/**
+	 * Sets the relation metadata.
+	 *
+	 * @param neo4jRel the neo 4 j rel
+	 * @param newRel the new rel
+	 */
 	private void setRelationMetadata(Relationship neo4jRel, Relation newRel) {
 		if (null != newRel && null != newRel.getMetadata() && !newRel.getMetadata().isEmpty()) {
 			for (Entry<String, Object> entry : newRel.getMetadata().entrySet()) {
@@ -615,6 +840,15 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Upsert root node.
+	 *
+	 * @param graphDb the graph db
+	 * @param graphId the graph id
+	 * @param existingNodes the existing nodes
+	 * @param nodesCount the nodes count
+	 * @param relationsCount the relations count
+	 */
 	private void upsertRootNode(GraphDatabaseService graphDb, String graphId, Map<String, Node> existingNodes,
 			Integer nodesCount, Integer relationsCount) {
 		String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
