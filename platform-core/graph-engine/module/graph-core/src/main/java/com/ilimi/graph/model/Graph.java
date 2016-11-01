@@ -965,6 +965,7 @@ public class Graph extends AbstractDomainObject {
                                     ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                                     for (DefinitionNode defNode : defNodes) {
                                         defNode.loadToCache(cacheRouter, request);
+                                        DefinitionCache.cacheDefinitionNode(graphId, defNode.getValueObject());
                                     }
                                     manager.OK(getParent());
                                 }
