@@ -578,6 +578,7 @@
             "description": "Intervention Type"
         }],
         "metadata": {
+            "defaultRes": "medium",
             "limit": 50,
             "ttl": 24
         }
