@@ -1860,6 +1860,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				errorMessages
 				.add("Primary meaning field is missing: Id: " + indowordnetId + " Language: " + languageId);
 			}
+			
+			// get gloss of the primary meaning
+			String gloss = (String) primaryMeaning.get(LanguageParams.gloss.name());
 
 			// create or update Primary meaning Synset
 			List<String> synsetRelations = Arrays.asList(new String[] { LanguageParams.synonyms.name(),
@@ -1922,6 +1925,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				Map<String, Object> wordMap = new HashMap<String, Object>();
 				wordMap.put(LanguageParams.lemma.name(), lemma);
 				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+				wordMap.put(LanguageParams.meaning.name(), gloss);
 				String pos = (String) primaryMeaning.get(LanguageParams.pos.name());
 				if (StringUtils.isNotBlank(pos)) {
 					List<String> posList = new ArrayList<String>();
