@@ -10,7 +10,8 @@ import org.ekstep.search.router.SearchRequestRouterPool;
 
 public class InitServlet extends HttpServlet {
 
-    private static Logger LOGGER = LogManager.getLogger(InitServlet.class.getName());
+	private static final long serialVersionUID = 8344434947699370881L;
+	private static Logger LOGGER = LogManager.getLogger(InitServlet.class.getName());
     
     @Override
     public void init(ServletConfig config) throws ServletException {
