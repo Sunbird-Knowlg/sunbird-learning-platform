@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public enum RequestRouters {
 
-    GRAPH_REQUEST_ROUTER, LANGUAGE_REQUEST_ROUTER, SEARCH_REQUEST_ROUTER;
+    GRAPH_REQUEST_ROUTER, LANGUAGE_REQUEST_ROUTER, SEARCH_REQUEST_ROUTER, LEARNING_REQUEST_ROUTER;
     
     public static boolean isValidRequestRouter(String str) {
         if (StringUtils.isBlank(str))
