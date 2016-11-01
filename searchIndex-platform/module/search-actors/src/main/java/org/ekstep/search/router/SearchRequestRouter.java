@@ -16,6 +16,7 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -56,9 +57,8 @@ public class SearchRequestRouter extends UntypedActor{
 	}
 
 	private void initActorPool() {
-		ActorSystem system = SearchRequestRouterPool.getActorSystem();
+		ActorSystem system = RequestRouterPool.getActorSystem();
         int poolSize = 5;
-        
         Props SearchProps = Props.create(SearchManager.class);
         ActorRef searchMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(SearchProps));
         SearchActorPool.addActorRefToPool(SearchActorNames.SEARCH_MANAGER.name(), searchMgr);
