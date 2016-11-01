@@ -28,6 +28,7 @@
     - { name: 'language-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
     - { name: 'learning-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
     - { name: 'search-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
+    - { name: 'config-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
 
 - name: Install Tomcat init script
   copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=755

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 
+import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -35,6 +36,7 @@ public class AWSUploader {
 	
 	private static final String s3Bucket = "s3.bucket";
 	private static final String s3Environment = "s3.env";
+	private static final String s3Region = "s3.region";
 	private static final String s3 = "s3";
 	private static final String aws = "amazonaws.com";
 	private static final String dotOper = ".";
@@ -51,9 +53,12 @@ public class AWSUploader {
 		file = Slug.createSlugFile(file);
 		AmazonS3Client s3 = new AmazonS3Client();
 		String key = file.getName();
-		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
+		String env = S3PropertyReader.getProperty(s3Environment);
+		String bucketName = S3PropertyReader.getProperty(env, s3Bucket);
 		LOGGER.info("Fetching bucket name:"+bucketName);
+		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
+		if (null != region)
+			s3.setRegion(region);
 		s3.putObject(new PutObjectRequest(bucketName+"/"+folderName, key, file));
 		s3.setObjectAcl(bucketName+"/"+folderName, key, CannedAccessControlList.PublicRead);
 		URL url = s3.getUrl(bucketName, folderName+"/"+key);
@@ -63,6 +68,9 @@ public class AWSUploader {
 
     public static void deleteFile(String key) throws Exception {
         AmazonS3 s3 = new AmazonS3Client();
+        Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
+		if (null != region)
+			s3.setRegion(region);
         String bucketRegion = S3PropertyReader.getProperty(s3Environment);
         String bucketName = S3PropertyReader.getProperty(bucketRegion, s3Bucket);
         s3.deleteObject(new DeleteObjectRequest(bucketName, key));
@@ -113,5 +121,17 @@ public class AWSUploader {
         }
         return url;
     }
+    
+    private static Region getS3Region(String name) {
+		Regions val = null;
+		try {
+			val = Regions.valueOf(name);
+		} catch (Exception e) {
+			val = Regions.AP_SOUTHEAST_1;
+		}
+		if (null != val)
+		 return Region.getRegion(val);
+		return null;
+	}
 
 }

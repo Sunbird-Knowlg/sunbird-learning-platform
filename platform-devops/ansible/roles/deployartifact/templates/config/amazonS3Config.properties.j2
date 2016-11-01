@@ -1,12 +1,12 @@
 #S3 server configurations
 
 #Current environment
-s3.env = dev
+s3.env = {{ s3_config_environment }}
 
 #Environment specific buckets
-s3.bucket.dev = ekstep-public-dev
-s3.bucket.qa = ekstep-public-qa
-s3.bucket.prod = ekstep-public-prod
+s3.bucket.dev = ekstep-config
+s3.bucket.qa = ekstep-config
+s3.bucket.prod = ekstep-config
 
 #S3 Region configuration
 s3.region = AP_SOUTHEAST_1

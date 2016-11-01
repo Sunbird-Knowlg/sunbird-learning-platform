@@ -31,8 +31,8 @@ public class S3PropertyReader {
 		return prop.getProperty(key);
 	}
 	
-	public static String getProperty(String key, String region){
-		String property = key + "." + region;
+	public static String getProperty(String key, String env){
+		String property = key + "." + env;
 		return prop.getProperty(property);
 	}
 }

@@ -25,6 +25,9 @@
 - name: copy hibernate cofngi file
   template: src=language/hibernate.cfg.xml.j2 dest=/data/properties/language/hibernate.cfg.xml
 
+- name: copy the amazonS3Config.properties
+  template: src=language/amazonS3Config.properties.j2 dest=/data/properties/language/amazonS3Config.properties
+
 #------------------------------------------------------------------------------------
 
 - name: copy the consumer-config.xml
@@ -45,11 +48,19 @@
 - name: copy the content.properties
   template: src=learning/content.properties.j2 dest=/data/properties/learning/content.properties
 
+- name: copy the amazonS3Config.properties
+  template: src=learning/amazonS3Config.properties.j2 dest=/data/properties/learning/amazonS3Config.properties
 
 #------------------------------------------------------------------------------------
 - name: copy the elasticsearch.properties
   template: src=search/elasticsearch.properties.j2 dest=/data/properties/search/elasticsearch.properties
+
 #------------------------------------------------------------------------------------
+
+- name: copy the amazonS3Config.properties
+  template: src=config/amazonS3Config.properties.j2 dest=/data/properties/config/amazonS3Config.properties
+#------------------------------------------------------------------------------------
+
 - name: copy the artifacts files 
   become: yes
   copy: src=learning-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
