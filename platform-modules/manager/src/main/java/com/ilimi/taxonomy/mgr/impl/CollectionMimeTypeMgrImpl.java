@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 // TODO: Auto-generated Javadoc

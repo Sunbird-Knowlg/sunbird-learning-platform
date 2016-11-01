@@ -33,6 +33,7 @@ import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.exception.ClientException;
@@ -41,7 +42,6 @@ import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 /**
  * The Class ContentBundle.

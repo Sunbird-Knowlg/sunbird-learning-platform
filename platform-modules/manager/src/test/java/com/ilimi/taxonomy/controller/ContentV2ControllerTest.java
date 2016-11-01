@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -31,7 +32,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
 
 /**
  * The Class ContentV2ControllerTest.

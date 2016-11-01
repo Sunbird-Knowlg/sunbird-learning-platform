@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.enums;
+package org.ekstep.learning.common.enums;
 
 public enum ContentErrorCodes {
 	 ERR_CONTENT_BLANK_TAXONOMY_ID, ERR_CONTENT_BLANK_OBJECT, ERR_CONTENT_INVALID_UPLOAD_OBJECT,
