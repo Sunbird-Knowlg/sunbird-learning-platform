@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
@@ -123,15 +124,21 @@ public class AWSUploader {
     }
     
     private static Region getS3Region(String name) {
-		Regions val = null;
-		try {
-			val = Regions.valueOf(name);
-		} catch (Exception e) {
-			val = Regions.AP_SOUTHEAST_1;
-		}
-		if (null != val)
-		 return Region.getRegion(val);
-		return null;
+    	if (StringUtils.isNotBlank(name)) {
+    		if (StringUtils.equalsIgnoreCase(Regions.AP_SOUTH_1.name(), name))
+    			return Region.getRegion(Regions.AP_SOUTH_1);
+    		else if (StringUtils.equalsIgnoreCase(Regions.AP_SOUTHEAST_1.name(), name))
+    			return Region.getRegion(Regions.AP_SOUTHEAST_1);
+    		else if (StringUtils.equalsIgnoreCase(Regions.AP_SOUTHEAST_2.name(), name))
+    			return Region.getRegion(Regions.AP_SOUTHEAST_2);
+    		else if (StringUtils.equalsIgnoreCase(Regions.AP_NORTHEAST_1.name(), name))
+    			return Region.getRegion(Regions.AP_NORTHEAST_1);
+    		else if (StringUtils.equalsIgnoreCase(Regions.AP_NORTHEAST_2.name(), name))
+    			return Region.getRegion(Regions.AP_NORTHEAST_2);
+    		else
+    			return Region.getRegion(Regions.AP_SOUTHEAST_1);
+    	} else 
+    		return Region.getRegion(Regions.AP_SOUTHEAST_1);
 	}
 
 }
