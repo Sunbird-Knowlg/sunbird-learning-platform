@@ -1,11 +1,18 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.optimizr.FileType;
+import org.ekstep.common.optimizr.FileUtils;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.common.enums.LearningOperations;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
@@ -50,9 +57,23 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-
+		node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+		Map<String, String> variantsMap = new HashMap<String, String>();
+		node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+		
 		LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
-		return updateContentNode(node, urlArray[1]);
+		Response response = updateContentNode(node, urlArray[1]);
+		
+		FileType type = FileUtils.getFileType(uploadFile);
+		// Call async image optimiser for configured resolutions if asset type is image
+		if(type == FileType.Image){
+			//make async request to image optimiser actor
+			Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(), LearningOperations.optimizeImage.name());
+			request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
+			makeAsyncLearningRequest(request, LOGGER);
+		}
+		
+		return response;
 	}
 
 	/*

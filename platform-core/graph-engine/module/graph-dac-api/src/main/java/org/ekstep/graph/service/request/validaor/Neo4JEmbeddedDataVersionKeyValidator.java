@@ -16,6 +16,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 
@@ -38,7 +39,7 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 
 		// Checking if the 'versionCheckMode' Property is not specified,
 		// then default Mode is OFF
-		if (StringUtils.isBlank(versionCheckMode))
+		if (StringUtils.isBlank(versionCheckMode) || StringUtils.equalsIgnoreCase(SystemNodeTypes.DEFINITION_NODE.name(), node.getNodeType()))
 			versionCheckMode = NodeUpdateMode.OFF.name();
 
 		// Checking of Node Update Version Checking is either 'STRICT'

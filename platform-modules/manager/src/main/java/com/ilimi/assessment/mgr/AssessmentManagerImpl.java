@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -90,7 +91,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                         "AssessmentItem validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
                         assessmentErrors);
             } else {
-                Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+                replaceMediaItemsWithLowVariants(item);
+            	Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
                 createReq.put(GraphDACParams.node.name(), item);
                 createReq.put(GraphDACParams.skip_validations.name(), skipValidation);
                 Response createRes = getResponse(createReq, LOGGER);
@@ -152,6 +154,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             } else {
                 if (null == item.getIdentifier())
                     item.setIdentifier(id);
+                replaceMediaItemsWithLowVariants(item);
                 Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
                 updateReq.put(GraphDACParams.node.name(), item);
                 updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
@@ -603,4 +606,61 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         return null;
     }
 
+	private void replaceMediaItemsWithLowVariants(Node item) {
+    	String media = (String)item.getMetadata().get(AssessmentAPIParams.media.name());
+        boolean replaced =false;
+        try{
+            if (null != media) {
+            	TypeReference<List<Map<String, Object>>> typeRef = new TypeReference<List<Map<String,Object>>>() {};
+            	List<Map<String, String>> mediaMap = mapper.readValue(media, typeRef);
+            	
+    	    	if(mediaMap!=null && mediaMap.size()>0)
+	            	for(Map<String, String> mediaItem:mediaMap){
+	    	    		String asset_id = (String) mediaItem.get(ContentAPIParams.asset_id.name());
+	    	    		Node asset = getNode("domain", asset_id);
+	    	    		if(asset!=null) {
+	    	    			String variantsJSON = (String)asset.getMetadata().get(ContentAPIParams.variants.name());
+	    	    			Map<String, String> variants= mapper.readValue(variantsJSON, new TypeReference<Map<String,String>>() {});
+	    	    			if(variants!=null && variants.size()>0) {
+	    	    				String lowVariantURL = variants.get("low");
+	    	    				if(StringUtils.isNotEmpty(lowVariantURL)){
+	    	    					replaced = true;
+	    	    					mediaItem.put(ContentAPIParams.src.name(), lowVariantURL);
+	    	    				}
+	    	    			}
+	    	    		}
+	    	    	}
+        	
+    	    	if(replaced){
+    	    		String updatedMedia = mapper.writeValueAsString(mediaMap);
+    	    		item.getMetadata().put(AssessmentAPIParams.media.name(), updatedMedia);
+    	    	}
+            }        	
+        } catch(Exception e){
+        	LOGGER.error("error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "+e.getMessage());
+        	e.printStackTrace();
+        }
+    }
+    
+	/**
+	 * Gets the node.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 * @param contentId
+	 *            the content id
+	 * @return the node
+	 */
+	private Node getNode(String taxonomyId, String contentId) {
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+				GraphDACParams.node_id.name(), contentId);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response getNodeRes = getResponse(request, LOGGER);
+		Response response = copyResponse(getNodeRes);
+		if (checkError(response)) {
+			return null;
+		}
+		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+		return node;
+	}
 }
