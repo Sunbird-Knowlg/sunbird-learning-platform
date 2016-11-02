@@ -10,9 +10,11 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.RelationDefinition;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
@@ -78,17 +80,29 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
         if (null != node) {
             Map<String, Object> metadata = node.getMetadata();
             if (null != metadata && !metadata.isEmpty()) {
+            	List<String> jsonProps = getJSONProperties(definition);
                 for (Entry<String, Object> entry : metadata.entrySet()) {
                     if (null != fieldList && !fieldList.isEmpty()) {
-                        if (fieldList.contains(entry.getKey()))
-                            map.put(entry.getKey(), entry.getValue());
+                        if (fieldList.contains(entry.getKey())) {
+                        	if (jsonProps.contains(entry.getKey().toLowerCase())) {
+                        		Object val = JSONUtils.convertJSONString((String) entry.getValue());
+                                if (null != val)
+                                    metadata.put(entry.getKey(), val);
+                        	} else
+                        		map.put(entry.getKey(), entry.getValue());
+                        }
                     } else {
                         String key = entry.getKey();
                         if (StringUtils.isNotBlank(key)) {
                             char c[] = key.toCharArray();
                             c[0] = Character.toLowerCase(c[0]);
                             key = new String(c);
-                            map.put(key, entry.getValue());
+                            if (jsonProps.contains(key.toLowerCase())) {
+                            	Object val = JSONUtils.convertJSONString((String) entry.getValue());
+                                if (null != val)
+                                    metadata.put(key, val);
+                            } else
+                            	map.put(key, entry.getValue());
                         }
                     }
                 }
@@ -133,6 +147,18 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
             map.put("identifier", node.getIdentifier());
         }
         return map;
+    }
+    
+    private List<String> getJSONProperties(DefinitionDTO definition) {
+        List<String> props = new ArrayList<String>();
+        if (null != definition && null != definition.getProperties()) {
+            for (MetadataDefinition mDef : definition.getProperties()) {
+                if (StringUtils.equalsIgnoreCase("json", mDef.getDataType()) && StringUtils.isNotBlank(mDef.getPropertyName())) {
+                    props.add(mDef.getPropertyName().toLowerCase());
+                }
+            }
+        }
+        return props;
     }
     
     private String getDescription(Map<String, Object> metadata) {
