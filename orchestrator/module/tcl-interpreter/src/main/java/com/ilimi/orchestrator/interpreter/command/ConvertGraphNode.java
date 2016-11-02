@@ -92,7 +92,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                         		Object val = JSONUtils.convertJSONString((String) entry.getValue());
                         		LOGGER.info("JSON Property " + entry.getKey() + " converted value is " + val);
                                 if (null != val)
-                                    metadata.put(entry.getKey(), val);
+                                	map.put(entry.getKey(), val);
                         	} else
                         		map.put(entry.getKey(), entry.getValue());
                         }
@@ -106,7 +106,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                             	Object val = JSONUtils.convertJSONString((String) entry.getValue());
                             	LOGGER.info("JSON Property " + key + " converted value is " + val);
                                 if (null != val)
-                                    metadata.put(key, val);
+                                	map.put(key, val);
                             } else
                             	map.put(key, entry.getValue());
                         }
