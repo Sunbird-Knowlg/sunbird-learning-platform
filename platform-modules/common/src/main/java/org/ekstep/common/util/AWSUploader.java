@@ -104,6 +104,7 @@ public class AWSUploader {
     
     public static String updateURL(String url, String oldPublicBucketName, String oldConfigBucketName)
     {
+    	String s3Region = Regions.AP_SOUTHEAST_1.name();
     	String bucketRegion = S3PropertyReader.getProperty(s3Environment);
         String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
         LOGGER.info("Existing url:"+url);
@@ -113,7 +114,10 @@ public class AWSUploader {
         String oldPublicStringV2 = s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws + forwardSlash + oldPublicBucketName;
         String oldConfigStringV1 = oldConfigBucketName + dotOper + s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws;
         String oldConfigStringV2 = s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws + forwardSlash + oldConfigBucketName;
-        String newString = bucketName + dotOper + s3 + dotOper + aws;
+        String region = S3PropertyReader.getProperty(s3Region);
+		if (null != region)
+			s3Region = region;
+        String newString = bucketName + dotOper + s3 + hyphen + s3Region + dotOper + aws;
         url = url.replaceAll(oldPublicStringV1, newString);
         url = url.replaceAll(oldPublicStringV2, newString);
         url = url.replaceAll(oldConfigStringV1, newString);
