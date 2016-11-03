@@ -1,0 +1,14 @@
+{
+    "name": "getTopWords",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/language/*/dashboard/words",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}
