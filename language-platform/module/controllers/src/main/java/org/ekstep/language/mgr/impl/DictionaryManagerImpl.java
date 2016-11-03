@@ -37,6 +37,7 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LogWordEventUtil;
 import org.ekstep.language.util.WordCacheUtil;
@@ -57,7 +58,6 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -83,7 +83,7 @@ import akka.actor.ActorRef;
  * @author Amarnath, Rayulu, Azhar 
  */
 @Component
-public class DictionaryManagerImpl extends BaseManager implements IDictionaryManager, IWordnetConstants {
+public class DictionaryManagerImpl extends BaseLanguageManager implements IDictionaryManager, IWordnetConstants {
 
 	/** The logger. */
     private static Logger LOGGER = LogManager.getLogger(IDictionaryManager.class.getName());
@@ -3030,27 +3030,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
         request.setOperation(LanguageOperations.enrichWords.name());
         request.getContext().put(LanguageParams.language_id.name(), languageId);
-        makeLanguageAsyncRequest(request, LOGGER);
+        makeAsyncLanguageRequest(request, LOGGER);
 	}
 	
-	/**
-	 * Performs an async request using the Language Request router.
-	 *
-	 * @param request
-	 *            the request
-	 * @param logger
-	 *            the logger
-	 */
-	@CoverageIgnore
-	public void makeLanguageAsyncRequest(Request request, Logger logger) {
-        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
-        try {
-            router.tell(request, router);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
-        }
-    }
 	
 	/*
 	 * (non-Javadoc)
@@ -3062,13 +3044,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@Override
 	@CoverageIgnore
 	public Response loadEnglishWordsArpabetsMap(InputStream in){
-		WordCacheUtil.loadWordArpabetCollection(in);
-		Response response = new Response();
-        ResponseParams resStatus = new ResponseParams();
-        resStatus.setStatus(StatusType.successful.name());
-        response.setParams(resStatus);
-        response.setResponseCode(ResponseCode.OK);
-		return response;
+
+		Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.input_stream.name(), in);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
+        request.setOperation(LanguageOperations.loadWordsArpabetsMap.name());
+        request.getContext().put(LanguageParams.language_id.name(), "en");
+
+        return getLanguageResponse(request, LOGGER);
+		
 	}
 	
 	/*
@@ -3081,38 +3068,17 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@Override
 	@CoverageIgnore
 	public Response getSyllables(String languageId, String word){
-		Node wordNode=wordUtil.searchWord(languageId, word);
 
-		List<String> syllables=new ArrayList<>();
-		if(wordNode!=null&&wordNode.getMetadata().get("syllables")!=null){
-			Object syllablesObj = (Object)wordNode.getMetadata().get("syllables");
-            if (syllablesObj instanceof String[]) {
-                String[] arr = (String[]) syllablesObj;
-                if (null != arr && arr.length > 0) {
-                    for (String str : arr) {
-                    	syllables.add(str);
-                    }
-                }
-            } else if (syllablesObj instanceof String) {
-                if (StringUtils.isNotBlank(syllablesObj.toString())) {
-                    String str = syllablesObj.toString();
-                    if (StringUtils.isNotBlank(str))
-                    	syllables.add(str.toLowerCase());
-                }
-            }	
-		}
-		else{
-			syllables=wordUtil.buildSyllables(languageId, word);
-		}
-		
-		Response response = new Response();
-        ResponseParams resStatus = new ResponseParams();
-        resStatus.setStatus(StatusType.successful.name());
-        response.setParams(resStatus);
-        response.setResponseCode(ResponseCode.OK);
-        response.getResult().put("Syllables",syllables);
-	
-        return response;
+		Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.word.name(), word);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
+        request.setOperation(LanguageOperations.getSyllables.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+
+        return getLanguageResponse(request, LOGGER);
 	}
 	
 	/*
@@ -3124,17 +3090,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	 */
 	@Override
 	@CoverageIgnore
-	public Response getArpabets(String languageID, String word){
+	public Response getArpabets(String languageId, String word){
 
-		String arpabets=WordCacheUtil.getArpabets(word);
-		Response response = new Response();
-        ResponseParams resStatus = new ResponseParams();
-        resStatus.setStatus(StatusType.successful.name());
-        response.setParams(resStatus);
-        response.setResponseCode(ResponseCode.OK);
-        response.getResult().put("Arpabets",arpabets);
-	
-        return response;
+		Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.word.name(), word);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
+        request.setOperation(LanguageOperations.getArpabets.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+
+        return getLanguageResponse(request, LOGGER);
 	}
 
 	/*
@@ -3147,15 +3114,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@Override
 	@CoverageIgnore
 	public Response getPhoneticSpellingByLanguage(String languageId, String word, boolean addEndVirama){
-		String phoneticSpellingOfWord=wordUtil.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
-		Response response = new Response();
-        ResponseParams resStatus = new ResponseParams();
-        resStatus.setStatus(StatusType.successful.name());
-        response.setParams(resStatus);
-        response.setResponseCode(ResponseCode.OK);
-        response.getResult().put("PhoneticSpelling",phoneticSpellingOfWord);
 
-		return response;
+		Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.word.name(), word);
+        map.put(LanguageParams.addEndVirama.name(), addEndVirama);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
+        request.setOperation(LanguageOperations.getPhoneticSpellingByLanguage.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+
+        return getLanguageResponse(request, LOGGER);
 	}
 	
 	/*
@@ -3168,15 +3138,17 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@Override
 	@CoverageIgnore
 	public Response getSimilarSoundWords(String languageId, String word){
-		Set<String> similarSoundWords=WordCacheUtil.getSimilarSoundWords(word);
-		Response response = new Response();
-        ResponseParams resStatus = new ResponseParams();
-        resStatus.setStatus(StatusType.successful.name());
-        response.setParams(resStatus);
-        response.setResponseCode(ResponseCode.OK);
-        response.getResult().put("SimilarSoundWords",similarSoundWords);
 
-		return response;
+		Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.word.name(), word);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
+        request.setOperation(LanguageOperations.getSimilarSoundWords.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+
+        return getLanguageResponse(request, LOGGER);
 	}
 	
 	/*
@@ -3190,14 +3162,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@CoverageIgnore
 	public Response transliterate(String languageId, Request request, boolean addEndVirama) {
 		String text = (String) request.get("text");
-		String translatedText = wordUtil.transliterateText(languageId, text, addEndVirama);
-		Response response = new Response();
-        ResponseParams resStatus = new ResponseParams();
-        resStatus.setStatus(StatusType.successful.name());
-        response.setParams(resStatus);
-        response.setResponseCode(ResponseCode.OK);
-        response.getResult().put("output", translatedText);
-		return response;
+		
+	    Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.text.name(), text);
+        map.put(LanguageParams.addEndVirama.name(), addEndVirama);
+        Request transliterateRequest = new Request();
+        transliterateRequest.setRequest(map);
+        transliterateRequest.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
+        transliterateRequest.setOperation(LanguageOperations.transliterate.name());
+        transliterateRequest.getContext().put(LanguageParams.language_id.name(), languageId);
+
+        return getLanguageResponse(transliterateRequest, LOGGER);
 	}
 	
 }
