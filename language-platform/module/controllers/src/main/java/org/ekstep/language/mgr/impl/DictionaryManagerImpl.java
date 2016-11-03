@@ -36,11 +36,9 @@ import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LogWordEventUtil;
-import org.ekstep.language.util.WordCacheUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -51,9 +49,6 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
@@ -75,8 +70,6 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
-
-import akka.actor.ActorRef;
 
 /**
  * Provides implementation for word, synsets and relations manipulations
@@ -3118,7 +3111,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		Map<String, Object> map = new HashMap<String, Object>();
         map = new HashMap<String, Object>();
         map.put(LanguageParams.word.name(), word);
-        map.put(LanguageParams.addEndVirama.name(), addEndVirama);
+        map.put(LanguageParams.addClosingVirama.name(), addEndVirama);
         Request request = new Request();
         request.setRequest(map);
         request.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
@@ -3166,7 +3159,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	    Map<String, Object> map = new HashMap<String, Object>();
         map = new HashMap<String, Object>();
         map.put(LanguageParams.text.name(), text);
-        map.put(LanguageParams.addEndVirama.name(), addEndVirama);
+        map.put(LanguageParams.addClosingVirama.name(), addEndVirama);
         Request transliterateRequest = new Request();
         transliterateRequest.setRequest(map);
         transliterateRequest.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());

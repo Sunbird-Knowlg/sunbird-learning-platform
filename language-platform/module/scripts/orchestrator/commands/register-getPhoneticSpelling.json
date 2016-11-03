@@ -9,6 +9,7 @@
     },
     {
         "name": "addClosingVirama",
+        "datatype": "java.lang.Boolean",
         "index": 1,
         "routingParam": false
     },
@@ -27,6 +28,6 @@
     "pathParams":["language_id","word"],
     "requestParams": ["addClosingVirama"],
     "type":"POST",
-    "url":"/v1/language/*/getPhoneticSpelling/*"
+    "url":"/v2/language/tools/getPhoneticSpelling/*/*"
   }
 }

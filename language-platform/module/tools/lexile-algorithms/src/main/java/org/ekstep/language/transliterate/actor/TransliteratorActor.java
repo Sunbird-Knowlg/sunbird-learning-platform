@@ -26,7 +26,6 @@ public class TransliteratorActor extends LanguageBaseActor {
 	private static Logger LOGGER = LogManager.getLogger(TransliteratorActor.class.getName());
 	private WordUtil wordUtil = new WordUtil();
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		Request request = (Request) msg;
@@ -46,7 +45,9 @@ public class TransliteratorActor extends LanguageBaseActor {
 			}
 			else if (StringUtils.equalsIgnoreCase(LanguageOperations.getPhoneticSpellingByLanguage.name(), operation)) {
 				String word = (String) request.get(LanguageParams.word.name());
-				boolean addEndVirama = (boolean) request.get(LanguageParams.addEndVirama.name());
+				Boolean addEndVirama = (Boolean) request.get(LanguageParams.addClosingVirama.name());
+				if (null == addEndVirama)
+					addEndVirama = false;
 				String phoneticSpellingOfWord=wordUtil.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
 				OK(LanguageParams.phonetic_spelling.name(), phoneticSpellingOfWord, getSender());
 			}
@@ -57,7 +58,9 @@ public class TransliteratorActor extends LanguageBaseActor {
 			}
 			else if (StringUtils.equalsIgnoreCase(LanguageOperations.transliterate.name(), operation)) {
 				String text = (String) request.get(LanguageParams.text.name());
-				boolean addEndVirama = (boolean) request.get(LanguageParams.addEndVirama.name());
+				Boolean addEndVirama = (Boolean) request.get(LanguageParams.addClosingVirama.name());
+				if (null == addEndVirama)
+					addEndVirama = false;
 				String translatedText = wordUtil.transliterateText(languageId, text, addEndVirama);
 				OK(LanguageParams.output.name(), translatedText, getSender());
 			}else if(StringUtils.equalsIgnoreCase(LanguageOperations.loadWordsArpabetsMap.name(), operation)){
