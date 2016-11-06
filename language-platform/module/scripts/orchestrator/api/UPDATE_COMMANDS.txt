@@ -47,3 +47,5 @@ node registerScript.js api/get-translation.tcl api/json/register-get-translation
 node registerScript.js api/delete-translation.tcl api/json/register-delete-translation.json update
 
 node registerScript.js api/get-top-words.tcl api/json/register-get-top-words.json update
+
+node registerScript.js api/language-search.tcl api/json/register-language-searchV3.json update

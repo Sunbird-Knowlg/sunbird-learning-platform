@@ -1,0 +1,20 @@
+{
+    "name": "retireContent_v3",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "contentId",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "DELETE",
+        "url": "/v3/private/content/retire/*",
+        "pathParams": [
+          "contentId"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.domain.content.retire"
+}
