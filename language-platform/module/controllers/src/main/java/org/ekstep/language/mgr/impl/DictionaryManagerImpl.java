@@ -3118,7 +3118,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		Map<String, Object> map = new HashMap<String, Object>();
         map = new HashMap<String, Object>();
         map.put(LanguageParams.word.name(), word);
-        map.put(LanguageParams.addEndVirama.name(), addEndVirama);
+        map.put(LanguageParams.addClosingVirama.name(), addEndVirama);
         Request request = new Request();
         request.setRequest(map);
         request.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
@@ -3166,7 +3166,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	    Map<String, Object> map = new HashMap<String, Object>();
         map = new HashMap<String, Object>();
         map.put(LanguageParams.text.name(), text);
-        map.put(LanguageParams.addEndVirama.name(), addEndVirama);
+        map.put(LanguageParams.addClosingVirama.name(), addEndVirama);
         Request transliterateRequest = new Request();
         transliterateRequest.setRequest(map);
         transliterateRequest.setManagerName(LanguageActorNames.TRANSLITERATOR_ACTOR.name());
