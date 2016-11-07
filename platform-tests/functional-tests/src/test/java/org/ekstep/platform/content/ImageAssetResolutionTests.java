@@ -296,4 +296,49 @@ public class ImageAssetResolutionTests extends BaseTest {
 			e.printStackTrace();
 		}
 	}
+	
+	@Test
+	public void notSupportedImagesUpload(){
+		try {
+			// Upload Content
+			setURI();
+			given().
+			spec(getRequestSpec(uploadContentType, validuserId)).
+			multiPart(new File(path+"/bike.bmp")).
+			when().
+			post("/learning/v2/content/upload/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
+	
+			Thread.sleep(2000);
+			
+			// Upload Content
+			setURI();
+			Response R1 = 
+			given().
+			spec(getRequestSpec(uploadContentType, validuserId)).
+			when().
+			get("/learning/v2/content/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec()).
+			extract().
+			response();
+			
+			// Extracting the JSON path
+			JsonPath jp1 = R1.jsonPath();
+			String highVariant = jp1.get("result.content.variants.high");
+			String mediumVariant = jp1.get("result.content.variants.medium");
+			String lowVariant = jp1.get("result.content.variants.low");
+			String actual = jp1.get("result.content.downloadUrl");
+						
+			Assert.assertNotNull(actual);
+			Assert.assertNull(highVariant);
+			Assert.assertNull(mediumVariant);
+			Assert.assertNull(lowVariant);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
