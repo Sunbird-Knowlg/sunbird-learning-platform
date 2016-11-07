@@ -35,7 +35,7 @@ public class BaseTest
 		//TO-DO: This will be read from config file, soon.
 		//baseURI = "http://localhost:8080/taxonomy-service";
 		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
-		baseURI ="https://qa.ekstep.in/api/"; 
+		baseURI ="https://dev.ekstep.in/api/"; 
 	}
 		
 	/**

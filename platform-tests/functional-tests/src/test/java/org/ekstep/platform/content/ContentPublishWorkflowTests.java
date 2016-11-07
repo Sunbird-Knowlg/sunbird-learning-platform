@@ -49,7 +49,7 @@ public class ContentPublishWorkflowTests extends BaseTest{
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonCreateContentCollection = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_Collection"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"pkgVersion\": 3,\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}}}";
 	String jsonCreateThreeContentCollection = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_Collection"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"pkgVersion\": 3,\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}, { \"identifier\": \"id3\"}]}}}";
-	String jsonUpdateContentValid = "{\"request\": {\"content\": {\"status\": \"Live\"}}}";
+	String jsonUpdateContentValid = "{\"request\": {\"content\": {\"versionKey\": \"null\", \"status\": \"Live\"}}}";
 	String jsonGetContentList = "{\"request\": { \"search\": {\"tags\":[\"LP_functionalTest\"], \"sort\": \"contentType\",\"order\": \"asc\"}}}";
 	String jsonCreateNestedCollection = "{\"request\": {\"content\": {\"identifier\": \"Test_QANested_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"pkgVersion\": 3,\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}]}}}";
 	String jsonCreateInvalidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_"+rn+"\",\"osId\": \"org.ekstep.app\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"]}}}";
@@ -113,6 +113,8 @@ public class ContentPublishWorkflowTests extends BaseTest{
 
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		Assert.assertTrue(versionKey!=null);
 		Assert.assertEquals(ecmlNode, identifier);
 	}
 
@@ -157,6 +159,8 @@ public class ContentPublishWorkflowTests extends BaseTest{
 
 		JsonPath jP1 = R1.jsonPath();
 		String status = jP1.get("result.content.status");
+		String versionKey = jP1.get("result.content.versionKey");
+		Assert.assertTrue(versionKey!=null);
 		Assert.assertEquals(status, "Draft");
 	}
 
@@ -201,6 +205,8 @@ public class ContentPublishWorkflowTests extends BaseTest{
 
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		Assert.assertTrue(versionKey!=null);
 		Assert.assertEquals(apkNode, identifier);
 	}
 
@@ -278,6 +284,8 @@ public class ContentPublishWorkflowTests extends BaseTest{
 
 		JsonPath jP2 = R2.jsonPath();
 		ArrayList<String> identifiers = jP2.get("result.content.children.identifier");
+		String versionKey = jP2.get("result.content.versionKey");
+		Assert.assertTrue(versionKey!=null);
 		Assert.assertTrue(identifiers.contains(node1)&&identifiers.contains(node2));		
 	}
 	
@@ -396,9 +404,12 @@ public class ContentPublishWorkflowTests extends BaseTest{
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
 		String nodeId = jp.get("result.node_id");
+		String versionKey = jp.get("result.versionKey");
 
 		// Update content status to live
 		setURI();
+		jsonUpdateContentValid = jsonUpdateContentValid.replace("null", versionKey);
+		Response nR = 
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		body(jsonUpdateContentValid).
@@ -408,7 +419,13 @@ public class ContentPublishWorkflowTests extends BaseTest{
 		patch("/learning/v2/content/"+nodeId).
 		then().
 		//log().all().
-		spec(get200ResponseSpec());
+		spec(get200ResponseSpec()).
+		extract().response();
+		
+		// Extracting the JSON path
+		JsonPath njP = nR.jsonPath();
+		String versionKey1 = njP.get("result.versionKey");
+		Assert.assertFalse(versionKey.equals(versionKey1));
 
 		// Get content list and check for content
 		setURI();
@@ -432,7 +449,8 @@ public class ContentPublishWorkflowTests extends BaseTest{
 
 		// Update status as Retired
 		setURI();
-		jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired");
+		jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("null", versionKey1);
+		Response nR1 =
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		body(jsonUpdateContentValid).
@@ -442,7 +460,14 @@ public class ContentPublishWorkflowTests extends BaseTest{
 		patch("/learning/v2/content/"+nodeId).
 		then().
 		//log().all().
-		spec(get200ResponseSpec());
+		spec(get200ResponseSpec()).
+		extract().
+		response();
+		
+		// Extracting the JSON path
+		JsonPath njP1 = nR1.jsonPath();
+		String versionKey2 = njP1.get("result.versionKey");
+		Assert.assertFalse(versionKey1.equals(versionKey2));
 
 		// Get content list and check for content
 		setURI();
@@ -465,7 +490,8 @@ public class ContentPublishWorkflowTests extends BaseTest{
 
 		// Update content with Review status
 		setURI();
-		jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Review");
+		jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Review").replace("null", versionKey2);
+		Response nR2 =
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
 		body(jsonUpdateContentValid).
@@ -475,8 +501,15 @@ public class ContentPublishWorkflowTests extends BaseTest{
 		patch("/learning/v2/content/"+nodeId).
 		then().
 		//log().all().
-		spec(get200ResponseSpec());
-
+		spec(get200ResponseSpec()).
+		extract().
+		response();
+		
+		// Extracting the JSON path
+		JsonPath njP2 = nR2.jsonPath();
+		String versionKey3 = njP2.get("result.versionKey");
+		Assert.assertFalse(versionKey2.equals(versionKey3));
+		
 		// Get content list and check for content
 		setURI();
 		Response R3 =
