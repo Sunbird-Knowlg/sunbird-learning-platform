@@ -83,3 +83,10 @@ node registerCommand.js commands/register-getProxyNode.json register
 node registerCommand.js commands/register-dropCollection.json register
 
 node registerCommand.js commands/register-multiLanguageSynsetSearch.json register
+
+node registerCommand.js commands/register-getPhoneticSpelling.json register
+
+node registerCommand.js commands/register-transliterate.json register
+
+node registerCommand.js commands/register-getWordFeatures.json register
+

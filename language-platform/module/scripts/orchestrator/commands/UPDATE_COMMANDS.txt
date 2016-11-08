@@ -77,3 +77,9 @@ node registerCommand.js commands/register-createProxyNode.json update
 node registerCommand.js commands/register-getProxyNode.json update
 
 node registerCommand.js commands/register-multiLanguageSynsetSearch.json update
+
+node registerCommand.js commands/register-getPhoneticSpelling.json update
+
+node registerCommand.js commands/register-transliterate.json update
+
+node registerCommand.js commands/register-getWordFeatures.json update
