@@ -1,0 +1,34 @@
+{
+    "name": "getWordsEndingWithAkshara",
+    "parameters": [
+	{
+        "name": "graphId",
+        "index": 0,
+		"datatype": "java.lang.String",
+        "routingParam": false
+    },
+	{
+        "name": "ruleObject",
+        "index": 1,
+		"datatype": "java.util.HashMap",
+        "routingParam": false
+    },
+	{
+        "name": "searchResult",
+        "index": 2,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },
+	{
+        "name": "wordChainsLimit",
+        "index": 3,
+        "datatype": "java.lang.Integer",
+        "routingParam": false
+    }
+	],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/language/wordChains/endsWithAkshara"
+    },
+    "body": ""
+}
