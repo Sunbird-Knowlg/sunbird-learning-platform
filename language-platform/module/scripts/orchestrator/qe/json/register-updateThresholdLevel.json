@@ -1,0 +1,23 @@
+{
+    "name": "lang_qe_updateThresholdLevel",
+    "parameters": [
+    	{
+    		"name":"language_id",
+    		"index": 0,
+    		"routingParam": true
+    	},
+    	{
+        	"name": "level",
+        	"index": 1,
+        	"routingParam": false
+    	},
+    	{
+        	"name": "words",
+        	"index": 2,
+        	"datatype": "java.util.ArrayList",
+        	"routingParam": false
+    	}
+
+	],
+    "body": ""
+}

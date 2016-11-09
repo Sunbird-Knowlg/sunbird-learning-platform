@@ -38,8 +38,9 @@ set wordsDetailsResponse [java::new ArrayList]
 java::for {String word} $words {
 	set wordDetails [java::new HashMap]
 	$wordDetails put "word" $word
+	set word [[java::new String $word] toLowerCase]
 	set thresholdLevel [$thresholdLevelMap get $word]
-	$wordDetails put "threshold_level" $thresholdLevel
+	$wordDetails put "thresholdLevel" $thresholdLevel
 	set falseBool [java::new Boolean true]
 	set transliteratedWordResponse [getPhoneticSpelling "hi" $falseBool $word]
 	set check_error [check_response_error $transliteratedWordResponse]

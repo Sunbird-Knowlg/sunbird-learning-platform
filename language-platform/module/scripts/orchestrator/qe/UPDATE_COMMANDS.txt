@@ -15,3 +15,5 @@ node registerScript.js qe/getTranslations.tcl qe/json/register-getTranslations.j
 node registerScript.js qe/updateVarnaCache.tcl qe/json/register-updateVarnaCache.json update
 
 node registerScript.js qe/getLiveWords.tcl qe/json/register-getLiveWords.json update
+
+node registerScript.js qe/updateThresholdLevel.tcl qe/json/register-updateThresholdLevel.json update
