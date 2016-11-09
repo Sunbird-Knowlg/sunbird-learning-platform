@@ -31,7 +31,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.exception.ClientException;
@@ -40,7 +42,6 @@ import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 /**
  * The Class ContentBundle.
@@ -51,12 +52,6 @@ public class ContentBundle {
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentBundle.class.getName());
 	
-	/** The Constant bucketName. */
-	private static final String bucketName = "ekstep-public";
-	
-	/** The Constant ecarFolderName. */
-	private static final String ecarFolderName = "ecar_files";
-
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -65,6 +60,8 @@ public class ContentBundle {
 	
 	/** The Constant BUNDLE_PATH. */
 	protected static final String BUNDLE_PATH = "/data/contentBundle";
+	
+	private static final String s3EcarFolder = "s3.ecar.folder";
 
 	/**
 	 * Creates the content manifest data.
@@ -132,7 +129,7 @@ public class ContentBundle {
 	 * @return the string[]
 	 */
 	public String[] createContentBundle(List<Map<String, Object>> contents, String fileName, String version,
-			Map<Object, List<String>> downloadUrls) {
+			Map<Object, List<String>> downloadUrls, String contentId) {
 		String bundleFileName = BUNDLE_PATH + File.separator + fileName;
 		String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
 		List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
@@ -145,7 +142,9 @@ public class ContentBundle {
 					downloadedFiles.add(manifestFile);
 				try {
 					File contentBundle = createBundle(downloadedFiles, bundleFileName);
-					String[] url = AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
+					String folderName = S3PropertyReader.getProperty(s3EcarFolder);
+					folderName = folderName + "/" + contentId;
+					String[] url = AWSUploader.uploadFile(folderName, contentBundle);
 					downloadedFiles.add(contentBundle);
 					return url;
 				} catch (Throwable e) {

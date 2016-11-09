@@ -38,7 +38,6 @@ public class SearchManager extends SearchBaseActor {
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
-		System.out.println("Entering search actor");
 		String operation = request.getOperation();
 		SearchProcessor processor = new SearchProcessor();
 		try {

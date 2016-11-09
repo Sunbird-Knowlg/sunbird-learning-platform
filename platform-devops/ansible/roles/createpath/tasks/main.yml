@@ -10,6 +10,7 @@
      - /data/properties/language
      - /data/properties/learning
      - /data/properties/search
+     - /data/properties/config
 
 - name: Change ownership of data directory
   become: yes

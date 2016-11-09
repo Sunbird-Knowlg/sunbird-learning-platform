@@ -1,0 +1,1 @@
+node registerCommand.js commands/register-optimizeImageAsset.json register

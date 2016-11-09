@@ -1,0 +1,33 @@
+{
+  "name": "transliterate",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+        "name": "addClosingVirama",
+        "datatype": "java.lang.Boolean",
+        "index": 1,
+        "routingParam": false
+    },
+    {
+      "name": "text",
+      "index": 2,
+      "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "TRANSLITERATOR_ACTOR",
+    "operation": "transliterate",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "requestPath": {
+    "pathParams":["language_id"],
+    "requestParams": ["addClosingVirama"],
+    "type":"POST",
+    "url":"/v2/language/tools/transliterate/*"
+  }
+}

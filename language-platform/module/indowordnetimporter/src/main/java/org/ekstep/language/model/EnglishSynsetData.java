@@ -242,7 +242,14 @@ public class EnglishSynsetData implements LanguageSynsetData{
 	@Override
 	public SynsetData getSynsetData() {
 		SynsetData synsetData = new SynsetData();
-		synsetData.setSynset_id(this.synset_id);
+		if(this.englishHindiMappings!=null && this.englishHindiMappings.size()>0 
+				&& this.englishHindiMappings.get(0).getSynset_id()!=0)
+		{
+			synsetData.setSynset_id(this.englishHindiMappings.get(0).getSynset_id());
+		}else{
+			synsetData.setSynset_id(this.synset_id);
+		}
+		synsetData.setEnglish_synset_id(this.synset_id);
 		synsetData.setSynset(this.synset);
 		synsetData.setGloss(this.gloss);
 		synsetData.setCategory(this.category);

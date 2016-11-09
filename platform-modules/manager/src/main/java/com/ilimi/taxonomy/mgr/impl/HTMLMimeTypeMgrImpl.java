@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 /**
@@ -41,13 +41,12 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(Node node, File uploadFile, String folder) {
+	public Response upload(Node node, File uploadFile) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadFile.getName());
-		LOGGER.debug("Uploading to Folder: " + folder);
 
 		LOGGER.info("Calling Upload Content For Node ID: " + node.getIdentifier());
-		return uploadContent(node, uploadFile, folder);
+		return uploadContentArtifact(node, uploadFile);
 	}
 
 	/*

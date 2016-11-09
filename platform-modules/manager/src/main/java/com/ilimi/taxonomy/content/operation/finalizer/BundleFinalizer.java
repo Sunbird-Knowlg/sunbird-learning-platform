@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.S3PropertyReader;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -40,6 +41,9 @@ public class BundleFinalizer extends BaseFinalizer {
 	
 	/** The ContentId. */
 	protected String contentId;
+	
+    private static final String s3Bundle = "s3.bundle.folder";
+    private static final String s3Artifact = "s3.artifact.folder";
 
 	/**
 	 * Instantiates a new BundleFinalizer and sets the base
@@ -177,7 +181,8 @@ public class BundleFinalizer extends BaseFinalizer {
 				File packageFile = new File(zipFileName);
 				if (packageFile.exists()) {
 					// Upload to S3
-					String[] urlArray = uploadToAWS(packageFile, getUploadFolderName());
+					String folderName = S3PropertyReader.getProperty(s3Artifact);
+					String[] urlArray = uploadToAWS(packageFile, getUploadFolderName(this.contentId, folderName));
 					if (null != urlArray && urlArray.length >= 2) {
 						String artifactUrl = urlArray[IDX_S3_URL];
 						
@@ -221,7 +226,9 @@ public class BundleFinalizer extends BaseFinalizer {
 		File file = contentBundle.createBundle(zipPackages, bundleFileName);
 
 		// Upload ECAR to S3
-		String[] urlArray = uploadToAWS(file, getUploadFolderName());
+		String folderName = S3PropertyReader.getProperty(s3Bundle);
+		folderName = folderName + System.currentTimeMillis();
+		String[] urlArray = uploadToAWS(file, getUploadFolderName(this.contentId, folderName));
 		if (null != urlArray && urlArray.length >= 2)
 			response.put(ContentWorkflowPipelineParams.ECAR_URL.name(), urlArray[IDX_S3_URL]);
 

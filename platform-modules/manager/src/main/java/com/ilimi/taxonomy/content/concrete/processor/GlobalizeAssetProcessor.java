@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -47,6 +48,9 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(GlobalizeAssetProcessor.class.getName());
+	
+	private static final String s3Content = "s3.content.folder";
+    private static final String s3Assets = "s3.asset.folder";
 
 	/**
 	 * Instantiates a new <code>GlobalizeAssetProcessor</code> and sets the base
@@ -105,8 +109,8 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	/**
 	 * Gets the folder path of <code>src</code>.
 	 *
-	 * @param <code>src<code>
-	 *            the <code>src<code> attribute.
+	 * @param <code>src</code>
+	 *            the <code>src</code> attribute.
 	 * @return the folder path.
 	 */
 	private String getFolderPath(String src) {
@@ -157,15 +161,18 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 							LOGGER.info("Upload File: | [Content Id '" + contentId + "']");
 							String[] uploadedFileUrl;
 							if (uploadFile.exists()) {
-								String folderName = ContentConfigurationConstants.FOLDER_NAME + "/"
+								String folderName = S3PropertyReader.getProperty(s3Content) + "/"
 										+ Slug.makeSlug(contentId, true);
-								String path = getFolderPath(media.getSrc());
+								String path = S3PropertyReader.getProperty(s3Assets);
+								/*String folderName = ContentConfigurationConstants.FOLDER_NAME + "/"
+										+ Slug.makeSlug(contentId, true);
+								String path = getFolderPath(media.getSrc());*/
 								LOGGER.info("Folder to Upload: " + folderName + "| [Content Id '" + contentId + "']");
 								LOGGER.info("Path to Upload: " + path + "| [Content Id '" + contentId + "']");
 								if (StringUtils.isNotBlank(path))
 									folderName = folderName + "/" + path;
-								uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME,
-										folderName, uploadFile);
+								folderName = folderName + "/" + System.currentTimeMillis();
+								uploadedFileUrl = AWSUploader.uploadFile(folderName, uploadFile);
 								if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 									uploadMap.put(media.getId(),
 											uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);

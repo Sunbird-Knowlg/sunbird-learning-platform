@@ -15,8 +15,8 @@
         "routingParam": false
     }],
     "requestPath": {
-        "type": "DELETE",
-        "url": "/v2/language/translations/*/*",
+        "type": "POST",
+        "url": "/v2/language/translations/delete/*/*",
         "pathParams": ["language_id","word_id"]
     },
     "body": "",

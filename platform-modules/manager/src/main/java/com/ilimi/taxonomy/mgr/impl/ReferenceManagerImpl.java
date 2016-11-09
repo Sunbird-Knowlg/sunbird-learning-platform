@@ -3,7 +3,9 @@ import java.io.File;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -22,19 +24,22 @@ import com.ilimi.taxonomy.mgr.IReferenceManager;
 public class ReferenceManagerImpl extends BaseManager implements IReferenceManager {
 
     private static Logger LOGGER = LogManager.getLogger(ReferenceManagerImpl.class.getName());
+    
+    private static final String s3Content = "s3.content.folder";
+    private static final String s3Artifacts = "s3.artifact.folder";
 
     private static final String V2_GRAPH_ID = "domain";
     
 	@Override
 	public Response uploadReferenceDocument(File uploadedFile, String referenceId) {
-		String bucketName = "ekstep-public";
-        String folder = "content";
         if (null == uploadedFile) {
             throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), "Upload file is blank.");
         }
         String[] urlArray = new String[] {};
         try {
-            urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
+        	String folder = S3PropertyReader.getProperty(s3Content) + "/"
+					+ Slug.makeSlug(referenceId, true) + "/" + S3PropertyReader.getProperty(s3Artifacts);
+            urlArray = AWSUploader.uploadFile(folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(TaxonomyErrorCodes.ERR_MEDIA_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);

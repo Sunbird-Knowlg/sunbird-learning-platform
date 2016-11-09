@@ -1,0 +1,26 @@
+{
+  "name": "getWordFeatures",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+        "name": "word",
+        "index": 1,
+        "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "LEXILE_MEASURES_ACTOR",
+    "operation": "getWordFeatures",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "requestPath": {
+    "pathParams":["language_id"],
+    "type":"POST",
+    "url":"/v1/language/*/lexileMeasures/getWordFeatures"
+  }
+}

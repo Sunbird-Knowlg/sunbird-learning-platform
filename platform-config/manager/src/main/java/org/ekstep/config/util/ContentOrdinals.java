@@ -35,7 +35,7 @@ public class ContentOrdinals {
 		}
 		File output = writeToJson(ordinals);
 		try {
-		String[] ApiUrl = AWSUploader.uploadFile("ekstep-public","src/main/resources", output);
+		String[] ApiUrl = AWSUploader.uploadFile("", output);
 		for(String url:ApiUrl)
      	   System.out.println(url);
 		} catch (Exception e) {

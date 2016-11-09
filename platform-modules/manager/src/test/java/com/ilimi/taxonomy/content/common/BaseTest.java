@@ -50,7 +50,6 @@ public class BaseTest {
 	public static void beforeTest() throws Exception {
 		System.out.println("Loading All Definitions...!!");
 		definitions = loadAllDefinitions(folder);
-		System.out.println("Loading all Nodes");
 		loadAllNodes();
 	}
 

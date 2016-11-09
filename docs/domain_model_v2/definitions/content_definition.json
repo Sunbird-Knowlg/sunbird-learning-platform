@@ -99,6 +99,19 @@
         },
         {
           "required": false,
+          "dataType": "JSON",
+          "propertyName": "variants",
+          "title": "Image Resolution variants",
+          "description": "",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "Select",
           "propertyName": "visibility",
           "title": "Visibility",
@@ -162,7 +175,8 @@
             "audio/mpeg",
             "audio/ogg",
             "audio/webm",
-            "audio/x-wav"
+            "audio/x-wav",
+            "audio/wav"
           ],
           "defaultValue": "application/vnd.ekstep.ecml-archive",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
@@ -336,6 +350,19 @@
           "description": "Version number of the package file",
           "category": "Technical",
           "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "versionKey",
+          "title": "Data Version Key",
+          "description": "Version number data in Content Node",
+          "category": "Technical",
+          "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
@@ -1075,7 +1102,8 @@
             "Flagged",
             "Live",
             "Retired",
-            "Mock"
+            "Mock",
+            "Processing"
           ],
           "required": false,
           "displayProperty": "Editable",
@@ -1750,12 +1778,21 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 0.08,
+        "variants": {
+         "high": {"dimensions": [1024, 1024], "dpi": 240}, 
+         "medium": {"dimensions": [512, 512], "dpi": 240}, 
+         "low": {"dimensions": [128, 128], "dpi": 240}
+        },
+        "versionCheckMode": "STRICT",
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
         "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
         "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable", 
-        "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn"]
+        "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount", 
+        "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
+        "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
+        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants"]
       }
     }
   ]

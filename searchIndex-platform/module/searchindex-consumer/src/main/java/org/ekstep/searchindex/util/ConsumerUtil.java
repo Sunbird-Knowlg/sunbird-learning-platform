@@ -12,14 +12,14 @@ import com.ilimi.common.dto.CoverageIgnore;
 
 public class ConsumerUtil {
 
-	private ConsumerConfig consumerConfig;
+	private ConsumerConfigs consumerConfigs;
 	
 	public ConsumerUtil() {
-		this.consumerConfig = readConsumerProperties();
+		this.consumerConfigs = readConsumerProperties();
 	}
 
-	public ConsumerConfig getConsumerConfig() {
-		return consumerConfig;
+	public ConsumerConfigs getConsumerConfigs() {
+		return consumerConfigs;
 	}
 
 	@CoverageIgnore
@@ -31,15 +31,15 @@ public class ConsumerUtil {
 	}
 
 	@CoverageIgnore
-	public ConsumerConfig readConsumerProperties() {
+	public ConsumerConfigs readConsumerProperties() {
 		try {
 			String filename = "consumer-config.xml";
 			InputStream is = this.getClass().getClassLoader().getResourceAsStream(filename);
-			JAXBContext jaxbContext = JAXBContext.newInstance(ConsumerConfig.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(ConsumerConfigs.class);
 
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			ConsumerConfig consumerConfig = (ConsumerConfig) jaxbUnmarshaller.unmarshal(is);
-			return consumerConfig;
+			ConsumerConfigs consumerConfigs = (ConsumerConfigs) jaxbUnmarshaller.unmarshal(is);
+			return consumerConfigs;
 
 		} catch (JAXBException e) {
 			e.printStackTrace();

@@ -43,14 +43,11 @@ public interface IMimeTypeManager {
 	 *            being uploaded.
 	 * @param uploadFile
 	 *            the upload <code>file</code> is the content package file.
-	 * @param folder
-	 *            the <code>folder</code> is the location on the storage space
-	 *            where the content should be uploaded.
 	 * @return the <code>response</code> object contains the node id as
 	 *         <code>node_id</code> and the <code>artifactUrl</code> property
 	 *         i.e. the <code>URL</code> where the file is uploaded.
 	 */
-	public Response upload(Node node, File uploadFile, String folder);
+	public Response upload(Node node, File uploadFile);
 
 	/**
 	 * The <code>publish</code> method is a vital in Content work-flow carries

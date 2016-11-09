@@ -12,6 +12,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.actor.LexileMeasuresActor;
 import org.ekstep.language.services.ImportActor;
+import org.ekstep.language.transliterate.actor.TransliteratorActor;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -113,6 +114,10 @@ public class LanguageRequestRouter extends UntypedActor {
 		Props languageCacheProps = Props.create(LanguageCacheActor.class);
         ActorRef languageCacheMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(languageCacheProps));
         LanguageActorPool.addActorRefToPool(null, LanguageActorNames.LANGUAGE_CACHE_ACTOR.name(), languageCacheMgr);
+
+		Props transliteratorActorProps = Props.create(TransliteratorActor.class);
+        ActorRef transliterator = system.actorOf(new SmallestMailboxPool(poolSize).props(transliteratorActorProps));
+        LanguageActorPool.addActorRefToPool(null, LanguageActorNames.TRANSLITERATOR_ACTOR.name(), transliterator);
 
 	}
 

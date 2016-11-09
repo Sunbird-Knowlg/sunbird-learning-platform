@@ -45,3 +45,5 @@ node registerScript.js api/create-translation.tcl api/json/register-create-trans
 node registerScript.js api/get-translation.tcl api/json/register-get-translation.json register
 
 node registerScript.js api/delete-translation.tcl api/json/register-delete-translation.json register
+
+node registerScript.js api/get-englishWords-details.tcl api/json/register-get-englishWords-details.json register

@@ -128,14 +128,17 @@ public class IndowordnetUtil {
 							count++;
 							totalCount++;
 							SynsetData synsetData = lSynsetData.getSynsetData();
-
 							// get Word object
-							Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
+							Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages, languageGraphId);
 							long synsetStartTime = System.currentTimeMillis();
+							int englishTranslationId = 0;
+							if(synsetData!=null && StringUtils.equalsIgnoreCase(languageGraphId, "en")){
+								englishTranslationId = synsetData.getSynset_id();
 
+							}
 							// Create/update word in the Graph
 							errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId,
-									wordLemmaMap, wordDefinition, nodeIds, synsetDefinition));
+									wordLemmaMap, wordDefinition, nodeIds, synsetDefinition, englishTranslationId));
 							long synsetEndTime = System.currentTimeMillis();
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
@@ -190,7 +193,7 @@ public class IndowordnetUtil {
 	 * @throws JsonProcessingException
 	 *             the json processing exception
 	 */
-	private Map<String, Object> getWordMap(SynsetData synsetData, List<String> errorMessages)
+	private Map<String, Object> getWordMap(SynsetData synsetData, List<String> errorMessages, String languageGraphId)
 			throws JsonProcessingException {
 		byte[] bytesSynset = null;
 		byte[] bytesGloss = null;
@@ -201,6 +204,7 @@ public class IndowordnetUtil {
 		List<String> exampleSentences = null;
 		Map<String, Object> wordMap = new HashMap<String, Object>();
 		Map<String, Object> primaryMeaningMap = new HashMap<String, Object>();
+		boolean setFlag = false;
 
 		// words, gloss, pos and example sentences
 
@@ -210,7 +214,19 @@ public class IndowordnetUtil {
 		String[] words = synsetString.split(COMMA_SEPARATOR);
 
 		wordMap.put(LanguageParams.words.name(), Arrays.asList(words));
-		wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
+		if(StringUtils.equalsIgnoreCase(languageGraphId, "en"))
+		{
+			if(synsetData.getEnglish_synset_id()!=0){
+				wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getEnglish_synset_id());
+				primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getEnglish_synset_id());
+				setFlag = true;
+			}
+		}if(!setFlag)
+		{
+			wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
+			primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
+		}
+		
 
 		bytesGloss = synsetData.getGloss();
 		glossString = new String(bytesGloss, Charsets.UTF_8);
@@ -229,9 +245,9 @@ public class IndowordnetUtil {
 		// From the primary meaning object as a map
 		primaryMeaningMap.put(LanguageParams.gloss.name(), gloss);
 		primaryMeaningMap.put(LanguageParams.exampleSentences.name(), exampleSentences);
-		primaryMeaningMap.put(LanguageParams.pos.name(), StringUtils.capitalize(
+		primaryMeaningMap.put(LanguageParams.pos.name(), StringUtils.lowerCase(
 				synsetData.getCategory() != null ? synsetData.getCategory().toLowerCase() : StringUtils.EMPTY));
-		primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
+		
 
 		// Process and create the relations of the word
 		for (Map.Entry<String, List<SynsetDataLite>> entry : synsetData.getRelations().entrySet()) {
@@ -252,29 +268,6 @@ public class IndowordnetUtil {
 			}
 			primaryMeaningMap.put(relationName, relationsList);
 		}
-
-		// Process and cerate the translations
-		/*Map<String, Object> translationsMap = new HashMap<String, Object>();
-		for (Map.Entry<String, List<SynsetDataLite>> entry : synsetData.getTranslations().entrySet()) {
-			String translatedLanguage = entry.getKey();
-			List<SynsetDataLite> translatedDataList = entry.getValue();
-			List<String> finalTranslationWords = new ArrayList<String>();
-
-			for (SynsetDataLite translation : translatedDataList) {
-				bytesSynset = translation.getSynset();
-				synsetString = new String(bytesSynset, Charsets.UTF_8);
-				String[] translationWords = synsetString.split(COMMA_SEPARATOR);
-				finalTranslationWords.addAll(Arrays.asList(translationWords));
-			}
-
-			String translatedLanguageGraphId = LanguageMap.getLanguageGraph(translatedLanguage);
-			if (translatedLanguageGraphId == null) {
-				errorMessages.add("Graph not found for Language: " + translatedLanguage);
-			}
-			translationsMap.put(translatedLanguageGraphId, finalTranslationWords);
-		}
-
-		primaryMeaningMap.put(LanguageParams.translations.name(), mapper.writeValueAsString(translationsMap));*/
 		wordMap.put(LanguageParams.primaryMeaning.name(), primaryMeaningMap);
 
 		return wordMap;

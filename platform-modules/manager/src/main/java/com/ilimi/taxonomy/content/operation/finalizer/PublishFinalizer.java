@@ -10,6 +10,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.util.S3PropertyReader;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
@@ -41,6 +43,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	
 	/** The ContentId. */
 	protected String contentId;
+	
+	 private static final String s3Artifact = "s3.artifact.folder";
 
 	/**
 	 * Instantiates a new PublishFinalizer and sets the base
@@ -116,7 +120,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			File packageFile = new File(zipFileName);
 			if (packageFile.exists()) {
 				// Upload to S3
-				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName());
+				String folderName = S3PropertyReader.getProperty(s3Artifact);
+				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName(contentId, folderName));
 				if (null != urlArray && urlArray.length >= 2)
 					artifactUrl = urlArray[IDX_S3_URL];
 				
@@ -144,10 +149,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
 		String bundleFileName = Slug
 				.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true)
-				+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + ".ecar";
+				+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + "_" 
+				+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
 		ContentBundle contentBundle = new ContentBundle();
 		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
-		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls);
+		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());

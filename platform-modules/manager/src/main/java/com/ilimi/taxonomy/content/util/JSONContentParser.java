@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -24,7 +25,6 @@ import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 /**
  * The Class JSONContentParser is a utility 

@@ -136,9 +136,9 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void updateNode(String graphId, Node node, Request request) {
+	public Node updateNode(String graphId, Node node, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override

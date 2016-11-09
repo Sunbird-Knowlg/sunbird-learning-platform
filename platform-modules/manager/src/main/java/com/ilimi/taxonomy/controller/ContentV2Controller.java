@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,8 +22,6 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
-import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 /**
@@ -79,7 +79,7 @@ public class ContentV2Controller extends BaseController {
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
-            Response response = contentManager.upload(contentId, "domain", uploadedFile, "");
+            Response response = contentManager.upload(contentId, "domain", uploadedFile);
             LOGGER.info("Upload | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

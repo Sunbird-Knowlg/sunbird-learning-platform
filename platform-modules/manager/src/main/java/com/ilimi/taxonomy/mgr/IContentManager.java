@@ -39,13 +39,10 @@ public interface IContentManager {
 	 *            the <code>graph id</code> of the content.
 	 * @param uploadedFile
 	 *            the uploaded file is the <code>zip content package</code>.
-	 * @param folder
-	 *            the storage space folder where the uploaded content should
-	 *            stored.
 	 * @return the response contains the node id as <code>node_id</code> for
 	 *         which the content is being uploaded.
 	 */
-	Response upload(String id, String taxonomyId, File uploadedFile, String folder);
+	Response upload(String id, String taxonomyId, File uploadedFile);
 
 	/**
 	 * Optimize is High level Content Operation mainly deals with optimizing the

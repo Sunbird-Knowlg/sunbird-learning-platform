@@ -148,9 +148,9 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void updateNode(String graphId, Node node, Request request) {
+	public Node updateNode(String graphId, Node node, Request request) {
 		LOGGER.info("Calling 'updateNode' Operation.");
-		nodeOperations.updateNode(graphId, node, request);
+		return nodeOperations.updateNode(graphId, node, request);
 	}
 
 	@Override

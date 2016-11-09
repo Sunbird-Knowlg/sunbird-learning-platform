@@ -6,7 +6,7 @@
 			"index": 0,
 			"routingParam": false
 		},{
-			"name":"word_id",
+			"name":"lemma",
 			"index": 1,
 			"routingParam": false
 		},
@@ -22,7 +22,7 @@
         "url": "/v2/language/translations/*/*",
         "pathParams": [
           "language_id",
-		  "word_id"
+		  "lemma"
         ],
         "requestParams": [
           "languages"

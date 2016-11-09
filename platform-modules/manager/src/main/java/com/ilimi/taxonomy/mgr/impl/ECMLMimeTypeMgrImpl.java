@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -16,7 +17,6 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -124,10 +124,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(Node node, File uploadedFile, String folder) {
+	public Response upload(Node node, File uploadedFile) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadedFile.getName());
-		LOGGER.debug("Uploading to Folder: " + folder);
 
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());

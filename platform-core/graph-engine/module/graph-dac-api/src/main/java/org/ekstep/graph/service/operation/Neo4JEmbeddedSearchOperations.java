@@ -37,10 +37,25 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.dac.util.RelationType;
 
+/**
+ * The Class Neo4JEmbeddedSearchOperations.
+ * 
+ * @author Mohammad Azharuddin
+ */
 public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedSearchOperations.class.getName());
 
+	/**
+	 * Gets the node by id.
+	 *
+	 * @param graphId the graph id
+	 * @param nodeId the node id
+	 * @param getTags the get tags
+	 * @param request the request
+	 * @return the node by id
+	 */
 	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -54,6 +69,15 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the node by unique id.
+	 *
+	 * @param graphId the graph id
+	 * @param nodeId the node id
+	 * @param getTags the get tags
+	 * @param request the request
+	 * @return the node by unique id
+	 */
 	public Node getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -66,6 +90,15 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the nodes by property.
+	 *
+	 * @param graphId the graph id
+	 * @param property the property
+	 * @param getTags the get tags
+	 * @param request the request
+	 * @return the nodes by property
+	 */
 	public List<Node> getNodesByProperty(String graphId, Property property, Boolean getTags, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -88,6 +121,14 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the node by unique ids.
+	 *
+	 * @param graphId the graph id
+	 * @param searchCriteria the search criteria
+	 * @param request the request
+	 * @return the node by unique ids
+	 */
 	public List<Node> getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -115,6 +156,15 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the node property.
+	 *
+	 * @param graphId the graph id
+	 * @param nodeId the node id
+	 * @param key the key
+	 * @param request the request
+	 * @return the node property
+	 */
 	public Property getNodeProperty(String graphId, String nodeId, String key, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -139,6 +189,13 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the all nodes.
+	 *
+	 * @param graphId the graph id
+	 * @param request the request
+	 * @return the all nodes
+	 */
 	public List<Node> getAllNodes(String graphId, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -154,6 +211,13 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the all relations.
+	 *
+	 * @param graphId the graph id
+	 * @param request the request
+	 * @return the all relations
+	 */
 	public List<Relation> getAllRelations(String graphId, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -169,6 +233,17 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the relation property.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param relationType the relation type
+	 * @param endNodeId the end node id
+	 * @param key the key
+	 * @param request the request
+	 * @return the relation property
+	 */
 	public Property getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
 			String key, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -184,6 +259,16 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the relation.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param relationType the relation type
+	 * @param endNodeId the end node id
+	 * @param request the request
+	 * @return the relation
+	 */
 	public Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
 			Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -197,6 +282,16 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Check cyclic loop.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param relationType the relation type
+	 * @param endNodeId the end node id
+	 * @param request the request
+	 * @return the map
+	 */
 	public Map<String, Object> checkCyclicLoop(String graphId, String startNodeId, String relationType,
 			String endNodeId, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -228,6 +323,15 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Execute query.
+	 *
+	 * @param graphId the graph id
+	 * @param query the query
+	 * @param paramMap the param map
+	 * @param request the request
+	 * @return the list
+	 */
 	public List<Map<String, Object>> executeQuery(String graphId, String query, Map<String, Object> paramMap,
 			Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
@@ -251,6 +355,15 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Search nodes.
+	 *
+	 * @param graphId the graph id
+	 * @param searchCriteria the search criteria
+	 * @param getTags the get tags
+	 * @param request the request
+	 * @return the list
+	 */
 	public List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -289,6 +402,14 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the nodes count.
+	 *
+	 * @param graphId the graph id
+	 * @param searchCriteria the search criteria
+	 * @param request the request
+	 * @return the nodes count
+	 */
 	public Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -315,6 +436,14 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Traverse.
+	 *
+	 * @param graphId the graph id
+	 * @param traverser the traverser
+	 * @param request the request
+	 * @return the sub graph
+	 */
 	public SubGraph traverse(String graphId, Traverser traverser, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -324,6 +453,14 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Traverse sub graph.
+	 *
+	 * @param graphId the graph id
+	 * @param traverser the traverser
+	 * @param request the request
+	 * @return the graph
+	 */
 	public Graph traverseSubGraph(String graphId, Traverser traverser, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -333,6 +470,16 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Gets the sub graph.
+	 *
+	 * @param graphId the graph id
+	 * @param startNodeId the start node id
+	 * @param relationType the relation type
+	 * @param depth the depth
+	 * @param request the request
+	 * @return the sub graph
+	 */
 	public Graph getSubGraph(String graphId, String startNodeId, String relationType, Integer depth, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
@@ -347,6 +494,12 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
+	/**
+	 * Sets the tags.
+	 *
+	 * @param neo4jNode the neo 4 j node
+	 * @param node the node
+	 */
 	private void setTags(org.neo4j.graphdb.Node neo4jNode, Node node) {
 		Iterable<Relationship> inRels = neo4jNode.getRelationships(Direction.INCOMING);
 		if (null != inRels) {

@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,8 +37,6 @@ import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
-import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ConceptTagger;
@@ -63,9 +63,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentManagerImpl.class.getName());
-
-	/** The default public AWS Bucket Name. */
-	private static final String bucketName = "ekstep-public";
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -98,11 +95,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public Response upload(String contentId, String taxonomyId, File uploadedFile, String folder) {
+	public Response upload(String contentId, String taxonomyId, File uploadedFile) {
 		LOGGER.debug("Content ID: " + contentId);
 		LOGGER.debug("Graph ID: " + taxonomyId);
 		LOGGER.debug("Uploaded File: " + uploadedFile.getAbsolutePath());
-		LOGGER.debug("Upload Location: " + folder);
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
@@ -134,7 +130,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(node, uploadedFile, folder);
+		Response res = mimeTypeManager.upload(node, uploadedFile);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
 				LOGGER.info("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]");
@@ -303,7 +299,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			String folder = getFolderName(downloadUrl);
 			LOGGER.info("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
 
-			String[] arr = AWSUploader.uploadFile(bucketName, folder, minEcar);
+			String[] arr = AWSUploader.uploadFile(folder, minEcar);
 			response.put("url", arr[1]);
 			LOGGER.info("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
 
@@ -421,5 +417,5 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Returning 'Response' Object.");
 		return response;
 	}
-	
+
 }

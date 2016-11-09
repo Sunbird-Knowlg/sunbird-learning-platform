@@ -48,8 +48,8 @@
           "renderingHints": "{'order': 3 }"
         },
         {
-          "propertyName": "Audio",
-          "title": "audio",
+          "propertyName": "audio",
+          "title": "Audio",
           "description": "URL",
           "category": "sampleData",
           "dataType": "URL",

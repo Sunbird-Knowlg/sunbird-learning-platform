@@ -46,3 +46,11 @@ node registerScript.js api/create-translation.tcl api/json/register-create-trans
 node registerScript.js api/get-translation.tcl api/json/register-get-translation.json update
 
 node registerScript.js api/delete-translation.tcl api/json/register-delete-translation.json update
+
+node registerScript.js api/get-englishWords-details.tcl api/json/register-get-englishWords-details.json update
+
+node registerScript.js api/getWordsEndingWithAkshara.tcl api/json/register-getWordsEndingWithAkshara.json update
+
+node registerScript.js api/getWordsContainingAkshara.tcl api/json/register-getWordsContainingAkshara.json update
+
+node registerScript.js api/getWordsStartingWithAkshara.tcl api/json/register-getWordsStartingWithAkshara.json update

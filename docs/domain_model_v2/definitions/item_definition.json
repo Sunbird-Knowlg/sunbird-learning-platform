@@ -60,7 +60,7 @@
             "indexed": true,
             "draft": false
         }, {
-            "required": false,
+            "required": true,
             "dataType": "Text",
             "propertyName": "template_id",
             "title": "Template Id",
@@ -578,6 +578,7 @@
             "description": "Intervention Type"
         }],
         "metadata": {
+            "defaultRes": "medium",
             "limit": 50,
             "ttl": 24
         }

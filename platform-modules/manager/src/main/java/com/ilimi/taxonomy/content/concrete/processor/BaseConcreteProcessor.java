@@ -14,6 +14,9 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -29,8 +32,6 @@ import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.ContentPipelineProcessor;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
-import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 /**
  * The Class BaseConcreteProcessor provides the common utility methods for all

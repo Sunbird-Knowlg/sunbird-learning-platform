@@ -37,8 +37,16 @@ import akka.dispatch.OnSuccess;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
+/**
+ * The Class NodeManagerImpl.
+ * 
+ * @author Mohammad Azharuddin
+ */
 public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common.dto.Request, akka.actor.ActorRef)
+     */
     protected void invokeMethod(Request request, ActorRef parent) {
         String methodName = request.getOperation();
         try {
@@ -53,6 +61,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#saveDefinitionNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public void saveDefinitionNode(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -83,6 +94,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#updateDefinition(com.ilimi.common.dto.Request)
+     */
     @SuppressWarnings("unchecked")
     public void updateDefinition(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -101,6 +115,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#createDataNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public void createDataNode(final Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -178,6 +195,19 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /**
+     * Update relations and tags.
+     *
+     * @param parent the parent
+     * @param node the node
+     * @param datanode the datanode
+     * @param request the request
+     * @param ec the ec
+     * @param addRels the add rels
+     * @param delRels the del rels
+     * @param addTags the add tags
+     * @param delTags the del tags
+     */
     private void updateRelationsAndTags(final ActorRef parent, Node node, final DataNode datanode, final Request request, final ExecutionContext ec,
             final List<Relation> addRels, final List<Relation> delRels, final List<String> addTags, final List<String> delTags) {
         Future<List<String>> deleteRelsFuture = null;
@@ -236,7 +266,11 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                 }
                             }
                             if (msgs.isEmpty()) {
-                                OK(GraphDACParams.node_id.name(), datanode.getNodeId(), parent);
+                            	Map<String, Object> responseMap = new HashMap<String, Object>();
+                            	responseMap.put(GraphDACParams.node_id.name(), datanode.getNodeId());
+                            	responseMap.put(GraphDACParams.versionKey.name(), datanode.getVersionKey());
+                                
+                            	OK(responseMap, parent);
                             } else {
                                 ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(), "Failed to update relations and tags",
                                         ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), msgs, parent);
@@ -248,6 +282,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }, ec);
     }
     
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#validateNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public void validateNode(Request request) {
         final ActorRef parent = getSender();
@@ -291,6 +328,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#updateDataNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public void updateDataNode(final Request request) {
         final ActorRef parent = getSender();
@@ -321,6 +361,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         }
                         Map<String, Object> dbMetadata = dbNode.getMetadata();
                         if (null != dbMetadata && !dbMetadata.isEmpty()) {
+                        	dbMetadata.remove(GraphDACParams.versionKey.name());
                             for (Entry<String, Object> entry : dbMetadata.entrySet()) {
                                 if (!datanode.getMetadata().containsKey(entry.getKey()))
                                     datanode.getMetadata().put(entry.getKey(), entry.getValue());
@@ -401,6 +442,15 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /**
+     * Gets the tags delta.
+     *
+     * @param addTags the add tags
+     * @param delTags the del tags
+     * @param dbNode the db node
+     * @param tags the tags
+     * @return the tags delta
+     */
     private void getTagsDelta(List<String> addTags, List<String> delTags, Node dbNode, List<String> tags) {
         if (null != tags) {
             List<String> dbTags = dbNode.getTags();
@@ -414,6 +464,15 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /**
+     * Gets the relations delta.
+     *
+     * @param addRels the add rels
+     * @param delRels the del rels
+     * @param dbNode the db node
+     * @param datanode the datanode
+     * @return the relations delta
+     */
     private void getRelationsDelta(List<Relation> addRels, List<Relation> delRels, Node dbNode, DataNode datanode) {
         if (null == datanode.getInRelations()) {
             datanode.setInRelations(dbNode.getInRelations());
@@ -427,6 +486,15 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /**
+     * Gets the new relations list.
+     *
+     * @param dbRelations the db relations
+     * @param newRelations the new relations
+     * @param addRels the add rels
+     * @param delRels the del rels
+     * @return the new relations list
+     */
     private void getNewRelationsList(List<Relation> dbRelations, List<Relation> newRelations, List<Relation> addRels, List<Relation> delRels) {
         List<String> relList = new ArrayList<String>();
         for (Relation rel : newRelations) {
@@ -445,6 +513,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#deleteDataNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public void deleteDataNode(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -462,6 +533,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#deleteDefinition(com.ilimi.common.dto.Request)
+     */
     @Override
     public void deleteDefinition(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -479,6 +553,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#importDefinitions(com.ilimi.common.dto.Request)
+     */
     @Override
     public void importDefinitions(final Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -490,6 +567,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#exportNode(com.ilimi.common.dto.Request)
+     */
     public void exportNode(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String nodeId = (String) request.get(GraphDACParams.node_id.name());
@@ -506,6 +586,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
     
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#upsertRootNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public void  upsertRootNode(Request request){
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -523,6 +606,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     }
     
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#createProxyNode(com.ilimi.common.dto.Request)
+     */
     @Override
     public void createProxyNode(final Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -595,13 +681,18 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
     
-    @Override
+    /* (non-Javadoc)
+     * @see com.ilimi.graph.engine.mgr.INodeManager#createProxyNodeAndTranslation(com.ilimi.common.dto.Request)
+     */
+    @SuppressWarnings("unchecked")
+	@Override
     public void createProxyNodeAndTranslation(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         final ActorRef parent = getSender();
         final Node node = (Node) request.get(GraphDACParams.node.name());
         final Node translationNode = (Node) request.get(GraphDACParams.translationSet.name());
         final boolean create = (boolean) request.get("create");
+        final boolean proxy = (boolean) request.get("proxy");
 
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         String setObjectType = (String) request.get(GraphDACParams.object_type.name());
@@ -620,58 +711,50 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 final Set set = new Set(this, graphId, null, setObjectType, memberObjectType, translationNode.getMetadata(), memberIds);
             	set.setInRelations(translationNode.getInRelations());
                 set.setOutRelations(translationNode.getOutRelations());
-                Future<String> createFuture = proxyNode.createNode(request);
-                createFuture.onComplete(new OnComplete<String>() {
-                @Override
-                public void onComplete(Throwable arg0, String arg1) throws Throwable {
-                    if (null != arg0) {
-                        ERROR(arg0, getSender());
-                    } else {
-
-                        if (StringUtils.isNotBlank(arg1)) {
-                            messages.add(arg1);
-                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
-                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                if(!proxy){
+                	Future<String> createFuture = proxyNode.createNode(request);
+                    createFuture.onComplete(new OnComplete<String>() {
+                    @Override
+                    public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                        if (null != arg0) {
+                            ERROR(arg0, getSender());
                         } else {
-                        	if (messages.isEmpty()) {
-                                // create the node object
-                        		request.put(GraphDACParams.node.name(), translationNode);
-                        		if(create)
-                        		{
-                        			set.createSetNode(request, ec);
-                        		}
-                        		else
-                        		{
-                        			set.addMembers(request);
-                        		}
-                                /*createFuture.onComplete(new OnComplete<String>() {
-                                    @Override
-                                    public void onComplete(Throwable arg0, String arg1) throws Throwable {
-                                        if (null != arg0) {
-                                            ERROR(arg0, getSender());
-                                        } else {
-                                            if (StringUtils.isNotBlank(arg1)) {
-                                                messages.add(arg1);
-                                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
-                                                        ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
-                                            } else {
-                                                // if node is created successfully,
-                                                // create relations and tags
-                                                List<Relation> addRels = datanode.getNewRelationList();
-                                                updateRelationsAndTags(parent, node, datanode, request, ec, addRels, null, node.getTags(), null);
-                                            }
-                                        }
-                                    }
-                                }, ec);*/
-                            } else {
-                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+
+                            if (StringUtils.isNotBlank(arg1)) {
+                                messages.add(arg1);
+                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
                                         ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                            } else {
+                            	if (messages.isEmpty()) {
+                                    // create the node object
+                            		request.put(GraphDACParams.node.name(), translationNode);
+                            		if(create)
+                            		{
+                            			set.createSetNode(request, ec);
+                            		}
+                            		else
+                            		{
+                            			set.addMembers(request);
+                            		}
+                                } else {
+                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+                                            ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                                }
                             }
                         }
                     }
+                }, ec);
+                } else{
+                	request.put(GraphDACParams.node.name(), translationNode);
+            		if(create)
+            		{
+            			set.createSetNode(request, ec);
+            		}
+            		else
+            		{
+            			set.addMembers(request);
+            		}
                 }
-            }, ec);
-
             } catch (Exception e) {
                 handleException(e, getSender());
             }

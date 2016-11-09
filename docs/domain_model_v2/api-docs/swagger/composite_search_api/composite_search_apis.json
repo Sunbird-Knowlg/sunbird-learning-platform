@@ -27,7 +27,7 @@
         "summary": "Search API to search all indexed data",
         "description": "This is the main API that accepts the search request and returns the response. The API contract is identical to the graph data structures. So the returned data structures for each object type conform to the definition specification for that object type.",
         "tags": [],
-        "operationId": "words.create",
+        "operationId": "search",
         "consumes" : [ "application/json" ],
         "produces": [
           "application/json"
@@ -88,7 +88,7 @@
           "$ref" : "#/definitions/searchObject"
         }
       },
-      "title" : "Search Word Request Body"
+      "title" : "Search Request Body"
     },
     "searchResponse": {
       "type": "object",

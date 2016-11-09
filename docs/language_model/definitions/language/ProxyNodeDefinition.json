@@ -1,0 +1,15 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "Synset",
+      "properties": [],
+      "systemTags": [],
+      "inRelations": [],
+      "outRelations": [],
+      "metadata": {
+        "limit": 50,
+        "ttl": 24
+      }
+    }
+  ]
+}

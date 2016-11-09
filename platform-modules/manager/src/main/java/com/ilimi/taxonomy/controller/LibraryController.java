@@ -42,7 +42,7 @@ public class LibraryController extends BaseController {
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
-            Response response = contentManager.upload(id, "domain", uploadedFile, null);
+            Response response = contentManager.upload(id, "domain", uploadedFile);
             LOGGER.info("Upload | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

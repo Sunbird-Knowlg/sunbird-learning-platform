@@ -19,7 +19,7 @@
 
 		"question_image": {"col-def": {"column" : 4}},
 	    "question_audio": {"col-def": {"column" : 5}},
-    	"question_count": {"col-def": {"column" : 6, "type": "number"}},
+    	"image_count": {"col-def": {"column" : 6, "type": "number"}},
 
     	"domain": {"col-def": {"column" : 7}},
     	"language": {"col-def": {"column" : 8}},
@@ -28,89 +28,49 @@
 		"qlevel": {"col-def": {"column" : 10}},
 		"keywords": {"col-def": {"column" : 11, "type": "list"}},
 
-		"media": [
-			{
-	        	"id": {"col-def": {"column" : 4, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 4, "type": "string"}}
-	    	},
-	    	{
-	        	"id": {"col-def": {"column" : 5, "type": "string"}},
-	        	"type": {"literal": "audio"},
-	        	"asset_id": {"col-def": {"column" : 5, "type": "string"}}
-	    	},
+		"template": {"col-def": {"column" : 12}},
+    	"template_id": {"col-def": {"column" : 13}},
 
-	    	{
-	        	"id": {"col-def": {"column" : 13, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 13, "type": "string"}}
-	    	},
-	    	{
-	        	"id": {"col-def": {"column" : 15, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 15, "type": "string"}}
-	    	},
-	    	{
-	        	"id": {"col-def": {"column" : 17, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 17, "type": "string"}}
-	    	},
-	    	{
-	        	"id": {"col-def": {"column" : 19, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 19, "type": "string"}}
-	    	},
-
-	    	{
-	        	"id": {"col-def": {"column" : 21, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 21, "type": "string"}}
-	    	},
-	    	{
-	        	"id": {"col-def": {"column" : 24, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 24, "type": "string"}}
-	    	},
-	    	{
-	        	"id": {"col-def": {"column" : 27, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 27, "type": "string"}}
-	    	},
-	    	{
-	        	"id": {"col-def": {"column" : 30, "type": "string"}},
-	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 30, "type": "string"}}
-	    	}
-	    ],
-
+		"model": {
+			"param1": {"col-def": {"column" : 14, "type": "string"}},
+			"param2": {"col-def": {"column" : 15, "type": "string"}}
+		},
 		"lhs_options": [
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 12, "type": "string"}},
-					"image":  {"col-def": {"column" : 13, "type": "string"}}
-				}
+					"text":  {"col-def": {"column" : 17, "type": "string"}},
+					"image":  {"col-def": {"column" : 18, "type": "string"}},
+					"resValue": {"col-def": {"column" : 19  , "type": "string"}}
+				},
+				"index":{"col-def": {"column" : 16}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 14, "type": "string"}},
-					"image":  {"col-def": {"column" : 15, "type": "string"}}
-				}
+					"text":  {"col-def": {"column" : 21, "type": "string"}},
+					"image":  {"col-def": {"column" : 22, "type": "string"}},
+					"resValue": {"col-def": {"column" :23 , "type": "string"}}
+				},
+				"index":{"col-def": {"column" : 20}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 16, "type": "string"}},
-					"image":  {"col-def": {"column" : 17, "type": "string"}}
-				}
+					"text":  {"col-def": {"column" : 25, "type": "string"}},
+					"image":  {"col-def": {"column" : 26, "type": "string"}},
+					"resValue": {"col-def": {"column" : 27 , "type": "string"}}
+				},
+				"index":{"col-def": {"column" : 24}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 18, "type": "string"}},
-					"image":  {"col-def": {"column" : 19, "type": "string"}}
-				}
+					"text":  {"col-def": {"column" : 29, "type": "string"}},
+					"image":  {"col-def": {"column" : 30, "type": "string"}},
+					"resValue": {"col-def": {"column" : 31 , "type": "string"}}
+				},
+				"index":{"col-def": {"column" : 28}}
 			}
 		],
 
@@ -118,43 +78,41 @@
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 20, "type": "string"}},
-					"image":  {"col-def": {"column" : 21, "type": "string"}}
+					"text":  {"col-def": {"column" : 30, "type": "string"}},
+					"image":  {"col-def": {"column" : 31, "type": "string"}},
+					"resValue": {"col-def": {"column" :32  , "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 22, "type": "number"}}
+				"answer": {"col-def": {"column" : 33, "type": "number"}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 23, "type": "string"}},
-					"image":  {"col-def": {"column" : 24, "type": "string"}}
+					"text":  {"col-def": {"column" : 34, "type": "string"}},
+					"image":  {"col-def": {"column" : 35, "type": "string"}},
+					"resValue": {"col-def": {"column" : 36 , "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 25, "type": "number"}}
+				"answer": {"col-def": {"column" : 37, "type": "number"}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 26, "type": "string"}},
-					"image":  {"col-def": {"column" : 27, "type": "string"}}
+					"text":  {"col-def": {"column" : 38, "type": "string"}},
+					"image":  {"col-def": {"column" : 39, "type": "string"}},
+					"resValue": {"col-def": {"column" : 40, "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 28, "type": "number"}}
+				"answer": {"col-def": {"column" : 41, "type": "number"}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 29, "type": "string"}},
-					"image":  {"col-def": {"column" : 30, "type": "string"}}
+					"text":  {"col-def": {"column" : 42, "type": "string"}},
+					"image":  {"col-def": {"column" : 43, "type": "string"}},
+					"resValue": {"col-def": {"column" : 44, "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 31, "type": "number"}}
+				"answer": {"col-def": {"column" : 45, "type": "number"}}
 			}
 		],
-
-		"template": {"col-def": {"column" : 32}},
-    	"template_id": {"col-def": {"column" : 33}},
-
-		"model": {
-			"param1": {"col-def": {"column" : 34, "type": "string"}},
-			"param2": {"col-def": {"column" : 35, "type": "string"}}
-		}
+		"start":48
 	}
 }
+	

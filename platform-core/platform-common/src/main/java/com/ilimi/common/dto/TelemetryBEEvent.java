@@ -45,7 +45,6 @@ public class TelemetryBEEvent {
 		this.pdata.put("id", id);
 		this.pdata.put("pid", pid);
 		this.pdata.put("ver", ver);
-		this.pdata.put("uid", uid);
 	}
 	public void setEdata(String cid, Object status, Object prevState, Object size, Object pkgVersion, Object concepts, Object flags) {
 		this.edata = new HashMap<String, Object>();

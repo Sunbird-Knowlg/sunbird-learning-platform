@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -23,7 +24,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -46,9 +50,7 @@ import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.content.util.PropertiesUtil;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 /**
@@ -63,11 +65,11 @@ public class BasePipeline extends BaseManager {
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	
-	/** The Constant DEF_AWS_BUCKET_NAME */
-	private static final String DEF_AWS_BUCKET_NAME = "ekstep-public";
-	
 	/** The Constant DEF_AWS_FOLDER_NAME */
 	private static final String DEF_AWS_FOLDER_NAME = "content";
+	
+	private static final String s3Content = "s3.content.folder";
+;
 
 	/**
 	 * Updates the ContentNode.
@@ -152,30 +154,12 @@ public class BasePipeline extends BaseManager {
 	 * 
 	 * @return AWS Upload FolderName
 	 */
-	protected String getUploadFolderName() {
+	protected String getUploadFolderName(String identifier, String folder) {
 		String folderName = DEF_AWS_FOLDER_NAME;
-		String env = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
-		if (!StringUtils.isBlank(env)) {
-			LOGGER.info("Fetching the Upload Folder (AWS) Name for Environment: " + env);
-			// TODO: Write the logic for fetching the environment(DEV, PROD, QA,
-			// TEST) aware folder name.
-		}
-		return folderName;
-	}
-	
-	/**
-	 * gets the AwsUploadBucket Name
-	 * from the PropertiesUtil class by loading from propertiesFile
-	 * 
-	 * @return AWS Upload BucketName
-	 */
-	protected String getUploadBucketName() {
-		String folderName = DEF_AWS_BUCKET_NAME;
-		String env = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
-		if (!StringUtils.isBlank(env)) {
-			LOGGER.info("Fetching the Upload Bucket (AWS) Name for Environment: " + env);
-			// TODO: Write the logic for fetching the environment(DEV, PROD, QA,
-			// TEST) aware bucket name.
+		//String env = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
+		folderName = S3PropertyReader.getProperty(s3Content);
+		if (!StringUtils.isBlank(folderName)) {
+			folderName = folderName + "/" + Slug.makeSlug(identifier, true) + "/" + folder;
 		}
 		return folderName;
 	}
@@ -193,7 +177,7 @@ public class BasePipeline extends BaseManager {
 		try {
 			if (StringUtils.isBlank(folder))
 				folder = DEF_AWS_FOLDER_NAME;
-			urlArray = AWSUploader.uploadFile(DEF_AWS_BUCKET_NAME, folder, uploadFile);
+			urlArray = AWSUploader.uploadFile(folder, uploadFile);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR, e);
@@ -238,7 +222,7 @@ public class BasePipeline extends BaseManager {
 		Double bytes = null;
 		if (StringUtils.isNotBlank(key)) {
 			try {
-				return AWSUploader.getObjectSize(ContentConfigurationConstants.BUCKET_NAME, key);
+				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
 				LOGGER.error("Error! While getting the file size from AWS", e);
 			}

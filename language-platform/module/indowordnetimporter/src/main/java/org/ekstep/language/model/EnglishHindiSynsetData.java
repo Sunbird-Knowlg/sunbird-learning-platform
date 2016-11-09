@@ -140,7 +140,7 @@ public class EnglishHindiSynsetData implements LanguageSynsetData {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
-	protected OriyaSynsetDataLite oriyaTranslation;
+	protected OdiaSynsetDataLite oriyaTranslation;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -185,11 +185,11 @@ public class EnglishHindiSynsetData implements LanguageSynsetData {
 		this.nepaliTranslation = nepaliTranslation;
 	}
 
-	public OriyaSynsetDataLite getOriyaTranslation() {
+	public OdiaSynsetDataLite getOriyaTranslation() {
 		return oriyaTranslation;
 	}
 
-	public void setOriyaTranslation(OriyaSynsetDataLite oriyaTranslation) {
+	public void setOriyaTranslation(OdiaSynsetDataLite oriyaTranslation) {
 		this.oriyaTranslation = oriyaTranslation;
 	}
 

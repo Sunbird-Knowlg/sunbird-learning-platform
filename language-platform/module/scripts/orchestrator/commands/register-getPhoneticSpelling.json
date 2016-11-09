@@ -1,0 +1,33 @@
+{
+  "name": "getPhoneticSpelling",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+        "name": "addClosingVirama",
+        "datatype": "java.lang.Boolean",
+        "index": 1,
+        "routingParam": false
+    },
+    {
+      "name": "word",
+      "index": 2,
+      "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "TRANSLITERATOR_ACTOR",
+    "operation": "getPhoneticSpellingByLanguage",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "requestPath": {
+    "pathParams":["language_id","word"],
+    "requestParams": ["addClosingVirama"],
+    "type":"POST",
+    "url":"/v2/language/tools/getPhoneticSpelling/*/*"
+  }
+}
