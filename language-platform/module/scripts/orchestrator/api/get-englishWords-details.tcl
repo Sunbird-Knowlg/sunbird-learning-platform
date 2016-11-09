@@ -5,14 +5,13 @@ java::import -package java.util HashMap Map
 java::import -package org.ekstep.language.measures.entity WordComplexity
 
 
-proc getThresholdLevel {word} {
-
+proc getThresholdLevel {words} {
 	set filters [java::new HashMap]
 	$filters put "objectType" "Word"
 	$filters put "graph_id" "en"
-	$filters put "lemma" $word
+	$filters put "lemma" $words
 	$filters put "status" [java::new ArrayList]
-	set limit [java::new Integer 1]
+	set limit [java::new Integer 10000]
 
 	set null_var [java::null]
 	set empty_list [java::new ArrayList]
@@ -22,23 +21,26 @@ proc getThresholdLevel {word} {
 	set searchResultsMap [$searchResponse getResult]
 	set wordsList [java::cast List [$searchResultsMap get "results"]]
 	set wordsListNull [java::isnull $wordsList]
-	if {$wordsListNull == 1 || [$wordsList size] == 0} {
-		return $null_var
+	set thresholdLevelMap [java::new HashMap]
+	if {$wordsListNull == 0 && [$wordsList size] >= 0} {
+		java::for {Object wordObj} $wordsList {
+			set wordObject [java::cast Map $wordObj]		
+			set thresholdLevel [$wordObject get "thresholdLevel"]
+			set lemma [$wordObject get "lemma"]
+			$thresholdLevelMap put $lemma $thresholdLevel
+		}	
 	}
-
-	set wordObject [java::cast Map [$wordsList get 0]]
-	set thresholdLevel [$wordObject get "thresholdLevel"]
-	return $thresholdLevel
+	return $thresholdLevelMap
 }
 
-set wordsDetailsResponse [java::new HashMap]
-
+set thresholdLevelMap [getThresholdLevel $words]
+set wordsDetailsResponse [java::new ArrayList]
 java::for {String word} $words {
-
 	set wordDetails [java::new HashMap]
-	set thresholdLevel [getThresholdLevel $word]
+	$wordDetails put "word" $word
+	set thresholdLevel [$thresholdLevelMap get $word]
 	$wordDetails put "threshold_level" $thresholdLevel
-	set falseBool [java::new Boolean false]
+	set falseBool [java::new Boolean true]
 	set transliteratedWordResponse [getPhoneticSpelling "hi" $falseBool $word]
 	set check_error [check_response_error $transliteratedWordResponse]
 	if {$check_error} {
@@ -46,7 +48,7 @@ java::for {String word} $words {
 	} 
 	set transliteratedWord [get_resp_value $transliteratedWordResponse "phonetic_spelling"]
 	set transliteratedWord [$transliteratedWord toString]
-	$wordDetails put "hi_transliteration" $transliteratedWord
+	$wordDetails put "hindi" $transliteratedWord
 	set wordCompleixtyResponse [getWordFeatures "hi" $transliteratedWord]
 	set check_error [check_response_error $wordCompleixtyResponse]
 	if {$check_error} {
@@ -54,18 +56,22 @@ java::for {String word} $words {
 	}
 	set word_features [get_resp_value $wordCompleixtyResponse "word_features"]
 	set wordFeatures [java::cast Map $word_features]
-	set WordComplexity [$wordFeatures get $transliteratedWord]
-	set WordComplexity [java::cast WordComplexity $WordComplexity]
-	set phonicComplexity [java::prop $WordComplexity "phonicComplexity"]
-	set syllablesCount [java::prop $WordComplexity "count"]
-	$wordDetails put "phonologic_complexity" $phonicComplexity
-	$wordDetails put "syllables_count" $syllablesCount
-	$wordsDetailsResponse put $word $wordDetails
+	set wordComplexity [$wordFeatures get $transliteratedWord]
+	set wordComplexityNull [java::isnull $wordComplexity]
+	if {$wordComplexityNull == 0} {
+		set wordComplexity [java::cast WordComplexity $wordComplexity]
+		set phonicComplexity [java::prop $wordComplexity "phonicComplexity"]
+		set syllablesCount [java::prop $wordComplexity "count"]
+		$wordDetails put "phonological_complexity" $phonicComplexity
+		$wordDetails put "syllableCount" $syllablesCount	
+	}
+	$wordsDetailsResponse add $wordDetails
 }
 
 # create word chains response
 set resp_object [java::new HashMap]
 $resp_object put "words" $wordsDetailsResponse
 set response [create_response $resp_object]
-return $response
+set response_csv [convert_response_to_csv $response "words"]
+return $response_csv
 

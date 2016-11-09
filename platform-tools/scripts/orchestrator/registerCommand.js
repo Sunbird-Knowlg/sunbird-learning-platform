@@ -8,12 +8,13 @@ var client = new Client();
 //var host = "http://52.77.241.169:8080/taxonomy-service";
 //var host = "http://localhost:8080/learning-service";
 // PROD
-var host = "https://api.ekstep.in/learning";
+//var host = "https://api.ekstep.in/learning";
 // DEV
-//var host = "https://dev.ekstep.in/api/learning";
+var host = "https://dev.ekstep.in/api/learning";
 // QA
 //var host = "https://qa.ekstep.in/api/learning";
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 console.log('');
 var scriptAsString = fs.readFileSync(process.argv[2]);
 var script = JSON.parse(scriptAsString);
@@ -22,6 +23,7 @@ var args = {
         "Content-Type": "application/json",
         "user-id": "analytics"
     },
+    rejectUnauthorized: false, 
     data: script
 };
 if(process.argv[3] == 'register') {

@@ -11,6 +11,7 @@ var host = "https://dev.ekstep.in/api/language";
 // QA
 //var host = "https://qa.ekstep.in/api/language";
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 console.log('');
 var scriptAsString = fs.readFileSync(process.argv[3]);
 var rl = readLine.createInterface({
@@ -34,6 +35,7 @@ rl.on('close', function() {
             "Content-Type": "application/json",
             "user-id": "analytics"
         },
+        rejectUnauthorized: false, 
         data: script
     };
     if(process.argv[4] == 'register') {
