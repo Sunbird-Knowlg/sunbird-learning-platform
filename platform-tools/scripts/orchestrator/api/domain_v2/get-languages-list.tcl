@@ -9,6 +9,12 @@ set graph_id "domain"
 set map [java::new HashMap]
 $map put "nodeType" "DATA_NODE"
 $map put "objectType" $object_type
+
+set sortBy [java::new ArrayList]
+$sortBy add "name"
+$map put "sortBy" $sortBy
+$map put "order" "ASC"
+
 set search_criteria [create_search_criteria $map]
 set search_response [searchNodes $graph_id $search_criteria]
 set check_error [check_response_error $search_response]
