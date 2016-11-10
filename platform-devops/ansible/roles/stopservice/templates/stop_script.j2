@@ -7,7 +7,7 @@
 #************************************************
 if [ `ps -ef | grep redis | grep -v grep | wc -l` -ge 1 ]
 then 
-	kill -9 `pgrep -f redis`
+	/home/ec2-user/redis-stable/src/redis-cli SHUTDOWN SAVE
 fi
 
 if [ `ps -ef | grep language-graph-events.conf | grep -v grep | wc -l` -ge 1 ]
