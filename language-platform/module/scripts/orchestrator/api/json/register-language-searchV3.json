@@ -1,0 +1,64 @@
+{
+    "name": "langugeSearch_v3",
+    "parameters": [
+	{
+        "name": "traversals",
+        "index": 0,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },
+	{
+        "name": "query",
+        "index": 1,
+		"datatype": "java.lang.String",
+        "routingParam": false
+    },	
+	{
+        "name": "filters",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    },
+	{
+        "name": "exists",
+        "index": 3,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },
+	{
+        "name": "not_exists",
+        "index": 4,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },
+	{
+        "name": "sort_by",
+        "index": 5,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    },
+	{
+        "name": "facets",
+        "index": 6,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },
+	{
+        "name": "fuzzy",
+        "index": 7,
+        "datatype": "java.lang.Boolean",
+        "routingParam": false
+    },
+	{
+        "name": "limit",
+        "index": 8,
+        "datatype": "java.lang.Integer",
+        "routingParam": false
+    }
+	],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/public/language/search"
+    },
+    "body": ""
+}

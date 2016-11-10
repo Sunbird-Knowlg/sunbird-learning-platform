@@ -40,7 +40,6 @@ node registerScript.js api/getWordChainsByIndex.tcl api/json/groupBy.json update
 
 node registerScript.js api/update-GradeLevelComplexity.tcl api/json/register-update-GradeLevelComplexity.json update
 
-
 node registerScript.js api/create-translation.tcl api/json/register-create-translation.json update
 
 node registerScript.js api/get-translation.tcl api/json/register-get-translation.json update
@@ -54,3 +53,8 @@ node registerScript.js api/getWordsEndingWithAkshara.tcl api/json/register-getWo
 node registerScript.js api/getWordsContainingAkshara.tcl api/json/register-getWordsContainingAkshara.json update
 
 node registerScript.js api/getWordsStartingWithAkshara.tcl api/json/register-getWordsStartingWithAkshara.json update
+
+node registerScript.js api/get-top-words.tcl api/json/register-get-top-words.json update
+
+node registerScript.js api/language-search.tcl api/json/register-language-searchV3.json update
+

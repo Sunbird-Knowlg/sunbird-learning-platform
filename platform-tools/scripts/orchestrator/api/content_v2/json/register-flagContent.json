@@ -1,0 +1,20 @@
+{
+    "name": "flagContent",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "contentId",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/content/flag/*",
+        "pathParams": [
+          "contentId"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.domain.content.flag"
+}

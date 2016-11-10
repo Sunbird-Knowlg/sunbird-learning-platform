@@ -34,7 +34,9 @@
 
 - name: start redis
   become_user: ec2-user
-  shell: nohup {{ redis_home }}/src/redis-server &
+  shell: nohup src/redis-server &
+  args:
+    chdir: /home/ec2-user/redis-stable/
   async: 60
   poll: 60
   when: "redis_process.stdout == '0'"
