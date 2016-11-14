@@ -13,4 +13,6 @@ public interface IAuditHistoryDataService {
     
     public Response getAuditHistoryLogByObjectId(Request request);
 
+	public Response getAuditLogRecordByAuditId(Request request);
+
 }

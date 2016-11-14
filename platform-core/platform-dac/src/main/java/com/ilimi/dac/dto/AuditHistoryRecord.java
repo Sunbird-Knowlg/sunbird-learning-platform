@@ -17,13 +17,14 @@ public class AuditHistoryRecord implements Serializable {
     private String logRecord;
     private String operation;
     private Date createdOn;
+    private String summary;
     
     public AuditHistoryRecord(){
     	
     }
     
 	public AuditHistoryRecord(Integer id, String objectId, String objectType, String label, String graphId, String userId,
-			String requestId, String logRecord, String operation, Date createdOn) {
+			String requestId,String logRecord, String operation, Date createdOn, String summary) {
 		super();
 		this.id = id;
 		this.objectId = objectId;
@@ -33,6 +34,7 @@ public class AuditHistoryRecord implements Serializable {
 		this.userId = userId;
 		this.requestId = requestId;
 		this.logRecord = logRecord;
+		this.summary = summary;
 		this.operation = operation;
 		this.createdOn = createdOn;
 	}
@@ -67,6 +69,14 @@ public class AuditHistoryRecord implements Serializable {
 	public void setGraphId(String graphId) {
 		this.graphId = graphId;
 	}
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
+
 	public String getUserId() {
 		return userId;
 	}

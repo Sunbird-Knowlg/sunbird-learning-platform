@@ -20,56 +20,67 @@ import com.ilimi.dac.BaseDataAccessEntity;
 @Table(name = "AUDIT_HISTORY")
 public class AuditHistoryEntity extends BaseDataAccessEntity {
 
-
 	private static final long serialVersionUID = -4329702572102109449L;
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "AUDIT_HISTORY_ID_SEQ")
-    @SequenceGenerator(name = "AUDIT_HISTORY_ID_SEQ", sequenceName = "AUDIT_HISTORY_ID_SEQ")
-    @Column(name = "SMAH_PK_ID", length = 11)
-    private Integer id;
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "AUDIT_HISTORY_ID_SEQ")
+	@SequenceGenerator(name = "AUDIT_HISTORY_ID_SEQ", sequenceName = "AUDIT_HISTORY_ID_SEQ")
+	@Column(name = "SMAH_PK_ID", length = 11)
+	private Integer audit_id;
 
-    @Column(name = "OBJECT_ID")
-    private String objectId;
+	@Column(name = "OBJECT_ID")
+	private String objectId;
 
-    @Column(name = "OBJECT_TYPE")
-    private String objectType;
+	@Column(name = "OBJECT_TYPE")
+	private String objectType;
 
-    @Column(name = "LOG_RECORD")
-    @Type(type="text")
-    private String logRecord;
-    
-    @Column(name = "GRAPH_ID")
-    private String graphId;
-    
-    @Column(name = "USER_ID")
-    private String userId;
-    
-    @Column(name = "REQUEST_ID")
-    private String requestId;
-    
-    @Column(name = "OPEARATION")
-    private String operation;
-    
-    @Column(name = "LABEL")
-    private String label;
+	@Column(name = "LOG_RECORD")
+	@Type(type = "text")
+	private String logRecord;
 
-	@Column(name = "CREATED_ON", columnDefinition="DATETIME")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdOn;
-    
+	@Column(name = "GRAPH_ID")
+	private String graphId;
+
+	@Column(name = "USER_ID")
+	private String userId;
+
+	@Column(name = "REQUEST_ID")
+	private String requestId;
+
+	@Column(name = "OPEARATION")
+	private String operation;
+
+	@Column(name = "LABEL")
+	private String label;
+
+	@Column(name = "SUMMARY")
+	@Type(type = "text")
+	private String summary;
+
+	@Column(name = "CREATED_ON", columnDefinition = "DATETIME")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdOn;
+
 	@Override
 	public Integer getId() {
-		return this.id;
+		return this.audit_id;
 	}
 
 	@Override
 	public void setId(Integer id) {
-		this.id=id;
+		this.audit_id = id;
 	}
 
 	public String getObjectId() {
 		return objectId;
+	}
+
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
 	}
 
 	public void setObjectId(String objectId) {
@@ -115,8 +126,8 @@ public class AuditHistoryEntity extends BaseDataAccessEntity {
 	public void setRequestId(String requestId) {
 		this.requestId = requestId;
 	}
-	
-    public String getOperation() {
+
+	public String getOperation() {
 		return operation;
 	}
 

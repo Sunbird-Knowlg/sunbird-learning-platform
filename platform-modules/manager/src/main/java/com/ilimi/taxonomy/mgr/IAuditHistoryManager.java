@@ -15,4 +15,6 @@ public interface IAuditHistoryManager {
     
     Response getAuditHistoryById(String graphId, String objectId,String timeStamp1,String timeStamp2);
 
+	Response getAuditLogRecordByAuditId(String audit_id, String startTime, String endTime);
+
 }

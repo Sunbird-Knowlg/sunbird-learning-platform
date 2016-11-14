@@ -30,12 +30,9 @@ import com.ilimi.dac.enums.CommonDACParams;
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class ConsumerTest {
 
-//	@Autowired
-//	IAuditHistoryDataService auditHistoryDataService;
 	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	private CompositeSearchMessageProcessor messagePrcessor = new CompositeSearchMessageProcessor();
-	//private AuditHistoryMeassageProcessor auditMessageProcessor = new AuditHistoryMeassageProcessor();
 	final static String graphId = "test";
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -115,9 +112,6 @@ public class ConsumerTest {
 		    	Request request = new Request();
 		    	request.put(CommonDACParams.graph_id.name(), graphId);
 		    	request.put(CommonDACParams.object_id.name(), nodeId1);
-//		        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-//		        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-//		        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -130,7 +124,6 @@ public class ConsumerTest {
 			//String nodeId = "test_word_100";
 			String create_node_prp_request=create_node_prop_req.replaceAll("NODEID", nodeId2);
 			messagePrcessor.processMessage(create_node_prp_request);
-			//auditMessageProcessor.processMessage(create_node_prp_request);
 			Thread.sleep(2000);
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(
 						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -147,10 +140,7 @@ public class ConsumerTest {
 	        Request request = new Request();
 	    	request.put(CommonDACParams.graph_id.name(), graphId);
 	    	request.put(CommonDACParams.object_id.name(), nodeId2);
-	        
-//	    	Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-//	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-//	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
+	       
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -161,7 +151,6 @@ public class ConsumerTest {
 		try {
 			String update_node_request1=update_node_req.replaceAll("NODEID", nodeId1);
 			messagePrcessor.processMessage(update_node_request1);
-			//auditMessageProcessor.processMessage(update_node_request1);
 
 			Thread.sleep(2000);
 			 String documentJson = elasticSearchUtil.getDocumentAsStringById(
@@ -179,17 +168,6 @@ public class ConsumerTest {
 	    	Request request = new Request();
 	    	request.put(CommonDACParams.graph_id.name(), graphId);
 	    	request.put(CommonDACParams.object_id.name(), nodeId1);
-//	        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-//	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-//	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
-	        
-//	        List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response.get(CommonDACParams.audit_history_record.name());
-//	        int lastRecordIndex = auditRecords.size()-1;
-//	        Map<String, Object> auditRecord =auditRecords.get(lastRecordIndex);
-//
-//	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
-//	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
-	        
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -201,7 +179,6 @@ public class ConsumerTest {
 		try {
 			String update_node_relation_request=update_relation_req.replaceAll("NODEID", nodeId1).replaceAll("NODEID2", nodeId2);
 			messagePrcessor.processMessage(update_node_relation_request);
-			//auditMessageProcessor.processMessage(update_node_relation_request);
 			
 			Thread.sleep(2000);
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(
@@ -218,17 +195,6 @@ public class ConsumerTest {
 	        Request request = new Request();
 	    	request.put(CommonDACParams.graph_id.name(), graphId);
 	    	request.put(CommonDACParams.object_id.name(), nodeId1);
-//	        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-//	        
-//	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-//	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
-//	        
-//	        List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response.get(CommonDACParams.audit_history_record.name());
-//	        int lastRecordIndex = auditRecords.size()-1;
-//	        Map<String, Object> auditRecord =auditRecords.get(lastRecordIndex);
-//
-//	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
-//	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -239,8 +205,7 @@ public class ConsumerTest {
 		try {
 			String update_node_tag_request=update_tag_req.replaceAll("NODEID", nodeId1);
 			messagePrcessor.processMessage(update_node_tag_request);
-			//auditMessageProcessor.processMessage(update_node_tag_request);
-
+		
 			Thread.sleep(2000);
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(
 						CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
@@ -255,19 +220,7 @@ public class ConsumerTest {
 	        Request request = new Request();
 	    	request.put(CommonDACParams.graph_id.name(), graphId);
 	    	request.put(CommonDACParams.object_id.name(), nodeId1);
-//	        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-//	        
-//	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-//	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
-//	        
-//	        List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response.get(CommonDACParams.audit_history_record.name());
-//	        int lastRecordIndex = auditRecords.size()-1;
-//	        Map<String, Object> auditRecord =auditRecords.get(lastRecordIndex);
-//
-//	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
-//	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
 
-	        
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
