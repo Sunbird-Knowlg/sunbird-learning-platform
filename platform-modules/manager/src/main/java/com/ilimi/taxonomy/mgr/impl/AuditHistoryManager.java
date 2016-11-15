@@ -16,7 +16,6 @@ import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IAuditHistoryDataService;
 import com.ilimi.taxonomy.enums.AuditLogErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
-import com.ilimi.taxonomy.mgr.IContentManager;
 
 /**
  * The Class AuditHistoryManager provides implementations of the various operations
