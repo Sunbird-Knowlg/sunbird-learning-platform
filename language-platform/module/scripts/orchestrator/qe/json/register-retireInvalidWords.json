@@ -1,0 +1,22 @@
+{
+    "name": "lang_qe_retireInvalidWords",
+    "parameters": [
+    	{
+    		"name":"language_id",
+    		"index": 0,
+    		"routingParam": true
+    	},
+    	{
+        	"name": "min",
+        	"index": 1,
+        	"routingParam": false
+    	},
+    	{
+        	"name": "max",
+        	"index": 2,
+        	"routingParam": false
+    	}
+
+	],
+    "body": ""
+}

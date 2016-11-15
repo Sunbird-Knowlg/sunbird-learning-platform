@@ -17,3 +17,5 @@ node registerScript.js qe/updateVarnaCache.tcl qe/json/register-updateVarnaCache
 node registerScript.js qe/getLiveWords.tcl qe/json/register-getLiveWords.json update
 
 node registerScript.js qe/updateThresholdLevel.tcl qe/json/register-updateThresholdLevel.json update
+
+node registerScript.js qe/retireInvalidWords.tcl qe/json/register-retireInvalidWords.json update
