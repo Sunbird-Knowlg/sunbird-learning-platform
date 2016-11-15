@@ -16,6 +16,9 @@ import org.hibernate.annotations.Type;
 
 import com.ilimi.dac.BaseDataAccessEntity;
 
+/** The Class AuditHistoryEntity holds the column names used in mysql DB 
+ * it extends the BaseDataAccessEntity which is base class for data access entites 
+ */
 @Entity
 @Table(name = "AUDIT_HISTORY")
 public class AuditHistoryEntity extends BaseDataAccessEntity {

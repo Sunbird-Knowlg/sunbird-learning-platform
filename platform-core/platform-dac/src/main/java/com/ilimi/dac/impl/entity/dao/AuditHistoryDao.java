@@ -6,9 +6,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import com.ilimi.dac.hibernate.BaseHibernateDao;
 import com.ilimi.dac.impl.entity.AuditHistoryEntity;
 
+@SuppressWarnings("unchecked")
 public class AuditHistoryDao extends BaseHibernateDao<AuditHistoryEntity, Integer> {
 
-    @Autowired
+    @SuppressWarnings("unused")
+	@Autowired
     private JdbcTemplate jdbcTemplate = null;
     
 }

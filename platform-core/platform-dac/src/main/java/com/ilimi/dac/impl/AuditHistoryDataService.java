@@ -29,13 +29,26 @@ import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.entity.AuditHistoryEntity;
 import com.ilimi.dac.impl.entity.dao.AuditHistoryDao;
 
+/**
+ * The Class AuditHistoryDataService provides implementations of the various operations
+ * defined in the IAuditHistoryDataService
+ * It extends BaseDataAccessService  which is base class for DAC services.
+ * 
+ * @author Karthik, Rashmi
+ * 
+ * @see IAuditHistoryDataService
+ */
+
 @Component
 public class AuditHistoryDataService extends BaseDataAccessService implements IAuditHistoryDataService {
 
 	/** The model mapper. */
 	private ModelMapper modelMapper = null;
+	
+	/** The Object mapper */
 	private ObjectMapper objecMapper = null;
 
+    /** This is the init method for the AuditHistoryDataService */	
 	public AuditHistoryDataService() {
 		modelMapper = new ModelMapper();
 		TransformationHelper.createTypeMap(modelMapper, AuditHistoryRecord.class, AuditHistoryEntity.class);
@@ -44,12 +57,17 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		// false);
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a z");
 		objecMapper.setDateFormat(df);
-
 	}
 
 	@Autowired
 	AuditHistoryDao dao = null;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #saveAuditHistoryLog(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Transactional
 	public Response saveAuditHistoryLog(Request request) {
 		AuditHistoryRecord auditRecord = (AuditHistoryRecord) request.get(CommonDACParams.audit_history_record.name());
@@ -60,6 +78,12 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditHistoryLog(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Transactional
 	public Response getAuditHistoryLog(Request request) {
 
@@ -78,6 +102,12 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		return OK(CommonDACParams.audit_history_record.name(), getAllResponseObject(auditHistoryRecords));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditHistoryLogByObjectType(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Transactional
 	public Response getAuditHistoryLogByObjectType(Request request) {
 
@@ -101,6 +131,12 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditHistoryLogByObjectId(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Transactional
 	public Response getAuditHistoryLogByObjectId(Request request) {
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
@@ -124,6 +160,12 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditLogRecordByAuditId(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Transactional
 	public Response getAuditLogRecordByAuditId(Request request) {
 		String audit_id = (String) request.get(CommonDACParams.audit_id.name());
@@ -145,20 +187,31 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
 	}
 
+	/**
+	 * This method is used to get the ResponseObject in required format
+	 * 
+	 * @param List of AuditHistoryRecords
+	 *                The records
+	 * @return ResponseObject which holds the actual result of the operation
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map<String, Object>> getResponseObject(List<AuditHistoryRecord> records) {
+		
 		List<Map<String, Object>> respObj = new ArrayList<Map<String, Object>>();
 		objecMapper = new ObjectMapper();
 		HashMap<String, Object> summary = new HashMap<String, Object>();
+		
 		for (AuditHistoryRecord record : records) {
 			Map<String, Object> props = objecMapper.convertValue(record, Map.class);
 			Object logRecordObj = props.get("logRecord");
 			String summaryRecordObj = (String) props.get("summary");
+			
 			if (logRecordObj != null && logRecordObj instanceof String) {
 				Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
 				Map logRecordProps = gson.fromJson(logRecordObj.toString(), Map.class);
 				props.put("logRecord", logRecordProps);
 			}
+			
 			if (summaryRecordObj != null && summaryRecordObj instanceof String) {
 				TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
 				};
@@ -174,6 +227,13 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		return respObj;
 	}
 
+	/**
+	 * This method is used to get the ResponseObject in required format
+	 * 
+	 * @param List of AuditHistoryRecords
+	 *                The records
+	 * @return ResponseObject which holds the actual result of the operation
+	 */
 	@SuppressWarnings({ "unchecked" })
 	private List<Map<String, Object>> getAllResponseObject(List<AuditHistoryRecord> records) {
 		objecMapper = new ObjectMapper();

@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.searchindex.processor.AuditHistoryMeassageProcessor;
+import org.ekstep.searchindex.processor.AuditHistoryMessageProcessor;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -34,20 +34,20 @@ public class AuditHistoryConsumerTest {
 
 	@Autowired
 	IAuditHistoryDataService auditHistoryDataService;
-	private AuditHistoryMeassageProcessor auditMessageProcessor = new AuditHistoryMeassageProcessor();
+	private AuditHistoryMessageProcessor auditMessageProcessor = new AuditHistoryMessageProcessor();
 	final static String graphId = "test";
-	
+
 	@SuppressWarnings("unused")
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	static {
-        RequestRouterPool.getActorSystem();
-        try {
+		RequestRouterPool.getActorSystem();
+		try {
 			ConsumerRunner.startConsumers();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        
+
 	}
 
 	final static Map<String, String> outRelationDefinition = new HashMap<>();
@@ -58,11 +58,11 @@ public class AuditHistoryConsumerTest {
 	final static String update_node_req = "{\"nodeGraphId\":2,\"operationType\":\"UPDATE\",\"requestId\":\"2d6191ed-f3fb-4a9e-aa61-865157bef664\",\"graphId\":\"test\",\"userId\":\"ANONYMOUS\",\"transactionData\":{\"properties\":{\"thresholdLevel\":{\"ov\":null,\"nv\":\"5\"},\"grade\":{\"ov\":null,\"nv\":\"1\"},\"lastUpdatedOn\":{\"ov\":\"2016-06-13T08:19:13.465+0530\",\"nv\":\"2016-06-13T08:19:37.760+0530\"}}},\"label\":\"dummyLemmaTest_1\",\"nodeUniqueId\":\"NODEID\",\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\"}";
 	final static String update_relation_req = "{\"nodeGraphId\":2,\"operationType\":\"UPDATE\",\"requestId\":\"2d6191ed-f3fb-4a9e-aa61-865157bef664\",\"graphId\":\"test\",\"userId\":\"ANONYMOUS\",\"transactionData\":{\"removedRelations\":[{\"id\":\"NODEID2\",\"dir\":\"OUT\",\"label\":\"dummyLemma2\",\"rel\":\"hasAntonym\",\"type\":\"Word\"}],\"addedTags\":[],\"addedRelations\":[{\"id\":\"NODEID2\",\"dir\":\"OUT\",\"label\":\"dummyLemma2\",\"rel\":\"hasHypernym\",\"type\":\"Word\"},{\"id\":\"NODEID2\",\"dir\":\"OUT\",\"label\":\"dummyLemma2\",\"rel\":\"hasHypernym\",\"type\":\"Word\"}],\"properties\":{},\"removedTags\":[]},\"label\":\"dummyLemmaTest_1\",\"nodeUniqueId\":\"NODEID\",\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\"}";
 	final static String update_tag_req = "{\"nodeGraphId\":2,\"operationType\":\"UPDATE\",\"requestId\":\"78709d31-afd6-4f84-9108-22baa7717106\",\"graphId\":\"test\",\"userId\":\"ANONYMOUS\",\"transactionData\":{\"addedTags\":[\"TestLanguage\"],\"properties\":{},\"removedTags\":[]},\"label\":\"dummyLemmaTest_1\",\"nodeUniqueId\":\"NODEID\",\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\"}";
-	
+
 	private static String nodeId1;
 	private static String nodeId2;
 
-	static{
+	static {
 		outRelationDefinition.put("OUT_Word_hasAntonym", "antonyms");
 		outRelationDefinition.put("OUT_Word_hasHypernym", "hypernyms");
 		Map<String, Object> objectMap = new HashMap<>();
@@ -84,120 +84,130 @@ public class AuditHistoryConsumerTest {
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	public void create(){
+	public void create() {
 		try {
-			nodeId1 = "test_word" +System.currentTimeMillis() + "_" + Thread.currentThread().getId();
-			String create_node_request1=create_node_req.replaceAll("NODEID", nodeId1);
+			nodeId1 = "test_word" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
+			String create_node_request1 = create_node_req.replaceAll("NODEID", nodeId1);
 			auditMessageProcessor.processMessage(create_node_request1);
 			Thread.sleep(2000);
-		    	Request request = new Request();
-		    	request.put(CommonDACParams.graph_id.name(), graphId);
-		    	request.put(CommonDACParams.object_id.name(), nodeId1);
-		        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-		        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-		        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
+			Request request = new Request();
+			request.put(CommonDACParams.graph_id.name(), graphId);
+			request.put(CommonDACParams.object_id.name(), nodeId1);
+			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
+			Assert.assertNotNull("Node is not inserted into AuditLogs",
+					response.get(CommonDACParams.audit_history_record.name()));
+			Assert.assertFalse("Node is not inserted into AuditLogs",
+					CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	@Test
-	public void createNodeProperties(){
+	public void createNodeProperties() {
 		try {
-			nodeId2 = "test_word" +System.currentTimeMillis() + "_" + Thread.currentThread().getId();
-			String create_node_prp_request=create_node_prop_req.replaceAll("NODEID", nodeId2);
+			nodeId2 = "test_word" + System.currentTimeMillis() + "_" + Thread.currentThread().getId();
+			String create_node_prp_request = create_node_prop_req.replaceAll("NODEID", nodeId2);
 			auditMessageProcessor.processMessage(create_node_prp_request);
 			Thread.sleep(2000);
-	        Request request = new Request();
-	    	request.put(CommonDACParams.graph_id.name(), graphId);
-	    	request.put(CommonDACParams.object_id.name(), nodeId2);
-	        
-	    	Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
+			Request request = new Request();
+			request.put(CommonDACParams.graph_id.name(), graphId);
+			request.put(CommonDACParams.object_id.name(), nodeId2);
+
+			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
+			Assert.assertNotNull("Node is not inserted into AuditLogs",
+					response.get(CommonDACParams.audit_history_record.name()));
+			Assert.assertFalse("Node is not inserted into AuditLogs",
+					CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	public void update(){
+	public void update() {
 		try {
-			String update_node_request1=update_node_req.replaceAll("NODEID", nodeId1);
+			String update_node_request1 = update_node_req.replaceAll("NODEID", nodeId1);
 			auditMessageProcessor.processMessage(update_node_request1);
-	    	Request request = new Request();
-	    	request.put(CommonDACParams.graph_id.name(), graphId);
-	    	request.put(CommonDACParams.object_id.name(), nodeId1);
-	        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
-	        
-	        List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response.get(CommonDACParams.audit_history_record.name());
-	        int lastRecordIndex = auditRecords.size()-1;
-	        Map<String, Object> auditRecord =auditRecords.get(lastRecordIndex);
+			Request request = new Request();
+			request.put(CommonDACParams.graph_id.name(), graphId);
+			request.put(CommonDACParams.object_id.name(), nodeId1);
+			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
+			Assert.assertNotNull("Node is not inserted into AuditLogs",
+					response.get(CommonDACParams.audit_history_record.name()));
+			Assert.assertFalse("Node is not inserted into AuditLogs",
+					CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
 
-	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
-	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
-	        
+			List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response
+					.get(CommonDACParams.audit_history_record.name());
+			int lastRecordIndex = auditRecords.size() - 1;
+			Map<String, Object> auditRecord = auditRecords.get(lastRecordIndex);
+
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-	public void updateNodeRelation(){
+	public void updateNodeRelation() {
 		try {
-			String update_node_relation_request=update_relation_req.replaceAll("NODEID", nodeId1).replaceAll("NODEID2", nodeId2);
+			String update_node_relation_request = update_relation_req.replaceAll("NODEID", nodeId1)
+					.replaceAll("NODEID2", nodeId2);
 			auditMessageProcessor.processMessage(update_node_relation_request);
-	        Request request = new Request();
-	    	request.put(CommonDACParams.graph_id.name(), graphId);
-	    	request.put(CommonDACParams.object_id.name(), nodeId1);
-	        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-	        
-	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
-	        
-	        List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response.get(CommonDACParams.audit_history_record.name());
-	        int lastRecordIndex = auditRecords.size()-1;
-	        Map<String, Object> auditRecord =auditRecords.get(lastRecordIndex);
+			Request request = new Request();
+			request.put(CommonDACParams.graph_id.name(), graphId);
+			request.put(CommonDACParams.object_id.name(), nodeId1);
+			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
 
-	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
-	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
+			Assert.assertNotNull("Node is not inserted into AuditLogs",
+					response.get(CommonDACParams.audit_history_record.name()));
+			Assert.assertFalse("Node is not inserted into AuditLogs",
+					CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
+
+			List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response
+					.get(CommonDACParams.audit_history_record.name());
+			int lastRecordIndex = auditRecords.size() - 1;
+			Map<String, Object> auditRecord = auditRecords.get(lastRecordIndex);
+
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
-	public void updateNodeTag(){
+	public void updateNodeTag() {
 		try {
-			String update_node_tag_request=update_tag_req.replaceAll("NODEID", nodeId1);
-			auditMessageProcessor.processMessage(update_node_tag_request);        
-	        Request request = new Request();
-	    	request.put(CommonDACParams.graph_id.name(), graphId);
-	    	request.put(CommonDACParams.object_id.name(), nodeId1);
-	        Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-	        
-	        Assert.assertNotNull( "Node is not inserted into AuditLogs", response.get(CommonDACParams.audit_history_record.name()));
-	        Assert.assertFalse("Node is not inserted into AuditLogs", CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
-	        
-	        List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response.get(CommonDACParams.audit_history_record.name());
-	        int lastRecordIndex = auditRecords.size()-1;
-	        Map<String, Object> auditRecord =auditRecords.get(lastRecordIndex);
+			String update_node_tag_request = update_tag_req.replaceAll("NODEID", nodeId1);
+			auditMessageProcessor.processMessage(update_node_tag_request);
+			Request request = new Request();
+			request.put(CommonDACParams.graph_id.name(), graphId);
+			request.put(CommonDACParams.object_id.name(), nodeId1);
+			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
 
-	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
-	        Assert.assertEquals( "updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
+			Assert.assertNotNull("Node is not inserted into AuditLogs",
+					response.get(CommonDACParams.audit_history_record.name()));
+			Assert.assertFalse("Node is not inserted into AuditLogs",
+					CollectionUtils.isEmpty((Collection) response.get(CommonDACParams.audit_history_record.name())));
 
-	        
+			List<Map<String, Object>> auditRecords = (List<Map<String, Object>>) response
+					.get(CommonDACParams.audit_history_record.name());
+			int lastRecordIndex = auditRecords.size() - 1;
+			Map<String, Object> auditRecord = auditRecords.get(lastRecordIndex);
+
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}	
-
-    
+	}
 }

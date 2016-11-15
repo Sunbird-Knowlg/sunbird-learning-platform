@@ -15,15 +15,40 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
+/**
+ * The Class AuditHistoryController, is the main entry point for the High Level
+ * Audit Operations, mostly it holds the API Method related to Audit Logs
+ * Workflow Management
+ * 
+ * All the Methods are backed by their corresponding manager classes, which have the
+ * actual logic to communicate with the middleware and core level APIs.
+ * 
+ * @author Karthik, Rashmi
+ */
+
 @Controller
 @RequestMapping("/v1/audit")
 public class AuditHistoryController extends BaseController {
 
+	/** The Logger */
 	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryController.class.getName());
 
 	@Autowired
 	private IAuditHistoryManager auditHistoryManager;
 
+	/**
+	 * This method carries all the tasks related to 'getAllLogs' operation of
+	 * AuditHistory work-flow.
+	 * 
+	 * @param graphId
+	 *            The graphId for which the Audit History needs to be fetched
+	 *            
+	 * @param userId
+	 *            Unique id of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
+	 *            
+	 * @return The Response entity with details of All AuditLogs in its ResultSet
+	 */
 	@RequestMapping(value = "/{graphId:.+}/all", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getAll(@PathVariable(value = "graphId") String graphId,
@@ -44,6 +69,24 @@ public class AuditHistoryController extends BaseController {
 		}
 	}
 
+	/**
+	 * This method carries all the tasks related to 'get AuditLogs By objectId' operation of
+	 * AuditHistory work-flow.
+	 * 
+	 *
+	 * @param graphId
+	 *            The graphId for which the Audit History needs to be fetched
+	 *            
+	 * @param objectId
+	 *            The objectId  for whose AuditLogs to be fetched      
+	 *                 
+	 * @param userId
+	 *            Unique id of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
+	 *            
+	 * @return The Response entity with details of All AuditLog for a given objectId
+	 *  in its ResultSet
+	 */
 	@RequestMapping(value = "/history/{graphId:.+}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getById(@PathVariable(value = "graphId") String graphId,
@@ -65,6 +108,23 @@ public class AuditHistoryController extends BaseController {
 		}
 	}
 
+	/**
+	 * This method carries all the tasks related to 'get Audit Logs By ObjectType' operation of
+	 * AuditHistory work-flow.
+	 * 
+	 * @param graphId
+	 *            The graphId for which the Audit History needs to be fetched
+	 *            
+	 * @param objectype
+	 *           The objectType for a given graphId from which Audit Logs to be fetched
+	 *           
+	 * @param userId
+	 *            Unique id of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
+	 *            
+	 * @return The Response entity with details of All AuditLogs for a given ObjectType
+	 *  in its ResultSet
+	 */
 	@RequestMapping(value = "/{graphId:.+}/{objectType:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getByType(@PathVariable(value = "graphId") String graphId,
@@ -86,6 +146,23 @@ public class AuditHistoryController extends BaseController {
 		}
 	}
 
+	/**
+	 * This method carries all the tasks related to 'get LogRecord By AuditId' operation of
+	 * AuditHistory work-flow.
+	 * 
+	 * @param graphId
+	 *            The graphId for which the Audit History needs to be fetched
+	 *            
+	 * @param auditId
+	 *  	    The auditId for which the audit Log record needs to be fetched
+	 *  
+	 * @param userId
+	 *            Unique id of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
+	 *            
+	 * @return The Response entity with details of All Audit LogRecord for a given AuditId
+	 *  in its ResultSet
+	 */
 	@RequestMapping(value = "/details/{auditId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "auditId") String auditId,

@@ -16,13 +16,28 @@ import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IAuditHistoryDataService;
 import com.ilimi.taxonomy.enums.AuditLogErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
+import com.ilimi.taxonomy.mgr.IContentManager;
 
+/**
+ * The Class AuditHistoryManager provides implementations of the various operations
+ * defined in the IAuditHistoryManager
+ * 
+ * @author Karthik, Rashmi
+ * 
+ * @see IAuditHistoryManager
+ */
 @Component("auditHistoryManager")
 public class AuditHistoryManager implements IAuditHistoryManager {
 
 	@Autowired
 	IAuditHistoryDataService auditHistoryDataService;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #saveAuditHistory(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Override
 	// @Async
 	public void saveAuditHistory(AuditHistoryRecord audit) {
@@ -40,6 +55,12 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditHistory(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Override
 	public Response getAuditHistory(String graphId, String startTime, String endTime) {
 
@@ -63,6 +84,12 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		return response;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditHistoryByType(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Override
 	public Response getAuditHistoryByType(String graphId, String objectType, String startTime, String endTime) {
 		Request request = new Request();
@@ -86,6 +113,12 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		return response;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditHistoryById(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Override
 	public Response getAuditHistoryById(String graphId, String objectId, String startTime, String endTime) {
 		Request request = new Request();
@@ -109,6 +142,12 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		return response;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditLogRecordByAuditId(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Override
 	public Response getAuditLogRecordByAuditId(String audit_id, String startTime, String endTime) {
 		Request request = new Request();
