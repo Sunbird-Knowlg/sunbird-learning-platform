@@ -11,9 +11,11 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IAuditHistoryDataService;
+import com.ilimi.taxonomy.controller.AuditHistoryController;
 import com.ilimi.taxonomy.enums.AuditLogErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
@@ -30,6 +32,9 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 
 	@Autowired
 	IAuditHistoryDataService auditHistoryDataService;
+	
+	/** The Logger */
+	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryController.class.getName());
 
 	/*
 	 * (non-Javadoc)
@@ -61,10 +66,11 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response getAuditHistory(String graphId, String startTime, String endTime) {
-
+	public Response getAuditHistory(String graphId, String startTime, String endTime, String versionId) {
 		Request request = new Request();
-		request.put(CommonDACParams.graph_id.name(), graphId);
+		if(null != graphId){
+			request.put(CommonDACParams.graph_id.name(), graphId);
+		}
 		Date startDate = null;
 		Date endDate = null;
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -74,12 +80,13 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 				endDate = df.parse(endTime);
 			}
 		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 
 		request.put(CommonDACParams.start_date.name(), startDate);
 		request.put(CommonDACParams.end_date.name(), endDate);
 
-		Response response = auditHistoryDataService.getAuditHistoryLog(request);
+		Response response = auditHistoryDataService.getAuditHistoryLog(request, versionId);
 		return response;
 	}
 
@@ -90,10 +97,45 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response getAuditHistoryByType(String graphId, String objectType, String startTime, String endTime) {
+	public Response getAuditHistoryByType(String graphId, String objectType, String startTime, String endTime, String versionId) {
 		Request request = new Request();
-		request.put(CommonDACParams.graph_id.name(), graphId);
-		request.put(CommonDACParams.object_type.name(), objectType);
+		if(null != graphId && null != objectType){
+			request.put(CommonDACParams.graph_id.name(), graphId);
+			request.put(CommonDACParams.object_type.name(), objectType);
+		}
+		Date startDate = null;
+		Date endDate = null;
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		try {
+			startDate = df.parse(startTime);
+			if (endTime != null) {
+				endDate = df.parse(endTime);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+
+		request.put(CommonDACParams.start_date.name(), startDate);
+		request.put(CommonDACParams.end_date.name(), endDate);
+
+		Response response = auditHistoryDataService.getAuditHistoryLogByObjectType(request, versionId);
+		return response;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditHistoryById(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
+	@Override
+	public Response getAuditHistoryById(String graphId, String objectId, String startTime, String endTime, String versionId) {
+		Request request = new Request();
+		
+		if(null != graphId && null != objectId){
+			request.put(CommonDACParams.graph_id.name(), graphId);
+			request.put(CommonDACParams.object_type.name(), objectId);
+		}
 		Date startDate = null;
 		Date endDate = null;
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -108,20 +150,19 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		request.put(CommonDACParams.start_date.name(), startDate);
 		request.put(CommonDACParams.end_date.name(), endDate);
 
-		Response response = auditHistoryDataService.getAuditHistoryLogByObjectType(request);
+		Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request, versionId);
 		return response;
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditHistoryById(java.lang.String,
+	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditLogRecordById(java.lang.String,
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response getAuditHistoryById(String graphId, String objectId, String startTime, String endTime) {
+	public Response getAuditLogRecordById(String objectId, String startTime, String endTime, String versionId) {
 		Request request = new Request();
-		request.put(CommonDACParams.graph_id.name(), graphId);
 		request.put(CommonDACParams.object_id.name(), objectId);
 		Date startDate = null;
 		Date endDate = null;
@@ -133,39 +174,10 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			}
 		} catch (Exception ex) {
 		}
+		request.put(CommonDACParams.start_time.name(), startDate);
+		request.put(CommonDACParams.end_time.name(), endDate);
 
-		request.put(CommonDACParams.start_date.name(), startDate);
-		request.put(CommonDACParams.end_date.name(), endDate);
-
-		Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request);
-		return response;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.ilimi.taxonomy.mgr.IAuditHistoryManager #getAuditLogRecordByAuditId(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
-	 */
-	@Override
-	public Response getAuditLogRecordByAuditId(String audit_id, String startTime, String endTime) {
-		Request request = new Request();
-		request.put(CommonDACParams.audit_id.name(), audit_id);
-		Date startDate = null;
-		Date endDate = null;
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-		try {
-			startDate = df.parse(startTime);
-			if (endTime != null) {
-				endDate = df.parse(endTime);
-			}
-		} catch (Exception ex) {
-		}
-
-		request.put(CommonDACParams.start_date.name(), startDate);
-		request.put(CommonDACParams.end_date.name(), endDate);
-
-		Response response = auditHistoryDataService.getAuditLogRecordByAuditId(request);
+		Response response = auditHistoryDataService.getAuditLogRecordById(request, versionId);
 		return response;
 	}
 }

@@ -1,6 +1,5 @@
 package org.ekstep.searchindex.processor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,8 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
@@ -93,8 +91,8 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	 */
 	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) {
 		AuditHistoryRecord record = new AuditHistoryRecord();
-
-		try {
+        LOGGER.info("Setting the audit history fields from transactionData" + transactionDataMap);
+        try {
 			record.setUserId((String) transactionDataMap.get("userId"));
 			record.setRequestId((String) transactionDataMap.get("requestId"));
 			record.setObjectId((String) transactionDataMap.get("nodeUniqueId"));
@@ -102,12 +100,12 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			record.setGraphId((String) transactionDataMap.get("graphId"));
 			record.setOperation((String) transactionDataMap.get("operationType"));
 			record.setLabel((String) transactionDataMap.get("label"));
-			String transactionDataStr = mapper.writeValueAsString(transactionDataMap.get("transactionData"));
-			record.setLogRecord(transactionDataStr);
-			String summary = setSummaryData(transactionDataStr);
+			record.setLogRecord((String) (transactionDataMap.get("transactionData")));
+			String summary = setSummaryData(transactionDataMap);
 			record.setSummary(summary);
 			record.setCreatedOn(new Date());
-		} catch (IOException e) {
+		} catch (Exception e) {
+			LOGGER.error("Error while setting the transactionData to mysql db" + e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return record;
@@ -123,7 +121,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	 * @return summary
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public String setSummaryData(String transactionDataStr) {
+	public String setSummaryData(Map<String, Object> transactionDataMap) {
 
 		Map<String, Object> summaryData = new HashMap<String, Object>();
 		Map<String, Integer> relations = new HashMap<String, Integer>();
@@ -131,17 +129,15 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		Map<String, Object> properties = new HashMap<String, Object>();
 
 		List<String> fields = new ArrayList<String>();
-		TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
-		};
-		HashMap<String, Object> transactionMap;
+		Map<String, Object> transactionMap;
 		String summaryResult = null;
 		try {
-			transactionMap = mapper.readValue(transactionDataStr, typeRef);
+			LOGGER.info("setting the summary from transactionData" + transactionDataMap);
+			transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
 			for (Map.Entry<String, Object> entry : transactionMap.entrySet()) {
-
-				if (entry.getKey().equals("addedRelations")) {
+				if (StringUtils.equalsIgnoreCase("addedRelations", entry.getKey())) {
 					List<Object> list = (List) entry.getValue();
-					if (!list.isEmpty()) {
+					if (null != list && !list.isEmpty()) {
 
 						relations.put("addedRelations", list.size());
 					} else {
@@ -149,18 +145,18 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 					}
 					summaryData.put("relations", relations);
 
-				} else if (entry.getKey().equals("removedRelations")) {
+				} else if (StringUtils.equalsIgnoreCase("removedRelations", entry.getKey())) {
 					List<Object> list = (List) entry.getValue();
-					if (!list.isEmpty()) {
+					if (null != list && !list.isEmpty()) {
 						relations.put("removedRelations", list.size());
 					} else {
 						relations.put("removedRelations", 0);
 					}
 					summaryData.put("relations", relations);
 
-				} else if (entry.getKey().equals("addedTags")) {
+				} else if (StringUtils.equalsIgnoreCase("addedTags", entry.getKey())) {
 					List<Object> list = (List) entry.getValue();
-					if (!list.isEmpty()) {
+					if (null != list && !list.isEmpty()) {
 						list.add(entry.getValue());
 						tags.put("addedTags", list.size());
 					} else {
@@ -168,9 +164,9 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 					}
 					summaryData.put("tags", tags);
 
-				} else if (entry.getKey().equals("removedTags")) {
+				} else if (StringUtils.equalsIgnoreCase("removedTags", entry.getKey())) {
 					List<Object> list = (List) entry.getValue();
-					if (!list.isEmpty()) {
+					if (null != list && !list.isEmpty()) {
 						list.add(entry.getValue());
 						tags.put("removedTags", list.size());
 					} else {
@@ -178,14 +174,17 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 					}
 					summaryData.put("tags", tags);
 
-				} else if (entry.getKey().equals("properties")) {
-					if (!entry.getValue().toString().isEmpty()) {
-						String props = mapper.writeValueAsString(entry.getValue());
-						HashMap<String, Object> propsMap = mapper.readValue(props, typeRef);
-
+				} else if (StringUtils.equalsIgnoreCase("properties",entry.getKey())) {
+					if (StringUtils.isNotBlank(entry.getValue().toString())) {
+						Map<String, Object> propsMap = (Map<String, Object>) entry.getValue();
 						Set<String> propertiesSet = propsMap.keySet();
-						for (String s : propertiesSet) {
-							fields.add(s);
+						if(null!= propertiesSet) {
+							for (String s : propertiesSet) {
+								fields.add(s);
+							}
+						}
+						else{
+							properties.put("count", 0);
 						}
 					}
 					properties.put("count", fields.size());
@@ -195,7 +194,8 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			}
 		     summaryResult = mapper.writeValueAsString(summaryData);
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
+			LOGGER.error("Error while setting the summary info to mysql db"+ e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return summaryResult;
