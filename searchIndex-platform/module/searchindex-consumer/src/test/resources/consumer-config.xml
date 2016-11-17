@@ -11,7 +11,7 @@
 				<Consumer partitions="6,7,8,9,10" />
 			</Consumers>
 		</ConsumerGroup>
-		<ConsumerGroup id="Audit-History-group" messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMeassageProcessor">
+		<ConsumerGroup id="Audit-History-group" messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMessageProcessor">
 			<Consumers>
 				<Consumer partitions="0,1,2,3,4,5" />
 				<Consumer partitions="6,7,8,9,10" />
