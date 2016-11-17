@@ -31,9 +31,10 @@ public interface IAuditHistoryManager {
 	 *            The start Time
 	 * @param timestamp2
 	 *            The end Time
+     * @param endTime 
 	 * @return the response which contains all AuditHistoryLogs 
 	 */
-    Response getAuditHistory(String graphId,String timestamp1,String timestamp2);
+    Response getAuditHistory(String graphId,String timestamp1,String timestamp2, String versionId);
     
     /**
 	 * This method carries the entire operation of fetching AuditHistory Logs for a given ObjectType
@@ -50,7 +51,7 @@ public interface IAuditHistoryManager {
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given ObjectType
 	 */
-    Response getAuditHistoryByType(String graphId, String objectType,String timeStamp1,String timeStamp2);
+    Response getAuditHistoryByType(String graphId, String objectType,String timeStamp1,String timeStamp2, String versionId);
     
     /**
 	 * This method carries the entire operation of fetching AuditHistory Logs for a given ObjectId
@@ -67,7 +68,7 @@ public interface IAuditHistoryManager {
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given ObjectId
 	 */
-    Response getAuditHistoryById(String graphId, String objectId,String timeStamp1,String timeStamp2);
+    Response getAuditHistoryById(String graphId, String objectId,String timeStamp1,String timeStamp2, String versionId);
 
     /**
 	 * This method carries the entire operation of fetching AuditHistory Logs for a given auditId
@@ -84,6 +85,6 @@ public interface IAuditHistoryManager {
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given auditId
 	 */
-	Response getAuditLogRecordByAuditId(String audit_id, String startTime, String endTime);
+	Response getAuditLogRecordById(String objectId, String startTime, String endTime, String versionId);
 
 }

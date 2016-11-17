@@ -31,11 +31,12 @@ public interface IAuditHistoryDataService {
 	 *            The end Time
 	 * @return the response which contains all AuditHistoryLogs 
 	 */
-    public Response getAuditHistoryLog(Request request);
+    public Response getAuditHistoryLog(Request request, String versionId);
 
     /**
 	 * This method carries the entire operation of fetching AuditHistory Logs for a given ObjectType
 	 * from mysql DB based on the requestBody sent from the AuditHistoryManager
+     * @param versionId 
 	 *
 	 * @param graphId
 	 *            The graph id
@@ -47,7 +48,7 @@ public interface IAuditHistoryDataService {
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given ObjectType
 	 */
-    public Response getAuditHistoryLogByObjectType(Request request);
+    public Response getAuditHistoryLogByObjectType(Request request, String versionId);
     
     /**
    	 * This method carries the entire operation of fetching AuditHistory Logs for a given ObjectId
@@ -63,7 +64,7 @@ public interface IAuditHistoryDataService {
    	 *            The end Time
    	 * @return the response which contains AuditHistoryLogs for an given ObjectId
    	 */
-    public Response getAuditHistoryLogByObjectId(Request request);
+    public Response getAuditHistoryLogByObjectId(Request request,String versionId);
 
     /**
 	 * This method carries the entire operation of fetching AuditHistory Logs for a given auditId
@@ -79,6 +80,6 @@ public interface IAuditHistoryDataService {
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given auditId
 	 */
-	public Response getAuditLogRecordByAuditId(Request request);
+	public Response getAuditLogRecordById(Request request, String versionId);
 
 }
