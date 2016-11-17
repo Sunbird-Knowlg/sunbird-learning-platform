@@ -116,7 +116,7 @@
 							<ignoreTrivial>true</ignoreTrivial>
 							<excludes>
 								<exclude>**/ConsumerThread**</exclude>
-								<exclude>**/AuditHistoryMeassageProcessor**</exclude>
+								<exclude>**/AuditHistoryMessageProcessor**</exclude>
 								<exclude>**/WordCountMessageProcessor**</exclude>
 							</excludes>
 						</instrumentation>
