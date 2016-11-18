@@ -8,13 +8,31 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
+/**
+ * A factory for creating ContentMimeType objects.
+ * 
+ * @author Mohammad Azharuddin
+ */
 @Component
 public class ContentMimeTypeFactory {
+	
+	/** The ECML mime type mgr. */
 	@Autowired @Qualifier("ECMLMimeTypeMgrImpl") IMimeTypeManager ECMLMimeTypeMgr;
+    
+    /** The HTML mime type mgr. */
     @Autowired @Qualifier("HTMLMimeTypeMgrImpl") IMimeTypeManager HTMLMimeTypeMgr;
+    
+    /** The APK mime type mgr. */
     @Autowired @Qualifier("APKMimeTypeMgrImpl") IMimeTypeManager APKMimeTypeMgr;
+    
+    /** The Collection mime type mgr. */
     @Autowired @Qualifier("CollectionMimeTypeMgrImpl") IMimeTypeManager CollectionMimeTypeMgr;
+    
+    /** The Assets mime type mgr. */
     @Autowired @Qualifier("AssetsMimeTypeMgrImpl") IMimeTypeManager AssetsMimeTypeMgr;
+    
+    /** The Plugin mime type mgr impl. */
+    @Autowired @Qualifier("PluginMimeTypeMgrImpl") IMimeTypeManager PluginMimeTypeMgrImpl;
     
     /**
      * Gets the impl for service.
@@ -40,6 +58,9 @@ public class ContentMimeTypeFactory {
 				break;
 			case "assets":
 				manager = AssetsMimeTypeMgr;
+				break;
+			case "application/vnd.ekstep.plugin-archive":
+				manager = PluginMimeTypeMgrImpl;
 				break;
 			default:
 				manager = AssetsMimeTypeMgr;

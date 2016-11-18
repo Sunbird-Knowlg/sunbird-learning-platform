@@ -29,7 +29,7 @@ import scala.concurrent.Future;
  * Mime-Type as <code>application/vnd.ekstep.ecml-archive</code> or for ECML
  * Content.
  * 
- * @author Azhar
+ * @author Mohammad Azharuddin
  * 
  * @see IMimeTypeManager
  * @see HTMLMimeTypeMgrImpl
