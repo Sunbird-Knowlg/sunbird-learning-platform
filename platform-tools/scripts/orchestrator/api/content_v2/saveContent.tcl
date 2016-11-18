@@ -1,7 +1,8 @@
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
-java::import -package com.ilimi.graph.dac.model Node
+java::import -package java.util HashSet Set
+java::import -package com.ilimi.graph.dac.model Node Relation
 
 proc proc_isEmpty {value} {
 	set exist false
@@ -21,6 +22,69 @@ proc proc_isEmpty {value} {
     	set exist true
 	}
 	return $exist
+}
+
+proc proc_isNotEmpty {relations} {
+	set exist false
+	set hasRelations [java::isnull $relations]
+	if {$hasRelations == 0} {
+		set relationsSize [$relations size] 
+		if {$relationsSize > 0} {
+			set exist true
+		}
+	}
+	return $exist
+}
+
+proc proc_getItemSetConcepts {graphId content} {
+	set concepts [java::new HashSet]
+	set conceptIds [java::new ArrayList]
+	set item_sets [$content get "item_sets"]
+	set item_sets_null [java::isnull $item_sets]
+	if {$item_sets_null == 0} {
+		set item_ids [java::new ArrayList]
+		set item_sets [java::cast List $item_sets]
+		java::for {Object item_set} $item_sets {
+			set item_set [java::cast Map $item_set]
+			set item_set_id [$item_set get "identifier"]
+			set setResponse [getSetMembers $graphId $item_set_id]
+			set member_ids [get_resp_value $setResponse "members"]
+			set member_ids_null [java::isnull $member_ids]
+			if {$member_ids_null == 0} {
+				set member_ids [java::cast List $member_ids]
+				$item_ids addAll $member_ids
+			}
+		}
+		set item_ids_size [$item_ids size]
+		if {[$item_ids size] >= 0} {
+			set item_nodes_response [getDataNodes $graphId $item_ids]
+			set item_nodes [get_resp_value $item_nodes_response "node_list"]
+			set item_nodes_null [java::isnull $item_nodes]
+			if {$item_nodes_null == 0} {
+				java::for {Node item_node} $item_nodes {
+					set outRelations [java::prop $item_node "outRelations"]
+					set hasOutRelations [proc_isNotEmpty $outRelations]
+					if {$hasOutRelations} {
+						java::for {Relation relation} $outRelations {
+							if {[java::prop $relation "endNodeObjectType"] == "Concept" && [java::prop $relation "relationType"] == "associatedTo"} {
+								set conceptMetadata [java::prop $relation "endNodeMetadata"]
+								set conceptStatus [$conceptMetadata get "status"]
+								set conceptStatus [java::new String [$conceptStatus toString]]
+								set statusCheck [$conceptStatus equalsIgnoreCase "Live"]
+								if {$statusCheck == 1} {
+									set concept_id [java::prop $relation "endNodeId"]
+									$concepts add $concept_id
+								}
+							}
+						}
+					}
+				}
+				$conceptIds addAll $concepts
+				set conceptIds_size [$conceptIds size]
+			}
+		}
+	}
+	return $conceptIds
 }
 
 set object_null [java::isnull $content]
@@ -58,7 +122,22 @@ if {$object_null == 1} {
 		} else {
 			set domain_obj [convert_to_graph_node $content $def_node]
 			set create_response [createDataNode $graph_id $domain_obj]
-			return $create_response
+			set check_error [check_response_error $create_response]
+			if {$check_error} {
+				return $create_response
+			} else {
+				set content_id [get_resp_value $create_response "node_id"]
+				set concept_ids [proc_getItemSetConcepts $graph_id $content]
+				if {[$concept_ids size] > 0} {
+					set relationName [java::new String "associatedTo"]
+					set addRelResponse [addOutRelations $graph_id $content_id $relationName $concept_ids]
+					set check_error [check_response_error $addRelResponse]
+				    if {$check_error} {
+				        return $addRelResponse
+				    }
+				}
+				return $create_response
+			}
 		}
 	} else {
 		set result_map [java::new HashMap]
