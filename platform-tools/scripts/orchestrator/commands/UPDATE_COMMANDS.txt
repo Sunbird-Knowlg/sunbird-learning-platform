@@ -1,1 +1,3 @@
 node registerCommand.js commands/register-optimizeImageAsset.json update
+
+node registerCommand.js commands/register-addOutRelations.json update
