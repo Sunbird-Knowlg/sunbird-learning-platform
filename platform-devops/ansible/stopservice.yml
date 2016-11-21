@@ -1,3 +1,15 @@
-- hosts: env
+- hosts: learning
+  roles:
+        - stopservice
+
+- hosts: language
+  roles:
+        - stopservice
+
+- hosts: search
+  roles:
+        - stopservice
+
+- hosts: config
   roles:
         - stopservice

@@ -1,4 +1,15 @@
-- hosts: env
+- hosts: learning
   roles:
         - startservice
-        
+
+- hosts: language
+  roles:
+        - startservice
+
+- hosts: search
+  roles:
+        - startservice
+
+- hosts: config
+  roles:
+        - startservice

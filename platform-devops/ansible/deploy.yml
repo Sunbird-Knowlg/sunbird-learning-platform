@@ -1,4 +1,15 @@
-- hosts: env
+- hosts: learning
   roles:
         - deployartifact
 
+- hosts: language
+  roles:
+        - deployartifact
+
+- hosts: search
+  roles:
+        - deployartifact
+
+- hosts: config
+  roles:
+        - deployartifact
