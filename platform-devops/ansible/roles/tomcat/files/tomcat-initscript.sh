@@ -27,7 +27,7 @@ export CATALINA_HOME=/usr/share/tomcat
 export CATALINA_BASE=/usr/share/tomcat
  
 #TOMCAT_USER is the default user of tomcat
-export TOMCAT_USER=tomcat
+export TOMCAT_USER=ec2-user
  
 #TOMCAT_USAGE is the message if this script is called without any options
 TOMCAT_USAGE="Usage: $0 {\e[00;32mstart\e[00m|\e[00;31mstop\e[00m|\e[00;32mstatus\e[00m|\e[00;31mrestart\e[00m}"
@@ -50,6 +50,7 @@ start() {
     #ulimit -n 100000
     #umask 007
     #/bin/su -p -s /bin/sh tomcat
+     cd $CATALINA_HOME
         if [ `user_exists $TOMCAT_USER` = "1" ]
         then
                 su $TOMCAT_USER -c $CATALINA_HOME/bin/startup.sh

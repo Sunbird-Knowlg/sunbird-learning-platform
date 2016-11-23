@@ -10,10 +10,11 @@ XX:XX:XX:XX  ansible_ssh_user=learning ansible_ssh_private_key_file=~/.ssh/ekste
 [config_1]
 XX:XX:XX:XX  ansible_ssh_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
+[local]
+localhost ansible_connection=local
 
 [learning:children]
 learning_1
-
 
 [language:children]
 language_1
@@ -24,8 +25,10 @@ search_1
 [config:children]
 config_1
 
-[local]
-localhost ansible_connection=local
+[redis:children]
+
+
+[mongodb:children]
 
 
 [dev:children]
@@ -34,3 +37,4 @@ language
 search
 config
 local
+

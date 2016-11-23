@@ -1,23 +1,39 @@
-- name: Download
-  become_user: ec2-user
-  become: yes
-  get_url: url=http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz dest=/home/ec2-user timeout=1000 force=no owner=ec2-user
 
-- name: unzip 
-  unarchive: src=/home/ec2-user/ffmpeg-release-64bit-static.tar.xz  dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ user_home }}/ffmpeg-3.1.2-64bit-static
-
-- name: Change ownership of ffmpeg installation
+- name: Install required utils
+  yum: name={{ item }} state=present 
   become: yes
-  file: path={{ user_home }}/ffmpeg-3.1.2-64bit-static owner=ec2-user group=ec2-user mode=755 state=directory recurse=yes  
+  with_items:
+    - git
+    - git-core
+    - zip
+    - build-essential
+    
+- name: Git clone FFmpeg repo
+  git: repo=https://github.com/FFmpeg/FFmpeg.git dest=/home/ec2-user/ffmpeg version=release/3.0 
+
+- name: change the permissions
+  file: path=/home/ec2-user/ffmpeg owner=ec2-user group=ec2-user recurse=yes
+
+- name: run the commands
+  become: yes
+  command: chdir=/home/ec2-user/ffmpeg  ./configure --disable-yasm
+       
+- name: run the commands
+  become: yes
+  command: chdir=/home/ec2-user/ffmpeg  make
+
+- name: run the commands
+  become: yes
+  command: chdir=/home/ec2-user/ffmpeg make install
 
 - name: move files
   become: yes
-  command: cp {{ user_home }}/ffmpeg-3.1.2-64bit-static/{{ item }} /usr/local/bin
+  command: cp {{ user_home }}/ffmpeg/{{ item }} /usr/local/bin
   with_items:
              - ffmpeg
              - ffprobe
              - ffserver
-
+  
 - name: move files
   become: yes
   file: path=/usr/local/bin/{{ item }} owner=ec2-user group=ec2-user mode=0755
@@ -25,3 +41,4 @@
      - ffmpeg
      - ffprobe
      - ffserver
+

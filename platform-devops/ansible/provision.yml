@@ -16,12 +16,12 @@
             - name: Change ownership of data directory
               become: yes
               file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              roles:
-                    - java
-                    - aws-login
-                    - tomcat
-                    - ffmpeg
-                    - imagemagick
+  roles:
+        - java
+        - aws-login
+        - tomcat
+        - ffmpeg
+        - imagemagick
 
 - hosts: language
   remote_user: ec2-user
@@ -41,11 +41,10 @@
             - name: Change ownership of data directory
               become: yes
               file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              roles:
-                    - java
-                    - aws-login
-                    - tomcat
-
+  roles:
+        - java
+        - aws-login
+        - tomcat
 
 - hosts: search
   remote_user: ec2-user
@@ -64,10 +63,10 @@
             - name: Change ownership of data directory
               become: yes
               file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              roles:
-                    - java
-                    - aws-login
-                    - tomcat
+  roles:
+        - java
+        - aws-login
+        - tomcat
                             
 
 - hosts: config
@@ -87,18 +86,15 @@
             - name: Change ownership of data directory
               become: yes
               file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              roles:
-                    - java
-                    - aws-login
-                    - tomcat    
+  roles:
+        - java
+        - aws-login
+        - tomcat    
 
 - hosts: redis
   remote_user: ec2-user
   become: yes
   roles:
-        - java
-        - aws-login
-        - tomcat
         - redis
 
 
@@ -106,7 +102,7 @@
   remote_user: ec2-user
   become: yes
   roles:
-        - java
-        - aws-login
-        - tomcat
         - mongodb
+
+
+

@@ -1,10 +1,9 @@
 ---
 - name: Download Tomcat
-  get_url: url=http://mirror.fibergrid.in/apache/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz dest=/home/ec2-user/ timeout=1000 force=no owner=ec2-user
+  get_url: url=http://archive.apache.org/dist/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz dest=/home/ec2-user/ timeout=1000 force=no owner=ec2-user group=ec2-user
 
 - name: Extract archive
   unarchive: src=apache-tomcat-8.0.36.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ tomcat_home }}
-
 
 - name: Symlink install directory
   file: src={{ tomcat_home }} path=/usr/share/tomcat state=link
@@ -15,9 +14,11 @@
 - name: create Catalina
   file: path={{ tomcat_home }}/conf/Catalina state=directory mode=755 
 
-
 - name: create localhost
   file: path={{ tomcat_home }}/conf/Catalina/localhost state=directory mode=755 
+
+- name: set permission
+  file: path={{ tomcat_home }}  mode=0755 owner=ec2-user group=ec2-user recurse=yes
 
 - name: add templates
   template: src={{ item.name }} dest={{ item.destination }}
@@ -32,10 +33,12 @@
 
 - name: Install Tomcat init script
   copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=755
-  notify: restart iptables
-
+ 
 - name: set permission
   file: path={{ tomcat_home }}  mode=0755 owner=ec2-user group=ec2-user recurse=yes
+
+- name: tomcat star
+  service: name=tomcat state=started
 
 
 
