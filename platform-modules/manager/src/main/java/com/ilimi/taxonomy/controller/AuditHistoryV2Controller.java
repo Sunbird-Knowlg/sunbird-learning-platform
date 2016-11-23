@@ -31,7 +31,8 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryV2Controller extends BaseController {
 	
 	/** The Logger */
-	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryController.class.getName());
+	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryV2Controller.class.getName());
+	
 	private String versionId = getAPIVersion();
 	
 	@Autowired
@@ -168,8 +169,8 @@ public class AuditHistoryV2Controller extends BaseController {
 	@RequestMapping(value = "/details/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "objectId") String objectId,
-			@RequestParam(value = "start", required = true) String startTime,
-			@RequestParam(value = "end", required = true) String endTime,
+			@RequestParam(value = "start", required = false) String startTime,
+			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "audit_history.getLogRecordById";
 

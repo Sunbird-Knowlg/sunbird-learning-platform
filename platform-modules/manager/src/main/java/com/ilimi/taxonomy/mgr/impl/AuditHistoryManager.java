@@ -15,7 +15,6 @@ import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IAuditHistoryDataService;
-import com.ilimi.taxonomy.controller.AuditHistoryController;
 import com.ilimi.taxonomy.enums.AuditLogErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
@@ -34,7 +33,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	IAuditHistoryDataService auditHistoryDataService;
 	
 	/** The Logger */
-	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryController.class.getName());
+	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryManager.class.getName());
 
 	/*
 	 * (non-Javadoc)
@@ -154,7 +153,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		LOGGER.debug("Checking if received parameters are empty or not" + graphId + objectId);
 		if(StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(objectId)){
 			request.put(CommonDACParams.graph_id.name(), graphId);
-			request.put(CommonDACParams.object_type.name(), objectId);
+			request.put(CommonDACParams.object_id.name(), objectId);
 		}
 		Date startDate = null;
 		Date endDate = null;
@@ -189,9 +188,8 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		Request request = new Request();
 		LOGGER.debug("Checking if received parameters are empty or not" + objectId);
 		if(StringUtils.isNotBlank(objectId)){
-			request.put(CommonDACParams.object_type.name(), objectId);
+			request.put(CommonDACParams.object_id.name(), objectId);
 		}
-		request.put(CommonDACParams.object_id.name(), objectId);
 		Date startDate = null;
 		Date endDate = null;
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");

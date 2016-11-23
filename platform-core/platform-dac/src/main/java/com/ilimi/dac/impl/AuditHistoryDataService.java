@@ -159,6 +159,11 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
 
 		Search search = new Search();
+		if (versionId.equals("1.0")) {
+			search = setSearchCriteria(versionId, true);
+		} else if (versionId.equals("2.0")) {
+			search = setSearchCriteria(versionId, true);
+		}
 		search.addFilterEqual("graphId", graphId);
 		search.addFilterEqual("objectId", objectId);
 		if (start_date != null)
@@ -166,12 +171,6 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		if (end_date != null)
 			search.addFilterLessOrEqual("createdOn", end_date);
 
-		if (versionId.equals("1.0")) {
-			search = setSearchCriteria(versionId, true);
-		} else if (versionId.equals("2.0")) {
-			search = setSearchCriteria(versionId, true);
-		}
-		;
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -192,15 +191,14 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		Time end_time = (Time) request.get(CommonDACParams.end_time.name());
 
 		Search search = new Search();
-		search.addFilterEqual("objectId", objectId);
+		if (versionId.equals("2.0")) {
+			search = setSearchCriteria(versionId, false);
+		}
 		if (start_time != null)
 			search.addFilterGreaterOrEqual("createdOn", start_time);
 		if (end_time != null)
 			search.addFilterLessOrEqual("createdOn", end_time);
-		if (versionId.equals("2.0")) {
-			search = setSearchCriteria(versionId, false);
-		}
-		;
+		search.addFilterEqual("objectId", objectId);
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -225,13 +223,6 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 				if (record != null) {
 					resultMap = (Map) record;
 					try {
-						if (resultMap.containsKey("logRecord")) {
-							String log = (String) resultMap.get("logRecord");
-							Map<String, Object> logRecord = objectMapper.readValue(log,
-									new TypeReference<Map<String, Object>>() {
-									});
-							resultMap.put("logRecord", logRecord);
-						}
 						if (resultMap.containsKey("summary")) {
 							String log = (String) resultMap.get("summary");
 							Map<String, Object> summary = objectMapper.readValue(log,
@@ -239,6 +230,14 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 									});
 							resultMap.put("summary", summary);
 						}
+						if (resultMap.containsKey("logRecord")) {
+							String log = (String) resultMap.get("logRecord");
+							Map<String, Object> logRecord = objectMapper.readValue(log,
+									new TypeReference<Map<String, Object>>() {
+									});
+							resultMap.put("logRecord", logRecord);
+						}
+						
 					} catch (JsonParseException e) {
 						e.printStackTrace();
 					} catch (JsonMappingException e) {
@@ -269,9 +268,11 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
 		if (versionId.equals("1.0") && value == true) {
 			search.addField("logRecord", "logRecord");
-		} else if (versionId.equals("2.0") && value == true) {
+		} 
+		else if (versionId.equals("2.0") && value == true) {
 			search.addField("summary", "summary");
-		} else if (versionId.equals("2.0") && value == false) {
+		}
+		else if (versionId.equals("2.0") && value == false) {
 			search.addField("summary", "summary");
 			search.addField("logRecord", "logRecord");
 		}

@@ -8,9 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
@@ -50,8 +49,11 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
-			});
+			Map<String, Object> message = new HashMap<String, Object>();
+			if(StringUtils.isNotBlank(messageData)){
+				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
+				});
+			}
 			if (null != message)
 				processMessage(message);
 		} catch (Exception e) {
