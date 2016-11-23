@@ -36,7 +36,6 @@ public class AuditHistoryHelper {
 		} catch (Exception e) {
 			e.getLocalizedMessage();
 		}
-
 	}
 
 	final static Map<String, String> outRelationDefinition = new HashMap<>();

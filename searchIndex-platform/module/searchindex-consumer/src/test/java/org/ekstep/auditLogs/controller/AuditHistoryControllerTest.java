@@ -177,7 +177,6 @@ public class AuditHistoryControllerTest {
 		assertEquals(false, audit_record.isEmpty());
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void getAllAuditLogsWithoutObjectType() {
 		MockMvc mockMvc;
