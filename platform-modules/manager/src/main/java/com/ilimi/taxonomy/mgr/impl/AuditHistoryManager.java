@@ -184,29 +184,24 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response getAuditLogRecordById(String objectId, String startTime, String endTime, String versionId) {
+	public Response getAuditLogRecordById(String objectId, String timeStamp) {
 		Request request = new Request();
 		LOGGER.debug("Checking if received parameters are empty or not" + objectId);
 		if(StringUtils.isNotBlank(objectId)){
 			request.put(CommonDACParams.object_id.name(), objectId);
 		}
-		Date startDate = null;
-		Date endDate = null;
+		Date time_stamp = null;
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		try {
-			startDate = df.parse(startTime);
-			if (endTime != null) {
-				endDate = df.parse(endTime);
-			}
+			time_stamp = df.parse(timeStamp);
 		} catch (Exception e) {
 			LOGGER.error("Exception during parsing to date format" + e.getMessage(), e);
 			e.printStackTrace();
 		}
-		request.put(CommonDACParams.start_time.name(), startDate);
-		request.put(CommonDACParams.end_time.name(), endDate);
+		request.put(CommonDACParams.time_stamp.name(), time_stamp);
 
 		LOGGER.info("Sending request to auditHistoryDataService" +  request);
-		Response response = auditHistoryDataService.getAuditLogRecordById(request, versionId);
+		Response response = auditHistoryDataService.getAuditLogRecordById(request);
 		LOGGER.info("Response received from the auditHistoryDataService as a result" + response);
 		return response;
 	}

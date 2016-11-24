@@ -1,7 +1,5 @@
 package com.ilimi.dac.impl;
 
-import java.io.IOException;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -10,16 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.type.TypeReference;
-
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.googlecode.genericdao.search.Search;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -93,16 +90,11 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
 		Search search = new Search();
+		search = setSearchCriteria(versionId);
 		if (start_date != null)
 			search.addFilterGreaterOrEqual("createdOn", start_date);
 		if (end_date != null)
-			search.addFilterLessOrEqual("createdOn", end_date);
-
-		if (versionId.equals("1.0")) {
-			search = setSearchCriteria(versionId, true);
-		} else if (versionId.equals("2.0")) {
-			search = setSearchCriteria(versionId, true);
-		}
+			search.addFilterLessOrEqual("createdOn", end_date);	
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -125,18 +117,13 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
 
 		Search search = new Search();
+		search = setSearchCriteria(versionId);
 		search.addFilterEqual("graphId", graphId);
 		search.addFilterEqual("objectType", objectType);
 		if (start_date != null)
 			search.addFilterGreaterOrEqual("createdOn", start_date);
 		if (end_date != null)
 			search.addFilterLessOrEqual("createdOn", end_date);
-
-		if (versionId.equals("1.0")) {
-			search = setSearchCriteria(versionId, true);
-		} else if (versionId.equals("2.0")) {
-			search = setSearchCriteria(versionId, true);
-		}
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -159,18 +146,13 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
 
 		Search search = new Search();
-		if (versionId.equals("1.0")) {
-			search = setSearchCriteria(versionId, true);
-		} else if (versionId.equals("2.0")) {
-			search = setSearchCriteria(versionId, true);
-		}
+		search = setSearchCriteria(versionId);
 		search.addFilterEqual("graphId", graphId);
 		search.addFilterEqual("objectId", objectId);
 		if (start_date != null)
 			search.addFilterGreaterOrEqual("createdOn", start_date);
 		if (end_date != null)
 			search.addFilterLessOrEqual("createdOn", end_date);
-
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -185,20 +167,16 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Transactional
-	public Response getAuditLogRecordById(Request request, String versionId) {
+	public Response getAuditLogRecordById(Request request) {
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
-		Time start_time = (Time) request.get(CommonDACParams.start_time.name());
-		Time end_time = (Time) request.get(CommonDACParams.end_time.name());
+		Date time_stamp = (Date) request.get(CommonDACParams.time_stamp.name());
 
 		Search search = new Search();
-		if (versionId.equals("2.0")) {
-			search = setSearchCriteria(versionId, false);
-		}
-		if (start_time != null)
-			search.addFilterGreaterOrEqual("createdOn", start_time);
-		if (end_time != null)
-			search.addFilterLessOrEqual("createdOn", end_time);
+		search = setSearchCriteria(null, true);
+		if (time_stamp != null)
+			search.addFilterEqual("createdOn", time_stamp);
 		search.addFilterEqual("objectId", objectId);
+		
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -224,25 +202,29 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 					resultMap = (Map) record;
 					try {
 						if (resultMap.containsKey("summary")) {
-							String log = (String) resultMap.get("summary");
-							Map<String, Object> summary = objectMapper.readValue(log,
-									new TypeReference<Map<String, Object>>() {
-									});
-							resultMap.put("summary", summary);
+							String summaryData = (String) resultMap.get("summary");
+								if(summaryData != null && summaryData instanceof String){
+									Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
+									Map summary = gson.fromJson(summaryData.toString(), Map.class);
+									resultMap.put("summary", summary);
+								}
 						}
 						if (resultMap.containsKey("logRecord")) {
-							String log = (String) resultMap.get("logRecord");
-							Map<String, Object> logRecord = objectMapper.readValue(log,
-									new TypeReference<Map<String, Object>>() {
-									});
-							resultMap.put("logRecord", logRecord);
+							String logData = (String) resultMap.get("logRecord");
+								if(logData != null && logData instanceof String){
+									Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
+									Map logRecord = gson.fromJson(logData.toString(), Map.class);
+									resultMap.put("logRecord", logRecord);
+								}
 						}
-						
-					} catch (JsonParseException e) {
-						e.printStackTrace();
-					} catch (JsonMappingException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
+						String createdOn = (String) resultMap.get("createdOn");
+						if(createdOn != null && createdOn instanceof String){
+							Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
+							Map created = gson.fromJson(createdOn.toString(), Map.class);
+									resultMap.put("createdOn", created);
+						}
+					
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					respObj.add(resultMap);
@@ -253,8 +235,28 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		}
 		return respObj;
 	}
+	
+	/**
+	 * This method is used set the search criteria based on 
+	 * versionId to fetch AuditHistory from DB
+	 * @param versionId
+	 * 			The API versionId
+	 */
+	
+	public Search setSearchCriteria(String versionId) {
+		return setSearchCriteria(versionId, false);
+	}
 
-	public Search setSearchCriteria(String versionId, Boolean value) {
+	/**
+	 * This method is used set the search criteria based on 
+	 * versionId to fetch required AuditHistory fields from DB
+	 * @param versionId
+	 * 		The API versionId
+	 * @param returnAllFields
+	 * 	 	The boolean value to retun fields
+	 */
+	
+	public Search setSearchCriteria(String versionId, boolean returnAllFields) {
 		Search search = new Search();
 		search.addField("audit_id", "id");
 		search.addField("label", "label");
@@ -265,16 +267,14 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		search.addField("userId", "userId");
 		search.addField("graphId", "graphId");
 		search.addField("createdOn", "createdOn");
-
-		if (versionId.equals("1.0") && value == true) {
+		if (returnAllFields) {
 			search.addField("logRecord", "logRecord");
-		} 
-		else if (versionId.equals("2.0") && value == true) {
 			search.addField("summary", "summary");
-		}
-		else if (versionId.equals("2.0") && value == false) {
-			search.addField("summary", "summary");
-			search.addField("logRecord", "logRecord");
+		} else {
+			if (StringUtils.equalsIgnoreCase("1.0", versionId))
+				search.addField("logRecord", "logRecord");
+			else
+				search.addField("summary", "summary");
 		}
 		return search;
 	}
