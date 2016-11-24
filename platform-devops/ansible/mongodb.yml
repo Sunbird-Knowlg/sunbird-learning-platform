@@ -1,0 +1,24 @@
+- hosts: learning
+  remote_user: ec2-user
+  become: yes
+  roles:
+        - logstash
+
+- hosts: language
+  remote_user: ec2-user
+  become: yes
+  roles:
+        - logstash
+
+- hosts: search
+  remote_user: ec2-user
+  become: yes
+  roles:
+        - logstash                    
+
+
+- hosts: config
+  remote_user: ec2-user
+  become: yes
+  roles:
+        - logstash   
