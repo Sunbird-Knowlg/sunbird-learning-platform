@@ -47,3 +47,5 @@ node registerScript.js api/get-translation.tcl api/json/register-get-translation
 node registerScript.js api/delete-translation.tcl api/json/register-delete-translation.json register
 
 node registerScript.js api/get-englishWords-details.tcl api/json/register-get-englishWords-details.json register
+
+node registerScript.js api/getRhymingWords.tcl api/json/register-getRhymingWords.json register
