@@ -169,22 +169,16 @@ public class AuditHistoryV2Controller extends BaseController {
 	@RequestMapping(value = "/details/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "objectId") String objectId,
-			@RequestParam(value = "start", required = false) String startTime,
-			@RequestParam(value = "end", required = false) String endTime,
+			@RequestParam(value = "start", required = false) String timeStamp,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "audit_history.getLogRecordById";
 
-		LOGGER.info("get AuditHistory By objectId | TimeStamp1: " + startTime + " | Timestamp2: " + endTime
+		LOGGER.info("get AuditHistory By objectId | TimeStamp1: " + timeStamp
 				+ " | objectId: " + objectId);
 		try {
-			if(versionId.equals("2.0")){
-				Response response = auditHistoryManager.getAuditLogRecordById(objectId, startTime, endTime, versionId);
+				Response response = auditHistoryManager.getAuditLogRecordById(objectId, timeStamp);
 				LOGGER.info("Find Item | Response: " + response);
 				return getResponseEntity(response, apiId, null);
-			}
-			else{
-				return getResponseEntity(null, apiId, null);
-			}
 		} catch (Exception e) {
 			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
