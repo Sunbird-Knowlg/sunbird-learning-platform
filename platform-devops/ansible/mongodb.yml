@@ -2,23 +2,23 @@
   remote_user: ec2-user
   become: yes
   roles:
-        - logstash
+        - mongodb
 
 - hosts: language
   remote_user: ec2-user
   become: yes
   roles:
-        - logstash
+        - mongodb
 
 - hosts: search
   remote_user: ec2-user
   become: yes
   roles:
-        - logstash                    
+        - mongodb                    
 
 
 - hosts: config
   remote_user: ec2-user
   become: yes
   roles:
-        - logstash   
+        - mongodb   
