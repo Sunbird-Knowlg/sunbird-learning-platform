@@ -26,9 +26,12 @@ search_1
 config_1
 
 [redis:children]
+learning_1
 
 
 [mongodb:children]
+learning_1
+
 
 [dev:children]
 learning
@@ -36,4 +39,6 @@ language
 search
 config
 local
+mongodb
+redis
 
