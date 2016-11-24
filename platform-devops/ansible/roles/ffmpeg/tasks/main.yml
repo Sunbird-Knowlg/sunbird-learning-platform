@@ -6,6 +6,7 @@
     - git
     - git-core
     - zip
+    - gcc
     
 - name: Git clone FFmpeg repo
   git: repo=https://github.com/FFmpeg/FFmpeg.git dest=/home/ec2-user/ffmpeg version=release/3.0 

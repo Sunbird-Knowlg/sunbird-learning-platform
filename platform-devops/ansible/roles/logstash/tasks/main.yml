@@ -21,8 +21,8 @@
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
- tags:
-      - learning 
+  tags:
+       - learning 
 
 
 - name: add logstash configuration files for language
@@ -30,23 +30,23 @@
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
- tags:
-      - language 
+  tags:
+       - language 
 
 - name: add logstash configuration files for search
   template: src=search/{{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
- tags:
-      - search 
+  tags:
+       - search 
 
 - name: add logstash configuration files for all
   template: src=all/{{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
- tags:
-      - all 
+  tags:
+       - all 
 #******************************************Check the process is running or not*****************************************************
 - name: copy template
   template: src=stop_logstash_script.j2 dest={{ user_home }}/stop_logstash_script.sh
