@@ -411,7 +411,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'textarea', 'order': 4}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "learningObjective",
             "title": "Learning Objective",
@@ -477,7 +477,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 22}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "lastUpdatedBy",
             "title": "Last Updated By",
@@ -499,7 +499,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 22}",
-            "indexed": false
+            "indexed": true
         }, {
             "propertyName": "version",
             "title": "Version",
