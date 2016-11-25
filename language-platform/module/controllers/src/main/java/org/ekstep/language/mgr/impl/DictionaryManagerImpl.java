@@ -1782,6 +1782,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (createFlag) {
 				createRes = createWord(node, languageId);
 			} else {
+				node.getMetadata().put(ATTRIB_FLAG_REASONS, null);
+				node.getMetadata().put(ATTRIB_FLAGGED_BY, null);
 				createRes = updateWord(node, languageId, wordIdentifier);
 			}
 			if (!checkError(createRes)) {
