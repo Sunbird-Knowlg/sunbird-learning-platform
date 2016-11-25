@@ -1,5 +1,6 @@
 package com.ilimi.dac.impl;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -94,7 +95,7 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		if (start_date != null)
 			search.addFilterGreaterOrEqual("createdOn", start_date);
 		if (end_date != null)
-			search.addFilterLessOrEqual("createdOn", end_date);	
+			search.addFilterLessOrEqual("createdOn", end_date);
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -176,7 +177,7 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		if (time_stamp != null)
 			search.addFilterEqual("createdOn", time_stamp);
 		search.addFilterEqual("objectId", objectId);
-		
+
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -203,27 +204,23 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 					try {
 						if (resultMap.containsKey("summary")) {
 							String summaryData = (String) resultMap.get("summary");
-								if(summaryData != null && summaryData instanceof String){
-									Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
-									Map summary = gson.fromJson(summaryData.toString(), Map.class);
-									resultMap.put("summary", summary);
-								}
+							if (summaryData != null && summaryData instanceof String) {
+								Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
+								Map summary = gson.fromJson(summaryData.toString(), Map.class);
+								resultMap.put("summary", summary);
+							}
 						}
 						if (resultMap.containsKey("logRecord")) {
 							String logData = (String) resultMap.get("logRecord");
-								if(logData != null && logData instanceof String){
-									Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
-									Map logRecord = gson.fromJson(logData.toString(), Map.class);
-									resultMap.put("logRecord", logRecord);
-								}
+							if (logData != null && logData instanceof String) {
+								Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
+								Map logRecord = gson.fromJson(logData.toString(), Map.class);
+								resultMap.put("logRecord", logRecord);
+							}
 						}
-						String createdOn = (String) resultMap.get("createdOn");
-						if(createdOn != null && createdOn instanceof String){
-							Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
-							Map created = gson.fromJson(createdOn.toString(), Map.class);
-									resultMap.put("createdOn", created);
-						}
-					
+						Timestamp createdOn  = (Timestamp) resultMap.get("createdOn");
+						DateFormat df = objectMapper.getDateFormat();
+                        resultMap.put("createdOn", df.format(createdOn));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -235,27 +232,29 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		}
 		return respObj;
 	}
-	
+
 	/**
-	 * This method is used set the search criteria based on 
-	 * versionId to fetch AuditHistory from DB
+	 * This method is used set the search criteria based on versionId to fetch
+	 * AuditHistory from DB
+	 * 
 	 * @param versionId
-	 * 			The API versionId
+	 *            The API versionId
 	 */
-	
+
 	public Search setSearchCriteria(String versionId) {
 		return setSearchCriteria(versionId, false);
 	}
 
 	/**
-	 * This method is used set the search criteria based on 
-	 * versionId to fetch required AuditHistory fields from DB
+	 * This method is used set the search criteria based on versionId to fetch
+	 * required AuditHistory fields from DB
+	 * 
 	 * @param versionId
-	 * 		The API versionId
+	 *            The API versionId
 	 * @param returnAllFields
-	 * 	 	The boolean value to retun fields
+	 *            The boolean value to retun fields
 	 */
-	
+
 	public Search setSearchCriteria(String versionId, boolean returnAllFields) {
 		Search search = new Search();
 		search.addField("audit_id", "id");
