@@ -24,18 +24,18 @@ import com.ilimi.taxonomy.content.common.BaseTest;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DomainV2ControllerTest extends BaseTest {
+public class DomainV3ControllerTest extends BaseTest {
 		
 		@Autowired
 		private WebApplicationContext context;
 		private ResultActions actions;
 		
 		@Test
-		public void findDomainTest(){
+		public void findDomainTest_01(){
 			
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-			String path = "/v2/domains/graph/literacy?depth=40";
+			String path = "/v3/public/domains/read/graph/literacy?depth=5";
 			try {
 				actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 						"user-id", "ilimi"));
@@ -52,7 +52,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		public void findDomainTestWithInvalidUrl(){
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-			String path = "/v2/domains/graph/liteacy?depth=40";
+			String path = "/v3/public/domains/read/graph/liteacy?depth=5";
 			try {
 				actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 						"user-id", "ilimi"));
@@ -69,7 +69,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		public void findDomainTestWithoutGraphId(){
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-			String path = "/v2/literacy";
+			String path = "/v3/public/read/graph/literacy";
 			try {
 				actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 						"user-id", "ilimi"));
