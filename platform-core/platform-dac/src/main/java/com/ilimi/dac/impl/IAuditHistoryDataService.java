@@ -67,19 +67,17 @@ public interface IAuditHistoryDataService {
     public Response getAuditHistoryLogByObjectId(Request request,String versionId);
 
     /**
-	 * This method carries the entire operation of fetching AuditHistory Logs for a given auditId
+	 * This method carries the entire operation of fetching AuditHistory Logs for a given objectId
 	 * from mysql DB based on the requestBody sent from the AuditHistoryManager
 	 *
 	 * @param graphId
 	 *            The graph id
 	 * @param auditId
-	 *            The auditId
+	 *            The objectId
 	 * @param timestamp1
-	 *            The start Time
-	 * @param timestamp2
-	 *            The end Time
-	 * @return the response which contains AuditHistoryLogs for an given auditId
+	 *            The time_stamp
+	 * @return the response which contains AuditHistoryLogs for an given objectId
 	 */
-	public Response getAuditLogRecordById(Request request, String versionId);
+	public Response getAuditLogRecordById(Request request);
 
 }
