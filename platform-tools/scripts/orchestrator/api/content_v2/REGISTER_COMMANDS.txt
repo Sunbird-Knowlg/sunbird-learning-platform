@@ -10,3 +10,7 @@ node registerScript.js api/content_v2/updateContent.tcl api/content_v2/json/regi
 
 node registerScript.js api/content_v2/retireContent.tcl api/content_v2/json/register-retireContent.json register
 
+node registerScript.js api/content_v2/flagContent.tcl api/content_v2/json/register-flagContent.json register
+
+node registerScript.js api/content_v2/rejectFlaggedContent.tcl api/content_v2/json/register-rejectFlaggedContent.json register
+

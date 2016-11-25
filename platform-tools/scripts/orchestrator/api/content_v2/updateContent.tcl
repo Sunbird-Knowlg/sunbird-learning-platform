@@ -175,13 +175,15 @@ if {$object_null == 1} {
 				set status_val [$metadata get "status"]
 				set status_val_str [java::new String [$status_val toString]]
 				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
+				set isFlaggedReviewState [$status_val_str equalsIgnoreCase "FlagReview"]
 				set input_status [$content get "status"]
 				set input_status_null [java::isnull $input_status]
 				set log_event 0
 				if {$input_status_null == 0} {
 					set input_status_str [java::new String [$input_status toString]]
 					set updateToReviewState [$input_status_str equalsIgnoreCase "Review"]
-					if {$updateToReviewState == 1 && $isReviewState != 1} {
+					set updateToFlagReviewState [$input_status_str equalsIgnoreCase "FlagReview"]
+					if {( $updateToReviewState == 1 || $updateToFlagReviewState == 1 ) && ( $isReviewState != 1 || $isFlaggedReviewState != 1 )} {
 						$content put "lastSubmittedOn" [java::call DateUtils format [java::new Date]]
 					}
 					if {![$input_status_str equals $status_val_str]} {
