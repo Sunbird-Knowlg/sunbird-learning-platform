@@ -733,7 +733,13 @@
           "title": "Flag Reasons",
           "description": "",
           "category": "Flagging",
-          "dataType": "List",
+          "dataType": "Multi-Select",
+          "range": [
+            "Inappropriate Content",
+            "Copyright Violation",
+            "Privacy Violation",
+            "Other"
+          ],
           "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
