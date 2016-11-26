@@ -1,5 +1,5 @@
 package com.ilimi.taxonomy.enums;
 
-public enum ExtractionPathType {
+public enum ExtractionType {
 snapshot, version, latest
 }
