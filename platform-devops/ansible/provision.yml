@@ -22,6 +22,7 @@
         - tomcat
         - ffmpeg
         - imagemagick
+        - logstash
 
 - hosts: language
   remote_user: ec2-user
@@ -35,7 +36,7 @@
                          - /data/graphDB
                          - /data/logs
                          - /data/contentBundle
-                         - /data/properties
+                         - /data/prsoperties
                          - /data/properties/language
     
             - name: Change ownership of data directory
@@ -45,6 +46,8 @@
         - java
         - aws-login
         - tomcat
+        - logstash
+
 
 - hosts: search
   remote_user: ec2-user
@@ -67,6 +70,7 @@
         - java
         - aws-login
         - tomcat
+        - logstash
                             
 
 - hosts: config
@@ -89,7 +93,38 @@
   roles:
         - java
         - aws-login
-        - tomcat    
+        - tomcat  
+        - logstash  
+
+
+
+- hosts: all
+  remote_user: ec2-user
+  become: yes
+  pre_tasks:
+            - name: create folder data
+              become: yes
+              file: path={{ item }} state=directory mode=0755
+              with_items:
+                         - /data
+                         - /data/logs
+                         - /data/graphDB
+                         - /data/contentBundle
+                         - /data/properties
+                         - /data/properties/config
+                         - /data/properties/search
+                         - /data/properties/language
+                         - /data/properties/language
+                         - /data/properties/learning
+  roles:
+        - java
+        - aws-login
+        - tomcat
+        - ffmpeg
+        - imagemagick
+        - logstash
+    
+    
 
 - hosts: redis
   remote_user: ec2-user
@@ -103,6 +138,7 @@
   become: yes
   roles:
         - mongodb
+
 
 
 

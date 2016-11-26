@@ -32,6 +32,8 @@ learning_1
 [mongodb:children]
 learning_1
 
+[all:children]
+
 
 [dev:children]
 learning

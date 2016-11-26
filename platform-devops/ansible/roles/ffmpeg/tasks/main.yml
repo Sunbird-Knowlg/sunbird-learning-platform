@@ -7,24 +7,42 @@
     - git-core
     - zip
     - gcc
+  tags:
+       - always
+
     
 - name: Git clone FFmpeg repo
   git: repo=https://github.com/FFmpeg/FFmpeg.git dest=/home/ec2-user/ffmpeg version=release/3.0 
+  tags:
+       - always
+
 
 - name: change the permissions
   file: path=/home/ec2-user/ffmpeg owner=ec2-user group=ec2-user recurse=yes
+  tags:
+       - always
+
 
 - name: run the commands
   become: yes
   command: chdir=/home/ec2-user/ffmpeg  ./configure --disable-yasm
+  tags:
+       - always
+
        
 - name: run the commands
   become: yes
   command: chdir=/home/ec2-user/ffmpeg  make
+  tags:
+       - always
+
 
 - name: run the commands
   become: yes
   command: chdir=/home/ec2-user/ffmpeg make install
+  tags:
+       - always
+
 
 - name: move files
   become: yes
@@ -33,6 +51,9 @@
              - ffmpeg
              - ffprobe
              - ffserver
+  tags:
+       - always
+
   
 - name: move files
   become: yes
@@ -41,4 +62,7 @@
      - ffmpeg
      - ffprobe
      - ffserver
+  tags:
+       - always
+
 

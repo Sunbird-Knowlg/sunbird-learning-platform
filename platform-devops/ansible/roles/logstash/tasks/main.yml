@@ -17,31 +17,23 @@
 
 #****************************ADD EVENTS********************************************
 - name: add logstash configuration files for learning
-  template: src=learning/{{ item.name }}  dest={{ item.destination }}
+  template: src={{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
   tags:
        - learning 
-
-
-- name: add logstash configuration files for language
-  template: src=language/{{ item.name }}  dest={{ item.destination }}
-  with_items:
-    - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
-    - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
-  tags:
        - language 
 
 - name: add logstash configuration files for search
-  template: src=search/{{ item.name }}  dest={{ item.destination }}
+  template: src={{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
   tags:
        - search 
 
 - name: add logstash configuration files for all
-  template: src=all/{{ item.name }}  dest={{ item.destination }}
+  template: src={{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
