@@ -417,5 +417,71 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Returning 'Response' Object.");
 		return response;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Response publish(String taxonomyId, String contentId, Request request) {
+		LOGGER.debug("Graph ID: " + taxonomyId);
+		LOGGER.debug("Content ID: " + contentId);
+		Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+		if(null==requestMap.get("publisherId")){
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER_ID.name(), "Publisher Id is blank");
+		}
+		String publisherId = (String)requestMap.get("publisherId");
+		LOGGER.debug("Publisher ID: " + publisherId);
+
+		Response response = new Response();
+		if (StringUtils.isBlank(taxonomyId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
+		if (StringUtils.isBlank(publisherId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER_ID.name(), "Publisher Id is blank");
+		Response responseNode = getDataNode(taxonomyId, contentId);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with id: " + contentId);
+
+		Node node = (Node) responseNode.get(GraphDACParams.node.name());
+		LOGGER.debug("Got Node: ", node);
+
+		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+		if (StringUtils.isBlank(mimeType)) {
+			mimeType = "assets";
+		}
+		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
+
+		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
+		node.getMetadata().put("publisher", publisherId);
+
+		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
+		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+
+		try {
+			response = mimeTypeManager.publish(node);
+			String contentType = (String) node.getMetadata().get("contentType");
+			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
+				node.getMetadata().put("prevState", prevState);
+				//node.getMetadata().put(ContentAPIParams.publisher_id.name(), publisherId);
+				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+				String event = LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+
+				LOGGER.info("Invoking Content to Vector. | [Content ID: " + contentId + "]");
+				Content2VecUtil.invokeContent2Vec(contentId, event);
+				
+				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
+				ConceptTagger tagger = new ConceptTagger();
+				tagger.tagConcepts(taxonomyId, contentId, node);
+			}
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+		}
+
+		LOGGER.info("Returning 'Response' Object.");
+		return response;
+	}
 
 }
