@@ -7,16 +7,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -46,6 +39,15 @@ import com.ilimi.graph.model.node.RelationNode;
 import com.ilimi.graph.model.node.ValueNode;
 import com.ilimi.graph.model.relation.UsedBySetRelation;
 
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+
 public class Set extends AbstractCollection {
 
 	public static final String SET_OBJECT_TYPE_KEY = "SET_OBJECT_TYPE_KEY";
@@ -60,6 +62,8 @@ public class Set extends AbstractCollection {
 	private List<Relation> inRelations;
 	private List<Relation> outRelations;
 	private ObjectMapper mapper = new ObjectMapper();
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(Set.class.getName());
 
 	public static enum SET_TYPES {
 		MATERIALISED_SET, CRITERIA_SET;
@@ -809,6 +813,7 @@ public class Set extends AbstractCollection {
 			final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
 			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+			LOGGER.info("Creating " + (out ? "outgoing" : "incoming") + " relations | count: " + newRels.size());
 			for (Entry<String, List<String>> entry : newRels.entrySet()) {
 				if (out) {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
@@ -840,6 +845,7 @@ public class Set extends AbstractCollection {
 	private void deleteRelations(Request req, Map<String, List<String>> delRels, boolean out) {
 		final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		if (null != delRels && delRels.size() > 0) {
+			LOGGER.info("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: " + delRels.size());
 			Request request = new Request(req);
 			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			for (Entry<String, List<String>> entry : delRels.entrySet()) {
