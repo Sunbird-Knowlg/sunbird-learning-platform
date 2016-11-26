@@ -14,6 +14,7 @@ import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import io.searchbox.core.CountResult;
 import io.searchbox.core.SearchResult;
@@ -301,6 +302,7 @@ public class SearchProcessor {
 			}
 		}
 		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
+		elasticSearchUtil.setOffset(searchDTO.getOffset());
 
 		if (sort && !relevanceSort) {
 			Map<String, String> sortBy = searchDTO.getSortBy();
@@ -315,16 +317,16 @@ public class SearchProcessor {
 		if (searchDTO.isFuzzySearch()) {
 			Map<String, Double> weightagesMap = (Map<String, Double>) searchDTO.getAdditionalProperty("weightagesMap");
 			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList,
-					searchDTO.getSortBy(), weightagesMap);
+					searchDTO.getSortBy(), weightagesMap,searchDTO.getFields());
 		} else {
-			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(),searchDTO.getFields());
 		}
 		return query;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages)
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages, List<String> fields)
 					throws Exception {
 
 		JSONBuilder builder = new JSONStringer();
@@ -393,6 +395,9 @@ public class SearchProcessor {
 					String queryOperation = (String) textCondition.get("operation");
 					String fieldName = (String) textCondition.get("fieldName");
 					Object value = (Object) textCondition.get("value");
+					if(fieldName.equals(GraphDACParams.objectType.name())&& null!=fields){
+						fields.add(fieldName);
+					}
 					getConditionsQuery(queryOperation, fieldName, value, builder);
 					if (weightages.containsKey(fieldName)) {
 						weight = weightages.get(fieldName);
@@ -511,6 +516,14 @@ public class SearchProcessor {
 			}
 			builder.endObject();
 		}
+		
+		if (fields != null && !fields.isEmpty()) {
+			builder.key("_source").array();
+			for(String field:fields){
+				builder.value(field);
+			}
+			builder.endArray();
+		}
 
 		builder.endObject();
 		return builder.toString();
@@ -518,7 +531,7 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy) throws Exception {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, List<String> fields) throws Exception {
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
@@ -569,6 +582,9 @@ public class SearchProcessor {
 					String queryOperation = (String) textCondition.get("operation");
 					String fieldName = (String) textCondition.get("fieldName");
 					Object value = (Object) textCondition.get("value");
+					if(fieldName.equals(GraphDACParams.objectType.name())&& null!=fields){
+						fields.add(fieldName);
+					}
 					getConditionsQuery(queryOperation, fieldName, value, builder);
 					builder.endObject();
 				}
@@ -698,6 +714,14 @@ public class SearchProcessor {
 					fieldName = entry.getKey() + CompositeSearchConstants.RAW_FIELD_EXTENSION;
 				}
 				builder.object().key(fieldName).value(entry.getValue()).endObject();
+			}
+			builder.endArray();
+		}
+		
+		if (fields != null && !fields.isEmpty()) {
+			builder.key("_source").array();
+			for(String field:fields){
+				builder.value(field);
 			}
 			builder.endArray();
 		}

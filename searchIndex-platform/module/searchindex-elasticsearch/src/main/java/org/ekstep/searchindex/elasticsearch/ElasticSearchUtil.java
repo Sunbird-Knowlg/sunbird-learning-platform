@@ -51,17 +51,22 @@ public class ElasticSearchUtil {
 	private String hostName;
 	private String port;
 	public int defaultResultLimit = 10000;
+	public int defaultResultOffset = 0;
 	private int BATCH_SIZE = 1000;
 	private int CONNECTION_TIMEOUT = 30;
 	private long MAX_IDLE_CONNECTION_TIME_LIMIT = 10;		// In Seconds
 	private int MAX_TOTAL_CONNECTION_LIMIT = 500;
 	public int resultLimit = defaultResultLimit;
+	public int offset = defaultResultOffset;
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public void setResultLimit(int resultLimit) {
 		this.resultLimit = resultLimit;
 	}
-
+	
+	public void setOffset(int offset) {
+		this.offset = offset;
+	}
 	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
 		super();
 		initialize();
@@ -394,7 +399,7 @@ public class ElasticSearchUtil {
 
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String query) throws IOException {
-		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).build();
+		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
 		if (result.getErrorMessage() != null) {

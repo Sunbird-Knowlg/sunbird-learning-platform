@@ -11,7 +11,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -44,7 +43,7 @@ public class BaseSearchManager {
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+            return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(),ResponseCode.SERVER_ERROR);
         }
     }
 

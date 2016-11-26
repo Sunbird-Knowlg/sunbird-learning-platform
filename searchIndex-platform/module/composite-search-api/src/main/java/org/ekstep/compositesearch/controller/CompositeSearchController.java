@@ -35,14 +35,22 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 		String apiId = "composite-search.search";
 		LOGGER.info(apiId + " | Request : " + map);
 		Request request = getRequest(map);
+		int count = 0;
 		Map<String, Object> requestMap = (Map<String, Object>) map.get("request"); 
 		String queryString = (String) requestMap.get(CompositeSearchParams.query.name());
 		Object filters = requestMap.get(CompositeSearchParams.filters.name());
 		Object sort = requestMap.get(CompositeSearchParams.sort_by.name());
+		Response  response;
 		Response searchResponse = compositeSearchManager.search(request);
-		Response  response = compositeSearchManager.getSearchResponse(searchResponse);
+		if(!checkError(searchResponse)){
+			response = compositeSearchManager.getSearchResponse(searchResponse);
+			if(!response.getResult().isEmpty()) {
+				count = (int) response.getResult().get("count");
+			}
+		}else {
+			response = searchResponse;
+		}
 		String correlationId = UUID.randomUUID().toString();
-		int count = (int) response.getResult().get("count");
 		LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count);
 		return getResponseEntity(response, apiId, null, correlationId);
 	}

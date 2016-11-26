@@ -8,7 +8,7 @@ import org.ekstep.compositesearch.enums.SearchOperations;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.exception.ResponseCode;
 
 public class CompositeSearchManager extends BaseSearchManager {
 
@@ -18,7 +18,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.INDEX_SEARCH.name());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
-			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
+			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}
 		
 		return getRes;
@@ -28,7 +28,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.COUNT.name());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
-			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
+			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(),getErrorMessage(getRes),ResponseCode.SERVER_ERROR);
 		}
 		
 		return getRes;
@@ -38,7 +38,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.METRICS.name());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
-			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
+			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(),getErrorMessage(getRes),ResponseCode.SERVER_ERROR);
 		}
 		
 		return getRes;
@@ -50,7 +50,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 		request.put("searchResult", searchResult.getResult());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
-			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
+			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(),getErrorMessage(getRes),ResponseCode.SERVER_ERROR);
 		}
 		
 		return getRes;

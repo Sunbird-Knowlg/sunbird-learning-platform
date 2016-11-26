@@ -160,7 +160,7 @@ public class SearchManager extends SearchBaseActor {
 				notExists =  new ArrayList<String>();
 				notExists.add((String) notExistsObject);
 			}
-			
+			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
@@ -171,8 +171,14 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
+			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-
+			
+			if (null != req.get(CompositeSearchParams.offset.name())) {
+				int offset = (int) req.get(CompositeSearchParams.offset.name());
+				searchObj.setOffset(offset);
+			}
+			
 			if (fuzzySearch != null) {
 				searchObj.setFuzzySearch(fuzzySearch);
 			}
