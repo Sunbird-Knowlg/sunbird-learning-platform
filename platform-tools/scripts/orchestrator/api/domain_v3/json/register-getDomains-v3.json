@@ -1,0 +1,40 @@
+{
+    "name": "getDomains_v3",
+    "parameters": [
+    	{
+            "name": "sort",
+            "index": 0,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
+        },
+        {
+            "name": "order",
+            "index": 1,
+            "routingParam": false
+        },
+        {
+            "name": "limit",
+            "index": 2,
+            "datatype": "java.lang.Integer",
+            "routingParam": false
+        },
+        {
+            "name": "fields",
+            "index": 3,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/domains/list",
+        "requestParams": [
+          "sort",
+          "order",
+          "limit",
+          "fields"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.domain.list"
+}
