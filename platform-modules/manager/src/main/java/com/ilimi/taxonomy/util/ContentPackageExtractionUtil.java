@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +46,6 @@ public class ContentPackageExtractionUtil {
 		LOGGER.debug("Extraction Type: ", extractionType);
 
 		// Validating the Parameters
-
 		LOGGER.info("Validating Node Object.");
 		if (null == node)
 			throw new ClientException(ContentErrorCodes.INVALID_NODE.name(),
@@ -62,75 +62,61 @@ public class ContentPackageExtractionUtil {
 				|| StringUtils.endsWithIgnoreCase(downloadUrl, ContentAPIParams.ecar.name()))
 			throw new ClientException(ContentErrorCodes.INVALID_ECAR.name(), "Error! Invalid ECAR Url.");
 
-		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String extractionBasePath = getBasePath(node.getIdentifier());
 		String ECARDownloadPath = getBasePath(node.getIdentifier());
-		String AWSFolderPath = "";
 		try {
-			
 			// Download ECAR
 			File ECARFile = HttpDownloadUtility.downloadFile(downloadUrl, ECARDownloadPath);
 
 			// UnZip the Content Package
 			UnzipUtility unzipUtility = new UnzipUtility();
 			unzipUtility.unzip(ECARFile.getAbsolutePath(), extractionBasePath);
-
-			// Get List of All the Files in the Extracted Folder
-			File extractionDir = new File(extractionBasePath);
-			List<File> lstFilesToUpload = (List<File>) FileUtils.listFiles(extractionDir, TrueFileFilter.INSTANCE,
-					TrueFileFilter.INSTANCE);
-
-			// Upload All the File to S3 Recursively and Concurrently
-			AWSFolderPath = getExtractionPath(node, extractionType);
-			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, AWSFolderPath);
-		} catch (InterruptedException e) {
-			cleanUpAWSFolder(AWSFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! The Extraction Process was Interrupted.", e);
-		} catch (ExecutionException e) {
-			cleanUpAWSFolder(AWSFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! Something went wrong while Executing bulk upload of Files during Extraction.", e);
-		} catch (Exception e) {
-			cleanUpAWSFolder(AWSFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
-		} finally {
-			try {
-				LOGGER.info("Total Uploaded Files: " + lstUploadedFilesUrl.size());
-				LOGGER.info("Deleting Locally Extracted File.");
-				File dir = new File(extractionBasePath);
-				if (dir.exists())
-					dir.delete();
-			} catch (SecurityException e) {
-				LOGGER.error("Error! While Deleting the Local Extraction Directory: " + extractionBasePath, e);
-			} catch (Exception e) {
-				LOGGER.error("Error! Something Went Wrong While Deleting the Local Extraction Directory: "
-						+ extractionBasePath, e);
-			}
+			
+			// Extract Content Package
+			extractPackage(node, extractionBasePath, extractionType);
+		} catch (IOException e) {
 		}
+
 	}
 
-	public void extractECARPackage(Node node, String basePath, ExtractionType extractionType) {
+	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
 		LOGGER.debug("Node: ", node);
-		LOGGER.debug("Base Path: ", basePath);
+		LOGGER.debug("Uploaded File: ", uploadedFile);
 		LOGGER.debug("Extraction Type: ", extractionType);
 
 		// Validating the Parameters
-
 		LOGGER.info("Validating Node Object.");
 		if (null == node)
 			throw new ClientException(ContentErrorCodes.INVALID_NODE.name(),
 					"Error! Content (Node Object) cannot be 'null'");
 
-		LOGGER.info("Validating Base Path.");
-		if (StringUtils.isBlank(basePath) || !(new File(basePath).exists()))
-			throw new ClientException(ContentErrorCodes.INVALID_BASEPATH.name(), "Error! Base Paths doesn't Exist.");
+		LOGGER.info("Validating Uploaded File.");
+		if (!uploadedFile.exists()
+				|| StringUtils.endsWithIgnoreCase(uploadedFile.getName(), ContentAPIParams.zip.name()))
+			throw new ClientException(ContentErrorCodes.INVALID_FILE.name(), "Error! File doesn't Exist.");
 
 		LOGGER.info("Validating Extraction Type.");
 		if (null == extractionType)
 			throw new ClientException(ContentErrorCodes.INVALID_EXTRACTION.name(),
 					"Error! Invalid Content Extraction Type.");
+
+		String extractionBasePath = getBasePath(node.getIdentifier());
+		try {
+			// UnZip the Content Package
+			UnzipUtility unzipUtility = new UnzipUtility();
+			unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
+			
+			// Extract Content Package
+			extractPackage(node, extractionBasePath, extractionType);
+		} catch (IOException e) {
+
+		} catch (Exception e) {
+
+		}
+
+	}
+	
+	private void extractPackage(Node node, String basePath, ExtractionType extractionType) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String AWSFolderPath = "";
 		try {
@@ -170,76 +156,7 @@ public class ContentPackageExtractionUtil {
 		}
 	}
 
-	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
-		LOGGER.debug("Node: ", node);
-		LOGGER.debug("Uploaded File: ", uploadedFile);
-		LOGGER.debug("Extraction Type: ", extractionType);
-
-		// Validating the Parameters
-
-		LOGGER.info("Validating Node Object.");
-		if (null == node)
-			throw new ClientException(ContentErrorCodes.INVALID_NODE.name(),
-					"Error! Content (Node Object) cannot be 'null'");
-
-		LOGGER.info("Validating Uploaded File.");
-		if (!uploadedFile.exists())
-			throw new ClientException(ContentErrorCodes.INVALID_FILE.name(), "Error! File doesn't Exist.");
-
-		LOGGER.info("Validating Extraction Type.");
-		if (null == extractionType)
-			throw new ClientException(ContentErrorCodes.INVALID_EXTRACTION.name(),
-					"Error! Invalid Content Extraction Type.");
-
-		List<String> lstUploadedFilesUrl = new ArrayList<String>();
-		String extractionBasePath = getBasePath(node.getIdentifier());
-		String AWSFolderPath = "";
-		try {
-
-			// Check if it is ZIP File before extraction
-			if (StringUtils.endsWithIgnoreCase(uploadedFile.getName(), ContentAPIParams.zip.name())) {
-
-				// UnZip the Content Package
-				UnzipUtility unzipUtility = new UnzipUtility();
-				unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
-
-				// Get List of All the Files in the Extracted Folder
-				File extractionDir = new File(extractionBasePath);
-				List<File> lstFilesToUpload = (List<File>) FileUtils.listFiles(extractionDir, TrueFileFilter.INSTANCE,
-						TrueFileFilter.INSTANCE);
-
-				// Upload All the File to S3 Recursively and Concurrently
-				AWSFolderPath = getExtractionPath(node, extractionType);
-				lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, AWSFolderPath);
-			}
-		} catch (InterruptedException e) {
-			cleanUpAWSFolder(AWSFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! The Extraction Process was Interrupted.", e);
-		} catch (ExecutionException e) {
-			cleanUpAWSFolder(AWSFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! Something went wrong while Executing bulk upload of Files during Extraction.", e);
-		} catch (Exception e) {
-			cleanUpAWSFolder(AWSFolderPath);
-			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
-					"Error! Something went wrong while extracting the Content Package on Storage Space.", e);
-		} finally {
-			try {
-				LOGGER.info("Total Uploaded Files: " + lstUploadedFilesUrl.size());
-				LOGGER.info("Deleting Locally Extracted File.");
-				File dir = new File(extractionBasePath);
-				if (dir.exists())
-					dir.delete();
-			} catch (SecurityException e) {
-				LOGGER.error("Error! While Deleting the Local Extraction Directory: " + extractionBasePath, e);
-			} catch (Exception e) {
-				LOGGER.error("Error! Something Went Wrong While Deleting the Local Extraction Directory: "
-						+ extractionBasePath, e);
-			}
-		}
-	}
-
+	
 	private void cleanUpAWSFolder(String AWSFolderPath) {
 		try {
 			LOGGER.info("Cleaning AWS Folder Path: " + AWSFolderPath);
