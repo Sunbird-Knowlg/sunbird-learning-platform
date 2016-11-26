@@ -1,0 +1,14 @@
+{
+    "name": "getTraversalRules_v3",
+    "parameters": [{
+    	"name":"graph_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/traversals/list/*",
+        "pathParams": ["graph_id"]
+    },
+    "body": ""
+}

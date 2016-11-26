@@ -1,0 +1,19 @@
+{
+    "name": "getVarna_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"varna_id",
+    	"index": 1,
+    	"routingParam": false,
+		"datatype":"java.lang.String"
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/dictionary/varna/read/*/*",
+        "pathParams": ["language_id", "varna_id"]
+    },
+    "body": ""
+}
