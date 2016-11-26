@@ -46,6 +46,7 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
+import com.ilimi.taxonomy.enums.ExtractionPathType;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ContentBundle;
 
@@ -59,6 +60,8 @@ public class BaseMimeTypeManager extends BaseLearningManager {
     
     private static final String s3Content = "s3.content.folder";
     private static final String s3Artifact = "s3.artifact.folder";
+    
+    private static final String DASH = "-";
     
     private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
@@ -456,6 +459,35 @@ public class BaseMimeTypeManager extends BaseLearningManager {
     	if (null == n)
     		return 0.0;
     	return n.doubleValue();
+    }
+    
+    private void extractContentPackage() {
+    	
+    }
+    
+    private String getExtractionPath(Node node, ExtractionPathType pathType) {
+    	String path = S3PropertyReader.getProperty(s3Content);
+    	
+    	// Getting the Path Suffix
+    	String pathSuffix = pathType.name();
+    	if (StringUtils.equalsIgnoreCase(pathType.name(), ContentAPIParams.version.name()))
+    		pathSuffix = (String) node.getMetadata().get(ContentAPIParams.pkgVersion.name());
+    	
+    	switch (((String) node.getMetadata().get(ContentAPIParams.mimeType.name()))) {
+		case "application/vnd.ekstep.ecml-archive":
+			path += File.separator + ContentAPIParams.ecml.name() + File.separator + node.getIdentifier() + DASH + pathSuffix;
+			break;
+		case "application/vnd.ekstep.html-archive":
+			path += File.separator + ContentAPIParams.html.name() + File.separator + node.getIdentifier() + DASH + pathSuffix;
+			break;
+		case "application/vnd.ekstep.plugin-archive":
+			path += File.separator + ContentAPIParams.plugins.name() + File.separator + node.getIdentifier() + DASH + pathSuffix;
+			break;
+
+		default:
+			break;
+		}
+    	return path;
     }
     
     protected String getBasePath(String contentId) {

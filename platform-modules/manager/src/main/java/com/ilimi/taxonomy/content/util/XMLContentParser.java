@@ -155,7 +155,7 @@ public class XMLContentParser {
 			String id = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.id.name());
 			String type = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.type.name());
 			String src = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.src.name());
-			if (StringUtils.isBlank(id))
+			if (StringUtils.isBlank(id) && isMediaIdRequiredForMediaType(type))
 				throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
 						"Error! Invalid Media ('id' is required.) in '" + getNodeString(mediaNode) + "' ...");
 			if (StringUtils.isBlank(type))
@@ -439,6 +439,22 @@ public class XMLContentParser {
 	 */
 	private boolean isEvent(String elementName) {
 		return ElementMap.isEvent(elementName);
+	}
+	
+	/**
+	 * Checks if is media id required for given media type.
+	 *
+	 * @param type the type
+	 * @return true, if is media id required for media type
+	 */
+	private boolean isMediaIdRequiredForMediaType(String type) {
+		boolean isMediaIdRequired = true;
+		if (StringUtils.isNotBlank(type) 
+				&& (StringUtils.equalsIgnoreCase(type, ContentWorkflowPipelineParams.js.name()) 
+						|| StringUtils.equalsIgnoreCase(type, ContentWorkflowPipelineParams.css.name())))
+			isMediaIdRequired = false;
+			
+		return isMediaIdRequired;
 	}
 
 }
