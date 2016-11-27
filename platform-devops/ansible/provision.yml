@@ -17,11 +17,11 @@
               become: yes
               file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
   roles:
-        - java
-        - aws-login
-        - tomcat
-        - ffmpeg
-        - imagemagick
+#        - java
+#        - aws-login
+#        - tomcat
+#        - ffmpeg
+#        - imagemagick
         - logstash
 
 - hosts: language

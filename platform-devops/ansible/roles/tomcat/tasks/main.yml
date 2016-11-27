@@ -49,7 +49,7 @@
     - { name: 'language-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
   tags:
        - language
-       - all
+       - total
 
 - name: add templates
   template: src={{ item.name }} dest={{ item.destination }}
@@ -57,7 +57,7 @@
     - { name: 'learning-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
   tags:
        - learning
-       - all
+       - total
 
 - name: add templates
   template: src={{ item.name }} dest={{ item.destination }}
@@ -65,7 +65,7 @@
     - { name: 'search-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
   tags:
        - serach
-       - all
+       - total
 
 - name: add templates
   template: src={{ item.name }} dest={{ item.destination }}
@@ -73,7 +73,7 @@
     - { name: 'config-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
   tags:
        - config
-       - all
+       - total
 
 - name: Install Tomcat init script
   copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=755

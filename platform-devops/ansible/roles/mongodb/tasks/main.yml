@@ -3,14 +3,14 @@
 - name: add 10gen repo file
   template: src=mongodb.repo.j2 dest=/etc/yum.repos.d/mongodb-org-2.6.repo
   tags:
-       - always
+       - mongodb
 
 
 - name: install mongodb
   yum: name=mongodb-org state=present update_cache=yes
   notify: mongodb start
   tags:
-       - always
+       - mongodb
 
 
 
