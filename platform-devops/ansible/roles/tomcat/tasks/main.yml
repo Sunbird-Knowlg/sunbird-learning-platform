@@ -43,7 +43,7 @@
   tags:
        - always
 
-- name: add templates
+- name: add templates language-service.xml
   template: src={{ item.name }} dest={{ item.destination }}
   with_items:  
     - { name: 'language-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
@@ -51,7 +51,7 @@
        - language
        - total
 
-- name: add templates
+- name: add templates learning-service.xml
   template: src={{ item.name }} dest={{ item.destination }}
   with_items:  
     - { name: 'learning-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
@@ -59,7 +59,7 @@
        - learning
        - total
 
-- name: add templates
+- name: add templates search-service.xml
   template: src={{ item.name }} dest={{ item.destination }}
   with_items:  
     - { name: 'search-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }

@@ -1,15 +1,15 @@
-- hosts: learning
+- hosts: hostlearning
   roles:
         - stopservice
 
-- hosts: language
+- hosts: hostlanguage
   roles:
         - stopservice
 
-- hosts: search
+- hosts: hostsearch
   roles:
         - stopservice
 
-- hosts: config
+- hosts: hostconfig
   roles:
         - stopservice

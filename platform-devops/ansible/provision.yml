@@ -1,169 +1,54 @@
-
-- hosts: language
-  remote_user: ec2-user
+- hosts: hostlanguage
+  gather_facts: no
   become: yes
-  pre_tasks:
-            - name: create folder data language
-              become: yes
-              file: path={{ item }} state=directory mode=0755
-              with_items:
-                         - /data
-                         - /data/graphDB
-                         - /data/logs
-                         - /data/contentBundle
-                         - /data/prsoperties
-                         - /data/properties/language
-              tags:
-                   - language
-    
-            - name: Change ownership of data directory
-              become: yes
-              file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              tags:
-                   - language
   roles:
         - java
+        - createpath
         - aws-login
         - tomcat
         - logstash
 
-
-- hosts: total
-  remote_user: ec2-user
+- hosts: hostlearning
+  gather_facts: no
   become: yes
-  pre_tasks:
-            - name: create folder data
-              become: yes
-              file: path={{ item }} state=directory mode=0755
-              with_items:
-                         - /data
-                         - /data/logs
-                         - /data/graphDB
-                         - /data/contentBundle
-                         - /data/properties
-                         - /data/properties/config
-                         - /data/properties/search
-                         - /data/properties/language
-                         - /data/properties/language
-                         - /data/properties/learning
-              tags:
-                   - total
-
-            - name: Change ownership of data directory
-              become: yes
-              file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              tags:
-                   - total
   roles:
         - java
+        - createpath
         - aws-login
         - tomcat
         - ffmpeg
         - imagemagick
-        - logstash
+        - logstash  
 
 
-- hosts: learning
-  remote_user: ec2-user
+- hosts: hostsearch
+  gather_facts: no
   become: yes
-  pre_tasks:
-            - name: create folder data learning
-              become: yes
-              file: path={{ item }} state=directory mode=0755
-              with_items:
-                         - /data
-                         - /data/graphDB
-                         - /data/logs
-                         - /data/contentBundle
-                         - /data/properties
-                         - /data/properties/learning
-              tags:
-                   - learning
-    
-            - name: Change ownership of data directory
-              become: yes
-              file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              tags:
-                   - learning
   roles:
         - java
-        - aws-login
-        - tomcat
-        - ffmpeg
-        - imagemagick
-        - logstash
-
-
-- hosts: search
-  remote_user: ec2-user
-  become: yes
-  pre_tasks:
-            - name: create folder data search
-              become: yes
-              file: path={{ item }} state=directory mode=0755
-              with_items:
-                         - /data
-                         - /data/logs
-                         - /data/contentBundle
-                         - /data/properties
-                         - /data/properties/search
-              tags:
-                   - search
-
-            - name: Change ownership of data directory
-              become: yes
-              file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              tags:
-                  - search 
-  roles:
-        - java
+        - createpath
         - aws-login
         - tomcat
         - logstash
-                            
 
-- hosts: config
-  remote_user: ec2-user
+- hosts: hostconfig
+  gather_facts: no
   become: yes
-  pre_tasks:
-            - name: create folder data config   
-              become: yes
-              file: path={{ item }} state=directory mode=0755
-              with_items:
-                         - /data
-                         - /data/logs
-                         - /data/contentBundle
-                         - /data/properties
-                         - /data/properties/config
-    
-              tags:
-                   - config
-
-            - name: Change ownership of data directory
-              become: yes
-              file: path=/data owner={{user}} group={{user}} state=directory recurse=yes
-              tags:
-                   - config
-
   roles:
         - java
+        - createpath
         - aws-login
         - tomcat  
         - logstash  
 
-- hosts: redis
-  remote_user: ec2-user
+- hosts: hostredis
+  gather_facts: no
   become: yes
   roles:
         - redis
 
-
-- hosts: mongodb
-  remote_user: ec2-user
+- hosts: hostmongodb
+  gather_facts: no
   become: yes
   roles:
         - mongodb
-
-
-
-

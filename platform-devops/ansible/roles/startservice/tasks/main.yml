@@ -1,7 +1,4 @@
 ---
-- name: start elasticsearch
-  become: yes
-  service: name=elasticsearch state=started
 
 - name: mongodb start
   become: yes
