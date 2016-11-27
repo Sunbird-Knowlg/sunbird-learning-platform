@@ -14,6 +14,7 @@ import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import io.searchbox.core.CountResult;
 import io.searchbox.core.SearchResult;
@@ -301,6 +302,7 @@ public class SearchProcessor {
 			}
 		}
 		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
+		elasticSearchUtil.setOffset(searchDTO.getOffset());
 
 		if (sort && !relevanceSort) {
 			Map<String, String> sortBy = searchDTO.getSortBy();
@@ -315,16 +317,16 @@ public class SearchProcessor {
 		if (searchDTO.isFuzzySearch()) {
 			Map<String, Double> weightagesMap = (Map<String, Double>) searchDTO.getAdditionalProperty("weightagesMap");
 			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList,
-					searchDTO.getSortBy(), weightagesMap);
+					searchDTO.getSortBy(), weightagesMap,searchDTO.getFields());
 		} else {
-			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(),searchDTO.getFields());
 		}
 		return query;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages)
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages, List<String> fields)
 					throws Exception {
 
 		JSONBuilder builder = new JSONStringer();
@@ -333,7 +335,10 @@ public class SearchProcessor {
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
 		Map<String, Object> baseConditions = new HashMap<String, Object>();
-
+		if(null!=fields){
+			fields.add(GraphDACParams.objectType.name());
+			fields.add(GraphDACParams.identifier.name());
+		}
 		if (weightages == null) {
 			weightages = new HashMap<String, Double>();
 			weightages.put("default_weightage", 1.0);
@@ -511,6 +516,14 @@ public class SearchProcessor {
 			}
 			builder.endObject();
 		}
+		
+		if (fields != null && !fields.isEmpty()) {
+			builder.key("_source").array();
+			for(String field:fields){
+				builder.value(field);
+			}
+			builder.endArray();
+		}
 
 		builder.endObject();
 		return builder.toString();
@@ -518,13 +531,16 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy) throws Exception {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, List<String> fields) throws Exception {
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
-
+		if(null!=fields){
+			fields.add(GraphDACParams.objectType.name());
+			fields.add(GraphDACParams.identifier.name());
+		}
 		if ((mustConditions != null && !mustConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
 				|| (notConditions != null && !notConditions.isEmpty())) {
@@ -698,6 +714,14 @@ public class SearchProcessor {
 					fieldName = entry.getKey() + CompositeSearchConstants.RAW_FIELD_EXTENSION;
 				}
 				builder.object().key(fieldName).value(entry.getValue()).endObject();
+			}
+			builder.endArray();
+		}
+		
+		if (fields != null && !fields.isEmpty()) {
+			builder.key("_source").array();
+			for(String field:fields){
+				builder.value(field);
 			}
 			builder.endArray();
 		}

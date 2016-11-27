@@ -9,9 +9,11 @@ public class SearchDTO {
 	@SuppressWarnings("rawtypes")
 	private List<Map> properties;
 	private List<String> facets;
+	private List<String> fields;
 	private Map<String, String> sortBy;
 	private String operation;
 	private int limit;
+	private int offset;
 	boolean fuzzySearch = false;
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 	
@@ -76,5 +78,18 @@ public class SearchDTO {
 	}
 	public void addAdditionalProperty(String key, Object value) {
 		this.additionalProperties.put(key, value);
+	}
+	public List<String> getFields() {
+		return fields;
+	}
+	public void setFields(List<String> fields) {
+		this.fields = fields;
+	}
+	
+	public int getOffset() {
+		return offset;
+	}
+	public void setOffset(int offset) {
+		this.offset = offset;
 	}
 }

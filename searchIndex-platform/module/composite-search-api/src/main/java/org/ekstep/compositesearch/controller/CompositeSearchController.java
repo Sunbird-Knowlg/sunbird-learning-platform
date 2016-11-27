@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 
@@ -34,15 +36,35 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "composite-search.search";
 		LOGGER.info(apiId + " | Request : " + map);
+		Response  response;
+		int count = 0;
+		
 		Request request = getRequest(map);
+		
 		Map<String, Object> requestMap = (Map<String, Object>) map.get("request"); 
 		String queryString = (String) requestMap.get(CompositeSearchParams.query.name());
 		Object filters = requestMap.get(CompositeSearchParams.filters.name());
 		Object sort = requestMap.get(CompositeSearchParams.sort_by.name());
+		try {
 		Response searchResponse = compositeSearchManager.search(request);
-		Response  response = compositeSearchManager.getSearchResponse(searchResponse);
+		if(!checkError(searchResponse)){
+			response = compositeSearchManager.getSearchResponse(searchResponse);
+			if(null != response.getResult() && !response.getResult().isEmpty()) {
+				count = (Integer) response.getResult().get("count");
+			}
+		}else {
+			response = searchResponse;
+		}
+		}catch(NullPointerException e) {
+			Response res = new Response();
+			res.setResponseCode(ResponseCode.SERVER_ERROR);
+			ResponseParams params = new ResponseParams(); 
+			params.setErrmsg("Not able to process data");
+			params.setStatus("Failed");
+			res.setParams(params);
+			response = res;
+		}
 		String correlationId = UUID.randomUUID().toString();
-		int count = (int) response.getResult().get("count");
 		LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count);
 		return getResponseEntity(response, apiId, null, correlationId);
 	}

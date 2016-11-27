@@ -362,7 +362,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * @see com.ilimi.taxonomy.mgr.IContentManager#publish(java.lang.String,
 	 * java.lang.String)
 	 */
-	public Response publish(String taxonomyId, String contentId) {
+	public Response publish(String taxonomyId, String contentId, String publisher) {
 		LOGGER.debug("Graph ID: " + taxonomyId);
 		LOGGER.debug("Content ID: " + contentId);
 
@@ -386,7 +386,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
 		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
-
+		
+		if(null!=publisher && !StringUtils.isBlank(publisher)){
+			LOGGER.debug("Publisher: " + publisher);
+			node.getMetadata().put("publisher", publisher);
+		}
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 
@@ -417,5 +421,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Returning 'Response' Object.");
 		return response;
 	}
-
+	
+	
 }
