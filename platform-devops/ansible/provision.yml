@@ -39,8 +39,7 @@
         - createpath
         - aws-login
         - tomcat  
-        - logstash  
-
+      
 - hosts: hostredis
   gather_facts: no
   become: yes
