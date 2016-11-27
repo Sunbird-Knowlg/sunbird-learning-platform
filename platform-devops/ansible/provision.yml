@@ -98,7 +98,7 @@
 
 
 
-- hosts: all
+- hosts: total
   remote_user: ec2-user
   become: yes
   pre_tasks:

@@ -17,34 +17,34 @@
        - always
 
 
-- name: change the permissions
+- name: change the permissions of ffmpeg
   file: path=/home/ec2-user/ffmpeg owner=ec2-user group=ec2-user recurse=yes
   tags:
        - always
 
 
-- name: run the commands
+- name: run the command ./configure
   become: yes
   command: chdir=/home/ec2-user/ffmpeg  ./configure --disable-yasm
   tags:
        - always
 
        
-- name: run the commands
+- name: run the command make
   become: yes
   command: chdir=/home/ec2-user/ffmpeg  make
   tags:
        - always
 
 
-- name: run the commands
+- name: run the command make install
   become: yes
   command: chdir=/home/ec2-user/ffmpeg make install
   tags:
        - always
 
 
-- name: move files
+- name: move ffmpeg files
   become: yes
   command: cp {{ user_home }}/ffmpeg/{{ item }} /usr/local/bin
   with_items:
@@ -55,7 +55,7 @@
        - always
 
   
-- name: move files
+- name: Change permissions after copying ffmpeg files
   become: yes
   file: path=/usr/local/bin/{{ item }} owner=ec2-user group=ec2-user mode=0755
   with_items:

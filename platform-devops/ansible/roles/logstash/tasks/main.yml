@@ -38,9 +38,9 @@
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
   tags:
-       - all 
+       - total 
 #******************************************Check the process is running or not*****************************************************
-- name: copy template
+- name: copy template of shell script to stop service
   template: src=stop_logstash_script.j2 dest={{ user_home }}/stop_logstash_script.sh
   tags: 
        - always
@@ -59,7 +59,7 @@
   tags: 
        - learning
        - language
-       - all
+       - total
 
 - name: Check if logstash for word events is running
   become_user: ec2-user
@@ -69,10 +69,10 @@
        - learning
        - search
        - language
-       - all
+       - total
   
 #******************************************Run the process if not running*****************************************************
-- name: Run logstash
+- name: Run logstash graph-events
   become_user: ec2-user
   become: yes
   shell: /home/ec2-user/logstash-2.3.3/bin/logstash -f /home/ec2-user/logstash-2.3.3/logstash-graph-events.conf -v &
@@ -82,7 +82,7 @@
   tags: 
        - learning
        - language
-       - all
+       - total
 
 
 - name: Run logstash for word events
@@ -96,5 +96,5 @@
        - learning
        - search
        - language
-       - all
+       - total
 
