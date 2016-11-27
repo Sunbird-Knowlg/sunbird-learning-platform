@@ -52,3 +52,15 @@
   become: yes
   roles:
         - mongodb
+
+- hosts: hosttotal
+  gather_facts: no
+  become: yes
+  roles:
+        - java
+        - createpath
+        - aws-login
+        - tomcat
+        - ffmpeg
+        - imagemagick
+        - logstash 
