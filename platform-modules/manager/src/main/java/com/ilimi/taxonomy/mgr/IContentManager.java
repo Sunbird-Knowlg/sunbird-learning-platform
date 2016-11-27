@@ -90,35 +90,11 @@ public interface IContentManager {
 	 *            the <code>graph id</code> of the content.
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be publish.
+	 * @param String
+	 * 			  the publisher
 	 * @return the response contains the ECAR <code>URL</code> in its Result Set
 	 */
-	Response publish(String taxonomyId, String contentId);
-	
-	/**
-	 * Publish is High level Content Operation mainly deals with the tasks
-	 * needed for making any content in <code>LIVE</code> state. It includes the
-	 * downloading of all the <code>assets</code> and <code>icons</code> to the
-	 * storage space, replace the <code>URLs</code> with relative Urls, set the
-	 * <code>body</code> of content object. Finally Creates the
-	 * <code>ECAR</code> and upload the package to Storage Space, update the
-	 * package version information, sets the <code>downloadUrl</code> property.
-	 * 
-	 * <p>
-	 * It is a <code>Pipelined Operation</code> which is accomplished by several
-	 * <code>Processors</code> meant for atomic tasks.
-	 * 
-	 * <p>
-	 * A subclass must provide an implementation of this method.
-	 *
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
-	 * @param contentId
-	 *            the content <code>identifier</code> which needs to be publish.
-	 * @param Request
-	 * 			  the request object  containing publisher Id
-	 * @return the response contains the ECAR <code>URL</code> in its Result Set
-	 */
-	Response publish(String taxonomyId, String contentId, Request req);
+	Response publish(String taxonomyId, String contentId, String publisher);
 
 	/**
 	 * Bundle is a High level Content Operation mainly deals with providing the

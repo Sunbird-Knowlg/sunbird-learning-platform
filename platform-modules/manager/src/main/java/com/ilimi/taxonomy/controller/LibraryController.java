@@ -58,7 +58,7 @@ public class LibraryController extends BaseController {
         String apiId = "library.publish";
         LOGGER.info("Publish library | Library Id : " + libraryId);
         try {
-            Response response = contentManager.publish(graphId, libraryId);
+            Response response = contentManager.publish(graphId, libraryId, null);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Publish | Exception: " + e.getMessage(), e);
