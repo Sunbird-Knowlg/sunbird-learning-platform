@@ -165,7 +165,8 @@ public class SearchManager extends SearchBaseActor {
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
-			properties.addAll(getSearchQueryProperties(queryString, fields));
+			//Changing fields to null so that search all fields but returns only the fields specified
+			properties.addAll(getSearchQueryProperties(queryString, null)); 
 			properties.addAll(getSearchFilterProperties(filters, wordChainsRequest));
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
@@ -175,7 +176,7 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 			
 			if (null != req.get(CompositeSearchParams.offset.name())) {
-				int offset = (int) req.get(CompositeSearchParams.offset.name());
+				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
 				searchObj.setOffset(offset);
 			}
 			

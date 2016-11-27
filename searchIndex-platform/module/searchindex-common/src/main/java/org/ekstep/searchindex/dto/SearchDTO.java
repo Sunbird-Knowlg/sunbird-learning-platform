@@ -85,6 +85,7 @@ public class SearchDTO {
 	public void setFields(List<String> fields) {
 		this.fields = fields;
 	}
+	
 	public int getOffset() {
 		return offset;
 	}

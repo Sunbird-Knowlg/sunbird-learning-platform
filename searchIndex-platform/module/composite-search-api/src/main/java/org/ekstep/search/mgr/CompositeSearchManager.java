@@ -28,7 +28,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.COUNT.name());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
-			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(),getErrorMessage(getRes),ResponseCode.SERVER_ERROR);
+			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}
 		
 		return getRes;
@@ -38,7 +38,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.METRICS.name());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
-			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(),getErrorMessage(getRes),ResponseCode.SERVER_ERROR);
+			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}
 		
 		return getRes;
@@ -50,7 +50,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 		request.put("searchResult", searchResult.getResult());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
-			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(),getErrorMessage(getRes),ResponseCode.SERVER_ERROR);
+			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}
 		
 		return getRes;

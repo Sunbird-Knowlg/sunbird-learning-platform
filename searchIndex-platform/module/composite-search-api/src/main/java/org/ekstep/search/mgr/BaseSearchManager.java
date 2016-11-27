@@ -43,7 +43,7 @@ public class BaseSearchManager {
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(),ResponseCode.SERVER_ERROR);
+            return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
         }
     }
 

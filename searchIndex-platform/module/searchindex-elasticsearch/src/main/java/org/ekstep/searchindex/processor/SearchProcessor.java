@@ -335,7 +335,10 @@ public class SearchProcessor {
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
 		Map<String, Object> baseConditions = new HashMap<String, Object>();
-
+		if(null!=fields){
+			fields.add(GraphDACParams.objectType.name());
+			fields.add(GraphDACParams.identifier.name());
+		}
 		if (weightages == null) {
 			weightages = new HashMap<String, Double>();
 			weightages.put("default_weightage", 1.0);
@@ -395,9 +398,6 @@ public class SearchProcessor {
 					String queryOperation = (String) textCondition.get("operation");
 					String fieldName = (String) textCondition.get("fieldName");
 					Object value = (Object) textCondition.get("value");
-					if(fieldName.equals(GraphDACParams.objectType.name())&& null!=fields){
-						fields.add(fieldName);
-					}
 					getConditionsQuery(queryOperation, fieldName, value, builder);
 					if (weightages.containsKey(fieldName)) {
 						weight = weightages.get(fieldName);
@@ -537,7 +537,10 @@ public class SearchProcessor {
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
-
+		if(null!=fields){
+			fields.add(GraphDACParams.objectType.name());
+			fields.add(GraphDACParams.identifier.name());
+		}
 		if ((mustConditions != null && !mustConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
 				|| (notConditions != null && !notConditions.isEmpty())) {
@@ -582,9 +585,6 @@ public class SearchProcessor {
 					String queryOperation = (String) textCondition.get("operation");
 					String fieldName = (String) textCondition.get("fieldName");
 					Object value = (Object) textCondition.get("value");
-					if(fieldName.equals(GraphDACParams.objectType.name())&& null!=fields){
-						fields.add(fieldName);
-					}
 					getConditionsQuery(queryOperation, fieldName, value, builder);
 					builder.endObject();
 				}

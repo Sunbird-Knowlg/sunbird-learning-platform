@@ -386,7 +386,7 @@ public class ElasticSearchUtil {
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String IndexType, String query) throws IOException {
 		Search search = new Search.Builder(query).addIndex(IndexName).addType(IndexType)
-				.setParameter("size", resultLimit).build();
+				.setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
 		if (result.getErrorMessage() != null) {
