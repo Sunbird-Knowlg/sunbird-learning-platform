@@ -19,7 +19,7 @@ else
         do
             if [ $j != domain ]; then
                         zip -r $j.zip $j
-                        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$i.zip ec2-user@{{to_language}}:/data/graphDB
+                        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$j.zip ec2-user@{{to_language}}:/data/graphDB
                         rm -rf $j.zip
             fi
         done
