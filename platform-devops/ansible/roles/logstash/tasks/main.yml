@@ -3,20 +3,29 @@
 - name: Download th zip
   get_url: url=https://download.elastic.co/logstash/logstash/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz  timeout=1000 force=no owner=ec2-user 
   tags: 
-       - always
+       - learning
+       - language
+       - search
+       - total
 
 - name: unzip 
   unarchive: src=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates=/home/ec2-user/logstash-2.3.3
   tags: 
-       - always
+       - learning
+       - language
+       - search
+       - total
 
 - name: set permissions
   file: path=/home/ec2-user/logstash-2.3.3 owner=ec2-user group=ec2-user mode=0755 recurse=yes 
   tags: 
-       - always
+       - learning
+       - language
+       - search
+       - total
 
 #****************************ADD EVENTS********************************************
-- name: add logstash configuration files for learning
+- name: add logstash configuration files for learning and language
   template: src={{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
