@@ -51,5 +51,4 @@ hostsearch
 hostconfig
 hostredis
 hostmongodb
-hosttotal
 cassandra
