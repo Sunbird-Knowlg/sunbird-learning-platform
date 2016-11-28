@@ -22,6 +22,7 @@ import org.ekstep.language.measures.meta.OrthographicVectors;
 import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.DefinitionDTOCache;
+import org.ekstep.language.util.LanguageUtil;
 import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
@@ -54,6 +55,9 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 			    List<Map<String, String>> suitableGradeSummary = ParagraphMeasures.getSuitableGradeSummaryInfo(languageId, pc.getMeanComplexity()); 
                 if(suitableGradeSummary != null)
                 	props.put("gradeLevels", suitableGradeSummary);
+                Map<String, Integer> themes = ParagraphMeasures.getThemes(LanguageUtil.getTokens(text), languageId);
+                if(themes!=null && themes.size()>0)
+                	props.put("themes",themes);
 				OK(LanguageParams.text_complexity.name(), props, getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.analyseTexts.name(), operation)) {
 			    Map<String, String> texts = (Map<String, String>) request.get(LanguageParams.texts.name());
