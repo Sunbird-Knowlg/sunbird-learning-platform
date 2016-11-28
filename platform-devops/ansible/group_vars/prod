@@ -26,8 +26,10 @@ graphevent_kafka_url: "10.10.1.207:9092"
 graphevent_kafka_topic_id: "production.learning.graph.events"
 content_to_vec_url: http://10.10.1.107:9000/content-to-vec
 s3_config_environment: prod
-to_learning:
-to_language:
-to_total:
 cql_path: cqlsh
 cassandra_user: ubuntu
+
+to_learning: 172.31.12.237
+to_language: 172.31.12.237
+to_total: 172.31.12.237
+mongo_machine: 172.31.12.237

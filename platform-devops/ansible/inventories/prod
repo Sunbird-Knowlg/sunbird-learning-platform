@@ -58,4 +58,4 @@ hostconfig
 hostredis
 hostmongodb
 hosttotal
-                                                                                                                                     
+cassandra
