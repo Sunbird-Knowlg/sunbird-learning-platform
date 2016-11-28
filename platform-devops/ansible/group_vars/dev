@@ -27,7 +27,7 @@ content_to_vec_url: http://172.31.25.29:9000/content-to-vec
 s3_config_environment: dev
 cassandra_user: ec2-user
 cql_path: "/mnt/data/analytics/apache-cassandra-3.7/bin/cqlsh"
-redis_host: 172.31.31.183
+redis_host: localhost
 redis_port: 6372
 cassandra_host: 172.31.25.29
 cassandra_port: 9042
