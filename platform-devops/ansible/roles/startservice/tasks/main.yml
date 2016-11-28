@@ -10,6 +10,7 @@
   become: yes
   service: name=mongod state=started
   when: "mongod_process.stdout == '0'"
+  ignore_errors: yes
 
 
 - name: Check if redis is running
