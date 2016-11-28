@@ -31,9 +31,10 @@ public interface IAuditHistoryManager {
 	 *            The start Time
 	 * @param timestamp2
 	 *            The end Time
+     * @param endTime 
 	 * @return the response which contains all AuditHistoryLogs 
 	 */
-    Response getAuditHistory(String graphId,String timestamp1,String timestamp2);
+    Response getAuditHistory(String graphId,String timestamp1,String timestamp2, String versionId);
     
     /**
 	 * This method carries the entire operation of fetching AuditHistory Logs for a given ObjectType
@@ -50,7 +51,7 @@ public interface IAuditHistoryManager {
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given ObjectType
 	 */
-    Response getAuditHistoryByType(String graphId, String objectType,String timeStamp1,String timeStamp2);
+    Response getAuditHistoryByType(String graphId, String objectType,String timeStamp1,String timeStamp2, String versionId);
     
     /**
 	 * This method carries the entire operation of fetching AuditHistory Logs for a given ObjectId
@@ -67,23 +68,21 @@ public interface IAuditHistoryManager {
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given ObjectId
 	 */
-    Response getAuditHistoryById(String graphId, String objectId,String timeStamp1,String timeStamp2);
+    Response getAuditHistoryById(String graphId, String objectId,String timeStamp1,String timeStamp2, String versionId);
 
     /**
-	 * This method carries the entire operation of fetching AuditHistory Logs for a given auditId
+	 * This method carries the entire operation of fetching AuditHistory Logs for a given objectId
 	 * from mysql DB which holds all the modification details done on a particular object,
 	 * It creates request object from the params and calls AuditHistoryDataService for further processing
 	 *
 	 * @param graphId
 	 *            The graph id
 	 * @param auditId
-	 *            The auditId
+	 *            The object id
 	 * @param timestamp1
-	 *            The start Time
-	 * @param timestamp2
-	 *            The end Time
-	 * @return the response which contains AuditHistoryLogs for an given auditId
+	 *            The time_stamp
+	 * @return the response which contains AuditHistoryLogs for an given objectid
 	 */
-	Response getAuditLogRecordByAuditId(String audit_id, String startTime, String endTime);
+	Response getAuditLogRecordById(String objectId, String timestamp);
 
 }

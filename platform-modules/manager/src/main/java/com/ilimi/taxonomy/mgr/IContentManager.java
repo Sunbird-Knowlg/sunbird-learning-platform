@@ -90,9 +90,11 @@ public interface IContentManager {
 	 *            the <code>graph id</code> of the content.
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be publish.
+	 * @param String
+	 * 			  the publisher
 	 * @return the response contains the ECAR <code>URL</code> in its Result Set
 	 */
-	Response publish(String taxonomyId, String contentId);
+	Response publish(String taxonomyId, String contentId, String publisher);
 
 	/**
 	 * Bundle is a High level Content Operation mainly deals with providing the

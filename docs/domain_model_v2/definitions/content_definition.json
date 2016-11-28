@@ -1108,7 +1108,9 @@
             "Live",
             "Retired",
             "Mock",
-            "Processing"
+            "Processing",
+            "FlagDraft",
+            "FlagReview"
           ],
           "required": false,
           "displayProperty": "Editable",
@@ -1612,6 +1614,49 @@
           "renderingHints": "{}",
           "indexed": true,
           "draft": false
+        },
+        {
+          "propertyName": "flagReasons",
+          "title": "Flag Reasons",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "Multi-Select",
+          "range": [
+            "Inappropriate Content",
+            "Copyright Violation",
+            "Privacy Violation",
+            "Other"
+          ],
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true
+        },
+        {
+          "propertyName": "flaggedBy",
+          "title": "Flagged By",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true
+        },
+        {
+          "propertyName": "lastFlaggedOn",
+          "title": "Last Flagged On",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}"
         }
       ],
       "inRelations": [
@@ -1797,7 +1842,8 @@
         "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount", 
         "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
-        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants"]
+        "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants","flagReasons",
+        "flaggedBy","lastFlaggedOn"]
       }
     }
   ]

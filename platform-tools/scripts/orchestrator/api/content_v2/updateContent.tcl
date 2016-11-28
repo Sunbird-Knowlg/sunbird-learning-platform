@@ -1,7 +1,8 @@
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map Date
-java::import -package com.ilimi.graph.dac.model Node
+java::import -package java.util HashSet Set
+java::import -package com.ilimi.graph.dac.model Node Relation
 java::import -package com.ilimi.graph.common DateUtils
 
 proc proc_isNotNull {value} {
@@ -36,6 +37,19 @@ proc proc_isEmpty {value} {
 	}
 	return $exist
 }
+
+proc proc_isNotEmpty {relations} {
+	set exist false
+	set hasRelations [java::isnull $relations]
+	if {$hasRelations == 0} {
+		set relationsSize [$relations size] 
+		if {$relationsSize > 0} {
+			set exist true
+		}
+	}
+	return $exist
+}
+
 set object_null [java::isnull $content]
 if {$object_null == 1} {
 	set result_map [java::new HashMap]
@@ -110,27 +124,34 @@ if {$object_null == 1} {
 				set status_val [$metadata get "status"]
 				set status_val_str [java::new String [$status_val toString]]
 				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
+				set isFlaggedReviewState [$status_val_str equalsIgnoreCase "FlagReview"]
 				set input_status [$content get "status"]
 				set input_status_null [java::isnull $input_status]
 				set log_event 0
 				if {$input_status_null == 0} {
 					set input_status_str [java::new String [$input_status toString]]
 					set updateToReviewState [$input_status_str equalsIgnoreCase "Review"]
-					if {$updateToReviewState == 1 && $isReviewState != 1} {
+					set updateToFlagReviewState [$input_status_str equalsIgnoreCase "FlagReview"]
+					if {( $updateToReviewState == 1 || $updateToFlagReviewState == 1 ) && ( $isReviewState != 1 || $isFlaggedReviewState != 1 )} {
 						$content put "lastSubmittedOn" [java::call DateUtils format [java::new Date]]
 					}
 					if {![$input_status_str equals $status_val_str]} {
 						set log_event 1
 					}
 				}
-				set domain_obj [convert_to_graph_node $content $def_node]
+				set domain_obj [convert_to_graph_node $content $def_node $graph_node]
 				set create_response [updateDataNode $graph_id $content_id $domain_obj]
-				if {$log_event == 1} {
-					$metadata putAll $content
-					$metadata put "prevState" $status_val_str
-					set log_response [log_content_lifecycle_event $content_id $metadata]
+				set check_error [check_response_error $create_response]
+				if {$check_error} {
+					return $create_response
+				} else {
+					if {$log_event == 1} {
+						$metadata putAll $content
+						$metadata put "prevState" $status_val_str
+						set log_response [log_content_lifecycle_event $content_id $metadata]
+					}
+					return $create_response
 				}
-				return $create_response
 			}
 		}
 	} else {

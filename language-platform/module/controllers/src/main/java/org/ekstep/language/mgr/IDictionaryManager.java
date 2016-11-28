@@ -166,6 +166,24 @@ public interface IDictionaryManager {
 	 */
 	Response updateWordV2(String languageId, String id, String objectType, Request request, boolean forceUpdate);
 
+	
+	/**
+	 * Update word  paritally V2.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param id
+	 *            the id
+	 * @param objectType
+	 *            the object type
+	 * @param request
+	 *            the request
+	 * @param forceUpdate
+	 *            the force update
+	 * @return the response
+	 */
+	Response partialUpdateWordV2(String languageId, String id, String objectType, Request request, boolean forceUpdate);
+	
 	/**
 	 * Load english words arpabets map into Redis.
 	 *

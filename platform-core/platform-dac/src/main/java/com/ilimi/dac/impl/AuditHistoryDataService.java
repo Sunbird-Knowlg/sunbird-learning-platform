@@ -1,7 +1,6 @@
 package com.ilimi.dac.impl;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,9 +8,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.fasterxml.jackson.core.type.TypeReference;
+
+import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,9 +29,9 @@ import com.ilimi.dac.impl.entity.AuditHistoryEntity;
 import com.ilimi.dac.impl.entity.dao.AuditHistoryDao;
 
 /**
- * The Class AuditHistoryDataService provides implementations of the various operations
- * defined in the IAuditHistoryDataService
- * It extends BaseDataAccessService  which is base class for DAC services.
+ * The Class AuditHistoryDataService provides implementations of the various
+ * operations defined in the IAuditHistoryDataService It extends
+ * BaseDataAccessService which is base class for DAC services.
  * 
  * @author Karthik, Rashmi
  * 
@@ -44,19 +43,19 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
 	/** The model mapper. */
 	private ModelMapper modelMapper = null;
-	
-	/** The Object mapper */
-	private ObjectMapper objecMapper = null;
 
-    /** This is the init method for the AuditHistoryDataService */	
+	/** The Object mapper */
+	private ObjectMapper objectMapper = null;
+
+	/** This is the init method for the AuditHistoryDataService */
 	public AuditHistoryDataService() {
 		modelMapper = new ModelMapper();
 		TransformationHelper.createTypeMap(modelMapper, AuditHistoryRecord.class, AuditHistoryEntity.class);
-		objecMapper = new ObjectMapper();
-		// objecMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
+		objectMapper = new ObjectMapper();
+		// objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
 		// false);
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a z");
-		objecMapper.setDateFormat(df);
+		objectMapper.setDateFormat(df);
 	}
 
 	@Autowired
@@ -65,8 +64,9 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #saveAuditHistoryLog(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService
+	 * #saveAuditHistoryLog(java.lang.String, java.lang.String, java.io.File,
+	 * java.lang.String)
 	 */
 	@Transactional
 	public Response saveAuditHistoryLog(Request request) {
@@ -75,41 +75,42 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		modelMapper.map(auditRecord, entity);
 		dao.save(entity);
 		return OK(CommonDACParams.audit_history_record_id.name(), entity.getId());
-
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditHistoryLog(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService
+	 * #getAuditHistoryLog(java.lang.String, java.lang.String, java.io.File,
+	 * java.lang.String)
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Transactional
-	public Response getAuditHistoryLog(Request request) {
+	public Response getAuditHistoryLog(Request request, String versionId) {
 
 		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
-
 		Search search = new Search();
+		search = setSearchCriteria(versionId);
 		if (start_date != null)
 			search.addFilterGreaterOrEqual("createdOn", start_date);
 		if (end_date != null)
 			search.addFilterLessOrEqual("createdOn", end_date);
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
-		Type listType = new TypeToken<List<AuditHistoryRecord>>() {
-		}.getType();
-		List<AuditHistoryRecord> auditHistoryRecords = modelMapper.map(auditHistoryLogEntities, listType);
-		return OK(CommonDACParams.audit_history_record.name(), getAllResponseObject(auditHistoryRecords));
+		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditHistoryLogByObjectType(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService
+	 * #getAuditHistoryLogByObjectType(java.lang.String, java.lang.String,
+	 * java.io.File, java.lang.String)
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Transactional
-	public Response getAuditHistoryLogByObjectType(Request request) {
+	public Response getAuditHistoryLogByObjectType(Request request, String versionId) {
 
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		String objectType = (String) request.get(CommonDACParams.object_type.name());
@@ -117,6 +118,7 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
 
 		Search search = new Search();
+		search = setSearchCriteria(versionId);
 		search.addFilterEqual("graphId", graphId);
 		search.addFilterEqual("objectType", objectType);
 		if (start_date != null)
@@ -124,142 +126,155 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		if (end_date != null)
 			search.addFilterLessOrEqual("createdOn", end_date);
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
-		Type listType = new TypeToken<List<AuditHistoryRecord>>() {
-		}.getType();
-		List<AuditHistoryRecord> auditHistoryRecords = modelMapper.map(auditHistoryLogEntities, listType);
-		return OK(CommonDACParams.audit_history_record.name(), getAllResponseObject(auditHistoryRecords));
+		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditHistoryLogByObjectId(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService
+	 * #getAuditHistoryLogByObjectId(java.lang.String, java.lang.String,
+	 * java.io.File, java.lang.String)
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Transactional
-	public Response getAuditHistoryLogByObjectId(Request request) {
+	public Response getAuditHistoryLogByObjectId(Request request, String versionId) {
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
 		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
 
 		Search search = new Search();
+		search = setSearchCriteria(versionId);
 		search.addFilterEqual("graphId", graphId);
 		search.addFilterEqual("objectId", objectId);
 		if (start_date != null)
 			search.addFilterGreaterOrEqual("createdOn", start_date);
 		if (end_date != null)
 			search.addFilterLessOrEqual("createdOn", end_date);
-
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
-		Type listType = new TypeToken<List<AuditHistoryRecord>>() {
-		}.getType();
-		List<AuditHistoryRecord> auditHistoryRecords = modelMapper.map(auditHistoryLogEntities, listType);
-		return OK(CommonDACParams.audit_history_record.name(), getAllResponseObject(auditHistoryRecords));
-
+		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see com.ilimi.dac.impl.IAuditHistoryDataService #getAuditLogRecordByAuditId(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
-	 */
-	@Transactional
-	public Response getAuditLogRecordByAuditId(Request request) {
-		String audit_id = (String) request.get(CommonDACParams.audit_id.name());
-		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
-		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
-
-		Search search = new Search();
-		search.addFilterEqual("audit_id", audit_id);
-		if (start_date != null)
-			search.addFilterGreaterOrEqual("createdOn", start_date);
-		if (end_date != null)
-			search.addFilterLessOrEqual("createdOn", end_date);
-
-		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
-		Type listType = new TypeToken<List<AuditHistoryRecord>>() {
-		}.getType();
-		List<AuditHistoryRecord> auditHistoryRecords = modelMapper.map(auditHistoryLogEntities, listType);
-		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryRecords));
-
-	}
-
-	/**
-	 * This method is used to get the ResponseObject in required format
-	 * 
-	 * @param List of AuditHistoryRecords
-	 *                The records
-	 * @return ResponseObject which holds the actual result of the operation
+	 * @see com.ilimi.dac.impl.IAuditHistoryDataService
+	 * #getAuditLogRecordByAuditId(java.lang.String, java.lang.String,
+	 * java.io.File, java.lang.String)
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<Map<String, Object>> getResponseObject(List<AuditHistoryRecord> records) {
-		
-		List<Map<String, Object>> respObj = new ArrayList<Map<String, Object>>();
-		objecMapper = new ObjectMapper();
-		HashMap<String, Object> summary = new HashMap<String, Object>();
-		
-		for (AuditHistoryRecord record : records) {
-			Map<String, Object> props = objecMapper.convertValue(record, Map.class);
-			Object logRecordObj = props.get("logRecord");
-			String summaryRecordObj = (String) props.get("summary");
-			
-			if (logRecordObj != null && logRecordObj instanceof String) {
-				Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
-				Map logRecordProps = gson.fromJson(logRecordObj.toString(), Map.class);
-				props.put("logRecord", logRecordProps);
-			}
-			
-			if (summaryRecordObj != null && summaryRecordObj instanceof String) {
-				TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
-				};
-				try {
-					summary = objecMapper.readValue(summaryRecordObj, typeRef);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				props.put("summary", summary);
-			}
-			respObj.add(props);
-		}
-		return respObj;
+	@Transactional
+	public Response getAuditLogRecordById(Request request) {
+		String objectId = (String) request.get(CommonDACParams.object_id.name());
+		Date time_stamp = (Date) request.get(CommonDACParams.time_stamp.name());
+
+		Search search = new Search();
+		search = setSearchCriteria(null, true);
+		if (time_stamp != null)
+			search.addFilterEqual("createdOn", time_stamp);
+		search.addFilterEqual("objectId", objectId);
+
+		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
+		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 	}
 
 	/**
 	 * This method is used to get the ResponseObject in required format
 	 * 
-	 * @param List of AuditHistoryRecords
-	 *                The records
+	 * @param versionId
+	 * 
+	 * @param List
+	 *            of AuditHistoryRecords The records
 	 * @return ResponseObject which holds the actual result of the operation
 	 */
-	@SuppressWarnings({ "unchecked" })
-	private List<Map<String, Object>> getAllResponseObject(List<AuditHistoryRecord> records) {
-		objecMapper = new ObjectMapper();
-		HashMap<String, Object> summary = new HashMap<String, Object>();
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<Map<String, Object>> getResponseObject(List<Object> records) {
 		List<Map<String, Object>> respObj = new ArrayList<Map<String, Object>>();
-		for (AuditHistoryRecord record : records) {
-			Map<String, Object> props = objecMapper.convertValue(record, Map.class);
-			String summaryRecordObj = (String) props.get("summary");
-
-			if (props.containsKey("logRecord")) {
-				props.remove("logRecord");
-			}
-
-			if (summaryRecordObj != null && summaryRecordObj instanceof String) {
-				TypeReference<HashMap<String, Object>> typeRef = new TypeReference<HashMap<String, Object>>() {
-				};
-				try {
-					summary = objecMapper.readValue(summaryRecordObj, typeRef);
-				} catch (IOException e) {
-					e.printStackTrace();
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		for (Object record : records) {
+			try {
+				if (record != null) {
+					resultMap = (Map) record;
+					try {
+						if (resultMap.containsKey("summary")) {
+							String summaryData = (String) resultMap.get("summary");
+							if (summaryData != null && summaryData instanceof String) {
+								Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
+								Map summary = gson.fromJson(summaryData.toString(), Map.class);
+								resultMap.put("summary", summary);
+							}
+						}
+						if (resultMap.containsKey("logRecord")) {
+							String logData = (String) resultMap.get("logRecord");
+							if (logData != null && logData instanceof String) {
+								Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss a z").create();
+								Map logRecord = gson.fromJson(logData.toString(), Map.class);
+								resultMap.put("logRecord", logRecord);
+							}
+						}
+						Timestamp createdOn  = (Timestamp) resultMap.get("createdOn");
+						DateFormat df = objectMapper.getDateFormat();
+                        resultMap.put("createdOn", df.format(createdOn));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					respObj.add(resultMap);
 				}
-				props.put("summary", summary);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			respObj.add(props);
 		}
 		return respObj;
 	}
 
+	/**
+	 * This method is used set the search criteria based on versionId to fetch
+	 * AuditHistory from DB
+	 * 
+	 * @param versionId
+	 *            The API versionId
+	 */
+
+	public Search setSearchCriteria(String versionId) {
+		return setSearchCriteria(versionId, false);
+	}
+
+	/**
+	 * This method is used set the search criteria based on versionId to fetch
+	 * required AuditHistory fields from DB
+	 * 
+	 * @param versionId
+	 *            The API versionId
+	 * @param returnAllFields
+	 *            The boolean value to retun fields
+	 */
+
+	public Search setSearchCriteria(String versionId, boolean returnAllFields) {
+		Search search = new Search();
+		search.addField("audit_id", "id");
+		search.addField("label", "label");
+		search.addField("objectId", "objectId");
+		search.addField("objectType", "objectType");
+		search.addField("operation", "operation");
+		search.addField("requestId", "requestId");
+		search.addField("userId", "userId");
+		search.addField("graphId", "graphId");
+		search.addField("createdOn", "createdOn");
+		if (returnAllFields) {
+			search.addField("logRecord", "logRecord");
+			search.addField("summary", "summary");
+		} else {
+			if (StringUtils.equalsIgnoreCase("1.0", versionId))
+				search.addField("logRecord", "logRecord");
+			else
+				search.addField("summary", "summary");
+		}
+		return search;
+	}
 }

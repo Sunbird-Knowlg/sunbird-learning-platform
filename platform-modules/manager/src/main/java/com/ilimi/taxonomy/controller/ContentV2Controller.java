@@ -74,18 +74,18 @@ public class ContentV2Controller extends BaseController {
 		LOGGER.info("Uploaded File Name: " + file.getName());
 		LOGGER.info("User Id: " + userId);
 		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
-        try {
-            String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
-                    + FilenameUtils.getExtension(file.getOriginalFilename());
-            File uploadedFile = new File(name);
-            file.transferTo(uploadedFile);
-            Response response = contentManager.upload(contentId, "domain", uploadedFile);
-            LOGGER.info("Upload | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Upload | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
+		try {
+			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
+					+ FilenameUtils.getExtension(file.getOriginalFilename());
+			File uploadedFile = new File(name);
+			file.transferTo(uploadedFile);
+			Response response = contentManager.upload(contentId, "domain", uploadedFile);
+			LOGGER.info("Upload | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class ContentV2Controller extends BaseController {
 		LOGGER.info("Publish content | Content Id : " + contentId);
 		try {
 			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
-			Response response = contentManager.publish(graphId, contentId);
+			Response response = contentManager.publish(graphId, contentId, null);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

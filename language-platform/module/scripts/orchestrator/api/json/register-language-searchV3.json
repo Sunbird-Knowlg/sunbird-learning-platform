@@ -60,5 +60,6 @@
         "type": "POST",
         "url": "/v3/public/language/search"
     },
-    "body": ""
+    "body": "",
+    "apiId": "ekstep.languauge.search"
 }

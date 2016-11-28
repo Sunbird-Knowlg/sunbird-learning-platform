@@ -100,6 +100,7 @@ public class ProcessTransactionData {
 		return lstMessageMap;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private List<Map<String, Object>> getUpdatedNodeMessages(TransactionData data, GraphDatabaseService graphDb, String userId, String requestId) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
@@ -113,14 +114,18 @@ public class ProcessTransactionData {
 			        Node node = graphDb.getNodeById(nodeId);
 			        map.put(GraphDACParams.requestId.name(), requestId);
 			        if(StringUtils.isEmpty(userId)){
-			            if (node.hasProperty("lastUpdatedBy")) {
-			                Object objUserId = node.getProperty("lastUpdatedBy");
-			                if (null != objUserId)
-			                    userId = objUserId.toString();
-			                else
-			                    userId = "ANONYMOUS";
-			            } else
-			                userId = "ANONYMOUS";
+			        	Object objUserId = null;
+			            if (propertiesMap.containsKey("lastUpdatedBy")) {
+			            	Object prop = propertiesMap.get("lastUpdatedBy");
+			            	if (null != prop) {
+			            		Map<String, Object> valueMap = (Map<String, Object>) prop;
+			            		objUserId = valueMap.get("nv");
+			            	}
+			            }
+			            if (null != objUserId)
+		                    userId = objUserId.toString();
+		                else
+		                    userId = "ANONYMOUS";
 			        }
 			        map.put(GraphDACParams.userId.name(), userId);
 			        map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());

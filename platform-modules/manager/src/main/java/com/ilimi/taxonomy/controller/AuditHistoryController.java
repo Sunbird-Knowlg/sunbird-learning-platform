@@ -32,10 +32,12 @@ public class AuditHistoryController extends BaseController {
 
 	/** The Logger */
 	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryController.class.getName());
-
+	private String versionId = getAPIVersion();
+	
 	@Autowired
 	private IAuditHistoryManager auditHistoryManager;
-
+ 
+	
 	/**
 	 * This method carries all the tasks related to 'getAllLogs' operation of
 	 * AuditHistory work-flow.
@@ -57,10 +59,10 @@ public class AuditHistoryController extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "audit_history.getAll";
 
-		LOGGER.info("get all AuditHistory | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
+		LOGGER.info("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
 				+ endTime);
 		try {
-			Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime);
+			Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime, versionId);
 			LOGGER.info("Find Item | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -96,10 +98,10 @@ public class AuditHistoryController extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "audit_history.getById";
 
-		LOGGER.info("get AuditHistory By ObjectId | GraphId: " + graphId + " | TimeStamp1: " + startTime
+		LOGGER.info("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
-			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime);
+			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
 			LOGGER.info("Find Item | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -134,10 +136,10 @@ public class AuditHistoryController extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "audit_history.getByType";
 
-		LOGGER.info("get AuditHistory By ObjectType | GraphId: " + graphId + " | TimeStamp1: " + startTime
+		LOGGER.info("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
 		try {
-			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime);
+			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime, versionId);
 			LOGGER.info("Find Item | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -145,42 +147,7 @@ public class AuditHistoryController extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-
-	/**
-	 * This method carries all the tasks related to 'get LogRecord By AuditId' operation of
-	 * AuditHistory work-flow.
-	 * 
-	 * @param graphId
-	 *            The graphId for which the Audit History needs to be fetched
-	 *            
-	 * @param auditId
-	 *  	    The auditId for which the audit Log record needs to be fetched
-	 *  
-	 * @param userId
-	 *            Unique id of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 *            
-	 * @return The Response entity with details of All Audit LogRecord for a given AuditId
-	 *  in its ResultSet
-	 */
-	@RequestMapping(value = "/details/{auditId:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "auditId") String auditId,
-			@RequestParam(value = "start", required = false) String startTime,
-			@RequestParam(value = "end", required = false) String endTime,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getLogRecordByAuditId";
-
-		LOGGER.info("get AuditHistory By auditId | TimeStamp1: " + startTime + " | Timestamp2: " + endTime
-				+ " | auditId: " + auditId);
-		try {
-			Response response = auditHistoryManager.getAuditLogRecordByAuditId(auditId, startTime, endTime);
-			LOGGER.info("Find Item | Response: " + response);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
+	 protected String getAPIVersion() {
+	        return API_VERSION;
+	 }
 }
