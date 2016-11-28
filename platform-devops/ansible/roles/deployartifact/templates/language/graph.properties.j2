@@ -1,6 +1,6 @@
 graph.dir=/data/graphDB
-redis.host=localhost
-redis.port=6379
+redis.host={{ redis_host }}
+redis.port={{ redis_port }}
 redis.maxConnections=128
 akka.request_timeout=30
 environment.id={{ environment_id }}
