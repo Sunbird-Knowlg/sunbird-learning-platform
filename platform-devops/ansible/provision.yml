@@ -9,3 +9,5 @@
         - ffmpeg
         - imagemagick
         - logstash
+        - mongodb
+        - redis

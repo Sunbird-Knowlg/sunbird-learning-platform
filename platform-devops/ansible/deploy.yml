@@ -1,15 +1,3 @@
-- hosts: hostlearning
-  roles:
-        - deployartifact
-
-- hosts: hostlanguage
-  roles:
-        - deployartifact
-
-- hosts: hostsearch
-  roles:
-        - deployartifact
-
-- hosts: hostconfig
+- hosts: "{{remote}}"
   roles:
         - deployartifact
