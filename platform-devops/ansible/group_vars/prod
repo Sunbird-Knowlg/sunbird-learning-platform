@@ -18,9 +18,10 @@ language_index_host: 10.10.1.20
 language_index_port: 9200
 mongo_host: 127.0.0.1
 mongo_port: 27017
-tomcat_init_mem: -Xms1024m
-tomcat_max_mem: -Xmx4096m
-tomcat_perm_size: -XX:MaxPermSize=256M
+tomcat_init_mem: -Xms2048m 
+tomcat_max_mem: -Xmx8192m
+tomcat_init_search: -Xms1024m 
+tomcat_max_search: -Xmx4096m
 graphevent_kafka_url: "10.10.1.207:9092"
 graphevent_kafka_topic_id: "production.learning.graph.events"
 content_to_vec_url: http://10.10.1.107:9000/content-to-vec
@@ -28,3 +29,5 @@ s3_config_environment: prod
 to_learning:
 to_language:
 to_total:
+cql_path: cqlsh
+cassandra_user: ubuntu

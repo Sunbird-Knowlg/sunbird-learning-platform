@@ -18,9 +18,10 @@ language_index_host: localhost
 language_index_port: 9200
 mongo_host: 127.0.0.1
 mongo_port: 27017
-tomcat_init_mem: -Xms512m
-tomcat_max_mem: -Xmx2048m
-tomcat_perm_size: -XX:MaxPermSize=256M
+tomcat_init_mem: -Xms1024m 
+tomcat_max_mem: -Xmx4096m
+tomcat_init_search: -Xms1024m 
+tomcat_max_search: -Xmx4096m
 graphevent_kafka_url: "172.31.1.92:9092"
 graphevent_kafka_topic_id: "new-qa.learning.graph.events"
 content_to_vec_url: http://172.31.18.88:9000/content-to-vec
@@ -28,3 +29,6 @@ s3_config_environment: qa
 to_learning:
 to_language:
 to_total:
+cql_path: "/mnt/data/analytics/apache-cassandra-3.7/bin/cqlsh"
+cassandra_user: ec2-user
+

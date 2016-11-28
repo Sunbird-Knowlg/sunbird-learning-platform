@@ -98,7 +98,7 @@
 #                   LOGGING_MANAGER="-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager"
 # -----------------------------------------------------------------------------
 
-export JAVA_OPTS="{{ tomcat_init_mem }} {{ tomcat_max_mem }} -XX:NewRatio=3 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -Dfile.encoding=UTF8"
+export JAVA_OPTS="{{tomcat_init_search}} {{tomcat_max_search}} -XX:NewRatio=3 -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -Dfile.encoding=UTF8"
 # OS specific support.  $var _must_ be set to either true or false.
 cygwin=false
 darwin=false

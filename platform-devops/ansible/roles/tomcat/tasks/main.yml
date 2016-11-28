@@ -61,7 +61,7 @@
        - search
        - total
 
-- name: add templates
+- name: add templates for learning& language
   template: src={{ item.name }} dest={{ item.destination }}
   with_items:
     - { name: 'server.xml', destination: '/usr/share/tomcat/conf/' }
@@ -70,10 +70,17 @@
   tags:
        - learning
        - language
+
+- name: add templates for  search & config
+  template: src={{ item.name }} dest={{ item.destination }}
+  with_items:
+    - { name: 'server.xml', destination: '/usr/share/tomcat/conf/' }
+    - { name: 'iptables-save', destination: '/etc/sysconfig/iptables' }
+    - { name: 'searchcatalina.j2', destination: '{{ tomcat_home }}/bin/catalina.sh' }
+  tags:
        - config
        - search
-       - total
-
+       
 - name: add templates language-service.xml
   template: src={{ item.name }} dest={{ item.destination }}
   with_items:  

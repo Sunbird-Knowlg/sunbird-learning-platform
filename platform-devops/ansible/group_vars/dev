@@ -17,9 +17,10 @@ language_index_host: 172.31.8.5
 language_index_port: 9200
 mongo_host: 127.0.0.1
 mongo_port: 27017
-tomcat_init_mem: -Xms512m
-tomcat_max_mem: -Xmx2048m
-tomcat_perm_size: -XX:MaxPermSize=256M
+tomcat_init_mem: -Xms1024m 
+tomcat_max_mem: -Xmx4096m
+tomcat_init_search: -Xms1024m 
+tomcat_max_search: -Xmx4096m
 graphevent_kafka_url: "172.31.1.92:9092"
 graphevent_kafka_topic_id: "sandbox.learning.graph.events"
 content_to_vec_url: http://172.31.25.29:9000/content-to-vec
@@ -28,3 +29,5 @@ to_learning: 172.31.12.237
 to_language: 172.31.12.237
 to_total: 172.31.12.237
 mongo_machine: 172.31.12.237
+cassandra_user: ec2-user
+cql_path: "/mnt/data/analytics/apache-cassandra-3.7/bin/cqlsh"
