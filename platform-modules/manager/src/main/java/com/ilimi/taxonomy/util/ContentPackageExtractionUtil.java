@@ -18,6 +18,7 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
@@ -195,6 +196,7 @@ public class ContentPackageExtractionUtil {
 	 *            the extraction type
 	 */
 	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
+		uploadedFile = Slug.createSlugFile(uploadedFile);
 		LOGGER.info("Node: " + node);
 		LOGGER.info("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - " + uploadedFile.getAbsolutePath());
 		LOGGER.info("Extraction Type: " + extractionType);
