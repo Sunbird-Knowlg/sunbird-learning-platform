@@ -1,0 +1,21 @@
+node registerScript.js api/create-word-list.tcl api/v3_api/json/register-create-word-listV3.json update
+
+node registerScript.js api/get-word-list.tcl api/v3_api/json/register-get-word-listV3.json update
+
+node registerScript.js api/get-word-lists.tcl api/v3_api/json/register-get-word-listsV3.json update
+
+node registerScript.js api/update-word-list.tcl api/v3_api/json/register-update-word-listV3.json update
+
+node registerScript.js api/language-search.tcl api/v3_api/json/register-language-searchV3.json update
+
+node registerScript.js api/get-traversal-rule.tcl api/v3_api/json/register-get-traversal-ruleV3.json update
+
+node registerScript.js api/get-traversal-rules.tcl api/v3_api/json/register-get-traversal-rulesV3.json update
+
+node registerScript.js api/create-synset.tcl api/v3_api/json/register-create-synsetV3.json update
+
+node registerScript.js api/update-synset.tcl api/v3_api/json/register-update-synsetV3.json update
+
+node registerScript.js api/search-synset.tcl api/v3_api/json/register-search-synsetV3.json update
+
+node registerScript.js api/get-synset.tcl api/v3_api/json/register-get-synsetV3.json update

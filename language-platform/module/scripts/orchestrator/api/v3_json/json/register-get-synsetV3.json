@@ -1,0 +1,18 @@
+{
+    "name": "getSynset_V3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"synset_id",
+    	"index": 1,
+    	"routingParam": false
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/dictionary/synset/read/*/*",
+        "pathParams": ["language_id", "synset_id"]
+    },
+    "body": ""
+}

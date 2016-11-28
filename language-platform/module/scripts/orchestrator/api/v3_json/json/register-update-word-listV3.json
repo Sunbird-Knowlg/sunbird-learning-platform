@@ -1,0 +1,34 @@
+{
+    "name": "updateWordList_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"wordlist_id",
+        "index": 1,
+        "routingParam": true
+    },{
+        "name": "words",
+        "index": 2,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },{
+        "name": "metadata",
+        "index": 3,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    },{
+        "name": "removeWords",
+        "index": 4,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "PATCH",
+        "url": "/v3/public/dictionary/wordlist/update/*/*",
+        "pathParams": ["language_id", "wordlist_id"]
+    },
+    "body": "",
+    "apiId": "ekstep.wordlist.update"
+}

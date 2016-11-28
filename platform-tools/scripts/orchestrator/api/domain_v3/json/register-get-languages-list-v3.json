@@ -1,0 +1,10 @@
+{
+    "name": "getLanguages_v3",
+    "parameters": [],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/language/list"
+    },
+    "body": "",
+    "apiId": "ekstep.language.list"
+}

@@ -154,6 +154,7 @@
             "application/vnd.android.package-archive",
             "application/vnd.ekstep.content-archive",
             "application/vnd.ekstep.content-collection",
+            "application/vnd.ekstep.plugin-archive",
             "application/octet-stream",
             "image/jpeg",
             "image/jpg",
@@ -768,7 +769,10 @@
             "Diagnostic",
             "Collection",
             "Asset",
-            "Template"
+            "Template",
+            "Plugin",
+			"ContentTemplate",
+			"ItemTemplate"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -1081,7 +1085,8 @@
           "dataType": "Multi-Select",
           "range": [
             "numeracy",
-            "literacy"
+            "literacy",
+            "science"
           ],
           "required": false,
           "displayProperty": "Editable",

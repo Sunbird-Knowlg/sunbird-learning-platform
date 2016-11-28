@@ -31,7 +31,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		private ResultActions actions;
 		
 		@Test
-		public void findDomainTest_01(){
+		public void findDomainTest(){
 			
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -49,7 +49,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		}
 		
 		@Test
-		public void findDomainTest_02(){
+		public void findDomainTestWithInvalidUrl(){
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 			String path = "/v2/domains/graph/liteacy?depth=40";
@@ -66,7 +66,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		}
 		
 		@Test
-		public void findDomainTest_03(){
+		public void findDomainTestWithoutGraphId(){
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 			String path = "/v2/literacy";

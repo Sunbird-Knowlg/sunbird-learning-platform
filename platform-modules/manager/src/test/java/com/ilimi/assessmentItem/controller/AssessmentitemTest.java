@@ -9,8 +9,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,6 +37,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
  * assessmentitem Positive and negative test senarios have been specified for
  * each of the operation
  */
+@FixMethodOrder(MethodSorters.JVM)
 public class AssessmentitemTest extends BaseTest {
 
 	@Autowired
@@ -47,8 +50,8 @@ public class AssessmentitemTest extends BaseTest {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
 
-	@Before
-	public void Before() {
+	@Test
+	public void createAssessmentItem() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_01\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
 			String path = "/v1/assessmentitem";
@@ -58,28 +61,12 @@ public class AssessmentitemTest extends BaseTest {
 		} catch (Exception e) {
 			e.getCause();
 		}
-	}
-
-	static int rn = generateRandomNumber(0, 9999);
-
-	// create assessmentItem with valid request body
-	// expect 200 response
-	@Test
-	public void createAssessmentItem() {
-		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
-				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
-		try {
-			String path = "/v1/assessmentitem";
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
-					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		Response resp = jsonToObject(actions);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 
+	static int rn = generateRandomNumber(0, 9999);
+	
 	// create an assessmentItem without "code" in request body
 	// expect 400 ok response
 	@Test
@@ -180,24 +167,6 @@ public class AssessmentitemTest extends BaseTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	// create assessmentItem without "question", "qlevel", "title"
-	// expect 400 ok response
-	@Test
-	public void createAssessmentItemWithoutAttributes() {
-		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
-				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\",  \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
-		try {
-			String path = "/v1/assessmentitem";
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
-					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
-			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Response resp = jsonToObject(actions);
-		Assert.assertEquals("failed", resp.getParams().getStatus());
 	}
 
 	// create assessmentItem without lhs or rhs options for an mtf type

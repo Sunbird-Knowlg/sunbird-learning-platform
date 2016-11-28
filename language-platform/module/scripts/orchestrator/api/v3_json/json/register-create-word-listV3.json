@@ -1,0 +1,25 @@
+{
+    "name": "createWordList_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name": "words",
+        "index": 1,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },{
+        "name": "metadata",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/private/dictionary/wordlist/create/*",
+        "pathParams": ["language_id"]
+    },
+    "body": "",
+    "apiId": "ekstep.wordlist.save"
+}

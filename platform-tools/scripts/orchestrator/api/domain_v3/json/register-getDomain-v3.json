@@ -1,0 +1,29 @@
+{
+    "name": "getDomain_v3",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "domain_id",
+          "index": 0,
+          "routingParam": false
+        },
+        {
+            "name": "fields",
+            "index": 1,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/domains/read/*",
+        "pathParams": [
+          "domain_id"
+        ],
+        "requestParams": [
+          "fields"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.domain.info"
+}
