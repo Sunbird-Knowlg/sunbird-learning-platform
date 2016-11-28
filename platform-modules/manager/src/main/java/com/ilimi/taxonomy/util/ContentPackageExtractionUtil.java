@@ -105,7 +105,7 @@ public class ContentPackageExtractionUtil {
 			LOGGER.info("Source Prefix: " + sourcePrefix);
 
 			// Fetching Destination Prefix For Copy Objects in S3
-			String destinationPrefix = getExtractionPath(node, ExtractionType.version);
+			String destinationPrefix = getExtractionPath(node, extractionType);
 			LOGGER.info("Source Prefix: " + destinationPrefix);
 			
 			// Copying Objects
@@ -377,7 +377,8 @@ public class ContentPackageExtractionUtil {
 	 * @return the extraction path
 	 */
 	private String getExtractionPath(Node node, ExtractionType extractionType) {
-		String path = S3PropertyReader.getProperty(S3_CONTENT);
+		String path = "";
+		String contentFolder = S3PropertyReader.getProperty(S3_CONTENT);
 		String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
 
 		// Getting the Path Suffix
@@ -388,15 +389,15 @@ public class ContentPackageExtractionUtil {
 
 		switch (((String) node.getMetadata().get(ContentAPIParams.mimeType.name()))) {
 		case "application/vnd.ekstep.ecml-archive":
-			path += File.separator + ContentAPIParams.ecml.name() + File.separator + node.getIdentifier() + DASH
+			path += contentFolder + File.separator + ContentAPIParams.ecml.name() + File.separator + node.getIdentifier() + DASH
 					+ pathSuffix;
 			break;
 		case "application/vnd.ekstep.html-archive":
-			path += File.separator + ContentAPIParams.html.name() + File.separator + node.getIdentifier() + DASH
+			path += contentFolder + File.separator + ContentAPIParams.html.name() + File.separator + node.getIdentifier() + DASH
 					+ pathSuffix;
 			break;
 		case "application/vnd.ekstep.plugin-archive":
-			path += File.separator + s3Environment + File.separator + S3_CONTENT_PLUGIN_DIRECTORY + File.separator
+			path += s3Environment + File.separator + S3_CONTENT_PLUGIN_DIRECTORY + File.separator
 					+ node.getIdentifier() + DASH + pathSuffix;
 			break;
 
