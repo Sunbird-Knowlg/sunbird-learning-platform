@@ -1,3 +1,7 @@
 node registerCommand.js commands/register-optimizeImageAsset.json register
 
 node registerCommand.js commands/register-addOutRelations.json register
+
+node registerCommand.js commands/register-getContentBody.json register
+
+node registerCommand.js commands/register-updateContentBody.json register
