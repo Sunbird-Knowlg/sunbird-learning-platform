@@ -2,7 +2,7 @@
 if [ $1 == "learning" ];then
         cd /data/graphDB
         zip -r domain.zip domain
-        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/domain.zip ec2-user@172.31.12.237:/data/graphDB
+        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/domain.zip ec2-user@{{to_learning}}:/data/graphDB
         rm -rf domain.zip
 elif [ $1 == "total" ];then
         cd /data/graphDB
@@ -10,7 +10,7 @@ elif [ $1 == "total" ];then
         do
                 echo $i
                 zip -r $i.zip $i
-                scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$i.zip ec2-user@172.31.12.237:/data/graphDB
+                scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$i.zip ec2-user@{{to_total}}:/data/graphDB
                 rm -rf $i.zip
         done
 else
@@ -19,7 +19,7 @@ else
         do
             if [ $j != domain ]; then
                         zip -r $j.zip $j
-                        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$i.zip ec2-user@172.31.12.237:/data/graphDB
+                        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$i.zip ec2-user@{{to_language}}:/data/graphDB
                         rm -rf $j.zip
             fi
         done

@@ -25,3 +25,6 @@ graphevent_kafka_url: "172.31.1.92:9092"
 graphevent_kafka_topic_id: "new-qa.learning.graph.events"
 content_to_vec_url: http://172.31.18.88:9000/content-to-vec
 s3_config_environment: qa
+to_learning:
+to_language:
+to_total:

@@ -24,5 +24,7 @@ graphevent_kafka_url: "172.31.1.92:9092"
 graphevent_kafka_topic_id: "sandbox.learning.graph.events"
 content_to_vec_url: http://172.31.25.29:9000/content-to-vec
 s3_config_environment: dev
-
+to_learning: 172.31.12.237
+to_language: 172.31.12.237
+to_total: 172.31.12.237
 

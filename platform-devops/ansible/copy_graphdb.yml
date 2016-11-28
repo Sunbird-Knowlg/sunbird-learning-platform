@@ -1,15 +1,3 @@
-- hosts: hostlearning
-  roles:
-        - copy-graphdb
-
-- hosts: hostlanguage
-  roles:
-        - copy-graphdb
-
-- hosts: hostsearch
-  roles:
-        - copy-graphdb
-
-- hosts: hostconfig
+- hosts: env
   roles:
         - copy-graphdb
