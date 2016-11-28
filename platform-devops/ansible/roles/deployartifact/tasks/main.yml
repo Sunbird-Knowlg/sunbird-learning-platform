@@ -103,6 +103,13 @@
   tags:
        - learning
        - total
+
+
+- name: copy the cassandra.properties
+  template: src=learning/cassandra.properties.j2 dest=/data/properties/learning/cassandra.properties
+  tags:
+       - learning
+       - total
  
 
 
