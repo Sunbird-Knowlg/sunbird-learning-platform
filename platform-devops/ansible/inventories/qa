@@ -1,0 +1,55 @@
+[learning-1]
+172.31.20.28 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+[hostlearning:children]
+learning-1
+
+
+[language-1]
+172.31.20.27  ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+[hostlanguage:children]
+language-1
+
+[search-1]
+172.31.17.182  ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+
+[hostsearch:children]
+search-1
+
+
+[config-1]
+172.31.17.182 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+[hostconfig:children]
+config-1
+
+
+[mongodb-1]
+172.31.20.28 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+[hostmongodb:children]
+mongodb-1
+
+
+[redis-1]
+172.31.20.28 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+[hostredis:children]
+redis-1
+
+
+[cassandra]
+172.31.18.88 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+
+[dev:children]
+hostlearning
+hostlanguage
+hostsearch
+hostconfig
+hostredis
+hostmongodb
+hosttotal
+cassandra

@@ -2,36 +2,102 @@
 # tasks file for logstash
 - name: Download th zip
   get_url: url=https://download.elastic.co/logstash/logstash/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz  timeout=1000 force=no owner=ec2-user 
+  tags: 
+       - learning
+       - language
+       - search
+       - total
 
 - name: unzip 
   unarchive: src=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates=/home/ec2-user/logstash-2.3.3
+  tags: 
+       - learning
+       - language
+       - search
+       - total
 
-- name: add logstash configuration files
+- name: set permissions
+  file: path=/home/ec2-user/logstash-2.3.3 owner=ec2-user group=ec2-user mode=0755 recurse=yes 
+  tags: 
+       - learning
+       - language
+       - search
+       - total
+
+#****************************ADD EVENTS********************************************
+- name: add logstash configuration files for learning and language
   template: src={{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
     - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
+  tags:
+       - learning 
+       - language 
 
-- name: set permissions
-  file: path=/home/ec2-user/logstash-2.3.3 owner=ec2-user group=ec2-user mode=0755 recurse=yes 
+- name: add logstash configuration files for search
+  template: src={{ item.name }}  dest={{ item.destination }}
+  with_items:
+    - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
+  tags:
+       - search 
 
+- name: add logstash configuration files for all
+  template: src={{ item.name }}  dest={{ item.destination }}
+  with_items:
+    - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
+    - { name: 'logstash-word-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-word-events.conf' }
+  tags:
+       - total 
+#******************************************Check the process is running or not*****************************************************
+- name: copy template of shell script to stop service
+  template: src=stop_logstash_script.j2 dest={{ user_home }}/stop_logstash_script.sh
+  tags: 
+       - learning
+       - language
+       - search
+       - total
+
+- name: run script
+  become: yes
+  shell: sh {{ user_home }}/stop_logstash_script.sh
+  tags: 
+       - learning
+       - language
+       - search
+       - total
+  
 - name: Check if logstash graph events is running
   become_user: ec2-user
   shell: ps -ef | grep logstash | grep logstash-graph-events.conf | grep -v grep | wc -l
   register: logstash_process
+  tags: 
+       - learning
+       - language
+       - total
 
 - name: Check if logstash for word events is running
   become_user: ec2-user
   shell: ps -ef | grep logstash | grep logstash-word-events.conf | grep -v grep | wc -l
   register: word_events_process
-
-- name: Run logstash
+  tags: 
+       - learning
+       - search
+       - language
+       - total
+  
+#******************************************Run the process if not running*****************************************************
+- name: Run logstash graph-events
   become_user: ec2-user
   become: yes
   shell: /home/ec2-user/logstash-2.3.3/bin/logstash -f /home/ec2-user/logstash-2.3.3/logstash-graph-events.conf -v &
   async: 60
   poll: 30
   when: "logstash_process.stdout == '0'"
+  tags: 
+       - learning
+       - language
+       - total
+
 
 - name: Run logstash for word events
   become_user: ec2-user
@@ -40,3 +106,9 @@
   async: 60
   poll: 30
   when: "word_events_process.stdout == '0'"
+  tags: 
+       - learning
+       - search
+       - language
+       - total
+

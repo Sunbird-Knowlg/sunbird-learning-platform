@@ -1,3 +1,54 @@
+- name: create folder data for learning
+  become: yes
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+     - /data
+     - /data/graphDB
+     - /data/logs
+     - /data/contentBundle
+     - /data/properties
+     - /data/properties/learning
+  tags:
+       - learning
+
+- name: create folder data 
+  become: yes
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+     - /data
+     - /data/graphDB
+     - /data/logs
+     - /data/contentBundle
+     - /data/properties
+     - /data/properties/language
+  tags:
+       - language
+
+- name: create folder data
+  become: yes
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+     - /data
+     - /data/logs
+     - /data/contentBundle
+     - /data/properties
+     - /data/properties/search
+     
+  tags:
+       - search
+
+- name: create folder data
+  become: yes
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+     - /data
+     - /data/logs
+     - /data/contentBundle
+     - /data/properties
+     - /data/properties/config
+  tags:
+       - config
+
 - name: create folder data
   become: yes
   file: path={{ item }} state=directory mode=0755
@@ -11,8 +62,15 @@
      - /data/properties/learning
      - /data/properties/search
      - /data/properties/config
+  tags:
+       - total
+
 
 - name: Change ownership of data directory
   become: yes
   file: path=/data owner=ec2-user group=ec2-user state=directory recurse=yes
-
+  tags:
+       - learning
+       - language
+       - config
+       - search

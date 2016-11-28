@@ -1,20 +1,42 @@
 ---
-- name: stop elasticsearch
-  become: yes
-  service: name=elasticsearch state=stopped
-
 - name: mongodb stop
   become_user: mongod
   become: yes
   service: name=mongod state=stopped
+  tags:
+       - all
+       - mongodb
 
 - name: copy template
   template: src=stop_script.j2 dest={{ user_home }}/stop_script.sh
+  tags:
+       - all
+       - redis
 
 - name: run script
   become: yes
   shell: sh {{ user_home }}/stop_script.sh
+  tags: 
+       - all
+       - redis
 
 - name: stop tomcat
   become: yes
   service: name=tomcat state=stopped
+  tags:
+       - tomcat
+       - all
+
+
+- name: copy template
+  template: src=stop_logstash.j2 dest={{ user_home }}/stop_logstash.sh
+  tags:
+       - all
+       - logstash
+
+- name: run script
+  become: yes
+  shell: sh {{ user_home }}/stop_logstash.sh
+  tags: 
+       - all
+       - logstash

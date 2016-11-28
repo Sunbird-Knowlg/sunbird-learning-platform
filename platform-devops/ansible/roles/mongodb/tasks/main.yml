@@ -2,10 +2,26 @@
 # This role deploys the mongodb processes and sets up settings.
 - name: add 10gen repo file
   template: src=mongodb.repo.j2 dest=/etc/yum.repos.d/mongodb-org-2.6.repo
+  tags:
+       - mongodb
 
 - name: install mongodb
   yum: name=mongodb-org state=present update_cache=yes
-  notify: mongodb start
+  tags:
+       - mongodb
 
+- name: mongodb start
+  become: yes
+  service: name=mongod state=started
+  tags:
+       - mongodb
+  
+- name: copy setup script
+  template: src=orchestrator_setup.j2 dest={{ user_home }}/orchestrator_setup.js
+  tags:
+       - mongodb
 
-
+- name: run mongo script
+  shell: mongo < {{ user_home }}/orchestrator_setup.js 
+  tags:
+       - mongodb

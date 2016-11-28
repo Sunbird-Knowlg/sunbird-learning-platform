@@ -2,126 +2,247 @@
 #tasks file for deployartifact
 
 - name: stop tomcat
-  become: yes
   service: name=tomcat state=stopped
+  tags:
+       - always
 
 - name: copy the database.properties
   template: src=language/database.properties.j2 dest=/data/properties/language/database.properties
+  tags:
+       - language
 
 - name: copy the elasticsearch.properties
   template: src=language/elasticsearch.properties.j2 dest=/data/properties/language/elasticsearch.properties
-
+  tags:
+       - language
+       - total
+ 
 - name: copy the graph.properties
   template: src=language/graph.properties.j2 dest=/data/properties/language/graph.properties
-
-
+  tags:
+       - language
+       - total
+ 
 - name: copy the language-indexes.properties
   template: src=language/language-indexes.properties.j2 dest=/data/properties/language/language-indexes.properties
-
+  tags:
+       - language
+       - total
+ 
 
 - name: copy the mongo.properties
   template: src=language/mongo.properties.j2 dest=/data/properties/language/mongo.properties
+  tags:
+       - language
+       - total
+ 
 
 - name: copy hibernate cofngi file
   template: src=language/hibernate.cfg.xml.j2 dest=/data/properties/language/hibernate.cfg.xml
+  tags:
+       - language
+       - total
+ 
 
 - name: copy the amazonS3Config.properties
   template: src=language/amazonS3Config.properties.j2 dest=/data/properties/language/amazonS3Config.properties
+  tags:
+       - language
+       - total
+ 
 
 #------------------------------------------------------------------------------------
 
 - name: copy the consumer-config.xml
   template: src=learning/consumer-config.xml.j2 dest=/data/properties/learning/consumer-config.xml
+  tags:
+       - learning
+       - total
+ 
 
 - name: copy the database.properties
   template: src=learning/database.properties.j2 dest=/data/properties/learning/database.properties
+  tags:
+       - learning
+       - total
+ 
+
 
 - name: copy the elasticsearch.properties
   template: src=learning/elasticsearch.properties.j2 dest=/data/properties/learning/elasticsearch.properties
+  tags:
+       - learning
+
 
 - name: copy the graph.properties
   template: src=learning/graph.properties.j2 dest=/data/properties/learning/graph.properties
+  tags:
+       - learning
+       - total
+ 
+
 
 - name: copy the mongo.properties
   template: src=learning/mongo.properties.j2 dest=/data/properties/learning/mongo.properties
+  tags:
+       - learning
+       - total
+ 
+
 
 - name: copy the content.properties
   template: src=learning/content.properties.j2 dest=/data/properties/learning/content.properties
+  tags:
+       - learning
+       - total
+ 
+
 
 - name: copy the amazonS3Config.properties
   template: src=learning/amazonS3Config.properties.j2 dest=/data/properties/learning/amazonS3Config.properties
+  tags:
+       - learning
+       - total
+ 
+
 
 #------------------------------------------------------------------------------------
 - name: copy the elasticsearch.properties
   template: src=search/elasticsearch.properties.j2 dest=/data/properties/search/elasticsearch.properties
+  tags:
+       - search
+       - total
+ 
 
 #------------------------------------------------------------------------------------
 
 - name: copy the amazonS3Config.properties
   template: src=config/amazonS3Config.properties.j2 dest=/data/properties/config/amazonS3Config.properties
+  tags:
+       - congig
+       - total
+ 
+
 #------------------------------------------------------------------------------------
 
 - name: copy the artifacts files 
   become: yes
   copy: src=learning-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
+  tags:
+       - learning
+       - total
+ 
 
 - name: copy the artifacts files
   become: yes
   copy: src=search-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
-
+  tags:
+       - search
+       - total
+ 
+ 
 - name: copy the artifacts files
   become: yes
   copy: src=language-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
+  tags:
+       - language
+       - total
+ 
 
 - name: copy the artifacts file config-service.war
   become: yes
   copy: src=config-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
+  tags:
+       - config
+       - total
+ 
+
 #------------------------------------------------------------------------------------
 - name: remove learning-service
   become: yes
   file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/learning-service state=absent
+  tags:
+       - learning
+       - total
+ 
 
 - name: remove search-service
   become: yes
   file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/search-service state=absent
+  tags:
+       - search
+       - total
+ 
 
 - name: remove language-service
   become: yes
   file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/language-service state=absent
+  tags:
+       - language
+       - total
+ 
 
 - name: remove config-service
   become: yes
   file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/config-service state=absent
-
+  tags:
+       - config
+       - total
+ 
 
 - name: start tomcat
   become: yes
   service: name=tomcat state=started
+  tags: 
+       - always
+
 
 - name: wait for tomcat to start
   wait_for: port=8080
+  tags: 
+       - always
+       
 
 - name: check language-service health
   shell: curl 'http://{{ service_url }}/language-service/health' | grep '"healthy":false' | wc -l
   register: language_process
+  tags: 
+       - language
+       - total
+ 
 
 - name: check search-service health
   shell: curl 'http://{{ service_url }}/search-service/health' | grep '"healthy":false' | wc -l
   register: search_process
-
+  tags: 
+       - search
+       - total
+ 
 - name: check learning-service health
   shell: curl 'http://{{ service_url }}/learning-service/health' | grep '"healthy":false' | wc -l
   register: learning_process
+  tags: 
+       - learning
+       - total
+ 
+        
 
 - name: check config-service health
   shell: curl 'http://{{ service_url }}/config-service/health' | grep '"healthy":false' | wc -l
   register: config_process
-
+  tags: 
+       - config
+       - total
+ 
 
 - name: failed language-service health check
   fail: msg="Health check failed for language-service"
   when: "language_process.stdout >='1'"
-
+  tags: 
+       - language
+       - total
+ 
+       
 # - name: failed search-service health check
 #   fail: msg="Health check failed for search-service"
 #   when: "search_process.stdout >= '1'"
@@ -129,10 +250,18 @@
 - name: failed learning-service health check
   fail: msg="Health check failed for learning-service"
   when: "learning_process.stdout >= '1'"
+  tags: 
+       - learning
+       - total
+ 
 
 - name: failed config-service health check
   fail: msg="Health check failed for config-service"
   when: "config_process.stdout >= '1'"
-
+  tags: 
+       - config
+       - total
+ 
+       
 
 

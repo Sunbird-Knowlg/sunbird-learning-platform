@@ -1,0 +1,12 @@
+---
+
+- name: copy cql
+  template: src=data.cql.j2 dest=/home/{{ cassandra_user }}/data.cql
+  tags:
+    - cassandra
+
+- name: run cql
+  command: "{{ cql_path }} -f /home/{{ cassandra_user }}/data.cql"
+  ignore_errors: yes
+  tags:
+    - cassandra
