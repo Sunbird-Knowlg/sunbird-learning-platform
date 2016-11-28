@@ -4,6 +4,6 @@
        
 - name: run script
   become: yes
-  command: nohup /home/ec2-user/copy_graphdb_script.sh "{{machine}}" &
+  shell: /home/ec2-user/copy_graphdb_script.sh "{{machine}}"
   tags: 
        - always
