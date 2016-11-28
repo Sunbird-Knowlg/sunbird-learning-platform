@@ -49,13 +49,18 @@ public class ContentPackageExtractionUtil {
 	private static final String s3Content = "s3.content.folder";
 
 	/** The Constant TEMP_FILE_LOCATION. */
-	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
+	private static final String TEMP_FILE_LOCATION = "/data/contentBundle"; // No
+																			// END
+																			// Path
+																			// Separator
 
 	/**
 	 * Extract ECAR package.
 	 *
-	 * @param node the node
-	 * @param extractionType the extraction type
+	 * @param node
+	 *            the node
+	 * @param extractionType
+	 *            the extraction type
 	 */
 	public void extractContentPackage(Node node, ExtractionType extractionType) {
 		LOGGER.debug("Node: ", node);
@@ -72,7 +77,7 @@ public class ContentPackageExtractionUtil {
 			throw new ClientException(ContentErrorCodes.INVALID_EXTRACTION.name(),
 					"Error! Invalid Content Extraction Type.");
 
-		// Reading ECAR (download) URL
+		// Reading Content Package (artifact) URL
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
 		if (StringUtils.isBlank(artifactUrl)
 				|| !StringUtils.endsWithIgnoreCase(artifactUrl, ContentAPIParams.zip.name()))
@@ -94,6 +99,19 @@ public class ContentPackageExtractionUtil {
 			// Extract Content Package
 			extractPackage(node, extractionBasePath, extractionType);
 		} catch (IOException e) {
+			LOGGER.error("Error! While Unzipping the Content Package [Content Package Extraction to Storage Space]", e);
+		} finally {
+			try {
+				LOGGER.info("Deleting Locally Extracted File.");
+				File dir = new File(contentPackageDownloadPath);
+				if (dir.exists())
+					dir.delete();
+			} catch (SecurityException e) {
+				LOGGER.error("Error! While Deleting the Local Download Directory: " + contentPackageDownloadPath, e);
+			} catch (Exception e) {
+				LOGGER.error("Error! Something Went Wrong While Deleting the Local Download Directory: "
+						+ contentPackageDownloadPath, e);
+			}
 		}
 
 	}
@@ -101,9 +119,12 @@ public class ContentPackageExtractionUtil {
 	/**
 	 * Extract content package.
 	 *
-	 * @param node the node
-	 * @param uploadedFile the uploaded file
-	 * @param extractionType the extraction type
+	 * @param node
+	 *            the node
+	 * @param uploadedFile
+	 *            the uploaded file
+	 * @param extractionType
+	 *            the extraction type
 	 */
 	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
 		LOGGER.debug("Node: ", node);
@@ -145,9 +166,12 @@ public class ContentPackageExtractionUtil {
 	/**
 	 * Extract package.
 	 *
-	 * @param node the node
-	 * @param basePath the base path
-	 * @param extractionType the extraction type
+	 * @param node
+	 *            the node
+	 * @param basePath
+	 *            the base path
+	 * @param extractionType
+	 *            the extraction type
 	 */
 	private void extractPackage(Node node, String basePath, ExtractionType extractionType) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
@@ -160,7 +184,7 @@ public class ContentPackageExtractionUtil {
 
 			// Upload All the File to S3 Recursively and Concurrently
 			AWSFolderPath = getExtractionPath(node, extractionType);
-			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, AWSFolderPath);
+			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, AWSFolderPath, basePath);
 		} catch (InterruptedException e) {
 			cleanUpAWSFolder(AWSFolderPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
@@ -192,7 +216,8 @@ public class ContentPackageExtractionUtil {
 	/**
 	 * Clean up AWS folder.
 	 *
-	 * @param AWSFolderPath the AWS folder path
+	 * @param AWSFolderPath
+	 *            the AWS folder path
 	 */
 	private void cleanUpAWSFolder(String AWSFolderPath) {
 		try {
@@ -207,14 +232,31 @@ public class ContentPackageExtractionUtil {
 	/**
 	 * Bulk file upload.
 	 *
-	 * @param files the files
-	 * @param AWSFolderPath the AWS folder path
+	 * @param files
+	 *            the files
+	 * @param AWSFolderPath
+	 *            the AWS folder path
 	 * @return the list
-	 * @throws InterruptedException the interrupted exception
-	 * @throws ExecutionException the execution exception
+	 * @throws InterruptedException
+	 *             the interrupted exception
+	 * @throws ExecutionException
+	 *             the execution exception
 	 */
-	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath)
+	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath)
 			throws InterruptedException, ExecutionException {
+		LOGGER.debug("Files: ", files);
+		LOGGER.debug("AWS Folder Path: ", AWSFolderPath);
+		LOGGER.debug("Local Base Path of Extraction: ", basePath);
+
+		// Validating Parameters
+		if (null == files || files.size() < 1)
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Atleast One file is needed for Content Package Extraction.");
+
+		if (StringUtils.isBlank(basePath))
+			throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(),
+					"Error! Base Path cannot be Empty or 'null' for Content Package Extraction over Storage Space.");
+
 		List<String> lstUploadedFileUrls = new ArrayList<String>();
 		LOGGER.info("Starting the Fan-out for Upload.");
 		ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -226,7 +268,13 @@ public class ContentPackageExtractionUtil {
 				public Map<String, String> call() throws Exception {
 					Map<String, String> uploadMap = new HashMap<String, String>();
 					if (file.exists()) {
-						String[] uploadedFileUrl = AWSUploader.uploadFile(AWSFolderPath, file);
+						String folderName = AWSFolderPath;
+						String path = file.getAbsolutePath().replace(basePath, "")
+								.replace((File.separator + file.getName()), "");
+						if (StringUtils.isNotBlank(path))
+							folderName += path;
+						LOGGER.info("Folder Name For Storage Space Extraction: " + folderName);
+						String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
 					}
@@ -249,8 +297,10 @@ public class ContentPackageExtractionUtil {
 	/**
 	 * Gets the extraction path.
 	 *
-	 * @param node the node
-	 * @param extractionType the extraction type
+	 * @param node
+	 *            the node
+	 * @param extractionType
+	 *            the extraction type
 	 * @return the extraction path
 	 */
 	private String getExtractionPath(Node node, ExtractionType extractionType) {
@@ -259,7 +309,8 @@ public class ContentPackageExtractionUtil {
 		// Getting the Path Suffix
 		String pathSuffix = extractionType.name();
 		if (StringUtils.equalsIgnoreCase(extractionType.name(), ContentAPIParams.version.name()))
-			pathSuffix = (String) node.getMetadata().get(ContentAPIParams.pkgVersion.name());
+			pathSuffix = String.valueOf((double) node.getMetadata().get(ContentAPIParams.pkgVersion.name()));
+		LOGGER.info("Path Suffix: " + pathSuffix);
 
 		switch (((String) node.getMetadata().get(ContentAPIParams.mimeType.name()))) {
 		case "application/vnd.ekstep.ecml-archive":
@@ -278,13 +329,15 @@ public class ContentPackageExtractionUtil {
 		default:
 			break;
 		}
+		LOGGER.info("Storage Space Path: " + path);
 		return path;
 	}
 
 	/**
 	 * Gets the base path.
 	 *
-	 * @param contentId the content id
+	 * @param contentId
+	 *            the content id
 	 * @return the base path
 	 */
 	private String getBasePath(String contentId) {
