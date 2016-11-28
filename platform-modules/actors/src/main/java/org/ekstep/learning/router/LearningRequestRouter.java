@@ -3,6 +3,7 @@ package org.ekstep.learning.router;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.actor.OptimizerActor;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
@@ -81,6 +82,10 @@ public class LearningRequestRouter extends UntypedActor {
 		Props propertyProps = Props.create(OptimizerActor.class);
 		ActorRef propertyMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(propertyProps));
 		LearningActorPool.addActorRefToPool(LearningActorNames.OPTIMIZER_ACTOR.name(), propertyMgr);
+		
+		Props contentStoreProps = Props.create(ContentStoreActor.class);
+		ActorRef contentStoreActor = system.actorOf(new SmallestMailboxPool(poolSize).props(contentStoreProps));
+		LearningActorPool.addActorRefToPool(LearningActorNames.CONTENT_STORE_ACTOR.name(), contentStoreActor);
 	}
 
 	/**
