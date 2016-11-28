@@ -195,9 +195,9 @@ public class ContentPackageExtractionUtil {
 	 *            the extraction type
 	 */
 	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
-		LOGGER.debug("Node: ", node);
-		LOGGER.debug("Uploaded File: ", uploadedFile);
-		LOGGER.debug("Extraction Type: ", extractionType);
+		LOGGER.info("Node: ", node);
+		LOGGER.info("Uploaded File: ", uploadedFile.getName() + " - " + uploadedFile.exists() + " - " + uploadedFile.getAbsolutePath());
+		LOGGER.info("Extraction Type: ", extractionType);
 
 		// Validating the Parameters
 		LOGGER.info("Validating Node Object.");
@@ -207,6 +207,7 @@ public class ContentPackageExtractionUtil {
 
 		LOGGER.info("Validating Uploaded File.");
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+		LOGGER.info("Mime Type: " + mimeType);
 		if (!uploadedFile.exists()
 				|| (!StringUtils.endsWithIgnoreCase(uploadedFile.getName(), ContentAPIParams.zip.name())
 						&& extractableMimeTypes.containsKey(mimeType)))
@@ -341,7 +342,7 @@ public class ContentPackageExtractionUtil {
 			tasks.add(new Callable<Map<String, String>>() {
 				public Map<String, String> call() throws Exception {
 					Map<String, String> uploadMap = new HashMap<String, String>();
-					if (file.exists()) {
+					if (file.exists() && !file.isDirectory()) {
 						String folderName = AWSFolderPath;
 						String path = getFolderPath(file, basePath);
 						if (StringUtils.isNotBlank(path))
