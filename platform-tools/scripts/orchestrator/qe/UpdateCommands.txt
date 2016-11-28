@@ -20,3 +20,4 @@ node registerScript.js qe/updateOwnerMetadata.tcl qe/json/register-updateOwnerMe
 node registerScript.js qe/resetAssetAttributions.tcl qe/json/register-resetAssetAttributions.json update
 node registerScript.js qe/setVersionKey.tcl qe/json/register-setVersionKey.json update
 node registerScript.js qe/resetAssetLicense.tcl qe/json/register-resetAssetLicense.json update
+node registerScript.js qe/getItemUsageReport.tcl qe/json/register-getItemUsageReport.json update

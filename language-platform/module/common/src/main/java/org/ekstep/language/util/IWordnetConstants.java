@@ -214,5 +214,15 @@ public interface IWordnetConstants {
 	
 	/** The attrib gloss. */
 	String ATTRIB_GLOSS = "gloss";
+	
+	/** The attrib flagReasons. */
+	String ATTRIB_FLAG_REASONS = "flagReasons";
+
+	/** The attrib flagReasons. */
+	String ATTRIB_FLAGGED_BY = "flaggedBy";
+
+	/** The attrib flagReasons. */
+	String ATTRIB_LAST_FLAGGED_ON = "lastFlaggedOn";
+
 
 }

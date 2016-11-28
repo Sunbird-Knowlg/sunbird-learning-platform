@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
@@ -37,10 +39,9 @@ import com.ilimi.taxonomy.mgr.IContentManager;
  * @author Azhar
  */
 @Controller
-@RequestMapping("/v3")
+@RequestMapping("/v3/content")
 public class ContentV3Controller extends BaseController {
 
-	/** The Class Logger. */
 	private static LogHelper LOGGER = LogHelper.getInstance(ContentV3Controller.class.getName());
 
 	@Autowired
@@ -88,33 +89,6 @@ public class ContentV3Controller extends BaseController {
         }
 	}
 
-	/**
-	 * This method carries all the tasks related to 'Publish' operation of
-	 * content work-flow.
-	 *
-	 * @param contentId
-	 *            The Content Id which needs to be published.
-	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id and ECAR URL in its Result
-	 *         Set.
-	 */
-	@RequestMapping(value = "/private/content/publish/{id:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.publish";
-		LOGGER.info("Publish content | Content Id : " + contentId);
-		try {
-			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
-			Response response = contentManager.publish(graphId, contentId);
-
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
 
 	/**
 	 * This method carries all the tasks related to 'Optimize' operation of
@@ -127,7 +101,7 @@ public class ContentV3Controller extends BaseController {
 	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
-	@RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "private/content/optimize/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId,
 			@RequestHeader(value = "user-id") String userId) {
@@ -170,7 +144,41 @@ public class ContentV3Controller extends BaseController {
 			LOGGER.info("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
 			LOGGER.info("Archive | Response: " + response);
-
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	/**
+	 * This method carries all the tasks related to 'Publish' operation of
+	 * content work-flow.
+	 *
+	 * @param contentId
+	 *            The Content Id which needs to be published.
+	 * @param userId
+	 *            Unique 'id' of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
+	 * @return The Response entity with Content Id and ECAR URL in its Result
+	 *         Set.
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "private/content/publish/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.publish";
+		Response response;
+		LOGGER.info("Publish content | Content Id : " + contentId);
+		try {
+			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			if(null==requestMap.get("publisher") && StringUtils.isBlank(requestMap.get("publisher").toString())){
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(), "Publisher Id is blank"), apiId, null);
+			}
+			
+			response = contentManager.publish(graphId, contentId, requestMap.get("publisher").toString());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -181,3 +189,4 @@ public class ContentV3Controller extends BaseController {
 		return API_VERSION_3;
 	}
 }
+

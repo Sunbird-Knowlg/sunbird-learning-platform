@@ -21,3 +21,5 @@ node registerScript.js api/content_v2/saveContent.tcl api/content_v2/json/regist
 node registerScript.js api/content_v2/searchContent.tcl api/content_v2/json/register-searchContentV3.json update
 
 node registerScript.js api/content_v2/updateContent.tcl api/content_v2/json/register-updateContentV3.json update
+
+node registerScript.js api/content_v2/rejectFlaggedContent.tcl api/content_v2/json/register-rejectFlaggedContent.json update

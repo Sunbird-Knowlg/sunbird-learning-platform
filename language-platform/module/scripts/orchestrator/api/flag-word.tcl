@@ -6,8 +6,7 @@ java::import -package java.util Arrays
 java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.common DateUtils
 
-set graph_id "domain"
-set object_type "Content"
+set object_type "Word"
 
 proc isNotEmpty {list} {
 	set exist false
@@ -68,7 +67,7 @@ proc addFlaggedBy {flaggedBy node_metadata} {
 	return $flaggedByList
 }
 
-set resp_get_node [getDataNode $graph_id $content_id]
+set resp_get_node [getDataNode $language_id $word_id]
 set check_error [check_response_error $resp_get_node]
 if {$check_error} {
 	return $resp_get_node;
@@ -89,26 +88,25 @@ if {$check_error} {
 			$request put "lastFlaggedOn" [java::call DateUtils format [java::new Date]]
 			set isFlagReasonsNull [java::isnull $flagReasons]
 			if {$isFlagReasonsNull == 0} {
+
 				set flagReasons [java::cast ArrayList $flagReasons]
 				set hasFlagReasons [isNotEmpty $flagReasons]
 				if {$hasFlagReasons} {
 					set flagResaons [addFlagReasons $flagReasons $node_metadata]
-					puts "flagResaons [$flagResaons toString]"
 					$request put "flagReasons" $flagResaons
 				}
 			}
 			$request put "objectType" $object_type
-			$request put "identifier" $content_id
-			puts "making update"
-			set resp_def_node [getDefinition $graph_id $object_type]
+			$request put "identifier" $word_id
+			set resp_def_node [getDefinition $language_id $object_type]
 			set def_node [get_resp_value $resp_def_node "definition_node"]
 			set domain_obj [convert_to_graph_node $request $def_node]
-			set create_response [updateDataNode $graph_id $content_id $domain_obj]
+			set create_response [updateDataNode $language_id $word_id $domain_obj]
 			return $create_response
 		} else {
 			set result_map [java::new HashMap]
-			$result_map put "code" "ERR_CONTENT_NOT_FLAGGABLE"
-			$result_map put "message" "Unpublished Content $content_id cannot be flagged"
+			$result_map put "code" "ERR_WORD_NOT_FLAGGABLE"
+			$result_map put "message" "Word $word_id can not be flagged"
 			$result_map put "responseCode" [java::new Integer 400]
 			set response_list [create_error_response $result_map]
 			return $response_list
@@ -116,7 +114,7 @@ if {$check_error} {
 	} else {
 		set result_map [java::new HashMap]
 		$result_map put "code" "ERR_NODE_NOT_FOUND"
-		$result_map put "message" "$object_type $content_id not found"
+		$result_map put "message" "$object_type $word_id not found"
 		$result_map put "responseCode" [java::new Integer 404]
 		set response_list [create_error_response $result_map]
 		return $response_list

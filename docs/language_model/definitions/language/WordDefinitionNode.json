@@ -493,7 +493,10 @@
                 "Draft",
                 "Live",
                 "Review",
-                "Retired"
+                "Retired",
+                "Flagged",
+                "FlagDraft",
+                "FlagReview"
             ],
 
             "required": false,
@@ -724,6 +727,49 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 41 }"
+        },
+        {
+          "propertyName": "flagReasons",
+          "title": "Flag Reasons",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "Multi-Select",
+          "range": [
+            "Inappropriate Content",
+            "Copyright Violation",
+            "Privacy Violation",
+            "Other"
+          ],
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 42}",
+          "indexed": true
+        },
+        {
+          "propertyName": "flaggedBy",
+          "title": "Flagged By",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 43}",
+          "indexed": true
+        },
+        {
+          "propertyName": "lastFlaggedOn",
+          "title": "Last Flagged On",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 44 }"
         }
       ],
       "inRelations": [
