@@ -169,7 +169,7 @@ public class AuditHistoryV2Controller extends BaseController {
 	@RequestMapping(value = "/details/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "objectId") String objectId,
-			@RequestParam(value = "start", required = false) String timeStamp,
+			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "audit_history.getLogRecordById";
 

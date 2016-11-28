@@ -27,7 +27,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
  */
 
 @Controller
-@RequestMapping("/v3/public/audit/read")
+@RequestMapping("/v3/public/audit")
 public class AuditHistoryV3Controller extends BaseController {
 	
 	/** The Logger */
@@ -57,7 +57,7 @@ public class AuditHistoryV3Controller extends BaseController {
 	 * @return The Response entity with details of All AuditLog for a given objectId
 	 *  in its ResultSet
 	 */
-	@RequestMapping(value = "/{objectId:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/list/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getById(@PathVariable(value = "graphId") String graphId,
 			@PathVariable(value = "objectId") String objectId,
@@ -95,10 +95,10 @@ public class AuditHistoryV3Controller extends BaseController {
 	 * @return The Response entity with details of All Audit LogRecord for a given objectId
 	 *  in its ResultSet
 	 */
-	@RequestMapping(value = "/{objectId:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/read/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "objectId") String objectId,
-			@RequestParam(value = "start", required = false) String timeStamp,
+			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "audit_history.getLogRecordById";
 
