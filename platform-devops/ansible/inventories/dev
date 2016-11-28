@@ -43,6 +43,9 @@ redis-1
 [total-1]
 172.31.12.237 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
+[hosttotal:children]
+total-1
+
 [dev:children]
 hostlearning
 hostlanguage
