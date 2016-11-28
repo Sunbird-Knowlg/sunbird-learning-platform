@@ -2,6 +2,7 @@
 #tasks file for deployartifact
 
 - name: stop tomcat
+  become: yes
   service: name=tomcat state=stopped
   tags:
        - always
