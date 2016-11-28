@@ -1,0 +1,26 @@
+#!/bin/sh
+if [ $1 == "learning" ];then
+        cd /data/graphDB
+        zip -r domain.zip domain
+        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/domain.zip ec2-user@172.31.12.237:/data/graphDB
+        rm -rf domain.zip
+elif [ $1 == "total" ];then
+        cd /data/graphDB
+        for i in *
+        do
+                echo $i
+                zip -r $i.zip $i
+                scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$i.zip ec2-user@172.31.12.237:/data/graphDB
+                rm -rf $i.zip
+        done
+else
+        cd /data/graphDB
+        for j in *
+        do
+            if [ $j != domain ]; then
+                        zip -r $j.zip $j
+                        scp -i /home/ec2-user/learning-platform.pem /data/graphDB/$i.zip ec2-user@172.31.12.237:/data/graphDB
+                        rm -rf $j.zip
+            fi
+        done
+fi

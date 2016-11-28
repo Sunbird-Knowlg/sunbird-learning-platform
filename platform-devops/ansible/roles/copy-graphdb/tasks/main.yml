@@ -1,0 +1,11 @@
+---
+- name: copy template of shell script to Copy graphDB
+  template: src=copy_graphdb_script.j2 dest={{ user_home }}/copy_graphdb_script.sh owner=ec2-user group=ec2-user mode=0751
+  tags: 
+       - always
+       
+- name: run script
+  become: yes
+  command: nohup /home/ec2-user/copy_graphdb_script.sh "{{machine}}" &
+  tags: 
+       - always
