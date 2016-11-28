@@ -3,5 +3,6 @@
 - name: install imagemagick
   yum: name=ImageMagick state=present update_cache=yes
   tags:
-       - always
+       - learning
+       - total
 
