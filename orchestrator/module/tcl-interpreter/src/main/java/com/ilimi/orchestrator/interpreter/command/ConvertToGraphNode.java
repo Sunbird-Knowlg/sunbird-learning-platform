@@ -51,10 +51,12 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                     Object obj2 = ReflectObject.get(interp, tclObject2);
                     DefinitionDTO def = (DefinitionDTO) obj2;
                     Node graphNode = null;
-                    TclObject tclObject3 = argv[3];
-                    if (null != tclObject3) {
-                    	Object obj3 = ReflectObject.get(interp, tclObject3);
-                    	graphNode = (Node) obj3;
+                    if (argv.length == 4) {
+                    	TclObject tclObject3 = argv[3];
+                        if (null != tclObject3) {
+                        	Object obj3 = ReflectObject.get(interp, tclObject3);
+                        	graphNode = (Node) obj3;
+                        }
                     }
                     Node node = convertToGraphNode(map, def, graphNode);
                     TclObject tclResp = ReflectObject.newInstance(interp, node.getClass(), node);
