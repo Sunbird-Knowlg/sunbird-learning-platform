@@ -1,4 +1,4 @@
-- hosts: {{remote}}
+- hosts: "{{remote}}"
   become: yes
   roles:
         - extract-graphdb
