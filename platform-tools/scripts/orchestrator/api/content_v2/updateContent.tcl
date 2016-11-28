@@ -139,7 +139,7 @@ if {$object_null == 1} {
 						set log_event 1
 					}
 				}
-				set domain_obj [convert_to_graph_node $content $def_node]
+				set domain_obj [convert_to_graph_node $content $def_node $graph_node]
 				set create_response [updateDataNode $graph_id $content_id $domain_obj]
 				set check_error [check_response_error $create_response]
 				if {$check_error} {
