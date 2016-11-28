@@ -13,7 +13,7 @@
   become: yes
   get_url: url=http://download.redis.io/releases/redis-stable.tar.gz dest=/home/ec2-user/redis-stable.tar.gz timeout=50 force=no owner=ec2-user
   tags:
-       - redi
+       - redis
 
 
 - name: unzip 
