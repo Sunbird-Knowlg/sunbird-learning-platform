@@ -50,13 +50,13 @@
        - total 
 #******************************************Check the process is running or not*****************************************************
 - name: copy template of shell script to stop service
-  template: src=stop_logstash_script1.j2 dest={{ user_home }}/stop_logstash_script1.sh
+  template: src=stop_logstash_script1.j2 dest=/home/ec2-user/stop_logstash_script1.sh
   tags: 
        - learning
        - language
 
 - name: copy template of shell script to stop service
-  template: src=stop_logstash_script2.j2 dest={{ user_home }}/stop_logstash_script2.sh
+  template: src=stop_logstash_script2.j2 dest=/home/ec2-user/stop_logstash_script2.sh
   tags:
        - search
        - total
