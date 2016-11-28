@@ -29,19 +29,35 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.ExtractionType;
 
+/**
+ * The Class ContentPackageExtractionUtil.
+ * 
+ * @author Mohammad Azharuddin
+ */
 public class ContentPackageExtractionUtil {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentPackageExtractionUtil.class.getName());
 
+	/** The Constant AWS_UPLOAD_RESULT_URL_INDEX. */
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
+	/** The Constant DASH. */
 	private static final String DASH = "-";
 
+	/** The Constant s3Content. */
 	private static final String s3Content = "s3.content.folder";
 
+	/** The Constant TEMP_FILE_LOCATION. */
 	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
 
-	public void extractECARPackage(Node node, ExtractionType extractionType) {
+	/**
+	 * Extract ECAR package.
+	 *
+	 * @param node the node
+	 * @param extractionType the extraction type
+	 */
+	public void extractContentPackage(Node node, ExtractionType extractionType) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Extraction Type: ", extractionType);
 
@@ -57,21 +73,24 @@ public class ContentPackageExtractionUtil {
 					"Error! Invalid Content Extraction Type.");
 
 		// Reading ECAR (download) URL
-		String downloadUrl = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
-		if (StringUtils.isBlank(downloadUrl)
-				|| StringUtils.endsWithIgnoreCase(downloadUrl, ContentAPIParams.ecar.name()))
+		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
+		if (StringUtils.isBlank(artifactUrl)
+				|| !StringUtils.endsWithIgnoreCase(artifactUrl, ContentAPIParams.zip.name()))
 			throw new ClientException(ContentErrorCodes.INVALID_ECAR.name(), "Error! Invalid ECAR Url.");
 
 		String extractionBasePath = getBasePath(node.getIdentifier());
-		String ECARDownloadPath = getBasePath(node.getIdentifier());
+		String contentPackageDownloadPath = getBasePath(node.getIdentifier());
 		try {
-			// Download ECAR
-			File ECARFile = HttpDownloadUtility.downloadFile(downloadUrl, ECARDownloadPath);
+			// Download Content Package
+			File contentPackageFile = HttpDownloadUtility.downloadFile(artifactUrl, contentPackageDownloadPath);
+			if (null == contentPackageDownloadPath)
+				throw new ServerException(ContentErrorCodes.INVALID_ARTIFACT.name(),
+						"Error! Unable to download the Content Package (from artifact Url) for Content Package Extraction on Storage Space.");
 
 			// UnZip the Content Package
 			UnzipUtility unzipUtility = new UnzipUtility();
-			unzipUtility.unzip(ECARFile.getAbsolutePath(), extractionBasePath);
-			
+			unzipUtility.unzip(contentPackageFile.getAbsolutePath(), extractionBasePath);
+
 			// Extract Content Package
 			extractPackage(node, extractionBasePath, extractionType);
 		} catch (IOException e) {
@@ -79,6 +98,13 @@ public class ContentPackageExtractionUtil {
 
 	}
 
+	/**
+	 * Extract content package.
+	 *
+	 * @param node the node
+	 * @param uploadedFile the uploaded file
+	 * @param extractionType the extraction type
+	 */
 	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: ", uploadedFile);
@@ -92,7 +118,7 @@ public class ContentPackageExtractionUtil {
 
 		LOGGER.info("Validating Uploaded File.");
 		if (!uploadedFile.exists()
-				|| StringUtils.endsWithIgnoreCase(uploadedFile.getName(), ContentAPIParams.zip.name()))
+				|| !StringUtils.endsWithIgnoreCase(uploadedFile.getName(), ContentAPIParams.zip.name()))
 			throw new ClientException(ContentErrorCodes.INVALID_FILE.name(), "Error! File doesn't Exist.");
 
 		LOGGER.info("Validating Extraction Type.");
@@ -105,17 +131,24 @@ public class ContentPackageExtractionUtil {
 			// UnZip the Content Package
 			UnzipUtility unzipUtility = new UnzipUtility();
 			unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
-			
+
 			// Extract Content Package
 			extractPackage(node, extractionBasePath, extractionType);
 		} catch (IOException e) {
-
+			LOGGER.error("Error! While Unzipping the Content Package File.", e);
 		} catch (Exception e) {
-
+			LOGGER.error("Error! Something Went Wrong While Extracting the Content Package File.", e);
 		}
 
 	}
-	
+
+	/**
+	 * Extract package.
+	 *
+	 * @param node the node
+	 * @param basePath the base path
+	 * @param extractionType the extraction type
+	 */
 	private void extractPackage(Node node, String basePath, ExtractionType extractionType) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String AWSFolderPath = "";
@@ -156,7 +189,11 @@ public class ContentPackageExtractionUtil {
 		}
 	}
 
-	
+	/**
+	 * Clean up AWS folder.
+	 *
+	 * @param AWSFolderPath the AWS folder path
+	 */
 	private void cleanUpAWSFolder(String AWSFolderPath) {
 		try {
 			LOGGER.info("Cleaning AWS Folder Path: " + AWSFolderPath);
@@ -167,6 +204,15 @@ public class ContentPackageExtractionUtil {
 		}
 	}
 
+	/**
+	 * Bulk file upload.
+	 *
+	 * @param files the files
+	 * @param AWSFolderPath the AWS folder path
+	 * @return the list
+	 * @throws InterruptedException the interrupted exception
+	 * @throws ExecutionException the execution exception
+	 */
 	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath)
 			throws InterruptedException, ExecutionException {
 		List<String> lstUploadedFileUrls = new ArrayList<String>();
@@ -200,6 +246,13 @@ public class ContentPackageExtractionUtil {
 		return lstUploadedFileUrls;
 	}
 
+	/**
+	 * Gets the extraction path.
+	 *
+	 * @param node the node
+	 * @param extractionType the extraction type
+	 * @return the extraction path
+	 */
 	private String getExtractionPath(Node node, ExtractionType extractionType) {
 		String path = S3PropertyReader.getProperty(s3Content);
 
@@ -228,6 +281,12 @@ public class ContentPackageExtractionUtil {
 		return path;
 	}
 
+	/**
+	 * Gets the base path.
+	 *
+	 * @param contentId the content id
+	 * @return the base path
+	 */
 	private String getBasePath(String contentId) {
 		String path = "";
 		if (!StringUtils.isBlank(contentId))
