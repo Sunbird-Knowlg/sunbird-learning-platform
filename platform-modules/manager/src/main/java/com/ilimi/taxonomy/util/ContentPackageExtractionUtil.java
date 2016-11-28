@@ -195,9 +195,9 @@ public class ContentPackageExtractionUtil {
 	 *            the extraction type
 	 */
 	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
-		LOGGER.info("Node: ", node);
-		LOGGER.info("Uploaded File: ", uploadedFile.getName() + " - " + uploadedFile.exists() + " - " + uploadedFile.getAbsolutePath());
-		LOGGER.info("Extraction Type: ", extractionType);
+		LOGGER.info("Node: " + node);
+		LOGGER.info("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - " + uploadedFile.getAbsolutePath());
+		LOGGER.info("Extraction Type: " + extractionType);
 
 		// Validating the Parameters
 		LOGGER.info("Validating Node Object.");
