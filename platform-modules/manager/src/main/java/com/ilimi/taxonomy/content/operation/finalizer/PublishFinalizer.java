@@ -183,10 +183,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		// TODO: Once AWS Lambda for 'ZIP' Extraction is in place then disable it.  
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-			contentPackageExtractionUtil.extractContentPackage(newNode, ExtractionType.version);
+			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.version);
 			
-			// TODO: Avoid re-uploading by copying the Folder at S3 Level
-			contentPackageExtractionUtil.extractContentPackage(newNode, ExtractionType.latest);
+			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.latest);
 		}
 		
 		return updateContentNode(newNode, urlArray[IDX_S3_URL]);

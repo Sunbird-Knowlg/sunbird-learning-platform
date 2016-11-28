@@ -150,7 +150,7 @@ public class JSONContentParser {
 				JsonElement id = mediaObj.get(ContentWorkflowPipelineParams.id.name());
 				JsonElement src = mediaObj.get(ContentWorkflowPipelineParams.src.name());
 				JsonElement type = mediaObj.get(ContentWorkflowPipelineParams.type.name());
-				if (null == id || !id.isJsonPrimitive() || (StringUtils.isBlank(id.toString()) && isMediaIdRequiredForMediaType(type)))
+				if (!id.isJsonPrimitive() || (StringUtils.isBlank(id.toString()) && isMediaIdRequiredForMediaType(type)))
 					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
 							"Error! Invalid Media ('id' is required.)");
 				if (null == src || !src.isJsonPrimitive() || StringUtils.isBlank(src.toString()))
