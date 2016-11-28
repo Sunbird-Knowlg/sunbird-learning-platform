@@ -52,14 +52,19 @@
 - name: copy template of shell script to stop service
   template: src=stop_logstash_script.j2 dest={{ user_home }}/stop_logstash_script.sh
   tags: 
-       - always
+       - learning
+       - language
+       - search
+       - total
 
 - name: run script
   become: yes
   shell: sh {{ user_home }}/stop_logstash_script.sh
   tags: 
-       - always
-
+       - learning
+       - language
+       - search
+       - total
   
 - name: Check if logstash graph events is running
   become_user: ec2-user

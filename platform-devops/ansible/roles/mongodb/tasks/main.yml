@@ -5,7 +5,6 @@
   tags:
        - mongodb
 
-
 - name: install mongodb
   yum: name=mongodb-org state=present update_cache=yes
   notify: mongodb start
