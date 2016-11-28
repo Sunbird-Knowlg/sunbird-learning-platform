@@ -108,7 +108,6 @@ public class UploadFinalizer extends BaseFinalizer {
 		// Update Body, Reset Editor State and Update Content Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);
 		node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
-		//node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), ecml);
 		node.getMetadata().put(ContentWorkflowPipelineParams.editorState.name(), null);
 		
 		// update content body in content store

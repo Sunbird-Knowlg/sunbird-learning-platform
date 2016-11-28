@@ -1157,7 +1157,7 @@
         },
         {
           "required": false,
-          "dataType": "XML",
+          "dataType": "external",
           "propertyName": "body",
           "title": "Body",
           "description": "",
@@ -1170,7 +1170,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "external",
           "propertyName": "editorState",
           "title": "Editor State",
           "description": "",

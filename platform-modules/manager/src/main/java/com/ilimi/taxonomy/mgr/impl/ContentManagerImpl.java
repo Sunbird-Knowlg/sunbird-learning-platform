@@ -14,18 +14,24 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.contentstore.util.ContentStoreOperations;
+import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
@@ -35,12 +41,18 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ConceptTagger;
 import com.ilimi.taxonomy.util.Content2VecUtil;
+
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 /**
  * The Class <code>ContentManagerImpl</code> is the implementation of
@@ -181,6 +193,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					List<Node> nodelist = (List<Node>) obj;
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
+				}
+				for (Node node : nodes) {
+					String body = getContentBody(node.getIdentifier());
+					node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+					LOGGER.debug("Body fetched from content store");
 				}
 				if (nodes.size() == 1 && StringUtils.isBlank(bundleFileName))
 					bundleFileName = (String) nodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
@@ -378,6 +395,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		LOGGER.debug("Got Node: ", node);
+		
+		String body = getContentBody(contentId);
+		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		LOGGER.debug("Body fetched from content store");
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (StringUtils.isBlank(mimeType)) {
@@ -422,5 +443,42 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 	
+	private String getContentBody(String contentId) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getContentBody.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		Response response = makeLearningRequest(request, LOGGER);
+		String body = (String) response.get(ContentStoreParams.body.name());
+		return body;
+	}
+	
+	/**
+	 * Make a sync request to LearningRequestRouter
+	 * 
+	 * @param request
+	 *            the request object
+	 * @param logger
+	 *            the logger object
+	 * @return the LearningActor response
+	 */
+	private Response makeLearningRequest(Request request, Logger logger) {
+		ActorRef router = LearningRequestRouterPool.getRequestRouter();
+		try {
+			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
+			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
+			if (obj instanceof Response) {
+				Response response = (Response) obj;
+				logger.info("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+						+ " | Result: " + response.getResult().keySet());
+				return response;
+			} else {
+				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+		}
+	}
 	
 }

@@ -162,6 +162,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                     public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
                         // if there are no validation messages
                         if (messages.isEmpty()) {
+                        	datanode.removeExternalFields();
                             // create the node object
                             Future<String> createFuture = datanode.createNode(request);
                             createFuture.onComplete(new OnComplete<String>() {
@@ -400,6 +401,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                 }
                                 if (messages.isEmpty()) {
                                     Future<String> updateFuture = null;
+                                    datanode.removeExternalFields();
                                     if (null == dbNodes || dbNodes.isEmpty())
                                         updateFuture = datanode.createNode(request);
                                     else
