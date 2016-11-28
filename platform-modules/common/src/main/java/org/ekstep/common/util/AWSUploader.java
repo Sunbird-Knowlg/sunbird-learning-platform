@@ -139,6 +139,7 @@ public class AWSUploader {
 					destinationKey);
 			LOGGER.info("[AWS UPLOADER UTILITY | Copy Objects] : Copying object.");
 			s3client.copyObject(copyObjRequest);
+			s3client.setObjectAcl(destinationBucketName, destinationKey, CannedAccessControlList.PublicRead);
 		} catch (AmazonServiceException ase) {
 			LOGGER.error("Caught an AmazonServiceException, " + "which means your request made it "
 					+ "to Amazon S3, but was rejected with an error " + "response for some reason.");
@@ -178,6 +179,7 @@ public class AWSUploader {
 				CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucketName, source,
 						destinationBucketName, destination);
 				s3client.copyObject(copyObjRequest);
+				s3client.setObjectAcl(destinationBucketName, destination, CannedAccessControlList.PublicRead);
 
 				// Populate the Map to return
 				map.put(source, destination);

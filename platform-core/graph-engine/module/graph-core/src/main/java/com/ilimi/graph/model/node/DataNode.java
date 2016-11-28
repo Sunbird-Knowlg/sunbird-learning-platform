@@ -107,7 +107,7 @@ public class DataNode extends AbstractNode {
 				for (MetadataDefinition def : properties) {
 					if (StringUtils.equalsIgnoreCase("external", def.getDataType())) {
 						if (null != metadata && metadata.containsKey(def.getPropertyName()))
-							metadata.remove(def.getPropertyName());
+							metadata.put(def.getPropertyName(), null);
 					}
 				}
 			}
