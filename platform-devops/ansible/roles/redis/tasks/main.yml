@@ -30,13 +30,7 @@
 
 
 - name: redis conf
-  lineinfile: dest={{ redis_home }}/redis.conf regexp='^dir ./' state=absent
-  tags:
-       - redis
-
-
-- name: redis conf
-  lineinfile: dest={{ redis_home }}/redis.conf insertafter='# Note that you must specify a directory here, not a file name.' line='dir /home/ec2-user/redis-stable/' state=present
+  template: src=redis.conf.j2 dest=/home/ec2-user/redis-stable/redis.conf
   tags:
        - redis
 
@@ -46,15 +40,15 @@
   tags:
        - redis
 
-
-- name: Check if redis is running
-  shell: ps -ef | grep redis | grep -v grep | wc -l
-  register: redis_process
-  changed_when: false
-  ignore_errors: true
+- name: copy template
+  template: src=stop_script.j2 dest={{ user_home }}/stop_script.sh
   tags:
        - redis
 
+- name: run script
+  shell: sh {{ user_home }}/stop_script.sh
+  tags: 
+       - redis
 
 - name: start redis
   become_user: ec2-user
@@ -63,7 +57,6 @@
     chdir: /home/ec2-user/redis-stable/
   async: 60
   poll: 60
-  when: "redis_process.stdout == '0'"
   tags:
        - redis
 
