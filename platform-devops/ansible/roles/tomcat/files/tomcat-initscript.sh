@@ -27,7 +27,7 @@ export CATALINA_HOME=/usr/share/tomcat
 export CATALINA_BASE=/usr/share/tomcat
  
 #TOMCAT_USER is the default user of tomcat
-export TOMCAT_USER=ec2-user
+export TOMCAT_USER=tomcat
  
 #TOMCAT_USAGE is the message if this script is called without any options
 TOMCAT_USAGE="Usage: $0 {\e[00;32mstart\e[00m|\e[00;31mstop\e[00m|\e[00;32mstatus\e[00m|\e[00;31mrestart\e[00m}"
