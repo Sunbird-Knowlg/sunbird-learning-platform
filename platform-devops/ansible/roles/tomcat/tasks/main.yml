@@ -102,7 +102,7 @@
   with_items:  
     - { name: 'search-service.xml', destination: '{{ tomcat_home }}/conf/Catalina/localhost' }
   tags:
-       - serach
+       - search
        - total
 
 - name: add templates
