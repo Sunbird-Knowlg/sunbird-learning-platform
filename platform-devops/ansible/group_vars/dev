@@ -27,4 +27,4 @@ s3_config_environment: dev
 to_learning: 172.31.12.237
 to_language: 172.31.12.237
 to_total: 172.31.12.237
-
+mongo_machine: 172.31.12.237
