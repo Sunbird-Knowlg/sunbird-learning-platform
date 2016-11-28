@@ -1,0 +1,19 @@
+{
+    "name": "createSynset_V3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name": "synset",
+        "index": 1,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/private/dictionary/synset/create/*",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}

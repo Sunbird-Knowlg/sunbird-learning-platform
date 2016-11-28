@@ -1,0 +1,23 @@
+{
+    "name": "updateSynset_V3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"synset_id",
+    	"index": 1,
+    	"routingParam": false
+    },{
+        "name": "synset",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "PATCH",
+        "url": "/v3/private/dictionary/synset/update/*/*",
+        "pathParams": ["language_id", "synset_id"]
+    },
+    "body": ""
+}

@@ -177,7 +177,7 @@ public class AuditHistoryV2ControllerTest {
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(false, audit_record.isEmpty());
+		assertEquals(true, audit_record.isEmpty());
 	}
 
 	@Test
@@ -294,7 +294,7 @@ public class AuditHistoryV2ControllerTest {
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(false, audit_record.isEmpty());
+		assertEquals(true, audit_record.isEmpty());
 	}
 
 	@Test
@@ -327,7 +327,7 @@ public class AuditHistoryV2ControllerTest {
 	public void getLogRecordByObjectId(){
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path =  "/v1/audit/details/"+ objectId;
+		String path =  "/v2/audit/details/"+ objectId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());

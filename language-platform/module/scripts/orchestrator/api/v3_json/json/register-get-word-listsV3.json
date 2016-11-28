@@ -1,0 +1,15 @@
+{
+    "name": "getWordLists_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/dictionary/wordlist/list/*",
+        "pathParams": ["language_id"]
+    },
+    "body": "",
+    "apiId": "ekstep.wordlist.list"
+}

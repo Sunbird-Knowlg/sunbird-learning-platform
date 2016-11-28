@@ -38,7 +38,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
  * each of the operation
  */
 @FixMethodOrder(MethodSorters.JVM)
-public class AssessmentitemTest extends BaseTest {
+public class AssessmentitemV3Test extends BaseTest {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -54,19 +54,17 @@ public class AssessmentitemTest extends BaseTest {
 	public void createAssessmentItem() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_01\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
-			String path = "/v1/assessmentitem";
+			String path = "/v3/private/assessment/item/create";
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
 			e.getCause();
 		}
-		Response resp = jsonToObject(actions);
-		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 
 	static int rn = generateRandomNumber(0, 9999);
-	
+
 	// create an assessmentItem without "code" in request body
 	// expect 400 ok response
 	@Test
@@ -74,7 +72,7 @@ public class AssessmentitemTest extends BaseTest {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
-			String path = "/v1/assessmentitem";
+			String path = "/v3/private/assessment/item/create";
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -92,7 +90,7 @@ public class AssessmentitemTest extends BaseTest {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
-			String path = "/v1/assessmentitem";
+			String path = "/v3/private/assessment/item/create";
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -110,7 +108,7 @@ public class AssessmentitemTest extends BaseTest {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"name\": \"MTF Question 1\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
-			String path = "/v1/assessmentitem";
+			String path = "/v3/private/assessment/item/create";
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -145,7 +143,7 @@ public class AssessmentitemTest extends BaseTest {
 	public void createNonexistingAssessmentItem() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_01\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"name\": \"MCQ Question 2\", \"type\": \"mcq\", \"num_answers\": 1, \"template\": \"mcq_template_2\", \"qlevel\": \"MEDIUM\", \"owner\": \"username_1\", \"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ. ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\", \"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ. \nಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\", \"model\": { \"img\": { \"type\": \"image\", \"asset\": \"perimeter\" }, \"img2\": { \"type\": \"image\", \"asset\": \"smallSquare\" }, \"subtext\": \"( = 1 ಚದರ ಸೆಂ.ಮೀ)\" }, \"options\": [ { \"value\": { \"type\": \"text\", \"asset\": \"12&10\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"14&7\" } }, { \"value\": { \"type\": \"mixed\", \"text\": \"16&8\", \"image\": \"image1\", \"audio\": \"audio1\" } }, { \"value\": { \"type\": \"mixed\", \"image\": \"image2\", \"audio\": \"audio2\" }, \"answer\": true } ], \"max_score\": 1, \"partial_scoring\": false, \"feedback\": \"\", \"responses\": [ { \"values\": {\"12&10\": true}, \"score\": 1 } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
-			String path = "/v1/assessmentitem";
+			String path = "/v3/private/assessment/item/create";
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -160,7 +158,7 @@ public class AssessmentitemTest extends BaseTest {
 	public void createAssessmentItemWithInvalidUrl() {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_01\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mcq_mixed_115\", \"name\": \"MCQ Question 2\", \"type\": \"mcq\", \"num_answers\": 1, \"template\": \"mcq_template_2\", \"qlevel\": \"MEDIUM\", \"owner\": \"username_1\", \"title\": \"ಈ ಚಿತ್ರದ ವಿಸ್ತೀರ್ಣವನ್ನು ಹಾಗೂ ಸುತ್ತಳತೆಯನ್ನು ಲೆಕ್ಕ ಮಾಡಿ. ಸೂಕ್ತ ಉತ್ತರವನ್ನು ಆರಿಸಿರಿ.\", \"question\": \"ವಿಸ್ತೀರ್ಣ = ___________ ಚದರ ಸೆಂ.ಮೀ. \nಸುತ್ತಳತೆ= __________ ಚದರ ಸೆಂ.ಮೀ.\", \"model\": { \"img\": { \"type\": \"image\", \"asset\": \"perimeter\" }, \"img2\": { \"type\": \"image\", \"asset\": \"smallSquare\" }, \"subtext\": \"( = 1 ಚದರ ಸೆಂ.ಮೀ)\" }, \"options\": [ { \"value\": { \"type\": \"text\", \"asset\": \"12&10\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"14&7\" } }, { \"value\": { \"type\": \"mixed\", \"text\": \"16&8\", \"image\": \"image1\", \"audio\": \"audio1\" } }, { \"value\": { \"type\": \"mixed\", \"image\": \"image2\", \"audio\": \"audio2\" }, \"answer\": true } ], \"max_score\": 1, \"partial_scoring\": false, \"feedback\": \"\", \"responses\": [ { \"values\": {\"12&10\": true}, \"score\": 1 } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
-			String path = "/v1/assessmtitem";
+			String path = "/v3/private/assessment/create";
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
@@ -168,7 +166,7 @@ public class AssessmentitemTest extends BaseTest {
 			e.printStackTrace();
 		}
 	}
-
+	
 	// create assessmentItem without lhs or rhs options for an mtf type
 	// assessementitem
 	// expect 400 ok response
@@ -177,7 +175,7 @@ public class AssessmentitemTest extends BaseTest {
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_" + rn
 				+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
-			String path = "/v1/assessmentitem";
+			String path = "/v3/private/assessment/item/create";
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -192,7 +190,7 @@ public class AssessmentitemTest extends BaseTest {
 	// expect 200 ok response
 	@Test
 	public void getAssessmentItem() {
-		String path = "/v1/assessmentitem/LP_UT_test_01";
+		String path = "/v3/public/assessment/item/read/LP_UT_test_01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -208,7 +206,7 @@ public class AssessmentitemTest extends BaseTest {
 	// expect 404 response
 	@Test
 	public void getNonexistingAssessmentItem() {
-		String path = "/v1/assessmentitem/wings.D.0";
+		String path = "/v3/public/assessment/item/read/wings.D.0";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -224,7 +222,7 @@ public class AssessmentitemTest extends BaseTest {
 	// expect 404 response
 	@Test
 	public void getAssessmentItemTestWithInvalidUrl() {
-		String path = "/v1/assessment/wings.D.01";
+		String path = "/v3/public/assessment/read/wings.D.01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -240,7 +238,7 @@ public class AssessmentitemTest extends BaseTest {
 	public void updateAssessmentItem() {
 		String node_id = "LP_UT_test_01";
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" }, \"subject\": \"domain\", \"qid\": \"G5Q1\", \"qtype\": \"mtf\", \"code\": \"G5Q1\", \"lastUpdatedOn\": \"2016-04-14T07:54:58.073+0000\", \"type\": \"mtf\", \"concepts\": [ { \"identifier\": \"Num:C2:SC2:MC5\", \"name\": \"Ascending & descending order,skip counting, additive reasoning upto 100\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": null, \"index\": null } ], \"feedback\": \"\", \"createdOn\": \"2016-02-08T07:34:43.614+0000\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಎರಡು ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿ, ಸೂಕ್ತ ಚಿಹ್ನೆಯನ್ನು ಆರಿಸಿರಿ \", \"partial_scoring\": true, \"name\": \"G5Q1\", \"usedIn\": \"numeracy_377\", \"max_score\": 6, \"lhs_options\": [ { \"value\": { \"type\": \"image\", \"asset\": \"grey\" }, \"index\": 0 } ], \"gradeLevel\": [ \"Grade 1\" ], \"question\": \"2080\", \"language\": [ \"English\" ], \"identifier\": \"G5Q1\", \"rhs_options\": [ { \"value\": { \"type\": \"text\", \"asset\": \">\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"=\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"<\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" }, \"answer\": 0 } ] } } } }";
-		String path = "/v1/assessmentitem/" + node_id;
+		String path = "/v3/private/assessment/item/update/" + node_id;
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
@@ -258,7 +256,7 @@ public class AssessmentitemTest extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" }, \"subject\": \"domain\", \"qid\": \"wings.d.0.1\", \"qtype\": \"mtf\", \"code\": \"G5Q1\", \"lastUpdatedOn\": \"2016-04-14T07:54:58.073+0000\", \"type\": \"mtf\", \"concepts\": [ { \"identifier\": \"Num:C2:SC2:MC5\", \"name\": \"Ascending & descending order,skip counting, additive reasoning upto 100\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": null, \"index\": null } ], \"feedback\": \"\", \"createdOn\": \"2016-02-08T07:34:43.614+0000\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಎರಡು ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿ, ಸೂಕ್ತ ಚಿಹ್ನೆಯನ್ನು ಆರಿಸಿರಿ \", \"partial_scoring\": true, \"name\": \"G5Q1\", \"usedIn\": \"numeracy_377\", \"max_score\": 6, \"lhs_options\": [ { \"value\": { \"type\": \"image\", \"asset\": \"grey\" }, \"index\": 0 } ], \"gradeLevel\": [ \"Grade 1\" ], \"question\": \"2080\", \"language\": [ \"English\" ], \"identifier\": \"G5Q1\", \"rhs_options\": [ { \"value\": { \"type\": \"text\", \"asset\": \">\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"=\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"<\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" }, \"answer\": 0 } ] } } } }";
-		String path = "/v1/assessmentitem/wings.d.0.19";
+		String path = "/v3/private/assessment/item/update/wings.d.0.19";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
@@ -277,7 +275,7 @@ public class AssessmentitemTest extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" }, \"subject\": \"domain\", \"qid\": \"wings.d.0.1\", \"qtype\": \"mtf\", \"code\": \"G5Q1\", \"lastUpdatedOn\": \"2016-04-14T07:54:58.073+0000\", \"type\": \"mtf\", \"concepts\": [ { \"identifier\": \"Num:C2:SC2:MC5\", \"name\": \"Ascending & descending order,skip counting, additive reasoning upto 100\", \"objectType\": \"Concept\", \"relation\": \"associatedTo\", \"description\": null, \"index\": null } ], \"feedback\": \"\", \"createdOn\": \"2016-02-08T07:34:43.614+0000\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಎರಡು ಸಂಖ್ಯೆಗಳನ್ನು ಹೋಲಿಸಿ, ಸೂಕ್ತ ಚಿಹ್ನೆಯನ್ನು ಆರಿಸಿರಿ \", \"partial_scoring\": true, \"name\": \"G5Q1\", \"usedIn\": \"numeracy_377\", \"max_score\": 6, \"lhs_options\": [ { \"value\": { \"type\": \"image\", \"asset\": \"grey\" }, \"index\": 0 } ], \"gradeLevel\": [ \"Grade 1\" ], \"question\": \"2080\", \"language\": [ \"English\" ], \"identifier\": \"G5Q1\", \"rhs_options\": [ { \"value\": { \"type\": \"text\", \"asset\": \">\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"=\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" } }, { \"value\": { \"type\": \"text\", \"asset\": \"<\", \"font\": \"Verdana\", \"color\": \"black\", \"fontsize\": \"1000\" }, \"answer\": 0 } ] } } } }";
-		String path = "/v/assessmeem/wings.d.0.1";
+		String path = "/v3/private/assessment/update/wings.d.0.1";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
@@ -294,7 +292,7 @@ public class AssessmentitemTest extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"template\": \"mtf_template_3\", \"model\": { \"data0\": \"23450\", \"data1\": \"23540\" } } } } }";
-		String path = "/v1/assessmentitem/wings.d.0.1";
+		String path = "/v3/private/assessment/item/update/wings.d.0.1";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
@@ -309,7 +307,7 @@ public class AssessmentitemTest extends BaseTest {
 	@Test
 	public void searchAssessmentItem() {
 		String contentString = "{ \"request\": { \"metadata\": { \"filters\": [ {\"property\" : \"template_id\", \"operator\": \"=\", \"value\": \"domain_3490\"} ] }, \"sortOrder\": [ {\"sortField\": \"code\", \"sortOrder\": \"DESC\"} ], \"startPosition\": 0, \"resultSize\": 10 } }";
-		String path = "/v1/assessmentitem/search";
+		String path = "/v3/public/assessment/item/search";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
@@ -326,7 +324,7 @@ public class AssessmentitemTest extends BaseTest {
 	@Test
 	public void searchAssessmentItemWithInvalidUrl() {
 		String contentString = "{ \"request\": { \"metadata\": { \"filters\": [ {\"property\" : \"template_id\", \"operator\": \"=\", \"value\": \"domain_3490\"} ] }, \"sortOrder\": [ {\"sortField\": \"code\", \"sortOrder\": \"DESC\"} ], \"startPosition\": 0, \"resultSize\": 10 } }";
-		String path = "/v1/assessmetem/search";
+		String path = "/v3/public/assessment/search";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(contentString));
@@ -341,7 +339,7 @@ public class AssessmentitemTest extends BaseTest {
 	@Test
 	public void deleteAssessmentItem() {
 		String node_id = "LP_UT_test_01";
-		String path = "/v1/assessmentitem/" + node_id;
+		String path = "/v3/private/assessment/item/retire/" + node_id;
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -357,7 +355,7 @@ public class AssessmentitemTest extends BaseTest {
 	// expect 404 response
 	@Test
 	public void deleteNonexistingAssessmentItem() {
-		String path = "/v1/assessmentitem//q_1_s_urdu_01";
+		String path = "/v3/private/assessment/item/retire/q_1_s_urdu_01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -373,7 +371,7 @@ public class AssessmentitemTest extends BaseTest {
 	// expect 404 response
 	@Test
 	public void deleteAssessmentItemWithInvalidUrl() {
-		String path = "/v1/essmentitem//q_1_s_urdu";
+		String path = "/v3/private/assessment/retire/q_1_s_urdu";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));

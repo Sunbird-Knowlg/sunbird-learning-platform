@@ -1,0 +1,15 @@
+{
+    "name": "getConsonantsFromSyllable_v3",
+    "parameters": [{
+    	"name":"syllable",
+    	"index": 0,
+    	"routingParam": false,
+		"datatype": "java.lang.String"
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/public/dictionary/varna/syllable/consonants/*",
+        "pathParams": ["syllable"]
+    },
+    "body": ""
+}
