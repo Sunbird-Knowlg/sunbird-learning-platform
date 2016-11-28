@@ -98,7 +98,7 @@ public class ContentPackageExtractionUtil {
 			LOGGER.info("Currently Working Environment: " + s3Environment);
 			
 			// Fetching Bucket Name
-			String s3Bucket = S3_BUCKET_PREFIX + s3Environment;
+			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET_PREFIX + s3Environment);
 			LOGGER.info("Current Storage Space Bucket Name: " + s3Bucket);
 			
 			// Fetching Source Prefix For Copy Objects in S3 
