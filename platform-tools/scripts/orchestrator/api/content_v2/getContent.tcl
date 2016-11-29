@@ -88,8 +88,11 @@ if {$check_error} {
 		set returnBody [$fields contains "body"]
 		if {$returnBody == 1} {
 			set bodyResponse [getContentBody $content_id]
-			set body [get_resp_value $bodyResponse "body"]
-			$resp_object put "body" $body
+			set check_error [check_response_error $bodyResponse]
+			if {!$check_error} {
+				set body [get_resp_value $bodyResponse "body"]
+				$resp_object put "body" $body
+			}
 		}
 	} else {
 		set resp_object [convert_graph_node $graph_node $def_node]

@@ -14,5 +14,6 @@
         "url": "/v3/private/content/create"
     },
     "body": "",
-    "apiId": "ekstep.content.create"
+    "apiId": "ekstep.content.create",
+    "version": "3.0"
 }
