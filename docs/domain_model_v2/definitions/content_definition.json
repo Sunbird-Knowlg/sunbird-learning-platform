@@ -1162,7 +1162,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "external",
           "propertyName": "body",
           "title": "Body",
           "description": "",

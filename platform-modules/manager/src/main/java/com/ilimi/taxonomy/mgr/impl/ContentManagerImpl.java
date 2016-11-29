@@ -194,11 +194,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
 				}
-//				for (Node node : nodes) {
-//					String body = getContentBody(node.getIdentifier());
-//					node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
-//					LOGGER.debug("Body fetched from content store");
-//				}
+				for (Node node : nodes) {
+					String body = getContentBody(node.getIdentifier());
+					node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+					LOGGER.debug("Body fetched from content store");
+				}
 				if (nodes.size() == 1 && StringUtils.isBlank(bundleFileName))
 					bundleFileName = (String) nodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
 							+ System.currentTimeMillis() + "_" + (String) nodes.get(0).getIdentifier();
@@ -396,9 +396,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		LOGGER.debug("Got Node: ", node);
 		
-//		String body = getContentBody(contentId);
-//		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
-//		LOGGER.debug("Body fetched from content store");
+		String body = getContentBody(contentId);
+		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		LOGGER.debug("Body fetched from content store");
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (StringUtils.isBlank(mimeType)) {
@@ -443,7 +443,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 	
-	@SuppressWarnings("unused")
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());

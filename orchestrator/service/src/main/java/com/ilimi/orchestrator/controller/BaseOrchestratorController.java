@@ -40,14 +40,14 @@ public abstract class BaseOrchestratorController {
         int statusCode = response.getResponseCode().code();
         HttpStatus status = getStatus(statusCode);
         String apiId = StringUtils.isBlank(script.getApiId()) ? script.getName() : script.getApiId();
-        setResponseEnvelope(response, null, apiId);
+        setResponseEnvelope(response, null, apiId, script.getVersion());
         return new ResponseEntity<Response>(response, status);
     }
     
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId) {
         int statusCode = response.getResponseCode().code();
         HttpStatus status = getStatus(statusCode);
-        setResponseEnvelope(response, API_ID_PREFIX, apiId);
+        setResponseEnvelope(response, API_ID_PREFIX, apiId, null);
         return new ResponseEntity<Response>(response, status);
     }
 
@@ -82,14 +82,14 @@ public abstract class BaseOrchestratorController {
         HttpStatus status = getHttpStatus(e);
         Response response = getErrorResponse(e);
         String apiId = StringUtils.isBlank(script.getApiId()) ? script.getName() : script.getApiId();
-        setResponseEnvelope(response, null, apiId);
+        setResponseEnvelope(response, null, apiId, script.getVersion());
         return new ResponseEntity<Response>(response, status);
     }
     
     protected ResponseEntity<Response> getExceptionResponseEntity(Exception e, String apiId) {
         HttpStatus status = getHttpStatus(e);
         Response response = getErrorResponse(e);
-        setResponseEnvelope(response, API_ID_PREFIX, apiId);
+        setResponseEnvelope(response, API_ID_PREFIX, apiId, null);
         return new ResponseEntity<Response>(response, status);
     }
 
@@ -103,13 +103,13 @@ public abstract class BaseOrchestratorController {
         return status;
     }
 
-    protected void setResponseEnvelope(Response response, String prefix, String apiId) {
+    protected void setResponseEnvelope(Response response, String prefix, String apiId, String version) {
         if (null != response) {
             if (StringUtils.isBlank(prefix))
                 response.setId(apiId);
             else
                 response.setId(prefix + "." + apiId);
-            response.setVer(API_VERSION);
+            response.setVer(StringUtils.isBlank(version) ? API_VERSION : version);
             response.setTs(getResponseTimestamp());
             ResponseParams params = response.getParams();
             if (null == params)
