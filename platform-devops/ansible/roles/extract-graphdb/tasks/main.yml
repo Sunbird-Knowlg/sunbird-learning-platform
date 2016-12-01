@@ -4,6 +4,6 @@
        
 - name: run script
   become: yes
-  shell: /home/ec2-user/extract_graphdb_script.sh 
+  shell: nohup /home/ec2-user/extract_graphdb_script.sh &
   tags: 
        - always
