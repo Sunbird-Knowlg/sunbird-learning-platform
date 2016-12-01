@@ -4,6 +4,7 @@
   
        
 - name: run script
+  become: yes  
   shell:  /home/ec2-user/copy_graphdb_script.sh "{{machine}}"
   tags: 
        - always

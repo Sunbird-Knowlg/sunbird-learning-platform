@@ -1,26 +1,27 @@
 #!/bin/sh
+mkdir /home/ec2-user/zipfolder
 if [ $1 == "learning" ];then
         cd /data/graphDB
-        zip -r domain.zip domain
-        scp -i /home/ec2-user/learning-platform.pem domain.zip ec2-user@{{to_learning}}:/data/graphDB
-        rm -rf /home/ec2-user/domain.zip
+        zip -r /home/ec2-user/zipfolder/domain.zip domain
+        scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/zipfolder/domain.zip ec2-user@{{to_learning}}:/data/graphDB
+        rm -rf /home/ec2-user/zipfolder/domain.zip
 elif [ $1 == "total" ];then
         cd /data/graphDB
         for i in *
         do
                 echo $i
-                zip -r $i.zip $i
-                scp -i /home/ec2-user/learning-platform.pem $i.zip ec2-user@{{to_total}}:/data/graphDB
-                rm -rf /home/ec2-user/$i.zip
+                zip -r /home/ec2-user/zipfolder/$i.zip $i
+                scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/zipfolder/$i.zip ec2-user@{{to_total}}:/data/graphDB
+                rm -rf /home/ec2-user/zipfolder/$i.zip
         done
 else
         cd /data/graphDB
         for j in *
         do
-            if [ $j != domain ]; then
-                        zip -r $j.zip $j
-                        scp -i /home/ec2-user/learning-platform.pem $j.zip ec2-user@{{to_language}}:/data/graphDB
-                        rm -rf /home/ec2-user/$j.zip
-            fi
+                if [ $j != "domain" ]; then
+                        zip -r /home/ec2-user/zipfolder/$j.zip $j
+                        scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/zipfolder/$j.zip ec2-user@{{to_language}}:/data/graphDB
+                        rm -rf /home/ec2-user/zipfolder/$j.zip
+                fi
         done
 fi
