@@ -1,6 +1,7 @@
 #!/bin/sh
-cd /data/graphDB
+mkdir /home/ec2-user/zipfolder
+mv /data/graphDB/* /home/ec2-user/zipfolder/
+cd /home/ec2-user/zipfolder
 for file in *.zip; do
-    unzip  "$file"
-    rm -rf $file
+    unzip "$file" -d /data/graphDB
 done

@@ -4,15 +4,13 @@ if [ $1 == "learning" ];then
         cd /data/graphDB
         zip -r /home/ec2-user/zipfolder/domain.zip domain
         scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/zipfolder/domain.zip ec2-user@{{to_learning}}:/data/graphDB
-        rm -rf /home/ec2-user/zipfolder/domain.zip
-elif [ $1 == "total" ];then
+      elif [ $1 == "total" ];then
         cd /data/graphDB
         for i in *
         do
                 echo $i
                 zip -r /home/ec2-user/zipfolder/$i.zip $i
                 scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/zipfolder/$i.zip ec2-user@{{to_total}}:/data/graphDB
-                rm -rf /home/ec2-user/zipfolder/$i.zip
         done
 else
         cd /data/graphDB
@@ -21,7 +19,6 @@ else
                 if [ $j != "domain" ]; then
                         zip -r /home/ec2-user/zipfolder/$j.zip $j
                         scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/zipfolder/$j.zip ec2-user@{{to_language}}:/data/graphDB
-                        rm -rf /home/ec2-user/zipfolder/$j.zip
                 fi
         done
 fi
