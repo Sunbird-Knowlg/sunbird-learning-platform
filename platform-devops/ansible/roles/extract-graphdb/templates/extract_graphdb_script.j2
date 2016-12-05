@@ -1,7 +1,31 @@
 #!/bin/sh
-mkdir /home/ec2-user/zipfolder
-mv /data/graphDB/* /home/ec2-user/zipfolder/
-cd /home/ec2-user/zipfolder
+today=$(date "+%Y-%m-%d")
+DIR=/data/graphDB
+ZIP=/home/ec2-user/zipfolder
+BACKUP=/home/ec2-user/backup
+
+if [ -d $ZIP ]; then
+    echo "directory exists"
+else
+    mkdir $ZIP
+fi
+
+if [ -d $BACKUP ]; then
+    echo "directory exists"
+else
+    mkdir $BACKUP
+fi
+
+if [ "$(ls -A $DIR)" ]; then
+     echo "Take action $DIR is not Empty"
+     cd /data
+     zip -r $BACKUP/graph-$today.zip graphDB
+     cd ~
+else
+    echo "$DIR is Empty"
+fi
+
+cd /tmp
 for file in *.zip; do
     unzip "$file" -d /data/graphDB
 done
