@@ -3,6 +3,8 @@ today=$(date "+%Y-%m-%d")
 DIR=/data/graphDB
 ZIP=/home/ec2-user/zipfolder
 BACKUP=/home/ec2-user/backup
+OPERATE=/home/ec2-user/operate
+
 
 if [ -d $ZIP ]; then
     echo "directory exists"
@@ -25,25 +27,36 @@ else
     echo "$DIR is Empty"
 fi
 
+if [ -d $OPERATE ]; then
+    echo "exists"
+else
+    mkdir $OPERATE     
+fi
+cd /data
+zip -r $OPERATE/graph-$today.zip graphDB
+cd ~
+unzip -o $OPERATE/graph-$today.zip -d $OPERATE
+rm -rf  $OPERATE/graph-$today.zip
+
 if [ $1 == "learning" ];then
-        cd /data/graphDB
+        cd $OPERATE/graph-$today
         zip -r $ZIP/domain.zip domain
-        scp -i /home/ec2-user/learning-platform.pem $ZIP/domain.zip ec2-user@{{to_learning}}:/tmp
+        scp -i /home/ec2-user/learning-platform.pem $ZIP/domain.zip ec2-user@{{to_learning}}:/home/ec2-user/tmp
       elif [ $1 == "total" ];then
-        cd /data/graphDB
+        cd $OPERATE/graph-$today
         for i in *
         do
                 echo $i
                 zip -r $ZIP/$i.zip $i
-                scp -i /home/ec2-user/learning-platform.pem $ZIP/$i.zip ec2-user@{{to_total}}:/tmp
+                scp -i /home/ec2-user/learning-platform.pem $ZIP/$i.zip ec2-user@{{to_total}}:/home/ec2-user/tmp
         done
 else
-        cd /data/graphDB
+        cd $OPERATE/graph-$today
         for j in *
         do
                 if [ $j != "domain" ]; then
                         zip -r $ZIP/$j.zip $j
-                        scp -i /home/ec2-user/learning-platform.pem $ZIP/$j.zip ec2-user@{{to_language}}:/tmp
+                        scp -i /home/ec2-user/learning-platform.pem $ZIP/$j.zip ec2-user@{{to_language}}:/home/ec2-user/tmp
                 fi
         done
 fi
