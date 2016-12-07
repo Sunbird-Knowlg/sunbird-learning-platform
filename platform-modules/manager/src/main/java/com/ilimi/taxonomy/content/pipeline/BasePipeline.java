@@ -27,7 +27,11 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.contentstore.util.ContentStoreOperations;
+import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -36,8 +40,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -53,29 +60,35 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+
 /**
- * The Class BasePipeline is a PipeLineClass between initializers and finalizers 
+ * The Class BasePipeline is a PipeLineClass between initializers and finalizers
  * mainly holds Common Methods and operations of a ContentNode .
  */
 public class BasePipeline extends BaseManager {
-	
+
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(BasePipeline.class.getName());
-	
+
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-	
+
 	/** The Constant DEF_AWS_FOLDER_NAME */
 	private static final String DEF_AWS_FOLDER_NAME = "content";
-	
-	private static final String s3Content = "s3.content.folder";
-;
+
+	private static final String s3Content = "s3.content.folder";;
 
 	/**
 	 * Updates the ContentNode.
 	 *
-	 * @param Node the node
-	 * @param Url the url
+	 * @param Node
+	 *            the node
+	 * @param Url
+	 *            the url
 	 * @return the response of UpdateContentNode with node_id
 	 */
 	protected Response updateContentNode(Node node, String url) {
@@ -87,11 +100,12 @@ public class BasePipeline extends BaseManager {
 		}
 		return response;
 	}
-	
+
 	/**
 	 * Updates the given Node.
 	 * 
-	 * @param Node the node
+	 * @param Node
+	 *            the node
 	 * @return the response of UpdateContentNode with node_id
 	 */
 	protected Response updateNode(Node node) {
@@ -104,13 +118,58 @@ public class BasePipeline extends BaseManager {
 		}
 		return response;
 	}
-	
+
+	/**
+	 * Updates the content body in content store
+	 * 
+	 * @param contentId
+	 *            identifier of the content
+	 * @param body
+	 *            ECML body of the content
+	 * @return response of updatedContentBody request
+	 */
+	protected Response updateContentBody(String contentId, String body) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.updateContentBody.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		request.put(ContentStoreParams.body.name(), body);
+		return makeLearningRequest(request, LOGGER);
+	}
+
+	/**
+	 * Make a sync request to LearningRequestRouter
+	 * 
+	 * @param request
+	 *            the request object
+	 * @param logger
+	 *            the logger object
+	 * @return the LearningActor response
+	 */
+	protected Response makeLearningRequest(Request request, Logger logger) {
+		ActorRef router = LearningRequestRouterPool.getRequestRouter();
+		try {
+			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
+			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
+			if (obj instanceof Response) {
+				Response response = (Response) obj;
+				logger.info("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+						+ " | Result: " + response.getResult().keySet());
+				return response;
+			} else {
+				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+		}
+	}
+
 	/**
 	 * validates BasePath
 	 * 
-	 * @param path the Path
-	 * checks if the path exists else
-	 * return false
+	 * @param path
+	 *            the Path checks if the path exists else return false
 	 */
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
@@ -122,14 +181,14 @@ public class BasePipeline extends BaseManager {
 		}
 		return isValid;
 	}
-	
+
 	/**
 	 * validates Path
 	 * 
-	 * @param Path the path
-	 * checks if the path exists, if not null then creates a Path for it
-	 * @return true if its a validBasePath 
-	 * return false
+	 * @param Path
+	 *            the path checks if the path exists, if not null then creates a
+	 *            Path for it
+	 * @return true if its a validBasePath return false
 	 */
 	protected boolean isPathExist(Path path) {
 		boolean exist = true;
@@ -147,29 +206,32 @@ public class BasePipeline extends BaseManager {
 		}
 		return exist;
 	}
-	
+
 	/**
-	 * gets the AwsUploadFolder Name
-	 * from the PropertiesUtil class by loading from propertiesFile
+	 * gets the AwsUploadFolder Name from the PropertiesUtil class by loading
+	 * from propertiesFile
 	 * 
 	 * @return AWS Upload FolderName
 	 */
 	protected String getUploadFolderName(String identifier, String folder) {
 		String folderName = DEF_AWS_FOLDER_NAME;
-		//String env = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
+		// String env =
+		// PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
 		folderName = S3PropertyReader.getProperty(s3Content);
 		if (!StringUtils.isBlank(folderName)) {
 			folderName = folderName + "/" + Slug.makeSlug(identifier, true) + "/" + folder;
 		}
 		return folderName;
 	}
-	
+
 	/**
 	 * uploads the file to AWS
 	 * 
-	 * @param uploadFile is the file to to uploaded
-	 * @param folder is the AWS folder
-	 * calls the AWSUploader to upload the file the AWS
+	 * @param uploadFile
+	 *            is the file to to uploaded
+	 * @param folder
+	 *            is the AWS folder calls the AWSUploader to upload the file the
+	 *            AWS
 	 * @return String[] of the uploaded URL
 	 */
 	protected String[] uploadToAWS(File uploadFile, String folder) {
@@ -184,7 +246,7 @@ public class BasePipeline extends BaseManager {
 		}
 		return urlArray;
 	}
-	
+
 	/**
 	 * gets the NumericValue of the object
 	 * 
@@ -211,7 +273,7 @@ public class BasePipeline extends BaseManager {
 			return 0.0;
 		return n.doubleValue();
 	}
-	
+
 	/**
 	 * gets the S3FilesSize
 	 * 
@@ -233,7 +295,7 @@ public class BasePipeline extends BaseManager {
 	protected static String formatCurrentDate() {
 		return format(new Date());
 	}
-	
+
 	/**
 	 * formats Any given Date
 	 * 
@@ -250,11 +312,12 @@ public class BasePipeline extends BaseManager {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * gets the date after the given Days
 	 * 
-	 * @param number of Days
+	 * @param number
+	 *            of Days
 	 * @return date
 	 */
 	protected static String getDateAfter(int days) {
@@ -282,7 +345,7 @@ public class BasePipeline extends BaseManager {
 		}
 		return isValid;
 	}
-	
+
 	/**
 	 * validates the JSON from ContentBody
 	 * 
@@ -302,7 +365,7 @@ public class BasePipeline extends BaseManager {
 		}
 		return isValid;
 	}
-	
+
 	/**
 	 * gets the basePath from the ContentId
 	 * 
@@ -316,7 +379,7 @@ public class BasePipeline extends BaseManager {
 					+ ContentAPIParams._temp.name() + File.separator + contentId;
 		return path;
 	}
-	
+
 	/**
 	 * gets the ResponseTimestamp
 	 * 
@@ -326,21 +389,24 @@ public class BasePipeline extends BaseManager {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
 		return sdf.format(new Date());
 	}
-	
+
 	/**
 	 * gets the UUID(unique Identifier)
+	 * 
 	 * @return UUID(random generator)
 	 */
 	protected String getUUID() {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
 	}
-	
+
 	/**
 	 * gets the ContentBundleData form all Collections
 	 * 
-	 * @param graphId, listOfNodes to be bundled, contents, childrenIds and Status(live)
-	 * call getContentBundleData() to Bundle all data with status as LIVE
+	 * @param graphId,
+	 *            listOfNodes to be bundled, contents, childrenIds and
+	 *            Status(live) call getContentBundleData() to Bundle all data
+	 *            with status as LIVE
 	 */
 	protected void getContentBundleData(String graphId, List<Node> nodes, List<Map<String, Object>> ctnts,
 			List<String> childrenIds) {
@@ -362,15 +428,16 @@ public class BasePipeline extends BaseManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void getContentRecursive(String graphId, List<Node> childrenNodes, Node node, Map<String, Node> nodeMap, List<String> childrenIds,
-			List<Map<String, Object>> ctnts, boolean onlyLive) {
+	protected void getContentRecursive(String graphId, List<Node> childrenNodes, Node node, Map<String, Node> nodeMap,
+			List<String> childrenIds, List<Map<String, Object>> ctnts, boolean onlyLive) {
 		if (!nodeMap.containsKey(node.getIdentifier())) {
 			nodeMap.put(node.getIdentifier(), node);
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			if (null == node.getMetadata())
 				node.setMetadata(new HashMap<String, Object>());
 			String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
-			if ((onlyLive && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status)) || !onlyLive) {
+			if ((onlyLive && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
+					|| !onlyLive) {
 				metadata.putAll(node.getMetadata());
 				metadata.put(ContentWorkflowPipelineParams.identifier.name(), node.getIdentifier());
 				metadata.put(ContentWorkflowPipelineParams.objectType.name(), node.getObjectType());
@@ -393,11 +460,12 @@ public class BasePipeline extends BaseManager {
 							}
 							children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
 									rel.getEndNodeObjectType(), rel.getRelationType(), rel.getMetadata()));
-						} else if (StringUtils.equalsIgnoreCase(RelationTypes.PRE_REQUISITE.relationName(), 
-								rel.getRelationType()) 
-								&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), rel.getEndNodeObjectType())) {
+						} else if (StringUtils.equalsIgnoreCase(RelationTypes.PRE_REQUISITE.relationName(),
+								rel.getRelationType())
+								&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(),
+										rel.getEndNodeObjectType())) {
 							childrenIds.add(rel.getEndNodeId());
-							preRequisites.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), 
+							preRequisites.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
 									rel.getEndNodeObjectType(), rel.getRelationType(), rel.getMetadata()));
 						}
 					}
@@ -419,7 +487,8 @@ public class BasePipeline extends BaseManager {
 								List<Node> nodeList = (List<Node>) obj;
 								for (Node child : nodeList) {
 									childrenNodes.add(child);
-									getContentRecursive(graphId, childrenNodes, child, nodeMap, childrenIds, ctnts, onlyLive);
+									getContentRecursive(graphId, childrenNodes, child, nodeMap, childrenIds, ctnts,
+											onlyLive);
 								}
 							}
 						}
@@ -428,11 +497,12 @@ public class BasePipeline extends BaseManager {
 			}
 		}
 	}
-	
+
 	/**
 	 * search Nodes and return SearchResponse
 	 * 
-	 * @param taxonomyId and ContentId
+	 * @param taxonomyId
+	 *            and ContentId
 	 * @return Response of the search
 	 */
 	protected Response searchNodes(String taxonomyId, List<String> contentIds) {

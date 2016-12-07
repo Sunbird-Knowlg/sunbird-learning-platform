@@ -1,11 +1,17 @@
 ---
-- name: start elasticsearch
-  become: yes
-  service: name=elasticsearch state=started
+- name: Check if mongod is running
+  shell: ps -ef | grep mongod | grep -v grep | wc -l
+  register: mongod_process
+  changed_when: false
+  ignore_errors: true
+
 
 - name: mongodb start
   become: yes
   service: name=mongod state=started
+  when: "mongod_process.stdout == '0'"
+  ignore_errors: yes
+
 
 - name: Check if redis is running
   shell: ps -ef | grep redis | grep -v grep | wc -l

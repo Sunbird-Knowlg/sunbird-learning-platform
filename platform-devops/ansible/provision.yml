@@ -1,0 +1,13 @@
+- hosts: "{{remote}}"
+  gather_facts: no
+  become: yes
+  roles:
+        - java
+        - createpath
+        - aws-login
+        - tomcat
+        - ffmpeg
+        - imagemagick
+        - logstash
+        - mongodb
+        - redis

@@ -1,0 +1,2 @@
+user: ec2-user
+user_home: /home/ec2-user

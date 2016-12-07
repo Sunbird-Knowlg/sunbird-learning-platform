@@ -1,3 +1,0 @@
-- name: mongodb start
-  become: yes
-  service: name=mongod state=started

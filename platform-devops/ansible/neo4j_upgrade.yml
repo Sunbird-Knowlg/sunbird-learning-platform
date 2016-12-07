@@ -1,3 +1,19 @@
-- hosts: env
+- hosts: learning
   roles:
         - neo4j
+
+- hosts: language
+  roles:
+        - neo4j
+
+- hosts: search
+  roles:
+        - neo4j
+
+- hosts: config
+  roles:
+        - neo4j
+
+
+
+

@@ -150,6 +150,17 @@ if {$object_null == 1} {
 						$metadata put "prevState" $status_val_str
 						set log_response [log_content_lifecycle_event $content_id $metadata]
 					}
+					# if {!$bodyEmpty} {
+					# 	set bodyResponse [updateContentBody $content_id $body]
+					# 	set check_error [check_response_error $bodyResponse]
+					# 	if {$check_error} {
+					# 		return $bodyResponse
+					# 	} else {
+					# 		return $create_response
+					# 	}
+					# } else {
+					# 	return $create_response
+					# }
 					return $create_response
 				}
 			}

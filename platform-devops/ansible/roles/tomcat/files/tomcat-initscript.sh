@@ -50,6 +50,7 @@ start() {
     #ulimit -n 100000
     #umask 007
     #/bin/su -p -s /bin/sh tomcat
+     cd $CATALINA_HOME
         if [ `user_exists $TOMCAT_USER` = "1" ]
         then
                 su $TOMCAT_USER -c $CATALINA_HOME/bin/startup.sh

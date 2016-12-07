@@ -98,6 +98,21 @@ public class DataNode extends AbstractNode {
 			}
 		}
 	}
+	
+	public void removeExternalFields() {
+		DefinitionDTO dto = DefinitionCache.getDefinitionNode(graphId, objectType);
+		if (null != dto) {
+			List<MetadataDefinition> properties = dto.getProperties();
+			if (null != properties && !properties.isEmpty()) {
+				for (MetadataDefinition def : properties) {
+					if (StringUtils.equalsIgnoreCase("external", def.getDataType())) {
+						if (null != metadata && metadata.containsKey(def.getPropertyName()))
+							metadata.put(def.getPropertyName(), null);
+					}
+				}
+			}
+		}
+	}
 
 	@Override
 	public Node toNode() {

@@ -1,0 +1,4 @@
+- hosts: hostmongodb
+  become: yes
+  roles:
+        - import-mongodb

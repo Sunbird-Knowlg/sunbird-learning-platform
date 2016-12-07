@@ -6,13 +6,36 @@
   with_items:
      - { path: '.aws', state: 'directory' }
      - { path: 'credentials', state: 'touch' }
-
+  tags:
+       - learning
+       - language
+       - config
+       - search
+       - total
+  
 - name: update .aws/credentials
   lineinfile: dest=.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
-
-- name: update .aws/credentials
+  tags:
+       - learning
+       - language
+       - config
+       - search
+       - total
+ 
+- name: update access_key from env var
   lineinfile: dest=.aws/credentials line='aws_access_key_id={{ lookup('env', 'lp_aws_access_key_id') }}'  insertafter=EOF state=present create=yes
+  tags:
+       - learning
+       - language
+       - config
+       - search
+       - total
 
-- name: update .aws/credentials
+- name: update secret_key from env var 
   lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ lookup('env', 'lp_aws_secret_access_key') }}' insertafter=EOF state=present  create=yes
-  
+  tags:
+       - learning
+       - language
+       - config
+       - search
+       - total

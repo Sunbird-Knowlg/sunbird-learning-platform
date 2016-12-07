@@ -20,7 +20,9 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.enums.ExtractionType;
 import com.ilimi.taxonomy.util.ContentBundle;
+import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
 
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which
@@ -174,9 +176,19 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
 		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
 		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
+//		node.getMetadata().remove(ContentWorkflowPipelineParams.body.name());
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
+		
+		// TODO: Once AWS Lambda for 'ZIP' Extraction is in place then disable it.  
+		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
+			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.version);
+			
+			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.latest);
+		}
+		
 		return updateContentNode(newNode, urlArray[IDX_S3_URL]);
 	}
 	

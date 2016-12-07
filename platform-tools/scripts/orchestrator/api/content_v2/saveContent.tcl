@@ -57,9 +57,31 @@ if {$object_null == 1} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		} else {
+			# set body [$content get "body"]
+			# set bodyEmpty [proc_isEmpty $body]
+			# if {!$bodyEmpty} {
+			# 	$content put "body" [java::null]
+			# }
 			set domain_obj [convert_to_graph_node $content $def_node]
 			set create_response [createDataNode $graph_id $domain_obj]
-			return $create_response
+			set check_error [check_response_error $create_response]
+			if {$check_error} {
+				return $create_response
+			} else {
+				# set content_id [get_resp_value $create_response "node_id"]
+				# if {!$bodyEmpty} {
+				# 	set bodyResponse [updateContentBody $content_id $body]
+				# 	set check_error [check_response_error $bodyResponse]
+				# 	if {$check_error} {
+				# 		return $bodyResponse
+				# 	} else {
+				# 		return $create_response
+				# 	}
+				# } else {
+				# 	return $create_response
+				# }
+				return $create_response
+			}
 		}
 	} else {
 		set result_map [java::new HashMap]

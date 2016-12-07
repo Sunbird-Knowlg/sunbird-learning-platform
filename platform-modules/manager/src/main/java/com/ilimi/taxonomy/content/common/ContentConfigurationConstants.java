@@ -111,6 +111,10 @@ public class ContentConfigurationConstants {
 	 * which the Content Bundle Package Expires to load by App.
 	 */
 	public static final int DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS = 7;
+	
+	public static final boolean IS_ECAR_EXTRACTION_ENABLED = true;
+	
+	public static final boolean IS_CONTENT_PACKAGE_EXTRACTION_ENABLED = true;
 
 	/**
 	 * Instantiates a new content configuration constants, It is being used in a

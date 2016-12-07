@@ -383,6 +383,16 @@
             "Dimension"
           ],
           "renderingHints": "{'order': 26}"
+        },
+        {
+          "relationName": "associatedTo",
+          "title": "contents",
+          "description": "Connected to other nodes with Associated to relation",
+          "required": false,
+          "objectTypes": [
+            "Content"
+          ],
+          "renderingHints": "{'order': 26}"
         }
       ],
       "outRelations": [

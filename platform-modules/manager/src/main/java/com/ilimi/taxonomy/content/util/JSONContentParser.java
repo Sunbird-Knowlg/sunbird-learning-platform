@@ -150,7 +150,7 @@ public class JSONContentParser {
 				JsonElement id = mediaObj.get(ContentWorkflowPipelineParams.id.name());
 				JsonElement src = mediaObj.get(ContentWorkflowPipelineParams.src.name());
 				JsonElement type = mediaObj.get(ContentWorkflowPipelineParams.type.name());
-				if (null == id || !id.isJsonPrimitive() || StringUtils.isBlank(id.toString()))
+				if (!id.isJsonPrimitive() || (StringUtils.isBlank(id.toString()) && isMediaIdRequiredForMediaType(type)))
 					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
 							"Error! Invalid Media ('id' is required.)");
 				if (null == src || !src.isJsonPrimitive() || StringUtils.isBlank(src.toString()))
@@ -474,6 +474,22 @@ public class JSONContentParser {
 			}
 		}
 		return map;
+	}
+	
+	/**
+	 * Checks if is media id required for given media type.
+	 *
+	 * @param type the type
+	 * @return true, if is media id required for media type
+	 */
+	private boolean isMediaIdRequiredForMediaType(JsonElement type) {
+		boolean isMediaIdRequired = true;
+		if (StringUtils.isNotBlank(type.getAsString()) 
+				&& (StringUtils.equalsIgnoreCase(type.getAsString(), ContentWorkflowPipelineParams.js.name()) 
+						|| StringUtils.equalsIgnoreCase(type.getAsString(), ContentWorkflowPipelineParams.css.name())))
+			isMediaIdRequired = false;
+			
+		return isMediaIdRequired;
 	}
 
 }
