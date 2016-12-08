@@ -14,6 +14,20 @@ public class DACErrorMessageConstants {
 	
 	public static final String STALE_DATA_UPDATED_WARNING = "Warning! Object has been Updated with Stale Data.";
 	
+	public static final String INVALID_GRAPH_ID = "Error! Invalid Graph Id.";
+	
+	public static final String INVALID_USERNAME = "Error! Invalid Username.";
+	
+	public static final String INVALID_PASSWORD = "Error! Invalid Password.";
+	
+	public static final String INVALID_PRINCIPAL = "Error! Invalid Principal.";
+	
+	public static final String INVALID_REALM = "Error! Invalid Realm.";
+	
+	public static final String INVALID_SCHEME = "Error! Invalid Scheme.";
+	
+	public static final String INVALID_CONFIGURATION = "Error! Something is wrong with the Database Configuration Values.";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}
