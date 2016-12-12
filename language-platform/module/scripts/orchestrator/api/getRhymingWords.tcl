@@ -50,6 +50,7 @@ proc getWordList {wordIds language_id} {
 proc getRhymingSoundWords {word_node language_id} {
 	set relationIds [java::new ArrayList]
 	set inRelations [java::prop $word_node "inRelations"]
+	set actualWordId [java::prop $word_node "identifier"]
 	set hasRelations [isNotEmpty $inRelations]
 	if {$hasRelations} {
 		java::for {Relation relation} $inRelations {
@@ -66,6 +67,7 @@ proc getRhymingSoundWords {word_node language_id} {
 						set rhymingSoundSetMembers [get_resp_value $rhymingSoundResponse "members"]
 						set hasRhymingSoundSetMembers [isNotEmpty $rhymingSoundSetMembers]
 						if {$hasRhymingSoundSetMembers} {
+							$rhymingSoundSetMembers remove $actualWordId
 							set rhymingSoundWords [getWordList $rhymingSoundSetMembers $language_id]
 							return $rhymingSoundWords
 						}
