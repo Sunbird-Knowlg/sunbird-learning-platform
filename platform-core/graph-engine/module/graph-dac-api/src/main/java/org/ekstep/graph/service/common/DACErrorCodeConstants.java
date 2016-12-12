@@ -9,7 +9,8 @@ public enum DACErrorCodeConstants {
 	STALE_DATA(4, "The Node Contaions/Updated with Stale Data."),
 	SERVER_ERROR(5, "The Exception/Error Occured on Server."), 
 	INVALID_GRAPH(6, "Invalid Graph Identifier."), 
-	INVALID_CONFIG(7, "Invalid Configuration.");
+	INVALID_CONFIG(7, "Invalid Configuration."), 
+	INVALID_NODE(8, "Invalid Node Object.");
 	
 	private final int code;
 	private final String description;

@@ -28,6 +28,8 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_CONFIGURATION = "Error! Something is wrong with the Database Configuration Values.";
 	
+	public static final String INVALID_NODE = "Error! Invalid Node (Object).";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

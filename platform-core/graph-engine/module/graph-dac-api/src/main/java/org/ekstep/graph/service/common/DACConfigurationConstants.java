@@ -18,6 +18,18 @@ public class DACConfigurationConstants {
 	
 	public static final String NEO4J_SERVER_AUTH_SCHEME = "";
 	
+	public static final String NEO4J_SERVER_CONNECTION_TRUST_STRATEGY = "all";
+	
+	public static final String NEO4J_SERVER_CONNECTION_TRUST_STRATEGY_CERTIFICATE_FILE = "";
+	
+	public static final int NEO4J_SERVER_MAX_IDLE_SESSION = 20;
+	
+	public static final boolean IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED = true;
+	
+	public static final boolean IS_SETTING_NEO4J_SERVER_MAX_IDLE_SESSION_ENABLED = true;
+	
+	public static final boolean IS_NEO4J_SERVER_TRUST_STRATEGY_ENABLED = true;
+	
 	private DACConfigurationConstants() {
 		  throw new AssertionError();
 	}

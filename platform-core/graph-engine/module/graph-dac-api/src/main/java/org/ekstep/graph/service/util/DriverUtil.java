@@ -9,8 +9,9 @@ public class DriverUtil {
 	
 	private static Logger LOGGER = LogManager.getLogger(DriverUtil.class.getName());
 	
-	public Driver getDriver(String graphId) {
-		Driver driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), AuthTokenUtil.getAuthToken(), null);
+	public static Driver getDriver(String graphId) {
+		Driver driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), AuthTokenUtil.getAuthToken(), ConfigUtil.getConfig());
+		
 		return driver;
 	}
 
