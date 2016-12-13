@@ -10,7 +10,8 @@ public enum DACErrorCodeConstants {
 	SERVER_ERROR(5, "The Exception/Error Occured on Server."), 
 	INVALID_GRAPH(6, "Invalid Graph Identifier."), 
 	INVALID_CONFIG(7, "Invalid Configuration."), 
-	INVALID_NODE(8, "Invalid Node Object.");
+	INVALID_NODE(8, "Invalid Node Object."), 
+	INVALID_DRIVER(9, "Invalid Bolt Driver.");
 	
 	private final int code;
 	private final String description;

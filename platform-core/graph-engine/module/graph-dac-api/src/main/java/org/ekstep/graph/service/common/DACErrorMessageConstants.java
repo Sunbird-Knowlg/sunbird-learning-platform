@@ -30,6 +30,8 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_NODE = "Error! Invalid Node (Object).";
 	
+	public static final String INVALID_DRIVER_TYPE = "Error! Invalid Database Driver Type.";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

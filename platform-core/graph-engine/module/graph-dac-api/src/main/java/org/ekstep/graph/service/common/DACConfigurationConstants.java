@@ -22,6 +22,8 @@ public class DACConfigurationConstants {
 	
 	public static final String NEO4J_SERVER_CONNECTION_TRUST_STRATEGY_CERTIFICATE_FILE = "";
 	
+	public static final String NEO4J_SERVER_DRIVER_TYPE = "Complex";
+	
 	public static final int NEO4J_SERVER_MAX_IDLE_SESSION = 20;
 	
 	public static final boolean IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED = true;
