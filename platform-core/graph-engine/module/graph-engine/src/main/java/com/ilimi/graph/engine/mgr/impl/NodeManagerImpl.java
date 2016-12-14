@@ -363,6 +363,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         Map<String, Object> dbMetadata = dbNode.getMetadata();
                         if (null != dbMetadata && !dbMetadata.isEmpty()) {
                         	dbMetadata.remove(GraphDACParams.versionKey.name());
+                        	dbMetadata.remove(GraphDACParams.lastUpdatedBy.name());
                             for (Entry<String, Object> entry : dbMetadata.entrySet()) {
                                 if (!datanode.getMetadata().containsKey(entry.getKey()))
                                     datanode.getMetadata().put(entry.getKey(), entry.getValue());

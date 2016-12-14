@@ -411,6 +411,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if(null!=publisher && !StringUtils.isBlank(publisher)){
 			LOGGER.debug("Publisher: " + publisher);
 			node.getMetadata().put("publisher", publisher);
+			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), publisher);
 		}
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
