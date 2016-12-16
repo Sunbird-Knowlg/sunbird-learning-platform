@@ -154,6 +154,8 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 			search.addFilterGreaterOrEqual("createdOn", start_date);
 		if (end_date != null)
 			search.addFilterLessOrEqual("createdOn", end_date);
+		search.addSort("createdOn", false);
+		search.addSort("operation", false);
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
@@ -177,7 +179,8 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		if (time_stamp != null)
 			search.addFilterEqual("createdOn", time_stamp);
 		search.addFilterEqual("objectId", objectId);
-
+		search.addSort("createdOn", false);
+		search.addSort("operation", false);
 		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
