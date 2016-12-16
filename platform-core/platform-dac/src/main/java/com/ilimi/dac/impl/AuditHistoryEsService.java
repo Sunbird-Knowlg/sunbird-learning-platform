@@ -1,5 +1,6 @@
 package com.ilimi.dac.impl;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.searchindex.dto.SearchDTO;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.googlecode.genericdao.search.Search;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.dac.BaseDataAccessService;
@@ -26,7 +28,7 @@ import com.ilimi.dac.TransformationHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.entity.AuditHistoryEntity;
-import com.ilimi.dac.impl.entity.dao.AuditHistoryDao;
+import com.ilimi.dac.impl.entity.dao.AuditHistoryEsDao;
 
 /**
  * The Class AuditHistoryDataService provides implementations of the various
@@ -35,31 +37,30 @@ import com.ilimi.dac.impl.entity.dao.AuditHistoryDao;
  * 
  * @author Karthik, Rashmi
  * 
- * @see IAuditHistoryDataService
+ * @see IAuditHistoryEsService
  */
 
-@Component
-public class AuditHistoryDataService extends BaseDataAccessService implements IAuditHistoryDataService {
+@Component("auditHistoryEsService")
+public class AuditHistoryEsService extends BaseDataAccessService implements IAuditHistoryEsService {
 
 	/** The model mapper. */
 	private ModelMapper modelMapper = null;
 
 	/** The Object mapper */
 	private ObjectMapper objectMapper = null;
-
-	/** This is the init method for the AuditHistoryDataService */
-	public AuditHistoryDataService() {
+	
+	/** This is the init method for the AuditHistoryEsService */
+	
+	public AuditHistoryEsService() {
 		modelMapper = new ModelMapper();
 		TransformationHelper.createTypeMap(modelMapper, AuditHistoryRecord.class, AuditHistoryEntity.class);
 		objectMapper = new ObjectMapper();
-		// objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS,
-		// false);
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a z");
 		objectMapper.setDateFormat(df);
 	}
-
+	
 	@Autowired
-	AuditHistoryDao dao = null;
+	AuditHistoryEsDao dao = null;
 
 	/*
 	 * (non-Javadoc)
@@ -68,15 +69,22 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 	 * #saveAuditHistoryLog(java.lang.String, java.lang.String, java.io.File,
 	 * java.lang.String)
 	 */
+	@SuppressWarnings("unchecked")
 	@Transactional
 	public Response saveAuditHistoryLog(Request request) {
 		AuditHistoryRecord auditRecord = (AuditHistoryRecord) request.get(CommonDACParams.audit_history_record.name());
 		AuditHistoryEntity entity = new AuditHistoryEntity();
 		modelMapper.map(auditRecord, entity);
-		dao.save(entity);
+		Map<String,Object> entity_map = objectMapper.convertValue(entity,Map.class);
+		try {
+			dao.save(entity_map);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.out.println("entity_map" + entity_map);
 		return OK(CommonDACParams.audit_history_record_id.name(), entity.getId());
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -90,13 +98,27 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
 		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
-		Search search = new Search();
+		List<Map> properties = new ArrayList<Map>();
+		SearchDTO search = new SearchDTO();
 		search = setSearchCriteria(versionId);
-		if (start_date != null)
-			search.addFilterGreaterOrEqual("createdOn", start_date);
-		if (end_date != null)
-			search.addFilterLessOrEqual("createdOn", end_date);
-		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
+		if (start_date != null){
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+			property.put("propertyName", "createdOn" );
+			property.put("range", start_date);
+			properties.add(property);
+		}
+		if (end_date != null){
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+			property.put("propertyName", "createdOn" );
+			property.put("range", end_date);
+			properties.add(property);
+		}
+		search.setLimit(100);
+		search.setOperation("AND");
+		search.setProperties(properties);
+		Map<String, Object> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 	}
@@ -116,16 +138,41 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		String objectType = (String) request.get(CommonDACParams.object_type.name());
 		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
-
-		Search search = new Search();
+		List<Map> properties = new ArrayList<Map>();
+		
+		SearchDTO search = new SearchDTO();
 		search = setSearchCriteria(versionId);
-		search.addFilterEqual("graphId", graphId);
-		search.addFilterEqual("objectType", objectType);
-		if (start_date != null)
-			search.addFilterGreaterOrEqual("createdOn", start_date);
-		if (end_date != null)
-			search.addFilterLessOrEqual("createdOn", end_date);
-		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
+		
+		Map<String, Object> property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+		property.put("propertyName", "graphId");
+		property.put("values", graphId);
+		properties.add(property);
+		
+		property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+		property.put("propertyName", "objectType");
+		property.put("values", objectType);
+		properties.add(property);
+		
+		if (start_date != null){
+			property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+			property.put("propertyName", "createdOn" );
+			property.put("range", start_date);
+			properties.add(property);
+		}
+		if (end_date != null){
+			property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+			property.put("propertyName", "createdOn" );
+			property.put("range",end_date);
+			properties.add(property);
+		}
+		search.setLimit(100);
+		search.setOperation("AND");
+		search.setProperties(properties);
+		Map<String, Object> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 
@@ -145,16 +192,42 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
 		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
 		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
-
-		Search search = new Search();
+		
+		List<Map> properties = new ArrayList<Map>();
+		SearchDTO search = new SearchDTO();
 		search = setSearchCriteria(versionId);
-		search.addFilterEqual("graphId", graphId);
-		search.addFilterEqual("objectId", objectId);
-		if (start_date != null)
-			search.addFilterGreaterOrEqual("createdOn", start_date);
-		if (end_date != null)
-			search.addFilterLessOrEqual("createdOn", end_date);
-		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
+		
+
+		Map<String, Object> property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+		property.put("propertyName", "graphId");
+		property.put("values", graphId);
+		properties.add(property);
+		
+		property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+		property.put("propertyName", "objectId");
+		property.put("values", objectId);
+		properties.add(property);
+		
+		if (start_date != null){
+			property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+			property.put("propertyName", "createdOn" );
+			property.put("range",start_date);
+			properties.add(property);
+		}
+		if (end_date != null){
+			property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+			property.put("propertyName", "createdOn" );
+			property.put("range", end_date);
+			properties.add(property);
+		}
+		search.setLimit(1000);
+		search.setOperation("AND");
+		search.setProperties(properties);
+		Map<String,Object> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 	}
@@ -171,14 +244,28 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 	public Response getAuditLogRecordById(Request request) {
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
 		Date time_stamp = (Date) request.get(CommonDACParams.time_stamp.name());
-
-		Search search = new Search();
+		
+		List<Map> properties = new ArrayList<Map>();
+		SearchDTO search = new SearchDTO();
 		search = setSearchCriteria(null, true);
-		if (time_stamp != null)
-			search.addFilterEqual("createdOn", time_stamp);
-		search.addFilterEqual("objectId", objectId);
-
-		List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
+		
+		Map<String,Object> property = new HashMap<String, Object>();
+		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+		property.put("propertyName", "objectId");
+		property.put("values", objectId);
+		properties.add(property);
+		
+		if (time_stamp != null){
+			property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "createdOn" );
+			property.put("values",time_stamp);
+			properties.add(property);
+		}
+		search.setLimit(1000);
+		search.setOperation("AND");
+		search.setProperties(properties);
+		Map<String, Object> auditHistoryLogEntities = dao.search(search);
 		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
 	}
@@ -241,7 +328,7 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 	 *            The API versionId
 	 */
 
-	public Search setSearchCriteria(String versionId) {
+	public SearchDTO setSearchCriteria(String versionId) {
 		return setSearchCriteria(versionId, false);
 	}
 
@@ -255,26 +342,28 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 	 *            The boolean value to retun fields
 	 */
 
-	public Search setSearchCriteria(String versionId, boolean returnAllFields) {
-		Search search = new Search();
-		search.addField("audit_id", "id");
-		search.addField("label", "label");
-		search.addField("objectId", "objectId");
-		search.addField("objectType", "objectType");
-		search.addField("operation", "operation");
-		search.addField("requestId", "requestId");
-		search.addField("userId", "userId");
-		search.addField("graphId", "graphId");
-		search.addField("createdOn", "createdOn");
+	public SearchDTO setSearchCriteria(String versionId, boolean returnAllFields) {
+		SearchDTO search = new SearchDTO();
+		List<String> fields = new ArrayList<String>();
+		fields.add("audit_id");
+		fields.add("label");
+		fields.add("objectId");
+		fields.add("objectType");
+		fields.add("operation");
+		fields.add("requestId");
+		fields.add("userId");
+		fields.add("graphId");
+		fields.add("createdOn");
 		if (returnAllFields) {
-			search.addField("logRecord", "logRecord");
-			search.addField("summary", "summary");
+			fields.add("logRecord");
+			fields.add("summary");
 		} else {
 			if (StringUtils.equalsIgnoreCase("1.0", versionId))
-				search.addField("logRecord", "logRecord");
+				fields.add("logRecord");
 			else
-				search.addField("summary", "summary");
+				fields.add("summary");
 		}
+		search.setFields(fields);
 		return search;
 	}
 }

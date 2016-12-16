@@ -14,7 +14,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.CommonDACParams;
-import com.ilimi.dac.impl.IAuditHistoryDataService;
+import com.ilimi.dac.impl.IAuditHistoryEsService;
 import com.ilimi.taxonomy.enums.AuditLogErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
@@ -30,7 +30,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryManager implements IAuditHistoryManager {
 
 	@Autowired
-	IAuditHistoryDataService auditHistoryDataService;
+	IAuditHistoryEsService auditHistoryEsService;
 	
 	/** The Logger */
 	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryManager.class.getName());
@@ -54,7 +54,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			Request request = new Request();
 			request.put(CommonDACParams.audit_history_record.name(), audit);
 			LOGGER.info("Sending request to save Logs to DB" +  request);
-			auditHistoryDataService.saveAuditHistoryLog(request);
+			auditHistoryEsService.saveAuditHistoryLog(request);
 		} else {
 			throw new ClientException(AuditLogErrorCodes.ERR_INVALID_AUDIT_RECORD.name(), "audit record is null.");
 		}
@@ -87,6 +87,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 				LOGGER.error("Exception during parsing to date format" + e.getMessage(), e);
 				e.printStackTrace();
 			}
+			
 		request.put(CommonDACParams.start_date.name(), startDate);
 		request.put(CommonDACParams.end_date.name(), endDate);
 		}
@@ -95,7 +96,12 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			e.printStackTrace();
 		}
 		LOGGER.info("Sending request to auditHistoryDataService" +  request);
-		Response response = auditHistoryDataService.getAuditHistoryLog(request, versionId);
+		Response response = null;
+		try {
+			response = auditHistoryEsService.getAuditHistoryLog(request, versionId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		LOGGER.info("Response received from the auditHistoryDataService as a result" + response);
 		return response;
 	}
@@ -135,9 +141,14 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			LOGGER.error("Exception during creating request" +e.getMessage(), e);
 			e.printStackTrace();
 		}
-		LOGGER.info("Sending request to auditHistoryDataService" +  request);
-		Response response = auditHistoryDataService.getAuditHistoryLogByObjectType(request, versionId);
-		LOGGER.info("Response received from the auditHistoryDataService as a result" + response);
+		LOGGER.info("Sending request to auditHistoryEsService" +  request);
+		Response response = null;
+		try {
+			response = auditHistoryEsService.getAuditHistoryLogByObjectType(request, versionId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		LOGGER.info("Response received from the auditHistoryEsService as a result" + response);
 		return response;
 	}
 
@@ -172,7 +183,12 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		request.put(CommonDACParams.end_date.name(), endDate);
 		
 		LOGGER.info("Sending request to auditHistoryDataService" +  request);
-		Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request, versionId);
+		Response response = null;
+		try {
+			response = auditHistoryEsService.getAuditHistoryLogByObjectId(request, versionId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		LOGGER.info("Response received from the auditHistoryDataService as a result" + response);
 		return response;
 	}
@@ -201,7 +217,12 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		request.put(CommonDACParams.time_stamp.name(), time_stamp);
 
 		LOGGER.info("Sending request to auditHistoryDataService" +  request);
-		Response response = auditHistoryDataService.getAuditLogRecordById(request);
+		Response response = null;
+		try {
+			response = auditHistoryEsService.getAuditLogRecordById(request);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		LOGGER.info("Response received from the auditHistoryDataService as a result" + response);
 		return response;
 	}
