@@ -5,3 +5,4 @@
 #GET		/							@controllers.SearchController.index()
 
 POST    /search						@controllers.SearchController.search()
+POST    /count						@controllers.SearchController.count()

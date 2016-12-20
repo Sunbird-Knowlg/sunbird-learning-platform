@@ -28,6 +28,7 @@
 		<module>module/composite-search-api</module>
 		<module>module/search-service</module>
 		<module>module/search-actors</module>
+                <module>module/search-api</module>
 	</modules>
 
 	<dependencies>
