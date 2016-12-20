@@ -1175,7 +1175,21 @@
         },
         {
           "required": false,
-          "dataType": "external",
+          "dataType": "Text",
+          "propertyName": "stageIcons",
+          "title": "Stage Thumbnail",
+          "description": "",
+          "category": "Authoring",
+          "displayProperty": "Hidden",
+          "range": null,
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+          "indexed": false,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
           "propertyName": "editorState",
           "title": "Editor State",
           "description": "",
