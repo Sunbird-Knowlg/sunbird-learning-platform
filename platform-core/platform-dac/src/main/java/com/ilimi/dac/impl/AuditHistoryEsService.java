@@ -1,15 +1,14 @@
 package com.ilimi.dac.impl;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -29,6 +28,7 @@ import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.entity.AuditHistoryEntity;
 import com.ilimi.dac.impl.entity.dao.AuditHistoryEsDao;
+
 
 /**
  * The Class AuditHistoryDataService provides implementations of the various
@@ -55,7 +55,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		modelMapper = new ModelMapper();
 		TransformationHelper.createTypeMap(modelMapper, AuditHistoryRecord.class, AuditHistoryEntity.class);
 		objectMapper = new ObjectMapper();
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a z");
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 		objectMapper.setDateFormat(df);
 	}
 	
@@ -81,7 +81,6 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("entity_map" + entity_map);
 		return OK(CommonDACParams.audit_history_record_id.name(), entity.getId());
 	}
 	
@@ -92,35 +91,34 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditHistoryLog(java.lang.String, java.lang.String, java.io.File,
 	 * java.lang.String)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@Transactional
 	public Response getAuditHistoryLog(Request request, String versionId) {
 
-		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
-		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
+		String start_date = (String) request.get(CommonDACParams.start_date.name());
+		String end_date = (String) request.get(CommonDACParams.end_date.name());
 		List<Map> properties = new ArrayList<Map>();
 		SearchDTO search = new SearchDTO();
 		search = setSearchCriteria(versionId);
 		if (start_date != null){
 			Map<String, Object> property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
-			property.put("propertyName", "createdOn" );
-			property.put("range", start_date);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE);
+			property.put("propertyName", "*");
+			property.put("values", Arrays.asList(start_date, LocalDateTime.now()));
 			properties.add(property);
 		}
 		if (end_date != null){
 			Map<String, Object> property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
-			property.put("propertyName", "createdOn" );
-			property.put("range", end_date);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE);
+			property.put("propertyName", "*");
+			property.put("values", Arrays.asList(end_date, LocalDateTime.now()));
 			properties.add(property);
 		}
 		search.setLimit(100);
 		search.setOperation("AND");
 		search.setProperties(properties);
 		Map<String, Object> auditHistoryLogEntities = dao.search(search);
-		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
-		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
 	/*
@@ -130,14 +128,14 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditHistoryLogByObjectType(java.lang.String, java.lang.String,
 	 * java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"rawtypes" })
 	@Transactional
 	public Response getAuditHistoryLogByObjectType(Request request, String versionId) {
 
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		String objectType = (String) request.get(CommonDACParams.object_type.name());
-		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
-		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
+		String start_date = (String) request.get(CommonDACParams.start_date.name());
+		String end_date = (String) request.get(CommonDACParams.end_date.name());
 		List<Map> properties = new ArrayList<Map>();
 		
 		SearchDTO search = new SearchDTO();
@@ -146,35 +144,34 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		Map<String, Object> property = new HashMap<String, Object>();
 		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
 		property.put("propertyName", "graphId");
-		property.put("values", graphId);
+		property.put("values", Arrays.asList(graphId));
 		properties.add(property);
 		
 		property = new HashMap<String, Object>();
 		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
 		property.put("propertyName", "objectType");
-		property.put("values", objectType);
+		property.put("values", Arrays.asList(objectType));
 		properties.add(property);
 		
 		if (start_date != null){
 			property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
-			property.put("propertyName", "createdOn" );
-			property.put("range", start_date);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE);
+			property.put("propertyName", "createdOn");
+			property.put("values", Arrays.asList(start_date, LocalDateTime.now()));
 			properties.add(property);
 		}
 		if (end_date != null){
 			property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
-			property.put("propertyName", "createdOn" );
-			property.put("range",end_date);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE);
+			property.put("propertyName", "createdOn");
+			property.put("values",Arrays.asList(end_date,LocalDateTime.now()));
 			properties.add(property);
 		}
 		search.setLimit(100);
 		search.setOperation("AND");
 		search.setProperties(properties);
 		Map<String, Object> auditHistoryLogEntities = dao.search(search);
-		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
-		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 
 	}
 
@@ -185,14 +182,13 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditHistoryLogByObjectId(java.lang.String, java.lang.String,
 	 * java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@Transactional
 	public Response getAuditHistoryLogByObjectId(Request request, String versionId) {
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
-		Date start_date = (Date) request.get(CommonDACParams.start_date.name());
-		Date end_date = (Date) request.get(CommonDACParams.end_date.name());
-		
+		String start_date = (String) request.get(CommonDACParams.start_date.name());
+		String end_date = (String) request.get(CommonDACParams.end_date.name());	
 		List<Map> properties = new ArrayList<Map>();
 		SearchDTO search = new SearchDTO();
 		search = setSearchCriteria(versionId);
@@ -201,35 +197,34 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		Map<String, Object> property = new HashMap<String, Object>();
 		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
 		property.put("propertyName", "graphId");
-		property.put("values", graphId);
+		property.put("values", Arrays.asList(graphId));
 		properties.add(property);
 		
 		property = new HashMap<String, Object>();
 		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
 		property.put("propertyName", "objectId");
-		property.put("values", objectId);
+		property.put("values", Arrays.asList(objectId));
 		properties.add(property);
 		
 		if (start_date != null){
 			property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
-			property.put("propertyName", "createdOn" );
-			property.put("range",start_date);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE);
+			property.put("propertyName", "createdOn");
+			property.put("values",Arrays.asList(start_date,LocalDateTime.now()));
 			properties.add(property);
 		}
 		if (end_date != null){
 			property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
-			property.put("propertyName", "createdOn" );
-			property.put("range", end_date);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE);
+			property.put("propertyName", "createdOn");
+			property.put("values", Arrays.asList(end_date,LocalDateTime.now()));
 			properties.add(property);
 		}
-		search.setLimit(1000);
+		search.setLimit(100);
 		search.setOperation("AND");
 		search.setProperties(properties);
 		Map<String,Object> auditHistoryLogEntities = dao.search(search);
-		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
-		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
 	/*
@@ -239,11 +234,11 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 * #getAuditLogRecordByAuditId(java.lang.String, java.lang.String,
 	 * java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"rawtypes" })
 	@Transactional
 	public Response getAuditLogRecordById(Request request) {
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
-		Date time_stamp = (Date) request.get(CommonDACParams.time_stamp.name());
+		String time_stamp = (String) request.get(CommonDACParams.time_stamp.name());
 		
 		List<Map> properties = new ArrayList<Map>();
 		SearchDTO search = new SearchDTO();
@@ -252,22 +247,21 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		Map<String,Object> property = new HashMap<String, Object>();
 		property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
 		property.put("propertyName", "objectId");
-		property.put("values", objectId);
+		property.put("values", Arrays.asList(objectId));
 		properties.add(property);
 		
 		if (time_stamp != null){
 			property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-			property.put("propertyName", "createdOn" );
-			property.put("values",time_stamp);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+			property.put("propertyName", "createdOn");
+			property.put("values",Arrays.asList(time_stamp,LocalDateTime.now()));
 			properties.add(property);
 		}
-		search.setLimit(1000);
+		search.setLimit(100);
 		search.setOperation("AND");
 		search.setProperties(properties);
 		Map<String, Object> auditHistoryLogEntities = dao.search(search);
-		List<Object> auditHistoryLogRecords = (List) auditHistoryLogEntities;
-		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogRecords));
+		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
 	/**
@@ -281,14 +275,12 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 */
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<Map<String, Object>> getResponseObject(List<Object> records) {
+	private List<Map<String, Object>> getResponseObject(Map<String, Object> auditHistoryLogEntities) {
 		List<Map<String, Object>> respObj = new ArrayList<Map<String, Object>>();
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		for (Object record : records) {
+		List<Map<String,Object>> map = (List) auditHistoryLogEntities.get("results");
+		for (Map<String, Object> resultMap : map) {
 			try {
-				if (record != null) {
-					resultMap = (Map) record;
-					try {
+				if (resultMap != null) {
 						if (resultMap.containsKey("summary")) {
 							String summaryData = (String) resultMap.get("summary");
 							if (summaryData != null && summaryData instanceof String) {
@@ -305,17 +297,14 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 								resultMap.put("logRecord", logRecord);
 							}
 						}
-						Timestamp createdOn  = (Timestamp) resultMap.get("createdOn");
-						DateFormat df = objectMapper.getDateFormat();
-                        resultMap.put("createdOn", df.format(createdOn));
+//						Timestamp createdOn  = (Timestamp) resultMap.get("createdOn");
+//						DateFormat df = objectMapper.getDateFormat();
+                        resultMap.put("createdOn", resultMap.get("createdOn"));
+				}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					respObj.add(resultMap);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			respObj.add(resultMap);
 		}
 		return respObj;
 	}

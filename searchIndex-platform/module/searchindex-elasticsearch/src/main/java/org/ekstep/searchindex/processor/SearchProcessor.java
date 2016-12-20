@@ -32,7 +32,8 @@ public class SearchProcessor {
 		Map<String, Object> response = new HashMap<String, Object>();
 
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
+		System.out.println(query);
+		SearchResult searchResult = elasticSearchUtil.search("test", query);
 
 		if (includeResults) {
 			if (searchDTO.isFuzzySearch()) {
@@ -134,7 +135,6 @@ public class SearchProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> multiSynsetDocSearch(List<String> synsetIds) throws Exception {
 		Map<String, Object> synsetDocList = new HashMap<String, Object>();
 		List<String> identifierList = new ArrayList<String>();
@@ -188,6 +188,7 @@ public class SearchProcessor {
 			List<Object> values;
 			try {
 				values = (List<Object>) property.get("values");
+				System.out.println(values.size());
 			} catch (Exception e) {
 				values = Arrays.asList(property.get("values"));
 			}
@@ -308,7 +309,7 @@ public class SearchProcessor {
 			Map<String, String> sortBy = searchDTO.getSortBy();
 			if (sortBy == null || sortBy.isEmpty()) {
 				sortBy = new HashMap<String, String>();
-				sortBy.put("name", "asc");
+				sortBy.put("date", "asc");
 				sortBy.put("lastUpdatedOn", "desc");
 				searchDTO.setSortBy(sortBy);
 			}
