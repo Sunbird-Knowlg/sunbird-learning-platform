@@ -19,7 +19,7 @@ public class RoutingUtil {
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | [Graph Id: " + graphId + "]");
 		
-		String routeUrl = "";
+		String routeUrl = "bolt://localhost";
 		
 		return routeUrl;
 	}

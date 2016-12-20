@@ -30,7 +30,17 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_NODE = "Error! Invalid Node (Object).";
 	
+	public static final String INVALID_PATTERN_NODE = "Error! Invalid Pattern Node (Object).";
+	
 	public static final String INVALID_DRIVER_TYPE = "Error! Invalid Database Driver Type.";
+	
+	public static final String INVALID_OPERATION = "Error! Invalid Database Operation Type.";
+	
+	public static final String INVALID_IDENTIFIER = "Error! Invalid Node (Object) identifier.";
+	
+	public static final String SYSTEM_METADATA_CREATION_ERROR = "Error! While Creating System Metadata.";
+	
+	public static final String INVALID_PARAMETER_MAP = "Error! Invalid Parameter Map.";
 	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();

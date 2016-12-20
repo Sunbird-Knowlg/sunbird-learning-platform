@@ -11,7 +11,11 @@ public enum DACErrorCodeConstants {
 	INVALID_GRAPH(6, "Invalid Graph Identifier."), 
 	INVALID_CONFIG(7, "Invalid Configuration."), 
 	INVALID_NODE(8, "Invalid Node Object."), 
-	INVALID_DRIVER(9, "Invalid Bolt Driver.");
+	INVALID_DRIVER(9, "Invalid Bolt Driver."), 
+	INVALID_OPERATION(10, "Invalid Operation."), 
+	INVALID_IDENTIFIER(11, "Invalid Identifier."), 
+	SYSTEM_METADATA(12, "System Metadata Creation Error."), 
+	INVALID_PARAMETER(13, "Invalid Parameter Map.");
 	
 	private final int code;
 	private final String description;

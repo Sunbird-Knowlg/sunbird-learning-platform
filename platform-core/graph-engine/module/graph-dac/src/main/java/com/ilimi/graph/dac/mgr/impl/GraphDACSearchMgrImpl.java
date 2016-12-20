@@ -222,7 +222,8 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_CHECK_LOOP_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	Map<String, Object> voMap = service.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, request);                OK(voMap, getSender());
+            	Map<String, Object> voMap = service.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, request);                
+            	OK(voMap, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
             }

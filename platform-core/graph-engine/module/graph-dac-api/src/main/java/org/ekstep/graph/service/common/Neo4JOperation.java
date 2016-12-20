@@ -6,8 +6,8 @@ public enum Neo4JOperation {
 	UPSERT_NODE(1, "Upsert Node."),
 	UPDATE_NODE(2, "Update Node."),
 	SEARCH_NODE(3, "Search Node."),
-	CREATE_UNIQUE(4, "Search Node."),
-	CREATE_INDEX(5, "Search Node.");
+	CREATE_UNIQUE(4, "Create Unique Node."),
+	CREATE_INDEX(5, "Create Index.");
 	
 	private final int code;
 	private final String description;
