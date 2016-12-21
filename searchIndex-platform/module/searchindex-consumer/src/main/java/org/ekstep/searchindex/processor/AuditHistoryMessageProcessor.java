@@ -89,7 +89,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	 * @param transactionDataMap
 	 *        The Neo4j TransactionDataMap
 	 *        
-	 * @return AuditHistoryRecord that can be saved to mysql DB
+	 * @return AuditHistoryRecord that can be saved to elastic search DB
 	 */
 	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) {
 		AuditHistoryRecord record = new AuditHistoryRecord();
@@ -106,7 +106,10 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			record.setLogRecord(transactionDataStr);
 			String summary = setSummaryData(transactionDataMap);
 			record.setSummary(summary);
-			record.setCreatedOn(new Date());
+			String createdOn = (String) transactionDataMap.get("createdOn");
+			if(StringUtils.isBlank(createdOn)){
+				record.setCreatedOn(new Date());
+			}
 		} catch (Exception e) {
 			LOGGER.error("Error while setting the transactionData to mysql db" + e.getMessage(), e);
 			e.printStackTrace();

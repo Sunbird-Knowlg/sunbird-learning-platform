@@ -33,7 +33,7 @@ public class SearchProcessor {
 
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		System.out.println(query);
-		SearchResult searchResult = elasticSearchUtil.search("test", query);
+		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 
 		if (includeResults) {
 			if (searchDTO.isFuzzySearch()) {
@@ -71,7 +71,7 @@ public class SearchProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	public Map<String, Object> multiWordDocSearch(List<String> synsetIds) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		Map<String, Object> translations = new HashMap<String, Object>();
@@ -188,7 +188,6 @@ public class SearchProcessor {
 			List<Object> values;
 			try {
 				values = (List<Object>) property.get("values");
-				System.out.println(values.size());
 			} catch (Exception e) {
 				values = Arrays.asList(property.get("values"));
 			}
@@ -309,7 +308,7 @@ public class SearchProcessor {
 			Map<String, String> sortBy = searchDTO.getSortBy();
 			if (sortBy == null || sortBy.isEmpty()) {
 				sortBy = new HashMap<String, String>();
-				sortBy.put("date", "asc");
+				sortBy.put("name", "asc");
 				sortBy.put("lastUpdatedOn", "desc");
 				searchDTO.setSortBy(sortBy);
 			}
@@ -807,5 +806,29 @@ public class SearchProcessor {
 			builder.endArray();
 		}
 		builder.key("lenient").value(true).endObject();
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index) throws Exception {
+		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+		List<Object> response = new ArrayList<Object>();
+		Map<String, Object> res_map = new HashMap<String,Object>();
+		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		System.out.println(query);
+		SearchResult searchResult = elasticSearchUtil.search(index, query);
+		Map<String,Object> result_map = (Map) searchResult.getValue("hits");
+		List<Map<String,Object>> result = (List) result_map.get("hits");
+		for(Map<String,Object> map : result){
+			 for (Map.Entry<String, Object> entry : map.entrySet()) {
+				 System.out.println(entry.getKey().equals("_source"));
+				 if(entry.getKey().equals("_source")){
+					 System.out.println(entry.getValue());
+					  res_map = (Map) entry.getValue();
+					  response.add(res_map);
+				 }
+				 
+			 }
+		}
+		return response;
 	}
 }

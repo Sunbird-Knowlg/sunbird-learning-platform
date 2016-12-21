@@ -87,4 +87,14 @@ public interface IAuditHistoryEsService {
 	 */
 	public Response getAuditLogRecordById(Request request);
 
+	/**
+	 * This method carries the entire operation of deleting AuditHistory Logs for a given timestamp
+	 * from elasticSearch based on the requestBody sent from the AuditHistoryManager
+	 *
+	 * @param timestamp
+	 *            The timestamp
+     * @throws Exception 
+	 */
+	public Response deleteEsData(Request request);
+
 }

@@ -184,6 +184,25 @@ public class AuditHistoryV2Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Response> deleteAuditHistory(
+			@RequestParam(value = "start", required = false) String start,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "audit_history.delete";
+
+		LOGGER.info("delete AuditHistory By date| date: " + start
+				+ " | objectId: " + start);
+		try {
+				Response response = auditHistoryManager.deleteAuditHistory(start);
+				LOGGER.info("delete Item | Response: " + response);
+				return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 	 protected String getAPIVersion() {
 	        return API_VERSION_2;
 	 }
