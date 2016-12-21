@@ -7,7 +7,14 @@ public enum Neo4JOperation {
 	UPDATE_NODE(2, "Update Node."),
 	SEARCH_NODE(3, "Search Node."),
 	CREATE_UNIQUE(4, "Create Unique Node."),
-	CREATE_INDEX(5, "Create Index.");
+	CREATE_INDEX(5, "Create Index."),
+	IMPORT_NODES(6, "Import Index."),
+	UPDATE_PROPERTY(7, "Update Property Value."),
+	UPDATE_PROPERTIES(8, "Update Property Values (Bulk Update Operation)."),
+	REMOVE_PROPERTY(9, "Remove Property Value."),
+	REMOVE_PROPERTIES(10, "Remove Property Values (Bulk Remove Operation)."),
+	DELETE_NODE(11, "Delete Node."),
+	UPSERT_ROOTNODE(12, "Upsert Root Node.");
 	
 	private final int code;
 	private final String description;

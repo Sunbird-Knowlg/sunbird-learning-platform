@@ -290,7 +290,7 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public org.neo4j.graphdb.Node upsertRootNode(String graphId, Request request) {
+	public Node upsertRootNode(String graphId, Request request) {
 		LOGGER.info("Calling 'traverseSubGraph' Operation.");
 		return nodeOperations.upsertRootNode(graphId, request);
 	}

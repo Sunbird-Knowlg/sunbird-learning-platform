@@ -15,7 +15,8 @@ public enum DACErrorCodeConstants {
 	INVALID_OPERATION(10, "Invalid Operation."), 
 	INVALID_IDENTIFIER(11, "Invalid Identifier."), 
 	SYSTEM_METADATA(12, "System Metadata Creation Error."), 
-	INVALID_PARAMETER(13, "Invalid Parameter Map.");
+	INVALID_PARAMETER(13, "Invalid Parameter Map."), 
+	INVALID_PROPERTY(14, "Invalid Property.");
 	
 	private final int code;
 	private final String description;

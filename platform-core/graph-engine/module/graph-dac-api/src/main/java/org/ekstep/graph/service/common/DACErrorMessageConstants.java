@@ -42,6 +42,12 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_PARAMETER_MAP = "Error! Invalid Parameter Map.";
 	
+	public static final String INVALID_NODE_LIST = "Error! Invalid Node List (either 'null' or Empty).";
+	
+	public static final String INVALID_PROPERTY = "Error! Invalid Property (either 'null' or Empty).";
+	
+	public static final String INVALID_PROPERTY_LIST = "Error! Invalid Property (Key) List (either 'null' or Empty).";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

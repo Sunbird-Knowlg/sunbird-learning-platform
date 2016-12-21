@@ -412,9 +412,10 @@ public class Neo4JEmbeddedNodeOperations {
 	 *            the request
 	 * @return the node
 	 */
-	public Node upsertRootNode(String graphId, Request request) {
+	public com.ilimi.graph.dac.model.Node upsertRootNode(String graphId, Request request) {
 		Node rootNode = null;
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
+		com.ilimi.graph.dac.model.Node node = new com.ilimi.graph.dac.model.Node();
 		try (Transaction tx = graphDb.beginTx()) {
 			LOGGER.info("Transaction Started For 'upsertRootNode' Operation");
 			String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
@@ -429,9 +430,10 @@ public class Neo4JEmbeddedNodeOperations {
 				rootNode.setProperty("relationsCount", 0);
 				tx.success();
 			}
+			node = new com.ilimi.graph.dac.model.Node(graphId, rootNode);
 			LOGGER.info("Transaction For Operation 'upsertRootNode' Completed Successfully");
 		}
-		return rootNode;
+		return node;
 	}
 
 	/**

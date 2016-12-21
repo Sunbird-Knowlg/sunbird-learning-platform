@@ -290,9 +290,9 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public org.neo4j.graphdb.Node upsertRootNode(String graphId, Request request) {
+	public Node upsertRootNode(String graphId, Request request) {
 		LOGGER.info("Calling 'traverseSubGraph' Operation.");
-		return (org.neo4j.graphdb.Node) nodeOperations.upsertRootNode(graphId, request);
+		return nodeOperations.upsertRootNode(graphId, request);
 	}
 	
 }

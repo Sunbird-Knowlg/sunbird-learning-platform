@@ -83,7 +83,7 @@ public interface IGraphDatabaseService {
 
 	public void deleteNode(String graphId, String nodeId, Request request);
 	
-	public org.neo4j.graphdb.Node upsertRootNode(String graphId, Request request);
+	public Node upsertRootNode(String graphId, Request request);
 
 	// Search Management APIs
 
