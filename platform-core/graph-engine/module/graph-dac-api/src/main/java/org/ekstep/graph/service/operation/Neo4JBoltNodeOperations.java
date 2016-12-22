@@ -412,7 +412,7 @@ public class Neo4JBoltNodeOperations {
 				parameterMap.put(GraphDACParams.rootNode.name(), node);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
-				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.UPSERT_ROOTNODE, parameterMap));
+				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.UPSERT_ROOT_NODE, parameterMap));
 				for (Record record : result.list())
 					LOGGER.debug("Upsert Root Node Operation | ", record);
 			}

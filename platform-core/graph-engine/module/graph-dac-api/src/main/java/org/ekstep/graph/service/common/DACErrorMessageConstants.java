@@ -56,6 +56,30 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_PROPERTY_KEY_LIST = "Error! Invalid Property Key List (either 'null' or Empty).";
 	
+	public static final String INVALID_INDEX_PROPERTY_KEY_LIST = "Error! Invalid Index Property Key List (either 'null' or Empty).";
+	
+	public static final String INVALID_START_NODE_ID = "Error! Invalid Start Node Id.";
+	
+	public static final String INVALID_END_NODE_ID = "Error! Invalid End Node Id.";
+	
+	public static final String INVALID_RELATION_TYPE = "Error! Invalid Relation Type.";
+	
+	public static final String INVALID_START_NODE_ID_LIST = "Error! Invalid Start Node Id List (either 'null' or Empty).";
+	
+	public static final String INVALID_END_NODE_ID_LIST = "Error! Invalid End Node Id List (either 'null' or Empty).";
+	
+	public static final String INVALID_COLLECTION_NODE_ID = "Error! Invalid Collection Node Id.";
+	
+	public static final String INVALID_COLLECTION_NODE = "Error! Invalid Collection Node (Object).";
+	
+	public static final String INVALID_COLLECTION_MEMBERS = "Error! Invalid Collection Members (Object) [Atleast one needed].";
+	
+	public static final String INVALID_INDEX_PROPERTY = "Error! Invalid Index Property.";
+	
+	public static final String INVALID_TASK_ID = "Error! Invalid Task Id.";
+	
+	public static final String INVALID_IMPORT_DATA = "Error! Invalid Import Data.";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

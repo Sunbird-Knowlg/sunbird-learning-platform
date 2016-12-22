@@ -76,7 +76,7 @@ public class CypherUtil {
 			case "DELETE_NODE":
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
-			case "UPSERT_ROOTNODE":
+			case "UPSERT_ROOT_NODE":
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "SEARCH_NODE":
