@@ -123,7 +123,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		LOGGER.info("Response received from the auditHistoryEsService as a result" + response);
 		return response;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 

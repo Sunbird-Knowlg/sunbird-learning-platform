@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -101,6 +102,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		sortBy.put("operation", "asc");
 		SearchDTO search = new SearchDTO();
 		search.setProperties(setSearchFilters(graphId, null, null, start_date, end_date));
+		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		search.setFields(setSearchCriteria(versionId));
 		search.setSortBy(sortBy);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
@@ -124,6 +126,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		SearchDTO search = new SearchDTO();
 		search.setFields(setSearchCriteria(versionId));
 		search.setProperties(setSearchFilters(graphId, null, objectType, start_date, end_date));
+		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "asc");
 		sortBy.put("operation", "asc");
@@ -132,7 +135,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -149,6 +152,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		SearchDTO search = new SearchDTO();
 		search.setFields(setSearchCriteria(versionId));
 		search.setProperties(setSearchFilters(graphId, objectId, null, start_date, end_date));
+		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "asc");
 		sortBy.put("operation", "asc");
@@ -168,10 +172,10 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	public Response getAuditLogRecordById(Request request) {
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
 		String start_date = (String) request.get(CommonDACParams.time_stamp.name());
-
 		SearchDTO search = new SearchDTO();
 		search.setFields(setSearchCriteria(null, true));
 		search.setProperties(setSearchFilters(null, objectId, null, start_date, null));
+		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "asc");
 		sortBy.put("operation", "asc");
@@ -318,15 +322,15 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 
 		if (StringUtils.isNotBlank(graphId)) {
 			Map<String, Object> property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-			property.put("propertyName", CommonDACParams.graph_id);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "graphId");
 			property.put("values", Arrays.asList(graphId));
 			properties.add(property);
 		}
 		if (StringUtils.isNotBlank(start_date)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE);
-			property.put("propertyName", GraphDACParams.createdOn);
+			property.put("propertyName", GraphDACParams.createdOn.name());
 			Map<String, Object> range_map = new HashMap<String, Object>();
 			range_map.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE, start_date);
 			property.put("values", range_map);
@@ -335,7 +339,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		if (StringUtils.isNotBlank(end_date)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_RANGE);
-			property.put("propertyName", GraphDACParams.createdOn);
+			property.put("propertyName", GraphDACParams.createdOn.name());
 			Map<String, Object> range_map = new HashMap<String, Object>();
 			range_map.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE, end_date);
 			property.put("values", range_map);
@@ -344,15 +348,15 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		if (StringUtils.isNotBlank(objectType)) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-			property.put("propertyName", CommonDACParams.object_type);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "objectType");
 			property.put("values", Arrays.asList(objectType));
 			properties.add(property);
 		}
 		if (StringUtils.isNotBlank(objectId)) {
 			Map<String, Object> property = new HashMap<String, Object>();
-			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-			property.put("propertyName", CommonDACParams.object_id);
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "objectId");
 			property.put("values", Arrays.asList(objectId));
 			properties.add(property);
 		}
