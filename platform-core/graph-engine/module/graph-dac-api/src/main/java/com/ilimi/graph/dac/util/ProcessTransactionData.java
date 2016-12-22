@@ -106,7 +106,6 @@ public class ProcessTransactionData {
 		return lstMessageMap;
 	}
 
-	@SuppressWarnings("unchecked")
 	private List<Map<String, Object>> getUpdatedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
@@ -117,36 +116,28 @@ public class ProcessTransactionData {
 				Map<String, Object> transactionData = new HashMap<String, Object>();
 				Map<String, Object> propertiesMap = getAllPropertyEntry(nodeId, data);
 				if (null != propertiesMap && !propertiesMap.isEmpty()) {
-					transactionData.put(GraphDACParams.properties.name(), getAllPropertyEntry(nodeId, data));
-					Node node = graphDb.getNodeById(nodeId);
-					map.put(GraphDACParams.requestId.name(), requestId);
-					if (StringUtils.isEmpty(userId)) {
-						Object objUserId = null;
-						if (propertiesMap.containsKey("lastUpdatedBy")) {
-							Object prop = propertiesMap.get("lastUpdatedBy");
-							if (null != prop) {
-								Map<String, Object> valueMap = (Map<String, Object>) prop;
-								objUserId = valueMap.get("nv");
-							}
-						}
-						if (null != objUserId)
-							userId = objUserId.toString();
-						else
-							userId = "ANONYMOUS";
-					}
-					map.put(GraphDACParams.userId.name(), userId);
-					map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
-					map.put(GraphDACParams.label.name(), getLabel(node));
-					map.put(GraphDACParams.graphId.name(), getGraphId());
-					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
-					map.put(GraphDACParams.nodeGraphId.name(), nodeId);
-					map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
-					map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
-					if (node.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
-						map.put(GraphDACParams.objectType.name(),
-								node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
-					map.put(GraphDACParams.transactionData.name(), transactionData);
-					lstMessageMap.add(map);
+					String lastUpdatedBy = getLastUpdatedByValue(nodeId, data);
+				    transactionData.put(GraphDACParams.properties.name(), propertiesMap);
+			        Node node = graphDb.getNodeById(nodeId);
+			        map.put(GraphDACParams.requestId.name(), requestId);
+			        if(StringUtils.isEmpty(userId)){
+			            if (StringUtils.isNotBlank(lastUpdatedBy))
+		                    userId = lastUpdatedBy;
+		                else
+		                    userId = "ANONYMOUS";
+			        }
+			        map.put(GraphDACParams.userId.name(), userId);
+			        map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
+			        map.put(GraphDACParams.label.name(), getLabel(node));
+			        map.put(GraphDACParams.graphId.name(), getGraphId());
+			        map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
+			        map.put(GraphDACParams.nodeGraphId.name(), nodeId);
+			        map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
+			        map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
+			        if (node.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+			            map.put(GraphDACParams.objectType.name(), node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
+			        map.put(GraphDACParams.transactionData.name(), transactionData);
+			        lstMessageMap.add(map);
 				}
 			}
 		} catch (Exception e) {
@@ -207,7 +198,20 @@ public class ProcessTransactionData {
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
 		return getNodePropertyEntry(nodeId, assignedNodeProp);
 	}
-
+	
+	private String getLastUpdatedByValue(Long nodeId, TransactionData data) {
+		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
+		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
+			if (nodeId == pe.entity().getId()) {
+				if (StringUtils.equalsIgnoreCase("lastUpdatedBy", (String) pe.key())) {
+					String lastUpdatedBy = (String) pe.value();
+					return lastUpdatedBy;
+				}
+			}
+		}
+		return null;
+	}
+	
 	private Map<String, Object> getRemovedNodePropertyEntry(Long nodeId, TransactionData data) {
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> removedNodeProp = data.removedNodeProperties();
 		return getNodeRemovedPropertyEntry(nodeId, removedNodeProp);
