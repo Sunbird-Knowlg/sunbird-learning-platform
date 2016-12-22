@@ -14,6 +14,7 @@ import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import io.searchbox.core.CountResult;
@@ -25,6 +26,7 @@ public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
+	private static LogHelper LOGGER = LogHelper.getInstance(SearchProcessor.class.getName());
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
@@ -812,6 +814,7 @@ public class SearchProcessor {
 		List<Object> response = new ArrayList<Object>();
 		Map<String, Object> res_map = new HashMap<String,Object>();
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		LOGGER.info("AuditHistory search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
 		Map<String,Object> result_map = (Map) searchResult.getValue("hits");
 		List<Map<String,Object>> result = (List) result_map.get("hits");
@@ -824,6 +827,7 @@ public class SearchProcessor {
 				 
 			 }
 		}
+		LOGGER.info("AuditHistory search response size: " + response.size());
 		return response;
 	}
 }
