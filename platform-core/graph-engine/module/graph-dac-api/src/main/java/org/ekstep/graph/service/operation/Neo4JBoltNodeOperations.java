@@ -21,7 +21,13 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
+import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
+import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Node;
 
 public class Neo4JBoltNodeOperations {
 
@@ -215,7 +221,7 @@ public class Neo4JBoltNodeOperations {
 				LOGGER.info("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
-				parameterMap.put(GraphDACParams.identifier.name(), nodeId);
+				parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 				parameterMap.put(GraphDACParams.property.name(), property);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
@@ -252,7 +258,7 @@ public class Neo4JBoltNodeOperations {
 				LOGGER.info("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
-				parameterMap.put(GraphDACParams.identifier.name(), nodeId);
+				parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 				parameterMap.put(GraphDACParams.metadata.name(), metadata);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
@@ -290,7 +296,7 @@ public class Neo4JBoltNodeOperations {
 				LOGGER.info("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
-				parameterMap.put(GraphDACParams.identifier.name(), nodeId);
+				parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 				parameterMap.put(GraphDACParams.key.name(), key);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
@@ -327,7 +333,7 @@ public class Neo4JBoltNodeOperations {
 				LOGGER.info("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
-				parameterMap.put(GraphDACParams.identifier.name(), nodeId);
+				parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 				parameterMap.put(GraphDACParams.keys.name(), keys);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
@@ -360,7 +366,7 @@ public class Neo4JBoltNodeOperations {
 				LOGGER.info("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
-				parameterMap.put(GraphDACParams.identifier.name(), nodeId);
+				parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
 				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_NODE, parameterMap));
@@ -371,8 +377,48 @@ public class Neo4JBoltNodeOperations {
 	}
 
 	public com.ilimi.graph.dac.model.Node upsertRootNode(String graphId, Request request) {
+		LOGGER.debug("Graph Id: ", graphId);
+		LOGGER.debug("Request: ", request);
 
-		return null;
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
+					DACErrorMessageConstants.INVALID_GRAPH_ID + " | [Upsert Root Node Operation Failed.]");
+
+		LOGGER.info("Initializing Node.");
+		Node node = new Node();
+		try (Driver driver = DriverUtil.getDriver(graphId)) {
+			LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
+			try (Session session = driver.session()) {
+				LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
+				
+				// Generating Root Node Id
+				String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
+				LOGGER.info("Generated Root Node Id: " + rootNodeUniqueId);
+				
+				LOGGER.info("Adding Metadata to Node.");
+				node.setGraphId(graphId);
+				node.setNodeType(SystemNodeTypes.ROOT_NODE.name());;
+				node.setIdentifier(rootNodeUniqueId);
+				node.getMetadata().put(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
+				node.getMetadata().put(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
+				node.getMetadata().put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
+				node.getMetadata().put(GraphDACParams.nodesCount.name(), 0);
+				node.getMetadata().put(GraphDACParams.relationsCount.name(), 0);
+				LOGGER.info("Root Node Initialized.", node);
+
+				LOGGER.info("Populating Parameter Map.");
+				Map<String, Object> parameterMap = new HashMap<String, Object>();
+				parameterMap.put(GraphDACParams.graphId.name(), graphId);
+				parameterMap.put(GraphDACParams.rootNode.name(), node);
+				parameterMap.put(GraphDACParams.request.name(), request);
+
+				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.UPSERT_ROOTNODE, parameterMap));
+				for (Record record : result.list())
+					LOGGER.debug("Upsert Root Node Operation | ", record);
+			}
+		}
+		
+		return node;
 	}
 
 	static Object convert(Value value) {

@@ -48,6 +48,14 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_PROPERTY_LIST = "Error! Invalid Property (Key) List (either 'null' or Empty).";
 	
+	public static final String INVALID_ROOT_NODE = "Error! Invalid Root Node.";
+	
+	public static final String INVALID_PROPERTIES = "Error! Invalid Properties.";
+	
+	public static final String INVALID_PROPERTY_KEY = "Error! Invalid Property Key (either 'null' or Empty).";
+	
+	public static final String INVALID_PROPERTY_KEY_LIST = "Error! Invalid Property Key List (either 'null' or Empty).";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

@@ -53,40 +53,40 @@ public class CypherUtil {
 			String opt = operation.name();
 			switch (opt) {
 			case "CREATE_NODE":
-				query = QueryGenerationUtil.generateCreateNodeCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateCreateNodeCypherQuery(parameterMap);
 				break;
 			case "UPSERT_NODE":
-				query = QueryGenerationUtil.generateUpsertNodeCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateUpsertNodeCypherQuery(parameterMap);
 				break;
 			case "UPDATE_NODE":
-				query = QueryGenerationUtil.generateUpdateNodeCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateUpdateNodeCypherQuery(parameterMap);
 				break;
 			case "UPDATE_PROPERTY":
-				query = QueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "UPDATE_PROPERTIES":
-				query = QueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "REMOVE_PROPERTY":
-				query = QueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "REMOVE_PROPERTIES":
-				query = QueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "DELETE_NODE":
-				query = QueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "UPSERT_ROOTNODE":
-				query = QueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "SEARCH_NODE":
-				query = QueryGenerationUtil.generateSearchNodeCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateSearchNodeCypherQuery(parameterMap);
 				break;
 			case "CREATE_UNIQUE":
-				query = QueryGenerationUtil.generateCreateUniqueConstraintCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateCreateUniqueConstraintCypherQuery(parameterMap);
 				break;
 			case "CREATE_INDEX":
-				query = QueryGenerationUtil.generateCreateIndexCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateCreateIndexCypherQuery(parameterMap);
 				break;
 
 			default:
