@@ -98,8 +98,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		String end_date = (String) request.get(CommonDACParams.end_date.name());
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "asc");
-		sortBy.put("operation", "asc");
+		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put("operation", "desc");
 		SearchDTO search = new SearchDTO();
 		search.setProperties(setSearchFilters(graphId, null, null, start_date, end_date));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -128,8 +128,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setProperties(setSearchFilters(graphId, null, objectType, start_date, end_date));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "asc");
-		sortBy.put("operation", "asc");
+		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
@@ -154,8 +154,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setProperties(setSearchFilters(graphId, objectId, null, start_date, end_date));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "asc");
-		sortBy.put("operation", "asc");
+		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
 		List<Object> auditHistoryLogEntities = dao.search(search);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
@@ -177,8 +177,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setProperties(setSearchFilters(null, objectId, null, start_date, null));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "asc");
-		sortBy.put("operation", "asc");
+		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
 		List<Object> auditHistoryLogEntities = dao.search(search);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
