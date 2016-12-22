@@ -32,9 +32,7 @@ public class SearchProcessor {
 		Map<String, Object> response = new HashMap<String, Object>();
 
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		System.out.println(query);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-
 		if (includeResults) {
 			if (searchDTO.isFuzzySearch()) {
 				List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
@@ -814,15 +812,12 @@ public class SearchProcessor {
 		List<Object> response = new ArrayList<Object>();
 		Map<String, Object> res_map = new HashMap<String,Object>();
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		System.out.println(query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
 		Map<String,Object> result_map = (Map) searchResult.getValue("hits");
 		List<Map<String,Object>> result = (List) result_map.get("hits");
 		for(Map<String,Object> map : result){
 			 for (Map.Entry<String, Object> entry : map.entrySet()) {
-				 System.out.println(entry.getKey().equals("_source"));
 				 if(entry.getKey().equals("_source")){
-					 System.out.println(entry.getValue());
 					  res_map = (Map) entry.getValue();
 					  response.add(res_map);
 				 }

@@ -73,9 +73,9 @@ public class AuditHistoryEsDao {
 		LOGGER.info("Documents deleted from Audit History Index");
 	}
 	
-//	@PreDestroy
-//	public void shutdown(){
-//		LOGGER.info("shuting down elastic search instance");
-//		es.finalize();
-//	}
+	@PreDestroy
+	public void shutdown(){
+		LOGGER.info("shuting down elastic search instance");
+		es.finalize();
+	}
 }

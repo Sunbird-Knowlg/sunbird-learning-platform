@@ -1,7 +1,5 @@
 package com.ilimi.graph.dac.util;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,6 +19,7 @@ import org.neo4j.graphdb.event.TransactionData;
 
 import com.ilimi.common.dto.ExecutionContext;
 import com.ilimi.common.dto.HeaderParam;
+import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -30,7 +29,6 @@ public class ProcessTransactionData {
 	private static Logger LOGGER = LogManager.getLogger(ProcessTransactionData.class.getName());
 	protected String graphId;
 	protected GraphDatabaseService graphDb;
-	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 	public ProcessTransactionData(String graphId, GraphDatabaseService graphDb) {
 		this.graphId = graphId;
@@ -88,7 +86,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.userId.name(), userId);
 					map.put(GraphDACParams.operationType.name(), GraphDACParams.CREATE.name());
 					map.put(GraphDACParams.label.name(), getLabel(node));
-					map.put(GraphDACParams.createdOn.name(), df.format(new Date()));
+					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 					map.put(GraphDACParams.graphId.name(), getGraphId());
 					map.put(GraphDACParams.nodeGraphId.name(), nodeId);
 					map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
@@ -140,7 +138,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
 					map.put(GraphDACParams.label.name(), getLabel(node));
 					map.put(GraphDACParams.graphId.name(), getGraphId());
-					map.put(GraphDACParams.createdOn.name(), df.format(new Date()));
+					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 					map.put(GraphDACParams.nodeGraphId.name(), nodeId);
 					map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
 					map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
@@ -172,17 +170,8 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.requestId.name(), requestId);
 					if (StringUtils.isEmpty(userId)) {
 						if (removedNodeProp.containsKey("lastUpdatedBy"))
-							userId = (String) ((Map) removedNodeProp.get("lastUpdatedBy")).get("ov");// oldvalue
-																										// of
-																										// lastUpdatedBy
-																										// from
-																										// the
-																										// transaction
-																										// data
-																										// as
-																										// node
-																										// is
-																										// deleted
+							// oldvalue of lastUpdatedBy from the transaction data as node is deleted
+							userId = (String) ((Map) removedNodeProp.get("lastUpdatedBy")).get("ov");
 						else
 							userId = "ANONYMOUS";
 					}
@@ -191,7 +180,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.label.name(), getLabel(removedNodeProp));
 					map.put(GraphDACParams.graphId.name(), getGraphId());
 					map.put(GraphDACParams.nodeGraphId.name(), nodeId);
-					map.put("createdOn", df.format(new Date()));
+					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 					map.put(GraphDACParams.nodeUniqueId.name(),
 							((Map) removedNodeProp.get(SystemProperties.IL_UNIQUE_ID.name())).get("ov"));
 					map.put(GraphDACParams.objectType.name(),
@@ -342,6 +331,7 @@ public class ProcessTransactionData {
 							map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
 							map.put(GraphDACParams.label.name(), getLabel(node));
 							map.put(GraphDACParams.graphId.name(), getGraphId());
+							map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 							map.put(GraphDACParams.nodeGraphId.name(), node.getId());
 							map.put(GraphDACParams.nodeUniqueId.name(),
 									node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
@@ -393,6 +383,7 @@ public class ProcessTransactionData {
 							map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
 							map.put(GraphDACParams.label.name(), getLabel(node));
 							map.put(GraphDACParams.graphId.name(), getGraphId());
+							map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 							map.put(GraphDACParams.nodeGraphId.name(), node.getId());
 							map.put(GraphDACParams.nodeUniqueId.name(),
 									node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
@@ -483,6 +474,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.operationType.name(), operationType);
 					map.put(GraphDACParams.label.name(), getLabel(startNode));
 					map.put(GraphDACParams.graphId.name(), getGraphId());
+					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 					map.put(GraphDACParams.nodeGraphId.name(), startNode.getId());
 					map.put(GraphDACParams.nodeUniqueId.name(),
 							startNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));

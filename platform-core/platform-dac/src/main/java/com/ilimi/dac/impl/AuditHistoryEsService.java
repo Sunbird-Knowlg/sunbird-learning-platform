@@ -97,7 +97,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		String end_date = (String) request.get(CommonDACParams.end_date.name());
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put(GraphDACParams.createdOn.name(), "asc");
+		sortBy.put("operation", "asc");
 		SearchDTO search = new SearchDTO();
 		search.setProperties(setSearchFilters(graphId, null, null, start_date, end_date));
 		search.setFields(setSearchCriteria(versionId));
@@ -124,7 +125,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setFields(setSearchCriteria(versionId));
 		search.setProperties(setSearchFilters(graphId, null, objectType, start_date, end_date));
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put(GraphDACParams.createdOn.name(), "asc");
+		sortBy.put("operation", "asc");
 		search.setSortBy(sortBy);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
@@ -148,7 +150,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setFields(setSearchCriteria(versionId));
 		search.setProperties(setSearchFilters(graphId, objectId, null, start_date, end_date));
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put(GraphDACParams.createdOn.name(), "asc");
+		sortBy.put("operation", "asc");
 		search.setSortBy(sortBy);
 		List<Object> auditHistoryLogEntities = dao.search(search);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
@@ -170,7 +173,8 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setFields(setSearchCriteria(null, true));
 		search.setProperties(setSearchFilters(null, objectId, null, start_date, null));
 		Map<String, String> sortBy = new HashMap<String, String>();
-		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		sortBy.put(GraphDACParams.createdOn.name(), "asc");
+		sortBy.put("operation", "asc");
 		search.setSortBy(sortBy);
 		List<Object> auditHistoryLogEntities = dao.search(search);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));

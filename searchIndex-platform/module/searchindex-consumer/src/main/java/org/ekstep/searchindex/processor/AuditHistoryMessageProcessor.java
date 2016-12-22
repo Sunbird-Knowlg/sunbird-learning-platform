@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
+import com.ilimi.graph.common.DateUtils;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 import com.ilimi.util.ApplicationContextUtils;
 
@@ -107,9 +108,8 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			String summary = setSummaryData(transactionDataMap);
 			record.setSummary(summary);
 			String createdOn = (String) transactionDataMap.get("createdOn");
-			if(StringUtils.isBlank(createdOn)){
-				record.setCreatedOn(new Date());
-			}
+			Date date = DateUtils.parse(createdOn);
+			record.setCreatedOn(null == date ? new Date() : date);
 		} catch (Exception e) {
 			LOGGER.error("Error while setting the transactionData to mysql db" + e.getMessage(), e);
 			e.printStackTrace();
