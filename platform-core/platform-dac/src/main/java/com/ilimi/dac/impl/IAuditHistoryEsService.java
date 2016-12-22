@@ -1,5 +1,7 @@
 package com.ilimi.dac.impl;
 
+import java.io.IOException;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
@@ -8,7 +10,7 @@ import com.ilimi.common.dto.Response;
  * needs to be implemented by implementing classes.
  * 
  */
-public interface IAuditHistoryDataService {
+public interface IAuditHistoryEsService {
 
 	/**
 	 * Saves the Audit Logs processed from the kafka consumers to mysql DB based on the requestBody
@@ -16,6 +18,7 @@ public interface IAuditHistoryDataService {
 	 *
 	 * @param Request
 	 *            The request
+	 * @throws IOException 
 	 */
     public Response saveAuditHistoryLog(Request request);
     
@@ -30,6 +33,7 @@ public interface IAuditHistoryDataService {
 	 * @param timestamp2
 	 *            The end Time
 	 * @return the response which contains all AuditHistoryLogs 
+     * @throws Exception 
 	 */
     public Response getAuditHistoryLog(Request request, String versionId);
 
@@ -47,6 +51,7 @@ public interface IAuditHistoryDataService {
 	 * @param timestamp2
 	 *            The end Time
 	 * @return the response which contains AuditHistoryLogs for an given ObjectType
+     * @throws Exception 
 	 */
     public Response getAuditHistoryLogByObjectType(Request request, String versionId);
     
@@ -63,6 +68,7 @@ public interface IAuditHistoryDataService {
    	 * @param timestamp2
    	 *            The end Time
    	 * @return the response which contains AuditHistoryLogs for an given ObjectId
+     * @throws Exception 
    	 */
     public Response getAuditHistoryLogByObjectId(Request request,String versionId);
 
@@ -77,7 +83,18 @@ public interface IAuditHistoryDataService {
 	 * @param timestamp1
 	 *            The time_stamp
 	 * @return the response which contains AuditHistoryLogs for an given objectId
+     * @throws Exception 
 	 */
 	public Response getAuditLogRecordById(Request request);
+
+	/**
+	 * This method carries the entire operation of deleting AuditHistory Logs for a given timestamp
+	 * from elasticSearch based on the requestBody sent from the AuditHistoryManager
+	 *
+	 * @param timestamp
+	 *            The timestamp
+     * @throws Exception 
+	 */
+	public Response deleteEsData(Request request);
 
 }

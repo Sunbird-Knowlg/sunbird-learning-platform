@@ -33,7 +33,6 @@ public class SearchProcessor {
 
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-
 		if (includeResults) {
 			if (searchDTO.isFuzzySearch()) {
 				List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
@@ -70,7 +69,7 @@ public class SearchProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	public Map<String, Object> multiWordDocSearch(List<String> synsetIds) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		Map<String, Object> translations = new HashMap<String, Object>();
@@ -134,7 +133,6 @@ public class SearchProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> multiSynsetDocSearch(List<String> synsetIds) throws Exception {
 		Map<String, Object> synsetDocList = new HashMap<String, Object>();
 		List<String> identifierList = new ArrayList<String>();
@@ -806,5 +804,26 @@ public class SearchProcessor {
 			builder.endArray();
 		}
 		builder.key("lenient").value(true).endObject();
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index) throws Exception {
+		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+		List<Object> response = new ArrayList<Object>();
+		Map<String, Object> res_map = new HashMap<String,Object>();
+		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		SearchResult searchResult = elasticSearchUtil.search(index, query);
+		Map<String,Object> result_map = (Map) searchResult.getValue("hits");
+		List<Map<String,Object>> result = (List) result_map.get("hits");
+		for(Map<String,Object> map : result){
+			 for (Map.Entry<String, Object> entry : map.entrySet()) {
+				 if(entry.getKey().equals("_source")){
+					  res_map = (Map) entry.getValue();
+					  response.add(res_map);
+				 }
+				 
+			 }
+		}
+		return response;
 	}
 }
