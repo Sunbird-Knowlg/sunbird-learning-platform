@@ -21,7 +21,7 @@ tomcat_init_mem: -Xms1024m
 tomcat_max_mem: -Xmx4096m
 tomcat_init_search: -Xms1024m 
 tomcat_max_search: -Xmx4096m
-graphevent_kafka_url: "172.31.1.92:9092"
+graphevent_kafka_url: "172.31.1.92:9092,172.31.10.1:9092,172.31.5.125:9092"
 graphevent_kafka_topic_id: "new-qa.learning.graph.events"
 content_to_vec_url: http://172.31.18.88:9000/content-to-vec
 s3_config_environment: qa

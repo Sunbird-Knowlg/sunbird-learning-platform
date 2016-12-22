@@ -1,6 +1,6 @@
 user_home: /home/ec2-user
 service_url: 172.31.31.183:8080
-zookeeper_url: 172.31.1.92:2181,172.31.10.1:2181,172.31.5.125:2181
+zookeeper_url: 172.31.1.92:2181
 graph_event_topic_id: sandbox.learning.graph.events
 backend_event_topic_id: sandbox.telemetry.backend
 platform_api_url: http://172.31.31.183:8080/learning-service
