@@ -1,5 +1,5 @@
-Code,Concepts,Title,Question,Question Image,Question Audio,Image Count,Domain,Language,Grade Level,Difficulty Level,Keywords,Answers,Template Name,Template ID,Param 1,Param 2,Response 1 selected values,score,mmc,Responses 2 selected values,score,mmc,Response 3 selected values,score,mmc
-Unique code for the question,Concepts related to this question. (Comma separated if more than one),Title for the assessment item,Question Body,Image used in the question body (if any),Audio asset used in the question body (if any),"For numeracy questions, repeat the body image how many times?",Domain,Language,Grade level,"How difficult is the question? (EASY, MEDIUM, DIFFICULT, RARE)",Search keywords for this question,Comma separated answers for blanks (as many blanks),Name of the template to use with this question,ID of the template to use with this question,Parameter 1 for templates to use,Parameter 2 for templates to use,"This column holds the possible response 
+Code,Concepts,Title,description,Question,Question Image,Question Audio,Image Count,Domain,Language,Grade Level,Difficulty Level,Keywords,Answers,Template Name,Template ID,Param 1,Param 2,Response 1 selected values,score,mmc,Responses 2 selected values,score,mmc,Response 3 selected values,score,mmc
+Unique code for the question,Concepts related to this question. (Comma separated if more than one),Title for the assessment item,description for the question,Question Body,Image used in the question body (if any),Audio asset used in the question body (if any),"For numeracy questions, repeat the body image how many times?",Domain,Language,Grade level,"How difficult is the question? (EASY, MEDIUM, DIFFICULT, RARE)",Search keywords for this question,Comma separated answers for blanks (as many blanks),Name of the template to use with this question,ID of the template to use with this question,Parameter 1 for templates to use,Parameter 2 for templates to use,"This column holds the possible response 
 values, for an item","score to be alloted for
 specified response
 
@@ -7,5 +7,5 @@ specified response
 misconceptions associated with
 specified response
 ",,,,,,
-ftb.sample.12,"c1, c2",Type the answer,7 + 1 = ________,q2body,q2body,5,Numeracy,English,Grade 1,EASY,"addition, add, sum",8,org.ekstep.mcq.t.ta,domain_3490,7,1,"8, 17|8",1,c1,"9,7",0,c3,"0, 7",0,c2
-ftb.sample.223,"c3, c4",Type the answer,8 + 1 = ________,q2body,q2body,5,Numeracy,English,Grade 1,EASY,"addition, add, sum",9,org.ekstep.mcq.t.ta,domain_3490,7,1,"4, 21, 8",0,c3,9|7,1,c4,8.3,0,"c4, c2"
+ftb.sample.127,"c1, c2",Type the answer,,7 + 1 = ________,q2body,q2body,5,Numeracy,English,Grade 1,EASY,"addition, add, sum",8,org.ekstep.mcq.t.ta,domain_3490,7,1,"8, 17|8",1,c1,"9,7",0,c3,"0, 7",0,c2
+ftb.sample.2278,"c3, c4",Type the answer,,8 + 1 = ________,q2body,q2body,5,Numeracy,English,Grade 1,EASY,"addition, add, sum",9,org.ekstep.mcq.t.ta,domain_3490,7,1,"4, 21, 8",0,c3,9|7,1,c4,8.3,0,"c4, c2"
