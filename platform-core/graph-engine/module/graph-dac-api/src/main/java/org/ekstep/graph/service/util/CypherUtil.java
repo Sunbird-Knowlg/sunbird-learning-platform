@@ -83,10 +83,10 @@ public class CypherUtil {
 				query = NodeQueryGenerationUtil.generateSearchNodeCypherQuery(parameterMap);
 				break;
 			case "CREATE_UNIQUE":
-				query = NodeQueryGenerationUtil.generateCreateUniqueConstraintCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateUniqueConstraintCypherQuery(parameterMap);
 				break;
 			case "CREATE_INDEX":
-				query = NodeQueryGenerationUtil.generateCreateIndexCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateIndexCypherQuery(parameterMap);
 				break;
 
 			default:

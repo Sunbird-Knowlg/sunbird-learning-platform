@@ -44,6 +44,8 @@ public class BaseQueryGenerationUtil {
 	protected final static String EQUALS = "=";
 
 	protected final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
+	
+	protected final static String DEFAULT_CYPHER_NODE_OBJECT_II = "aa";
 
 	protected final static String DOT = ".";
 
@@ -176,7 +178,7 @@ public class BaseQueryGenerationUtil {
 
 			// Adding 'lastUpdatedOn' Property
 			query.append(objectVariableName).append(DOT).append(AuditProperties.lastUpdatedOn.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(date).append(SINGLE_QUOTE);
+					.append(SINGLE_QUOTE).append(date).append(SINGLE_QUOTE).append(BLANK_SPACE);
 
 		}
 
@@ -211,7 +213,7 @@ public class BaseQueryGenerationUtil {
 
 			// Adding 'lastUpdatedOn' Property
 			query.append(objectVariableName).append(DOT).append(AuditProperties.lastUpdatedOn.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(date).append(SINGLE_QUOTE);
+					.append(SINGLE_QUOTE).append(date).append(SINGLE_QUOTE).append(BLANK_SPACE);
 
 		}
 

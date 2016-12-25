@@ -12,6 +12,7 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 import com.ilimi.common.dto.Property;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 
 public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
@@ -40,7 +41,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(getSystemPropertyString(node, date)).append(COMMA)
 					.append(getAuditPropertyString(node, date, false)).append(COMMA)
 					.append(getVersionKeyPropertyString(node, date, false)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS);
+					.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
 
 			// Return Node
 			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
@@ -75,17 +76,17 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			query.append(GraphDACParams.MERGE.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(node.getGraphId()).append(OPEN_CURLY_BRACKETS)
 					.append(getPropertyObjectAttributeString(node)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS);
+					.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
 
 			// Adding 'ON CREATE SET n.created=timestamp()' Clause
-			query.append(getOnCreateSetString(DEFAULT_CYPHER_NODE_OBJECT, date, node));
+			query.append(getOnCreateSetString(DEFAULT_CYPHER_NODE_OBJECT, date, node)).append(BLANK_SPACE);
 
 			// Adding 'ON MATCH SET' Clause
-			query.append(getOnMatchSetString(DEFAULT_CYPHER_NODE_OBJECT, date, node));
+			query.append(getOnMatchSetString(DEFAULT_CYPHER_NODE_OBJECT, date, node)).append(BLANK_SPACE);
 
 			// Return Node
 			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT);
+					.append(DEFAULT_CYPHER_NODE_OBJECT).append(BLANK_SPACE);
 
 		}
 
@@ -115,7 +116,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(getPropertyObjectAttributeString(node)).append(COMMA)
 					.append(getAuditPropertyString(node, date, true)).append(COMMA)
 					.append(getVersionKeyPropertyString(node, date, true)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS);
+					.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
 
 			// Return Node
 			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
@@ -230,7 +231,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(GraphDACParams.identifier.name())
+					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
 					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
 					.append(GraphDACParams.SET.name()).append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT)
 					.append(DOT).append(property.getPropertyName()).append(EQUALS).append(SINGLE_QUOTE)
@@ -275,7 +276,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// SET n.owns = "BMW", n.address = "Indore"
 			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(GraphDACParams.identifier.name())
+					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
 					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
 					.append(GraphDACParams.SET.name()).append(BLANK_SPACE)
 					.append(getMetadataStringForCypherQuery(DEFAULT_CYPHER_NODE_OBJECT, metadata));
@@ -318,7 +319,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(GraphDACParams.identifier.name())
+					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
 					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
 					.append(GraphDACParams.SET.name()).append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT)
 					.append(DOT).append(key).append(EQUALS).append(SINGLE_QUOTE).append("null").append(SINGLE_QUOTE);
@@ -362,7 +363,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(GraphDACParams.identifier.name())
+					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
 					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
 					.append(GraphDACParams.SET.name()).append(BLANK_SPACE)
 					.append(getRemoveKeysStringForCypherQuery(DEFAULT_CYPHER_NODE_OBJECT, keys));
@@ -391,6 +392,18 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_IDENTIFIER
 								+ " | [Remove Property Values Query Generation Failed.]");
 
+			query.append("MATCH (a:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + nodeId
+					+ "'}) DETACH DELETE a");
+		}
+
+		LOGGER.info("Returning Create Node Cypher Query: " + query);
+		return query.toString();
+	}
+
+	@SuppressWarnings("unused")
+	private static String getClassicNodeDeleteCypherQuery(String graphId, String nodeId) {
+		StringBuilder query = new StringBuilder();
+		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(nodeId)) {
 			// Sample:
 			// MATCH (n)-[r]-()
 			// WHERE id(n) = 5
@@ -400,14 +413,11 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(DEFAULT_CYPHER_RELATION_OBJECT).append(CLOSE_SQUARE_BRACKETS).append(DASH)
 					.append(OPEN_COMMON_BRACKETS).append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE)
 					.append(GraphDACParams.WHERE.name()).append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT)
-					.append(DOT).append(GraphDACParams.identifier.name()).append(EQUALS).append(SINGLE_QUOTE)
+					.append(DOT).append(SystemProperties.IL_UNIQUE_ID.name()).append(EQUALS).append(SINGLE_QUOTE)
 					.append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE).append(GraphDACParams.DELETE.name())
 					.append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT).append(COMMA).append(BLANK_SPACE)
 					.append(DEFAULT_CYPHER_RELATION_OBJECT);
-
 		}
-
-		LOGGER.info("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -423,27 +433,4 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 		return query.toString();
 	}
 
-	public static String generateCreateUniqueConstraintCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
-
-		StringBuilder query = new StringBuilder();
-		if (null != parameterMap) {
-
-		}
-
-		LOGGER.info("Returning Create Node Cypher Query: " + query);
-		return query.toString();
-	}
-
-	public static String generateCreateIndexCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
-
-		StringBuilder query = new StringBuilder();
-		if (null != parameterMap) {
-
-		}
-
-		LOGGER.info("Returning Create Node Cypher Query: " + query);
-		return query.toString();
-	}
 }

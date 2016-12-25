@@ -80,6 +80,10 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_IMPORT_DATA = "Error! Invalid Import Data.";
 	
+	public static final String INVALID_METADATA = "Error! Invalid Metadata.";
+	
+	public static final String INVALID_REQUEST = "Error! Invalid Request (Object).";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}
