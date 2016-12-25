@@ -771,13 +771,38 @@
             "Asset",
             "Template",
             "Plugin",
-			"ContentTemplate",
-			"ItemTemplate"
+			      "ContentTemplate",
+			      "ItemTemplate"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Multi-Select",
+          "propertyName": "category",
+          "title": "Category",
+          "description": "Supported Operating Systems",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "core",
+            "learning",
+            "literacy",
+            "math",
+            "science",
+            "time",
+            "wordnet",
+            "game",
+            "mcq",
+            "mtf",
+            "ftb"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
+          "indexed": true
         },
         {
           "required": false,
