@@ -61,6 +61,9 @@ public class CypherUtil {
 			case "UPDATE_NODE":
 				query = NodeQueryGenerationUtil.generateUpdateNodeCypherQuery(parameterMap);
 				break;
+			case "IMPORT_NODES":
+				query = NodeQueryGenerationUtil.generateUpdateNodeCypherQuery(parameterMap);
+				break;
 			case "UPDATE_PROPERTY":
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
@@ -74,6 +77,15 @@ public class CypherUtil {
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "DELETE_NODE":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "UPSERT_ROOT_NODE":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "CREATE_UNIQUE_CONSTRAINT":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "CREATE_INDEX":
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "DELETE_GRAPH":
@@ -158,9 +170,6 @@ public class CypherUtil {
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "GET_SUB_GRAPH":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
-				break;
-			case "UPSERT_ROOT_NODE":
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 
