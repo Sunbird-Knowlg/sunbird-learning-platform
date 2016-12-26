@@ -65,11 +65,13 @@ public class Neo4JBoltDataVersionKeyValidator {
 					node.getMetadata().put(GraphDACParams.NODE_UPDATE_STATUS.name(),
 							GraphDACParams.STALE_DATA_UPDATED.name());
 
-				// Update Operation is Valid
-				isValidUpdateOperation = true;
 				LOGGER.info("Update Operation is Valid for Node Id: " + node.getIdentifier());
 			}
 		}
+
+		// Update Operation is Valid
+		isValidUpdateOperation = true;
+
 		LOGGER.info("Is Valid Update Operation ? " + isValidUpdateOperation);
 
 		return isValidUpdateOperation;
@@ -118,7 +120,7 @@ public class Neo4JBoltDataVersionKeyValidator {
 			LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
 				try (Transaction tx = session.beginTransaction()) {
-					String query = "match (n:" + graphId + "{identifier:'" + identifier + "'}) return (n) as result";
+					String query = "match (n:" + graphId + "{IL_UNIQUE_ID:'" + identifier + "'}) return (n) as result";
 					StatementResult result = tx.run(query);
 					if (result.hasNext()) {
 						Record record = result.next();
@@ -129,8 +131,6 @@ public class Neo4JBoltDataVersionKeyValidator {
 					tx.close();
 				} catch (Exception e) {
 					e.printStackTrace();
-				} finally {
-					session.close();
 				}
 			}
 		}

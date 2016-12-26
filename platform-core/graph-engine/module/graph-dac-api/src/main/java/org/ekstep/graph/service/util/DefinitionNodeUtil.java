@@ -175,8 +175,6 @@ public class DefinitionNodeUtil {
 					tx.close();
 				} catch (Exception e) {
 					e.printStackTrace();
-				} finally {
-					session.close();
 				}
 			}
 		}
