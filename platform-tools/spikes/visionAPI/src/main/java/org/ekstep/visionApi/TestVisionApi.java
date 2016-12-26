@@ -50,9 +50,9 @@ public class TestVisionApi {
 			Map<String, Object> labels = app.labelImage(path);
 			Map<String, List<String>> search = app.safeSearch(path);
 			result = new HashMap<String, Object>();
-			result.put("fileName", path.getFileName().toString());
+			result.put("file", path.getFileName().toString());
 			result.put("labels", labels);
-			result.put("safeSearch", search);
+			result.put("flags", search);
 			result_list.add(result);
 		}
 		String str = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(result_list);
