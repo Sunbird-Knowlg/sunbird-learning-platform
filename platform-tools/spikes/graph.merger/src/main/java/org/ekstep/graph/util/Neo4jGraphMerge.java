@@ -1,8 +1,11 @@
 package org.ekstep.graph.util;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.enums.SystemProperties;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -14,7 +17,6 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.schema.Schema;
 
 import gnu.trove.map.hash.TLongLongHashMap;
-import org.ekstep.graph.enums.SystemProperties;
 
 public class Neo4jGraphMerge {
 
@@ -26,11 +28,13 @@ public class Neo4jGraphMerge {
 		try {
 			Neo4jGraphMerge graphMerge = new Neo4jGraphMerge();
 			long startTime = System.currentTimeMillis();
-			if(arg.length>=2){
-				for(int i=1;i<arg.length;i++)
-					graphMerge.migrate(arg[i], arg[0]);				
+			if(arg.length==2){
+				List<String> source_ids = Arrays.asList(arg[0].split("\\s*,\\s*"));
+				for(String source:source_ids)
+					if(StringUtils.isNotBlank(source))
+						graphMerge.migrate(source, arg[1]);
 			}else{
-				System.out.println("arguments should be more than one like destination_id followed by source_ids ex. Master, en, domain, hi ");
+				System.out.println("No of arguments should be two , it should be sourd_ids(comma-seperated) followed by destination_id Ex. en,domain,hi Master");
 			}
 			//graphMerge.migrate("domain", "master");
 			long stopTime = System.currentTimeMillis();
@@ -94,7 +98,7 @@ public class Neo4jGraphMerge {
             
             txDest.success();
             txDest.close();
-            System.out.println(totalNode + " - nodes were copied from "+source_id+" to master");
+            System.out.println(totalNode + " - nodes were copied from "+source_id+" to destination-"+destination_id);
             txDest = dbDest.beginTx();
             int totalRel = 0;
             for (Relationship srcRel : dbSrc.getAllRelationships()) {
@@ -122,7 +126,7 @@ public class Neo4jGraphMerge {
             txSource.success();
             txSource.close();
 
-            System.out.println(totalRel+ " - relationships were copied from "+source_id+" to master");
+            System.out.println(totalRel+ " - relationships were copied from "+source_id+" to destination"+destination_id);
         }catch(Exception e){
         	System.out.println("Merge Error " + e.getMessage());
         	e.printStackTrace();
@@ -200,7 +204,7 @@ public class Neo4jGraphMerge {
 		}finally {
             if (null != tx)
                 tx.close();
-            System.out.println(cleanCount+ " - existing nodes were deleted with its relationships in master");  
+            System.out.println(cleanCount+ " - existing nodes were deleted with its relationships in destination");  
         }
     }
     
