@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.neo4j.driver.v1.exceptions.ClientException;
@@ -35,17 +36,17 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 			// Sample: CREATE (ee:Person { name: "Emil", from: "Sweden",
 			// klout:99 })
-			query.append(GraphDACParams.CREATE.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(node.getGraphId()).append(OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(node)).append(COMMA)
-					.append(getSystemPropertyString(node, date)).append(COMMA)
-					.append(getAuditPropertyString(node, date, false)).append(COMMA)
-					.append(getVersionKeyPropertyString(node, date, false)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
+			query.append(GraphDACParams.CREATE.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(node.getGraphId()).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
+					.append(getPropertyObjectAttributeString(node)).append(CypherQueryConfigurationConstants.COMMA)
+					.append(getSystemPropertyString(node, date)).append(CypherQueryConfigurationConstants.COMMA)
+					.append(getAuditPropertyString(node, date, false)).append(CypherQueryConfigurationConstants.COMMA)
+					.append(getVersionKeyPropertyString(node, date, false)).append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
+					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Return Node
-			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT);
+			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
 		}
 
 		LOGGER.info("Returning Create Node Cypher Query: " + query);
@@ -73,20 +74,20 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// ON MATCH SET
 			// n.counter= coalesce(n.counter, 0) + 1,
 			// n.accessTime = timestamp()
-			query.append(GraphDACParams.MERGE.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(node.getGraphId()).append(OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(node)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
+			query.append(GraphDACParams.MERGE.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(node.getGraphId()).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
+					.append(getPropertyObjectAttributeString(node)).append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
+					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Adding 'ON CREATE SET n.created=timestamp()' Clause
-			query.append(getOnCreateSetString(DEFAULT_CYPHER_NODE_OBJECT, date, node)).append(BLANK_SPACE);
+			query.append(getOnCreateSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, node)).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Adding 'ON MATCH SET' Clause
-			query.append(getOnMatchSetString(DEFAULT_CYPHER_NODE_OBJECT, date, node)).append(BLANK_SPACE);
+			query.append(getOnMatchSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, node)).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Return Node
-			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(BLANK_SPACE);
+			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 		}
 
@@ -111,16 +112,16 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// Sample
 			// MERGE (n:Employee {identifier: "5"})
 			// SET n.address = "Bangalore", n.name = "MD", n.created = null
-			query.append(GraphDACParams.MERGE.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(node.getGraphId()).append(OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(node)).append(COMMA)
-					.append(getAuditPropertyString(node, date, true)).append(COMMA)
-					.append(getVersionKeyPropertyString(node, date, true)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
+			query.append(GraphDACParams.MERGE.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(node.getGraphId()).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
+					.append(getPropertyObjectAttributeString(node)).append(CypherQueryConfigurationConstants.COMMA)
+					.append(getAuditPropertyString(node, date, true)).append(CypherQueryConfigurationConstants.COMMA)
+					.append(getVersionKeyPropertyString(node, date, true)).append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
+					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Return Node
-			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT);
+			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
 
 		}
 
@@ -149,15 +150,15 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 				// Sample: CREATE (ee:Person { name: "Emil", from: "Sweden",
 				// klout:99 })
 				query.append(GraphDACParams.CREATE.name()).append(objPrefix).append(node.getGraphId())
-						.append(OPEN_CURLY_BRACKETS).append(getPropertyObjectAttributeString(node)).append(COMMA)
-						.append(getSystemPropertyString(node, date)).append(COMMA)
-						.append(getAuditPropertyString(node, date, false)).append(COMMA)
-						.append(getVersionKeyPropertyString(node, date, false)).append(CLOSE_CURLY_BRACKETS)
-						.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
+						.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS).append(getPropertyObjectAttributeString(node)).append(CypherQueryConfigurationConstants.COMMA)
+						.append(getSystemPropertyString(node, date)).append(CypherQueryConfigurationConstants.COMMA)
+						.append(getAuditPropertyString(node, date, false)).append(CypherQueryConfigurationConstants.COMMA)
+						.append(getVersionKeyPropertyString(node, date, false)).append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
+						.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 				// Return Node
-				query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
-						.append(DEFAULT_CYPHER_NODE_OBJECT);
+				query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+						.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
 			}
 		}
 
@@ -179,20 +180,20 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			String date = DateUtils.formatCurrentDate();
 			LOGGER.info("Date: " + date);
 
-			query.append(GraphDACParams.MERGE.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(rootNode.getGraphId()).append(OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(rootNode)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS);
+			query.append(GraphDACParams.MERGE.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(rootNode.getGraphId()).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
+					.append(getPropertyObjectAttributeString(rootNode)).append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
+					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS);
 
 			// Adding 'ON CREATE SET n.created=timestamp()' Clause
-			query.append(getOnCreateSetString(DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
+			query.append(getOnCreateSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
 
 			// Adding 'ON MATCH SET' Clause
-			query.append(getOnMatchSetString(DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
+			query.append(getOnMatchSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
 
 			// Return Node
-			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT);
+			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
 		}
 
 		LOGGER.info("Returning Create Node Cypher Query: " + query);
@@ -229,13 +230,13 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// MATCH (n:Employee)
 			// WHERE n.name = "Azhar"
 			// SET n.owns = "BMW"
-			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
-					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
-					.append(GraphDACParams.SET.name()).append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT)
-					.append(DOT).append(property.getPropertyName()).append(EQUALS).append(SINGLE_QUOTE)
-					.append(property.getPropertyValue()).append(SINGLE_QUOTE);
+			query.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).append(CypherQueryConfigurationConstants.DOT).append(SystemProperties.IL_UNIQUE_ID.name())
+					.append(CypherQueryConfigurationConstants.EQUALS).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(nodeId).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
+					.append(CypherQueryConfigurationConstants.DOT).append(property.getPropertyName()).append(CypherQueryConfigurationConstants.EQUALS).append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(property.getPropertyValue()).append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 
 		}
 
@@ -274,12 +275,12 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// MATCH (n:Employee)
 			// WHERE n.name = "Azhar"
 			// SET n.owns = "BMW", n.address = "Indore"
-			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
-					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
-					.append(GraphDACParams.SET.name()).append(BLANK_SPACE)
-					.append(getMetadataStringForCypherQuery(DEFAULT_CYPHER_NODE_OBJECT, metadata));
+			query.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).append(CypherQueryConfigurationConstants.DOT).append(SystemProperties.IL_UNIQUE_ID.name())
+					.append(CypherQueryConfigurationConstants.EQUALS).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(nodeId).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(getMetadataStringForCypherQuery(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, metadata));
 
 		}
 
@@ -317,12 +318,12 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// MATCH (n:Employee)
 			// WHERE n.name = "Azhar"
 			// SET n.owns = "BMW"
-			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
-					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
-					.append(GraphDACParams.SET.name()).append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT)
-					.append(DOT).append(key).append(EQUALS).append(SINGLE_QUOTE).append("null").append(SINGLE_QUOTE);
+			query.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).append(CypherQueryConfigurationConstants.DOT).append(SystemProperties.IL_UNIQUE_ID.name())
+					.append(CypherQueryConfigurationConstants.EQUALS).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(nodeId).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
+					.append(CypherQueryConfigurationConstants.DOT).append(key).append(CypherQueryConfigurationConstants.EQUALS).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append("null").append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 
 		}
 
@@ -361,12 +362,12 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// MATCH (n:Employee)
 			// WHERE n.name = "Azhar"
 			// SET n.owns = "BMW"
-			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name())
-					.append(EQUALS).append(SINGLE_QUOTE).append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE)
-					.append(GraphDACParams.SET.name()).append(BLANK_SPACE)
-					.append(getRemoveKeysStringForCypherQuery(DEFAULT_CYPHER_NODE_OBJECT, keys));
+			query.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.WHERE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).append(CypherQueryConfigurationConstants.DOT).append(SystemProperties.IL_UNIQUE_ID.name())
+					.append(CypherQueryConfigurationConstants.EQUALS).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(nodeId).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(getRemoveKeysStringForCypherQuery(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, keys));
 
 		}
 
@@ -408,15 +409,15 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// MATCH (n)-[r]-()
 			// WHERE id(n) = 5
 			// DELETE r, n
-			query.append(GraphDACParams.MATCH.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(CLOSE_COMMON_BRACKETS).append(DASH).append(OPEN_SQUARE_BRACKETS)
-					.append(DEFAULT_CYPHER_RELATION_OBJECT).append(CLOSE_SQUARE_BRACKETS).append(DASH)
-					.append(OPEN_COMMON_BRACKETS).append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE)
-					.append(GraphDACParams.WHERE.name()).append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT)
-					.append(DOT).append(SystemProperties.IL_UNIQUE_ID.name()).append(EQUALS).append(SINGLE_QUOTE)
-					.append(nodeId).append(SINGLE_QUOTE).append(BLANK_SPACE).append(GraphDACParams.DELETE.name())
-					.append(BLANK_SPACE).append(DEFAULT_CYPHER_NODE_OBJECT).append(COMMA).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_RELATION_OBJECT);
+			query.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(graphId).append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS).append(CypherQueryConfigurationConstants.DASH).append(CypherQueryConfigurationConstants.OPEN_SQUARE_BRACKETS)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT).append(CypherQueryConfigurationConstants.CLOSE_SQUARE_BRACKETS).append(CypherQueryConfigurationConstants.DASH)
+					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS).append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.WHERE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
+					.append(CypherQueryConfigurationConstants.DOT).append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS).append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(nodeId).append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.DELETE.name())
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).append(CypherQueryConfigurationConstants.COMMA).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT);
 		}
 		return query.toString();
 	}

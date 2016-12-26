@@ -410,8 +410,6 @@ public class SearchQueryGenerationUtil {
 			if (null == traverser)
 				throw new ClientException(DACErrorCodeConstants.INVALID_TRAVERSER.name(),
 						DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse' Query Generation Failed.]");
-			
-			
 		}
 
 		LOGGER.info("Returning Traverse Cypher Query: " + query);

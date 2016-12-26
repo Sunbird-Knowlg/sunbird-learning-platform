@@ -11,6 +11,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
@@ -22,54 +23,22 @@ import com.ilimi.graph.dac.model.Node;
 public class BaseQueryGenerationUtil {
 
 	protected static Logger LOGGER = LogManager.getLogger(BaseQueryGenerationUtil.class.getName());
-	
-	protected final static String OPEN_CURLY_BRACKETS = "{";
 
-	protected final static String CLOSE_CURLY_BRACKETS = "}";
-
-	protected final static String OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE = "(ee:";
-
-	protected final static String OPEN_COMMON_BRACKETS = "(";
-
-	protected final static String CLOSE_COMMON_BRACKETS = ")";
-
-	protected final static String COLON = ": ";
-
-	protected final static String SINGLE_QUOTE = "'";
-
-	protected final static String COMMA = ", ";
-
-	protected final static String BLANK_SPACE = " ";
-
-	protected final static String EQUALS = "=";
-
-	protected final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
-	
-	protected final static String DEFAULT_CYPHER_NODE_OBJECT_II = "aa";
-
-	protected final static String DOT = ".";
-
-	protected final static String DASH = "-";
-
-	protected final static String DEFAULT_CYPHER_RELATION_OBJECT = "rel";
-
-	protected final static String OPEN_SQUARE_BRACKETS = "[";
-
-	protected final static String CLOSE_SQUARE_BRACKETS = "]";
-	
 	protected static String getPropertyObject(Node node, String date, boolean isUpdateOperation) {
 		LOGGER.debug("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
 			// Sample: { name: "Emil", from: "Sweden", klout:99 }
-			query.append(OPEN_CURLY_BRACKETS);
+			query.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS);
 			if (null != node.getMetadata() & !node.getMetadata().isEmpty())
 				for (Entry<String, Object> entry : node.getMetadata().entrySet())
-					query.append(entry.getKey()).append(COLON).append(SINGLE_QUOTE).append(entry.getValue())
-							.append(SINGLE_QUOTE).append(COMMA);
-			StringUtils.removeEnd(query.toString(), COMMA);
-			query.append(CLOSE_CURLY_BRACKETS);
+					query.append(entry.getKey()).append(CypherQueryConfigurationConstants.COLON)
+							.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(entry.getValue())
+							.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+							.append(CypherQueryConfigurationConstants.COMMA);
+			StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA);
+			query.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS);
 		}
 		return query.toString();
 	}
@@ -81,10 +50,12 @@ public class BaseQueryGenerationUtil {
 		if (null != node && null != node.getMetadata() && !node.getMetadata().isEmpty()) {
 			// Sample: name: "Emil", from: "Sweden", klout:99
 			for (Entry<String, Object> entry : node.getMetadata().entrySet())
-				query.append(entry.getKey()).append(COLON).append(SINGLE_QUOTE).append(entry.getValue())
-						.append(SINGLE_QUOTE).append(COMMA);
+				query.append(entry.getKey()).append(CypherQueryConfigurationConstants.COLON)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(entry.getValue())
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+						.append(CypherQueryConfigurationConstants.COMMA);
 		}
-		StringUtils.removeEnd(query.toString(), COMMA);
+		StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA);
 
 		LOGGER.info("Returning Property Object Attribute String: " + query.toString());
 		return query.toString();
@@ -99,17 +70,23 @@ public class BaseQueryGenerationUtil {
 				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
 
 			// Adding 'IL_UNIQUE_ID' Property
-			query.append(SystemProperties.IL_UNIQUE_ID.name()).append(COLON).append(SINGLE_QUOTE)
-					.append(node.getIdentifier()).append(SINGLE_QUOTE).append(COMMA);
+			query.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.COLON)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getIdentifier())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'IL_SYS_NODE_TYPE' Property
-			query.append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(COLON).append(SINGLE_QUOTE)
-					.append(node.getNodeType()).append(SINGLE_QUOTE).append(COMMA);
+			query.append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(CypherQueryConfigurationConstants.COLON)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getNodeType())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'IL_FUNC_OBJECT_TYPE' Property
 			if (StringUtils.isNotBlank(node.getObjectType()))
-				query.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).append(COLON).append(SINGLE_QUOTE)
-						.append(node.getObjectType()).append(SINGLE_QUOTE);
+				query.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
+						.append(CypherQueryConfigurationConstants.COLON)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getObjectType())
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 		}
 
 		LOGGER.info("Returning System Property String: " + query.toString());
@@ -123,12 +100,15 @@ public class BaseQueryGenerationUtil {
 		if (null != node && StringUtils.isNotBlank(date)) {
 			// Adding 'createdOn' Property
 			if (BooleanUtils.isFalse(isUpdateOnly))
-				query.append(AuditProperties.createdOn.name()).append(COLON).append(SINGLE_QUOTE).append(date)
-						.append(SINGLE_QUOTE).append(COMMA);
+				query.append(AuditProperties.createdOn.name()).append(CypherQueryConfigurationConstants.COLON)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(date)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+						.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'lastUpdatedOn' Property
-			query.append(AuditProperties.lastUpdatedOn.name()).append(COLON).append(SINGLE_QUOTE).append(date)
-					.append(SINGLE_QUOTE);
+			query.append(AuditProperties.lastUpdatedOn.name()).append(CypherQueryConfigurationConstants.COLON)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(date)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 		}
 
 		LOGGER.info("Returning Audit Property String: " + query.toString());
@@ -140,8 +120,10 @@ public class BaseQueryGenerationUtil {
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
 			// Adding 'versionKey' Property
-			query.append(GraphDACParams.versionKey.name()).append(COLON).append(SINGLE_QUOTE)
-					.append(Long.toString(DateUtils.parse(date).getTime())).append(SINGLE_QUOTE);
+			query.append(GraphDACParams.versionKey.name()).append(CypherQueryConfigurationConstants.COLON)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(Long.toString(DateUtils.parse(date).getTime()))
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 		}
 
 		LOGGER.info("Returning 'versionKey' Property String: " + query.toString());
@@ -156,29 +138,45 @@ public class BaseQueryGenerationUtil {
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
 			// Adding Clause 'ON MATCH SET'
-			query.append(GraphDACParams.ON.name()).append(BLANK_SPACE).append(GraphDACParams.MATCH.name())
-					.append(BLANK_SPACE).append(GraphDACParams.SET.name()).append(BLANK_SPACE);
+			query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Adding 'IL_UNIQUE_ID' Property
-			query.append(objectVariableName).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(node.getIdentifier()).append(SINGLE_QUOTE).append(COMMA);
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getIdentifier())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'IL_SYS_NODE_TYPE' Property
-			query.append(objectVariableName).append(DOT).append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(node.getNodeType()).append(SINGLE_QUOTE).append(COMMA);
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getNodeType())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'IL_FUNC_OBJECT_TYPE' Property
 			if (StringUtils.isNotBlank(node.getObjectType()))
-				query.append(objectVariableName).append(DOT).append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
-						.append(EQUALS).append(SINGLE_QUOTE).append(node.getObjectType()).append(SINGLE_QUOTE);
+				query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+						.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
+						.append(CypherQueryConfigurationConstants.EQUALS)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getObjectType())
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 
 			// Adding Property String
-			query.append(objectVariableName).append(DOT).append(AuditProperties.createdOn.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(node.getIdentifier()).append(SINGLE_QUOTE).append(COMMA);
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(AuditProperties.createdOn.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getIdentifier())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'lastUpdatedOn' Property
-			query.append(objectVariableName).append(DOT).append(AuditProperties.lastUpdatedOn.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(date).append(SINGLE_QUOTE).append(BLANK_SPACE);
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(AuditProperties.lastUpdatedOn.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(date)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 		}
 
@@ -194,26 +192,39 @@ public class BaseQueryGenerationUtil {
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
 			// Adding Clause 'ON MATCH SET'
-			query.append(GraphDACParams.ON.name()).append(BLANK_SPACE).append(GraphDACParams.MATCH.name())
-					.append(BLANK_SPACE).append(GraphDACParams.SET.name()).append(BLANK_SPACE);
+			query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Adding 'IL_UNIQUE_ID' Property
-			query.append(objectVariableName).append(DOT).append(SystemProperties.IL_UNIQUE_ID.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(node.getIdentifier()).append(SINGLE_QUOTE).append(COMMA);
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getIdentifier())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'IL_SYS_NODE_TYPE' Property
-			query.append(objectVariableName).append(DOT).append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(node.getNodeType()).append(SINGLE_QUOTE).append(COMMA);
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getNodeType())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'IL_FUNC_OBJECT_TYPE' Property
 			if (StringUtils.isNotBlank(node.getObjectType()))
-				query.append(objectVariableName).append(DOT).append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
-						.append(EQUALS).append(SINGLE_QUOTE).append(node.getObjectType()).append(SINGLE_QUOTE)
-						.append(COMMA);
+				query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+						.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
+						.append(CypherQueryConfigurationConstants.EQUALS)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getObjectType())
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+						.append(CypherQueryConfigurationConstants.COMMA);
 
 			// Adding 'lastUpdatedOn' Property
-			query.append(objectVariableName).append(DOT).append(AuditProperties.lastUpdatedOn.name()).append(EQUALS)
-					.append(SINGLE_QUOTE).append(date).append(SINGLE_QUOTE).append(BLANK_SPACE);
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(AuditProperties.lastUpdatedOn.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(date)
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 		}
 
@@ -225,9 +236,12 @@ public class BaseQueryGenerationUtil {
 		StringBuilder queryPart = new StringBuilder();
 		if (StringUtils.isNotBlank(objectVariableName) && null != metadata && !metadata.isEmpty()) {
 			for (Entry<String, Object> entry : metadata.entrySet())
-				queryPart.append(objectVariableName).append(DOT).append(entry.getKey()).append(EQUALS)
-						.append(SINGLE_QUOTE).append(entry.getValue()).append(SINGLE_QUOTE).append(COMMA);
-			StringUtils.removeEnd(queryPart.toString(), COMMA);
+				queryPart.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+						.append(entry.getKey()).append(CypherQueryConfigurationConstants.EQUALS)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(entry.getValue())
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+						.append(CypherQueryConfigurationConstants.COMMA);
+			StringUtils.removeEnd(queryPart.toString(), CypherQueryConfigurationConstants.COMMA);
 		}
 		return queryPart.toString();
 	}
@@ -236,9 +250,12 @@ public class BaseQueryGenerationUtil {
 		StringBuilder queryPart = new StringBuilder();
 		if (StringUtils.isNotBlank(objectVariableName) && null != keys && keys.size() > 0) {
 			for (String key : keys)
-				queryPart.append(objectVariableName).append(DOT).append(key).append(EQUALS).append(SINGLE_QUOTE)
-						.append("null").append(SINGLE_QUOTE).append(COMMA);
-			StringUtils.removeEnd(queryPart.toString(), COMMA);
+				queryPart.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT).append(key)
+						.append(CypherQueryConfigurationConstants.EQUALS)
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append("null")
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+						.append(CypherQueryConfigurationConstants.COMMA);
+			StringUtils.removeEnd(queryPart.toString(), CypherQueryConfigurationConstants.COMMA);
 		}
 		return queryPart.toString();
 	}

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.neo4j.driver.v1.Record;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
 
@@ -21,18 +21,6 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 public class Node implements Serializable {
 
 	private static final long serialVersionUID = 252337826576516976L;
-
-	// TODO: Make 'DEFAULT_CYPHER_NODE_OBJECT',
-	// 'DEFAULT_CYPHER_START_NODE_OBJECT', 'DEFAULT_CYPHER_END_NODE_OBJECT' and
-	// Cypher Query Constants should be tied with Single Contract. Right now it
-	// is in 'BaseQueryGenerationUtil', 'Neo4JBoltNodeOperation' and 'NODE' DTO,
-	// It should be in 'DACConfigurationConstants' or
-	// 'CypherConfigurationConstants'.
-	private final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
-	private final static String DEFAULT_CYPHER_START_NODE_OBJECT = "__startNode";
-	private final static String DEFAULT_CYPHER_END_NODE_OBJECT = "__startNode";
-	protected final static String DEFAULT_CYPHER_RELATION_OBJECT = "rel";
-
 	private long id;
 	private String graphId;
 	private String identifier;
@@ -66,22 +54,18 @@ public class Node implements Serializable {
 		}
 	}
 
-	public Node(String graphId, Record record) {
-    	if (null == record)
-            throw new ServerException(GraphDACErrorCodes.ERR_GRAPH_NULL_DB_NODE.name(),
-                    "Failed to create node object. Record from database is null.");
-    	
-    	if (null == record.get(DEFAULT_CYPHER_NODE_OBJECT))
-    		throw new ServerException(GraphDACErrorCodes.ERR_GRAPH_NULL_DB_NODE.name(),
-                    "Failed to create node object. Node from database is null.");
-    	
-    	org.neo4j.driver.v1.types.Node node = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
-    	this.graphId = graphId;
-    	this.id = node.id();
-    	Iterable<String> keys = node.keys();
-    	if (null != keys && null != keys.iterator()) { 
-    		this.metadata = new HashMap<String, Object>();
-    		for (String key : keys) {
+	public Node(String graphId, org.neo4j.driver.v1.types.Node node, Map<Long, Object> relationMap,
+			Map<Long, Object> startNodeMap, Map<Long, Object> endNodeMap) {
+		if (null == node)
+			throw new ServerException(GraphDACErrorCodes.ERR_GRAPH_NULL_DB_NODE.name(),
+					"Failed to create node object. Node from database is null.");
+
+		this.graphId = graphId;
+		this.id = node.id();
+		Iterable<String> keys = node.keys();
+		if (null != keys && null != keys.iterator()) {
+			this.metadata = new HashMap<String, Object>();
+			for (String key : keys) {
 				if (StringUtils.equalsIgnoreCase(key, SystemProperties.IL_UNIQUE_ID.name()))
 					this.identifier = node.get(key).asString();
 				else if (StringUtils.equalsIgnoreCase(key, SystemProperties.IL_SYS_NODE_TYPE.name()))
@@ -91,8 +75,29 @@ public class Node implements Serializable {
 				else
 					this.metadata.put(key, node.get(key));
 			}
-    	}
-    }
+		}
+
+		if (null != relationMap && !relationMap.isEmpty() && null != startNodeMap && startNodeMap.isEmpty()
+				&& null != endNodeMap && endNodeMap.isEmpty()) {
+			this.inRelations = new ArrayList<Relation>();
+			this.outRelations = new ArrayList<Relation>();
+			this.tags = new ArrayList<String>();
+
+			for (Entry<Long, Object> entry : relationMap.entrySet()) {
+				org.neo4j.driver.v1.types.Relationship relationship = (org.neo4j.driver.v1.types.Relationship) entry
+						.getValue();
+				if (relationship.startNodeId() == node.id()) {
+					Relation rel = new Relation(graphId, relationship, startNodeMap, endNodeMap);
+					this.outRelations.add(rel);
+				} if (relationship.endNodeId() == node.id()) {
+					Relation rel = new Relation(graphId, relationship, startNodeMap, endNodeMap);
+					if (!isTagRelation(rel))
+						this.inRelations.add(rel);
+					this.tags.add(rel.getStartNodeName());
+				}
+			}
+		}
+	}
 
 	public Node(String graphId, org.neo4j.graphdb.Node neo4jNode) {
 		if (null == neo4jNode)
@@ -214,21 +219,11 @@ public class Node implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
-	
+
 	private boolean isTagRelation(Relation rel) {
 		if (StringUtils.equals(SystemNodeTypes.TAG.name(), rel.getStartNodeType())
 				&& StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), rel.getRelationType()))
 			return true;
 		return false;
 	}
-	
-	private List<Relation> getOutgoingRelationships(Record record) {
-		List<Relation> outRelationships = new ArrayList<Relation>();
-		if (null != record && null != record.get(DEFAULT_CYPHER_NODE_OBJECT) && null != record.get(DEFAULT_CYPHER_RELATION_OBJECT)) {
-			org.neo4j.driver.v1.types.Node node = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
-			Long id = node.id();
-		}
-		return outRelationships;
-	}
-
 }

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.RelationshipDirection;
@@ -52,7 +53,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// TODO: Make this query with Constants
 			for (String indexproperty : indexProperties)
 				query.append("CREATE CONSTRAINT ON (n:" + graphId + ") ASSERT n." + indexproperty + " IS UNIQUE")
-						.append(BLANK_SPACE);
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
 		LOGGER.info("Returning Create Unique Constraint Cypher Query: " + query);
@@ -80,7 +81,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 			// TODO: Make this query with Constants
 			for (String indexproperty : indexProperties)
-				query.append("CREATE INDEX ON :" + graphId + "(" + indexproperty + ")").append(BLANK_SPACE);
+				query.append("CREATE INDEX ON :" + graphId + "(" + indexproperty + ")")
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
 		LOGGER.info("Returning Create Node Cypher Query: " + query);
@@ -160,7 +162,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			}
 
 			query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
-					DEFAULT_CYPHER_NODE_OBJECT, DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
 					RelationshipDirection.OUTGOING));
 		}
 
@@ -209,7 +212,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_METADATA + " | ['Update Relation' Query Generation Failed.]");
 
 			query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
-					DEFAULT_CYPHER_NODE_OBJECT, DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
 					RelationshipDirection.OUTGOING));
 		}
 
@@ -247,7 +251,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 								+ " | ['Delete Relation' Query Generation Failed.]");
 
 			query.append(getDeleteRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
-					DEFAULT_CYPHER_NODE_OBJECT, DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
 		}
 
 		LOGGER.info("'Delete Relation' Cypher Query: " + query);
@@ -466,7 +471,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 								+ " | ['Remove Relation Metadata' Query Generation Failed.]");
 
 			query.append(getRemoveRelationMetadataCypherQuery(graphId, startNodeId, endNodeId, relationType, key,
-					DEFAULT_CYPHER_NODE_OBJECT, DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
+					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
 		}
 
 		LOGGER.info("Returning 'Create Relation' Cypher Query: " + query);
@@ -526,15 +532,22 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// ON MATCH SET
 			// n.counter= coalesce(n.counter, 0) + 1,
 			// n.accessTime = timestamp()
-			query.append(GraphDACParams.MERGE.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(OPEN_CURLY_BRACKETS).append(getPropertyObjectAttributeString(collection))
-					.append(CLOSE_CURLY_BRACKETS).append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
+			query.append(GraphDACParams.MERGE.name())
+					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
+					.append(graphId).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
+					.append(getPropertyObjectAttributeString(collection))
+					.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
+					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Adding 'ON CREATE SET n.created=timestamp()' Clause
-			query.append(getOnCreateSetString(DEFAULT_CYPHER_NODE_OBJECT, date, collection)).append(BLANK_SPACE);
+			query.append(getOnCreateSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date,
+					collection)).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Adding 'ON MATCH SET' Clause
-			query.append(getOnMatchSetString(DEFAULT_CYPHER_NODE_OBJECT, date, collection)).append(BLANK_SPACE);
+			query.append(
+					getOnMatchSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, collection))
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			int index = 1;
 			for (String memeber : members) {
@@ -545,8 +558,10 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			}
 
 			// Return Node
-			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
-					.append(DEFAULT_CYPHER_NODE_OBJECT).append(BLANK_SPACE);
+			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
 		LOGGER.info("Returning 'Create Collection' Cypher Query: " + query);
@@ -639,9 +654,11 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					+ startNodeObjectVariableName + ")" + relationship + "(" + endNodeObjectVariableName + ")");
 
 			// Put Metadata
-			query.append("ON CREATE SET ").append(getMetadataStringForCypherQuery("r", metadata)).append(BLANK_SPACE);
+			query.append("ON CREATE SET ").append(getMetadataStringForCypherQuery("r", metadata))
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
-			query.append("ON MATCH SET ").append(getMetadataStringForCypherQuery("r", metadata)).append(BLANK_SPACE);
+			query.append("ON MATCH SET ").append(getMetadataStringForCypherQuery("r", metadata))
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 		return query.toString();
 	}
@@ -672,7 +689,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 			query.append("MATCH (a:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId
 					+ "'})" + relationship + "(b:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '"
-					+ endNodeId + "'}) DELETE r").append(BLANK_SPACE);
+					+ endNodeId + "'}) DELETE r").append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 		return query.toString();
 	}
@@ -705,7 +722,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 			query.append("MATCH (a:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId
 					+ "'})" + relationship + "(b:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '"
-					+ endNodeId + "'}) REMOVE r." + key).append(BLANK_SPACE);
+					+ endNodeId + "'}) REMOVE r." + key).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 		return query.toString();
 	}
