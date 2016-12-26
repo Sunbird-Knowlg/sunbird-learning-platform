@@ -22,7 +22,11 @@ public enum DACErrorCodeConstants {
 	INVALID_MEMBERS(17, "Invalid Members."), 
 	INVALID_DATA(18, "Invalid Input Data."), 
 	INVALID_TASK(19, "Invalid Task Id."),
-	INVALID_REQUEST(20, "Invalid Task Id.");
+	INVALID_REQUEST(20, "Invalid Task Id."),
+	INVALID_CRITERIA(21, "Invalid Search Criteria."), 
+	INVALID_QUERY(22, "Invalid Query."), 
+	INVALID_TRAVERSER(23, "Invalid Traverser."),
+	INVALID_DEPTH(24, "Invalid Depth.");
 	
 	private final int code;
 	private final String description;

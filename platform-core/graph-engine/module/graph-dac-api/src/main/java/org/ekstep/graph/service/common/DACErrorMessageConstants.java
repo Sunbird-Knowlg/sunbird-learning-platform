@@ -84,6 +84,18 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_REQUEST = "Error! Invalid Request (Object).";
 	
+	public static final String INVALID_NODE_ID = "Error! Invalid Node Id.";
+	
+	public static final String INVALID_SEARCH_CRITERIA = "Error! Invalid Search Criteria.";
+	
+	public static final String INVALID_QUERY = "Error! Invalid Query.";
+	
+	public static final String INVALID_PARAM_MAP = "Error! Invalid Parameter Map For Query.";
+	
+	public static final String INVALID_TRAVERSER = "Error! Invalid Traverser.";
+	
+	public static final String INVALID_DEPTH = "Error! Invalid Depth.";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

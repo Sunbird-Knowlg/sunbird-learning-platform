@@ -76,17 +76,92 @@ public class CypherUtil {
 			case "DELETE_NODE":
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
-			case "UPSERT_ROOT_NODE":
+			case "DELETE_GRAPH":
 				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
-			case "SEARCH_NODE":
-				query = NodeQueryGenerationUtil.generateSearchNodeCypherQuery(parameterMap);
+			case "CREATE_RELATION":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
-			case "CREATE_UNIQUE":
-				query = GraphQueryGenerationUtil.generateCreateUniqueConstraintCypherQuery(parameterMap);
+			case "UPDATE_RELATION":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
-			case "CREATE_INDEX":
-				query = GraphQueryGenerationUtil.generateCreateIndexCypherQuery(parameterMap);
+			case "DELETE_RELATION":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "CREATE_INCOMING_RELATIONS":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "CREATE_OUTGOING_RELATIONS":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "DELETE_INCOMING_RELATIONS":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "DELETE_OUTGOING_RELATIONS":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "REMOVE_RELATION_METADATA":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "CREATE_COLLECTION":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "DELETE_COLLECTION":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "IMPORT_GRAPH":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_NODE_BY_ID":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_NODE_BY_UNIQUE_ID":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_NODES_BY_PROPERTY":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_NODES_BY_SEARCH_CRITERIA":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_NODE_PROPERTY":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_ALL_NODES":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_ALL_RELATIONS":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_RELATION_PROPERTY":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_RELATION":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "CHECK_CYCLIC_LOOP":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "EXECUTE_QUERY":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "SEARCH_NODES":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_NODES_COUNT":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "TRAVERSE":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "TRAVERSE_SUB_GRAPH":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "GET_SUB_GRAPH":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				break;
+			case "UPSERT_ROOT_NODE":
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 
 			default:
@@ -94,10 +169,9 @@ public class CypherUtil {
 				break;
 			}
 		}
-		
+
 		LOGGER.info("Returning Cypher Query For Operation - " + operation.name() + " | Query - " + query);
 		return query;
 	}
 
-	
 }

@@ -518,7 +518,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 			String date = DateUtils.formatCurrentDate();
 			LOGGER.info("Date: " + date);
-			
+
 			// Sample:
 			// MERGE (n:Employee {identifier: "4", name: "Ilimi", address:
 			// "Indore"})
@@ -527,15 +527,22 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// n.counter= coalesce(n.counter, 0) + 1,
 			// n.accessTime = timestamp()
 			query.append(GraphDACParams.MERGE.name()).append(OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(collection)).append(CLOSE_CURLY_BRACKETS)
-					.append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
+					.append(graphId).append(OPEN_CURLY_BRACKETS).append(getPropertyObjectAttributeString(collection))
+					.append(CLOSE_CURLY_BRACKETS).append(CLOSE_COMMON_BRACKETS).append(BLANK_SPACE);
 
 			// Adding 'ON CREATE SET n.created=timestamp()' Clause
 			query.append(getOnCreateSetString(DEFAULT_CYPHER_NODE_OBJECT, date, collection)).append(BLANK_SPACE);
 
 			// Adding 'ON MATCH SET' Clause
 			query.append(getOnMatchSetString(DEFAULT_CYPHER_NODE_OBJECT, date, collection)).append(BLANK_SPACE);
+
+			int index = 1;
+			for (String memeber : members) {
+				Map<String, Object> metadata = new HashMap<String, Object>();
+				metadata.put(indexProperty, index);
+				query.append(getCreateRelationCypherQuery(graphId, collectionId, memeber, relationType,
+						getString(index++), getString(index++), metadata, RelationshipDirection.OUTGOING));
+			}
 
 			// Return Node
 			query.append(BLANK_SPACE).append(GraphDACParams.RETURN.name()).append(BLANK_SPACE)
@@ -564,7 +571,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_COLLECTION_NODE_ID
 								+ " | ['Delete Collection' Query Generation Failed.]");
 
-			query.append("");
+			query.append("MATCH (a:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + collectionId
+					+ "'}) DETACH DELETE a");
 		}
 
 		LOGGER.info("Returning 'Delete Collection' Cypher Query: " + query);

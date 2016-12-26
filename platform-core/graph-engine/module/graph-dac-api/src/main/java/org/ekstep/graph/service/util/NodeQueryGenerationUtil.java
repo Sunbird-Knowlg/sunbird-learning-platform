@@ -420,17 +420,4 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 		}
 		return query.toString();
 	}
-
-	public static String generateSearchNodeCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
-
-		StringBuilder query = new StringBuilder();
-		if (null != parameterMap) {
-
-		}
-
-		LOGGER.info("Returning Create Node Cypher Query: " + query);
-		return query.toString();
-	}
-
 }
