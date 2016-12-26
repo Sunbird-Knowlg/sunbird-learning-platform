@@ -124,16 +124,6 @@
                     </includes>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.scoverage</groupId>
-                <artifactId>scoverage-maven-plugin</artifactId>
-                <configuration>
-                    <scalaVersion>${scala.version}</scalaVersion>
-                    <aggregate>true</aggregate>
-                    <highlighting>true</highlighting>
-                    <excludedFiles>.*RoutesPrefix.*;.*Routes.*;.*ReverseRoutes.*</excludedFiles>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
