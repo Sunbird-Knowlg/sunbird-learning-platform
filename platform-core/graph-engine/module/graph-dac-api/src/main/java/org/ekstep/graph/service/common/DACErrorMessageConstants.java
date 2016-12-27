@@ -96,6 +96,8 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_DEPTH = "Error! Invalid Depth.";
 	
+	public static final String CONNECTION_PROBLEM = "Error! Driver connection problem";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

@@ -26,7 +26,8 @@ public enum DACErrorCodeConstants {
 	INVALID_CRITERIA(21, "Invalid Search Criteria."), 
 	INVALID_QUERY(22, "Invalid Query."), 
 	INVALID_TRAVERSER(23, "Invalid Traverser."),
-	INVALID_DEPTH(24, "Invalid Depth.");
+	INVALID_DEPTH(24, "Invalid Depth."),
+	CONNECTION_PROBLEM(25, "BOLT driver connection problem");
 	
 	private final int code;
 	private final String description;
