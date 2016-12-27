@@ -19,6 +19,7 @@ import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.exceptions.ClientException;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -172,7 +173,7 @@ public class Neo4JBoltSearchOperations {
 
 				StatementResult result = session
 						.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_BY_UNIQUE_ID, parameterMap));
-				if (null == result || result.list().isEmpty())
+				if (null == result || !result.hasNext())
 					throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 							DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]");
 
@@ -184,23 +185,27 @@ public class Neo4JBoltSearchOperations {
 				for (Record record : result.list()) {
 					LOGGER.debug("'Get Node By Unique Id' Operation Finished.", record);
 					if (null != record) {
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)) {
+						Value nodeValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
+						if (null != nodeValue && StringUtils.equalsIgnoreCase("NODE", nodeValue.type().name())) {
 							org.neo4j.driver.v1.types.Node neo4jBoltNode = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).asNode();
 							nodeMap.put(neo4jBoltNode.id(), neo4jBoltNode);
 						}
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT)) {
+						Value relValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT);
+						if (null != relValue && StringUtils.equalsIgnoreCase("RELATIONSHIP", relValue.type().name())) {
 							org.neo4j.driver.v1.types.Relationship relationship = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT)
 									.asRelationship();
 							relationMap.put(relationship.id(), relationship);
 						}
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_START_NODE_OBJECT)) {
+						Value startNodeValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_START_NODE_OBJECT);
+						if (null != startNodeValue && StringUtils.equalsIgnoreCase("NODE", startNodeValue.type().name())) {
 							org.neo4j.driver.v1.types.Node startNode = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_START_NODE_OBJECT).asNode();
 							startNodeMap.put(startNode.id(), startNode);
 						}
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_END_NODE_OBJECT)) {
+						Value endNodeValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_END_NODE_OBJECT);
+						if (null != endNodeValue && StringUtils.equalsIgnoreCase("NODE", endNodeValue.type().name())) {
 							org.neo4j.driver.v1.types.Node endNode = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_END_NODE_OBJECT).asNode();
 							endNodeMap.put(endNode.id(), endNode);
@@ -983,7 +988,7 @@ public class Neo4JBoltSearchOperations {
 				parameterMap.put(GraphDACParams.request.name(), request);
 
 				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.SEARCH_NODES, parameterMap));
-				if (null == result || result.list().isEmpty())
+				if (null == result || !result.hasNext())
 					throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 							DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Ids.]");
 
@@ -995,23 +1000,27 @@ public class Neo4JBoltSearchOperations {
 				for (Record record : result.list()) {
 					LOGGER.debug("'Get All Nodes' Operation Finished.", record);
 					if (null != record) {
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)) {
+						Value nodeValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
+						if (null != nodeValue && StringUtils.equalsIgnoreCase("NODE", nodeValue.type().name())) {
 							org.neo4j.driver.v1.types.Node neo4jBoltNode = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT).asNode();
 							nodeMap.put(neo4jBoltNode.id(), neo4jBoltNode);
 						}
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT)) {
+						Value relValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT);
+						if (null != relValue && StringUtils.equalsIgnoreCase("RELATIONSHIP", relValue.type().name())) {
 							org.neo4j.driver.v1.types.Relationship relationship = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_RELATION_OBJECT)
 									.asRelationship();
 							relationMap.put(relationship.id(), relationship);
 						}
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_START_NODE_OBJECT)) {
+						Value startNodeValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_START_NODE_OBJECT);
+						if (null != startNodeValue && StringUtils.equalsIgnoreCase("NODE", startNodeValue.type().name())) {
 							org.neo4j.driver.v1.types.Node startNode = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_START_NODE_OBJECT).asNode();
 							startNodeMap.put(startNode.id(), startNode);
 						}
-						if (null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_END_NODE_OBJECT)) {
+						Value endNodeValue = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_END_NODE_OBJECT);
+						if (null != endNodeValue && StringUtils.equalsIgnoreCase("NODE", endNodeValue.type().name())) {
 							org.neo4j.driver.v1.types.Node endNode = record
 									.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_END_NODE_OBJECT).asNode();
 							endNodeMap.put(endNode.id(), endNode);
