@@ -2,45 +2,35 @@ package managers;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ResponseCode;
 
-public class PlaySearchManager extends BasePlaySearchManager{
+import play.libs.F.Promise;
+import play.mvc.Result;
+
+public class PlaySearchManager extends BasePlaySearchManager {
 
 	private static Logger LOGGER = LogManager.getLogger(PlaySearchManager.class.getName());
 
-	public Response search(Request request) {
+	public Promise<Result> search(Request request) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(),
 				SearchOperations.INDEX_SEARCH.name());
-		Response getRes = getSearchResponse(request, LOGGER);
-		if (checkError(getRes)) {
-			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
-		}
+		Promise<Result> getRes = getSearchResponse(request, LOGGER);
+		return getRes;
+	}
+
+	public Promise<Result> count(Request request) {
+		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.COUNT.name());
+		Promise<Result> getRes = getSearchResponse(request, LOGGER);
 		return getRes;
 	}
 	
-	public Response count(Request request){
-		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.COUNT.name());
-		Response getRes = getSearchResponse(request, LOGGER);
-		if (checkError(getRes)) {
-			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
-		}
+	public Promise<Result> metrics(Request request){
+		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.METRICS.name());
+		Promise<Result> getRes = getSearchResponse(request, LOGGER);
 		return getRes;
 	}
-	
-	public Response getSearchResponse(Response searchResult){
-		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
-		request.put("searchResult", searchResult.getResult());
-		Response getRes = getSearchResponse(request, LOGGER);
-		if (checkError(getRes)) {
-			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
-		}
-		
-		return getRes;
-	}
+
 }
