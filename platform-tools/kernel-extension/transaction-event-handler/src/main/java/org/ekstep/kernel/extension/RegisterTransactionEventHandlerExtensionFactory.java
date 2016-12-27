@@ -6,9 +6,6 @@ import org.neo4j.kernel.impl.spi.KernelContext;
 import org.neo4j.kernel.lifecycle.Lifecycle;
 import org.neo4j.kernel.lifecycle.LifecycleAdapter;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class RegisterTransactionEventHandlerExtensionFactory extends KernelExtensionFactory<RegisterTransactionEventHandlerExtensionFactory.Dependencies> {
 
     public interface Dependencies {
@@ -24,18 +21,15 @@ public class RegisterTransactionEventHandlerExtensionFactory extends KernelExten
         return new LifecycleAdapter() {
 
             private EkStepTransactionEventHandler handler;
-            private ExecutorService executor;
 
 			@Override
             public void start() throws Throwable {
-                executor = Executors.newFixedThreadPool(2);
-                handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService(), executor);
+                handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService());
                 dependencies.getGraphDatabaseService().registerTransactionEventHandler(handler);
             }
 
             @Override
             public void shutdown() throws Throwable {
-                executor.shutdown();
                 dependencies.getGraphDatabaseService().unregisterTransactionEventHandler(handler);
             }
         };
@@ -47,18 +41,15 @@ public class RegisterTransactionEventHandlerExtensionFactory extends KernelExten
 		return new LifecycleAdapter() {
 
             private EkStepTransactionEventHandler handler;
-            private ExecutorService executor;
 
 			@Override
             public void start() throws Throwable {
-                executor = Executors.newFixedThreadPool(2);
-                handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService(), executor);
+                handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService());
                 dependencies.getGraphDatabaseService().registerTransactionEventHandler(handler);
             }
 
             @Override
             public void shutdown() throws Throwable {
-                executor.shutdown();
                 dependencies.getGraphDatabaseService().unregisterTransactionEventHandler(handler);
             }
         };

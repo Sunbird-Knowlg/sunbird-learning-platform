@@ -7,7 +7,6 @@ import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
 
-import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings("rawtypes")
 public class EkStepTransactionEventHandler implements TransactionEventHandler {
@@ -16,7 +15,7 @@ public class EkStepTransactionEventHandler implements TransactionEventHandler {
 
 	public static HighlyAvailableGraphDatabase db;
 
-	public EkStepTransactionEventHandler(HighlyAvailableGraphDatabase graphDatabaseService, ExecutorService executor) {
+	public EkStepTransactionEventHandler(HighlyAvailableGraphDatabase graphDatabaseService) {
 		db = graphDatabaseService;
 	}
 
