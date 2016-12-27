@@ -27,7 +27,8 @@ public enum DACErrorCodeConstants {
 	INVALID_QUERY(22, "Invalid Query."), 
 	INVALID_TRAVERSER(23, "Invalid Traverser."),
 	INVALID_DEPTH(24, "Invalid Depth."), 
-	NOT_FOUND(25, "Object Not Found.");
+	NOT_FOUND(25, "Object Not Found."),
+	CONNECTION_PROBLEM(26, "BOLT driver connection problem");
 	
 	private final int code;
 	private final String description;

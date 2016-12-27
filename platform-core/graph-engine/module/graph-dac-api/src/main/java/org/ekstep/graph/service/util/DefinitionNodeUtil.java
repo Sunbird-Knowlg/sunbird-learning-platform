@@ -20,6 +20,7 @@ import org.neo4j.graphdb.Transaction;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
@@ -174,7 +175,8 @@ public class DefinitionNodeUtil {
 					tx.success();
 					tx.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+							DACErrorMessageConstants.CONNECTION_PROBLEM + " | "+ e.getMessage());
 				}
 			}
 		}

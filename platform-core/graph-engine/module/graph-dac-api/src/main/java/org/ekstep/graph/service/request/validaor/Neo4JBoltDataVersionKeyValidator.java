@@ -18,6 +18,7 @@ import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Transaction;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -130,7 +131,8 @@ public class Neo4JBoltDataVersionKeyValidator {
 					tx.success();
 					tx.close();
 				} catch (Exception e) {
-					e.printStackTrace();
+					throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+							DACErrorMessageConstants.CONNECTION_PROBLEM + " | "+ e.getMessage());
 				}
 			}
 		}

@@ -101,6 +101,8 @@ public class DACErrorMessageConstants {
 	public static final String NODE_OR_PROPERTY_NOT_FOUND = "Error! Node or Property doesn't Exists.";
 	
 	public static final String RELATION_OR_PROPERTY_NOT_FOUND = "Error! Relation or Property doesn't Exists.";
+
+	public static final String CONNECTION_PROBLEM = "Error! Driver connection problem";
 	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
