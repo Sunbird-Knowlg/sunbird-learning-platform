@@ -35,7 +35,7 @@ public class SearchBaseController extends Controller {
 			if (null != requestMap && !requestMap.isEmpty()) {
 				String id = requestMap.get("id") == null ? API_ID_PREFIX + "." + apiId : (String) requestMap.get("id");
 				String ver = requestMap.get("ver") == null ? getAPIVersion() : (String) requestMap.get("id");
-				String ts = (String) requestMap.get("id");
+				String ts = (String) requestMap.get("ts");
 				request.setId(id);
 				request.setVer(ver);
 				request.setTs(ts);
