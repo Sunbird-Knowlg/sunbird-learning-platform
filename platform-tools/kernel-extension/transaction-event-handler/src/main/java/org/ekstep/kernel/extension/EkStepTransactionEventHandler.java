@@ -3,7 +3,6 @@ package org.ekstep.kernel.extension;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.kernel.extension.common.TransactionEventHandlerParams;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
