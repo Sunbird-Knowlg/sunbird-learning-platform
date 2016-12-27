@@ -10,7 +10,7 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 
 public class CypherUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(JCypherUtil.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(CypherUtil.class.getName());
 
 	public static String getQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
 		LOGGER.debug("Neo4J Operation: ", operation);

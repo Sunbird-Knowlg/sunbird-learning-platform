@@ -367,6 +367,16 @@ public class SearchQueryGenerationUtil {
 								+ " | ['Search Nodes' Query Generation Failed.]");
 
 			searchCriteria.setGraphId(graphId);
+			Map<String, Object> params = searchCriteria.getParams();
+			String cypherQuery = searchCriteria.getQuery();
+			if (null != params && !params.isEmpty())
+				for (Entry<String, Object> entry : params.entrySet()) {
+					String value = "";
+					if (null != entry.getValue())
+						value = String.valueOf(entry.getValue());
+					cypherQuery = cypherQuery.replace("{" + entry.getKey() + "}", value);
+				}
+
 			query.append(searchCriteria.getQuery());
 		}
 
