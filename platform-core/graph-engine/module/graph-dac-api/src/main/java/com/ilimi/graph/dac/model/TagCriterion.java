@@ -46,8 +46,8 @@ public class TagCriterion implements Serializable {
         if (null != tags && tags.size() > 0) {
             String tagParam = "n" + sc.index;
             sc.index += 1;
-            sb.append(" WITH n ");
-            if (!StringUtils.equals("n", param))
+            sb.append(" WITH ee ");
+            if (!StringUtils.equals("ee", param))
                 sb.append(", ").append(param).append(", ");
             sb.append("MATCH ");
             if (optional)

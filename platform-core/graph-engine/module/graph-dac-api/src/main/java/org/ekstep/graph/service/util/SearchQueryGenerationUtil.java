@@ -1,7 +1,6 @@
 package org.ekstep.graph.service.util;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -339,8 +338,6 @@ public class SearchQueryGenerationUtil {
 			if (null == paramMap || paramMap.isEmpty())
 				throw new ClientException(DACErrorCodeConstants.INVALID_PARAMETER.name(),
 						DACErrorMessageConstants.INVALID_PARAM_MAP + " | ['Execute Query' Query Generation Failed.]");
-			for (Entry<String, Object> entry : parameterMap.entrySet())
-				cypherQuery = cypherQuery.replace("{{" + entry.getKey() + "}}", String.valueOf(entry.getValue()));
 			query.append(cypherQuery);
 
 		}
@@ -367,15 +364,7 @@ public class SearchQueryGenerationUtil {
 								+ " | ['Search Nodes' Query Generation Failed.]");
 
 			searchCriteria.setGraphId(graphId);
-			Map<String, Object> params = searchCriteria.getParams();
 			String cypherQuery = searchCriteria.getQuery();
-			if (null != params && !params.isEmpty())
-				for (Entry<String, Object> entry : params.entrySet()) {
-					String value = "";
-					if (null != entry.getValue())
-						value = String.valueOf(entry.getValue());
-					cypherQuery = cypherQuery.replace("{" + entry.getKey() + "}", "'" + value + "'");
-				}
 			query.append(cypherQuery);
 		}
 
@@ -399,7 +388,6 @@ public class SearchQueryGenerationUtil {
 				throw new ClientException(DACErrorCodeConstants.INVALID_CRITERIA.name(),
 						DACErrorMessageConstants.INVALID_SEARCH_CRITERIA
 								+ " | ['Nodes Count' Query Generation Failed.]");
-
 			searchCriteria.setGraphId(graphId);
 			query.append(searchCriteria.getQuery());
 		}

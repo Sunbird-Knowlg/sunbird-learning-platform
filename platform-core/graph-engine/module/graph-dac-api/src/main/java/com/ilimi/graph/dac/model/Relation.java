@@ -79,7 +79,7 @@ public class Relation implements Serializable {
 
 		org.neo4j.driver.v1.types.Node startNode = (org.neo4j.driver.v1.types.Node) startNodeMap
 				.get(relationship.startNodeId());
-		org.neo4j.driver.v1.types.Node endNode = (org.neo4j.driver.v1.types.Node) startNodeMap
+		org.neo4j.driver.v1.types.Node endNode = (org.neo4j.driver.v1.types.Node) endNodeMap
 				.get(relationship.endNodeId());
 		this.startNodeId = startNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
 		this.endNodeId = endNode.get(SystemProperties.IL_UNIQUE_ID.name()).asString();
@@ -119,13 +119,13 @@ public class Relation implements Serializable {
 
 	private String getName(org.neo4j.driver.v1.types.Node node) {
 		String name = node.get("name").asString();
-		if (StringUtils.isBlank(name)) {
+		if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name)) {
 			name = node.get("title").asString();
-			if (StringUtils.isBlank(name)) {
+			if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name)) {
 				name = node.get(SystemProperties.IL_TAG_NAME.name()).asString();
-				if (StringUtils.isBlank(name)) {
+				if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name)) {
 					name = node.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).asString();
-					if (StringUtils.isBlank(name))
+					if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name))
 						name = node.get(SystemProperties.IL_SYS_NODE_TYPE.name()).asString();
 				}
 			}

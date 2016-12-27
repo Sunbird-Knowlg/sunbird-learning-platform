@@ -17,6 +17,7 @@ public class QueryUtil {
 		String query = "";
 		try {
 			query = CypherUtil.getQuery(operation, parameterMap);
+			System.out.println(query);
 		} catch (Exception e) {
 			LOGGER.error("Error! While Generating the Query.", e);
 		}

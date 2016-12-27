@@ -167,7 +167,7 @@ public class RelationCriterion implements Serializable {
 
     public String getCypher(SearchCriteria sc, String prevParam) {
         StringBuilder sb = new StringBuilder();
-        sb.append("WITH n ");
+        sb.append("WITH ee ");
         if (StringUtils.isNotBlank(prevParam))
             sb.append(", ").append(prevParam).append(" ");
         if (optional)
@@ -178,7 +178,7 @@ public class RelationCriterion implements Serializable {
         if (StringUtils.isNotBlank(prevParam))
             sb.append(prevParam);
         else
-            sb.append("n");
+            sb.append("ee");
         sb.append(")");
         if (null != filters && !filters.isEmpty()) {
             for (int i=0; i<filters.size(); i++) {

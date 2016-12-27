@@ -77,8 +77,8 @@ public class Node implements Serializable {
 			}
 		}
 
-		if (null != relationMap && !relationMap.isEmpty() && null != startNodeMap && startNodeMap.isEmpty()
-				&& null != endNodeMap && endNodeMap.isEmpty()) {
+		if (null != relationMap && !relationMap.isEmpty() && null != startNodeMap && !startNodeMap.isEmpty()
+				&& null != endNodeMap && !endNodeMap.isEmpty()) {
 			this.inRelations = new ArrayList<Relation>();
 			this.outRelations = new ArrayList<Relation>();
 			this.tags = new ArrayList<String>();
@@ -93,7 +93,8 @@ public class Node implements Serializable {
 					Relation rel = new Relation(graphId, relationship, startNodeMap, endNodeMap);
 					if (!isTagRelation(rel))
 						this.inRelations.add(rel);
-					this.tags.add(rel.getStartNodeName());
+					else
+						this.tags.add(rel.getStartNodeName());
 				}
 			}
 		}
