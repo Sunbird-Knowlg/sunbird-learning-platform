@@ -374,10 +374,9 @@ public class SearchQueryGenerationUtil {
 					String value = "";
 					if (null != entry.getValue())
 						value = String.valueOf(entry.getValue());
-					cypherQuery = cypherQuery.replace("{" + entry.getKey() + "}", value);
+					cypherQuery = cypherQuery.replace("{" + entry.getKey() + "}", "'" + value + "'");
 				}
-
-			query.append(searchCriteria.getQuery());
+			query.append(cypherQuery);
 		}
 
 		LOGGER.info("Returning search Nodes Cypher Query: " + query);
