@@ -62,115 +62,115 @@ public class CypherUtil {
 				query = NodeQueryGenerationUtil.generateUpdateNodeCypherQuery(parameterMap);
 				break;
 			case "IMPORT_NODES":
-				query = NodeQueryGenerationUtil.generateUpdateNodeCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
 				break;
 			case "UPDATE_PROPERTY":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateUpdatePropertyValueCypherQuery(parameterMap);
 				break;
 			case "UPDATE_PROPERTIES":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateUpdatePropertyValuesCypherQuery(parameterMap);
 				break;
 			case "REMOVE_PROPERTY":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateRemovePropertyValueCypherQuery(parameterMap);
 				break;
 			case "REMOVE_PROPERTIES":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateRemovePropertyValuesCypherQuery(parameterMap);
 				break;
 			case "DELETE_NODE":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateDeleteNodeCypherQuery(parameterMap);
 				break;
 			case "UPSERT_ROOT_NODE":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = NodeQueryGenerationUtil.generateUpsertRootNodeCypherQuery(parameterMap);
 				break;
 			case "CREATE_UNIQUE_CONSTRAINT":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateUniqueConstraintCypherQuery(parameterMap);
 				break;
 			case "CREATE_INDEX":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateIndexCypherQuery(parameterMap);
 				break;
 			case "DELETE_GRAPH":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateDeleteGraphCypherQuery(parameterMap);
 				break;
 			case "CREATE_RELATION":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateRelationCypherQuery(parameterMap);
 				break;
 			case "UPDATE_RELATION":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateUpdateRelationCypherQuery(parameterMap);
 				break;
 			case "DELETE_RELATION":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateDeleteRelationCypherQuery(parameterMap);
 				break;
 			case "CREATE_INCOMING_RELATIONS":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateIncomingRelationCypherQuery(parameterMap);
 				break;
 			case "CREATE_OUTGOING_RELATIONS":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateOutgoingRelationCypherQuery(parameterMap);
 				break;
 			case "DELETE_INCOMING_RELATIONS":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateDeleteIncomingRelationCypherQuery(parameterMap);
 				break;
 			case "DELETE_OUTGOING_RELATIONS":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateDeleteOutgoingRelationCypherQuery(parameterMap);
 				break;
 			case "REMOVE_RELATION_METADATA":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateRemoveRelationMetadataCypherQuery(parameterMap);
 				break;
 			case "CREATE_COLLECTION":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateCreateCollectionCypherQuery(parameterMap);
 				break;
 			case "DELETE_COLLECTION":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateDeleteCollectionCypherQuery(parameterMap);
 				break;
 			case "IMPORT_GRAPH":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = GraphQueryGenerationUtil.generateImportGraphCypherQuery(parameterMap);
 				break;
 			case "GET_NODE_BY_ID":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetNodeByIdCypherQuery(parameterMap);
 				break;
 			case "GET_NODE_BY_UNIQUE_ID":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetNodeByUniqueIdCypherQuery(parameterMap);
 				break;
 			case "GET_NODES_BY_PROPERTY":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetNodesByPropertyCypherQuery(parameterMap);
 				break;
 			case "GET_NODES_BY_SEARCH_CRITERIA":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetNodeByUniqueIdsCypherQuery(parameterMap);
 				break;
 			case "GET_NODE_PROPERTY":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetNodePropertyCypherQuery(parameterMap);
 				break;
 			case "GET_ALL_NODES":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetAllNodesCypherQuery(parameterMap);
 				break;
 			case "GET_ALL_RELATIONS":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetAllRelationsCypherQuery(parameterMap);
 				break;
 			case "GET_RELATION_PROPERTY":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetRelationPropertyCypherQuery(parameterMap);
 				break;
 			case "GET_RELATION":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetRelationCypherQuery(parameterMap);
 				break;
 			case "CHECK_CYCLIC_LOOP":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateCheckCyclicLoopCypherQuery(parameterMap);
 				break;
 			case "EXECUTE_QUERY":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateExecuteQueryCypherQuery(parameterMap);
 				break;
 			case "SEARCH_NODES":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateSearchNodesCypherQuery(parameterMap);
 				break;
 			case "GET_NODES_COUNT":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetNodesCountCypherQuery(parameterMap);
 				break;
 			case "TRAVERSE":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateTraverseCypherQuery(parameterMap);
 				break;
 			case "TRAVERSE_SUB_GRAPH":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateTraverseSubGraphCypherQuery(parameterMap);
 				break;
 			case "GET_SUB_GRAPH":
-				query = NodeQueryGenerationUtil.generateImportNodesCypherQuery(parameterMap);
+				query = SearchQueryGenerationUtil.generateGetSubGraphCypherQuery(parameterMap);
 				break;
 
 			default:

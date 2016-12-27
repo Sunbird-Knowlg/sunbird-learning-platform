@@ -26,7 +26,8 @@ public enum DACErrorCodeConstants {
 	INVALID_CRITERIA(21, "Invalid Search Criteria."), 
 	INVALID_QUERY(22, "Invalid Query."), 
 	INVALID_TRAVERSER(23, "Invalid Traverser."),
-	INVALID_DEPTH(24, "Invalid Depth.");
+	INVALID_DEPTH(24, "Invalid Depth."), 
+	NOT_FOUND(25, "Object Not Found.");
 	
 	private final int code;
 	private final String description;

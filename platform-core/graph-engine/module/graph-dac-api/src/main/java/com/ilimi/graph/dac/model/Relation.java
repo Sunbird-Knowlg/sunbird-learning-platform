@@ -138,13 +138,11 @@ public class Relation implements Serializable {
 	}
 
 	private String getNodeType(Node node) {
-		String nodeType = (String) node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), null);
-		return nodeType;
+		return (String) node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), null);
 	}
 
 	private String getObjectType(Node node) {
-		String objectType = (String) node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), null);
-		return objectType;
+		return (String) node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), null);
 	}
 
 	private String getObjectType(org.neo4j.driver.v1.types.Node node) {

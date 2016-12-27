@@ -207,7 +207,7 @@ public class SearchCriteria implements Serializable {
                 sb.append("LIMIT ").append(resultSize).append(" ");
             }
         } else {
-            sb.append("RETURN count(ee) ");
+            sb.append("RETURN count(ee) as __count");
         }
         return sb.toString();
     }

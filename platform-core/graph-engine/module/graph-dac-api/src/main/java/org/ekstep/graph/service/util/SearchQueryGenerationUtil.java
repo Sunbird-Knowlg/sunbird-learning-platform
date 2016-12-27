@@ -149,14 +149,14 @@ public class SearchQueryGenerationUtil {
 								+ " | ['Get Node Property' Query Generation Failed.]");
 
 			query.append("MATCH (ee:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + nodeId
-					+ "'}) OPTIONAL MATCH (ee)-[r]-() RETURN ee." + key + "");
+					+ "'}) OPTIONAL MATCH (ee)-[r]-() RETURN ee." + key + " as " + key + "");
 		}
 
 		LOGGER.info("Returning Get Node Property Cypher Query: " + query);
 		return query.toString();
 	}
 
-	public static String generateAllNodesCypherQuery(Map<String, Object> parameterMap) {
+	public static String generateGetAllNodesCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
@@ -175,7 +175,7 @@ public class SearchQueryGenerationUtil {
 		return query.toString();
 	}
 
-	public static String generateAllRelationsCypherQuery(Map<String, Object> parameterMap) {
+	public static String generateGetAllRelationsCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
@@ -233,7 +233,7 @@ public class SearchQueryGenerationUtil {
 
 			query.append("MATCH (ee:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId
 					+ "'})-[r:" + relationType + "]-(aa:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name()
-					+ ": '" + endNodeId + "'}) RETURN r." + key + "");
+					+ ": '" + endNodeId + "'}) RETURN r." + key + " as " + key + "");
 		}
 
 		LOGGER.info("Returning Get Relation Property Cypher Query: " + query);
@@ -267,7 +267,7 @@ public class SearchQueryGenerationUtil {
 			if (StringUtils.isBlank(endNodeId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
 						DACErrorMessageConstants.INVALID_END_NODE_ID + " | ['Get Relation' Query Generation Failed.]");
-			
+
 			query.append("MATCH (ee:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId
 					+ "'})-[r:" + relationType + "]-(aa:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name()
 					+ ": '" + endNodeId + "'}) RETURN r");
@@ -308,6 +308,10 @@ public class SearchQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_END_NODE_ID
 								+ " | ['Check Cyclic Loop' Query Generation Failed.]");
 
+			query.append("MATCH (ee:" + graphId + " { " + SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId
+					+ "' })-[:" + relationType + "*1..]->(aa:" + graphId + "{" + SystemProperties.IL_UNIQUE_ID.name()
+					+ ": '" + endNodeId + "'}) RETURN aa");
+
 		}
 
 		LOGGER.info("Returning Check Cyclic Loop Cypher Query: " + query);
@@ -335,8 +339,8 @@ public class SearchQueryGenerationUtil {
 			if (null == paramMap || paramMap.isEmpty())
 				throw new ClientException(DACErrorCodeConstants.INVALID_PARAMETER.name(),
 						DACErrorMessageConstants.INVALID_PARAM_MAP + " | ['Execute Query' Query Generation Failed.]");
-			for (Entry<String, Object> entry: parameterMap.entrySet())
-				cypherQuery = cypherQuery.replace("{{"+ entry.getKey() +"}}", String.valueOf(entry.getValue()));
+			for (Entry<String, Object> entry : parameterMap.entrySet())
+				cypherQuery = cypherQuery.replace("{{" + entry.getKey() + "}}", String.valueOf(entry.getValue()));
 			query.append(cypherQuery);
 
 		}
@@ -370,7 +374,7 @@ public class SearchQueryGenerationUtil {
 		return query.toString();
 	}
 
-	public static String generateNodesCountCypherQuery(Map<String, Object> parameterMap) {
+	public static String generateGetNodesCountCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
@@ -439,7 +443,7 @@ public class SearchQueryGenerationUtil {
 		return query.toString();
 	}
 
-	public static String generateSubGraphCypherQuery(Map<String, Object> parameterMap) {
+	public static String generateGetSubGraphCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();

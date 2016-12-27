@@ -30,7 +30,13 @@ public class CypherQueryConfigurationConstants {
 
 	public final static String DASH = "-";
 
-	public final static String DEFAULT_CYPHER_RELATION_OBJECT = "rel";
+	public final static String DEFAULT_CYPHER_RELATION_OBJECT = "r";
+	
+	public final static String DEFAULT_CYPHER_START_NODE_OBJECT = "__startNode";
+	
+	public final static String DEFAULT_CYPHER_END_NODE_OBJECT = "__endNode";
+	
+	public final static String DEFAULT_CYPHER_COUNT_OBJECT = "__count";
 
 	public final static String OPEN_SQUARE_BRACKETS = "[";
 

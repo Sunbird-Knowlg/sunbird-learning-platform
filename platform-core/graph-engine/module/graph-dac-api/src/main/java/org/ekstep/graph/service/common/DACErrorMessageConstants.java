@@ -96,6 +96,12 @@ public class DACErrorMessageConstants {
 	
 	public static final String INVALID_DEPTH = "Error! Invalid Depth.";
 	
+	public static final String NODE_NOT_FOUND = "Error! Node(s) doesn't Exists.";
+	
+	public static final String NODE_OR_PROPERTY_NOT_FOUND = "Error! Node or Property doesn't Exists.";
+	
+	public static final String RELATION_OR_PROPERTY_NOT_FOUND = "Error! Relation or Property doesn't Exists.";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

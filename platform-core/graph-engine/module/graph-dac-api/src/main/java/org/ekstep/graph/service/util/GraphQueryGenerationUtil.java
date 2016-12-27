@@ -594,7 +594,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 		return query.toString();
 	}
 
-	public static String generateImportDataCypherQuery(Map<String, Object> parameterMap) {
+	public static String generateImportGraphCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
