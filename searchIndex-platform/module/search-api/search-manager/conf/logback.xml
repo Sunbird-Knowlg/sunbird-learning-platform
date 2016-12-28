@@ -8,10 +8,10 @@
 				
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/data/logs/play/application.log</file>
+		<file>/data/logs/search/application.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- Daily rollover with compression -->
-			<fileNamePattern>/data/logs/play/application-log-%d{yyyy-MM-dd}.gz
+			<fileNamePattern>/data/logs/search/application-log-%d{yyyy-MM-dd}.gz
 			</fileNamePattern>
 			<!-- keep 30 days worth of history -->
 			<maxHistory>30</maxHistory>
@@ -28,10 +28,10 @@
 
 	<appender name="ACCESS_LOG_FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/data/logs/play/access.log</file>
+		<file>/data/logs/search/access.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- Daily rollover with compression -->
-			<fileNamePattern>/data/logs/play/access-log-%d{yyyy-MM-dd}.gz
+			<fileNamePattern>/data/logs/search/access-log-%d{yyyy-MM-dd}.gz
 			</fileNamePattern>
 			<!-- keep 30 days worth of history -->
 			<maxHistory>30</maxHistory>

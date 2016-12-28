@@ -4,5 +4,9 @@
 
 #GET		/							@controllers.SearchController.index()
 
-POST    /search						@controllers.SearchController.search()
-POST    /count						@controllers.SearchController.count()
+POST    /v2/search						@controllers.SearchController.search()
+POST    /v3/search						@controllers.SearchController.search()
+POST    /v2/search/count				@controllers.SearchController.count()
+POST    /v3/count						@controllers.SearchController.count()
+POST    /v2/metrics						@controllers.MetricsController.search()
+POST    /v3/metrics						@controllers.MetricsController.search()

@@ -4,8 +4,8 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="SearchLogAppender" fileName="/data/logs/play/search.log"
-			filePattern="/data/logs/play/search-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="SearchLogAppender" fileName="/data/logs/search.log"
+			filePattern="/data/logs/search-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
 				</Pattern>
@@ -15,8 +15,17 @@
 					modulate="true" />
 			</Policies>
 		</RollingFile>
-		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/play/search_event.log"
-			filePattern="/data/logs/play/search_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingFile name="PerfLogAppender" fileName="/data/logs/search_perf.log"
+			filePattern="/data/logs/search_perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			<PatternLayout>
+				<Pattern>%d [%t] - %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+		</RollingFile>
+		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/search_event.log"
+			filePattern="/data/logs/search_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -28,6 +37,9 @@
 	<Loggers>
 		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="TelemetryEventAppender" />
+		</Logger>
+		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
+			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
 		<Root level="INFO">
 			<AppenderRef ref="SearchLogAppender" />
