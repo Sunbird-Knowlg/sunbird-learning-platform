@@ -2,10 +2,10 @@ package org.ekstep.kernel.extension;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.kernel.extension.common.TransactionEventHandlerParams;
 import org.neo4j.graphdb.event.TransactionData;
 import org.neo4j.graphdb.event.TransactionEventHandler;
 import org.neo4j.kernel.ha.HighlyAvailableGraphDatabase;
+import com.ilimi.graph.dac.util.ProcessTransactionData;
 
 
 @SuppressWarnings("rawtypes")
@@ -26,7 +26,7 @@ public class EkStepTransactionEventHandler implements TransactionEventHandler {
 			if (db.isMaster()) {
 				LOGGER.info("Processing the Transaction as I am the Master." + db.role());
 				ProcessTransactionData processTransactionData = new ProcessTransactionData(
-						TransactionEventHandlerParams.domain.name(), db);
+						"domain", db);
 				processTransactionData.processTxnData(transactionData);
 			}
 		} catch (Exception e) {

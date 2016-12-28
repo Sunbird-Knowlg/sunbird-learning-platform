@@ -103,7 +103,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.operationType.name(), GraphDACParams.CREATE.name());
 					map.put(GraphDACParams.label.name(), getLabel(node));
 					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
-					map.put(GraphDACParams.graphId.name(), getGraphId());
+					map.put(GraphDACParams.graphId.name(), getGraphId(node));
 					map.put(GraphDACParams.nodeGraphId.name(), nodeId);
 					map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
 					if (node.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
@@ -145,7 +145,7 @@ public class ProcessTransactionData {
 			        map.put(GraphDACParams.userId.name(), userId);
 			        map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
 			        map.put(GraphDACParams.label.name(), getLabel(node));
-			        map.put(GraphDACParams.graphId.name(), getGraphId());
+			        map.put(GraphDACParams.graphId.name(), getGraphId(node));
 			        map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 			        map.put(GraphDACParams.nodeGraphId.name(), nodeId);
 			        map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
@@ -185,7 +185,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.userId.name(), userId);
 					map.put(GraphDACParams.operationType.name(), GraphDACParams.DELETE.name());
 					map.put(GraphDACParams.label.name(), getLabel(removedNodeProp));
-					map.put(GraphDACParams.graphId.name(), getGraphId());
+					map.put(GraphDACParams.graphId.name(), getGraphId(data.removedLabels()));
 					map.put(GraphDACParams.nodeGraphId.name(), nodeId);
 					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 					map.put(GraphDACParams.nodeUniqueId.name(),
@@ -350,7 +350,7 @@ public class ProcessTransactionData {
 							map.put(GraphDACParams.userId.name(), userId);
 							map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
 							map.put(GraphDACParams.label.name(), getLabel(node));
-							map.put(GraphDACParams.graphId.name(), getGraphId());
+							map.put(GraphDACParams.graphId.name(), getGraphId(node));
 							map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 							map.put(GraphDACParams.nodeGraphId.name(), node.getId());
 							map.put(GraphDACParams.nodeUniqueId.name(),
@@ -402,7 +402,7 @@ public class ProcessTransactionData {
 							map.put(GraphDACParams.userId.name(), userId);
 							map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
 							map.put(GraphDACParams.label.name(), getLabel(node));
-							map.put(GraphDACParams.graphId.name(), getGraphId());
+							map.put(GraphDACParams.graphId.name(), getGraphId(node));
 							map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 							map.put(GraphDACParams.nodeGraphId.name(), node.getId());
 							map.put(GraphDACParams.nodeUniqueId.name(),
@@ -493,7 +493,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.userId.name(), userId);
 					map.put(GraphDACParams.operationType.name(), operationType);
 					map.put(GraphDACParams.label.name(), getLabel(startNode));
-					map.put(GraphDACParams.graphId.name(), getGraphId());
+					map.put(GraphDACParams.graphId.name(), getGraphId(startNode));
 					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
 					map.put(GraphDACParams.nodeGraphId.name(), startNode.getId());
 					map.put(GraphDACParams.nodeUniqueId.name(),
@@ -535,7 +535,7 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.userId.name(), userId);
 					map.put(GraphDACParams.operationType.name(), operationType);
 					map.put(GraphDACParams.label.name(), getLabel(endNode));
-					map.put(GraphDACParams.graphId.name(), getGraphId());
+					map.put(GraphDACParams.graphId.name(), getGraphId(endNode));
 					map.put(GraphDACParams.nodeGraphId.name(), endNode.getId());
 					map.put(GraphDACParams.nodeUniqueId.name(),
 							endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
