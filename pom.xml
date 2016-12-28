@@ -24,6 +24,7 @@
 		<module>language-platform</module>
 		<module>orchestrator</module>
 		<module>platform-config</module>
+		<module>platform-tools/kernel-extension</module>
 	</modules>
 
 	<dependencies>
