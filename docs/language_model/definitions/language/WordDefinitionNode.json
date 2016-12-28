@@ -314,16 +314,16 @@
           "dataType": "Select",
           "range":
           [
-              "adjective",
               "adjective satellite",
-              "pronoun",
-              "interjection",
-              "verb",
-              "preposition",
-              "noun",
+              "adjective",
               "adverb",
               "article",
               "conjunction"
+              "interjection",
+              "noun",
+              "preposition",
+              "pronoun",
+              "verb"
           ],
           "required": false,
           "indexed": true,
@@ -674,7 +674,13 @@
           "title": "Genders",
           "description": "",
           "category": "supportability",
-          "dataType": "List",
+          "dataType": "Select",
+          "range":
+          [
+              "neutral",
+              "male",
+              "female"
+          ],
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",
