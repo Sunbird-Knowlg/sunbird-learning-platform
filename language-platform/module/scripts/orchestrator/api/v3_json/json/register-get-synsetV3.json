@@ -11,8 +11,8 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/dictionary/synset/read/*/*",
-        "pathParams": ["language_id", "synset_id"]
+        "url": "/v3/list/synsets/",
+        "requestParams": ["language_id", "synset_id"]
     },
     "body": ""
 }

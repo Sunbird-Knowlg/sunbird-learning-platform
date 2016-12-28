@@ -7,8 +7,8 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/dictionary/varna/list/*",
-        "pathParams": ["language_id"]
+        "url": "/v3/list/varnas/",
+        "requestParams": ["language_id"]
     },
     "body": ""
 }

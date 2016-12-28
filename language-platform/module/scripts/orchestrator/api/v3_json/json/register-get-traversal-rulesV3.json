@@ -7,8 +7,8 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/traversals/list/*",
-        "pathParams": ["graph_id"]
+        "url": "/v3/list/traversals/",
+        "requestParams": ["graph_id"]
     },
     "body": ""
 }

@@ -12,8 +12,8 @@
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/private/dictionary/synset/create/*",
-        "pathParams": ["language_id"]
+        "url": "/v3/create/synsets/",
+        "requestParams": ["language_id"]
     },
     "body": ""
 }
