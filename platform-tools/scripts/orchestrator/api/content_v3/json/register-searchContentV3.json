@@ -14,5 +14,6 @@
         "url": "/v3/public/content/search"
     },
     "body": "",
-    "apiId": "ekstep.content.search"
+    "apiId": "ekstep.content.search",
+    "version": "3.0"
 }

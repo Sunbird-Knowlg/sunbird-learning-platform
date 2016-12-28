@@ -17,6 +17,7 @@ public class OrchestratorScript implements Serializable {
 	private String name;
 	@Field("api_id")
 	private String apiId;
+	private String version;
 	private String description;
 	private String body;
 	private String type;
@@ -116,5 +117,13 @@ public class OrchestratorScript implements Serializable {
     public void setAsync(Boolean async) {
         this.async = async;
     }
+
+	public String getVersion() {
+		return version;
+	}
+
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
 }

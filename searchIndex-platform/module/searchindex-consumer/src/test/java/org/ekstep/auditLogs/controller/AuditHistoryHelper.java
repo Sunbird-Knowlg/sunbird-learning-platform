@@ -12,8 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import com.ilimi.dac.impl.IAuditHistoryDataService;
+import com.ilimi.dac.impl.IAuditHistoryEsService;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -23,7 +22,7 @@ import com.ilimi.dac.impl.IAuditHistoryDataService;
 public class AuditHistoryHelper {
 	
 	@Autowired
-	IAuditHistoryDataService auditHistoryDataService;
+	IAuditHistoryEsService auditHistoryEsService;
 	private AuditHistoryMessageProcessor auditMessageProcessor = new AuditHistoryMessageProcessor();
 	final static String graphId = "test";
 

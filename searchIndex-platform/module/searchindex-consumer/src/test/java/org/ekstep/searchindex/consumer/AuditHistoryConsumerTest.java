@@ -22,32 +22,22 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.dac.enums.CommonDACParams;
-import com.ilimi.dac.impl.IAuditHistoryDataService;
+import com.ilimi.dac.impl.IAuditHistoryEsService;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-
-/** Test Cases For Audit History **/
 public class AuditHistoryConsumerTest {
 
 	@Autowired
-	IAuditHistoryDataService auditHistoryDataService;
+	IAuditHistoryEsService auditHistoryEsService;
+	
 	private AuditHistoryMessageProcessor auditMessageProcessor = new AuditHistoryMessageProcessor();
 	final static String graphId = "test";
 
 	@SuppressWarnings("unused")
 	private ObjectMapper mapper = new ObjectMapper();
-
-	static {
-		try {
-			ConsumerRunner.startConsumers();
-		} catch (Exception e) {
-			e.getLocalizedMessage();
-		}
-
-	}
 
 	final static Map<String, String> outRelationDefinition = new HashMap<>();
 	final static Map<String, Object> propertyDefinition = new HashMap<>();
@@ -94,7 +84,7 @@ public class AuditHistoryConsumerTest {
 			Request request = new Request();
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), nodeId1);
-			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request,versionId);
+			Response response = auditHistoryEsService.getAuditHistoryLogByObjectId(request,versionId);
 			Assert.assertNotNull("Node is not inserted into AuditLogs",
 					response.get(CommonDACParams.audit_history_record.name()));
 			Assert.assertFalse("Node is not inserted into AuditLogs",
@@ -115,7 +105,7 @@ public class AuditHistoryConsumerTest {
 			Request request = new Request();
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), nodeId1);
-			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request,versionId);
+			Response response = auditHistoryEsService.getAuditHistoryLogByObjectId(request,versionId);
 			Assert.assertNotNull("Node is not inserted into AuditLogs",
 					response.get(CommonDACParams.audit_history_record.name()));
 			Assert.assertFalse("Node is not inserted into AuditLogs",
@@ -136,7 +126,7 @@ public class AuditHistoryConsumerTest {
 			Request request = new Request();
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), nodeId1);
-			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request,versionId);
+			Response response = auditHistoryEsService.getAuditHistoryLogByObjectId(request,versionId);
 			Assert.assertNotNull("Node is not inserted into AuditLogs",
 					response.get(CommonDACParams.audit_history_record.name()));
 			Assert.assertFalse("Node is not inserted into AuditLogs",
@@ -158,7 +148,7 @@ public class AuditHistoryConsumerTest {
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), nodeId2);
 
-			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request,versionId);
+			Response response = auditHistoryEsService.getAuditHistoryLogByObjectId(request,versionId);
 			Assert.assertNotNull("Node is not inserted into AuditLogs",
 					response.get(CommonDACParams.audit_history_record.name()));
 			Assert.assertFalse("Node is not inserted into AuditLogs",
@@ -179,7 +169,7 @@ public class AuditHistoryConsumerTest {
 			Request request = new Request();
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), nodeId1);
-			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request,versionId);
+			Response response = auditHistoryEsService.getAuditHistoryLogByObjectId(request,versionId);
 			Assert.assertNotNull("Node is not inserted into AuditLogs",
 					response.get(CommonDACParams.audit_history_record.name()));
 			Assert.assertFalse("Node is not inserted into AuditLogs",
@@ -209,7 +199,7 @@ public class AuditHistoryConsumerTest {
 			Request request = new Request();
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), nodeId1);
-			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request,versionId);
+			Response response = auditHistoryEsService.getAuditHistoryLogByObjectId(request,versionId);
 
 			Assert.assertNotNull("Node is not inserted into AuditLogs",
 					response.get(CommonDACParams.audit_history_record.name()));
@@ -238,7 +228,7 @@ public class AuditHistoryConsumerTest {
 			Request request = new Request();
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), nodeId1);
-			Response response = auditHistoryDataService.getAuditHistoryLogByObjectId(request,versionId);
+			Response response = auditHistoryEsService.getAuditHistoryLogByObjectId(request,versionId);
 
 			Assert.assertNotNull("Node is not inserted into AuditLogs",
 					response.get(CommonDACParams.audit_history_record.name()));

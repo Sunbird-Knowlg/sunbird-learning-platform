@@ -61,5 +61,6 @@
         "url": "/v3/public/language/search"
     },
     "body": "",
-    "apiId": "ekstep.languauge.search"
+    "apiId": "ekstep.languauge.search",
+    "version": "3.0"
 }

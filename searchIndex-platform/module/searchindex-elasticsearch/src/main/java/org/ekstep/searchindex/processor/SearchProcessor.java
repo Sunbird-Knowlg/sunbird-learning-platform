@@ -14,6 +14,7 @@ import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import io.searchbox.core.CountResult;
@@ -25,6 +26,7 @@ public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
+	private static LogHelper LOGGER = LogHelper.getInstance(SearchProcessor.class.getName());
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
@@ -33,7 +35,6 @@ public class SearchProcessor {
 
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-
 		if (includeResults) {
 			if (searchDTO.isFuzzySearch()) {
 				List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
@@ -70,7 +71,7 @@ public class SearchProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	public Map<String, Object> multiWordDocSearch(List<String> synsetIds) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		Map<String, Object> translations = new HashMap<String, Object>();
@@ -134,7 +135,6 @@ public class SearchProcessor {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> multiSynsetDocSearch(List<String> synsetIds) throws Exception {
 		Map<String, Object> synsetDocList = new HashMap<String, Object>();
 		List<String> identifierList = new ArrayList<String>();
@@ -806,5 +806,29 @@ public class SearchProcessor {
 			builder.endArray();
 		}
 		builder.key("lenient").value(true).endObject();
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index) throws Exception {
+		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+		List<Object> response = new ArrayList<Object>();
+		Map<String, Object> res_map = new HashMap<String,Object>();
+		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
+		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		LOGGER.info("AuditHistory search query: " + query);
+		SearchResult searchResult = elasticSearchUtil.search(index, query);
+		Map<String,Object> result_map = (Map) searchResult.getValue("hits");
+		List<Map<String,Object>> result = (List) result_map.get("hits");
+		for(Map<String,Object> map : result){
+			 for (Map.Entry<String, Object> entry : map.entrySet()) {
+				 if(entry.getKey().equals("_source")){
+					  res_map = (Map) entry.getValue();
+					  response.add(res_map);
+				 }
+				 
+			 }
+		}
+		LOGGER.info("AuditHistory search response size: " + response.size());
+		return response;
 	}
 }

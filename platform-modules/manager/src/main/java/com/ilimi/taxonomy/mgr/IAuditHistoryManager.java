@@ -85,4 +85,6 @@ public interface IAuditHistoryManager {
 	 */
 	Response getAuditLogRecordById(String objectId, String timestamp);
 
+	Response deleteAuditHistory(String timeStamp);
+
 }

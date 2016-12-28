@@ -15,41 +15,42 @@
 		"code": {"col-def": {"column" : 0}},
 		"conceptIds": {"col-def": {"column" : 1, "type": "list"}},
 		"title": {"col-def": {"column" : 2}},
-		"question": {"col-def": {"column" : 3}},
+		"description": {"col-def": {"column" : 3}},
+		"question": {"col-def": {"column" : 4}},
 
-		"question_image": {"col-def": {"column" : 4}},
-	    "question_audio": {"col-def": {"column" : 5}},
-    	"question_count": {"col-def": {"column" : 6, "type": "number"}},
+		"question_image": {"col-def": {"column" : 5}},
+	    "question_audio": {"col-def": {"column" : 6}},
+    	"question_count": {"col-def": {"column" : 7, "type": "number"}},
 
-    	"domain": {"col-def": {"column" : 7}},
-    	"language": {"col-def": {"column" : 8}},
+    	"domain": {"col-def": {"column" : 8}},
+    	"language": {"col-def": {"column" : 9}},
 
-		"gradeLevel": {"col-def": {"column" : 9}},
-		"qlevel": {"col-def": {"column" : 10}},
-		"keywords": {"col-def": {"column" : 11, "type": "list"}},
+		"gradeLevel": {"col-def": {"column" : 10}},
+		"qlevel": {"col-def": {"column" : 11}},
+		"keywords": {"col-def": {"column" : 12, "type": "list"}},
 
 		"media": [
 			{
-	        	"id": {"col-def": {"column" : 4, "type": "string"}},
+	        	"id": {"col-def": {"column" : 5, "type": "string"}},
 	        	"type": {"literal": "image"},
-	        	"asset_id": {"col-def": {"column" : 4, "type": "string"}}
+	        	"asset_id": {"col-def": {"column" : 5, "type": "string"}}
 	    	},
 	    	{
-	        	"id": {"col-def": {"column" : 5, "type": "string"}},
+	        	"id": {"col-def": {"column" : 6, "type": "string"}},
 	        	"type": {"literal": "audio"},
-	        	"asset_id": {"col-def": {"column" : 5, "type": "string"}}
+	        	"asset_id": {"col-def": {"column" : 6, "type": "string"}}
 	    	}
 	    ],
 
-		"answers": {"col-def": {"column" : 12, "type": "list"}},
+		"answers": {"col-def": {"column" : 13, "type": "list"}},
 
-		"template": {"col-def": {"column" : 13}},
-    	"template_id": {"col-def": {"column" : 14}},
+		"template": {"col-def": {"column" : 14}},
+    	"template_id": {"col-def": {"column" : 15}},
 
 		"model": {
-			"param1": {"col-def": {"column" : 15, "type": "string"}},
-			"param2": {"col-def": {"column" : 16, "type": "string"}}
+			"param1": {"col-def": {"column" : 16, "type": "string"}},
+			"param2": {"col-def": {"column" : 17, "type": "string"}}
 		},
-		"start":17
+		"start":18
 	}
 }

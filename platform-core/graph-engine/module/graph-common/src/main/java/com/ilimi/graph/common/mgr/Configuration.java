@@ -43,6 +43,14 @@ public class Configuration {
         }
     }
     
+    /**
+	 * @params key to get Property
+	 * @return the property
+	 */
+	public static String getProperty(String key) {
+		return props.getProperty(key);
+	}
+    
     public static void registerNewGraph(String graphId){
     	graphIds.add(graphId);
     }

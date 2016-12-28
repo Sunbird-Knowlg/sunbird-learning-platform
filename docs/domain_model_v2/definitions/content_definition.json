@@ -771,13 +771,38 @@
             "Asset",
             "Template",
             "Plugin",
-			"ContentTemplate",
-			"ItemTemplate"
+			      "ContentTemplate",
+			      "ItemTemplate"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Multi-Select",
+          "propertyName": "category",
+          "title": "Category",
+          "description": "Supported Operating Systems",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "core",
+            "learning",
+            "literacy",
+            "math",
+            "science",
+            "time",
+            "wordnet",
+            "game",
+            "mcq",
+            "mtf",
+            "ftb"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
+          "indexed": true
         },
         {
           "required": false,
@@ -1162,7 +1187,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "external",
           "propertyName": "body",
           "title": "Body",
           "description": "",
@@ -1175,7 +1200,21 @@
         },
         {
           "required": false,
-          "dataType": "external",
+          "dataType": "Text",
+          "propertyName": "stageIcons",
+          "title": "Stage Thumbnail",
+          "description": "",
+          "category": "Authoring",
+          "displayProperty": "Hidden",
+          "range": null,
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+          "indexed": false,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
           "propertyName": "editorState",
           "title": "Editor State",
           "description": "",

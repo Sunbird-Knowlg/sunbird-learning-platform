@@ -50,7 +50,7 @@ public class AuditHistoryV2ControllerTest {
 	public void getAllAuditLogs() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v2/audit/" + graphId + "/all?start=2016-05-26T13:00:00";
+		String path = "/v2/audit/" + graphId + "/all?start=2016-12-19T15:47:51";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -121,7 +121,7 @@ public class AuditHistoryV2ControllerTest {
 	public void getAuditLogsByValidObjectType() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v2/audit/test/" + objectType + "?start=2016-05-26T13:00:00";
+		String path = "/v2/audit/test/" + objectType + "?start=2016-12-12T13:00:00";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());

@@ -3,7 +3,7 @@ var readLine = require('readline');
 var Client = require('node-rest-client').Client;
 var client = new Client();
 //var host = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
-//var host = "http://localhost:9090/language-service";
+//var host = "http://54.254.232.2:8080/language-service";
 // PROD
 //var host = "https://api.ekstep.in/language";
 // DEV

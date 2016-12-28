@@ -22,7 +22,7 @@ public class Slug {
     private static final Pattern DUPDASH = Pattern.compile("-+");
 
     public static void main(String[] args) {
-        System.out.println(makeSlug("Cover+Image.png", true));
+        System.out.println(makeSlug("Cov-e*r+I/ma.ge.png", true));
     }
 
     public static File createSlugFile(File f) {
@@ -83,10 +83,11 @@ public class Slug {
         if (input.length() == 0)
             throw new IllegalArgumentException("Failed to cleanup the input " + origInput);
         // Check if we are not left with a blank file name or extension
-        if (input.startsWith("."))
-            throw new IllegalArgumentException("Failed to cleanup the file name " + origInput);
-        if (input.endsWith("."))
-            throw new IllegalArgumentException("Failed to cleanup the file extension " + origInput);
+        // #686 - remove the validation check for names starting and ending with "."
+//        if (input.startsWith("."))
+//            throw new IllegalArgumentException("Failed to cleanup the file name " + origInput);
+//        if (input.endsWith("."))
+//            throw new IllegalArgumentException("Failed to cleanup the file extension " + origInput);
     }
 
     public static String transliterate(String input) {

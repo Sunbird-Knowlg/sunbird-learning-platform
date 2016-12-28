@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
+import com.ilimi.graph.common.DateUtils;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 import com.ilimi.util.ApplicationContextUtils;
 
@@ -89,7 +90,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	 * @param transactionDataMap
 	 *        The Neo4j TransactionDataMap
 	 *        
-	 * @return AuditHistoryRecord that can be saved to mysql DB
+	 * @return AuditHistoryRecord that can be saved to elastic search DB
 	 */
 	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) {
 		AuditHistoryRecord record = new AuditHistoryRecord();
@@ -106,7 +107,9 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			record.setLogRecord(transactionDataStr);
 			String summary = setSummaryData(transactionDataMap);
 			record.setSummary(summary);
-			record.setCreatedOn(new Date());
+			String createdOn = (String) transactionDataMap.get("createdOn");
+			Date date = DateUtils.parse(createdOn);
+			record.setCreatedOn(null == date ? new Date() : date);
 		} catch (Exception e) {
 			LOGGER.error("Error while setting the transactionData to mysql db" + e.getMessage(), e);
 			e.printStackTrace();

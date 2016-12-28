@@ -311,8 +311,20 @@
           "title": "POS (Parts of Speech)",
           "description": "",
           "category": "grammar",
-          "dataType": "List",
-          "range": [],
+          "dataType": "Select",
+          "range":
+          [
+              "adjective",
+              "adjective satellite",
+              "pronoun",
+              "interjection",
+              "verb",
+              "preposition",
+              "noun",
+              "adverb",
+              "article",
+              "conjunction"
+          ],
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",
@@ -502,7 +514,7 @@
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Draft",
+            "defaultValue": "Live",
             "renderingHints": "{'inputType': 'select', 'order': 27}"
         },
         {

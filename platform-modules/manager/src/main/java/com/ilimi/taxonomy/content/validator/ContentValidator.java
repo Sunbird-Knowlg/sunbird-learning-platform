@@ -260,6 +260,10 @@ public class ContentValidator {
 				case "application/vnd.ekstep.content-collection":
 					isValid = true;
 					break;
+					
+				case "application/vnd.ekstep.plugin-archive":
+					isValid = true;
+					break;
 
 				case "assets":
 					isValid = true;

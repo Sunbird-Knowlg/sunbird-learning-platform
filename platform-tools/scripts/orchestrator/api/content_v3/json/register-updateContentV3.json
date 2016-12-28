@@ -22,5 +22,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.content.update"
+    "apiId": "ekstep.content.update",
+    "version": "3.0"
 }

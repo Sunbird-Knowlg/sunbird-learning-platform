@@ -8,20 +8,19 @@ mysql_db_url: "lp-sandbox-db.cm8jepwsnit8.ap-southeast-1.rds.amazonaws.com:3306"
 mysql_db_schema: lpdevdb
 mysql_db_username: lpsandboxdb
 mysql_db_password: lp5andb0x
-mysql_db_schema: lpdevdb
 iwn_db_schema: indowordnet_dump
 search_index_host: 172.31.8.5
 search_index_port: 9200
 environment_id: 10000000
 language_index_host: 172.31.8.5
 language_index_port: 9200
-mongo_host: 127.0.0.1
+mongo_host: 172.31.31.183
 mongo_port: 27017
 tomcat_init_mem: -Xms1024m 
 tomcat_max_mem: -Xmx4096m
 tomcat_init_search: -Xms1024m 
 tomcat_max_search: -Xmx4096m
-graphevent_kafka_url: "172.31.1.92:9092"
+graphevent_kafka_url: "172.31.1.92:9092,172.31.10.1:9092,172.31.5.125:9092"
 graphevent_kafka_topic_id: "sandbox.learning.graph.events"
 content_to_vec_url: http://172.31.25.29:9000/content-to-vec
 s3_config_environment: dev
@@ -31,6 +30,7 @@ redis_host: 172.31.31.183
 redis_port: 6379
 cassandra_host: 172.31.25.29
 cassandra_port: 9042
+graph_passport_key: 539fc84aea34f403aeb0c8b8e8f9fb14
 
 
 to_learning: 172.31.31.183
