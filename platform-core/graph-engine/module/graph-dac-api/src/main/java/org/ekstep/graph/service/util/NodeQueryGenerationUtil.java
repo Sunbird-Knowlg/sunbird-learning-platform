@@ -1,5 +1,6 @@
 package org.ekstep.graph.service.util;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -152,19 +153,26 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 		if (null != parameterMap) {
 			LOGGER.info("Fetching the Parameters From Parameter Map");
 			List<Node> nodes = (List<Node>) parameterMap.get(GraphDACParams.nodes.name());
-			if (null == nodes || nodes.size() > 0)
+			if (null == nodes || nodes.size() <= 0)
 				throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 						DACErrorMessageConstants.INVALID_NODE_LIST + " | [Import Nodes Query Generation Failed.]");
 
 			String date = DateUtils.formatCurrentDate();
 			LOGGER.info("Date: " + date);
 
-			int index = 0;
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+
+			int index = 1;
 			for (Node node : nodes) {
-				String objPrefix = getString(index++);
+				String objPrefix = getString(index);
+				StringBuilder templateQuery = new StringBuilder();
+				Map<String, Object> templateQueryMap = new HashMap<String, Object>();
+				Map<String, Object> templateParamValueMap = new HashMap<String, Object>();
 				// Sample: CREATE (ee:Person { name: "Emil", from: "Sweden",
 				// klout:99 })
-				query.append(GraphDACParams.CREATE.name()).append(objPrefix).append(node.getGraphId())
+				query.append(GraphDACParams.CREATE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+						.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS)
+						.append(objPrefix + CypherQueryConfigurationConstants.COLON).append(node.getGraphId())
 						.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
 						.append(getPropertyObjectAttributeString(node)).append(CypherQueryConfigurationConstants.COMMA)
 						.append(getSystemPropertyString(node, date)).append(CypherQueryConfigurationConstants.COMMA)
@@ -177,9 +185,36 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 				// Return Node
 				query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
-						.append(CypherQueryConfigurationConstants.BLANK_SPACE)
-						.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(objPrefix);
+
+				// Template Query
+				Map<String, Object> mpMap = getMetadataCypherQueryMap(node);
+				Map<String, Object> spMap = getSystemPropertyQueryMap(node, date);
+				Map<String, Object> apMap = getAuditPropertyQueryMap(node, date, false);
+				Map<String, Object> vpMap = getVersionKeyPropertyQueryMap(node, date, false);
+				templateQuery.append(GraphDACParams.CREATE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+						.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS)
+						.append(objPrefix + CypherQueryConfigurationConstants.COLON).append(node.getGraphId())
+						.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
+						.append(mpMap.get(GraphDACParams.query.name())).append(CypherQueryConfigurationConstants.COMMA)
+						.append(spMap.get(GraphDACParams.query.name())).append(CypherQueryConfigurationConstants.COMMA)
+						.append(apMap.get(GraphDACParams.query.name())).append(CypherQueryConfigurationConstants.COMMA)
+						.append(vpMap.get(GraphDACParams.query.name()))
+						.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
+						.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(objPrefix);
+				templateParamValueMap.putAll((Map<String, Object>) mpMap.get(GraphDACParams.paramValueMap.name()));
+				templateParamValueMap.putAll((Map<String, Object>) spMap.get(GraphDACParams.paramValueMap.name()));
+				templateParamValueMap.putAll((Map<String, Object>) apMap.get(GraphDACParams.paramValueMap.name()));
+				templateParamValueMap.putAll((Map<String, Object>) vpMap.get(GraphDACParams.paramValueMap.name()));
+
+				templateQueryMap.put(GraphDACParams.query.name(), templateQuery.toString());
+				templateQueryMap.put(GraphDACParams.paramValueMap.name(), templateParamValueMap);
+
+				queryMap.put(node.getIdentifier(), templateQueryMap);
 			}
+			parameterMap.put(GraphDACParams.queryStatementMap.name(), queryMap);
 		}
 
 		LOGGER.info("Returning Create Node Cypher Query: " + query);

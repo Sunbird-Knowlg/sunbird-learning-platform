@@ -3,6 +3,10 @@ package org.ekstep.graph.service.util;
 import static java.lang.Math.floor;
 import static java.lang.Math.log;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,7 +55,7 @@ public class BaseQueryGenerationUtil {
 			// Sample: name: "Emil", from: "Sweden", klout:99
 			for (Entry<String, Object> entry : node.getMetadata().entrySet())
 				query.append(entry.getKey()).append(CypherQueryConfigurationConstants.COLON)
-						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(entry.getValue())
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(getStringValue(entry.getValue()))
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 						.append(CypherQueryConfigurationConstants.COMMA);
 		}
@@ -59,6 +63,32 @@ public class BaseQueryGenerationUtil {
 
 		LOGGER.info("Returning Property Object Attribute String: " + query.toString());
 		return query.toString();
+	}
+
+	protected static Map<String, Object> getMetadataCypherQueryMap(Node node) {
+		LOGGER.debug("Graph Engine Node: ", node);
+
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		StringBuilder query = new StringBuilder();
+		if (null != node && null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+			// Sample: name: "Emil", from: "Sweden", klout:99
+			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
+			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+				query.append(entry.getKey() + ": { MD_" + entry.getKey() + " }, ");
+				
+				LOGGER.info("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+
+				// Populating Param Map
+				paramValuesMap.put("{ MD_" + entry.getKey() + " }", entry.getValue());
+				LOGGER.info("Populating ParamMap:", paramValuesMap);
+			}
+			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
+			queryMap.put(GraphDACParams.query.name(),
+					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
+		}
+
+		LOGGER.info("Returning Property Object Attribute String: " + query.toString());
+		return queryMap;
 	}
 
 	protected static String getSystemPropertyString(Node node, String date) {
@@ -93,6 +123,41 @@ public class BaseQueryGenerationUtil {
 		return query.toString();
 	}
 
+	protected static Map<String, Object> getSystemPropertyQueryMap(Node node, String date) {
+		LOGGER.debug("Graph Engine Node: ", node);
+
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		StringBuilder query = new StringBuilder();
+		if (null != node && StringUtils.isNotBlank(date)) {
+			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
+			if (StringUtils.isBlank(node.getIdentifier()))
+				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
+
+			// Adding 'IL_UNIQUE_ID' Property
+			query.append(
+					SystemProperties.IL_UNIQUE_ID.name() + ":  { SP_" + SystemProperties.IL_UNIQUE_ID.name() + " }, ");
+			paramValuesMap.put("{ SP_" + SystemProperties.IL_UNIQUE_ID.name() + " }", node.getIdentifier());
+
+			// Adding 'IL_SYS_NODE_TYPE' Property
+			query.append(SystemProperties.IL_SYS_NODE_TYPE.name() + ":  { SP_"
+					+ SystemProperties.IL_SYS_NODE_TYPE.name() + " }, ");
+			paramValuesMap.put("{ SP_" + SystemProperties.IL_SYS_NODE_TYPE.name() + " }", node.getIdentifier());
+
+			// Adding 'IL_FUNC_OBJECT_TYPE' Property
+			if (StringUtils.isNotBlank(node.getObjectType())) {
+				query.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name() + ":  { SP_"
+						+ SystemProperties.IL_FUNC_OBJECT_TYPE.name() + " }");
+				paramValuesMap.put("{ SP_" + SystemProperties.IL_FUNC_OBJECT_TYPE.name() + " }", node.getIdentifier());
+			}
+
+			queryMap.put(GraphDACParams.query.name(), query.toString());
+			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
+		}
+
+		LOGGER.info("Returning System Property String: " + query.toString());
+		return queryMap;
+	}
+
 	protected static String getAuditPropertyString(Node node, String date, boolean isUpdateOnly) {
 		LOGGER.debug("Graph Engine Node: ", node);
 
@@ -115,6 +180,31 @@ public class BaseQueryGenerationUtil {
 		return query.toString();
 	}
 
+	protected static Map<String, Object> getAuditPropertyQueryMap(Node node, String date, boolean isUpdateOnly) {
+		LOGGER.debug("Graph Engine Node: ", node);
+
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		StringBuilder query = new StringBuilder();
+		if (null != node && StringUtils.isNotBlank(date)) {
+			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
+			// Adding 'createdOn' Property
+			if (BooleanUtils.isFalse(isUpdateOnly))
+				query.append(AuditProperties.createdOn.name() + ":  { AP_" + AuditProperties.createdOn.name() + " }, ");
+			paramValuesMap.put("{ AP_" + AuditProperties.createdOn.name() + " }", date);
+
+			// Adding 'lastUpdatedOn' Property
+			query.append(
+					AuditProperties.lastUpdatedOn.name() + ":  { AP_" + AuditProperties.lastUpdatedOn.name() + " }");
+			paramValuesMap.put("{ AP_" + AuditProperties.lastUpdatedOn.name() + " }", date);
+
+			queryMap.put(GraphDACParams.query.name(), query.toString());
+			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
+		}
+
+		LOGGER.info("Returning Audit Property Query Map: ", queryMap);
+		return queryMap;
+	}
+
 	protected static String getVersionKeyPropertyString(Node node, String date, boolean isUpdateOnly) {
 		LOGGER.debug("Graph Engine Node: ", node);
 		StringBuilder query = new StringBuilder();
@@ -130,6 +220,24 @@ public class BaseQueryGenerationUtil {
 		return query.toString();
 	}
 
+	protected static Map<String, Object> getVersionKeyPropertyQueryMap(Node node, String date, boolean isUpdateOnly) {
+		LOGGER.debug("Graph Engine Node: ", node);
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		StringBuilder query = new StringBuilder();
+		if (null != node && StringUtils.isNotBlank(date)) {
+			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
+			// Adding 'versionKey' Property
+			query.append(GraphDACParams.versionKey.name() + ":  { VP_" + GraphDACParams.versionKey.name() + " }");
+			paramValuesMap.put("{ VP_" + GraphDACParams.versionKey.name() + " }", date);
+
+			queryMap.put(GraphDACParams.query.name(), query.toString());
+			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
+		}
+
+		LOGGER.info("Returning 'versionKey' Property Query Map: ", queryMap);
+		return queryMap;
+	}
+
 	protected static String getOnCreateSetString(String objectVariableName, String date, Node node) {
 		LOGGER.debug("Cypher Query Node Object Variable Name: ", objectVariableName);
 		LOGGER.debug("Date: ", date);
@@ -137,6 +245,10 @@ public class BaseQueryGenerationUtil {
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
+			if (StringUtils.isBlank(node.getIdentifier()))
+				node.getMetadata().put(SystemProperties.IL_UNIQUE_ID.name(),
+						Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
+
 			// Adding Clause 'ON MATCH SET'
 			query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
@@ -145,7 +257,8 @@ public class BaseQueryGenerationUtil {
 			// Adding 'IL_UNIQUE_ID' Property
 			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
 					.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS)
-					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getIdentifier())
+					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+					.append(node.getMetadata().get(SystemProperties.IL_UNIQUE_ID.name()))
 					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 					.append(CypherQueryConfigurationConstants.COMMA);
 
@@ -260,6 +373,18 @@ public class BaseQueryGenerationUtil {
 		return queryPart.toString();
 	}
 
+	protected static String getStringValue(Object object) {
+		String str = "";
+		if (null != object) {
+			if (object.getClass().isArray()) {
+				str = Arrays.toString((String[]) object);
+			} else {
+				str = String.valueOf(object);
+			}
+		}
+		return str;
+	}
+
 	protected static String getString(int n) {
 		char[] buf = new char[(int) floor(log(25 * (n + 1)) / log(26))];
 		for (int i = buf.length - 1; i >= 0; i--) {
@@ -268,5 +393,23 @@ public class BaseQueryGenerationUtil {
 			n /= 26;
 		}
 		return new String(buf);
+	}
+
+	@SuppressWarnings("unused")
+	private static String mapToString(Map<String, Object> map) {
+		StringBuilder stringBuilder = new StringBuilder();
+
+		for (String key : map.keySet()) {
+			String value = getStringValue(map.get(key));
+			try {
+				stringBuilder.append((key != null ? URLEncoder.encode(key, "UTF-8") : ""));
+				stringBuilder.append(":");
+				stringBuilder.append(value != null ? URLEncoder.encode(value, "UTF-8") : "");
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException("This method requires UTF-8 encoding support", e);
+			}
+		}
+
+		return stringBuilder.toString();
 	}
 }

@@ -3,10 +3,12 @@ package org.ekstep.graph.service.operation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.Neo4JOperation;
@@ -17,10 +19,10 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.exceptions.ClientException;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.AuditProperties;
@@ -163,6 +165,7 @@ public class Neo4JBoltNodeOperations {
 		return node;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void importNodes(String graphId, List<com.ilimi.graph.dac.model.Node> nodes, Request request) {
 		LOGGER.debug("Graph Id: ", graphId);
 		LOGGER.debug("Graph Engine Node List: ", nodes);
@@ -187,9 +190,17 @@ public class Neo4JBoltNodeOperations {
 				parameterMap.put(GraphDACParams.nodes.name(), nodes);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
-				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.IMPORT_NODES, parameterMap));
-				for (Record record : result.list()) {
-					LOGGER.debug("Import Nodes Operation | ", record);
+				QueryUtil.getQuery(Neo4JOperation.IMPORT_NODES, parameterMap);
+
+				Map<String, Object> queryMap = (Map<String, Object>) parameterMap
+						.get(GraphDACParams.queryStatementMap.name());
+				for (Entry<String, Object> entry : queryMap.entrySet()) {
+					String statementTemplate = StringUtils.removeEnd((String) ((Map<String, Object>) entry.getValue()).get(GraphDACParams.query.name()), CypherQueryConfigurationConstants.COMMA);
+					Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry.getValue()).get(GraphDACParams.paramValueMap.name());
+					StatementResult result = session.run(statementTemplate, statementParameters);
+					while(result.hasNext()) {
+						LOGGER.debug("Import Nodes Operation | ", result.next());
+					}
 				}
 			}
 		}
@@ -390,14 +401,15 @@ public class Neo4JBoltNodeOperations {
 			LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
 				LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
-				
+
 				// Generating Root Node Id
 				String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
 				LOGGER.info("Generated Root Node Id: " + rootNodeUniqueId);
-				
+
 				LOGGER.info("Adding Metadata to Node.");
 				node.setGraphId(graphId);
-				node.setNodeType(SystemNodeTypes.ROOT_NODE.name());;
+				node.setNodeType(SystemNodeTypes.ROOT_NODE.name());
+				;
 				node.setIdentifier(rootNodeUniqueId);
 				node.getMetadata().put(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
 				node.getMetadata().put(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
@@ -417,7 +429,7 @@ public class Neo4JBoltNodeOperations {
 					LOGGER.debug("Upsert Root Node Operation | ", record);
 			}
 		}
-		
+
 		return node;
 	}
 
