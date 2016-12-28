@@ -50,7 +50,7 @@ public class AuditHistoryControllerTest {
 	public void getAllAuditLogs() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/audit/" + graphId + "/all?start=2016-05-26T13:00:00";
+		String path = "/v1/audit/" + graphId + "/all?start=2016-12-10T13:00:00";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());

@@ -15,62 +15,63 @@
 		"code": {"col-def": {"column" : 0}},
 		"conceptIds": {"col-def": {"column" : 1, "type": "list"}},
 		"title": {"col-def": {"column" : 2}},
-		"question": {"col-def": {"column" : 3}},
+		"description": {"col-def": {"column": 3}},
+		"question": {"col-def": {"column" : 4}},
 
-		"question_image": {"col-def": {"column" : 4}},
-	    "question_audio": {"col-def": {"column" : 5}},
-    	"image_count": {"col-def": {"column" : 6, "type": "number"}},
+		"question_image": {"col-def": {"column" : 5}},
+	    "question_audio": {"col-def": {"column" : 6}},
+    	"image_count": {"col-def": {"column" : 7, "type": "number"}},
 
-    	"domain": {"col-def": {"column" : 7}},
-    	"language": {"col-def": {"column" : 8}},
+    	"domain": {"col-def": {"column" : 8}},
+    	"language": {"col-def": {"column" : 9}},
 
-		"gradeLevel": {"col-def": {"column" : 9}},
-		"qlevel": {"col-def": {"column" : 10}},
-		"keywords": {"col-def": {"column" : 11, "type": "list"}},
+		"gradeLevel": {"col-def": {"column" : 10}},
+		"qlevel": {"col-def": {"column" : 11}},
+		"keywords": {"col-def": {"column" : 12, "type": "list"}},
 
-		"template": {"col-def": {"column" : 12}},
-    	"template_id": {"col-def": {"column" : 13}},
+		"template": {"col-def": {"column" : 13}},
+    	"template_id": {"col-def": {"column" : 14}},
 
 		"model": {
-			"param1": {"col-def": {"column" : 14, "type": "string"}},
-			"param2": {"col-def": {"column" : 15, "type": "string"}}
+			"param1": {"col-def": {"column" : 15, "type": "string"}},
+			"param2": {"col-def": {"column" : 16, "type": "string"}}
 		},
 		"lhs_options": [
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 17, "type": "string"}},
-					"image":  {"col-def": {"column" : 18, "type": "string"}},
-					"resValue": {"col-def": {"column" : 19  , "type": "string"}}
+					"text":  {"col-def": {"column" : 18, "type": "string"}},
+					"image":  {"col-def": {"column" : 19, "type": "string"}},
+					"resValue": {"col-def": {"column" : 20  , "type": "string"}}
 				},
-				"index":{"col-def": {"column" : 16}}
+				"index":{"col-def": {"column" : 17}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 21, "type": "string"}},
-					"image":  {"col-def": {"column" : 22, "type": "string"}},
-					"resValue": {"col-def": {"column" :23 , "type": "string"}}
+					"text":  {"col-def": {"column" : 22, "type": "string"}},
+					"image":  {"col-def": {"column" : 23, "type": "string"}},
+					"resValue": {"col-def": {"column" :24 , "type": "string"}}
 				},
-				"index":{"col-def": {"column" : 20}}
+				"index":{"col-def": {"column" : 21}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 25, "type": "string"}},
-					"image":  {"col-def": {"column" : 26, "type": "string"}},
-					"resValue": {"col-def": {"column" : 27 , "type": "string"}}
+					"text":  {"col-def": {"column" : 26, "type": "string"}},
+					"image":  {"col-def": {"column" : 27, "type": "string"}},
+					"resValue": {"col-def": {"column" : 28 , "type": "string"}}
 				},
-				"index":{"col-def": {"column" : 24}}
+				"index":{"col-def": {"column" : 25}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 29, "type": "string"}},
-					"image":  {"col-def": {"column" : 30, "type": "string"}},
-					"resValue": {"col-def": {"column" : 31 , "type": "string"}}
+					"text":  {"col-def": {"column" : 30, "type": "string"}},
+					"image":  {"col-def": {"column" : 31, "type": "string"}},
+					"resValue": {"col-def": {"column" : 32 , "type": "string"}}
 				},
-				"index":{"col-def": {"column" : 28}}
+				"index":{"col-def": {"column" : 29}}
 			}
 		],
 
@@ -78,41 +79,41 @@
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 30, "type": "string"}},
-					"image":  {"col-def": {"column" : 31, "type": "string"}},
-					"resValue": {"col-def": {"column" :32  , "type": "string"}}
+					"text":  {"col-def": {"column" : 33, "type": "string"}},
+					"image":  {"col-def": {"column" : 34, "type": "string"}},
+					"resValue": {"col-def": {"column" :35  , "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 33, "type": "number"}}
+				"answer": {"col-def": {"column" : 36, "type": "number"}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 34, "type": "string"}},
-					"image":  {"col-def": {"column" : 35, "type": "string"}},
-					"resValue": {"col-def": {"column" : 36 , "type": "string"}}
+					"text":  {"col-def": {"column" : 37, "type": "string"}},
+					"image":  {"col-def": {"column" : 38, "type": "string"}},
+					"resValue": {"col-def": {"column" : 39 , "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 37, "type": "number"}}
+				"answer": {"col-def": {"column" : 40, "type": "number"}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 38, "type": "string"}},
-					"image":  {"col-def": {"column" : 39, "type": "string"}},
-					"resValue": {"col-def": {"column" : 40, "type": "string"}}
+					"text":  {"col-def": {"column" : 41, "type": "string"}},
+					"image":  {"col-def": {"column" : 42, "type": "string"}},
+					"resValue": {"col-def": {"column" : 43, "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 41, "type": "number"}}
+				"answer": {"col-def": {"column" : 44, "type": "number"}}
 			},
 			{
 				"value" : {
 					"type": {"literal": "mixed"},
-					"text":  {"col-def": {"column" : 42, "type": "string"}},
-					"image":  {"col-def": {"column" : 43, "type": "string"}},
-					"resValue": {"col-def": {"column" : 44, "type": "string"}}
+					"text":  {"col-def": {"column" : 45, "type": "string"}},
+					"image":  {"col-def": {"column" : 46, "type": "string"}},
+					"resValue": {"col-def": {"column" : 47, "type": "string"}}
 				},
-				"answer": {"col-def": {"column" : 45, "type": "number"}}
+				"answer": {"col-def": {"column" : 48, "type": "number"}}
 			}
 		],
-		"start":48
+		"start":49
 	}
 }
 	

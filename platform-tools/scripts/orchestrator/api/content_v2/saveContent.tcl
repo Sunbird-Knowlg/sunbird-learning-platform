@@ -57,30 +57,53 @@ if {$object_null == 1} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		} else {
-			# set body [$content get "body"]
-			# set bodyEmpty [proc_isEmpty $body]
-			# if {!$bodyEmpty} {
-			# 	$content put "body" [java::null]
-			# }
-			set domain_obj [convert_to_graph_node $content $def_node]
-			set create_response [createDataNode $graph_id $domain_obj]
-			set check_error [check_response_error $create_response]
-			if {$check_error} {
-				return $create_response
+			set body [$content get "body"]
+			set bodyEmpty [proc_isEmpty $body]
+			if {!$bodyEmpty} {
+				$content put "body" [java::null]
+			}
+			set mimeType [$content get "mimeType"]
+			set mimeTypeEmpty [proc_isEmpty $mimeType]
+			set codeValidationFailed 0
+			if {!$mimeTypeEmpty} {
+				set isPluginMimeType [[java::new String [$mimeType toString]] equalsIgnoreCase "application/vnd.ekstep.plugin-archive"]
+				if {$isPluginMimeType == 1} {
+					set pluginCode [$content get "code"]
+					set codeEmpty [proc_isEmpty $pluginCode]
+					if {$codeEmpty} {
+						set codeValidationFailed 1
+					} else {
+						$content put "identifier" $pluginCode
+					}
+				}
+			}
+			if {$codeValidationFailed == 1} {
+				set result_map [java::new HashMap]
+				$result_map put "code" "ERR_PLUGIN_CODE_REQUIRED"
+				$result_map put "message" "Unique code is mandatory for plugins"
+				$result_map put "responseCode" [java::new Integer 400]
+				set response_list [create_error_response $result_map]
+				return $response_list
 			} else {
-				# set content_id [get_resp_value $create_response "node_id"]
-				# if {!$bodyEmpty} {
-				# 	set bodyResponse [updateContentBody $content_id $body]
-				# 	set check_error [check_response_error $bodyResponse]
-				# 	if {$check_error} {
-				# 		return $bodyResponse
-				# 	} else {
-				# 		return $create_response
-				# 	}
-				# } else {
-				# 	return $create_response
-				# }
-				return $create_response
+				set domain_obj [convert_to_graph_node $content $def_node]
+				set create_response [createDataNode $graph_id $domain_obj]
+				set check_error [check_response_error $create_response]
+				if {$check_error} {
+					return $create_response
+				} else {
+					set content_id [get_resp_value $create_response "node_id"]
+					if {!$bodyEmpty} {
+						set bodyResponse [updateContentBody $content_id $body]
+						set check_error [check_response_error $bodyResponse]
+						if {$check_error} {
+							return $bodyResponse
+						} else {
+							return $create_response
+						}
+					} else {
+						return $create_response
+					}
+				}
 			}
 		}
 	} else {

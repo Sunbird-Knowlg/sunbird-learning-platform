@@ -195,7 +195,7 @@ function importItems(arg1, callback) {
  */
 function printAssessmentItems(arg1, callback) {
     if (options.dryrun) {
-        console.log('----------------------------------------------------------------');
+       console.log('----------------------------------------------------------------');
 
         cli.info("Dry Run - Printing results");
         console.log();
@@ -285,10 +285,12 @@ function finished(arg1, result) {
  */
 function processItemRecord(row, item, index) {
     // Default fields
+	console.log("inside"+ item);
     item['rownum'] = index;
     item['portalOwner'] = '' + options.user;
     item['language'] = [item['language']];
     item['name'] = item['title']; // name is same as title
+    item['description'] = item['description'];
     item['gradeLevel'] = [item['gradeLevel']]; // value of grade level is an array
 
     if (isEmpty(item['identifier'])) {
@@ -334,7 +336,6 @@ function processItemRecord(row, item, index) {
  * Validates the questions - mandatory fields are presnet. Returns true if item is valid
  */
 function validateQuestion(item) {
-
     if (item['type'] == 'mcq') {
         if (item.options.length < 2) return 'Too few options';
     } else if (item['type'] == 'mtf') {
@@ -350,7 +351,6 @@ function validateQuestion(item) {
     if (!item.template_id) return 'Missing template id';
 
     if (!processAssets(item)) return 'Missing assets';
-
     return 'OK';
 }
 
@@ -360,7 +360,6 @@ function validateQuestion(item) {
 function processAssets(item) {
     var media = item.media;
     var success = true;
-
     // Set the src from assets map
     _.each(media, function(m, index) {
         if (m.id) {
@@ -373,7 +372,6 @@ function processAssets(item) {
             }
         }
     });
-
     // src is a must have
     media = _.reject(media, function(m) {
         return m.src == null

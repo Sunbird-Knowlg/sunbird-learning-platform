@@ -32,6 +32,10 @@ public class DACConfigurationConstants {
 	
 	public static final boolean IS_NEO4J_SERVER_TRUST_STRATEGY_ENABLED = true;
 	
+	public static final String PASSPORT_KEY_BASE_PROPERTY = "graph.passport.key.base";
+	
+	public static final boolean IS_PASSPORT_AUTHENTICATION_ENABLED = true;
+	
 	private DACConfigurationConstants() {
 		  throw new AssertionError();
 	}

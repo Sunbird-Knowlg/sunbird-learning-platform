@@ -28,7 +28,9 @@ public enum DACErrorCodeConstants {
 	INVALID_TRAVERSER(23, "Invalid Traverser."),
 	INVALID_DEPTH(24, "Invalid Depth."), 
 	NOT_FOUND(25, "Object Not Found."),
-	CONNECTION_PROBLEM(26, "BOLT driver connection problem");
+	CONNECTION_PROBLEM(26, "BOLT driver connection problem"),
+	INVALID_PASSPORT(27, "Invalid Passport Key."), 
+	INVALID_TIMESTAMP(28, "Invalid TimeStamp.");
 	
 	private final int code;
 	private final String description;

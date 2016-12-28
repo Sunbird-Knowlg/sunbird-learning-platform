@@ -56,8 +56,6 @@ node registerScript.js api/getWordsStartingWithAkshara.tcl api/json/register-get
 
 node registerScript.js api/get-top-words.tcl api/json/register-get-top-words.json update
 
-node registerScript.js api/language-search.tcl api/json/register-language-searchV3.json update
-
 node registerScript.js api/getRhymingWords.tcl api/json/register-getRhymingWords.json update
 
 node registerScript.js api/flag-word.tcl api/json/register-flag-word.json update

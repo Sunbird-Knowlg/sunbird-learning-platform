@@ -39,7 +39,7 @@ import com.ilimi.taxonomy.mgr.IContentManager;
  * @author Azhar
  */
 @Controller
-@RequestMapping("/v3/content")
+@RequestMapping("/v3")
 public class ContentV3Controller extends BaseController {
 
 	private static LogHelper LOGGER = LogHelper.getInstance(ContentV3Controller.class.getName());
@@ -101,7 +101,7 @@ public class ContentV3Controller extends BaseController {
 	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
-	@RequestMapping(value = "private/content/optimize/{id:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/private/content/optimize/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId,
 			@RequestHeader(value = "user-id") String userId) {
@@ -131,7 +131,7 @@ public class ContentV3Controller extends BaseController {
 	 *            can impersonation details as well.
 	 * @return The Response entity with a Bundle URL in its Result Set.
 	 */
-	@RequestMapping(value = "private/content/bundle", method = RequestMethod.POST)
+	@RequestMapping(value = "/private/content/bundle", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
@@ -163,7 +163,7 @@ public class ContentV3Controller extends BaseController {
 	 *         Set.
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "private/content/publish/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/private/content/publish/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {

@@ -30,6 +30,7 @@ import io.searchbox.core.Bulk.Builder;
 import io.searchbox.core.Count;
 import io.searchbox.core.CountResult;
 import io.searchbox.core.Delete;
+import io.searchbox.core.DeleteByQuery;
 import io.searchbox.core.Get;
 import io.searchbox.core.Index;
 import io.searchbox.core.MultiGet;
@@ -223,7 +224,10 @@ public class ElasticSearchUtil {
 	public void deleteIndex(String indexName) throws IOException {
 		client.execute(new DeleteIndex.Builder(indexName).build());
 	}
-
+	
+	public void deleteDocumentsByQuery(String query,String indexName, String indexType) throws IOException{
+		client.execute(new DeleteByQuery.Builder(query).addIndex(indexName).addType(indexType).build());
+	}
 	public void bulkIndexWithIndexId(String indexName, String documentType, Map<String, String> jsonObjects)
 			throws Exception {
 		if (isIndexExists(indexName)) {
@@ -308,7 +312,7 @@ public class ElasticSearchUtil {
 		return getDocumentsFromSearchResultWithId(result);
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	public List<Map> getDocumentsFromSearchResultWithId(SearchResult result) {
 		List<Hit<Map, Void>> hits = result.getHits(Map.class);
 		return getDocumentsFromHitsWithId(hits);

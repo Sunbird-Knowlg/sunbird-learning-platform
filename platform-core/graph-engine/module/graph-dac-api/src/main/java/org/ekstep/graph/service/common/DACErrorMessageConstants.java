@@ -104,6 +104,10 @@ public class DACErrorMessageConstants {
 
 	public static final String CONNECTION_PROBLEM = "Error! Driver connection problem";
 	
+	public static final String INVALID_GRAPH_PASSPORT_KEY_BASE = "Error! Invalid Graph Passport Key Base in Graph Configuration.";
+	
+	public static final String INVALID_LAST_UPDATED_ON_TIMESTAMP = "Error! Invalid 'lastUpdatedOn' Time Stamp.";
+	
 	private DACErrorMessageConstants() {
 		  throw new AssertionError();
 	}

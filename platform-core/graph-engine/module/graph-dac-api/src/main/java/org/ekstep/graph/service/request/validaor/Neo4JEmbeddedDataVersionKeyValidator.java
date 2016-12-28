@@ -2,13 +2,16 @@ package org.ekstep.graph.service.request.validaor;
 
 import static com.ilimi.graph.dac.util.Neo4jGraphUtil.getNodeByUniqueId;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.NodeUpdateMode;
 import org.ekstep.graph.service.util.DefinitionNodeUtil;
+import org.ekstep.graph.service.util.PassportUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
@@ -39,7 +42,8 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 
 		// Checking if the 'versionCheckMode' Property is not specified,
 		// then default Mode is OFF
-		if (StringUtils.isBlank(versionCheckMode) || StringUtils.equalsIgnoreCase(SystemNodeTypes.DEFINITION_NODE.name(), node.getNodeType()))
+		if (StringUtils.isBlank(versionCheckMode)
+				|| StringUtils.equalsIgnoreCase(SystemNodeTypes.DEFINITION_NODE.name(), node.getNodeType()))
 			versionCheckMode = NodeUpdateMode.OFF.name();
 
 		// Checking of Node Update Version Checking is either 'STRICT'
@@ -70,6 +74,7 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 				LOGGER.info("Update Operation is Valid for Node Id: " + node.getIdentifier());
 			}
 		}
+
 		LOGGER.info("Is Valid Update Operation ? " + isValidUpdateOperation);
 		return isValidUpdateOperation;
 	}
@@ -139,21 +144,26 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		String lastUpdateOn = (String) neo4jNode.getProperty(GraphDACParams.lastUpdatedOn.name());
 		LOGGER.info("Fetched 'lastUpdatedOn' Property from the Neo4J Node Id: " + neo4jNode.getId()
 				+ " as 'lastUpdatedOn': " + lastUpdateOn + " | [Node Id: '" + node.getIdentifier() + "']");
+		if (StringUtils.isBlank(lastUpdateOn))
+			throw new ClientException(DACErrorCodeConstants.INVALID_TIMESTAMP.name(),
+					DACErrorMessageConstants.INVALID_LAST_UPDATED_ON_TIMESTAMP + " | [Node Id: " + node.getIdentifier()
+							+ "]");
 
-		if (StringUtils.isNotBlank(versionKey) && StringUtils.isNotBlank(lastUpdateOn)) {
-			// Converting versionKey to milli seconds of type Long
-			long versionKeyTS = Long.parseLong(versionKey);
-			LOGGER.info("'versionKey' Time Stamp: " + versionKeyTS + " | [Node Id: '" + node.getIdentifier() + "']");
+		// Converting 'lastUpdatedOn' to milli seconds of type Long
+		String graphVersionKey = (String) neo4jNode.getProperty(GraphDACParams.versionKey.name());
+		if (StringUtils.isBlank(graphVersionKey))
+			graphVersionKey = String.valueOf(DateUtils.parse(lastUpdateOn).getTime());
+		LOGGER.info("'lastUpdatedOn' Time Stamp: " + graphVersionKey + " | [Node Id: '" + node.getIdentifier() + "']");
 
-			// Converting 'lastUpdatedOn' to milli seconds of type Long
-			long lastUpdatedOnTS = DateUtils.parse(lastUpdateOn).getTime();
-			LOGGER.info(
-					"'lastUpdatedOn' Time Stamp: " + lastUpdatedOnTS + " | [Node Id: '" + node.getIdentifier() + "']");
+		// Compare both the Time Stamp
+		if (StringUtils.equals(versionKey, graphVersionKey))
+			isValidVersionKey = true;
 
-			// Compare both the Time Stamp
-			if (versionKeyTS == lastUpdatedOnTS)
-				isValidVersionKey = true;
-		}
+		// May be the Given 'versionKey' is a Passport Key.
+		// Check for the Valid Passport Key
+		if (BooleanUtils.isFalse(isValidVersionKey)
+				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED))
+			isValidVersionKey = PassportUtil.isValidPassportKey(versionKey);
 
 		return isValidVersionKey;
 	}
@@ -177,21 +187,26 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		String lastUpdateOn = (String) neo4jNode.getProperty(GraphDACParams.lastUpdatedOn.name());
 		LOGGER.info("Fetched 'lastUpdatedOn' Property from the Neo4J Node Id: " + neo4jNode.getId()
 				+ " as 'lastUpdatedOn': " + lastUpdateOn + " | [Node Id: '" + node.getIdentifier() + "']");
+		if (StringUtils.isBlank(lastUpdateOn))
+			throw new ClientException(DACErrorCodeConstants.INVALID_TIMESTAMP.name(),
+					DACErrorMessageConstants.INVALID_LAST_UPDATED_ON_TIMESTAMP + " | [Node Id: " + node.getIdentifier()
+							+ "]");
 
-		if (StringUtils.isNotBlank(versionKey) && StringUtils.isNotBlank(lastUpdateOn)) {
-			// Converting versionKey to milli seconds of type Long
-			long versionKeyTS = Long.parseLong(versionKey);
-			LOGGER.info("'versionKey' Time Stamp: " + versionKeyTS + " | [Node Id: '" + node.getIdentifier() + "']");
+		// Converting 'lastUpdatedOn' to milli seconds of type Long
+		String graphVersionKey = (String) neo4jNode.getProperty(GraphDACParams.versionKey.name());
+		if (StringUtils.isBlank(graphVersionKey))
+			graphVersionKey = String.valueOf(DateUtils.parse(lastUpdateOn).getTime());
+		LOGGER.info("'lastUpdatedOn' Time Stamp: " + graphVersionKey + " | [Node Id: '" + node.getIdentifier() + "']");
 
-			// Converting 'lastUpdatedOn' to milli seconds of type Long
-			long lastUpdatedOnTS = DateUtils.parse(lastUpdateOn).getTime();
-			LOGGER.info(
-					"'lastUpdatedOn' Time Stamp: " + lastUpdatedOnTS + " | [Node Id: '" + node.getIdentifier() + "']");
+		// Compare both the Time Stamp
+		if (StringUtils.equals(versionKey, graphVersionKey))
+			isValidVersionKey = true;
 
-			// Compare both the Time Stamp
-			if (versionKeyTS == lastUpdatedOnTS)
-				isValidVersionKey = true;
-		}
+		// May be the Given 'versionKey' is a Passport Key.
+		// Check for the Valid Passport Key
+		if (BooleanUtils.isFalse(isValidVersionKey)
+				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED))
+			isValidVersionKey = PassportUtil.isValidPassportKey(versionKey);
 
 		return isValidVersionKey;
 	}

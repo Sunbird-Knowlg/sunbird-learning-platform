@@ -48,6 +48,7 @@ if {$check_error} {
 		set body [$metadata get "body"]
 		set bodyEmpty [proc_isEmpty $body]
 		if {!$bodyEmpty} {
+			puts "cleaning content body: $content_id"
 			set bodyResponse [updateContentBody $content_id $body]
 			$metadata put "body" [java::null]
 			set update_response [updateDataNode $graph_id $content_id $graph_node]

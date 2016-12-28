@@ -85,6 +85,15 @@ if {$check_error} {
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	if {$returnFields} {
 		set resp_object [convert_graph_node $graph_node $def_node $fields]
+		set returnBody [$fields contains "body"]
+		if {$returnBody == 1} {
+			set bodyResponse [getContentBody $content_id]
+			set check_error [check_response_error $bodyResponse]
+			if {!$check_error} {
+				set body [get_resp_value $bodyResponse "body"]
+				$resp_object put "body" $body
+			}
+		}
 	} else {
 		set resp_object [convert_graph_node $graph_node $def_node]
 	}
