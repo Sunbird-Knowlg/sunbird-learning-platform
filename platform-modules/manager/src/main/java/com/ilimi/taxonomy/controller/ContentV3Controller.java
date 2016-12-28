@@ -65,7 +65,7 @@ public class ContentV3Controller extends BaseController {
 	 *            can impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
-	@RequestMapping(value = "/private/content/upload/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = true) MultipartFile file,
@@ -89,34 +89,6 @@ public class ContentV3Controller extends BaseController {
         }
 	}
 
-
-	/**
-	 * This method carries all the tasks related to 'Optimize' operation of
-	 * content work-flow. This includes compressing images, audio and videos.
-	 *
-	 * @param contentId
-	 *            Content Id which needs to be optimized.
-	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id in its Result Set.
-	 */
-	@RequestMapping(value = "/private/content/optimize/{id:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.optimize";
-		LOGGER.info("Optimize content | Content Id : " + contentId);
-		try {
-			LOGGER.info("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
-			Response response = contentManager.optimize(graphId, contentId);
-
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
 	/**
 	 * This method carries all the tasks related of bundling the contents into
 	 * one package, It includes all the operations valid for the Publish
@@ -131,7 +103,7 @@ public class ContentV3Controller extends BaseController {
 	 *            can impersonation details as well.
 	 * @return The Response entity with a Bundle URL in its Result Set.
 	 */
-	@RequestMapping(value = "/private/content/bundle", method = RequestMethod.POST)
+	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
@@ -163,7 +135,7 @@ public class ContentV3Controller extends BaseController {
 	 *         Set.
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/private/content/publish/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {

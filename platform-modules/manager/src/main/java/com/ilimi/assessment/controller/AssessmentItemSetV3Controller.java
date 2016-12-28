@@ -41,7 +41,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
     @Autowired
     private IAssessmentManager assessmentManager;
 
-    @RequestMapping(value = "/private/assessment/itemset/create", method = RequestMethod.POST)
+    @RequestMapping(value = "/create/itemsets", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -61,47 +61,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/private/assessment/itemset/update/{id:.+}", method = RequestMethod.PATCH)
-    @ResponseBody
-    public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-    	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item_set.update";
-        Request request = getRequestObject(map);
-        LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request
-                + " | user-id: " + userId);
-        try {
-            Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
-            LOGGER.info("Update | Response: " + response);
-            return getResponseEntity(response, apiId,
-                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
-        } catch (Exception e) {
-            LOGGER.error("Update | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId,
-                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
-        }
-    }
-
-    @RequestMapping(value = "/public/assessment/itemset/read/{id:.+}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "isfields", required = false) String[] isfields,
-            @RequestHeader(value = "user-id") String userId) {
-    	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item_set.find";
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
-                + userId);
-        try {
-            Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, false);
-            LOGGER.info("Find | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Find | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-
-    @RequestMapping(value = "/public/assessment/itemset/generate/{id:.+}", method = RequestMethod.GET)
+    @RequestMapping(value = "/generate/itemsets/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> generate(@PathVariable(value = "id") String id,
             @RequestParam(value = "isfields", required = false) String[] isfields,
@@ -118,58 +78,6 @@ public class AssessmentItemSetV3Controller extends BaseController {
             LOGGER.error("Find | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
-    }
-
-    @RequestMapping(value = "/public/assessment/itemset/search", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> search(
-            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-    	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item_set.search";
-        LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
-        try {
-            Request reqeust = getSearchRequest(map);
-            Response response = assessmentManager.searchItemSets(taxonomyId, reqeust);
-            LOGGER.info("Search | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Search | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-
-    @RequestMapping(value = "/private/assessment/itemset/retire/{id:.+}", method = RequestMethod.DELETE)
-    @ResponseBody
-    public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
-            @RequestHeader(value = "user-id") String userId) {
-    	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item_set.delete";
-        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
-        try {
-            Response response = assessmentManager.deleteItemSet(id, taxonomyId);
-            LOGGER.info("Delete | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Delete | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-
-    private Request getSearchRequest(Map<String, Object> requestMap) {
-        Request request = getRequest(requestMap);
-        Map<String, Object> map = request.getRequest();
-        if (null != map && !map.isEmpty()) {
-            try {
-                ItemSetSearchCriteria criteria = mapper.convertValue(map, ItemSetSearchCriteria.class);
-                request.put(AssessmentAPIParams.assessment_search_criteria.name(), criteria);
-            } catch (Exception e) {
-                throw new MiddlewareException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(),
-                        "Invalid search criteria.", e);
-            }
-        } else if (null != map && map.isEmpty()) {
-            request.put(AssessmentAPIParams.assessment_search_criteria.name(), new ItemSetSearchCriteria());
-        }
-        return request;
     }
 
     private Request getRequestObject(Map<String, Object> requestMap) {

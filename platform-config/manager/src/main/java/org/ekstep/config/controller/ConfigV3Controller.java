@@ -26,7 +26,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.LogHelper;
 
 @Controller
-@RequestMapping("v3/public")
+@RequestMapping("v3/")
 public class ConfigV3Controller extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	public static final String folderName = "resources";
@@ -34,7 +34,7 @@ public class ConfigV3Controller extends BaseController {
 
 	private static LogHelper LOGGER = LogHelper.getInstance(ConfigController.class.getName());
 	
-	@RequestMapping(value = "/resourcebundles/list", method = RequestMethod.GET)
+	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundles() {
 		String apiId = "ekstep.config.resourebundles.list";
@@ -72,7 +72,7 @@ public class ConfigV3Controller extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/resourcebundles/read/{languageId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/resourcebundles/{languageId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundle(@PathVariable(value = "languageId") String languageId) {
 		String apiId = "ekstep.config.resourebundles.find";
@@ -117,7 +117,7 @@ public class ConfigV3Controller extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/ordinals/list", method = RequestMethod.GET)
+	@RequestMapping(value = "/ordinals", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getOrdinals() {
 		String apiId = "ekstep.config.ordinals.list";

@@ -27,7 +27,7 @@
     ],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/domains/list",
+        "url": "/v3/list",
         "requestParams": [
           "sort",
           "order",

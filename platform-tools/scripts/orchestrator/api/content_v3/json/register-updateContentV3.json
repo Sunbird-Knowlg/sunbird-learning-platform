@@ -16,7 +16,7 @@
     ],
     "requestPath": {
         "type": "PATCH",
-        "url": "/v3/private/content/update/*",
+        "url": "/v3/update/*",
         "pathParams": [
           "content_id"
         ]
