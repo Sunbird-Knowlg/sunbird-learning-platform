@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,12 +42,11 @@ public class AssessmentItemSetV3Controller extends BaseController {
 
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> create(
-            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+    public ResponseEntity<Response> create(@RequestBody Map<String, Object> map) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.create";
         Request request = getRequestObject(map);
-        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
+        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request);
         try {
             Response response = assessmentManager.createItemSet(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
@@ -60,16 +58,40 @@ public class AssessmentItemSetV3Controller extends BaseController {
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
+    
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> list(@RequestBody(required=false) Map<String, Object> map,
+    		@RequestParam(value = "limit", required = false, defaultValue = "200") Integer limit,
+    		@RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset) {
+    	String taxonomyId = V2_GRAPH_ID;
+        String apiId = "assessment_item.list";
+        Request request = getRequest(map);
+        LOGGER.info("List all Items | TaxonomyId: " + taxonomyId + " | Request: " + request);
+        try {
+        	ItemSetSearchCriteria criteria = new ItemSetSearchCriteria();
+        	criteria.setResultSize(limit);
+        	criteria.setStartPosition(offset);
+        	request.put(AssessmentAPIParams.assessment_search_criteria.name(), criteria);
+            Response response = assessmentManager.searchItemSets(taxonomyId, request);
+            LOGGER.info("List Items | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("Create Item | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
 
     @RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+            @RequestBody Map<String, Object> map) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.update";
         Request request = getRequestObject(map);
-        LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request
-                + " | user-id: " + userId);
+        LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request);
         try {
             Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
@@ -85,12 +107,10 @@ public class AssessmentItemSetV3Controller extends BaseController {
     @RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "isfields", required = false) String[] isfields,
-            @RequestHeader(value = "user-id") String userId) {
+            @RequestParam(value = "isfields", required = false) String[] isfields) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.find";
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
-                + userId);
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, false);
             LOGGER.info("Find | Response: " + response);
@@ -104,12 +124,10 @@ public class AssessmentItemSetV3Controller extends BaseController {
     @RequestMapping(value = "/generate/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> generate(@PathVariable(value = "id") String id,
-            @RequestParam(value = "isfields", required = false) String[] isfields,
-            @RequestHeader(value = "user-id") String userId) {
+            @RequestParam(value = "isfields", required = false) String[] isfields) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.find";
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
-                + userId);
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, true);
             LOGGER.info("Find | Response: " + response);
@@ -122,11 +140,10 @@ public class AssessmentItemSetV3Controller extends BaseController {
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> search(
-            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+    public ResponseEntity<Response> search(@RequestBody Map<String, Object> map) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.search";
-        LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
+        LOGGER.info("Search | TaxonomyId: " + taxonomyId);
         try {
             Request reqeust = getSearchRequest(map);
             Response response = assessmentManager.searchItemSets(taxonomyId, reqeust);
@@ -140,11 +157,10 @@ public class AssessmentItemSetV3Controller extends BaseController {
 
     @RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
-            @RequestHeader(value = "user-id") String userId) {
+    public ResponseEntity<Response> delete(@PathVariable(value = "id") String id) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "assessment_item_set.delete";
-        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
+        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id);
         try {
             Response response = assessmentManager.deleteItemSet(id, taxonomyId);
             LOGGER.info("Delete | Response: " + response);
