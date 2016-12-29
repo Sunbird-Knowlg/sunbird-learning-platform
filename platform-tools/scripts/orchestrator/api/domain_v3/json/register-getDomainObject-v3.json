@@ -27,7 +27,7 @@
         "url": "/v3/*/*/read/*",
         "pathParams": [
           "domain_id",
-          "type"
+          "type",
           "object_id"
         ],
         "requestParams": [

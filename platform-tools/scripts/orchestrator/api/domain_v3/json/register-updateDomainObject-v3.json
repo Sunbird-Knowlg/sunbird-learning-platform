@@ -29,7 +29,7 @@
         "url": "/v3/*/*/update/*",
         "pathParams": [
           "domain_id",
-          "type"
+          "type",
           "object_id"
         ]
     },

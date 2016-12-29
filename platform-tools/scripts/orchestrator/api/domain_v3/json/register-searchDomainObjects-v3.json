@@ -23,7 +23,7 @@
         "type": "POST",
         "url": "/v3/*/search/*",
         "pathParams": [
-          "domain_id"
+          "domain_id",
           "type"
         ]
     },
