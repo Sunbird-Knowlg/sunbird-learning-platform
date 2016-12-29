@@ -26,9 +26,11 @@ import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.taxonomy.content.util.PropertiesUtil;
 import com.ilimi.taxonomy.enums.ExtractionType;
 
 /**
@@ -111,8 +113,21 @@ public class ContentPackageExtractionUtil {
 			
 			// Copying Objects
 			LOGGER.info("Copying Objects...STARTED");
-			AWSUploader.copyObjectsByPrefix(s3Bucket, s3Bucket, sourcePrefix, destinationPrefix);
-			
+			ExecutorService pool = null;
+			try {
+				pool = Executors.newFixedThreadPool(1);
+				pool.execute(new Runnable() {
+					@Override
+					public void run() {
+						AWSUploader.copyObjectsByPrefix(s3Bucket, s3Bucket, sourcePrefix, destinationPrefix);
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error("Error sending Content2Vec request", e);
+			} finally {
+				if (null != pool)
+					pool.shutdown();
+			}
 			LOGGER.info("Copying Objects...DONE | Under: " + destinationPrefix);
 		}
 	}
