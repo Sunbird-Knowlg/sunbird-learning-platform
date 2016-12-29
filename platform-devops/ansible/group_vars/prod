@@ -33,6 +33,8 @@ redis_port: 6379
 cassandra_host: 10.10.1.62
 cassandra_port: 9042
 graph_passport_key: 31b6fd1c4d64e745c867e61a45edc34a
+learning_neo4j_bolt_url: bolt://172.31.30.52:7687
+language_neo4j_bolt_url: bolt://172.31.30.52:8687
 
 to_learning: 10.10.1.26
 to_language: 10.10.1.30

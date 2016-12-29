@@ -29,13 +29,13 @@ public class DriverUtil {
 		case "simple":
 		case "SIMPLE":
 			LOGGER.info("Reading Simple Driver. | [Driver Initialization.]");
-			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId));
+			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), ConfigUtil.getConfig());
 			break;
 			
 		case "medium":
 		case "MEDIUM":
 			LOGGER.info("Reading Medium Driver. | [Driver Initialization.]");
-			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), AuthTokenUtil.getAuthToken());
+			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), AuthTokenUtil.getAuthToken(), ConfigUtil.getConfig());
 			break;
 			
 		case "complex":
