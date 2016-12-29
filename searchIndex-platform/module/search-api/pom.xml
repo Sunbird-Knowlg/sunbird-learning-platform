@@ -65,16 +65,17 @@
                         <formats>
                             <format>html</format>
                             <format>xml</format>
-                             <instrumentation>
-							<ignoreTrivial>true</ignoreTrivial>
-							<excludes>
-								<exclude>**/common/**</exclude>
-								<exclude>**/dto/**</exclude>
-								<exclude>**/enums/**</exclude>
-								<exclude>**/router/**</exclude>
-							</excludes>
-						</instrumentation>
                         </formats>
+                        <instrumentation>
+                            <ignoreTrivial>true</ignoreTrivial>
+                            <excludes>
+                                <exclude>controllers/**</exclude>
+                                <exclude>**/common/**</exclude>
+                                <exclude>**/dto/**</exclude>
+                                <exclude>**/enums/**</exclude>
+                                <exclude>**/router/**</exclude>
+                            </excludes>
+                        </instrumentation>
                         <check>
                             <haltOnFailure>false</haltOnFailure>
                         </check>
