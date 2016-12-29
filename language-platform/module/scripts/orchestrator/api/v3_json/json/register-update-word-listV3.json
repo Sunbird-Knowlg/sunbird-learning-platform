@@ -26,8 +26,9 @@
     }],
     "requestPath": {
         "type": "PATCH",
-        "url": "/v3/public/dictionary/wordlist/update/*/*",
-        "pathParams": ["language_id", "wordlist_id"]
+        "url": "/v3/wordlists/update/*",
+        "pathParams": ["wordlist_id"],
+        "requestParams": ["language_id"]
     },
     "body": "",
     "apiId": "ekstep.wordlist.update"

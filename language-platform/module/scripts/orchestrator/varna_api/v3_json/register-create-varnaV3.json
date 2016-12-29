@@ -12,7 +12,7 @@
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/create/varnas/",
+        "url": "/v3/varnas/create",
         "requestParams": ["language_id"]
     },
     "body": ""

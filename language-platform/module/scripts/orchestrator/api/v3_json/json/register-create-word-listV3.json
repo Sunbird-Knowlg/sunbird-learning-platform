@@ -17,7 +17,7 @@
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/create/wordlists/",
+        "url": "/v3/wordlists/create/",
         "requestParams": ["language_id"]
     },
     "body": "",

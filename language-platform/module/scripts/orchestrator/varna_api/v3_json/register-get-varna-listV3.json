@@ -7,7 +7,7 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/list/varnas/",
+        "url": "/v3/varnas/list",
         "requestParams": ["language_id"]
     },
     "body": ""

@@ -12,7 +12,7 @@
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/create/traversals/",
+        "url": "/v3/traversals/create",
         "requestParams": ["language_id"]
     },
     "body": ""

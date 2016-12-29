@@ -12,8 +12,9 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/dictionary/varna/read/*/*",
-        "pathParams": ["language_id", "varna_id"]
+        "url": "/v3/varnas/read/*",
+        "pathParams": ["varna_id"],
+        "requestParams": ["language_id"]
     },
     "body": ""
 }

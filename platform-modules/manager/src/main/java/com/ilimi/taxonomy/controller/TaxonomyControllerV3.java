@@ -40,21 +40,21 @@ public class TaxonomyControllerV3 {
 		 taxonomyController.export(id, map, userId, resp);
 	}
 	
-	@RequestMapping(value = "/update/definitions/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/definitions/update/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> createDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
 			@RequestHeader(value = "user-id") String userId) {
 		return taxonomyController.createDefinition(id, json, userId);
 	}
 
-	@RequestMapping(value = "/read/definitions/{objectType:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/definitions/read/{objectType:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findDefinition(@RequestParam(name = "graphId", required = true) String id,
 			@PathVariable(value = "objectType") String objectType, @RequestHeader(value = "user-id") String userId) {
 		return taxonomyController.findDefinition(id, objectType, userId);
 	}
 
-	@RequestMapping(value = "/list/definitions/", method = RequestMethod.GET)
+	@RequestMapping(value = "/definitions/list/", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAllDefinitions(@RequestParam(name = "graphId", required = true)  String id,
 			@RequestHeader(value = "user-id") String userId) {

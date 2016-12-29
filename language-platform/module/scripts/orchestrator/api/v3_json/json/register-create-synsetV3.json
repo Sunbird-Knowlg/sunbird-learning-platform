@@ -12,7 +12,7 @@
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/create/synsets/",
+        "url": "/v3/synsets/create",
         "requestParams": ["language_id"]
     },
     "body": ""

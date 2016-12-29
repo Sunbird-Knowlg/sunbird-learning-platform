@@ -1,24 +1,24 @@
 {
-    "name": "updateSynset_V3",
+    "name": "updateTraversalRule_v3",
     "parameters": [{
     	"name":"language_id",
     	"index": 0,
     	"routingParam": true
     },{
-    	"name":"synset_id",
+    	"name":"rule_id",
     	"index": 1,
     	"routingParam": false
     },{
-        "name": "synset",
+        "name": "rule",
         "index": 2,
         "datatype": "java.util.HashMap",
         "routingParam": false
     }],
     "requestPath": {
         "type": "PATCH",
-        "url": "/v3/synsets/update/*",
-        "pathParams": ["synset_id"],
-        "requestParams": ["language_id"]
+        "url": "/v3/traversals/update/*",
+        "pathParams": ["rule_id"],
+        "requestParams": ["language_id"],
     },
     "body": ""
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author karthik
  */
 @Controller
-@RequestMapping("v3/private/dictionary/word")
+@RequestMapping("v3/words")
 public class WordControllerV3 extends DictionaryControllerV3 {
 	
 	/**
