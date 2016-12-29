@@ -26,3 +26,5 @@ node registerScript.js api/search-synset.tcl api/v3_json/json/register-search-sy
 node registerScript.js api/get-synset.tcl api/v3_json/json/register-get-synsetV3.json update
 
 node registerScript.js api/get-translation.tcl api/v3_json/json/register-get-translationV3.json update
+
+node registerScript.js api/flag-word.tcl api/v3_json/json/register-flag-wordV3.json register
