@@ -1,8 +1,8 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
-
-#GET		/							@controllers.SearchController.index()
+GET		/v2/health						@controllers.HealthCheckController.search()
+GET		/v3/health						@controllers.HealthCheckController.search()
 
 POST    /v2/search						@controllers.SearchController.search()
 POST    /v3/search						@controllers.SearchController.search()

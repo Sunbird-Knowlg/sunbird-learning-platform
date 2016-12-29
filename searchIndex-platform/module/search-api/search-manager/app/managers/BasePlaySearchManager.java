@@ -57,7 +57,7 @@ public class BasePlaySearchManager extends Results {
 									return notFound(getErrorMsg(errMsg)).as("application/json");
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
-									Promise<Result> searchResult = getSearchResponse(response);
+									Promise<Result> searchResult = getSearchResponse(response,request);
 									int count = (response.getResult() == null ? 0
 											: (Integer) response.getResult().get("count"));
 									writeTelemetryLog(request, null, count);
@@ -106,12 +106,27 @@ public class BasePlaySearchManager extends Results {
 	}
 
 	private String getResult(Response response, Request req) {
+		if (req == null) {
+			ResponseParams params = new ResponseParams();
+			params.setErrmsg("Null Content");
+			Response error = new Response();
+			error.setParams(params);
+			response = error;
+		}
+		return getResult(response, req.getId(), req.getVer());
+	}
+
+	public String getResult(Response response, String apiId, String version) {
 		try {
-			if (response == null && req == null) {
-				throw new NullPointerException("Null content");
+			if (response == null) {
+				ResponseParams params = new ResponseParams();
+				params.setErrmsg("Null Content");
+				Response error = new Response();
+				error.setParams(params);
+				response = error;
 			}
-			response.setId(req.getId());
-			response.setVer(req.getVer());
+			response.setId(apiId);
+			response.setVer(version);
 			response.setTs(getResponseTimestamp());
 			ResponseParams params = response.getParams();
 			if (null == params)
@@ -165,10 +180,12 @@ public class BasePlaySearchManager extends Results {
 		LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count);
 	}
 
-	public Promise<Result> getSearchResponse(Response searchResult) {
+	public Promise<Result> getSearchResponse(Response searchResult, Request req) {
 		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(),
 				SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
 		request.put("searchResult", searchResult.getResult());
+		request.setId(req.getId());
+		request.setVer(req.getVer());
 		Promise<Result> getRes = getSearchResponse(request, LOGGER);
 		return getRes;
 	}

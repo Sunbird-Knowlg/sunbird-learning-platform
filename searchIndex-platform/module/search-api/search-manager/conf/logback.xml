@@ -37,7 +37,7 @@
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
 		<encoder>
-			<pattern>%date{yyyy-MM-dd HH:mm:ss ZZZZ} %message%n</pattern>
+			<pattern>[%date{yyyy-MM-dd HH:mm:ss ZZZZ}] %message%n</pattern>
 		</encoder>
 	</appender>
 

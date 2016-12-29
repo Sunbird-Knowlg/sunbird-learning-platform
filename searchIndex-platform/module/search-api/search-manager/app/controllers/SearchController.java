@@ -11,15 +11,15 @@ public class SearchController extends SearchBaseController {
 	private PlaySearchManager mgr = new PlaySearchManager();
 	
 	public Promise<Result> search() {
-		String apiId = "search-api.search";
-		Request request = getRequest(request().body(),apiId);
+		String apiId = "composite-search.search";
+		Request request = getRequest(request().body(),apiId,request().uri());
 		Promise<Result> searchResponse = mgr.search(request);
 		return searchResponse;
 	}
 
 	public Promise<Result> count() {
-		String apiId = "search-api.count";
-		Request request = getRequest(request().body(),apiId);
+		String apiId = "composite-search.count";
+		Request request = getRequest(request().body(),apiId,request().uri());
 		Promise<Result> response = mgr.count(request);
 		return response;
 	}

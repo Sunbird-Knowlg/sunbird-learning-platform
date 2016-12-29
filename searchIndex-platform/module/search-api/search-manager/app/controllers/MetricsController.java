@@ -11,8 +11,8 @@ public class MetricsController extends SearchBaseController {
 	private PlaySearchManager mgr = new PlaySearchManager();
 
 	public Promise<Result> search() {
-		String apiId = "search.metrics";
-		Request request = getRequest(request().body(), apiId);
+		String apiId = "composite-search.metrics";
+		Request request = getRequest(request().body(), apiId, request().uri());
 		Promise<Result> searchResponse = mgr.metrics(request);
 		return searchResponse;
 	}
