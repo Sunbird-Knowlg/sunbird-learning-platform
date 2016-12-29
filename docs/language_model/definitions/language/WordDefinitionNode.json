@@ -311,7 +311,7 @@
           "title": "POS (Parts of Speech)",
           "description": "",
           "category": "grammar",
-          "dataType": "Select",
+          "dataType": "Multi-Select",
           "range":
           [
               "adjective satellite",
@@ -674,7 +674,7 @@
           "title": "Genders",
           "description": "",
           "category": "supportability",
-          "dataType": "Select",
+          "dataType": "Multi-Select",
           "range":
           [
               "neutral",
