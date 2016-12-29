@@ -43,7 +43,8 @@ public enum ContentErrorCodeConstants {
 	BUNDLE_FILE_WRITE(27, "Error while writing Bundle File."),
 	MISSING_CONTENT(28, "Missing one or more Content for Bundling."),
 	OPERATION_DENIED(29, "The Content Operation cannot be Performed."),
-	VALIDATOR_ERROR(30, "Invalid Content.");
+	VALIDATOR_ERROR(30, "Invalid Content."),
+	MANIFEST_FILE_READ(6, "Error while reading Manifest file."),;
 
 	private final int code;
 	private final String description;

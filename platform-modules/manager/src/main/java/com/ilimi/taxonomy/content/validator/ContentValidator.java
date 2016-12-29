@@ -77,6 +77,46 @@ public class ContentValidator {
 		LOGGER.info("Is it a valid Content Package File ? : " + isValidContentPackage);
 		return isValidContentPackage;
 	}
+	
+	/**
+	 * Validates the Uploaded Plugin package File.
+	 *
+	 * @param File
+	 *            the file
+	 * @checks MimeType(application/zip), FolderStructure(manifest.json)
+	 * @return true if uploaded package meets all @checks else return false
+	 */
+	public boolean isValidPluginPackage(File file) {
+		boolean isValidContentPackage = false;
+		try {
+			if (file.exists()) {
+				LOGGER.info("Validating File: " + file.getName());
+				if (!isValidContentMimeType(file))
+					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+							ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_FILE_MIME_TYPE_ERROR
+									+ " | [The uploaded package is invalid]");
+				if (!isValidPluginPackageStructure(file))
+					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+							ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_STRUCTURE_ERROR
+									+ " | [manifest.json should be at root location]");
+				isValidContentPackage = true;
+			}
+		} catch (ClientException ce) {
+			throw ce;
+		} catch (IOException e) {
+			throw new ServerException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+					ContentErrorMessageConstants.CONTENT_PACKAGE_FILE_OPERATION_ERROR
+							+ " | [Something went wrong while processing the Package file.]",
+					e);
+		} catch (Exception e) {
+			throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+					ContentErrorMessageConstants.CONTENT_PACKAGE_VALIDATOR_ERROR
+							+ " | [Something went wrong while validating the Package file.]",
+					e);
+		}
+		LOGGER.info("Is it a valid Plugin Package File ? : " + isValidContentPackage);
+		return isValidContentPackage;
+	}
 
 	/**
 	 * validates the contentNode
@@ -193,6 +233,33 @@ public class ContentValidator {
 					ZipEntry entry = entries.nextElement();
 					if (StringUtils.equalsIgnoreCase(entry.getName(), JSON_ECML_FILE_NAME)
 							|| StringUtils.equalsIgnoreCase(entry.getName(), XML_ECML_FILE_NAME)) {
+						isValidPackage = true;
+						break;
+					}
+				}
+			}
+		}
+		return isValidPackage;
+	}
+	
+	/**
+	 * validates the Uploaded ContentPackage's folderStructure
+	 *
+	 * @param File
+	 *            the file
+	 * @return true if Uploaded file's folderStructure contains
+	 *         ('manifest.json') else return false
+	 */
+	private boolean isValidPluginPackageStructure(File file) throws IOException {
+		final String MANIFEST_FILE_NAME = "manifest.json";
+		boolean isValidPackage = false;
+		if (file.exists()) {
+			LOGGER.info("Validating File For Folder Structure: " + file.getName());
+			try (ZipFile zipFile = new ZipFile(file)) {
+				Enumeration<? extends ZipEntry> entries = zipFile.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry entry = entries.nextElement();
+					if (StringUtils.equalsIgnoreCase(entry.getName(), MANIFEST_FILE_NAME)) {
 						isValidPackage = true;
 						break;
 					}

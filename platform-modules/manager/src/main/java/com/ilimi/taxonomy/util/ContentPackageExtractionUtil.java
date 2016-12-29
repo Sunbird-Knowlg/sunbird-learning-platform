@@ -26,11 +26,9 @@ import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.content.util.PropertiesUtil;
 import com.ilimi.taxonomy.enums.ExtractionType;
 
 /**
@@ -400,12 +398,19 @@ public class ContentPackageExtractionUtil {
 		String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
 
 		// Getting the Path Suffix
+		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		String pathSuffix = extractionType.name();
-		if (StringUtils.equalsIgnoreCase(extractionType.name(), ContentAPIParams.version.name()))
-			pathSuffix = String.valueOf((double) node.getMetadata().get(ContentAPIParams.pkgVersion.name()));
+		if (StringUtils.equalsIgnoreCase(extractionType.name(), ContentAPIParams.version.name())) {
+			String version = String.valueOf((double) node.getMetadata().get(ContentAPIParams.pkgVersion.name()));
+			if (StringUtils.equals("application/vnd.ekstep.plugin-archive", mimeType)) {
+				String semanticVersion = (String) node.getMetadata().get(ContentAPIParams.semanticVersion.name());
+				pathSuffix = StringUtils.isNotBlank(semanticVersion) ? semanticVersion : version;
+			} else {
+				pathSuffix = version;
+			}
+		}
 		LOGGER.info("Path Suffix: " + pathSuffix);
-
-		switch (((String) node.getMetadata().get(ContentAPIParams.mimeType.name()))) {
+		switch (mimeType) {
 		case "application/vnd.ekstep.ecml-archive":
 			path += contentFolder + File.separator + ContentAPIParams.ecml.name() + File.separator + node.getIdentifier() + DASH
 					+ pathSuffix;
