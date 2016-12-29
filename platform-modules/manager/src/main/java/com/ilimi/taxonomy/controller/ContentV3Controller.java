@@ -146,11 +146,11 @@ public class ContentV3Controller extends BaseController {
 			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			if(null==requestMap.get("publisher") || StringUtils.isBlank(requestMap.get("publisher").toString())){
-				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(), "Publisher Id is blank"), apiId, null);
+			if(null==requestMap.get("lastPublishedBy") || StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())){
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(), "Publisher User Id is blank"), apiId, null);
 			}
 			
-			response = contentManager.publish(graphId, contentId, requestMap.get("publisher").toString());
+			response = contentManager.publish(graphId, contentId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
