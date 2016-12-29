@@ -1,9 +1,9 @@
 {
-    "name": "saveContent_v3",
+    "name": "listContent_v3",
     "type": "SCRIPT",
     "parameters": [
         {
-          "name": "content",
+          "name": "search",
           "datatype": "java.util.Map",
           "index": 0,
           "routingParam": false
@@ -11,9 +11,8 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/create"
+        "url": "/v3/list"
     },
     "body": "",
-    "apiId": "ekstep.content.create",
-    "version": "3.0"
+    "apiId": "ekstep.content.list"
 }

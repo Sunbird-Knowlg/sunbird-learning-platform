@@ -21,7 +21,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/private/domains/*/concepts/retire/*",
+        "url": "/v3/*/concepts/retire/*",
         "pathParams": [
           "domainId",
           "conceptId"

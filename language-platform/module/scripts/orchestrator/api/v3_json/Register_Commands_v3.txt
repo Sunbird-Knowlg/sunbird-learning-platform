@@ -12,6 +12,11 @@ node registerScript.js api/get-traversal-rule.tcl api/v3_json/json/register-get-
 
 node registerScript.js api/get-traversal-rules.tcl api/v3_json/json/register-get-traversal-rulesV3.json update
 
+node registerScript.js api/create-traversal-rule.tcl api/v3_json/json/register-create-traversal-ruleV3.json update
+
+node registerScript.js api/update-traversal-rule.tcl api/v3_json/json/register-update-traversal-ruleV3.json update
+
+
 node registerScript.js api/create-synset.tcl api/v3_json/json/register-create-synsetV3.json update
 
 node registerScript.js api/update-synset.tcl api/v3_json/json/register-update-synsetV3.json update
@@ -19,3 +24,7 @@ node registerScript.js api/update-synset.tcl api/v3_json/json/register-update-sy
 node registerScript.js api/search-synset.tcl api/v3_json/json/register-search-synsetV3.json update
 
 node registerScript.js api/get-synset.tcl api/v3_json/json/register-get-synsetV3.json update
+
+node registerScript.js api/get-translation.tcl api/v3_json/json/register-get-translationV3.json update
+
+node registerScript.js api/flag-word.tcl api/v3_json/json/register-flag-wordV3.json register

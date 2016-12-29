@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.mgr;
 
 import java.io.File;
+import java.util.Map;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -90,11 +91,11 @@ public interface IContentManager {
 	 *            the <code>graph id</code> of the content.
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be publish.
-	 * @param String
-	 * 			  the publisher
+	 * @param requestMap
+	 * 			  the map of request params
 	 * @return the response contains the ECAR <code>URL</code> in its Result Set
 	 */
-	Response publish(String taxonomyId, String contentId, String publisher);
+	Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap);
 
 	/**
 	 * Bundle is a High level Content Operation mainly deals with providing the

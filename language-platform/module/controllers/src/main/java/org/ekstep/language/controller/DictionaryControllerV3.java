@@ -39,9 +39,9 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            the user id
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/read/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> find(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> find(@RequestParam(value = "languageId", required = true) String languageId,
 			@PathVariable(value = "objectId") String objectId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestHeader(value = "user-id") String userId) {
@@ -61,9 +61,9 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            the user id
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/{languageId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/list/", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> findAll(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> findAll(@RequestParam(value = "languageId", required = true) String languageId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestHeader(value = "user-id") String userId) {
@@ -84,9 +84,9 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 * @return the response entity
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/create/", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> create(@RequestParam(value = "languageId", required = true) String languageId,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		return wordController.create(languageId, forceUpdate, map, userId);
@@ -108,9 +108,9 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 * @return the response entity
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
+	@RequestMapping(value = "/update/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> partialUpdate(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> partialUpdate(@RequestParam(value = "languageId", required = true) String languageId,
 			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestHeader(value = "user-id") String userId) {

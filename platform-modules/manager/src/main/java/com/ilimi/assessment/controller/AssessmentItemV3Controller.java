@@ -34,7 +34,7 @@ import com.ilimi.graph.model.node.MetadataDefinition;
  */
 
 @Controller
-@RequestMapping("/v3")
+@RequestMapping("/v3/assessmentitems")
 public class AssessmentItemV3Controller extends BaseController {
 
     private static LogHelper LOGGER = LogHelper.getInstance(AssessmentItemV3Controller.class.getName());
@@ -44,7 +44,7 @@ public class AssessmentItemV3Controller extends BaseController {
 
     private static final String V2_GRAPH_ID = "domain";
 
-    @RequestMapping(value = "/private/assessment/item/create", method = RequestMethod.POST)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -64,7 +64,7 @@ public class AssessmentItemV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/private/assessment/item/update/{id:.+}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -85,7 +85,7 @@ public class AssessmentItemV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/public/assessment/item/read/{id:.+}", method = RequestMethod.GET)
+    @RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "ifields", required = false) String[] ifields,
@@ -104,7 +104,7 @@ public class AssessmentItemV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/public/assessment/item/search", method = RequestMethod.POST)
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search(
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -122,7 +122,7 @@ public class AssessmentItemV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/private/assessment/item/retire/{id:.+}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
             @RequestHeader(value = "user-id") String userId) {

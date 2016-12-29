@@ -7,8 +7,8 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/dictionary/wordlist/list/*",
-        "pathParams": ["language_id"]
+        "url": "/v3/wordlists/list",
+        "requestParams": ["language_id"]
     },
     "body": "",
     "apiId": "ekstep.wordlist.list"

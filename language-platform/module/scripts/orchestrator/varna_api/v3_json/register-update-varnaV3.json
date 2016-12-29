@@ -15,9 +15,10 @@
         "routingParam": false
     }],
     "requestPath": {
-        "type": "POST",
-        "url": "/v3/private/dictionary/varna/update/*/*",
-        "pathParams": ["language_id", "varna_id"]
+        "type": "PATCH",
+        "url": "/v3/varnas/update/*",
+        "pathParams": ["varna_id"],
+        "requestParams": ["language_id"]
     },
     "body": ""
 }

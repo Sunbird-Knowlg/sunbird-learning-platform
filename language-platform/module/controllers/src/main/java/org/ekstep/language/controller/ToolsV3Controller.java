@@ -24,7 +24,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 
 @Controller
-@RequestMapping("/v3/public/tools")
+@RequestMapping("v3/tools")
 public class ToolsV3Controller extends BaseLanguageController {
 
 	/** The logger. */
@@ -80,7 +80,7 @@ public class ToolsV3Controller extends BaseLanguageController {
 	 *            the map
 	 * @return the complexity
 	 */
-	@RequestMapping(value = "/complexityMeasures", method = RequestMethod.POST)
+	@RequestMapping(value = "/complexity", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> getComplexity(@RequestBody Map<String, Object> map) {
 		String apiId = "language.complexity";

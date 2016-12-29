@@ -31,17 +31,17 @@ import com.ilimi.graph.dac.model.Node;
  */
 
 @Controller
-@RequestMapping("/v3")
+@RequestMapping("/v3/itemsets")
 public class AssessmentItemSetV3Controller extends BaseController {
 
-    private static LogHelper LOGGER = LogHelper.getInstance(AssessmentItemSetV3Controller.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(AssessmentItemSetController.class.getName());
 
     private static final String V2_GRAPH_ID = "domain";
 
     @Autowired
     private IAssessmentManager assessmentManager;
 
-    @RequestMapping(value = "/private/assessment/itemset/create", method = RequestMethod.POST)
+    @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -61,7 +61,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/private/assessment/itemset/update/{id:.+}", method = RequestMethod.PATCH)
+    @RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -82,7 +82,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/public/assessment/itemset/read/{id:.+}", method = RequestMethod.GET)
+    @RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "isfields", required = false) String[] isfields,
@@ -101,7 +101,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/public/assessment/itemset/generate/{id:.+}", method = RequestMethod.GET)
+    @RequestMapping(value = "/generate/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> generate(@PathVariable(value = "id") String id,
             @RequestParam(value = "isfields", required = false) String[] isfields,
@@ -120,7 +120,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/public/assessment/itemset/search", method = RequestMethod.POST)
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search(
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -138,7 +138,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/private/assessment/itemset/retire/{id:.+}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/retire/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
             @RequestHeader(value = "user-id") String userId) {

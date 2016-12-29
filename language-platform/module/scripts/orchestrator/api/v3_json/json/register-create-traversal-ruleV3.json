@@ -1,25 +1,19 @@
 {
-    "name": "createWordList_v3",
+    "name": "createTraversalRule_v3",
     "parameters": [{
     	"name":"language_id",
     	"index": 0,
     	"routingParam": true
     },{
-        "name": "words",
+        "name": "rule",
         "index": 1,
-        "datatype": "java.util.ArrayList",
-        "routingParam": false
-    },{
-        "name": "metadata",
-        "index": 2,
         "datatype": "java.util.HashMap",
         "routingParam": false
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/wordlists/create",
+        "url": "/v3/traversals/create",
         "requestParams": ["language_id"]
     },
-    "body": "",
-    "apiId": "ekstep.wordlist.save"
+    "body": ""
 }

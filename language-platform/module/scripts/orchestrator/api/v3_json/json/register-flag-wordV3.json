@@ -1,0 +1,32 @@
+{
+    "name": "flagWord_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"word_id",
+        "index": 1,
+        "routingParam": false
+    },{
+    	"name":"flagReasons",
+    	"index": 2,
+        "datatype": "java.util.ArrayList",
+    	"routingParam": false
+    },{
+        "name":"flaggedBy",
+        "index": 3,
+        "routingParam": false
+    },{
+        "name":"versionKey",
+        "index": 4,
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/words/flag/*",
+        "pathParams": ["word_id"],
+        "requestParams": ["language_id"]
+    },
+    "body": ""
+}
