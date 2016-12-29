@@ -1,12 +1,12 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
-GET		/v2/health						@controllers.HealthCheckController.search()
-GET		/v3/health						@controllers.HealthCheckController.search()
+GET		/search-service/health						@controllers.HealthCheckController.search()
+GET		/health						@controllers.HealthCheckController.search()
 
-POST    /v2/search						@controllers.SearchController.search()
+POST    /search-service/v2/search						@controllers.SearchController.search()
 POST    /v3/search						@controllers.SearchController.search()
-POST    /v2/search/count				@controllers.SearchController.count()
+POST    /search-service/v2/search/count				@controllers.SearchController.count()
 POST    /v3/count						@controllers.SearchController.count()
-POST    /v2/metrics						@controllers.MetricsController.search()
+POST    /search-service/v2/metrics						@controllers.MetricsController.search()
 POST    /v3/metrics						@controllers.MetricsController.search()
