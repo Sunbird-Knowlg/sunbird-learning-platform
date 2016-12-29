@@ -134,7 +134,7 @@ public class WordChainsRelationsTest {
 		try {
 			tx = graphDb.beginTx();
 			Node pbNode = graphDb.createNode(NODE_LABEL);
-			pbNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), Identifier.getIdentifier(graphId, pbNode.getId()));
+			pbNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(pbNode.getId())));
 			pbNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "DATA_NODE");
 			pbNode.setProperty("lemma", endsWith);
 			pbNode.setProperty("type", "AksharaBoundary");
@@ -156,7 +156,7 @@ public class WordChainsRelationsTest {
 		try {
 			tx = graphDb.beginTx();
 			Node pbNode = graphDb.createNode(NODE_LABEL);
-			pbNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), Identifier.getIdentifier(graphId, pbNode.getId()));
+			pbNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(pbNode.getId())));
 			pbNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "DATA_NODE");
 			pbNode.setProperty("setName", setName + character);
 			pbNode.setProperty("type", "AksharaBoundary");

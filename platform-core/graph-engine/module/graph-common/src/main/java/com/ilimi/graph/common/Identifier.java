@@ -2,6 +2,7 @@ package com.ilimi.graph.common;
 
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,6 +16,8 @@ public class Identifier {
 	private static LogHelper LOGGER = LogHelper.getInstance(Identifier.class.getName());
 
 	private static long environmentId = 10000000;
+	private static String shardId = "1";
+	private static AtomicInteger aInteger = new AtomicInteger(1); 
 
 	static {
 		try (InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties")) {
@@ -25,17 +28,27 @@ public class Identifier {
 				if (StringUtils.isNotBlank(envId)) {
 					environmentId = Long.parseLong(envId);
 				}
+				String shard = props.getProperty("shard.id");
+				if (StringUtils.isNotBlank(shard))
+					shardId = shard;
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error! While Loading Graph Properties.", e);
 		}
 	}
 	
-	public static String getIdentifier(String graphId, long id) {
+	public static String getUniqueIdFromNeo4jId(long id) {
 		long uid = environmentId + id;
-		return getIdentifier(graphId, uid + "");
+		return uid + "" + shardId;
 	}
-
+	
+	public static String getUniqueIdFromTimestamp() {
+		long env = environmentId / 10000000;
+		long uid = System.currentTimeMillis();
+		uid = uid << 13;
+		return env + "" + aInteger.getAndIncrement() + "" + uid + "" + shardId;
+	}
+	
 	public static String getIdentifier(String graphId, String id) {
 		if (StringUtils.isBlank(graphId))
 			throw new ServerException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(),

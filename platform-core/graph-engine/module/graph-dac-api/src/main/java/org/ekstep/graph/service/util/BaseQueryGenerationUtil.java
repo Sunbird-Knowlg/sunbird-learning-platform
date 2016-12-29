@@ -97,7 +97,7 @@ public class BaseQueryGenerationUtil {
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
 			if (StringUtils.isBlank(node.getIdentifier()))
-				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
+				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 						
 
 			// Adding 'IL_UNIQUE_ID' Property
@@ -132,7 +132,7 @@ public class BaseQueryGenerationUtil {
 		if (null != node && StringUtils.isNotBlank(date)) {
 			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
 			if (StringUtils.isBlank(node.getIdentifier()))
-				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
+				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 
 			// Adding 'IL_UNIQUE_ID' Property
 			query.append(
@@ -248,7 +248,7 @@ public class BaseQueryGenerationUtil {
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
 			if (StringUtils.isBlank(node.getIdentifier()))
-				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
+				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 
 			// Adding Clause 'ON MATCH SET'
 			query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
@@ -310,7 +310,7 @@ public class BaseQueryGenerationUtil {
 			StringBuilder query = new StringBuilder();
 			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
 			if (StringUtils.isBlank(node.getIdentifier()))
-				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
+				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 
 			// Adding Clause 'ON MATCH SET'
 			query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
