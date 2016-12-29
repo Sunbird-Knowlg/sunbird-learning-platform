@@ -58,7 +58,7 @@
 	],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/public/language/search"
+        "url": "/v3/search"
     },
     "body": "",
     "apiId": "ekstep.languauge.search",

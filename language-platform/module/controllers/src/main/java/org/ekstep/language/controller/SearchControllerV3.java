@@ -37,7 +37,7 @@ public class SearchControllerV3 extends BaseController {
 	 * @param userId            the user id
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/", method = RequestMethod.POST)
+	@RequestMapping(value = "/find/", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> search(@RequestParam(name = "languageId", required = true) String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
