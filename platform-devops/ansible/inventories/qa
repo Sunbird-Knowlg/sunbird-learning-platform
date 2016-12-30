@@ -1,18 +1,18 @@
 [learning-1]
-172.31.20.28 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+172.31.13.121 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
 [hostlearning:children]
 learning-1
 
 
 [language-1]
-172.31.20.27  ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+172.31.13.121 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
 [hostlanguage:children]
 language-1
 
 [search-1]
-172.31.17.182 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+172.31.2.179 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
 
 [hostsearch:children]
@@ -20,21 +20,21 @@ search-1
 
 
 [config-1]
-172.31.17.182 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+172.31.2.179 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
 [hostconfig:children]
 config-1
 
 
 [mongodb-1]
-172.31.20.28 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+172.31.13.121 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
 [hostmongodb:children]
 mongodb-1
 
 
 [redis-1]
-172.31.20.28ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+172.31.13.121 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
 [hostredis:children]
 redis-1
