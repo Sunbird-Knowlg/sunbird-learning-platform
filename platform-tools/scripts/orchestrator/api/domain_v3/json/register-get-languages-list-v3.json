@@ -3,7 +3,7 @@
     "parameters": [],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/language/list"
+        "url": "/v3/languages/list"
     },
     "body": "",
     "apiId": "ekstep.language.list"
