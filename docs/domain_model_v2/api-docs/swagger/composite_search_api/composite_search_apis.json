@@ -9,6 +9,8 @@
       "url": "http:www.ekstep.in"
     }
   },
+  "basePath": "/v3",
+  "host": "api.ekstep.in",
   "securityDefinitions": {},
   "consumes": [
     "application/json"
@@ -22,7 +24,7 @@
   "tags": [
   ],
   "paths": {
-    "/v2/search": {
+    "/search": {
       "post": {
         "summary": "Search API to search all indexed data",
         "description": "This is the main API that accepts the search request and returns the response. The API contract is identical to the graph data structures. So the returned data structures for each object type conform to the definition specification for that object type.",
@@ -65,10 +67,76 @@
         },
         "security": []
       }
-    }
+    },
+    "/count":{
+       "post": {
+        "summary": "Count API to count number of indexed data",
+        "description": "This is the API that accepts the search request and returns the count of indexed data as  response",
+        "tags": [],
+        "operationId": "count",
+        "consumes" : [ "application/json" ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/countRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Count operation successful",
+            "schema": {
+              "$ref": "#/definitions/countResponse"
+            }
+          },
+          "400": {
+            "description": "Error While counting index! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While counting index! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+      }
   },
   "definitions": {
     "searchRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/searchObject"
+        }
+      },
+      "title" : "Search Request Body"
+    },
+    "countRequestBody" : {
       "type" : "object",
       "required" : [ "id", "params", "request", "ts", "ver" ],
       "properties" : {
@@ -111,6 +179,35 @@
         },
         "result":{
           "$ref": "#/definitions/searchResult"
+        }
+      }
+    },
+     "countResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+           "properties":{
+             "count":{
+               "type":"number",
+               "description":"count"
+             }
+           }
         }
       }
     },
