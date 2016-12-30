@@ -46,7 +46,7 @@ public class Identifier {
 		long env = environmentId / 10000000;
 		long uid = System.currentTimeMillis();
 		uid = uid << 13;
-		return env + "" + aInteger.getAndIncrement() + "" + uid + "" + shardId;
+		return env + "" + uid + "" + shardId + "" + aInteger.getAndIncrement();
 	}
 	
 	public static String getIdentifier(String graphId, String id) {
