@@ -26,13 +26,19 @@ public class RegisterTransactionEventHandlerExtensionFactory extends KernelExten
 
 			@Override
             public void start() throws Throwable {
-                handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService());
-                dependencies.getGraphDatabaseService().registerTransactionEventHandler(handler);
+                try {
+                    handler = new EkStepTransactionEventHandler(dependencies.getGraphDatabaseService());
+                    dependencies.getGraphDatabaseService().registerTransactionEventHandler(handler);
+                } catch (Exception e) {
+                }
             }
 
             @Override
             public void shutdown() throws Throwable {
-                dependencies.getGraphDatabaseService().unregisterTransactionEventHandler(handler);
+                try {
+                    dependencies.getGraphDatabaseService().unregisterTransactionEventHandler(handler);
+                } catch (Exception e) {
+                }
             }
         };
 	}
