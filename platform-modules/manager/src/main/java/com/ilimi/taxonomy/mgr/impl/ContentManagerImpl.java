@@ -47,7 +47,6 @@ import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ConceptTagger;
-import com.ilimi.taxonomy.util.Content2VecUtil;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -429,11 +428,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				node.getMetadata().put("prevState", prevState);
 
 				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
-				String event = LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+				LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
 
-				LOGGER.info("Invoking Content to Vector. | [Content ID: " + contentId + "]");
-				Content2VecUtil.invokeContent2Vec(contentId, event);
-				
 				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
 				ConceptTagger tagger = new ConceptTagger();
 				tagger.tagConcepts(taxonomyId, contentId, node);

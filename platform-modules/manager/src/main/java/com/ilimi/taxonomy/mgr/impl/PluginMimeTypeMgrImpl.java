@@ -93,7 +93,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MISSING_VERSION.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_VER_ERROR);
 		else
-			return version;
+			return StringUtils.deleteWhitespace(version);
 		
 	}
 

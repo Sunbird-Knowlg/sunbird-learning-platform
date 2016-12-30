@@ -14,14 +14,17 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.taxonomy.content.util.PropertiesUtil;
 
+@CoverageIgnore
 public class Content2VecUtil {
 
 	private static Logger LOGGER = LogManager.getLogger(Content2VecUtil.class.getName());
 	private static ObjectMapper mapper = new ObjectMapper();
 	
+	@CoverageIgnore
 	public static void invokeContent2Vec(String contentId, final String event) {
 		ExecutorService pool = null;
 		try {
@@ -50,6 +53,7 @@ public class Content2VecUtil {
 		}
 	}
 	
+	@CoverageIgnore
 	private static void makeHTTPPostRequest(String url, Request request) {
 		try {
 			HttpClient client = HttpClientBuilder.create().build();

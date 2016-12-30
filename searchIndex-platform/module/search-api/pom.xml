@@ -69,11 +69,7 @@
                         <instrumentation>
                             <ignoreTrivial>true</ignoreTrivial>
                             <excludes>
-                                <exclude>controllers/**</exclude>
-                                <exclude>**/common/**</exclude>
-                                <exclude>**/dto/**</exclude>
-                                <exclude>**/enums/**</exclude>
-                                <exclude>**/router/**</exclude>
+                                <exclude>**/**</exclude>
                             </excludes>
                         </instrumentation>
                         <check>
