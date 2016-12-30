@@ -9,7 +9,7 @@
       "url": "http:www.EkStep.in"
     }
   },
-  "basePath": "/v1",
+  "basePath": "/v3/assessment",
   "host": "api.ekstep.in",
   "securityDefinitions": {},
   "schemes": [
@@ -32,7 +32,7 @@
     }
   ],
   "paths": {
-    "/assessmentitem/search": {
+    "/assessmentitems/search": {
       "post": {
         "summary": "Search an AssessmentItem",
         "description": "This API searches and retrieves an assessmentitem/question based on the filter and relation types specified in the request body",
@@ -77,7 +77,7 @@
         "security": []
       }
     },
-    "/assessmentitem": {
+    "/assessmentitems/create": {
       "post": {
         "summary": "Creates an AssessmentItem",
         "description": "This API creates an assessmentItem/question of type MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match the following) based on the request body",
@@ -122,7 +122,7 @@
         "security": []
       }
     },
-    "/assessmentitem/{assessmentId}": {
+    "/assessmentitems/read/{assessmentId}": {
       "get": {
         "summary": "Gets an AssessmentItem",
         "description": "This API is used to fetch an assessmentItem from the _EkStep Platform_.This endpoint returns the entire assessmentItem Object with default fields. ",
@@ -163,7 +163,9 @@
           }
         },
         "security": []
-      },
+      }
+    },
+    "/assessmentitems/retire/{assessmentId}": {
       "delete": {
         "summary": "Deletes an AssessmentItem",
         "description": "This API is used to delete an assessmentItem from the EkStep Platform",
@@ -203,7 +205,9 @@
           }
         },
         "security": []
-      },
+      }
+    },
+    "/assessmentitems/update/{assessmentId}": {
       "patch": {
         "summary": "Updates the given assessmentItem",
         "description": "This API is used to update an assessmentItem based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation",
@@ -253,7 +257,52 @@
         "security": []
       }
     },
-    "/assessmentitemset": {
+    "/assessmentitems/list": {
+      "post": {
+        "summary": "Returns list of AssessmentItems",
+        "description": "This API is used to list all assessmentItem from the _EkStep Platform_.This endpoint returns the assessmentItems  with default fields. ",
+        "tags": [
+          "AssessmentItem"
+        ],
+        "operationId": "assessment_Item.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "assessmentSearchRequest",
+            "in": "body",
+            "required": true,
+            "description": "searchAssessmentRequest",
+            "schema": {
+              "$ref": "#/definitions/listAssessmentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "AssessmentItems fetched Successfully",
+            "schema": {
+              "$ref": "#/definitions/listAssessmentItemResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching the assessmentItems! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching the assessmentItems! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/itemsets/create": {
       "post": {
         "summary": "Creates an ItemSet",
         "description": "This API is used to create an ItemSet into the _EkStep Platform_ based on the request body provided. This endpoint returns the response Object with SetId created",
@@ -297,7 +346,7 @@
         "security": []
       }
     },
-    "/assessmentitemset/{ItemSetId}": {
+    "/itemsets/read/{ItemSetId}": {
       "get": {
         "summary": "Gets an ItemSet",
         "description": "This API is used to fetch an ItemSet from Item Repository of EkStep Platform. This endpoint returns the entire ItemSet Object with default fields.",
@@ -338,7 +387,9 @@
           }
         },
         "security": []
-      },
+      }
+    },
+    "/itemsets/retire//{ItemSetId}": {
       "delete": {
         "summary": "Deletes an ItemSet",
         "description": "This API is used to delete an Item set from the ItemSet repository of EkStep Platform.",
@@ -378,7 +429,9 @@
           }
         },
         "security": []
-      },
+      }
+    },
+    "/itemsets/update/{ItemSetId}": {
       "patch": {
         "summary": "Updates an ItemSet",
         "description": "This API is used to update an existing ItemSet in the Item repository  based on the request body provided from the _EkStep Platform_. This endpoint returns responseObject with SetId on updation",
@@ -428,7 +481,7 @@
         "security": []
       }
     },
-    "/assessmentitemset/search": {
+    "/itemsets/search": {
       "post": {
         "summary": "Search an ItemSet",
         "description": "This API is used to search and retrieve all ItemSets from the Item repository based on the given search creteria in the request body",
@@ -472,7 +525,51 @@
         "security": []
       }
     },
-    "/assessmentitemset/generate/{ItemSetId}": {
+     "/itemsets/list": {
+      "post": {
+        "summary": "Lists an ItemSet",
+        "description": "This API is used to list and retrieve all ItemSets from the Item repository based on the given search creteria in the request body",
+        "tags": [
+          "ItemSet"
+        ],
+        "operationId": "itemSet.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "itemsetListRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/listItemSetRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "ItemSets listed Successfully",
+            "schema": {
+              "$ref": "#/definitions/ItemSetlistResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all ItemSet lists! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all ItemSet lists! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/itemsets/generate/{ItemSetId}": {
       "get": {
         "summary": " Generates an ItemSet",
         "description": "This API is used to generate an ItemSet from ItemSet Repository of EkStep Platform. This endpoint returns the entire ItemSet Object with default fields. ",
@@ -518,6 +615,33 @@
   },
   "definitions": {
     "searchAssessmentRequest": {
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/searchObject"
+        }
+      }
+    },
+     "listAssessmentRequest": {
       "type": "object",
       "required": [
         "id",
@@ -626,6 +750,33 @@
       }
     },
     "searchItemSetRequest": {
+      "type": "object",
+      "required": [
+        "id",
+        "params",
+        "request",
+        "ts",
+        "ver"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "ver": {
+          "type": "string"
+        },
+        "ts": {
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RequestParams"
+        },
+        "request": {
+          "$ref": "#/definitions/searchItemSetObject"
+        }
+      }
+    },
+     "listItemSetRequest": {
       "type": "object",
       "required": [
         "id",
@@ -850,6 +1001,36 @@
         }
       }
     },
+      "listAssessmentItemResponse": {
+      "title": "search Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/assessmentItemMetadata"
+          }
+        }
+      }
+    },
     "assessmentDeleteResponse": {
       "title": "Delete Response",
       "properties": {
@@ -1040,6 +1221,36 @@
       }
     },
     "ItemSetSearchResponse": {
+      "title": "Get Response",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/ResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "API response code"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/assessment_item_set"
+          }
+        }
+      }
+    },
+    "ItemSetlistResponse": {
       "title": "Get Response",
       "properties": {
         "id": {
