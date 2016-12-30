@@ -39,7 +39,7 @@ import com.ilimi.taxonomy.mgr.IContentManager;
  * @author Azhar
  */
 @Controller
-@RequestMapping("/v3")
+@RequestMapping("/v3/content")
 public class ContentV3Controller extends BaseController {
 
 	private static LogHelper LOGGER = LogHelper.getInstance(ContentV3Controller.class.getName());

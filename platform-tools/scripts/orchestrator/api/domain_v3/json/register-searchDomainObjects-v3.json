@@ -21,7 +21,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/*/search/*",
+        "url": "/v3/domains/*/search/*",
         "pathParams": [
           "domain_id",
           "type"
