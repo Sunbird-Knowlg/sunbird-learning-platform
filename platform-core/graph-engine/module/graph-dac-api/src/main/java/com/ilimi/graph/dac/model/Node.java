@@ -73,7 +73,7 @@ public class Node implements Serializable {
 				else if (StringUtils.equalsIgnoreCase(key, SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
 					this.objectType = node.get(key).asString();
 				else
-					this.metadata.put(key, node.get(key));
+					this.metadata.put(key, node.get(key).asObject());
 			}
 		}
 

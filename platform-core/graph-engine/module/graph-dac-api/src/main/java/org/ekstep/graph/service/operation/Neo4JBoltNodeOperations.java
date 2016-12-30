@@ -135,6 +135,7 @@ public class Neo4JBoltNodeOperations {
 		return node;
 	}
 
+	@SuppressWarnings("unchecked")
 	public com.ilimi.graph.dac.model.Node updateNode(String graphId, com.ilimi.graph.dac.model.Node node,
 			Request request) {
 		LOGGER.debug("Graph Id: ", graphId);
@@ -160,17 +161,30 @@ public class Neo4JBoltNodeOperations {
 				parameterMap.put(GraphDACParams.node.name(), node);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
-				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.UPDATE_NODE, parameterMap));
-				for (Record record : result.list())
-					try {
-						org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
-						String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
-						if (StringUtils.isNotBlank(versionKey))
-							node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
-						LOGGER.info("Bolt Neo4J Node: ", neo4JNode);
-					} catch (Exception e) {
-						LOGGER.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
+				QueryUtil.getQuery(Neo4JOperation.UPDATE_NODE, parameterMap);
+
+				Map<String, Object> queryMap = (Map<String, Object>) parameterMap
+						.get(GraphDACParams.queryStatementMap.name());
+				for (Entry<String, Object> entry : queryMap.entrySet()) {
+					String statementTemplate = StringUtils.removeEnd(
+							(String) ((Map<String, Object>) entry.getValue()).get(GraphDACParams.query.name()),
+							CypherQueryConfigurationConstants.COMMA);
+					Map<String, Object> statementParameters = (Map<String, Object>) ((Map<String, Object>) entry
+							.getValue()).get(GraphDACParams.paramValueMap.name());
+					StatementResult result = session.run(statementTemplate, statementParameters);
+					for (Record record : result.list()) {
+						try {
+							org.neo4j.driver.v1.types.Node neo4JNode = record.get(DEFAULT_CYPHER_NODE_OBJECT).asNode();
+							String versionKey = (String) neo4JNode.get(GraphDACParams.versionKey.name()).asString();
+							if (StringUtils.isNotBlank(versionKey))
+								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+							LOGGER.info("Bolt Neo4J Node: ", neo4JNode);
+						} catch (Exception e) {
+							LOGGER.error("Error! While Fetching 'versionKey' From Neo4J Node.", e);
+						}
 					}
+				}
+
 			}
 		}
 

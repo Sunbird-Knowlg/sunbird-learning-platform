@@ -733,7 +733,7 @@ public class Neo4JBoltSearchOperations {
 				parameterMap.put(GraphDACParams.endNodeId.name(), endNodeId);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
-				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION, parameterMap));
+				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.CHECK_CYCLIC_LOOP, parameterMap));
 				if (null != result && result.hasNext()) {
 					cyclicLoopMap.put(GraphDACParams.loop.name(), new Boolean(true));
 					cyclicLoopMap.put(GraphDACParams.message.name(),
