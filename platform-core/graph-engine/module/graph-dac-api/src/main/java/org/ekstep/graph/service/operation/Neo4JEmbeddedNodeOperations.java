@@ -76,7 +76,7 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Node Doesn't Exist, Creating a New Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode = graphDb.createNode(NODE_LABEL);
 				if (StringUtils.isBlank(node.getIdentifier()))
-					node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+					node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
 				LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
@@ -123,7 +123,7 @@ public class Neo4JEmbeddedNodeOperations {
 
 			Node neo4jNode = graphDb.createNode(NODE_LABEL);
 			if (StringUtils.isBlank(node.getIdentifier()))
-				node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+				node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
 
 			LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 			neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
@@ -226,7 +226,7 @@ public class Neo4JEmbeddedNodeOperations {
 					neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
 				}
 				if (StringUtils.isBlank(node.getIdentifier()))
-					node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+					node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
 				LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());

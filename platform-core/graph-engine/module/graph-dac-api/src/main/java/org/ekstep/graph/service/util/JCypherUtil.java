@@ -133,7 +133,7 @@ public class JCypherUtil {
 				// Setting Identifier
 				LOGGER.info("Setting System Metadata.");
 				if (StringUtils.isBlank(node.getIdentifier()))
-					node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), DateUtils.parse(date).getTime()));
+					node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 
 				// Setting Identifier and Node Type
 				LOGGER.info("Setting System Properties.");
