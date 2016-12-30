@@ -11,7 +11,7 @@ info:
     name: EkStep License
     url: 'http:www.ekstep.in'
 host: api.ekstep.in
-basePath: /v2
+basePath: /v3/content
 schemes:
   - https
 securityDefinitions: {}
@@ -31,7 +31,7 @@ tags:
   - name: Bundle
     description: Everything related to bundling the content into single package
 paths:
-  /content:
+  /create:
     post:
       tags:
         - Core
@@ -67,7 +67,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentCreateErrorResponse'
       security: []
-  '/content/{contentId}':
+  '/update/{contentId}':
     patch:
       tags:
         - Core
@@ -110,6 +110,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
       security: []
+  '/read/{contentId}':
     get:
       tags:
         - Core
@@ -150,6 +151,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
       security: []
+  '/retire/{contentId}':
     delete:
       tags:
         - Core
@@ -188,7 +190,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentDeleteErrorResponse'
       security: []
-  /content/list:
+  /list:
     post:
       tags:
         - Search
@@ -229,7 +231,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentListErrorResponse'
       security: []
-  /content/search:
+  /search:
     post:
       tags:
         - Search
@@ -269,7 +271,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentSearchErrorResponse'
       security: []
-  '/content/upload/{contentId}':
+  '/upload/{contentId}':
     post:
       tags:
         - Workflow
@@ -313,7 +315,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
       security: []
-  '/content/publish/{contentId}':
+  '/publish/{contentId}':
     post:
       tags:
         - Workflow
@@ -356,7 +358,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
       security: []
-  /content/bundle:
+  /bundle:
     post:
       tags:
         - Bundle

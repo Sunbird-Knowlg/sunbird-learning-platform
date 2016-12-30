@@ -1,0 +1,4503 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2.0.0",
+    "title": "Domain Model API",
+    "description": "Domain Model encapsulates WHAT TO TEACH (Dimensions and Concepts) and HOW TO TEACH (Methods) aspects of EkStep Learning Platform",
+    "license": {
+      "name": "EkStep License",
+      "url": "http:www.ekstep.in"
+    }
+  },
+  "host": "api.EkStep.in",
+  "basePath": "/v3/domains",
+  "schemes": [
+    "https"
+  ],
+  "securityDefinitions": {},
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "Domains",
+      "description": "Everything related to domain Operations"
+    },
+    {
+      "name": "Domain Objects",
+      "description": "Everything related to Domain Objects & their Operations"
+    }
+  ],
+  "paths": {
+    "/list": {
+      "get": {
+        "summary": "Gets All Live Domains",
+        "description": "This API  is used to get list of all live domains available in the  _EkStep Learning Platform_",
+        "operationId": "domain.list",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Domains"
+        ],
+        "responses": {
+          "200": {
+            "description": "All live Domains fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "domains": {
+                      "type": "array",
+                      "items": {
+                        "title": "domains",
+                        "type": "object",
+                        "properties": {
+                          "identifier": {
+                            "type": "string",
+                            "description": "Domain Identifier"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "code of the domain"
+                          },
+                          "children": {
+                            "type": "array",
+                            "items": {
+                              "properties": {
+                                "identifier": {
+                                  "type": "string",
+                                  "description": "Domain Identifier"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "specific domain childName"
+                                },
+                                "objectType": {
+                                  "type": "string",
+                                  "description": "objectType"
+                                },
+                                "relation": {
+                                  "type": "string",
+                                  "description": "relation"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "description"
+                                },
+                                "index": {
+                                  "type": "string",
+                                  "description": "index"
+                                }
+                              }
+                            }
+                          },
+                          "subject": {
+                            "type": "string",
+                            "description": "domain subject"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "domain name"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "description about domain"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                          },
+                          "tags": {
+                            "type": "array",
+                            "items": {
+                              "description": "tags",
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching all domains! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching all domains! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/read": {
+      "get": {
+        "summary": "Gets Specific Domain",
+        "description": "This API is used to get specific domain from _EkStep Learning Platform_. This endpoint returns specific domain response object with properties and relations",
+        "tags": [
+          "Domains"
+        ],
+        "operationId": "domain.info",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain ID to query the details",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Specific domain fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "domain": {
+                      "title": "domain",
+                      "type": "object",
+                      "properties": {
+                        "identifier": {
+                          "type": "string",
+                          "description": "Domain Identifier"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "code of the domain"
+                        },
+                        "children": {
+                          "type": "array",
+                          "items": {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "objectType": {
+                                "type": "string",
+                                "description": "objectType"
+                              },
+                              "relation": {
+                                "type": "string",
+                                "description": "relation"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description"
+                              },
+                              "index": {
+                                "type": "string",
+                                "description": "index"
+                              }
+                            }
+                          }
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "domain subject"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "domain name"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description about domain"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "description": "tags",
+                            "type": "object"
+                          }
+                        },
+                        "dimension_count": {
+                          "type": "integer",
+                          "description": "number of dimensions under specified domain"
+                        },
+                        "misconception_count": {
+                          "type": "integer",
+                          "description": "number of misconceptions under specified domain"
+                        },
+                        "concept_count": {
+                          "type": "integer",
+                          "description": "number of concepts under specified domain"
+                        },
+                        "method_count": {
+                          "type": "integer",
+                          "description": "number of methods under specified domain"
+                        },
+                        "content_count": {
+                          "type": "integer",
+                          "description": "number of contents under specified domain"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching the Specific domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching specific domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/dimensions/list": {
+      "get": {
+        "summary": "Gets All Live Dimensions",
+        "description": "This API is used to get all the live dimensions of given domainId from the EkStep Platform. This API Returns the details of all dimensions, with properties and relations",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain within which to return the dimensions",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All live Dimensions fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "dimensions": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "identifier": {
+                            "type": "string",
+                            "description": "Domain Identifier"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "specific domain childName"
+                          },
+                          "subject": {
+                            "type": "string",
+                            "description": "domain subject"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "code of the domain"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "description about domain"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                          },
+                          "parent": {
+                            "type": "array",
+                            "items": {
+                              "properties": {
+                                "identifier": {
+                                  "type": "string",
+                                  "description": "Domain Identifier"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "specific domain childName"
+                                },
+                                "objectType": {
+                                  "type": "string",
+                                  "description": "objectType"
+                                },
+                                "relation": {
+                                  "type": "string",
+                                  "description": "relation"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "description"
+                                },
+                                "index": {
+                                  "type": "string",
+                                  "description": "index"
+                                }
+                              }
+                            }
+                          },
+                          "children": {
+                            "type": "array",
+                            "items": {
+                              "properties": {
+                                "identifier": {
+                                  "type": "string",
+                                  "description": "Domain Identifier"
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "description": "specific domain childName"
+                                },
+                                "objectType": {
+                                  "type": "string",
+                                  "description": "objectType"
+                                },
+                                "relation": {
+                                  "type": "string",
+                                  "description": "relation"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "description"
+                                },
+                                "index": {
+                                  "type": "string",
+                                  "description": "index"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching all dimensions within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching all dimensions within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/dimensions/create":{
+      "post": {
+        "summary": "Creates New Dimension",
+        "description": "This API is used to create a dimension into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the dimension into the platform, This endpoint returns the node id as _node_id_ i.e. the identifier of created dimension.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.object.create",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "create Dimension request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "ver": {
+                  "type": "string"
+                },
+                "ts": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "msgid"
+                  ],
+                  "properties": {
+                    "msgid": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "Params"
+                },
+                "request": {
+                  "properties": {
+                    "identifier": {
+                      "type": "string",
+                      "description": "Domain Identifier"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "specific domain childName"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "domain subject"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code of the domain"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description about domain"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                    },
+                    "parent": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "identifier": {
+                            "type": "string",
+                            "description": "Domain Identifier"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "specific domain childName"
+                          },
+                          "objectType": {
+                            "type": "string",
+                            "description": "objectType"
+                          },
+                          "relation": {
+                            "type": "string",
+                            "description": "relation"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "description"
+                          },
+                          "index": {
+                            "type": "string",
+                            "description": "index"
+                          }
+                        }
+                      }
+                    },
+                    "children": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "identifier": {
+                            "type": "string",
+                            "description": "Domain Identifier"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "specific domain childName"
+                          },
+                          "objectType": {
+                            "type": "string",
+                            "description": "objectType"
+                          },
+                          "relation": {
+                            "type": "string",
+                            "description": "relation"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "description"
+                          },
+                          "index": {
+                            "type": "string",
+                            "description": "index"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimension created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "title": "Node Id",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "type": "string",
+                      "description": "Node Identifier"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While creating dimension within domain | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While creating dimension within domain | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/dimensions/read/{dimensionId}": {
+      "get": {
+        "summary": "Gets Specific Dimension",
+        "description": "This API is used to get specific dimension from the EkStep Platform.This endpoint returns the details of the specific dimension, and optionally the sub-graph within it.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.info",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "dimensionId",
+            "in": "path",
+            "required": true,
+            "description": "Dimension to return (concepts are unique within a domain)",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimension fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "dimension": {
+                      "properties": {
+                        "identifier": {
+                          "type": "string",
+                          "description": "Domain Identifier"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "specific domain childName"
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "domain subject"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "code of the domain"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description about domain"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                        },
+                        "parent": {
+                          "type": "array",
+                          "items": {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "objectType": {
+                                "type": "string",
+                                "description": "objectType"
+                              },
+                              "relation": {
+                                "type": "string",
+                                "description": "relation"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description"
+                              },
+                              "index": {
+                                "type": "string",
+                                "description": "index"
+                              }
+                            }
+                          }
+                        },
+                        "children": {
+                          "type": "array",
+                          "items": {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "objectType": {
+                                "type": "string",
+                                "description": "objectType"
+                              },
+                              "relation": {
+                                "type": "string",
+                                "description": "relation"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description"
+                              },
+                              "index": {
+                                "type": "string",
+                                "description": "index"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching specified dimension  | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching the specific dimension | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/dimensions/update/{dimensionId}":{
+      "patch": {
+        "summary": "Updates Specific Dimension",
+        "description": "This API is used to update the given dimension with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to update the dimension into the platform, This endpoint returns the node id as _node_id_ i.e. the identifier of updated dimension",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "dimensionId",
+            "in": "path",
+            "required": true,
+            "description": "dimension ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "update Dimension request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "ver": {
+                  "type": "string"
+                },
+                "ts": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "msgid"
+                  ],
+                  "properties": {
+                    "msgid": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "Params"
+                },
+                "request": {
+                  "properties": {
+                    "identifier": {
+                      "type": "string",
+                      "description": "Domain Identifier"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "specific domain childName"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "domain subject"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code of the domain"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description about domain"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                    },
+                    "parent": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "identifier": {
+                            "type": "string",
+                            "description": "Domain Identifier"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "specific domain childName"
+                          },
+                          "objectType": {
+                            "type": "string",
+                            "description": "objectType"
+                          },
+                          "relation": {
+                            "type": "string",
+                            "description": "relation"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "description"
+                          },
+                          "index": {
+                            "type": "string",
+                            "description": "index"
+                          }
+                        }
+                      }
+                    },
+                    "children": {
+                      "type": "array",
+                      "items": {
+                        "properties": {
+                          "identifier": {
+                            "type": "string",
+                            "description": "Domain Identifier"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "specific domain childName"
+                          },
+                          "objectType": {
+                            "type": "string",
+                            "description": "objectType"
+                          },
+                          "relation": {
+                            "type": "string",
+                            "description": "relation"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "description"
+                          },
+                          "index": {
+                            "type": "string",
+                            "description": "index"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dimension updated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "title": "Node Id",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "type": "string",
+                      "description": "Node Identifier"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/concepts/list": {
+      "get": {
+        "summary": "Gets All Live Concepts",
+        "description": "This API is used to get the list of concepts and their properties and relations from the _EkStep Platform_",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.concept.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain ID to query the details",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All live Concepts fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "concepts": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "subject": {
+                                "type": "string",
+                                "description": "domain subject"
+                              },
+                              "code": {
+                                "type": "string",
+                                "description": "code of the domain"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description about domain"
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                              },
+                              "gradeLevel": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "lastUpdatedOn": {
+                                "type": "string",
+                                "description": ""
+                              },
+                              "createdOn": {
+                                "type": "string",
+                                "description": ""
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "subject": {
+                                "type": "string",
+                                "description": "domain subject"
+                              },
+                              "code": {
+                                "type": "string",
+                                "description": "code of the domain"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description about domain"
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                              },
+                              "parent": {
+                                "properties": {
+                                  "identifier": {
+                                    "type": "string",
+                                    "description": "Domain Identifier"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "specific domain childName"
+                                  },
+                                  "objectType": {
+                                    "type": "string",
+                                    "description": "objectType"
+                                  },
+                                  "relation": {
+                                    "type": "string",
+                                    "description": "relation"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "description": "description"
+                                  },
+                                  "index": {
+                                    "type": "string",
+                                    "description": "index"
+                                  }
+                                }
+                              },
+                              "thumbnail": {
+                                "type": "string",
+                                "description": "thumbnail"
+                              },
+                              "lastUpdatedOn": {
+                                "type": "string",
+                                "description": ""
+                              },
+                              "createdOn": {
+                                "type": "string",
+                                "description": ""
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "osId": {
+                                "type": "string",
+                                "description": "osId"
+                              },
+                              "mimeType": {
+                                "type": "string",
+                                "description": "mimeTYpe"
+                              },
+                              "gradeLevel": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "learningObjective": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "pre_requisite": {
+                                "properties": {
+                                  "identifier": {
+                                    "type": "string",
+                                    "description": "Domain Identifier"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "specific domain childName"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "description": "description"
+                                  },
+                                  "relation": {
+                                    "type": "string",
+                                    "description": "relation"
+                                  },
+                                  "index": {
+                                    "type": "string",
+                                    "description": "index"
+                                  }
+                                }
+                              },
+                              "co_occurrence": {
+                                "properties": {
+                                  "identifier": {
+                                    "type": "string",
+                                    "description": "Domain Identifier"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "specific domain childName"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "description": "description"
+                                  },
+                                  "relation": {
+                                    "type": "string",
+                                    "description": "relation"
+                                  },
+                                  "index": {
+                                    "type": "string",
+                                    "description": "index"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "subject": {
+                                "type": "string",
+                                "description": "domain subject"
+                              },
+                              "code": {
+                                "type": "string",
+                                "description": "code of the domain"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description about domain"
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                              },
+                              "owner": {
+                                "type": "string",
+                                "description": "owner"
+                              },
+                              "lastUpdatedOn": {
+                                "type": "string",
+                                "description": ""
+                              },
+                              "createdOn": {
+                                "type": "string",
+                                "description": ""
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "osId": {
+                                "type": "string",
+                                "description": "osId"
+                              },
+                              "mimeType": {
+                                "type": "string",
+                                "description": "mimeTYpe"
+                              },
+                              "gradeLevel": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "learningObjective": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "subject": {
+                                "type": "string",
+                                "description": "domain subject"
+                              },
+                              "code": {
+                                "type": "string",
+                                "description": "code of the domain"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description about domain"
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                              },
+                              "parent": {
+                                "properties": {
+                                  "identifier": {
+                                    "type": "string",
+                                    "description": "Domain Identifier"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "description": "specific domain childName"
+                                  },
+                                  "objectType": {
+                                    "type": "string",
+                                    "description": "objectType"
+                                  },
+                                  "relation": {
+                                    "type": "string",
+                                    "description": "relation"
+                                  },
+                                  "description": {
+                                    "type": "string",
+                                    "description": "description"
+                                  },
+                                  "index": {
+                                    "type": "string",
+                                    "description": "index"
+                                  }
+                                }
+                              },
+                              "externalValidation": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "osId": {
+                                "type": "string",
+                                "description": "osId"
+                              },
+                              "mimeType": {
+                                "type": "string",
+                                "description": "mimeTYpe"
+                              },
+                              "tags": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": ""
+                                }
+                              },
+                              "gradeLevel": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "description": "s"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching all Concepts ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching all Concepts | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/concepts/create":{
+      "post": {
+        "summary": "Creates New Concept",
+        "description": "This API is used to create a concept into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the concept into the platform, This endpoint returns the node id as _node_id_ i.e. the identifier of created concept.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.concept.save",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain for which all concepts are required",
+            "type": "string"
+          },
+          {
+            "name": "create Concept request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "ver": {
+                  "type": "string"
+                },
+                "ts": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "msgid"
+                  ],
+                  "properties": {
+                    "msgid": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "Params"
+                },
+                "request": {
+                  "properties": {
+                    "identifier": {
+                      "type": "string",
+                      "description": "Domain Identifier"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "specific domain childName"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "domain subject"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code of the domain"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description about domain"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                    },
+                    "parent": {
+                      "properties": {
+                        "identifier": {
+                          "type": "string",
+                          "description": "Domain Identifier"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "specific domain childName"
+                        },
+                        "objectType": {
+                          "type": "string",
+                          "description": "objectType"
+                        },
+                        "relation": {
+                          "type": "string",
+                          "description": "relation"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description"
+                        },
+                        "index": {
+                          "type": "string",
+                          "description": "index"
+                        }
+                      }
+                    },
+                    "externalValidation": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": ""
+                      }
+                    },
+                    "osId": {
+                      "type": "string",
+                      "description": "osId"
+                    },
+                    "mimeType": {
+                      "type": "string",
+                      "description": "mimeTYpe"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": ""
+                      }
+                    },
+                    "gradeLevel": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "s"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Concept created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "title": "Node Id",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "type": "string",
+                      "description": "Node Identifier"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While Concept Creation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While Concept Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/concepts/retire/{conceptId}": {
+      "post": {
+        "summary": "Retires Specific Concept.",
+        "description": "This API retires the Concept. The concept is marked as deprecated and the concept data is still retained in the system.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.concept.retire",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": " Domain within which to search",
+            "type": "string"
+          },
+          {
+            "name": "conceptId",
+            "in": "path",
+            "required": true,
+            "description": "Concept to be retired",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Concept retired successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "type": "object",
+                  "properties": {}
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While retiring the specified concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While retiring the specified concept! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/concepts/read/{conceptId}": {
+      "get": {
+        "summary": "Gets Specific Concept",
+        "description": "This is used to fetch the specific concept from the _EkStep Platform_. This endpoint returns the entire concept object with default fields.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.concept.info",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "conceptId",
+            "in": "path",
+            "required": true,
+            "description": "concept ID to query the details",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Specific Concept fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "concept": {
+                      "properties": {
+                        "identifier": {
+                          "type": "string",
+                          "description": "Domain Identifier"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "specific domain childName"
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "domain subject"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "code of the domain"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description about domain"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                        },
+                        "parent": {
+                          "properties": {
+                            "identifier": {
+                              "type": "string",
+                              "description": "Domain Identifier"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "specific domain childName"
+                            },
+                            "objectType": {
+                              "type": "string",
+                              "description": "objectType"
+                            },
+                            "relation": {
+                              "type": "string",
+                              "description": "relation"
+                            },
+                            "description": {
+                              "type": "string",
+                              "description": "description"
+                            },
+                            "index": {
+                              "type": "string",
+                              "description": "index"
+                            }
+                          }
+                        },
+                        "externalValidation": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "description": ""
+                          }
+                        },
+                        "osId": {
+                          "type": "string",
+                          "description": "osId"
+                        },
+                        "mimeType": {
+                          "type": "string",
+                          "description": "mimeTYpe"
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "description": ""
+                          }
+                        },
+                        "gradeLevel": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "description": "s"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching the specific concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching the specific concept! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/concepts/update/{conceptId}":{
+      "patch": {
+        "summary": "Updates Specific Concept",
+        "description": "This API is used to update the given concept, with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to update the concept into the platform, This endpoint returns the node id as _node_id_ i.e. the identifier of updated concept.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.concept.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain for which all concepts are required",
+            "type": "string"
+          },
+          {
+            "name": "conceptId",
+            "in": "path",
+            "required": true,
+            "description": "Concept identifier (concepts are unique within a domain)",
+            "type": "string"
+          },
+          {
+            "name": "update Concept request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "ver": {
+                  "type": "string"
+                },
+                "ts": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "msgid"
+                  ],
+                  "properties": {
+                    "msgid": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "Params"
+                },
+                "request": {
+                  "properties": {
+                    "identifier": {
+                      "type": "string",
+                      "description": "Domain Identifier"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "specific domain childName"
+                    },
+                    "subject": {
+                      "type": "string",
+                      "description": "domain subject"
+                    },
+                    "code": {
+                      "type": "string",
+                      "description": "code of the domain"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "description about domain"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                    },
+                    "parent": {
+                      "properties": {
+                        "identifier": {
+                          "type": "string",
+                          "description": "Domain Identifier"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "specific domain childName"
+                        },
+                        "objectType": {
+                          "type": "string",
+                          "description": "objectType"
+                        },
+                        "relation": {
+                          "type": "string",
+                          "description": "relation"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description"
+                        },
+                        "index": {
+                          "type": "string",
+                          "description": "index"
+                        }
+                      }
+                    },
+                    "externalValidation": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": ""
+                      }
+                    },
+                    "osId": {
+                      "type": "string",
+                      "description": "osId"
+                    },
+                    "mimeType": {
+                      "type": "string",
+                      "description": "mimeTYpe"
+                    },
+                    "tags": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": ""
+                      }
+                    },
+                    "gradeLevel": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "description": "s"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Concept Updated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "title": "Node Id",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "type": "string",
+                      "description": "Node Identifier"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While updating the concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception' ",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While updating the concept! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/methods/list": {
+      "get": {
+        "summary": "Gets All Live Methods",
+        "description": "This API is used to get all the live methods from the EkStep Platform. This endpoint returns details of all methods",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.methods.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domainId for which all methods are required",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All live Methods fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "methods": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "properties": {
+                              "identifier": {
+                                "type": "string",
+                                "description": "Domain Identifier"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "specific domain childName"
+                              },
+                              "subject": {
+                                "type": "string",
+                                "description": "domain subject"
+                              },
+                              "code": {
+                                "type": "string",
+                                "description": "code of the domain"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "description about domain"
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                              }
+                            }
+                          },
+                          {
+                            "properties": {
+                              "complexity": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object"
+                                }
+                              },
+                              "learningStyle": {
+                                "type": "string",
+                                "description": "learningStyle"
+                              },
+                              "createdOn": {
+                                "type": "string",
+                                "description": "createdOn"
+                              },
+                              "skills": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object"
+                                }
+                              },
+                              "cognitiveProcessing": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object"
+                                }
+                              },
+                              "lastUpdatedOn": {
+                                "type": "number",
+                                "description": "latest Update"
+                              },
+                              "material": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object"
+                                }
+                              },
+                              "interactivity": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching all methods within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching all methods within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/mathods/create":{
+      "post": {
+        "summary": "Creates New Method",
+        "description": "This API is used to create a method into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the method into the platform, The _method_ endpoint returns the node id as _node_id_ i.e. the identifier of created method.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.method.save",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain for the method",
+            "type": "string"
+          },
+          {
+            "name": "create Method request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "ver": {
+                  "type": "string"
+                },
+                "ts": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "msgid"
+                  ],
+                  "properties": {
+                    "msgid": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "Params"
+                },
+                "request": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "identifier": {
+                          "type": "string",
+                          "description": "Domain Identifier"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "specific domain childName"
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "domain subject"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "code of the domain"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description about domain"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "complexity": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "learningStyle": {
+                          "type": "string",
+                          "description": "learningStyle"
+                        },
+                        "createdOn": {
+                          "type": "string",
+                          "description": "createdOn"
+                        },
+                        "skills": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "cognitiveProcessing": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "lastUpdatedOn": {
+                          "type": "number",
+                          "description": "latest Update"
+                        },
+                        "material": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "interactivity": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Method created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "title": "Node Id",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "type": "string",
+                      "description": "Node Identifier"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While Creating method within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception' ",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While Creating method within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/methods/read/{methodId}": {
+      "get": {
+        "summary": "Gets Specific Method",
+        "description": "This API is used to get specific method object from theEkStep Platform. This endpoint returns the details of specific method, its properties and relations",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.method.info",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "methodId",
+            "in": "path",
+            "required": true,
+            "description": "(Path Parameter) Method to return (methods are unique within a domain)",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Specific Method fetched successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "properties": {
+                    "method": {
+                      "allOf": [
+                        {
+                          "properties": {
+                            "identifier": {
+                              "type": "string",
+                              "description": "Domain Identifier"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "specific domain childName"
+                            },
+                            "subject": {
+                              "type": "string",
+                              "description": "domain subject"
+                            },
+                            "code": {
+                              "type": "string",
+                              "description": "code of the domain"
+                            },
+                            "description": {
+                              "type": "string",
+                              "description": "description about domain"
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                            }
+                          }
+                        },
+                        {
+                          "properties": {
+                            "complexity": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "learningStyle": {
+                              "type": "string",
+                              "description": "learningStyle"
+                            },
+                            "createdOn": {
+                              "type": "string",
+                              "description": "createdOn"
+                            },
+                            "skills": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "cognitiveProcessing": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "lastUpdatedOn": {
+                              "type": "number",
+                              "description": "latest Update"
+                            },
+                            "material": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            },
+                            "interactivity": {
+                              "type": "array",
+                              "items": {
+                                "type": "object"
+                              }
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching all methods within specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While fetching all methods within specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/{domainId}/methods/update/{methodId}":{
+      "patch": {
+        "summary": "Updates Specific Method",
+        "description": "This API is used to update the given method, with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to update the concept into the platform, The _method_ endpoint returns the node id as _node_id_ i.e. the identifier of updated method.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.method.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "methodId",
+            "in": "path",
+            "required": true,
+            "description": "method ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "update Dimension request",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "ver": {
+                  "type": "string"
+                },
+                "ts": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "msgid"
+                  ],
+                  "properties": {
+                    "msgid": {
+                      "type": "string"
+                    }
+                  },
+                  "title": "Params"
+                },
+                "request": {
+                  "allOf": [
+                    {
+                      "properties": {
+                        "identifier": {
+                          "type": "string",
+                          "description": "Domain Identifier"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "specific domain childName"
+                        },
+                        "subject": {
+                          "type": "string",
+                          "description": "domain subject"
+                        },
+                        "code": {
+                          "type": "string",
+                          "description": "code of the domain"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "description about domain"
+                        },
+                        "status": {
+                          "type": "string",
+                          "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+                        }
+                      }
+                    },
+                    {
+                      "properties": {
+                        "complexity": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "learningStyle": {
+                          "type": "string",
+                          "description": "learningStyle"
+                        },
+                        "createdOn": {
+                          "type": "string",
+                          "description": "createdOn"
+                        },
+                        "skills": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "cognitiveProcessing": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "lastUpdatedOn": {
+                          "type": "number",
+                          "description": "latest Update"
+                        },
+                        "material": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        },
+                        "interactivity": {
+                          "type": "array",
+                          "items": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated Method successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code"
+                },
+                "result": {
+                  "title": "Node Id",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "type": "string",
+                      "description": "Node Identifier"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error While updating the method within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Error While updating the method within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "title": "FailureResponse",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "API Identifier"
+                },
+                "ver": {
+                  "type": "string",
+                  "description": "API version information"
+                },
+                "ts": {
+                  "type": "string",
+                  "description": "API execution timespan"
+                },
+                "params": {
+                  "title": "Response Params",
+                  "type": "object",
+                  "properties": {
+                    "resmsgid": {
+                      "type": "string",
+                      "description": "Response Message Id"
+                    },
+                    "msgid": {
+                      "type": "string",
+                      "description": "Message Id"
+                    },
+                    "err": {
+                      "type": "string",
+                      "description": "Error Code"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Response Status"
+                    },
+                    "errmsg": {
+                      "type": "string",
+                      "description": "Error Message"
+                    }
+                  }
+                },
+                "responseCode": {
+                  "type": "string",
+                  "description": "API response code "
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  }
+}
