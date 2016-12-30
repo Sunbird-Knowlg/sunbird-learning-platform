@@ -1,8 +1,8 @@
 #!/bin/sh
 today=$(date "+%Y-%m-%d")
 DIR=/data/graphDB
-ZIP=/home/ec2-user/zipfolder
-BACKUP=/home/ec2-user/backup
+ZIP=/home/{{user}}/zipfolder
+BACKUP=/home/{{user}}/backup
 
 if [ -d $ZIP ]; then
     echo "directory exists"
@@ -25,7 +25,7 @@ else
     echo "$DIR is Empty"
 fi
 
-cd /home/ec2-user/tmp
+cd /home/{{user}}/tmp
 for file in *.zip; do
     unzip -o "$file" -d /data/graphDB
 done

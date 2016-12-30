@@ -1,26 +1,31 @@
-
 - name: Install required utils
-  yum: name={{ item }} state=present 
+  apt: name={{ item }} state=present 
   become: yes
   with_items:
     - git
     - git-core
     - zip
     - gcc
+    - make
+   # - make-guile
   tags:
        - learning
        - total
 
     
 - name: Git clone FFmpeg repo
-  git: repo=https://github.com/FFmpeg/FFmpeg.git dest=/home/ec2-user/ffmpeg version=release/3.0 
+  become: yes
+  become_user: learning
+  git: repo=https://github.com/FFmpeg/FFmpeg.git dest=/home/{{user}}/ffmpeg version=release/3.0 
   tags:
        - learning
        - total
 
 
 - name: change the permissions of ffmpeg
-  file: path=/home/ec2-user/ffmpeg owner=ec2-user group=ec2-user recurse=yes
+  become: yes
+  become_user: learning
+  file: path=/home/{{user}}/ffmpeg owner={{user}} group={{user}} recurse=yes
   tags:
        - learning
        - total
@@ -28,7 +33,8 @@
 
 - name: run the command ./configure
   become: yes
-  command: chdir=/home/ec2-user/ffmpeg  ./configure --disable-yasm
+  become_user: learning
+  command: chdir=/home/{{user}}/ffmpeg  ./configure --disable-yasm
   tags:
        - learning
        - total
@@ -36,7 +42,8 @@
        
 - name: run the command make
   become: yes
-  command: chdir=/home/ec2-user/ffmpeg  make
+  become_user: learning
+  command: chdir=/home/{{user}}/ffmpeg  make
   tags:
        - learning
        - total
@@ -44,7 +51,7 @@
 
 - name: run the command make install
   become: yes
-  command: chdir=/home/ec2-user/ffmpeg make install
+  command: chdir=/home/{{user}}/ffmpeg make install
   tags:
        - learning
        - total
@@ -59,11 +66,10 @@
   tags:
        - learning
        - total
-
   
 - name: Change permissions after copying ffmpeg files
   become: yes
-  file: path=/usr/local/bin/{{ item }} owner=ec2-user group=ec2-user mode=0755
+  file: path=/usr/local/bin/{{ item }} owner={{user}} group={{user}} mode=0755
   with_items:
      - ffmpeg
      - ffprobe
@@ -71,5 +77,3 @@
   tags:
        - learning
        - total
-
-

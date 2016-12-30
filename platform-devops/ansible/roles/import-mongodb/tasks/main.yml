@@ -1,5 +1,5 @@
 ---
 - name: run command
-  shell: mongoimport --db orchestrator_db --collection scripts --file /home/ec2-user/commands.json
+  shell: mongoimport --db orchestrator_db --collection scripts --file /home/{{user}}/commands.json
   tags: 
        - always

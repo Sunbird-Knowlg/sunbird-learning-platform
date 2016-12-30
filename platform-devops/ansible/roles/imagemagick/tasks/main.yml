@@ -1,7 +1,8 @@
 ---
 # tasks file for imagemagick
 - name: install imagemagick
-  yum: name=ImageMagick state=present update_cache=yes
+  become: yes
+  apt: name=imagemagick state=present update_cache=yes
   tags:
        - learning
        - total

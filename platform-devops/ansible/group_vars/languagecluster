@@ -1,0 +1,13 @@
+user: learning
+user_home: /home/learning
+neo4j_dir: "neo4j-language"
+neo4j_home: "{{user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.0.4"
+host_coordination: "172.31.30.52:8001"
+dbms_connector_bolt_address: "0.0.0.0:8687"
+dbms_connector_http_address: "0.0.0.0:8474"
+dbms_connector_https_address: "localhost:8473"
+backup: "true"
+backup_port: "8362"
+dbms_backup_enabled: true
+dbms_backup_address: "0.0.0.0:8362"
+zip_file: language-graph-extension-1.0.jar

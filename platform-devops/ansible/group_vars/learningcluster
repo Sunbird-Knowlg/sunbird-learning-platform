@@ -1,0 +1,13 @@
+user: learning
+user_home: /home/learning
+neo4j_dir: neo4j-learning
+neo4j_home: "{{user_home}}/neo4j-learning/neo4j-enterprise-3.0.4"
+host_coordination: "172.31.30.52:7001"
+dbms_connector_bolt_address: "0.0.0.0:7687"
+dbms_connector_http_address: "0.0.0.0:7474"
+dbms_connector_https_address: "localhost:7473"
+backup: "true"
+backup_port: "7362"
+dbms_backup_enabled: true
+dbms_backup_address: "0.0.0.0:7362"
+zip_file: learning-graph-extension-1.0.jar

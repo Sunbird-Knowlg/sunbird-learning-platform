@@ -1,0 +1,2 @@
+[remote]
+54.169.42.74 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform.pem 

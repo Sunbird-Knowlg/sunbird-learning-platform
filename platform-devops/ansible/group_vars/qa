@@ -1,5 +1,6 @@
-neo4j_home: /home/ec2-user/neo4j-community-3.0.4
-user_home: /home/ec2-user
+user: learning
+neo4j_home: /home/{{user}}/neo4j-community-3.0.4
+user_home: /home/{{user}}
 service_url: 172.31.20.28:8080
 zookeeper_url: 172.31.1.92:2181
 graph_event_topic_id: new-qa.learning.graph.events
@@ -21,19 +22,23 @@ tomcat_init_mem: -Xms1024m
 tomcat_max_mem: -Xmx4096m
 tomcat_init_search: -Xms1024m 
 tomcat_max_search: -Xmx4096m
-graphevent_kafka_url: "172.31.1.92:9092,172.31.10.1:9092,172.31.5.125:9092"
+graphevent_kafka_url: "172.31.1.92:9092"
 graphevent_kafka_topic_id: "new-qa.learning.graph.events"
 content_to_vec_url: http://172.31.18.88:9000/content-to-vec
 s3_config_environment: qa
 cql_path: "/mnt/data/analytics/apache-cassandra-3.7/bin/cqlsh"
-cassandra_user: ec2-user
+cassandra_user: {{user}}
 redis_host: 172.31.20.28
 redis_port: 6379
 cassandra_host: 172.31.18.88
 cassandra_port: 9042
-graph_passport_key: 254f9f21fbd4fafa9b53dfa5f0bf1a3c
-learning_neo4j_bolt_url: bolt://172.31.30.52:7687
-language_neo4j_bolt_url: bolt://172.31.30.52:8687
+search_root: /home/{{user}}/platform/search
+search_home: /home/{{user}}/platform/search/search-manager
+service_path: /home/{{user}}/platform/service
+neo4j_machine:
+dbms_memory_heap_initial_size: 512
+dbms_memory_heap_initial_size: 512
+dbms_memory_pagecache_size: 10g
 
 to_learning: 172.31.20.28
 to_language: 172.31.20.27

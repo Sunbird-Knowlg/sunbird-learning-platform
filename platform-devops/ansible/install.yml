@@ -1,0 +1,10 @@
+- hosts: env
+  roles:
+        - java
+        - tomcat
+        - redis
+        - ffmpeg
+        - mongodb
+        - imagemagick
+        - createpath
+        - logstash
