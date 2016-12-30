@@ -28,9 +28,14 @@ public class PlaySearchManager extends BasePlaySearchManager {
 	}
 	
 	public Promise<Result> metrics(Request request){
-		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.METRICS.name());
+		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() , SearchOperations.METRICS.name());
 		Promise<Result> getRes = getSearchResponse(request, LOGGER);
 		return getRes;
 	}
-
+	
+	public Promise<Result> health(Request request){
+		request = setSearchContext(request, SearchActorNames.HEALTH_CHECK_MANAGER.name() , SearchOperations.HEALTH.name());
+		Promise<Result> getRes = getSearchResponse(request, LOGGER);
+		return getRes;
+	}
 }

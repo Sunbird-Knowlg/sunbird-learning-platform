@@ -3,7 +3,11 @@ package managers;
 import static akka.pattern.Patterns.ask;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -13,6 +17,7 @@ import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.search.router.SearchRequestRouterPool;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -57,7 +62,7 @@ public class BasePlaySearchManager extends Results {
 									return notFound(getErrorMsg(errMsg)).as("application/json");
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
-									Promise<Result> searchResult = getSearchResponse(response,request);
+									Promise<Result> searchResult = getSearchResponse(response, request);
 									int count = (response.getResult() == null ? 0
 											: (Integer) response.getResult().get("count"));
 									writeTelemetryLog(request, null, count);
@@ -75,17 +80,10 @@ public class BasePlaySearchManager extends Results {
 			res.onRedeem(new F.Callback<Result>() {
 				@Override
 				public void invoke(Result result) throws Throwable {
-					if (request.getOperation().equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
-					}
 					long endTime = System.currentTimeMillis();
 					long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
-					perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-							+ request.getContext().get(GraphHeaderParams.request_id.name()) + ","
-							+ request.getManagerName() + "," + request.getOperation() + ",ENDTIME," + endTime);
-					perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-							+ request.getContext().get(GraphHeaderParams.request_id.name()) + ","
-							+ request.getManagerName() + "," + request.getOperation() + "," + result.status() + ","
-							+ exeTime);
+					perfLogger.info(request.getManagerName() + "," + request.getOperation() + ",ENDTIME," + endTime);
+					perfLogger.info(request.getManagerName() + "," + request.getOperation() + "," + result.status() + "," + exeTime);
 				}
 			});
 		} catch (Exception e) {

@@ -24,7 +24,7 @@ public class SearchBaseController extends Controller {
 	}
 	
 	protected String getAPIVersion(String path) {
-		String version = "1.0";
+		String version = "3.0";
 		if(path.contains("/v2")){
 			version = "2.0";
 		} else if (path.contains("/v3")){
@@ -66,6 +66,9 @@ public class SearchBaseController extends Controller {
 					}
 				}
 			}
+		} else {
+			request.setId(apiId);
+			request.setVer(getAPIVersion(path));
 		}
 		return request;
 	}
