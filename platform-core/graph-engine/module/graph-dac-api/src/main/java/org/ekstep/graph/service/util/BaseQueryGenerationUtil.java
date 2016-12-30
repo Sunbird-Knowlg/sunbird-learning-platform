@@ -73,7 +73,7 @@ public class BaseQueryGenerationUtil {
 		String matchCriteria = "";
 		if (StringUtils.isNotBlank(graphId) && null != node && StringUtils.isNotBlank(date)) {
 			if (StringUtils.isBlank(node.getIdentifier()))
-				node.setIdentifier(Identifier.getIdentifier(graphId, DateUtils.parse(date).getTime()));
+				node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp()));
 			if (StringUtils.isBlank(node.getGraphId()))
 				node.setGraphId(graphId);
 
