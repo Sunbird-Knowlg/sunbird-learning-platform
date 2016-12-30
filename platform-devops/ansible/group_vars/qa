@@ -16,7 +16,7 @@ search_index_port: 9200
 environment_id: 20000000
 language_index_host: 172.31.0.93
 language_index_port: 9200
-mongo_host: 172.31.20.28
+mongo_host: 172.31.13.121
 mongo_port: 27017
 tomcat_init_mem: -Xms1024m 
 tomcat_max_mem: -Xmx4096m
