@@ -41,7 +41,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 */
 	@RequestMapping(value = "/read/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> find(@RequestParam(value = "languageId", required = true) String languageId,
+	public ResponseEntity<Response> find(@RequestParam(value = "language_id", required = true) String languageId,
 			@PathVariable(value = "objectId") String objectId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestHeader(value = "user-id") String userId) {
@@ -63,7 +63,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 */
 	@RequestMapping(value = "/list/", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> findAll(@RequestParam(value = "languageId", required = true) String languageId,
+	public ResponseEntity<Response> findAll(@RequestParam(value = "language_id", required = true) String languageId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "limit", required = false) Integer limit,
 			@RequestHeader(value = "user-id") String userId) {
@@ -86,7 +86,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create/", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@RequestParam(value = "languageId", required = true) String languageId,
+	public ResponseEntity<Response> create(@RequestParam(value = "language_id", required = true) String languageId,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		return wordController.create(languageId, forceUpdate, map, userId);
@@ -110,7 +110,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> partialUpdate(@RequestParam(value = "languageId", required = true) String languageId,
+	public ResponseEntity<Response> partialUpdate(@RequestParam(value = "language_id", required = true) String languageId,
 			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestHeader(value = "user-id") String userId) {

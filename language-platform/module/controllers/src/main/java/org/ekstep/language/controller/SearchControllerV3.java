@@ -39,7 +39,7 @@ public class SearchControllerV3 extends BaseController {
 	 */
 	@RequestMapping(value = "/find/", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> search(@RequestParam(name = "languageId", required = true) String languageId,
+	public ResponseEntity<Response> search(@RequestParam(name = "language_id", required = true) String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		return searchController.search(languageId, map, userId, API_VERSION_3);
 	}

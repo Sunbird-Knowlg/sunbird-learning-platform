@@ -29,7 +29,7 @@ public class LearningDataSyncV3Controller extends BaseController {
 
 	@RequestMapping(value = "/type/{objectType:.+}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> sync(@RequestParam(name = "graphId", required = true) String graphId,
+	public ResponseEntity<Response> sync(@RequestParam(name = "graph_id", required = true) String graphId,
 			@PathVariable(value = "objectType") String objectType,
 			@RequestParam(name = "start", required = false) Integer start,
 			@RequestParam(name = "total", required = false) Integer total,
@@ -47,7 +47,7 @@ public class LearningDataSyncV3Controller extends BaseController {
 	
 	@RequestMapping(value = "/object/", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> syncObject(@RequestParam(name = "graphId", required = true) String graphId,
+	public ResponseEntity<Response> syncObject(@RequestParam(name = "graph_id", required = true) String graphId,
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "composite-search.sync-object";

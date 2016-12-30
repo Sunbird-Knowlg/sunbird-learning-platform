@@ -49,14 +49,14 @@ public class TaxonomyControllerV3 {
 
 	@RequestMapping(value = "/definitions/read/{objectType:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> findDefinition(@RequestParam(name = "graphId", required = true) String id,
+	public ResponseEntity<Response> findDefinition(@RequestParam(name = "graph_id", required = true) String id,
 			@PathVariable(value = "objectType") String objectType, @RequestHeader(value = "user-id") String userId) {
 		return taxonomyController.findDefinition(id, objectType, userId);
 	}
 
 	@RequestMapping(value = "/definitions/list/", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> findAllDefinitions(@RequestParam(name = "graphId", required = true)  String id,
+	public ResponseEntity<Response> findAllDefinitions(@RequestParam(name = "graph_id", required = true)  String id,
 			@RequestHeader(value = "user-id") String userId) {
 		return taxonomyController.findAllDefinitions(id, userId);
 	}
