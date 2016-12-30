@@ -43,7 +43,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		LOGGER.debug("Uploaded File: " + uploadFile.getName());
 
 		ContentValidator validator = new ContentValidator();
-		if (validator.isValidContentPackage(uploadFile)) {
+		if (validator.isValidPluginPackage(uploadFile)) {
 			LOGGER.info("Calling Upload Content For Node ID: " + node.getIdentifier());
 			String basePath = getBasePath(node.getIdentifier());
 			// Extract the ZIP File 
