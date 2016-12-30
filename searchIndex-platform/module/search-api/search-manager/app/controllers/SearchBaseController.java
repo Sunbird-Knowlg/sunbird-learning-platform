@@ -25,7 +25,7 @@ public class SearchBaseController extends Controller {
 	
 	protected String getAPIVersion(String path) {
 		String version = "3.0";
-		if(path.contains("/v2")){
+		if(path.contains("/v2")||path.contains("/search-service")){
 			version = "2.0";
 		} else if (path.contains("/v3")){
 			version = "3.0";
