@@ -8,7 +8,7 @@ learning-node1
 [learning-node1:vars]
 server_id=1 
 dbms_mode=HA 
-initial_hosts="172.31.30.52:7001"
+initial_hosts="172.31.8.205:7001"
 
 [dev:children]
 learningcluster
