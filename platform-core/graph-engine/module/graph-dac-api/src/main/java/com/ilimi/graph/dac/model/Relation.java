@@ -2,10 +2,12 @@ package com.ilimi.graph.dac.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.neo4j.driver.v1.Value;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -168,7 +170,25 @@ public class Relation implements Serializable {
 			Iterable<String> keys = node.keys();
 			if (null != keys) {
 				for (String key : keys) {
-					metadata.put(key, node.get(key));
+					Value value = node.get(key);
+					if (null != value) {
+						if (StringUtils.startsWithIgnoreCase(value.type().name(), "LIST")) {
+							List<Object> list = value.asList();
+							if (null != list && list.size() > 0) {
+								Object obj = list.get(0);
+								if (obj instanceof String) {
+									metadata.put(key, list.toArray(new String[0]));
+								} else if (obj instanceof Number) {
+									metadata.put(key, list.toArray(new Number[0]));
+								} else if (obj instanceof Boolean) {
+									metadata.put(key, list.toArray(new Boolean[0]));
+								} else {
+									metadata.put(key, list.toArray(new Object[0]));
+								}
+							}
+						} else
+							metadata.put(key, value.asObject());
+					}
 				}
 			}
 		}

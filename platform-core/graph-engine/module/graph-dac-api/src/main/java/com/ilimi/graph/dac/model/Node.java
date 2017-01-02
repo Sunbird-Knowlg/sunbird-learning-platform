@@ -76,7 +76,6 @@ public class Node implements Serializable {
 				else {
 					Value value = node.get(key);
 					if (null != value) {
-						System.out.println(key + " - " + value.type().name());
 						if (StringUtils.startsWithIgnoreCase(value.type().name(), "LIST")) {
 							List<Object> list = value.asList();
 							if (null != list && list.size() > 0) {

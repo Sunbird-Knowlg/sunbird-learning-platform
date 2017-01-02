@@ -24,6 +24,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 
@@ -46,6 +47,7 @@ public class Neo4JBoltDataVersionKeyValidator {
 		
 		// Fetching Version Check Mode ('OFF', 'STRICT', 'LENIENT')
 		String objectType = (String) neo4jNode.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+		String nodeType = (String) neo4jNode.get(SystemProperties.IL_SYS_NODE_TYPE.name());
 		String versionCheckMode = null;
 		if (StringUtils.isNotBlank(objectType))
 			versionCheckMode = DefinitionNodeUtil.getMetadataValue(graphId, objectType, GraphDACParams.versionCheckMode.name());
@@ -54,7 +56,8 @@ public class Neo4JBoltDataVersionKeyValidator {
 
 		// Checking if the 'versionCheckMode' Property is not specified,
 		// then default Mode is OFF
-		if (StringUtils.isBlank(versionCheckMode))
+		if (StringUtils.isBlank(versionCheckMode) 
+				|| StringUtils.equalsIgnoreCase(SystemNodeTypes.DEFINITION_NODE.name(), nodeType))
 			versionCheckMode = NodeUpdateMode.OFF.name();
 
 		// Checking of Node Update Version Checking is either 'STRICT'
