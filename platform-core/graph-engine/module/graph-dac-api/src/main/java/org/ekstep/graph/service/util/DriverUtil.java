@@ -1,5 +1,8 @@
 package org.ekstep.graph.service.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,18 +16,27 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 public class DriverUtil {
 
 	private static Logger LOGGER = LogManager.getLogger(DriverUtil.class.getName());
-
+	private static Map<String, Driver> driverMap = new HashMap<String, Driver>();
+	
 	public static Driver getDriver(String graphId) {
-		LOGGER.debug("Graph Id: ", graphId);
+		LOGGER.debug("Get Driver for Graph Id: ", graphId);
+		Driver driver = driverMap.get(graphId);
+		if (null == driver) {
+			driver = loadDriver(graphId);
+			driverMap.put(graphId, driver);
+		}
+		return driver;
+	}
 
+	public static Driver loadDriver(String graphId) {
+		LOGGER.debug("Loading driver for Graph Id: ", graphId);
 		String driverType = DACConfigurationConstants.NEO4J_SERVER_DRIVER_TYPE;
 		if (StringUtils.isBlank(driverType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_DRIVER.name(),
 					DACErrorMessageConstants.INVALID_DRIVER_TYPE + " | [Driver Initialization Failed.]");
 		LOGGER.info("Driver Type: " + driverType);
 		
-		Driver driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId));
-		
+		Driver driver = null;
 		switch (driverType) {
 		case "simple":
 		case "SIMPLE":
@@ -47,10 +59,23 @@ public class DriverUtil {
 
 		default:
 			LOGGER.info("Invalid Database (Bolt) Driver Type: " + driverType + " | [Default Driver Type is ]");
+			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId));
 			break;
 		}
-
+		if (null != driver)
+			registerShutdownHook(driver);
 		return driver;
 	}
+	
+	private static void registerShutdownHook(Driver driver) {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                System.out.println("Closing Neo4j Graph Driver...");
+                if (null != driver)
+                	driver.close();
+            }
+        });
+    }
 
 }

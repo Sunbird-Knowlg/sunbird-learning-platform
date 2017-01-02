@@ -158,26 +158,23 @@ public class DefinitionNodeUtil {
 	 */
 	private static Map<String, Object> getDefinitionNodeMetadata(String graphId, String objectType) {
 		LOGGER.debug("Fetching Definition Node for Object Id: " + objectType + "of Graph Id: " + graphId + ".");
-		Map metadataMap = null;
-		try (Driver driver = DriverUtil.getDriver(graphId)) {
-			LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
-			try (Session session = driver.session()) {
-				try (org.neo4j.driver.v1.Transaction tx = session.beginTransaction()) {
-					String query = "match (n:" + graphId + "{" + SystemProperties.IL_SYS_NODE_TYPE.name() + ":'"
-							+ SystemNodeTypes.DEFINITION_NODE.name() + "',"
-							+ SystemProperties.IL_FUNC_OBJECT_TYPE.name() + ":'"+objectType+"'}) return (n) as result";
-					StatementResult result = tx.run(query);
-					if (result.hasNext()) {
-						Record record = result.next();
-						InternalNode node = (InternalNode) record.values().get(0).asObject();
-						metadataMap = node.asMap();
-					}
-					tx.success();
-					tx.close();
-				} catch (Exception e) {
-					throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-							DACErrorMessageConstants.CONNECTION_PROBLEM + " | "+ e.getMessage());
+		Map<String, Object> metadataMap = null;
+		Driver driver = DriverUtil.getDriver(graphId);
+		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
+		try (Session session = driver.session()) {
+			try {
+				String query = "match (n:" + graphId + "{" + SystemProperties.IL_SYS_NODE_TYPE.name() + ":'"
+						+ SystemNodeTypes.DEFINITION_NODE.name() + "'," + SystemProperties.IL_FUNC_OBJECT_TYPE.name()
+						+ ":'" + objectType + "'}) return (n) as result";
+				StatementResult result = session.run(query);
+				if (result.hasNext()) {
+					Record record = result.next();
+					InternalNode node = (InternalNode) record.values().get(0).asObject();
+					metadataMap = node.asMap();
 				}
+			} catch (Exception e) {
+				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
+						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
 			}
 		}
 		return metadataMap;

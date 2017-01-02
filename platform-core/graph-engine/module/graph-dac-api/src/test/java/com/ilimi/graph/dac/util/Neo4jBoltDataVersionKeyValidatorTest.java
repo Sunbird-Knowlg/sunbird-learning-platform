@@ -47,22 +47,21 @@ public class Neo4jBoltDataVersionKeyValidatorTest {
 	
 	private Map<String, Object> getNeo4jNodeProperty(String graphId, String identifier) {
 		Map<String, Object> prop = null;
-		try (Driver driver = DriverUtil.getDriver(graphId)) {
-			try (Session session = driver.session()) {
-				try (Transaction tx = session.beginTransaction()) {
-					String query = "match (n:" + graphId + "{IL_UNIQUE_ID:'" + identifier + "'}) return (n) as result";
-					StatementResult result = tx.run(query);
-					if (result.hasNext()) {
-						Record record = result.next();
-						InternalNode node = (InternalNode) record.values().get(0).asObject();
-						prop = node.asMap();
-					}
-					tx.success();
-					tx.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
+		Driver driver = DriverUtil.getDriver(graphId);
+		try (Session session = driver.session()) {
+			try (Transaction tx = session.beginTransaction()) {
+				String query = "match (n:" + graphId + "{IL_UNIQUE_ID:'" + identifier + "'}) return (n) as result";
+				StatementResult result = tx.run(query);
+				if (result.hasNext()) {
+					Record record = result.next();
+					InternalNode node = (InternalNode) record.values().get(0).asObject();
+					prop = node.asMap();
 				}
+				tx.success();
+				tx.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
 			}
 		}
 		return prop;

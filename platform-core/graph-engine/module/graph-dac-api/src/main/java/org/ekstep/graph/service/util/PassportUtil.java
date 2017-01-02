@@ -20,7 +20,7 @@ public class PassportUtil {
 		LOGGER.info("Passport Key Base: " + graphPassportKeyBase);
 		LOGGER.info("G_P_K: " + passportKey);
 
-		String expectedPassportKey = EncryptionUtil.encrypt(graphPassportKeyBase);
+		String expectedPassportKey = graphPassportKeyBase;
 		LOGGER.info("E_P_K: " + expectedPassportKey);
 
 		// Encryption(Platform Passport. Key) = Raw(Analytics Passport);

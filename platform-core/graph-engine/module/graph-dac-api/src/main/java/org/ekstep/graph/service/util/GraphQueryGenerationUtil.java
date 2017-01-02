@@ -31,7 +31,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	private static Logger LOGGER = LogManager.getLogger(GraphQueryGenerationUtil.class.getName());
 
-	@SuppressWarnings("unchecked")
 	public static String generateCreateUniqueConstraintCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
@@ -44,23 +43,20 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_GRAPH_ID
 								+ " | ['Create Graph Unique Contraint' Operation Failed.]");
 
-			List<String> indexProperties = (List<String>) parameterMap.get(GraphDACParams.indexProperties.name());
-			if (null == indexProperties || indexProperties.size() > 0)
+			String indexProperty = (String) parameterMap.get(GraphDACParams.indexProperty.name());
+			if (StringUtils.isBlank(indexProperty))
 				throw new ClientException(DACErrorCodeConstants.INVALID_PROPERTY.name(),
 						DACErrorMessageConstants.INVALID_INDEX_PROPERTY_KEY_LIST
 								+ " | ['Create Graph Unique Contraint' Operation Failed.]");
 
-			// TODO: Make this query with Constants
-			for (String indexproperty : indexProperties)
-				query.append("CREATE CONSTRAINT ON (n:" + graphId + ") ASSERT n." + indexproperty + " IS UNIQUE")
-						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+			query.append("CREATE CONSTRAINT ON (n:" + graphId + ") ASSERT n." + indexProperty + " IS UNIQUE")
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
 		LOGGER.info("Returning Create Unique Constraint Cypher Query: " + query);
 		return query.toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static String generateCreateIndexCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
@@ -73,15 +69,13 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_GRAPH_ID
 								+ " | ['Create Graph Index' Query Generation Failed.]");
 
-			List<String> indexProperties = (List<String>) parameterMap.get(GraphDACParams.indexProperties.name());
-			if (null == indexProperties || indexProperties.size() > 0)
+			String indexProperty = (String) parameterMap.get(GraphDACParams.indexProperty.name());
+			if (StringUtils.isBlank(indexProperty))
 				throw new ClientException(DACErrorCodeConstants.INVALID_PROPERTY.name(),
 						DACErrorMessageConstants.INVALID_INDEX_PROPERTY_KEY_LIST
 								+ " | ['Create Graph Index' Operation Failed.]");
 
-			// TODO: Make this query with Constants
-			for (String indexproperty : indexProperties)
-				query.append("CREATE INDEX ON :" + graphId + "(" + indexproperty + ")")
+			query.append("CREATE INDEX ON :" + graphId + "(" + indexProperty + ")")
 						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
@@ -140,31 +134,39 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_RELATION_TYPE
 								+ " | ['Create Relation' Query Generation Failed.]");
 
-			Request request = (Request) parameterMap.get(GraphDACParams.metadata.name());
+			Request request = (Request) parameterMap.get(GraphDACParams.request.name());
+			Integer index = 0;
 			Map<String, Object> metadata = new HashMap<String, Object>();
-			if (null != request)
-				metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
-			LOGGER.info("Recieved Relation Metadata: ", metadata);
-
 			if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {
 				LOGGER.info("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
 				// Fetch all the Relationships
 				List<Integer> allottedIndices = new ArrayList<Integer>();
+				allottedIndices.add(0);
 				List<Relationship> relationships = getAllRelationships(graphId, startNodeId,
 						RelationshipDirection.OUTGOING);
 				LOGGER.info("Fetched Relationships: ", relationships);
-				for (Relationship relationship : relationships)
+				for (Relationship relationship : relationships) {
 					if (StringUtils.equalsIgnoreCase(relationship.type(),
-							RelationTypes.SEQUENCE_MEMBERSHIP.relationName()))
-						allottedIndices.add(relationship.get(SystemProperties.IL_SEQUENCE_INDEX.name()).asInt());
+							RelationTypes.SEQUENCE_MEMBERSHIP.relationName())) {
+						String strIndex = relationship.get(SystemProperties.IL_SEQUENCE_INDEX.name()).asString();
+						try {
+							allottedIndices.add(Integer.parseInt(strIndex));
+						} catch (Exception e) {
+						}
+					}
+				}
 				LOGGER.info("Allotted Indices So Far: ", allottedIndices);
-				metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), Collections.max(allottedIndices) + 1);
+				index = Collections.max(allottedIndices) + 1;
 			}
+			
+			if (null != request)
+				metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
+			LOGGER.info("Recieved Relation Metadata: ", metadata);
 
 			query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
-					RelationshipDirection.OUTGOING));
+					RelationshipDirection.OUTGOING, index));
 		}
 
 		LOGGER.info("Returning 'Create Relation' Cypher Query: " + query);
@@ -206,12 +208,12 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				throw new ClientException(DACErrorCodeConstants.INVALID_REQUEST.name(),
 						DACErrorMessageConstants.INVALID_REQUEST + " | ['Update Relation' Query Generation Failed.]");
 
-			Map<String, Object> metadata = (Map<String, Object>) parameterMap.get(GraphDACParams.metadata.name());
+			Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
 			if (null == metadata || metadata.isEmpty())
 				throw new ClientException(DACErrorCodeConstants.INVALID_METADATA.name(),
 						DACErrorMessageConstants.INVALID_METADATA + " | ['Update Relation' Query Generation Failed.]");
 
-			query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
+			query.append(getUpdateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
 					RelationshipDirection.OUTGOING));
@@ -298,7 +300,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			int index = 0;
 			for (String startNodeId : startNodeIds)
 				query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
-						getString(index++), getString(index++), metadata, RelationshipDirection.INCOMING));
+						getString(index++), getString(index++), metadata, RelationshipDirection.INCOMING, null));
 
 		}
 
@@ -345,7 +347,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			int index = 0;
 			for (String endNodeId : endNodeIds)
 				query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
-						getString(index++), getString(index++), metadata, RelationshipDirection.OUTGOING));
+						getString(index++), getString(index++), metadata, RelationshipDirection.OUTGOING, null));
 		}
 
 		LOGGER.info("'Create Outgoing Relations' Cypher Query: " + query);
@@ -554,7 +556,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				Map<String, Object> metadata = new HashMap<String, Object>();
 				metadata.put(indexProperty, index);
 				query.append(getCreateRelationCypherQuery(graphId, collectionId, memeber, relationType,
-						getString(index++), getString(index++), metadata, RelationshipDirection.OUTGOING));
+						getString(index++), getString(index++), metadata, RelationshipDirection.OUTGOING, null));
 			}
 
 			// Return Node
@@ -625,7 +627,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	private static String getCreateRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
-			Map<String, Object> metadata, RelationshipDirection direction) {
+			Map<String, Object> metadata, RelationshipDirection direction, Integer index) {
 		LOGGER.debug("Graph Id: ", graphId);
 		LOGGER.debug("Start Node Id: ", startNodeId);
 		LOGGER.debug("End Node Id: ", endNodeId);
@@ -653,12 +655,61 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					+ ":" + graphId + " { " + SystemProperties.IL_UNIQUE_ID.name() + ": '" + endNodeId + "' }) MERGE ("
 					+ startNodeObjectVariableName + ")" + relationship + "(" + endNodeObjectVariableName + ")");
 
-			// Put Metadata
-			query.append("ON CREATE SET ").append(getMetadataStringForCypherQuery("r", metadata))
+			if (null == metadata)
+				metadata = new HashMap<String, Object>();
+			
+			// ON CREATE clause
+			Map<String, Object> createMetadata = new HashMap<String, Object>();
+			if (null != index)
+				createMetadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+			createMetadata.putAll(metadata);
+			if (null != createMetadata && !createMetadata.isEmpty())
+				query.append("ON CREATE SET ").append(getMetadataStringForCypherQuery("r", createMetadata))
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+				
+			// ON MATCH CLAUSE
+			if (null != metadata && !metadata.isEmpty()) {
+				query.append("ON MATCH SET ").append(getMetadataStringForCypherQuery("r", metadata))
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+			}
+		}
+		return query.toString();
+	}
+	
+	private static String getUpdateRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
+			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
+			Map<String, Object> metadata, RelationshipDirection direction) {
+		LOGGER.debug("Graph Id: ", graphId);
+		LOGGER.debug("Start Node Id: ", startNodeId);
+		LOGGER.debug("End Node Id: ", endNodeId);
+		LOGGER.debug("Relation Type: ", relationType);
+		LOGGER.debug("Start Node Object Variable: ", startNodeObjectVariableName);
+		LOGGER.debug("End Node Object Variable: ", endNodeObjectVariableName);
+		LOGGER.debug("Relationship Direction: ", direction.name());
+		LOGGER.debug("Metadata: ", metadata);
 
-			query.append("ON MATCH SET ").append(getMetadataStringForCypherQuery("r", metadata))
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+		StringBuilder query = new StringBuilder();
+		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
+				&& StringUtils.isNotBlank(relationType) && StringUtils.isNotBlank(startNodeObjectVariableName)
+				&& StringUtils.isNotBlank(endNodeObjectVariableName) && null != metadata && !metadata.isEmpty()) {
+
+			String relationship = "";
+			if (direction == RelationshipDirection.OUTGOING)
+				relationship = "-[r:" + relationType + "]->";
+			else if (direction == RelationshipDirection.INCOMING)
+				relationship = "<-[r:" + relationType + "]-";
+			else if (direction == RelationshipDirection.BIDIRECTIONAL)
+				relationship = "-[r:" + relationType + "]-";
+
+			query.append("MATCH (" + startNodeObjectVariableName + ":" + graphId + " { "
+					+ SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId + "' })" + relationship + "(" + endNodeObjectVariableName
+					+ ":" + graphId + " { " + SystemProperties.IL_UNIQUE_ID.name() + ": '" + endNodeId + "' }) ");
+
+			// SET CLAUSE
+			if (null != metadata && !metadata.isEmpty()) {
+				query.append("SET ").append(getMetadataStringForCypherQuery("r", metadata))
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+			}
 		}
 		return query.toString();
 	}
@@ -731,20 +782,18 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			RelationshipDirection direction) {
 		List<Relationship> relationships = new ArrayList<Relationship>();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId)) {
-			try (Driver driver = DriverUtil.getDriver(graphId)) {
-				LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
-				try (Session session = driver.session()) {
-					LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
+			Driver driver = DriverUtil.getDriver(graphId);
+			LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
+			try (Session session = driver.session()) {
+				LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
 
-					StatementResult result = session
-							.run(generateGetAllRelationsCypherQuery(graphId, startNodeId, direction));
-					for (Record record : result.list()) {
-						relationships.add(record.get("r").asRelationship());
-					}
+				StatementResult result = session
+						.run(generateGetAllRelationsCypherQuery(graphId, startNodeId, direction));
+				for (Record record : result.list()) {
+					relationships.add(record.get("r").asRelationship());
 				}
 			}
 		}
-
 		return relationships;
 	}
 

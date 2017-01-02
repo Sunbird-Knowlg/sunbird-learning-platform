@@ -21,7 +21,7 @@ public class ConfigUtil {
 		LOGGER.info("Fetching the Configuration for Neo4J Bolt.");
 
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED))
-			config.withEncryptionLevel(EncryptionLevel.REQUIRED);
+			config.withEncryptionLevel(EncryptionLevel.NONE);
 
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_SETTING_NEO4J_SERVER_MAX_IDLE_SESSION_ENABLED))
 			config.withMaxIdleSessions(DACConfigurationConstants.NEO4J_SERVER_MAX_IDLE_SESSION);

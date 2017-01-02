@@ -41,7 +41,7 @@ public class BaseQueryGenerationUtil {
 							.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(entry.getValue())
 							.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 							.append(CypherQueryConfigurationConstants.COMMA);
-			StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA);
+			query.append(StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 			query.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS);
 		}
 		return query.toString();
@@ -59,19 +59,18 @@ public class BaseQueryGenerationUtil {
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 						.append(CypherQueryConfigurationConstants.COMMA);
 		}
-		StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA);
+		query.append(StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 
 		LOGGER.info("Returning Property Object Attribute String: " + query.toString());
 		return query.toString();
 	}
 
-	protected static String getMatchCriteriaString(String graphId, Node node, String date) {
+	protected static String getMatchCriteriaString(String graphId, Node node) {
 		LOGGER.debug("Graph Id: ", graphId);
 		LOGGER.debug("Graph Engine Node: ", node);
-		LOGGER.debug("Date: ", date);
 
 		String matchCriteria = "";
-		if (StringUtils.isNotBlank(graphId) && null != node && StringUtils.isNotBlank(date)) {
+		if (StringUtils.isNotBlank(graphId) && null != node) {
 			if (StringUtils.isBlank(node.getIdentifier()))
 				node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp()));
 			if (StringUtils.isBlank(node.getGraphId()))
@@ -331,7 +330,7 @@ public class BaseQueryGenerationUtil {
 			if (StringUtils.isBlank(node.getIdentifier()))
 				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 
-			// Adding Clause 'ON MATCH SET'
+			// Adding Clause 'ON CREATE SET'
 			query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(GraphDACParams.CREATE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE);
@@ -349,12 +348,12 @@ public class BaseQueryGenerationUtil {
 			}
 
 			// Adding 'IL_UNIQUE_ID' Property
-//			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
-//					.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS)
-//					.append(" { SP_" + SystemProperties.IL_UNIQUE_ID.name() + " } ")
-//					.append(CypherQueryConfigurationConstants.COMMA);
-//			paramValuesMap.put("SP_" + SystemProperties.IL_UNIQUE_ID.name(),
-//					node.getMetadata().get(SystemProperties.IL_UNIQUE_ID.name()));
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(" { SP_" + SystemProperties.IL_UNIQUE_ID.name() + " } ")
+					.append(CypherQueryConfigurationConstants.COMMA);
+			paramValuesMap.put("SP_" + SystemProperties.IL_UNIQUE_ID.name(),
+					node.getIdentifier());
 
 			// Adding 'IL_SYS_NODE_TYPE' Property
 			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
@@ -385,6 +384,13 @@ public class BaseQueryGenerationUtil {
 					.append(" { AP_" + AuditProperties.lastUpdatedOn.name() + " } ")
 					.append(CypherQueryConfigurationConstants.COMMA);
 			paramValuesMap.put("AP_" + AuditProperties.lastUpdatedOn.name(), date);
+			
+			String versionKey = Long.toString(DateUtils.parse(date).getTime());
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(GraphDACParams.versionKey.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(" { MD_" + GraphDACParams.versionKey.name() + " } ")
+					.append(CypherQueryConfigurationConstants.COMMA);
+			paramValuesMap.put("MD_" + GraphDACParams.versionKey.name(), versionKey);
 
 			queryMap.put(GraphDACParams.query.name(),
 					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
@@ -411,7 +417,7 @@ public class BaseQueryGenerationUtil {
 			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
 					.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS)
 					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
-					.append(node.getMetadata().get(SystemProperties.IL_UNIQUE_ID.name()))
+					.append(node.getIdentifier())
 					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 					.append(CypherQueryConfigurationConstants.COMMA);
 
@@ -419,7 +425,7 @@ public class BaseQueryGenerationUtil {
 			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
 					.append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(CypherQueryConfigurationConstants.EQUALS)
 					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
-					.append(node.getMetadata().get(SystemProperties.IL_SYS_NODE_TYPE.name()))
+					.append(node.getNodeType())
 					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 					.append(CypherQueryConfigurationConstants.COMMA);
 
@@ -429,7 +435,7 @@ public class BaseQueryGenerationUtil {
 						.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
 						.append(CypherQueryConfigurationConstants.EQUALS)
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
-						.append(node.getMetadata().get(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+						.append(node.getObjectType())
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 						.append(CypherQueryConfigurationConstants.COMMA);
 
@@ -445,8 +451,8 @@ public class BaseQueryGenerationUtil {
 		LOGGER.info("Returning 'ON_MATCH_SET' Query Part String: " + query.toString());
 		return query.toString();
 	}
-
-	protected static Map<String, Object> getOnMatchSetQueryMap(String objectVariableName, String date, Node node) {
+	
+	protected static Map<String, Object> getOnMatchSetQueryMap(String objectVariableName, String date, Node node, boolean merge) {
 		LOGGER.debug("Cypher Query Node Object Variable Name: ", objectVariableName);
 		LOGGER.debug("Date: ", date);
 		LOGGER.debug("Graph Engine Node: ", node);
@@ -455,34 +461,15 @@ public class BaseQueryGenerationUtil {
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
 			StringBuilder query = new StringBuilder();
 			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
-			// Adding Clause 'ON MATCH SET'
-			query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+			
+			if (merge)
+				// Adding Clause 'ON MATCH SET'
+				query.append(GraphDACParams.ON.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE);
-
-			// Adding 'IL_UNIQUE_ID' Property
-			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
-					.append(SystemProperties.IL_UNIQUE_ID.name()).append(CypherQueryConfigurationConstants.EQUALS)
-					.append(" { SP_" + SystemProperties.IL_UNIQUE_ID.name() + " } ")
-					.append(CypherQueryConfigurationConstants.COMMA);
-			paramValuesMap.put("SP_" + SystemProperties.IL_UNIQUE_ID.name(),
-					node.getMetadata().get(SystemProperties.IL_UNIQUE_ID.name()));
-
-			// Adding 'IL_SYS_NODE_TYPE' Property
-			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
-					.append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(CypherQueryConfigurationConstants.EQUALS)
-					.append(" { SP_" + SystemProperties.IL_SYS_NODE_TYPE.name() + " } ")
-					.append(CypherQueryConfigurationConstants.COMMA);
-			paramValuesMap.put("SP_" + SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
-
-			// Adding 'IL_FUNC_OBJECT_TYPE' Property
-			if (StringUtils.isNotBlank(node.getObjectType()))
-				query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
-						.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
-						.append(CypherQueryConfigurationConstants.EQUALS)
-						.append(" { SP_" + SystemProperties.IL_FUNC_OBJECT_TYPE.name() + " } ")
-						.append(CypherQueryConfigurationConstants.COMMA);
-			paramValuesMap.put("SP_" + SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
+			else
+				// Adding Clause 'SET'
+				query.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
 			// Adding 'lastUpdatedOn' Property
 			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
@@ -490,13 +477,30 @@ public class BaseQueryGenerationUtil {
 					.append(" { AP_" + AuditProperties.lastUpdatedOn.name() + " } ")
 					.append(CypherQueryConfigurationConstants.COMMA);
 			paramValuesMap.put("AP_" + AuditProperties.lastUpdatedOn.name(), date);
+			
+			String versionKey = Long.toString(DateUtils.parse(date).getTime());
+			query.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT)
+					.append(GraphDACParams.versionKey.name()).append(CypherQueryConfigurationConstants.EQUALS)
+					.append(" { MD_" + GraphDACParams.versionKey.name() + " } ")
+					.append(CypherQueryConfigurationConstants.COMMA);
+			paramValuesMap.put("MD_" + GraphDACParams.versionKey.name(), versionKey);
+			
+			// Adding Metadata
+			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
+						+ entry.getKey() + " }, ");
+
+				LOGGER.info("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+
+				// Populating Param Map
+				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
+				LOGGER.info("Populating ParamMap:", paramValuesMap);
+			}
 
 			queryMap.put(GraphDACParams.query.name(),
 					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
-
 		}
-
 		LOGGER.info("Returning 'ON_MATCH_SET' Query Map: ", queryMap);
 		return queryMap;
 	}
@@ -510,9 +514,8 @@ public class BaseQueryGenerationUtil {
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(entry.getValue())
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
 						.append(CypherQueryConfigurationConstants.COMMA);
-			StringUtils.removeEnd(queryPart.toString(), CypherQueryConfigurationConstants.COMMA);
 		}
-		return queryPart.toString();
+		return StringUtils.removeEnd(queryPart.toString(), CypherQueryConfigurationConstants.COMMA);
 	}
 
 	protected static String getRemoveKeysStringForCypherQuery(String objectVariableName, List<String> keys) {
@@ -520,13 +523,10 @@ public class BaseQueryGenerationUtil {
 		if (StringUtils.isNotBlank(objectVariableName) && null != keys && keys.size() > 0) {
 			for (String key : keys)
 				queryPart.append(objectVariableName).append(CypherQueryConfigurationConstants.DOT).append(key)
-						.append(CypherQueryConfigurationConstants.EQUALS)
-						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append("null")
-						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+						.append(CypherQueryConfigurationConstants.EQUALS).append("null")
 						.append(CypherQueryConfigurationConstants.COMMA);
-			StringUtils.removeEnd(queryPart.toString(), CypherQueryConfigurationConstants.COMMA);
 		}
-		return queryPart.toString();
+		return StringUtils.removeEnd(queryPart.toString(), CypherQueryConfigurationConstants.COMMA);
 	}
 
 	protected static String getStringValue(Object object) {

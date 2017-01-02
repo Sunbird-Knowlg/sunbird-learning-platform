@@ -269,7 +269,7 @@ public class SearchQueryGenerationUtil {
 
 			query.append("MATCH (ee:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId
 					+ "'})-[r:" + relationType + "]-(aa:" + graphId + " {" + SystemProperties.IL_UNIQUE_ID.name()
-					+ ": '" + endNodeId + "'}) RETURN r");
+					+ ": '" + endNodeId + "'}) RETURN r, startNode(r) as __startNode, endNode(r) as __endNode");
 
 		}
 

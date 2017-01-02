@@ -13,6 +13,7 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
@@ -45,24 +46,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			Map<String, Object> templateQueryMap = new HashMap<String, Object>();
 			StringBuilder templateQuery = new StringBuilder();
 			Map<String, Object> templateParamValueMap = new HashMap<String, Object>();
-
-			// Sample: CREATE (ee:Person { name: "Emil", from: "Sweden",
-			// klout:99 })
-			query.append(GraphDACParams.CREATE.name())
-					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(node)).append(CypherQueryConfigurationConstants.COMMA)
-					.append(getSystemPropertyString(node, date)).append(CypherQueryConfigurationConstants.COMMA)
-					.append(getAuditPropertyString(node, date, false)).append(CypherQueryConfigurationConstants.COMMA)
-					.append(getVersionKeyPropertyString(node, date, false))
-					.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
-					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
-
-			// Return Node
-			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
-					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT);
 
 			// Template Query
 			Map<String, Object> mpMap = getMetadataCypherQueryMap(node);
@@ -101,6 +84,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 		return query.toString();
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String generateUpsertNodeCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
@@ -111,39 +95,46 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			if (null == node)
 				throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 						DACErrorMessageConstants.INVALID_NODE + " | [Create Node Query Generation Failed.]");
-
+			if (StringUtils.isBlank(node.getIdentifier()))
+				node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
+			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			String date = DateUtils.formatCurrentDate();
 			LOGGER.info("Date: " + date);
-
-			// Sample:
-			// MERGE (n:Employee {identifier: "4", name: "Ilimi", address:
-			// "Indore"})
-			// ON CREATE SET n.created=timestamp()
-			// ON MATCH SET
-			// n.counter= coalesce(n.counter, 0) + 1,
-			// n.accessTime = timestamp()
-			query.append(GraphDACParams.MERGE.name())
-					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(node.getGraphId()).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(node))
+			
+			Map<String, Object> queryMap = new HashMap<String, Object>();
+			Map<String, Object> templateQueryMap = new HashMap<String, Object>();
+			StringBuilder templateQuery = new StringBuilder();
+			Map<String, Object> templateParamValueMap = new HashMap<String, Object>();
+			// Template Query
+			Map<String, Object> ocsMap = getOnCreateSetQueryMap("ee", date, node);
+			Map<String, Object> omsMap = getOnMatchSetQueryMap("ee", date, node, true);
+			templateQuery.append(GraphDACParams.MERGE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS)
+					.append("ee" + CypherQueryConfigurationConstants.COLON).append(graphId)
+					.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
+					.append(getMatchCriteriaString(graphId, node))
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
 					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
-
-			// Adding 'ON CREATE SET n.created=timestamp()' Clause
-			query.append(getOnCreateSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, node))
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
-
-			// Adding 'ON MATCH SET' Clause
-			query.append(getOnMatchSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, node))
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(ocsMap.get(GraphDACParams.query.name()))
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(omsMap.get(GraphDACParams.query.name()));
 
 			// Return Node
-			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
-					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+			templateQuery.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE).append("ee");
+			templateParamValueMap.putAll((Map<String, Object>) ocsMap.get(GraphDACParams.paramValueMap.name()));
+			templateParamValueMap.putAll((Map<String, Object>) omsMap.get(GraphDACParams.paramValueMap.name()));
+			
+			LOGGER.info("Returning Upsert Node Cypher Query: " + templateQuery);
 
+			templateQueryMap.put(GraphDACParams.query.name(), templateQuery.toString());
+			templateQueryMap.put(GraphDACParams.paramValueMap.name(), templateParamValueMap);
+
+			queryMap.put(node.getIdentifier(), templateQueryMap);
+			
+			parameterMap.put(GraphDACParams.queryStatementMap.name(), queryMap);
 		}
 
 		LOGGER.info("Returning Create Node Cypher Query: " + query);
@@ -154,7 +145,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 	public static String generateUpdateNodeCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
-		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
 			LOGGER.info("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
@@ -174,53 +164,25 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			Map<String, Object> templateQueryMap = new HashMap<String, Object>();
 			StringBuilder templateQuery = new StringBuilder();
 			Map<String, Object> templateParamValueMap = new HashMap<String, Object>();
-
-			query.append(GraphDACParams.MERGE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
-					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS)
-					.append("ee" + CypherQueryConfigurationConstants.COLON).append(graphId)
-					.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
-					.append(getMatchCriteriaString(graphId, node, date)).append(getPropertyObjectAttributeString(node))
-					.append(CypherQueryConfigurationConstants.COMMA).append(getSystemPropertyString(node, date))
-					.append(CypherQueryConfigurationConstants.COMMA).append(getAuditPropertyString(node, date, false))
-					.append(CypherQueryConfigurationConstants.COMMA)
-					.append(getVersionKeyPropertyString(node, date, false))
-					.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
-					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
-
-			// Adding 'ON CREATE SET n.created=timestamp()' Clause
-			query.append(getOnCreateSetString("ee", date, node)).append(CypherQueryConfigurationConstants.BLANK_SPACE);
-
-			// Adding 'ON MATCH SET' Clause
-			query.append(getOnMatchSetString("ee", date, node)).append(CypherQueryConfigurationConstants.BLANK_SPACE);
-
-			// Return Node
-			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE).append("ee");
-
 			// Template Query
-			Map<String, Object> mpMap = getMetadataCypherQueryMap(node);
-			Map<String, Object> ocsMap = getOnCreateSetQueryMap("ee", date, node);
-			Map<String, Object> omsMap = getOnMatchSetQueryMap("ee", date, node);
-			templateQuery.append(GraphDACParams.MERGE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+			Map<String, Object> omsMap = getOnMatchSetQueryMap("ee", date, node, false);
+			templateQuery.append(GraphDACParams.MATCH.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS)
 					.append("ee" + CypherQueryConfigurationConstants.COLON).append(graphId)
 					.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
-					.append(getMatchCriteriaString(graphId, node, date))
+					.append(getMatchCriteriaString(graphId, node))
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
 					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
-					.append(ocsMap.get(GraphDACParams.query.name()))
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(omsMap.get(GraphDACParams.query.name()));
 
 			// Return Node
 			templateQuery.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE).append("ee");
-			templateParamValueMap.putAll((Map<String, Object>) mpMap.get(GraphDACParams.paramValueMap.name()));
-			templateParamValueMap.putAll((Map<String, Object>) ocsMap.get(GraphDACParams.paramValueMap.name()));
 			templateParamValueMap.putAll((Map<String, Object>) omsMap.get(GraphDACParams.paramValueMap.name()));
+			
+			LOGGER.info("Returning Update Node Cypher Query: " + templateQuery);
 
 			templateQueryMap.put(GraphDACParams.query.name(), templateQuery.toString());
 			templateQueryMap.put(GraphDACParams.paramValueMap.name(), templateParamValueMap);
@@ -229,9 +191,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			
 			parameterMap.put(GraphDACParams.queryStatementMap.name(), queryMap);
 		}
-
-		LOGGER.info("Returning Create Node Cypher Query: " + query);
-		return query.toString();
+		return "";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -268,7 +228,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 						.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS)
 						.append(objPrefix + CypherQueryConfigurationConstants.COLON).append(graphId)
 						.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
-						.append(getMatchCriteriaString(graphId, node, date))
+						.append(getMatchCriteriaString(graphId, node))
 						.append(getPropertyObjectAttributeString(node)).append(CypherQueryConfigurationConstants.COMMA)
 						.append(getSystemPropertyString(node, date)).append(CypherQueryConfigurationConstants.COMMA)
 						.append(getAuditPropertyString(node, date, false))
@@ -293,12 +253,12 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 				// Template Query
 				Map<String, Object> mpMap = getMetadataCypherQueryMap(node);
 				Map<String, Object> ocsMap = getOnCreateSetQueryMap(objPrefix, date, node);
-				Map<String, Object> omsMap = getOnMatchSetQueryMap(objPrefix, date, node);
+				Map<String, Object> omsMap = getOnMatchSetQueryMap(objPrefix, date, node, false);
 				templateQuery.append(GraphDACParams.MERGE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 						.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS)
 						.append(objPrefix + CypherQueryConfigurationConstants.COLON).append(graphId)
 						.append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
-						.append(getMatchCriteriaString(graphId, node, date))
+						.append(getMatchCriteriaString(graphId, node))
 						.append(CypherQueryConfigurationConstants.BLANK_SPACE)
 						.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
 						.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
@@ -336,14 +296,14 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			if (null == rootNode)
 				throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 						DACErrorMessageConstants.INVALID_ROOT_NODE + " | [Create Root Node Query Generation Failed.]");
-
+			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			String date = DateUtils.formatCurrentDate();
 			LOGGER.info("Date: " + date);
 
 			query.append(GraphDACParams.MERGE.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
 					.append(rootNode.getGraphId()).append(CypherQueryConfigurationConstants.OPEN_CURLY_BRACKETS)
-					.append(getPropertyObjectAttributeString(rootNode))
+					.append(getMatchCriteriaString(graphId, rootNode))
 					.append(CypherQueryConfigurationConstants.CLOSE_CURLY_BRACKETS)
 					.append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS);
 
@@ -352,8 +312,8 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					getOnCreateSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
 
 			// Adding 'ON MATCH SET' Clause
-			query.append(
-					getOnMatchSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
+//			query.append(
+//					getOnMatchSetString(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT, date, rootNode));
 
 			// Return Node
 			query.append(CypherQueryConfigurationConstants.BLANK_SPACE).append(GraphDACParams.RETURN.name())
@@ -500,7 +460,8 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(graphId).append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(GraphDACParams.WHERE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
 					.append(CypherQueryConfigurationConstants.DOT).append(SystemProperties.IL_UNIQUE_ID.name())
@@ -511,9 +472,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
 					.append(CypherQueryConfigurationConstants.DOT).append(key)
-					.append(CypherQueryConfigurationConstants.EQUALS)
-					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append("null")
-					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
+					.append(CypherQueryConfigurationConstants.EQUALS).append("null");
 
 		}
 
@@ -554,7 +513,8 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 			// SET n.owns = "BMW"
 			query.append(GraphDACParams.MATCH.name())
 					.append(CypherQueryConfigurationConstants.OPEN_COMMON_BRACKETS_WITH_NODE_OBJECT_VARIABLE)
-					.append(graphId).append(CypherQueryConfigurationConstants.BLANK_SPACE)
+					.append(graphId).append(CypherQueryConfigurationConstants.CLOSE_COMMON_BRACKETS)
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(GraphDACParams.WHERE.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE)
 					.append(CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT)
 					.append(CypherQueryConfigurationConstants.DOT).append(SystemProperties.IL_UNIQUE_ID.name())
