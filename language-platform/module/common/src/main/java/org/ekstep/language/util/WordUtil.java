@@ -1428,6 +1428,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		if (lemma == null || lemma.trim().isEmpty()) {
 			return null;
 		} else {
+			word.put(LanguageParams.lemma.name(), lemma.trim());
 			String identifier = (String) word.get(LanguageParams.identifier.name());
 			if (identifier == null) {
 				identifier = wordLemmaMap.get(lemma);
@@ -1923,7 +1924,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					continue;
 				}
 				Map<String, Object> wordMap = new HashMap<String, Object>();
-				wordMap.put(LanguageParams.lemma.name(), lemma);
+				wordMap.put(LanguageParams.lemma.name(), lemma.trim());
 				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
 				wordMap.put(LanguageParams.meaning.name(), gloss);
 				String pos = (String) primaryMeaning.get(LanguageParams.pos.name());
