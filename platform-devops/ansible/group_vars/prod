@@ -10,7 +10,6 @@ mysql_db_url: epproddb.cm8jepwsnit8.ap-southeast-1.rds.amazonaws.com:3306
 mysql_db_schema: lpproddb
 mysql_db_username: ekstep
 mysql_db_password: 4vUkhpZa9UXz2HnC
-mysql_db_schema: lpproddb
 iwn_db_schema: indowordnet_dump
 search_index_host: 10.10.1.20
 search_index_port: 9200
@@ -40,7 +39,9 @@ neo4j_machine:
 dbms_memory_heap_initial_size: 512
 dbms_memory_heap_initial_size: 512
 dbms_memory_pagecache_size: 10g
-
+graph_passport_key: oM2wLF8Eq3vRnt3qZ0+Y/sWQnH5pz3bHpciFo3EIifZIcP5RW4qHw8sZztCzv87M
+learning_neo4j_bolt_url: bolt://172.31.8.205:7687
+language_neo4j_bolt_url: bolt://172.31.8.205:8687
 
 
 to_learning: 10.10.1.26
