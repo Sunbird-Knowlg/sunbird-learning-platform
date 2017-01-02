@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.neo4j.driver.v1.Value;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
 
@@ -72,8 +73,29 @@ public class Node implements Serializable {
 					this.nodeType = node.get(key).asString();
 				else if (StringUtils.equalsIgnoreCase(key, SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
 					this.objectType = node.get(key).asString();
-				else
-					this.metadata.put(key, node.get(key).asObject());
+				else {
+					Value value = node.get(key);
+					if (null != value) {
+						System.out.println(key + " - " + value.type().name());
+						if (StringUtils.startsWithIgnoreCase(value.type().name(), "LIST")) {
+							List<Object> list = value.asList();
+							if (null != list && list.size() > 0) {
+								Object obj = list.get(0);
+								if (obj instanceof String) {
+									this.metadata.put(key, list.toArray(new String[0]));
+								} else if (obj instanceof Number) {
+									this.metadata.put(key, list.toArray(new Number[0]));
+								} else if (obj instanceof Boolean) {
+									this.metadata.put(key, list.toArray(new Boolean[0]));
+								} else {
+									this.metadata.put(key, list.toArray(new Object[0]));
+								}
+							}
+						} else
+							this.metadata.put(key, value.asObject());
+					}
+				}
+					
 			}
 		}
 
