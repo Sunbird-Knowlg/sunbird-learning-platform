@@ -26,7 +26,7 @@
     ],
     "requestPath": {
         "type": "PATCH",
-        "url": "/v3/private/domains/update/*/*/*",
+        "url": "/v3/domains/*/*/update/*",
         "pathParams": [
           "domain_id",
           "type",

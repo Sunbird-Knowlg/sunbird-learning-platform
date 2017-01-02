@@ -111,8 +111,21 @@ public class ContentPackageExtractionUtil {
 			
 			// Copying Objects
 			LOGGER.info("Copying Objects...STARTED");
-			AWSUploader.copyObjectsByPrefix(s3Bucket, s3Bucket, sourcePrefix, destinationPrefix);
-			
+			ExecutorService pool = null;
+			try {
+				pool = Executors.newFixedThreadPool(1);
+				pool.execute(new Runnable() {
+					@Override
+					public void run() {
+						AWSUploader.copyObjectsByPrefix(s3Bucket, s3Bucket, sourcePrefix, destinationPrefix);
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.error("Error sending Content2Vec request", e);
+			} finally {
+				if (null != pool)
+					pool.shutdown();
+			}
 			LOGGER.info("Copying Objects...DONE | Under: " + destinationPrefix);
 		}
 	}
@@ -385,12 +398,19 @@ public class ContentPackageExtractionUtil {
 		String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
 
 		// Getting the Path Suffix
+		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		String pathSuffix = extractionType.name();
-		if (StringUtils.equalsIgnoreCase(extractionType.name(), ContentAPIParams.version.name()))
-			pathSuffix = String.valueOf((double) node.getMetadata().get(ContentAPIParams.pkgVersion.name()));
+		if (StringUtils.equalsIgnoreCase(extractionType.name(), ContentAPIParams.version.name())) {
+			String version = String.valueOf((double) node.getMetadata().get(ContentAPIParams.pkgVersion.name()));
+			if (StringUtils.equals("application/vnd.ekstep.plugin-archive", mimeType)) {
+				String semanticVersion = (String) node.getMetadata().get(ContentAPIParams.semanticVersion.name());
+				pathSuffix = StringUtils.isNotBlank(semanticVersion) ? semanticVersion : version;
+			} else {
+				pathSuffix = version;
+			}
+		}
 		LOGGER.info("Path Suffix: " + pathSuffix);
-
-		switch (((String) node.getMetadata().get(ContentAPIParams.mimeType.name()))) {
+		switch (mimeType) {
 		case "application/vnd.ekstep.ecml-archive":
 			path += contentFolder + File.separator + ContentAPIParams.ecml.name() + File.separator + node.getIdentifier() + DASH
 					+ pathSuffix;

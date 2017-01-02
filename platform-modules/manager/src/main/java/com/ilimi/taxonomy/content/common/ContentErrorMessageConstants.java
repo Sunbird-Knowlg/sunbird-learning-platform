@@ -7,6 +7,12 @@ public class ContentErrorMessageConstants {
 	
 	public static final String XML_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Content XML file.";
 	
+	public static final String MANIFEST_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Manifest file.";
+	
+	public static final String INVALID_PLUGIN_ID_ERROR = "'id' in manifest.json is not same as the plugin identifier.";
+	
+	public static final String INVALID_PLUGIN_VER_ERROR = "'ver' is not specified in the plugin manifest.json.";
+	
 	public static final String XML_NOT_WELL_FORMED_ERROR = "Content XML is not well formed.";
 	
 	public static final String XML_IO_ERROR = "Input/Output Error while reading XML file.";
@@ -64,6 +70,8 @@ public class ContentErrorMessageConstants {
 	public static final String MULTIPLE_ECML_FILES_FOUND = "Error! Multiple ECML Files found.";
 	
 	public static final String ECML_FILE_READ_ERROR = "Error! While reading ECML File.";
+	
+	public static final String MANIFEST_FILE_READ_ERROR = "Error! While reading Manifest File.";
 	
 	public static final String FILE_UPLOAD_ERROR = "Error! While uploading File.";
 	

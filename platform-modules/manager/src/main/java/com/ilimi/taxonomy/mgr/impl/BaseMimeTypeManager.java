@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
@@ -23,6 +24,7 @@ import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.BaseLearningManager;
@@ -43,6 +45,8 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ExtractionType;
@@ -469,5 +473,20 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 					+ File.separator + contentId;
 		return path;
 	}
-
+	
+	/**
+	 * extractContentPackage() 
+	 * extracts the ContentPackageZip file
+	 * 
+	 * @param file the ContentPackageFile
+	 */
+	protected void extractContentPackage(File file, String basePath) {
+		try {
+			UnzipUtility util = new UnzipUtility();
+			util.unzip(file.getAbsolutePath(), basePath);
+		} catch (IOException e) {
+			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
+					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR + " | [ZIP Extraction Failed.]");
+		}
+	}
 }

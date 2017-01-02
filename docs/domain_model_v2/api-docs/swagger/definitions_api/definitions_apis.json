@@ -3,12 +3,13 @@
   "info": {
     "version": "2.0",
     "title": "Definitions",
-    "description": "The Definitions API of EkStep Learning Platform provides details of all definitions of all objectTypes supported by the Platform",
+    "description": "The Definitions API of EkStep Learning Platform provides details of definitions of all objectTypes supported by the Platform",
     "license": {
       "name": "EkStep License",
       "url": "http:www.EkStep.in"
     }
   },
+  "basePath":"/v3/system",
    "host": "api.ekstep.in",
   "securityDefinitions": {},
    "schemes": [
@@ -23,11 +24,11 @@
   "tags": [
     {
       "name": "Definitions",
-      "description": "Provides Details about All Definitions of the Platform"
+      "description": "Provides Details about All Definitions supported by the Platform"
     }
   ],
   "paths": {
-    "/taxonomy/domain/definition": {
+    "/definitions/list": {
       "get": {
         "summary": "Gets All Definitions",
         "description": "This API returns all the definitions of all ObjectTypes supported by the EkStep Learning Platform",
@@ -61,7 +62,7 @@
         "security": []
       }
     },
-    "/taxonomy/domain/definition/{objectType}": {
+    "/definitions/read/{objectType}": {
       "get": {
         "summary": "Gets Specific Definition",
         "description": "This API returns specific definition,its properties and relations based on the specified object type",

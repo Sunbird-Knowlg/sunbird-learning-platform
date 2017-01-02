@@ -19,7 +19,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 
 @Controller
-@RequestMapping("/v3/system/index/sync")
+@RequestMapping("/v3/sync")
 public class LearningDataSyncV3Controller extends BaseController {
 
 	private static Logger LOGGER = LogManager.getLogger(LearningDataSyncV3Controller.class.getName());
@@ -27,10 +27,10 @@ public class LearningDataSyncV3Controller extends BaseController {
 	@Autowired
 	private ICompositeSearchManager compositeSearchManager;
 
-	@RequestMapping(value = "/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/type/{objectType:.+}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> sync(@PathVariable(value = "id") String graphId,
-			@RequestParam(name = "objectType", required = false) String objectType,
+	public ResponseEntity<Response> sync(@RequestParam(name = "graph_id", required = true) String graphId,
+			@PathVariable(value = "objectType") String objectType,
 			@RequestParam(name = "start", required = false) Integer start,
 			@RequestParam(name = "total", required = false) Integer total,
 			@RequestBody Map<String, Object> map) {
@@ -45,9 +45,9 @@ public class LearningDataSyncV3Controller extends BaseController {
 		}
 	}
 	
-	@RequestMapping(value = "/{graphId:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/object/", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> syncObject(@PathVariable(value = "graphId") String graphId,
+	public ResponseEntity<Response> syncObject(@RequestParam(name = "graph_id", required = true) String graphId,
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "composite-search.sync-object";

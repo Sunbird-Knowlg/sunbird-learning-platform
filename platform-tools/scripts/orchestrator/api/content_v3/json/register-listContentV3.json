@@ -1,0 +1,18 @@
+{
+    "name": "listContent_v3",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "search",
+          "datatype": "java.util.Map",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/content/list"
+    },
+    "body": "",
+    "apiId": "ekstep.content.list"
+}

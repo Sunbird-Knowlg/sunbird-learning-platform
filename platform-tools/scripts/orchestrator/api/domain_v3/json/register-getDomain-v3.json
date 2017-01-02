@@ -16,7 +16,7 @@
     ],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/domains/read/*",
+        "url": "/v3/domains/*/read",
         "pathParams": [
           "domain_id"
         ],

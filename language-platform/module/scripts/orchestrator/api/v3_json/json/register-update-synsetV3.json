@@ -16,8 +16,9 @@
     }],
     "requestPath": {
         "type": "PATCH",
-        "url": "/v3/private/dictionary/synset/update/*/*",
-        "pathParams": ["language_id", "synset_id"]
+        "url": "/v3/synsets/update/*",
+        "pathParams": ["synset_id"],
+        "requestParams": ["language_id"]
     },
     "body": ""
 }

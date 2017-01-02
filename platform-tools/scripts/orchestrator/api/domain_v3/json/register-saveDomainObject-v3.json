@@ -21,7 +21,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/private/domains/create/*/*",
+        "url": "/v3/domains/*/*/create",
         "pathParams": [
           "domain_id",
           "type"

@@ -25,9 +25,8 @@
     "router": "LANGUAGE_REQUEST_ROUTER"
   },
   "requestPath": {
-    "pathParams":["language_id"],
-    "requestParams": ["addClosingVirama"],
+    "requestParams": ["language_id","addClosingVirama"],
     "type":"POST",
-    "url":"/v3/public/tools/transliterate/*"
+    "url":"/v3/tools/transliterate/"
   }
 }

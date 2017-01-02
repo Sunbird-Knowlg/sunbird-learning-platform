@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
+import org.ekstep.search.actor.HealthCheckManager;
 import org.ekstep.search.actor.SearchManager;
 
 import com.ilimi.common.dto.Request;
@@ -62,6 +63,10 @@ public class SearchRequestRouter extends UntypedActor{
         Props SearchProps = Props.create(SearchManager.class);
         ActorRef searchMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(SearchProps));
         SearchActorPool.addActorRefToPool(SearchActorNames.SEARCH_MANAGER.name(), searchMgr);
+        
+        Props healthCheckProps = Props.create(HealthCheckManager.class);
+        ActorRef healthCheckMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(healthCheckProps));
+        SearchActorPool.addActorRefToPool(SearchActorNames.HEALTH_CHECK_MANAGER.name(), healthCheckMgr);
 
 	}
 	

@@ -26,7 +26,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.LogHelper;
 
 @Controller
-@RequestMapping("v3/public")
+@RequestMapping("v3/")
 public class ConfigV3Controller extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	public static final String folderName = "resources";

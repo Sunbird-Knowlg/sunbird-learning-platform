@@ -1,0 +1,24 @@
+{
+    "name": "updateTraversalRule_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"rule_id",
+    	"index": 1,
+    	"routingParam": false
+    },{
+        "name": "rule",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "PATCH",
+        "url": "/v3/traversals/update/*",
+        "pathParams": ["rule_id"],
+        "requestParams": ["language_id"],
+    },
+    "body": ""
+}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.junit.Assert;
@@ -572,4 +573,103 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 		Assert.assertEquals("failed", response.getParams().getStatus());
 		Assert.assertEquals(ResponseCode.CLIENT_ERROR.code(), response.getResponseCode().code());
 	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSearchByFields() {
+		Request request = getSearchRequest();
+		Map<String, Object> filters = new HashMap<String, Object>();
+		List<String> objectTypes = new ArrayList<String>();
+		objectTypes.add("Content");
+		filters.put("objectType", objectTypes);
+		List<String> status = new ArrayList<String>();
+		status.add("Live");
+		filters.put("status",status);
+		List<String> contentType = new ArrayList<String>();
+		contentType.add("Story");
+		contentType.add("Worksheet");
+		filters.put("contentType",contentType);
+		request.put("filters", filters);
+		List<String> fields = new ArrayList<String>();
+		fields.add("name");
+		fields.add("code");
+		request.put("fields", fields);
+		Response response = getSearchResponse(request);
+		Map<String, Object> result = response.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		Assert.assertNotNull(list);
+		Assert.assertTrue(list.size() > 0);
+		boolean valid = false;
+		for (Object obj : list) {
+			Map<String, Object> contents = (Map<String, Object>) obj;
+			Set<String> keys = contents.keySet();
+			if(keys.size()==fields.size()+1){
+				if(keys.containsAll(fields)){
+					valid = true;
+					
+				}
+			}else {
+				valid = false;
+			}
+			
+		}
+		Assert.assertTrue(valid);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void testSearchByOffset() {
+		Request request = getSearchRequest();
+		Map<String, Object> filters = new HashMap<String, Object>();
+		List<String> objectTypes = new ArrayList<String>();
+		objectTypes.add("Content");
+		filters.put("objectType", objectTypes);
+		List<String> status = new ArrayList<String>();
+		status.add("Draft");
+		filters.put("status",status);
+		List<String> contentType = new ArrayList<String>();
+		contentType.add("Story");
+		contentType.add("Worksheet");
+		contentType.add("Game");
+		contentType.add("Collection");
+		filters.put("contentType",contentType);
+		request.put("filters", filters);
+		request.put("offset", 0);
+		request.put("limit", 1);
+		
+		Request request1 = getSearchRequest();
+		Map<String, Object> filters1 = new HashMap<String, Object>();
+		List<String> objectTypes1 = new ArrayList<String>();
+		objectTypes1.add("Content");
+		filters1.put("objectType", objectTypes1);
+		List<String> status1 = new ArrayList<String>();
+		status1.add("Draft");
+		filters1.put("status",status1);
+		List<String> contentType1 = new ArrayList<String>();
+		contentType1.add("Story");
+		contentType.add("Game");
+		contentType.add("Collection");
+
+		contentType1.add("Worksheet");
+		filters1.put("contentType",contentType1);
+		request1.put("filters", filters1);
+		request1.put("offset", 4);
+		request1.put("limit", 1);
+		Response response = getSearchResponse(request);
+		Response response1 = getSearchResponse(request1);
+		Map<String, Object> result = response.getResult();
+		Map<String, Object> result1 = response1.getResult();
+		List<Object> list = (List<Object>) result.get("results");
+		List<Object> list1 = (List<Object>) result1.get("results");
+		Assert.assertNotNull(list);
+		Assert.assertNotNull(list1);
+		Assert.assertTrue(list.size() > 0);
+		Assert.assertTrue(list1.size() > 0);
+		boolean validResult = false;
+		if(list!=list1){
+			validResult = true;
+		}
+		Assert.assertTrue(validResult);
+	}
+
 }

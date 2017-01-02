@@ -311,8 +311,20 @@
           "title": "POS (Parts of Speech)",
           "description": "",
           "category": "grammar",
-          "dataType": "List",
-          "range": [],
+          "dataType": "Multi-Select",
+          "range":
+          [
+              "adjective satellite",
+              "adjective",
+              "adverb",
+              "article",
+              "conjunction",
+              "interjection",
+              "noun",
+              "preposition",
+              "pronoun",
+              "verb"
+          ],
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",
@@ -662,7 +674,13 @@
           "title": "Genders",
           "description": "",
           "category": "supportability",
-          "dataType": "List",
+          "dataType": "Multi-Select",
+          "range":
+          [
+              "neutral",
+              "male",
+              "female"
+          ],
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",

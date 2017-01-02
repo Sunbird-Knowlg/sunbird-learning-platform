@@ -21,7 +21,7 @@
     "application/json"
   ],
   "paths": {
-    "/v3/public/resourcebundles/list": {
+    "/v3/resourcebundles/list": {
       "get": {
         "summary": "Gets All resourcebundles",
         "description": "This API returns all the resourcebundles for languages supported by the EkStep Platform",
@@ -55,7 +55,7 @@
         "security": []
       }
     },
-    "/v3/public/resourcebundles/read{languageId}": {
+    "/v3/resourcebundles/read{languageId}": {
       "get": {
         "summary": "Gets Specific resourcebundle",
         "description": "This API returns specific resourcebundle based on the specified language",
@@ -98,7 +98,7 @@
         "security": []
       }
     },
-    "/v3/public/ordinals/list": {
+    "/v3/ordinals/list": {
       "get": {
         "summary": "Gets Config ordianls",
         "description": "This API returns list of config ordinals supported by the platform",

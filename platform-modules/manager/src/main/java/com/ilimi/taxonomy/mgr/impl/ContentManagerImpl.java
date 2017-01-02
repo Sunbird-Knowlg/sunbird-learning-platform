@@ -47,7 +47,6 @@ import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ConceptTagger;
-import com.ilimi.taxonomy.util.Content2VecUtil;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -379,7 +378,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * @see com.ilimi.taxonomy.mgr.IContentManager#publish(java.lang.String,
 	 * java.lang.String)
 	 */
-	public Response publish(String taxonomyId, String contentId, String publisher) {
+	public Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap) {
 		LOGGER.debug("Graph ID: " + taxonomyId);
 		LOGGER.debug("Content ID: " + contentId);
 
@@ -407,13 +406,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
 		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
-		
-		if(null!=publisher && !StringUtils.isBlank(publisher)){
-			LOGGER.debug("Publisher: " + publisher);
-			node.getMetadata().put("publisher", publisher);
+		String publisher = null;
+		if (null != requestMap && !requestMap.isEmpty()) {
+			publisher = (String) requestMap.get("lastPublishedBy");
+			node.getMetadata().putAll(requestMap);
+		}
+		if(StringUtils.isNotBlank(publisher)){
+			LOGGER.debug("LastPublishedBy: " + publisher);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), publisher);
 		} else {
-			node.getMetadata().put("publisher", null);
+			node.getMetadata().put("lastPublishedBy", null);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), null);
 		}
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
@@ -426,11 +428,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				node.getMetadata().put("prevState", prevState);
 
 				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
-				String event = LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+				LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
 
-				LOGGER.info("Invoking Content to Vector. | [Content ID: " + contentId + "]");
-				Content2VecUtil.invokeContent2Vec(contentId, event);
-				
 				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
 				ConceptTagger tagger = new ConceptTagger();
 				tagger.tagConcepts(taxonomyId, contentId, node);

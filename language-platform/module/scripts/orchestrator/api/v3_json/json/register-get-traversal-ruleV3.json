@@ -12,8 +12,9 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/traversals/read/*/*",
-        "pathParams": ["language_id", "rule_id"]
+        "url": "/v3/traversals/read/*",
+        "pathParams": ["rule_id"],
+        "requestParams": ["language_id"]
     },
     "body": ""
 }
