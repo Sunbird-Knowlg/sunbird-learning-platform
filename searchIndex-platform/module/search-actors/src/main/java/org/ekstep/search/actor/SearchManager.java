@@ -185,7 +185,7 @@ public class SearchManager extends SearchBaseActor {
 			}
 		} catch (ClassCastException e) {
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
-					"Invalid Input.");
+					"Invalid Input.", e);
 		}
 		return searchObj;
 	}
