@@ -54,7 +54,7 @@
   become: yes
   copy: src={{ zip_file }} dest={{ neo4j_home }}/plugins/ owner=learning group=learning 
 
-  - name: Copy the custom procedures jar file
+- name: Copy the custom procedures jar file
   become: yes
   copy: src={{ custom_procs_file }} dest={{ neo4j_home }}/plugins/ owner=learning group=learning 
 
