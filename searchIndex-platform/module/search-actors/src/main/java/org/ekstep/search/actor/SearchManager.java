@@ -103,7 +103,6 @@ public class SearchManager extends SearchBaseActor {
 			if (null == wordChainsRequest)
 				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
-			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
 			if(fuzzySearch && filters != null){
 				Map<String, Double> weightagesMap = new HashMap<String, Double>();
@@ -184,6 +183,7 @@ public class SearchManager extends SearchBaseActor {
 				searchObj.setFuzzySearch(fuzzySearch);
 			}
 		} catch (ClassCastException e) {
+			e.printStackTrace();
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
 					"Invalid Input.", e);
 		}
