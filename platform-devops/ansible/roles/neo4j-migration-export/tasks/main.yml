@@ -1,0 +1,79 @@
+- name: stop tomcat
+  service: name=tomcat state=stopped
+  become: yes
+  tags:
+       - learning
+       - language
+
+- stat: path=/data/graphDB/learning_graph
+  register: check_learning_graph
+  tags:
+       - learning
+
+- stat: path=/data/graphDB/language_graph
+  register: check_language_graph
+  tags:
+       - language
+
+- name: Delete /data/graphDB/learning_graph
+  become: yes
+  file: path=/data/graphDB/learning_graph state=absent
+  when: check_learning_graph.stat.exists == True
+  tags:
+       - learning
+
+- name: Delete /data/graphDB/language_graph
+  become: yes
+  file: path=/data/graphDB/language_graph state=absent
+  when: check_language_graph.stat.exists == True
+  tags:
+       - language
+
+- stat: path=/home/ec2-user/neo4j_migration
+  register: check_neo4j_migration
+  tags: 
+       - learning
+       - language
+
+- name: Create dir
+  file: path=/home/ec2-user/neo4j_migration state=directory
+  when: check_neo4j_migration.stat.exists == False
+  tags: 
+       - learning
+       - language
+
+- name: copy the artifacts files 
+  copy: src=graph.merger-0.0.1-SNAPSHOT.jar dest=/home/ec2-user/neo4j_migration
+  tags: 
+       - learning
+       - language
+
+
+- name: run the command
+  become: yes
+  command: java -jar /home/ec2-user/neo4j_migration/graph.merger-0.0.1-SNAPSHOT.jar {{graph_name}} {{graph_machine}}
+  tags: 
+       - learning
+       - language
+  
+
+- name: copy script file 
+  become: yes
+  template: src=copy_graph.j2 dest=/home/ec2-user/copy_graph.sh owner=ec2-user group=ec2-user mode=0755
+  tags: 
+       - learning
+       - language
+  
+
+- name: run the script file 
+  command: chdir=/home/ec2-user ./copy_graph.sh
+  tags: 
+       - learning
+       - language
+  
+
+
+  
+
+
+

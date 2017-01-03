@@ -1,0 +1,95 @@
+---
+- name: create folder data for learning& language
+  become: yes
+  file: path={{ item }} state=directory mode=0755 owner={{user}} group={{user}}
+  with_items:
+     - /data
+     - /data/logs
+
+- name: Create Paths 
+  become: yes
+  become_user: learning
+  file: path={{user_home}}/{{neo4j_dir}} state=directory owner=learning group=learning
+
+- debug:
+    msg: "System {{ neo4j_dir }}"
+
+- name: copy the neo4j cluster zip file   
+  become: yes
+  become_user: learning
+  copy: src=artifacts/neo4j-enterprise-3.0.4-unix.tar.gz dest={{user_home}} 
+  
+- name: Extract archive neo4j-enterprise-3.0.4-unix.tar.gz 
+  become: yes
+  become_user: learning
+  unarchive: src={{user_home}}/neo4j-enterprise-3.0.4-unix.tar.gz dest={{user_home}}/{{neo4j_dir}} copy=no group={{user}} owner={{user}} creates={{ neo4j_home }}
+
+- name: Change Permissions neo4j-enterprise-3.0.4 
+  become: yes
+  file: path={{ neo4j_home }} mode=0755 owner={{user}} group={{user}} recurse=yes
+
+- name: Copy the template neo4j.conf file 
+  become: yes
+  become_user: learning
+  template: src=neo4j.conf.j2 dest={{ neo4j_home }}/conf/neo4j.conf group={{user}} owner={{user}}
+
+- name: Copy the template file 
+  become: yes
+  become_user: learning
+  template: src=neo4j-wrapper.conf.j2 dest={{ neo4j_home }}/conf/neo4j-wrapper.conf group={{user}} owner={{user}}
+#- name: Start the neo4j
+#  command: chdir={{ neo4j_home }}/bin ./neo4j start
+
+- name: copy template of shell script to stop service
+  become: yes
+  become_user: learning
+  copy: src=stop_logstash_script1.sh dest=/home/{{user}} owner=learning group=learning
+  
+- name: run script
+  become: yes
+  become_user: learning
+  shell: sh {{ user_home }}/stop_logstash_script1.sh
+        
+
+- name: Copy the learning.zip file
+  become: yes
+  copy: src={{ zip_file }} dest={{ neo4j_home }}/plugins/ owner=learning group=learning 
+
+- name: Download th zip
+  become: yes
+  become_user: learning
+  get_url: url=https://download.elastic.co/logstash/logstash/logstash-all-plugins-2.3.3.tar.gz dest=/home/{{user}}/logstash-all-plugins-2.3.3.tar.gz  timeout=1000 force=no owner={{user}}
+  
+- name: unzip   
+  become: yes
+  become_user: learning
+  unarchive: src=/home/{{user}}/logstash-all-plugins-2.3.3.tar.gz dest=/home/{{user}} copy=no group={{user}} owner={{user}} creates=/home/{{user}}/logstash-2.3.3
+  
+- name: set permissions
+  become: yes
+  file: path=/home/{{user}}/logstash-2.3.3 owner={{user}} group={{user}} mode=0755 recurse=yes 
+  
+#****************************ADD EVENTS********************************************
+- name: add logstash configuration files for learning and language
+  become: yes
+  template: src={{ item.name }}  dest={{ item.destination }}
+  with_items:
+    - { name: 'logstash-graph-events.j2', destination: '/home/learning/logstash-2.3.3/logstash-graph-events.conf' }
+  
+  #******************************************Check the process is running or not*****************************************************
+
+- name: Check if logstash graph events is running
+  become: yes
+  become_user: learning
+  shell: ps -ef | grep logstash | grep logstash-graph-events.conf | grep -v grep | wc -l
+  register: logstash_process
+  
+#******************************************Run the process if not running*****************************************************
+- name: Run logstash graph-events
+  become: yes
+  become_user: learning
+  shell: /home/{{user}}/logstash-2.3.3/bin/logstash -f /home/{{user}}/logstash-2.3.3/logstash-graph-events.conf -v &
+  async: 60
+  poll: 30
+  when: "logstash_process.stdout == '0'"
+  

@@ -1,0 +1,9 @@
+#!/bin/sh
+time=$(date '+%d-%b-%Y')
+var="neo4jbackup"
+var2=$var$time
+mkdir /mnt/backup/$var2
+cp -r /mnt/backup/neo4j-backup/* /mnt/backup/$var2/
+zip -r /mnt/backup/$var2.zip /mnt/backup/$var2
+aws s3 cp /mnt/backup/$var2.zip s3://ekstep-public/dev/neo4j-backup/
+rm -rf /mnt/backup/$var2.zip /mnt/backup/$var.zip

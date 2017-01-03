@@ -1,6 +1,5 @@
 ---
 # tasks file for aws-login
-
 - name: create .aws
   file: path={{ item.path }} state={{ item.state }}
   with_items:

@@ -1,4 +1,3 @@
-- hosts: env
-  become: yes
+- hosts: "{{remote}}"
   roles:
         - export-mongodb

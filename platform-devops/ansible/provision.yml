@@ -1,13 +1,13 @@
 - hosts: "{{remote}}"
-  gather_facts: no
-  become: yes
+  remote_user: learning
   roles:
+        - aws-login
         - java
         - createpath
-        - aws-login
         - tomcat
         - ffmpeg
         - imagemagick
         - logstash
-        - mongodb
+        - search-service
         - redis
+        - mongodb       

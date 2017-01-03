@@ -1,51 +1,34 @@
-- name: Install Java8
+- name: Add Java repository to sources
+  action: apt_repository repo='ppa:webupd8team/java'
   become: yes
-  yum: name=java-1.8.0 state=latest
-  ignore_errors: yes 
   tags:
-       - learning
-       - language
-       - config
-       - search
-       - total
-
-- name: Remove Java7
+       - always
+- name: Autoaccept license for Java
+  action: shell echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
   become: yes
-  yum: name=java-1.7.0-openjdk state=absent
   tags:
-       - learning
-       - language
-       - config
-       - search
-       - total
+       - always
 
-- name: Update bashrc for JAVA_HOME
+- name: Update APT package cache
+  action: apt update_cache=yes
   become: yes
-  lineinfile: dest=.bash_profile line='JAVA_HOME=/usr/lib/jvm/jre'  state=present insertafter=EOF create=yes
   tags:
-       - learning
-       - language
-       - config
-       - search
-       - total
+       - always
 
-
-- name: Export JAVA_HOME
+- name: Install Java 8
+  action: apt pkg=oracle-java8-installer state=latest install_recommends=yes
   become: yes
-  lineinfile: dest=.bash_profile  line='export JAVA_HOME'  state=present insertafter=EOF create=yes
   tags:
-       - learning
-       - language
-       - config
-       - search
-       - total
+       - always
 
-- name: Add JAVA_HOME to the PATH
-  become: yes  
-  lineinfile: dest=.bash_profile line='PATH=$PATH:$JAVA_HOME/bin' state=present insertafter=EOF create=yes
+- name: Set Java 8 Env
+  action: apt pkg=oracle-java8-set-default state=latest install_recommends=yes
+  become: yes
   tags:
-       - learning
-       - language
-       - config
-       - search
-       - total
+       - always
+
+- name: setup envkeep
+  become: yes
+  lineinfile: dest=/etc/sudoers line='Defaults  env_keep += "JAVA_HOME"'  state=present insertafter=EOF create=yes
+  tags:
+       - always
