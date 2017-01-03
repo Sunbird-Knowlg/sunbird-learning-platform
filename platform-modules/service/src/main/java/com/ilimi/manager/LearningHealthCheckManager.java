@@ -1,9 +1,5 @@
 package com.ilimi.manager;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +18,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.HealthCheckManager;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
-import com.ilimi.util.DatabasePropertiesUtil;
 
 @Component
 public class LearningHealthCheckManager extends HealthCheckManager {
@@ -74,16 +69,6 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		taskList.add(futureTask_Mongo);
 		executor.execute(futureTask_Mongo);
 
-		FutureTask<Map<String, Object>> futureTask_MySQL = new FutureTask<Map<String, Object>>(
-				new Callable<Map<String, Object>>() {
-					@Override
-					public Map<String, Object> call() {
-						return checkMySQLHealth();
-					}
-				});
-		taskList.add(futureTask_MySQL);
-		executor.execute(futureTask_MySQL);
-
 		for (int j = 0; j < taskList.size(); j++) {
 			FutureTask<Map<String, Object>> futureTask = taskList.get(j);
 			Map<String, Object> check = futureTask.get();
@@ -122,33 +107,4 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		return check;
 	}
 
-	private static Map<String, Object> checkMySQLHealth() {
-		Map<String, Object> check = new HashMap<String, Object>();
-		check.put("name", "My SQL");
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection(DatabasePropertiesUtil.getProperty("db.url"),
-					DatabasePropertiesUtil.getProperty("db.username"),
-					DatabasePropertiesUtil.getProperty("db.password"));
-			Statement stmt = (Statement) con.createStatement();
-			ResultSet rs = stmt.executeQuery("select 1");
-			if (rs.next())
-				check.put("healthy", true);
-			else {
-				check.put("healthy", false);
-				check.put("err", ""); // error code, if any
-				check.put("errmsg", "DB is not available"); 
-			}
-			con.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error(e.getMessage(), e);
-			check.put("healthy", false);
-			check.put("err", "503"); // error code, if any
-			check.put("errmsg", e.getMessage()); // default English error
-													// message
-		}
-
-		return check;
-	}
 }
