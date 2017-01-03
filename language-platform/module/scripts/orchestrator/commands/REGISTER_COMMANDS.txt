@@ -90,4 +90,4 @@ node registerCommand.js commands/register-transliterate.json register
 
 node registerCommand.js commands/register-getWordFeatures.json register
 
-node registerCommand.js commands/register-transliteratev3.json register
+node registerCommand.js commands/register-transliteratev3.json update

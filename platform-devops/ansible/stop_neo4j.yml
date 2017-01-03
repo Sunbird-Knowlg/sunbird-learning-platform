@@ -1,0 +1,13 @@
+- hosts: "{{remote}}"
+  tasks:
+        - name: Check if neo4j is running
+          become_user: learning
+          shell: ps -ef | grep "{{ neo4j_home }}"  | grep -v grep | wc -l
+          register: neo4j_process
+          
+        - name: Start the neo4j
+          become: yes
+          become_user: learning
+          shell: "{{ neo4j_home }}/bin/neo4j stop"
+          when: "neo4j_process.stdout != '0'"
+               

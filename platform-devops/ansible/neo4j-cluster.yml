@@ -1,0 +1,16 @@
+- hosts: languagecluster
+  remote_user: learning
+  roles: 
+        - java
+        - neo4j-cluster
+  tags:
+       - language-cluster
+
+- hosts: learningcluster
+  remote_user: learning
+  roles: 
+        - java
+        - neo4j-cluster
+  tags:
+       - learning-cluster
+

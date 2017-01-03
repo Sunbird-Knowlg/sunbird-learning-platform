@@ -1,12 +1,20 @@
 ---
-# This role deploys the mongodb processes and sets up settings.
-- name: add 10gen repo file
-  template: src=mongodb.repo.j2 dest=/etc/yum.repos.d/mongodb-org-2.6.repo
+- name: Debian | Add keys authenticity
+  become: yes
+  apt_key: url={{ url_apt_key }}0x7F0CEB10
+  tags:
+       - mongodb
+       
+- name: Debian | Add source sources
+  become: yes
+  apt_repository: repo='{{ mongodb_repository }}' update_cache=yes
   tags:
        - mongodb
 
-- name: install mongodb
-  yum: name=mongodb-org state=present update_cache=yes
+- name: Debian | Install Packages
+  become: yes
+  apt: pkg={{ item }} state=installed
+  with_items: mongodb-org
   tags:
        - mongodb
 
@@ -16,7 +24,6 @@
   tags:
        - mongodb
 
-
 - name: mongodb start
   become: yes
   service: name=mongod state=started
@@ -24,6 +31,8 @@
        - mongodb
   
 - name: copy setup script
+  become: yes
+  become_user: learning
   template: src=orchestrator_setup.j2 dest={{ user_home }}/orchestrator_setup.js
   tags:
        - mongodb

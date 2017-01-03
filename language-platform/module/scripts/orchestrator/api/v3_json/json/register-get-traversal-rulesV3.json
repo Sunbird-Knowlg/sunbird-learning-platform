@@ -1,14 +1,14 @@
 {
     "name": "getTraversalRules_v3",
     "parameters": [{
-    	"name":"graph_id",
+    	"name":"language_id",
     	"index": 0,
     	"routingParam": true
     }],
     "requestPath": {
         "type": "GET",
         "url": "/v3/traversals/list",
-        "requestParams": ["graph_id"]
+        "requestParams": ["language_id"]
     },
     "body": ""
 }

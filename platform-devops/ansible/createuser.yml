@@ -1,0 +1,21 @@
+- hosts: remote
+  remote_user: ubuntu
+  tasks: 
+        - name: Create group learning
+          group: name=learning state=present
+          become: yes
+          tags: 
+               - learning  
+
+        - name: Create user learning
+          user: name=learning comment="learning" group=learning groups=sudo shell=/bin/bash password='$6$VXPDMpn.$r.l6jlFi3baa5y34cIPUYXazOQGoz0L3fGNIXewEW8it8vL.e7YSzIia7ATWRgd9G05nqx41nDo38mJHYqYmm1' update_password=always
+          become: yes
+          tags:
+               - learning
+ 
+        - name: Add ssh public key learning
+          authorized_key: user=learning key='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDK8g3Pb8C1r1jor/xMJVrn51ssmWyzef9FaaMzVoBu+4LfKMHv1J887+Z9Qq9XP/1ygVpgwLPIzeujWGVCXZLnn2/DaC9jkJGHm7e/YlavqD80FjdUPUAt5hwCJuxhtLIcrBJAxJ/NbxZArE/GeyXqfIMIVx0PM3QrZJrEb2QVSn/Gi8tofqgzmBWnZueKHhxujErZ4zj1JTxsxt8ht6BUex4l3irnIwfMswiJUOj1VeD0rtADp0mZ58nRbDtrSQENOxL75CRAWk38xd3zbBE0iAk3rVPlkxHJO72C2crBfTxaizaC+z5bbnkRW+iFbQ16h/gTh3+Ap4FYIa5k9Gi9 learning@ekstep'
+          become: yes
+          tags:
+               - learning
+

@@ -4,42 +4,221 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeRequest;
 import static play.test.Helpers.route;
+
+import java.io.IOException;
 
 import org.junit.Test;
 
-import play.mvc.Result;
-import play.test.WithApplication;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class SearchControllerTest extends WithApplication {
+import play.mvc.Http.RequestBuilder;
+import play.mvc.Result;
+
+public class SearchControllerTest extends BaseSearchControllerTest {
+
+	ObjectMapper mapper = new ObjectMapper();
+
+	@Test
+	public void testSearchV2() {
+		String json = "{\"request\": {\"filters\":{\"objectType\":"
+				+ " [\"Concept\", \"Word\", \"Domain\", \"Dimension\","
+				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/search-service/v2/search").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("result"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testSearchParams() {
+		String json = "{\"id\": \"ekstep.composite-search.search\",\"ver\": \"3.0\","
+				+ "\"params\": {\"msgid\": null}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/search").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("result"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	@Test
+	public void testSearchParamsException() {
+		String json = "{\"id\": \"ekstep.composite-search.search\",\"ver\": \"3.0\","
+				+ "\"params\": {\"msgid\": {\"test\": \" TEST_DEV\"}}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/search").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("result"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testSearchRequestException() {
+		String json = "{\"request\": [\"object\",\"content\"]}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/search").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("result"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
+	public void testCountV2() {
+		String json = "{\"request\": {\"filters\":{\"objectType\":"
+				+ " [\"Concept\", \"Word\", \"Domain\", \"Dimension\","
+				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/search-service/v2/search/count").method(POST)
+					.bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("count"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testMetricsV2() {
+		String json = "{\"request\": {\"filters\":{\"objectType\":"
+				+ " [\"Concept\", \"Word\", \"Domain\", \"Dimension\","
+				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/search-service/v2/metrics").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("count"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testHealthCheckV2() {
+		RequestBuilder req = new RequestBuilder().uri("/search-service/health").method(GET);
+		Result result = route(req);
+		assertEquals(OK, result.status());
+		assertEquals("application/json", result.contentType());
+		assertTrue(contentAsString(result).contains("healthy"));
+		assertFalse(contentAsString(result).contains("failed"));
+	}
 
 	@Test
 	public void testSearch() {
-		Result result = route(fakeRequest(POST, "/v3/search"));
-		assertEquals(OK, result.status());
-		assertEquals("application/json", result.contentType());
-		assertTrue(contentAsString(result).contains("result"));
-		assertFalse(contentAsString(result).contains("failed"));
+		String json = "{\"request\": {\"filters\":{\"objectType\":"
+				+ " [\"Concept\", \"Word\", \"Domain\", \"Dimension\","
+				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/search").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("result"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Test
 	public void testCount() {
-		Result result = route(fakeRequest(POST, "/v3/count"));
-		assertEquals(OK, result.status());
-		assertEquals("application/json", result.contentType());
-		assertTrue(contentAsString(result).contains("count"));
-		assertFalse(contentAsString(result).contains("failed"));
+		String json = "{\"request\": {\"filters\":{\"objectType\":"
+				+ " [\"Concept\", \"Word\", \"Domain\", \"Dimension\","
+				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/count").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("count"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
-	
+
 	@Test
 	public void testMetrics() {
-		Result result = route(fakeRequest(POST, "/v3/metrics"));
+		String json = "{\"request\": {\"filters\":{\"objectType\":"
+				+ " [\"Concept\", \"Word\", \"Domain\", \"Dimension\","
+				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
+		try {
+			JsonNode data = mapper.readTree(json);
+			RequestBuilder req = new RequestBuilder().uri("/v3/metrics").method(POST).bodyJson(data);
+			Result result = route(req);
+			assertEquals(OK, result.status());
+			assertEquals("application/json", result.contentType());
+			assertTrue(contentAsString(result).contains("count"));
+			assertFalse(contentAsString(result).contains("failed"));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testHealthCheck() {
+		RequestBuilder req = new RequestBuilder().uri("/health").method(GET);
+		Result result = route(req);
 		assertEquals(OK, result.status());
 		assertEquals("application/json", result.contentType());
-		assertTrue(contentAsString(result).contains("count"));
+		assertTrue(contentAsString(result).contains("healthy"));
 		assertFalse(contentAsString(result).contains("failed"));
 	}
 }

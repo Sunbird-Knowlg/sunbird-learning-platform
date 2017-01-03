@@ -1,5 +1,4 @@
 ---
-
 - name: copy cql
   template: src=data.cql.j2 dest=/home/{{ cassandra_user }}/data.cql
   tags:

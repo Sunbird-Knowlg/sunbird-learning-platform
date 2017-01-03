@@ -1,5 +1,6 @@
-neo4j_home: /home/ec2-user/neo4j-community-3.0.4
-user_home: /home/ec2-user
+user: learning
+neo4j_home: /home/{{user}}/neo4j-community-3.0.4
+user_home: /home/{{user}}
 service_url: 10.10.1.26:8080
 zookeeper_url: 10.10.1.207:2181
 graph_event_topic_id: production.learning.graph.events
@@ -9,7 +10,6 @@ mysql_db_url: epproddb.cm8jepwsnit8.ap-southeast-1.rds.amazonaws.com:3306
 mysql_db_schema: lpproddb
 mysql_db_username: ekstep
 mysql_db_password: 4vUkhpZa9UXz2HnC
-mysql_db_schema: lpproddb
 iwn_db_schema: indowordnet_dump
 search_index_host: 10.10.1.20
 search_index_port: 9200
@@ -22,7 +22,7 @@ tomcat_init_mem: -Xms2048m
 tomcat_max_mem: -Xmx8192m
 tomcat_init_search: -Xms1024m 
 tomcat_max_search: -Xmx4096m
-graphevent_kafka_url: "10.10.1.207:9092,10.10.1.210:9092,10.10.1.209:9092"
+graphevent_kafka_url: "10.10.1.207:9092"
 graphevent_kafka_topic_id: "production.learning.graph.events"
 content_to_vec_url: http://10.10.1.107:9000/content-to-vec
 s3_config_environment: prod
@@ -32,9 +32,17 @@ redis_host: 10.10.1.26
 redis_port: 6379
 cassandra_host: 10.10.1.62
 cassandra_port: 9042
-graph_passport_key: 31b6fd1c4d64e745c867e61a45edc34a
-learning_neo4j_bolt_url: bolt://172.31.30.52:7687
-language_neo4j_bolt_url: bolt://172.31.30.52:8687
+search_root: /home/{{user}}/platform/search
+search_home: /home/{{user}}/platform/search/search-manager
+service_path: /home/{{user}}/platform/service
+neo4j_machine:
+dbms_memory_heap_initial_size: 512
+dbms_memory_heap_initial_size: 512
+dbms_memory_pagecache_size: 10g
+graph_passport_key: oM2wLF8Eq3vRnt3qZ0+Y/sWQnH5pz3bHpciFo3EIifZIcP5RW4qHw8sZztCzv87M
+learning_neo4j_bolt_url: bolt://172.31.8.205:7687
+language_neo4j_bolt_url: bolt://172.31.8.205:8687
+
 
 to_learning: 10.10.1.26
 to_language: 10.10.1.30

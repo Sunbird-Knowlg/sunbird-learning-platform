@@ -10,13 +10,13 @@ $map put "nodeType" "DATA_NODE"
 
 set search_criteria [create_search_criteria $map]
 
-set search_response [searchNodes $graph_id $search_criteria]
+set search_response [searchNodes $language_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
 	return $search_response;
 } else {
 	set graph_nodes [get_resp_value $search_response "node_list"]
-	set resp_def_node [getDefinition $graph_id $object_type]
+	set resp_def_node [getDefinition $language_id $object_type]
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	set obj_list [java::new ArrayList]
 	java::for {Node graph_node} $graph_nodes {

@@ -1,4 +1,4 @@
 #!/bin/bash
-ssh -o "StrictHostKeyChecking no" ec2-user@{{mongo_machine}}
+ssh -o "StrictHostKeyChecking no" {{user}}@{{mongo_machine}}
 mongoexport --db orchestrator_db --collection scripts --out /home/ec2-user/commands.json
-scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/commands.json ec2-user@{{mongo_machine}}:/home/ec2-user
+scp -i /home/ec2-user/learning-platform.pem /home/ec2-user/commands.json {{user}}@{{mongo_machine}}:/home/{{user}}
