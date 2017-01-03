@@ -20,7 +20,7 @@ search-1
 
 
 [config-1]
-172.31.2.179 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
+172.31.13.121 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
 [hostconfig:children]
 config-1
