@@ -27,7 +27,7 @@ content_to_vec_url: http://172.31.25.29:9000/content-to-vec
 s3_config_environment: dev
 cassandra_user: ec2-user
 cql_path: "/mnt/data/analytics/apache-cassandra-3.7/bin/cqlsh"
-graph_passport_key: 539fc84aea34f403aeb0c8b8e8f9fb14
+graph_passport_key: jd5ECm/o0BXwQCe8PfZY1NoUkB9HN41QjA80p22MKyRIcP5RW4qHw8sZztCzv87M
 learning_neo4j_bolt_url: bolt://172.31.30.52:7687
 language_neo4j_bolt_url: bolt://172.31.30.52:8687
 redis_host: 172.31.24.39 
