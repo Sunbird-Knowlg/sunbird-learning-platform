@@ -1,0 +1,35 @@
+- name: Complete backup
+  file: path=/mnt/backup/neo4j-backup state=absent
+  tags:
+       - fullbackup
+
+- name: create directory
+  become: yes
+  file: path={{item}} state=directory
+  with_items:
+             - /mnt/backup/neo4j-backup
+             - /mnt/backup/dailybackup
+  tags:
+       - fullbackup
+       - incrementalbackup
+        
+- name: Run the backup command
+  command: {{neo4j_home}}/bin/neo4j-backup --from={{neo4j_machine}} --to=/mnt/backup/neo4j-backup
+  tags:
+       - fullbackup
+       - incrementalbackup
+       
+- name: copy template of shell script to stop service
+  become: yes
+  template: src=backup_script.j2 dest=/home/{{user}}/backup_script.sh owner=learning group=learning
+  tags:
+       - fullbackup
+       - incrementalbackup
+       
+- name: run script
+  become: yes
+  command: "/home/{{user}}/backup_script.sh"
+  tags:
+       - fullbackup
+       - incrementalbackup
+       

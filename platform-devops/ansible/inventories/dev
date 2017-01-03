@@ -4,12 +4,18 @@
 [hostlearning:children]
 learning-1
 
+[learning-1:vars]
+mw_shard_id=1
 
 [language-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
 [hostlanguage:children]
 language-1
+
+
+[language-1:vars]
+mw_shard_id=1
 
 [search-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
@@ -21,6 +27,10 @@ search-1
 	
 [config-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+[hostconfig:children]
+config-1
+
+
 [hostconfig:children]
 config-1
 
