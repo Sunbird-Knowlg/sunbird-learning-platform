@@ -1,6 +1,7 @@
 - hosts: "{{remote}}"
   remote_user: learning
   roles:
+        - aws-login
         - java
         - createpath
         - tomcat
