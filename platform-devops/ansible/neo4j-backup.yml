@@ -1,14 +1,6 @@
 - hosts: {{remote}}
   remote_user: learning
-  tasks: 
-        - name: create directory
-          become: yes
-          file: path=/mnt/backup/neo4j-backup state=directory
-        
-        - name: Run the cron
-          cron: name=backuptolocal minute=50 hour=23 state=present job="{{neo4j_home}}/bin/neo4j-backup --from={{neo4j_machine}} --to=/mnt/backup/neo4j-backup"
+  roles:
+        - neo4j-backup 
 
-        - name: Upload to s3
-          cron: name=Copytos3 minute=57 hour=23 state=present job="aws s3 cp "/mnt/backup/neo4j-backup" 
-          
  
