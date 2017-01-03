@@ -27,7 +27,7 @@ graphevent_kafka_topic_id: "new-qa.learning.graph.events"
 content_to_vec_url: http://172.31.18.88:9000/content-to-vec
 s3_config_environment: qa
 cql_path: "/mnt/data/analytics/apache-cassandra-3.7/bin/cqlsh"
-cassandra_user: {{user}}
+cassandra_user: ec2-user
 redis_host: 172.31.13.121
 redis_port: 6379
 cassandra_host: 172.31.18.88
