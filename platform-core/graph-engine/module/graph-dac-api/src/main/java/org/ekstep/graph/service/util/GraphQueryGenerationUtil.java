@@ -135,9 +135,10 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 								+ " | ['Create Relation' Query Generation Failed.]");
 
 			Request request = (Request) parameterMap.get(GraphDACParams.request.name());
-			Integer index = 0;
+			Integer index = null;
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {
+				index = 0;
 				LOGGER.info("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
 				// Fetch all the Relationships
 				List<Integer> allottedIndices = new ArrayList<Integer>();

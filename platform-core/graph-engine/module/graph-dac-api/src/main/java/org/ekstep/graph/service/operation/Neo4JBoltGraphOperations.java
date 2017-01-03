@@ -757,12 +757,8 @@ public class Neo4JBoltGraphOperations {
 				if (existingNodes.containsKey(node.getIdentifier())) {
 					neo4jNode = existingNodes.get(node.getIdentifier());
 				} else {
-					neo4jNode = searchOps.getNodeByUniqueId(graphId, node.getIdentifier(), true, request);
-					if (null == neo4jNode) {
-						neo4jNode = nodeOps.upsertNode(graphId, node, request);
-						nodesCount++;
-					}
-					existingNodes.put(node.getIdentifier(), neo4jNode);
+					neo4jNode = nodeOps.upsertNode(graphId, node, request);
+					nodesCount++;
 				}
 				neo4jNode = searchOps.getNodeByUniqueId(graphId, node.getIdentifier(), true, request);
 				existingNodes.put(node.getIdentifier(), neo4jNode);
