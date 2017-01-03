@@ -18,7 +18,7 @@
         "type": "PATCH",
         "url": "/v3/traversals/update/*",
         "pathParams": ["rule_id"],
-        "requestParams": ["language_id"],
+        "requestParams": ["language_id"]
     },
     "body": ""
 }
