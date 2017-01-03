@@ -11,3 +11,4 @@ backup_port: "7362"
 dbms_backup_enabled: true
 dbms_backup_address: "0.0.0.0:7362"
 zip_file: learning-graph-extension-1.0.jar
+custom_procs_file: custom-procedures-1.0.jar
