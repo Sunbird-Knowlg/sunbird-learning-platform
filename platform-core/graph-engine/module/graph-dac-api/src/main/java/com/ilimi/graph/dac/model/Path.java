@@ -9,10 +9,15 @@ import org.neo4j.graphdb.Relationship;
 public class Path implements Serializable {
 
     private static final long serialVersionUID = 2484883859842926325L;
+    private String graphId;
     private Node startNode;
     private Node endNode;
     private List<Node> nodes;
     private List<Relation> relations;
+    
+    public Path(String graphId) {
+    	this.setGraphId(graphId);
+    }
 
     public Path(String graphId, org.neo4j.graphdb.Path dbPath) {
         if (null != dbPath) {
@@ -78,4 +83,12 @@ public class Path implements Serializable {
     public void setRelations(List<Relation> relations) {
         this.relations = relations;
     }
+
+	public String getGraphId() {
+		return graphId;
+	}
+
+	public void setGraphId(String graphId) {
+		this.graphId = graphId;
+	}
 }

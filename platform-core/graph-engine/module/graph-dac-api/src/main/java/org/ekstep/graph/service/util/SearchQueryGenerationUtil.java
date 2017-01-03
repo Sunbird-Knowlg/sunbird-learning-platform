@@ -238,6 +238,30 @@ public class SearchQueryGenerationUtil {
 		LOGGER.info("Returning Get Relation Property Cypher Query: " + query);
 		return query.toString();
 	}
+	
+	public static String generateGetRelationByIdCypherQuery(Map<String, Object> parameterMap) {
+		LOGGER.debug("Parameter Map: ", parameterMap);
+
+		StringBuilder query = new StringBuilder();
+		if (null != parameterMap) {
+			LOGGER.info("Fetching the Parameters From Parameter Map");
+			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
+			if (StringUtils.isBlank(graphId))
+				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
+						DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Get Relation' Query Generation Failed.]");
+
+			Long id = (long) parameterMap.get(GraphDACParams.identifier.name());
+			if (null == id || id < 0)
+				throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
+						DACErrorMessageConstants.INVALID_IDENTIFIER
+								+ " | ['Get Relation By Id' Query Generation Failed.]");
+
+			query.append("MATCH ()-[r]-() where ID(r)= " + id + " RETURN r, startNode(r) as __startNode, endNode(r) as __endNode");
+		}
+
+		LOGGER.info("Returning Get Relation By Id Cypher Query: " + query);
+		return query.toString();
+	}
 
 	public static String generateGetRelationCypherQuery(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);

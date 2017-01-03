@@ -41,7 +41,8 @@ public enum Neo4JOperation {
 	GET_NODES_COUNT(36, "Get Nodes Count."),
 	TRAVERSE(37, "Traverse."),
 	TRAVERSE_SUB_GRAPH(38, "Traverse Sub Graph."),
-	GET_SUB_GRAPH(39, "Get Sub Graph.");
+	GET_SUB_GRAPH(39, "Get Sub Graph."),
+	GET_RELATION_BY_ID(40, "Get Relation By Id.");
 	
 	
 	private final int code;

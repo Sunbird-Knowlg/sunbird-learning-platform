@@ -2,21 +2,20 @@ package com.ilimi.graph.dac.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterable;
-import org.neo4j.graphdb.ResourceIterator;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
+import org.ekstep.graph.service.util.DriverUtil;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.Record;
+import org.neo4j.driver.v1.Session;
+import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.Value;
 
-import com.ilimi.graph.dac.util.Neo4jGraphFactory;
-import com.ilimi.graph.dac.util.Neo4jGraphUtil;
-import com.ilimi.graph.dac.util.RelationType;
+import com.ilimi.common.dto.Request;
 
 public class Traverser implements Serializable {
 
@@ -25,60 +24,41 @@ public class Traverser implements Serializable {
     public static final int DEPTH_FIRST_TRAVERSAL = 1;
 
     private String graphId;
-    private GraphDatabaseService graphDb;;
+    private long traversal = DEPTH_FIRST_TRAVERSAL;
+    private long toDepth;
+    private long fromDepth;
 
-    private List<Node> startNodes = new ArrayList<Node>();
-    private int traversal = BREADTH_FIRST_TRAVERSAL;
-    private List<RelationTraversal> relations = new ArrayList<RelationTraversal>();
-    private int toDepth;
-    private int fromDepth;
-
-    private List<Node> endNodes = new ArrayList<Node>();
+    private List<String> startNodeIds = new ArrayList<String>();
+    private List<String> endNodeIds = new ArrayList<String>();
     private List<String> endRelations = new ArrayList<String>();
-    
-    private TraversalDescription traversalDescription;
+    private List<String> uniqueness = new ArrayList<String>();
+    private List<String> wordIds = new ArrayList<String>();
+    private Map<String, String> relationMap = new HashMap<String, String>();
+    private Map<String, Object> pathExpander = new HashMap<String, Object>();
 
-    public void setTraversalDescription(TraversalDescription traversalDescription) {
-		this.traversalDescription = traversalDescription;
-	}
-    
-    public TraversalDescription getBaseTraversalDescription(){
-    	TraversalDescription baseTraversalDescription = graphDb.traversalDescription().depthFirst();
-    	return baseTraversalDescription;
-    }
+    private Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 
 	public Traverser(String graphId, String startNodeId) {
         this.graphId = graphId;
-        this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         if(startNodeId != null){
-	        Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
-	        this.startNodes.add(node);
+        	this.startNodeIds.add(startNodeId);
         }
     }
 	
 	public Traverser(String graphId) {
         this.graphId = graphId;
-        this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
     }
 	
 	public Traverser(String graphId, List<String> startNodeIds) {
         this.graphId = graphId;
-        this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         for(String startNodeId: startNodeIds){
-        	Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
-        	this.startNodes.add(node);
+        	this.startNodeIds.add(startNodeId);
         }
     }
 	
     public Traverser traversal(int traversal) {
         if (traversal == BREADTH_FIRST_TRAVERSAL || traversal == DEPTH_FIRST_TRAVERSAL)
             this.traversal = traversal;
-        return this;
-    }
-
-    public Traverser traverseRelation(RelationTraversal relationTraversal) {
-        if (null != relationTraversal)
-            this.relations.add(relationTraversal);
         return this;
     }
 
@@ -95,8 +75,7 @@ public class Traverser implements Serializable {
     }
 
     public Traverser endNode(String nodeId) {
-        Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, nodeId);
-        this.endNodes.add(node);
+        this.endNodeIds.add(nodeId);
         return this;
     }
 
@@ -106,141 +85,136 @@ public class Traverser implements Serializable {
     }
 
     public void setStartNode(String startNodeId){
-    	 Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
-         this.startNodes.add(node);
+         this.startNodeIds.add(startNodeId);
     }
     
-    public TraversalDescription getTraversalDescription() {
-    	
-    	if(this.traversalDescription != null){
-    		return this.traversalDescription;
-    	}
-    	
-        TraversalDescription td = graphDb.traversalDescription();
-        if (this.traversal == DEPTH_FIRST_TRAVERSAL)
-            td = td.depthFirst();
-        else
-            td = td.breadthFirst();
-        if (null != relations && relations.size() > 0) {
-            for (RelationTraversal rel : relations) {
-                td = rel.addToTraversalDescription(td);
-            }
-        }
-        if (fromDepth > 0) {
-            td = td.evaluator(Evaluators.fromDepth(fromDepth));
-        }
-        if (toDepth > 0) {
-            td = td.evaluator(Evaluators.toDepth(toDepth));
-        }
-        if (null != endNodes && endNodes.size() > 0) {
-            Node[] nodeArray = new Node[endNodes.size()];
-            for (int i = 0; i < endNodes.size(); i++) {
-                nodeArray[i] = endNodes.get(i);
-            }
-            td = td.evaluator(Evaluators.pruneWhereEndNodeIs(nodeArray));
-        }
-        if (null != endRelations && endRelations.size() > 0) {
-            RelationType type = new RelationType(endRelations.get(0));
-            if (endRelations.size() > 1) {
-                RelationType[] relationTypes = new RelationType[endRelations.size() - 1];
-                for (int i = 1; i < endRelations.size(); i++) {
-                    relationTypes[i - 1] = new RelationType(endRelations.get(i));
-                }
-                td = td.evaluator(Evaluators.pruneWhereLastRelationshipTypeIs(type, relationTypes));
-            } else {
-                td = td.evaluator(Evaluators.pruneWhereLastRelationshipTypeIs(type));
-            }
-        }
-        return td;
-    }
-
     public SubGraph traverse() {
         SubGraph subGraph = new SubGraph();
-        ResourceIterator<Path> pathsIterator = getTraversalDescription().traverse(startNodes).iterator();
-        if (null != pathsIterator) {
-        	List<Path> finalPaths = removeSubPaths(pathsIterator);
-            for(Path traversedPath: finalPaths) {
-                com.ilimi.graph.dac.model.Path path = new com.ilimi.graph.dac.model.Path(graphId, traversedPath);
-                subGraph.addPath(path);
-            }
-        	/*while(pathsIterator.hasNext()){
-        		 com.ilimi.graph.dac.model.Path path = new com.ilimi.graph.dac.model.Path(graphId, pathsIterator.next());
-                 subGraph.addPath(path);
-        	}*/
-            pathsIterator.close();
+        Driver driver = DriverUtil.getDriver(graphId);
+        try (Session session = driver.session()) {
+        	String query = "CALL ekstep.procs.traverse";
+        	Map<String, Object> params = getTraverserParams();
+        	StatementResult result = session.run(query, params);
+        	for (Record record : result.list()) {
+				Path path = getPathObject(this.graphId, record);
+				subGraph.addPath(path);
+			}
         }
         return subGraph;
     }
 
-    public List<Path> removeSubPaths(ResourceIterator<Path> pathsIterator) {
-		Transaction tx = null;
-		List<Path> finalPaths = new ArrayList<Path>();
-		try {
-			tx = graphDb.beginTx();
-			Path previousPath = null;
-			int previousPathLength = 0;
-
-			 while (pathsIterator.hasNext()) {
-				Path traversedPath = pathsIterator.next();
-				if (traversedPath.length() > previousPathLength) {
-					previousPath = traversedPath;
-					previousPathLength = traversedPath.length();
-				} else if (traversedPath.length() == previousPathLength) {
-					if (previousPath != null) {
-						finalPaths.add(previousPath);
-					}
-					previousPath = traversedPath;
-					previousPathLength = traversedPath.length();
-				} else {
-					if (previousPath != null) {
-						finalPaths.add(previousPath);
-						previousPath = null;
-					}
-				}
-			}
-
-			if (previousPath != null) {
-				finalPaths.add(previousPath);
-				previousPath = null;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (null != tx) {
-				tx.failure();
-			}
-		} finally {
-			if (null != tx) {
-				tx.close();
-			}
-		}
-		return finalPaths;
-	}
-    
     
     public Graph getSubGraph() {
         Graph subGraph = new Graph();
-        TraversalDescription td = getTraversalDescription();
-        if (null != td) {
-            ResourceIterable<Node> nodes = td.traverse(startNodes).nodes();
-            ResourceIterable<Relationship> relations = td.traverse(startNodes).relationships();
-            if (null != nodes) {
-                List<com.ilimi.graph.dac.model.Node> nodeList = new ArrayList<com.ilimi.graph.dac.model.Node>();
-                for (Node dbNode : nodes) {
-                    com.ilimi.graph.dac.model.Node node = new com.ilimi.graph.dac.model.Node(graphId, dbNode);
-                    nodeList.add(node);
-                }
-                subGraph.setNodes(nodeList);
-            }
-            if (null != relations) {
-                List<Relation> relationList = new ArrayList<Relation>();
-                for (Relationship dbRel : relations) {
-                    Relation rel = new Relation(graphId, dbRel);
-                    relationList.add(rel);
-                }
-                subGraph.setRelations(relationList);
-            }
+        Driver driver = DriverUtil.getDriver(graphId);
+        try (Session session = driver.session()) {
+        	String query = "CALL ekstep.procs.traverse";
+        	List<Node> nodes = new ArrayList<Node>();
+        	List<Relation> relations = new ArrayList<Relation>();
+        	Map<String, Object> params = getTraverserParams();
+        	StatementResult result = session.run(query, params);
+        	for (Record record : result.list()) {
+				Path path = getPathObject(this.graphId, record);
+				if (null != path.getNodes())
+					nodes.addAll(path.getNodes());
+				if (null != path.getRelations())
+					relations.addAll(path.getRelations());
+			}
+        	subGraph.setNodes(nodes);
+			subGraph.setRelations(relations);
         }
         return subGraph;
     }
+    
+    private Map<String, Object> getTraverserParams() {
+    	Map<String, Object> params = new HashMap<String, Object>();
+		params.put("startNodeIds", this.startNodeIds);
+		params.put("graphId", this.graphId);
+		params.put("traversal", this.traversal);
+		params.put("fromDepth", this.fromDepth);
+		params.put("toDepth", this.toDepth);
+		params.put("endNodeIds", this.endNodeIds);
+		params.put("endRelations", this.endRelations);
+		params.put("uniqueness", this.uniqueness);
+		params.put("wordIds", this.wordIds);
+		params.put("pathExpander", this.pathExpander);
+		params.put("relationMap", this.relationMap);
+		return params;
+    }
+    
+    private Path getPathObject(String graphId, Record record) {
+    	Request request = new Request();
+    	Value startNodeVal = record.get("startNode");
+    	Value endNodeVal = record.get("endNode");
+    	Value nodesVal = record.get("nodes");
+    	Value relationsVal = record.get("relations");
+    	Path path = new Path(graphId);
+    	if (null != startNodeVal && StringUtils.equalsIgnoreCase("NODE", startNodeVal.type().name())) {
+    		org.neo4j.driver.v1.types.Node node = startNodeVal.asNode();
+    		Node startNode = searchOps.getNodeById(graphId, node.id(), true, request);
+    		path.setStartNode(startNode);
+    	}
+    	if (null != endNodeVal && StringUtils.equalsIgnoreCase("NODE", endNodeVal.type().name())) {
+    		org.neo4j.driver.v1.types.Node node = endNodeVal.asNode();
+    		Node endNode = searchOps.getNodeById(graphId, node.id(), true, request);
+    		path.setEndNode(endNode);
+    	}
+    	if (null != nodesVal) {
+    		List<Object> list = nodesVal.asList();
+    		List<Node> nodes = new ArrayList<Node>();
+    		for (Object obj : list) {
+    			org.neo4j.driver.v1.types.Node node = (org.neo4j.driver.v1.types.Node) obj;
+    			Node startNode = searchOps.getNodeById(graphId, node.id(), true, request);
+    			nodes.add(startNode);
+    		}
+    		path.setNodes(nodes);
+    	}
+    	if (null != relationsVal) {
+    		List<Object> list = relationsVal.asList();
+    		List<Relation> relations = new ArrayList<Relation>();
+    		for (Object obj : list) {
+    			org.neo4j.driver.v1.types.Relationship rel = (org.neo4j.driver.v1.types.Relationship) obj;
+    			Relation relation = searchOps.getRelationById(graphId, rel.id(), request);
+    			relations.add(relation);
+    		}
+    		path.setRelations(relations);
+    	}
+    	return path;
+    }
+
+	public List<String> getUniqueness() {
+		return uniqueness;
+	}
+
+	public Traverser addUniqueness(String uniqueness) {
+		this.uniqueness.add(uniqueness);
+		return this;
+	}
+	
+	public List<String> getWordIds() {
+		return wordIds;
+	}
+
+	public Traverser addWordId(String wordId) {
+		this.wordIds.add(wordId);
+		return this;
+	}
+	
+	public Map<String, Object> getPathExpander() {
+		return pathExpander;
+	}
+
+	public Traverser setPathExpander(Map<String, Object> pathExpander) {
+		this.pathExpander = pathExpander;
+		return this;
+	}
+	
+	public Map<String, String> getRelationMap() {
+		return relationMap;
+	}
+
+	public Traverser addRelationMap(String name, String direction) {
+		this.relationMap.put(name, direction);
+		return this;
+	}
 }

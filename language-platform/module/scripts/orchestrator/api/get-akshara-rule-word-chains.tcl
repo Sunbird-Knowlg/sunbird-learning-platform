@@ -178,6 +178,7 @@ $traversalRequest put "pathExpander" $pathExpander
 $traversalRequest put "uniqueness" $traversalUniqueness
 $traversalRequest put "minLength" $minDepth
 $traversalRequest put "maxLength" $maxDepth
+$traversalRequest put "wordIds" $ids
 $traversalRequest put "evaluators" $evaluators
 
 java::for {Map topWord} $topWords {

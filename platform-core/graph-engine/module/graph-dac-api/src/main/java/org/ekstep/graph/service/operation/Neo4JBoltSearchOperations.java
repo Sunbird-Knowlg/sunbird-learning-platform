@@ -21,6 +21,8 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.graphdb.Direction;
+
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ResourceNotFoundException;
@@ -578,6 +580,57 @@ public class Neo4JBoltSearchOperations {
 		LOGGER.info("Returning Relation Property: ", property);
 		return property;
 	}
+	
+	public Relation getRelationById(String graphId, Long relationId, Request request) {
+		LOGGER.debug("Graph Id: ", graphId);
+		LOGGER.debug("Relation Id: ", relationId);
+		LOGGER.debug("Request: ", request);
+		
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
+					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Get Relation By Id' Operation Failed.]");
+
+		if (null == relationId || relationId < 0)
+			throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
+					DACErrorMessageConstants.INVALID_IDENTIFIER + " | ['Get Relation' Operation Failed.]");
+		
+		Relation relation = new Relation();
+		Driver driver = DriverUtil.getDriver(graphId);
+		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
+		try (Session session = driver.session()) {
+			LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
+			LOGGER.info("Populating Parameter Map.");
+			Map<String, Object> parameterMap = new HashMap<String, Object>();
+			parameterMap.put(GraphDACParams.graphId.name(), graphId);
+			parameterMap.put(GraphDACParams.identifier.name(), relationId);
+			parameterMap.put(GraphDACParams.request.name(), request);
+			
+			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION_BY_ID, parameterMap));
+			if (null == result || !result.hasNext())
+				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
+						DACErrorMessageConstants.RELATION_OR_PROPERTY_NOT_FOUND + " | [Invalid Relation Id.]");
+			LOGGER.info("Initializing the Result Maps.");
+			Map<Long, Object> relationMap = new HashMap<Long, Object>();
+			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
+			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
+			for (Record record : result.list()) {
+				LOGGER.debug("'Get Relation' Operation Finished.", record);
+				if (null != record)
+					getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
+			}
+			LOGGER.info("Relation Map: ", relationMap);
+			LOGGER.info("Start Node Map: ", startNodeMap);
+			LOGGER.info("End Node Map: ", endNodeMap);
+
+			LOGGER.info("Initializing Node.");
+			if (!relationMap.isEmpty()) {
+				for (Entry<Long, Object> entry : relationMap.entrySet())
+					relation = new Relation(graphId, (org.neo4j.driver.v1.types.Relationship) entry.getValue(),
+							startNodeMap, endNodeMap);
+			}
+		}
+		return relation;
+	}
 
 	/**
 	 * Gets the relation.
@@ -939,24 +992,7 @@ public class Neo4JBoltSearchOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_TRAVERSER.name(),
 					DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse' Operation Failed.]");
 
-		SubGraph subGraph = new SubGraph();
-		Driver driver = DriverUtil.getDriver(graphId);
-		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
-		try (Session session = driver.session()) {
-			LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			LOGGER.info("Populating Parameter Map.");
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(GraphDACParams.graphId.name(), graphId);
-			parameterMap.put(GraphDACParams.traverser.name(), traverser);
-			parameterMap.put(GraphDACParams.request.name(), request);
-
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.TRAVERSE, parameterMap));
-			for (Record record : result.list()) {
-				LOGGER.debug("'Traverse' Operation Finished.", record);
-			}
-
-		}
+		SubGraph subGraph = traverser.traverse();
 		LOGGER.info("Returning Sub Graph: ", subGraph);
 		return subGraph;
 	}
@@ -985,26 +1021,9 @@ public class Neo4JBoltSearchOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_TRAVERSER.name(),
 					DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse Sub Graph' Operation Failed.]");
 
-		Graph graph = new Graph();
-		Driver driver = DriverUtil.getDriver(graphId);
-		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
-		try (Session session = driver.session()) {
-			LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			LOGGER.info("Populating Parameter Map.");
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(GraphDACParams.graphId.name(), graphId);
-			parameterMap.put(GraphDACParams.traverser.name(), traverser);
-			parameterMap.put(GraphDACParams.request.name(), request);
-
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.TRAVERSE_SUB_GRAPH, parameterMap));
-			for (Record record : result.list()) {
-				LOGGER.debug("'Traverse Sub Graph' Operation Finished.", record);
-			}
-
-		}
-		LOGGER.info("Returning Graph : ", graph);
-		return graph;
+		Graph subGraph = traverser.getSubGraph();
+		LOGGER.info("Returning Graph : ", subGraph);
+		return subGraph;
 	}
 
 	/**
@@ -1037,36 +1056,14 @@ public class Neo4JBoltSearchOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
 					DACErrorMessageConstants.INVALID_START_NODE_ID + " | ['Get Sub Graph' Operation Failed.]");
 
-		if (StringUtils.isBlank(relationType))
-			throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
-					DACErrorMessageConstants.INVALID_RELATION_TYPE + " | ['Get Sub Graph' Operation Failed.]");
-
-		if (depth <= 0)
-			throw new ClientException(DACErrorCodeConstants.INVALID_DEPTH.name(),
-					DACErrorMessageConstants.INVALID_DEPTH + " | ['Get Sub Graph' Operation Failed.]");
-
-		Graph graph = new Graph();
-		Driver driver = DriverUtil.getDriver(graphId);
-		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
-		try (Session session = driver.session()) {
-			LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
-
-			LOGGER.info("Populating Parameter Map.");
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(GraphDACParams.graphId.name(), graphId);
-			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
-			parameterMap.put(GraphDACParams.relationType.name(), relationType);
-			parameterMap.put(GraphDACParams.depth.name(), depth);
-			parameterMap.put(GraphDACParams.request.name(), request);
-
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_SUB_GRAPH, parameterMap));
-			for (Record record : result.list()) {
-				LOGGER.debug("'Traverse Sub Graph' Operation Finished.", record);
-			}
-
+		Traverser traverser = new Traverser(graphId, startNodeId);
+		traverser = traverser.addRelationMap(relationType, Direction.OUTGOING.name());
+		if (null != depth && depth.intValue() > 0) {
+			traverser.toDepth(depth);
 		}
-		LOGGER.info("Returning Graph Graph : ", graph);
-		return graph;
+		Graph subGraph = traverser.getSubGraph();
+		LOGGER.info("Returning Graph : ", subGraph);
+		return subGraph;
 	}
 
 	private void getRecordValues(Record record, Map<Long, Object> nodeMap, Map<Long, Object> relationMap,

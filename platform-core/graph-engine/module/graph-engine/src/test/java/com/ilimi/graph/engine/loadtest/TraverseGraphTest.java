@@ -1,18 +1,19 @@
 package com.ilimi.graph.engine.loadtest;
 
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
+import org.neo4j.graphdb.Direction;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.model.RelationTraversal;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 /**
  * 
@@ -56,8 +57,7 @@ public class TraverseGraphTest {
 
     private Future<Object> traverse(ActorRef reqRouter, String graphId) {
         Traverser traverser = new Traverser(graphId, startNodeId);
-        RelationTraversal relationTraversal = new RelationTraversal(RelationTypes.HIERARCHY.relationName(), RelationTraversal.DIRECTION_OUT);
-        traverser.traverseRelation(relationTraversal);
+        traverser.addRelationMap(RelationTypes.HIERARCHY.relationName(), Direction.OUTGOING.name());
         Request request = new Request();
         request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
         request.getContext().put(GraphHeaderParams.request_id.name(), "REQUEST_" + Thread.currentThread().getId());

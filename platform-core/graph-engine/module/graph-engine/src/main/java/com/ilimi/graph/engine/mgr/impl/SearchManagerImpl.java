@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.neo4j.graphdb.Direction;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -160,8 +161,8 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             try {
                 Graph graph = new Graph(this, graphId);
                 Traverser traverser = new Traverser(graphId, nodeId);
-                traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL).traverseRelation(
-                        new RelationTraversal(RelationTypes.HIERARCHY.relationName(), RelationTraversal.DIRECTION_OUT));
+                traverser = traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL);
+                traverser = traverser.addRelationMap(RelationTypes.HIERARCHY.relationName(), Direction.OUTGOING.name());
                 if (null != depth && depth.intValue() > 0)
                     traverser.toDepth(depth);
                 request.put(GraphDACParams.traversal_description.name(), traverser);
@@ -185,8 +186,8 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             try {
                 Graph graph = new Graph(this, graphId);
                 Traverser traverser = new Traverser(graphId, nodeId);
-                traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL)
-                        .traverseRelation(new RelationTraversal(relation, RelationTraversal.DIRECTION_OUT));
+                traverser = traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL);
+                traverser = traverser.addRelationMap(relation, Direction.OUTGOING.name());
                 if (null != depth && depth.intValue() > 0)
                     traverser.toDepth(depth);
                 request.put(GraphDACParams.traversal_description.name(), traverser);
@@ -264,8 +265,8 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 Traverser traverser = new Traverser(graphId, startNodeId);
                 if (null != relations && !relations.isEmpty()) {
                     for (String relation : relations) {
-                        traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL)
-                                .traverseRelation(new RelationTraversal(relation, RelationTraversal.DIRECTION_OUT));
+                    	traverser = traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL);
+                    	traverser = traverser.addRelationMap(relation, Direction.OUTGOING.name());
                     }
                 }
                 if (null != depth && depth.intValue() > 0)

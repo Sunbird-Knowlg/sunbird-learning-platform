@@ -148,6 +148,9 @@ public class CypherUtil {
 			case "GET_RELATION_PROPERTY":
 				query = SearchQueryGenerationUtil.generateGetRelationPropertyCypherQuery(parameterMap);
 				break;
+			case "GET_RELATION_BY_ID":
+				query = SearchQueryGenerationUtil.generateGetRelationByIdCypherQuery(parameterMap);
+				break;
 			case "GET_RELATION":
 				query = SearchQueryGenerationUtil.generateGetRelationCypherQuery(parameterMap);
 				break;

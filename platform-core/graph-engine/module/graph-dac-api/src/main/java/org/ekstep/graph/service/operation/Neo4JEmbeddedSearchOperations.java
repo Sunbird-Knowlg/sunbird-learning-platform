@@ -29,7 +29,6 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.model.RelationTraversal;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
@@ -485,7 +484,7 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			Traverser traverser = new Traverser(graphId, startNodeId);
-			traverser.traverseRelation(new RelationTraversal(relationType, RelationTraversal.DIRECTION_OUT));
+			traverser = traverser.addRelationMap(relationType, Direction.OUTGOING.name());
 			if (null != depth && depth.intValue() > 0) {
 				traverser.toDepth(depth);
 			}

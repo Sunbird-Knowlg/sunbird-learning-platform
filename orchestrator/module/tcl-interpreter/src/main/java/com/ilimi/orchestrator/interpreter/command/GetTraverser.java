@@ -1,18 +1,12 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.ekstep.language.wordchain.ArrayExpander;
-import org.ekstep.language.wordchain.WordChainRelations;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.graphdb.traversal.Evaluator;
-import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Uniqueness;
 
+import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -44,9 +38,8 @@ public class GetTraverser implements ICommand, Command {
 					throw new Exception("Either path expander or relations map is mandatory");
 				}
 				
+				List<String> wordIds = (List<String>) request.get("wordIds");
 				List<String> uniquenessList = (List<String>) request.get("uniqueness");
-				List<Evaluator> evaluators = (List<Evaluator>) request.get("evaluators");
-
 				int minLength;
 				int maxLength;
 				try{
@@ -64,44 +57,13 @@ public class GetTraverser implements ICommand, Command {
 				}
 				
 				String startNodeId = (String) request.get("startNodeId");
-				
-				ArrayExpander orderedPathExpander = null;
-				if(pathExpander != null){
-					ArrayList<String> relationTypes = (ArrayList<String>) pathExpander.get("relationTypes");
-					if(relationTypes == null){
-						throw new Exception("RelationTypes is mandatory for path expander");
-					}
-					ArrayList<String> directionsList = (ArrayList<String>) pathExpander.get("directions");
-					if(directionsList == null){
-						throw new Exception("Directions field is mandatory for path expander");
-					}
-					Integer nodeCount = Integer.parseInt((String)pathExpander.get("nodeCount"));
-					
-					RelationshipType[] types = new RelationshipType[relationTypes.size()];
-					Direction[] directions = new Direction[directionsList.size()];
-					int count=0;
-					for(String relationType: relationTypes){
-						types[count] = getRelations(relationType);
-						count++;
-					}
-					count=0;
-					for(String direction: directionsList){
-						directions[count] = getDirection(direction);
-						count++;
-					}
-					orderedPathExpander = new ArrayExpander(directions, types, nodeCount);
-				}
-				
 				com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId, startNodeId);
-				TraversalDescription traversalDescription = searchTraverser.getBaseTraversalDescription();
-				traversalDescription = addRelations(traversalDescription, relationMap);
-				traversalDescription = addUniquenessCriteria(traversalDescription, uniquenessList);
-				traversalDescription = addEvaluators(traversalDescription, evaluators);
-				traversalDescription = addExpander(traversalDescription, orderedPathExpander);
-				traversalDescription = traversalDescription.evaluator(Evaluators.fromDepth(minLength))
-						.evaluator(Evaluators.toDepth(maxLength));
-				
-				searchTraverser.setTraversalDescription(traversalDescription);
+				searchTraverser = addRelations(searchTraverser, relationMap);
+				searchTraverser = addUniquenessCriteria(searchTraverser, uniquenessList);
+				searchTraverser = addWordIds(searchTraverser, wordIds);
+				searchTraverser = addExpander(searchTraverser, pathExpander);
+				searchTraverser = searchTraverser.fromDepth(minLength);
+				searchTraverser = searchTraverser.toDepth(maxLength);
 
 				TclObject tclResp = ReflectObject.newInstance(interp, searchTraverser.getClass(), searchTraverser);
 				interp.setResult(tclResp);
@@ -113,68 +75,60 @@ public class GetTraverser implements ICommand, Command {
 		}
 	}
 
-	private TraversalDescription addEvaluators(TraversalDescription traversalDescription, List<Evaluator> evaluators) {
-		if(evaluators != null){
-			for(Evaluator eval: evaluators){
-				traversalDescription = traversalDescription.evaluator(eval);
+	private Traverser addWordIds(Traverser traverser, List<String> wordIds) {
+		if(wordIds != null){
+			for (String wordId : wordIds)
+				traverser = traverser.addWordId(wordId);
+		}
+		return traverser;
+	}
+
+	private Traverser addExpander(Traverser traverser, Map<String, Object> pathExpander) {
+		if(pathExpander != null){
+			traverser = traverser.setPathExpander(pathExpander);
+		}
+		return traverser;
+	}
+
+	private Traverser addUniquenessCriteria(Traverser traverser, List<String> uniquenessList) {
+		if(null == uniquenessList || uniquenessList.isEmpty()){
+			traverser = traverser.addUniqueness(Uniqueness.NONE.name());
+		} else {
+			for(String uniqueness: uniquenessList){
+				traverser = traverser.addUniqueness(uniqueness);
 			}
 		}
-		return traversalDescription;
+		return traverser;
 	}
 
-	private TraversalDescription addExpander(TraversalDescription traversalDescription, ArrayExpander orderedPathExpander) {
-		if(orderedPathExpander != null){
-			traversalDescription = traversalDescription.expand(orderedPathExpander);
-		}
-		return traversalDescription;
-	}
-
-	private TraversalDescription addUniquenessCriteria(TraversalDescription traversalDescription, List<String> uniquenessList) {
-		if(uniquenessList.isEmpty()){
-			traversalDescription = traversalDescription.uniqueness(Uniqueness.NONE);
-		}
-		for(String uniqueness: uniquenessList){
-			traversalDescription = traversalDescription.uniqueness(getUniqueness(uniqueness));
-		}
-		return traversalDescription;
-	}
-
-	private Uniqueness getUniqueness(String uniqueness) {
-		return Uniqueness.valueOf(uniqueness);
-	}
-
-	private TraversalDescription addRelations(TraversalDescription traversalDescription, Map<String, String> relationMap) throws Exception {
+	private Traverser addRelations(Traverser traverser, Map<String, String> relationMap) throws Exception {
 		if(relationMap != null){
 			for(Map.Entry<String, String> entry: relationMap.entrySet()){
 				String relationName = entry.getKey();
 				String direction =  entry.getValue();
-				traversalDescription = traversalDescription.relationships(getRelations(relationName), getDirection(direction));
+				traverser = traverser.addRelationMap(relationName, getDirection(direction));
 			}
 		}
-		return traversalDescription;
+		return traverser;
 	}
 	
-	private RelationshipType getRelations(String relation) throws Exception {
-		return WordChainRelations.valueOf(relation);
-	}
-
-	private Direction getDirection(String direction) throws Exception {
+	private String getDirection(String direction) throws Exception {
 		switch (direction) {
 		case "INCOMING": {
-			return Direction.INCOMING;
+			return Direction.INCOMING.name();
 		}
 		case "OUTGOING": {
-			return Direction.OUTGOING;
+			return Direction.OUTGOING.name();
 		}
 		case "BOTH": {
-			return Direction.BOTH;
+			return Direction.BOTH.name();
 		}
 		default: {
 			throw new Exception("Invalid direction");
 		}
 		}
 	}
-
+	
 	@Override
 	public String getCommandName() {
 		return "get_traverser";
