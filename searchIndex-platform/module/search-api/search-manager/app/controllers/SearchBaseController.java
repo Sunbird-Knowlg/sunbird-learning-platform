@@ -53,6 +53,7 @@ public class SearchBaseController extends Controller {
 						RequestParams params = (RequestParams) mapper.convertValue(reqParams, RequestParams.class);
 						request.setParams(params);
 					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 				Object requestObj = requestMap.get("request");
@@ -63,6 +64,7 @@ public class SearchBaseController extends Controller {
 						if (null != map && !map.isEmpty())
 							request.setRequest(map);
 					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 			}
