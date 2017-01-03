@@ -91,19 +91,24 @@ public class SearchManager extends SearchBaseActor {
 		SearchDTO searchObj = new SearchDTO();
 		try {
 			Map<String, Object> req = request.getRequest();
+			LOGGER.info("Search Request: " + req);
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
 			int limit = 100;
 			if (null != req.get(CompositeSearchParams.limit.name())) {
 				limit = (int) req.get(CompositeSearchParams.limit.name());
 			}
+			LOGGER.info("Using limit: " + limit);
 			Boolean fuzzySearch = (Boolean) request.get("fuzzy");
 			if (null == fuzzySearch)
 				fuzzySearch = false;
+			LOGGER.info("Fuzzy Search: " + fuzzySearch);
 			Boolean wordChainsRequest = (Boolean) request.get("traversal");
 			if (null == wordChainsRequest)
 				wordChainsRequest = false;
+			LOGGER.info("Word chain request: " + wordChainsRequest);
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
+			LOGGER.info("Filters: " + filters);
 			if(fuzzySearch && filters != null){
 				Map<String, Double> weightagesMap = new HashMap<String, Double>();
 				weightagesMap.put("default_weightage", 1.0);
@@ -118,6 +123,7 @@ public class SearchManager extends SearchBaseActor {
 						objectType = (String) objectTypeFromFilter;
 					}
 				}
+				LOGGER.info("Object Type: " + objectType);
 				
 				Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
 				String graphId = null;
@@ -130,6 +136,7 @@ public class SearchManager extends SearchBaseActor {
 						graphId = (String) graphIdFromFilter;
 					}
 				}
+				LOGGER.info("Graph Id: " + graphId);
 				
 				if(StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)){
 					Map<String, Object> objDefinition = ObjectDefinitionCache.getMetaData(objectType, graphId);
@@ -139,6 +146,7 @@ public class SearchManager extends SearchBaseActor {
 						weightagesMap = getWeightagesMap(weightagesString);
 					}
 				}
+				LOGGER.info("Weightages: " + weightagesMap);
 				searchObj.addAdditionalProperty("weightagesMap", weightagesMap);
 			}
 			
@@ -150,6 +158,7 @@ public class SearchManager extends SearchBaseActor {
 				exists =  new ArrayList<String>();
 				exists.add((String) existsObject);
 			}
+			LOGGER.info("Exists: " + exists);
 			
 			List<String> notExists = null;
 			Object notExistsObject = req.get(CompositeSearchParams.not_exists.name());
@@ -159,9 +168,14 @@ public class SearchManager extends SearchBaseActor {
 				notExists =  new ArrayList<String>();
 				notExists.add((String) notExistsObject);
 			}
+			LOGGER.info("Not Exists: " + notExists);
+			
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
+			LOGGER.info("Fields: " + fieldsSearch);
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
+			LOGGER.info("Facets: " + facets);
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
+			LOGGER.info("Sort By: " + sortBy);
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			//Changing fields to null so that search all fields but returns only the fields specified
@@ -176,6 +190,7 @@ public class SearchManager extends SearchBaseActor {
 			
 			if (null != req.get(CompositeSearchParams.offset.name())) {
 				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
+				LOGGER.info("Offset: " + offset);
 				searchObj.setOffset(offset);
 			}
 			
