@@ -210,10 +210,6 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						DACErrorMessageConstants.INVALID_REQUEST + " | ['Update Relation' Query Generation Failed.]");
 
 			Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
-			if (null == metadata || metadata.isEmpty())
-				throw new ClientException(DACErrorCodeConstants.INVALID_METADATA.name(),
-						DACErrorMessageConstants.INVALID_METADATA + " | ['Update Relation' Query Generation Failed.]");
-
 			query.append(getUpdateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
