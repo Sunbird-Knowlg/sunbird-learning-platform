@@ -237,6 +237,7 @@ public class Neo4JBoltGraphOperations {
 	 * @param request
 	 *            the request
 	 */
+	@SuppressWarnings("unchecked")
 	public void updateRelation(String graphId, String startNodeId, String endNodeId, String relationType,
 			Request request) {
 		LOGGER.debug("Graph Id: ", graphId);
@@ -261,22 +262,28 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
 					DACErrorMessageConstants.INVALID_RELATION_TYPE + " | ['Update Relation' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
-		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
-		try (Session session = driver.session()) {
-			LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
+		Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
+		if (null != metadata && !metadata.isEmpty()) {
+			Driver driver = DriverUtil.getDriver(graphId);
+			LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
+			try (Session session = driver.session()) {
+				LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.info("Populating Parameter Map.");
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(GraphDACParams.graphId.name(), graphId);
-			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
-			parameterMap.put(GraphDACParams.endNodeId.name(), endNodeId);
-			parameterMap.put(GraphDACParams.relationType.name(), relationType);
-			parameterMap.put(GraphDACParams.request.name(), request);
+				LOGGER.info("Populating Parameter Map.");
+				Map<String, Object> parameterMap = new HashMap<String, Object>();
+				parameterMap.put(GraphDACParams.graphId.name(), graphId);
+				parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
+				parameterMap.put(GraphDACParams.endNodeId.name(), endNodeId);
+				parameterMap.put(GraphDACParams.relationType.name(), relationType);
+				parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.UPDATE_RELATION, parameterMap));
-			for (Record record : result.list()) {
-				LOGGER.debug("'Update Relation' Operation Finished.", record);
+				String query = QueryUtil.getQuery(Neo4JOperation.UPDATE_RELATION, parameterMap);
+				if (StringUtils.isNotBlank(query)) {
+					StatementResult result = session.run(query);
+					for (Record record : result.list()) {
+						LOGGER.debug("'Update Relation' Operation Finished.", record);
+					}
+				}
 			}
 		}
 	}
