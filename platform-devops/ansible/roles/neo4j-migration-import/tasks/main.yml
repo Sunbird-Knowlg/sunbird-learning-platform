@@ -9,6 +9,8 @@
   
 
 - name: Stop the neo4j
+  become: yes
+  become_user: learning
   command: chdir={{ neo4j_home }}/bin ./neo4j stop
   when: "neo4j_process.stdout != '0'"
   tags: 
