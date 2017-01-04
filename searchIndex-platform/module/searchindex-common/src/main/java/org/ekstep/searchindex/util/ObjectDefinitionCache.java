@@ -17,7 +17,7 @@ public class ObjectDefinitionCache {
 
 	@SuppressWarnings({ "unchecked" })
 	public static Map<String, Object> getDefinitionNode(String objectType, String graphId) throws Exception {
-		Map<String, Object> definition = definitionMap.get(objectType);
+		Map<String, Object> definition = null;
 		if (definition == null) {
 			getDefinitionFromGraph(objectType, graphId);
 			definition = definitionMap.get(objectType);
@@ -26,7 +26,7 @@ public class ObjectDefinitionCache {
 	}
 	
     public static Map<String, String> getRelationDefinition(String objectType, String graphId) throws Exception {
-        Map<String, String> definition = relationMap.get(objectType);
+        Map<String, String> definition = null;
         if (definition == null) {
             getDefinitionFromGraph(objectType, graphId);
             definition = relationMap.get(objectType);
@@ -36,7 +36,7 @@ public class ObjectDefinitionCache {
 
 	@SuppressWarnings({ "unchecked" })
 	public static Map<String, Object> getMetaData(String objectType, String graphId) throws Exception {
-		Map<String, Object> metadata = metadataMap.get(objectType);
+		Map<String, Object> metadata = null;
 		if (metadata == null) {
 			getDefinitionFromGraph(objectType, graphId);
 			metadata = metadataMap.get(objectType);

@@ -239,7 +239,6 @@ public class DefinitionNode extends AbstractNode {
                                         manager.getErrorMessage(res), res.getResponseCode(), getParent());
                             } else {
                                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-                                DefinitionCache.cacheDefinitionNode(graphId, getValueObject());
                                 loadToCache(cacheRouter, req);
                                 manager.OK(GraphDACParams.node_id.name(), getNodeId(), getParent());
                             }

@@ -1,13 +1,16 @@
 package com.ilimi.graph.model.cache;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.codehaus.jackson.map.ObjectMapper;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
+import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.common.mgr.Configuration;
@@ -29,32 +32,10 @@ import scala.concurrent.duration.Duration;
 
 public class DefinitionCache extends BaseGraphManager {
 
-	private static Map<String, Map<String, DefinitionDTO>> cache = new HashMap<String, Map<String, DefinitionDTO>>();
 	private static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
 
-	public static void cacheDefinitionNode(String graphId, DefinitionDTO dto) {
-		Map<String, DefinitionDTO> map = cache.get(graphId);
-		if (null == map) {
-			map = new HashMap<String, DefinitionDTO>();
-			cache.put(graphId, map);
-		}
-		map.put(dto.getObjectType(), dto);
-		cache.put(graphId, map);
-	}
-
 	public static DefinitionDTO getDefinitionNode(String graphId, String objectType) {
-		Map<String, DefinitionDTO> map = cache.get(graphId);
-		if (null == map) {
-			map = new HashMap<String, DefinitionDTO>();
-			cache.put(graphId, map);
-		}
-		DefinitionDTO dto = map.get(objectType);
-		if (null == dto) {
-			dto = getDefinitionNodeFromGraph(graphId, objectType);
-			if (null != dto)
-				map.put(objectType, dto);
-			return dto;
-		}
+		DefinitionDTO dto = getDefinitionFromCache(graphId, objectType);
 		return dto;
 	}
 
@@ -94,6 +75,34 @@ public class DefinitionCache extends BaseGraphManager {
 			}
 		}
 		return objectTypes;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static DefinitionDTO getDefinitionFromCache(String graphId, String objectType) {
+		DefinitionDTO dto = null;
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+			Request request = new Request();
+			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+			request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+			request.setOperation("getDefinitionNode");
+			request.put(GraphDACParams.object_type.name(), objectType);
+			Future<Object> future = Patterns.ask(cacheRouter, request, Configuration.TIMEOUT);
+			Object obj = Await.result(future, WAIT_TIMEOUT.duration());
+			if (obj instanceof Response) {
+				Response res = (Response) obj;
+				Map<String, Object> map = (Map<String, Object>) res.get(GraphDACParams.definition_node.name());
+				if (null != map && !map.isEmpty()) {
+					dto = mapper.convertValue(map, DefinitionDTO.class);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if (null == dto)
+			return getDefinitionNodeFromGraph(graphId, objectType);
+		return dto;
 	}
 
 	@SuppressWarnings("unchecked")

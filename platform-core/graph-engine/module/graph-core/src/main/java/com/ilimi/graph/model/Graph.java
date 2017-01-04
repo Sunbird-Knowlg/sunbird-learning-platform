@@ -833,7 +833,6 @@ public class Graph extends AbstractDomainObject {
                             for (Node node : nodes) {
                                 DefinitionNode defNode = new DefinitionNode(manager, node);
                                 DefinitionDTO definition = defNode.getValueObject();
-                                DefinitionCache.cacheDefinitionNode(graphId, definition);
                                 defNode.loadToCache(cacheRouter, req);
                                 definitions.add(definition);
                             }
@@ -965,7 +964,6 @@ public class Graph extends AbstractDomainObject {
                                     ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                                     for (DefinitionNode defNode : defNodes) {
                                         defNode.loadToCache(cacheRouter, request);
-                                        DefinitionCache.cacheDefinitionNode(graphId, defNode.getValueObject());
                                     }
                                     manager.OK(getParent());
                                 }
