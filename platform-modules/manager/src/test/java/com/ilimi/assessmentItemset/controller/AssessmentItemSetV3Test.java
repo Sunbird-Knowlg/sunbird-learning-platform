@@ -54,7 +54,6 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	// expect 200 response
 	@Test
 	public void createItemsetWithValidRequest() {
-		System.out.println("inside create");
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		nodes = createAssessmentItem(10);
@@ -201,7 +200,6 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	// expect 200 response
 	@Test
 	public void getValidItemset() {
-		System.out.println("inside get");
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v3/assessment/itemsets/read/do_100001121";
 		try {
@@ -253,7 +251,6 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	// expect 200 response
 	@Test
 	public void updateItemSetWithValidRequest() {
-		System.out.println("inside update");
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Testing ItemSet - MCQQ_650.\", \"type\": \"materialised\", \"description\": \"Testing of ItemSet Using AssessmentItems\", \"code\": \"ItemSet_650\", \"difficulty_level\": \"high\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"max_score\": 3, \"memberIds\": [ \"test.q901\", \"test.q902\", \"test.q903\" ] } } } }";
@@ -324,14 +321,14 @@ public class AssessmentItemSetV3Test extends BaseTest {
 
 	// Search assessmentItemset with required search criteria
 	// expect 200 response
-	// @Test
+	 @Test
 	public void searchItemSetWithValidRequest() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"metadata\": { \"filters\": [ {\"property\" : \"used_for\", \"value\": \"assessment\"} ] } } }";
 		String path = "/v3/assessment/itemsets/search";
 		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
@@ -391,7 +388,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	}
 	// Delete an assessmentItemset with valid itemset id
 	// expect 200 ok response
-//	@Test
+	@Test
 	public void deleteValidItemset() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();

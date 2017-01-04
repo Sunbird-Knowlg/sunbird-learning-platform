@@ -54,7 +54,6 @@ public class AssessmentitemV3Test extends BaseTest {
 
 	@Test
 	public void createAssessmentItem() {
-		System.out.println("inside create");
 		String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_01\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 		try {
 			String path = "/v3/assessment/assessmentitems/create";
@@ -193,7 +192,6 @@ public class AssessmentitemV3Test extends BaseTest {
 	// expect 200 ok response
 	@Test
 	public void createAssessmentItem_get() {
-		System.out.println("inside get");
 		String path = "/v3/assessment/assessmentitems/read/LP_UT_test_01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
@@ -237,10 +235,8 @@ public class AssessmentitemV3Test extends BaseTest {
 	
 	@Test
 	public void getAssessmentList(){
-		System.out.println("inside list");
 		List<String> nodes = new ArrayList<String>();
 		nodes = createAssessmentItem(10);
-		System.out.println(nodes);
 		String path = "/v3/assessment/assessmentitems/list?offset=0&limit=10";
 		String contentString = "{ \"request\": { \"metadata\": { \"filters\": [] }}}";
 		try {
@@ -361,7 +357,6 @@ public class AssessmentitemV3Test extends BaseTest {
 	// expect 200 ok response
 //	@Test
 	public void deleteAssessmentItem() {
-		System.out.println("inside delete");
 		String node_id = "LP_UT_test_01";
 		String path = "/v3/assessment/assessmentitems/retire/" + node_id;
 		try {
