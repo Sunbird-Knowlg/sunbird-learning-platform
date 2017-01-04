@@ -10,7 +10,7 @@ info:
   license:
     name: EkStep License
     url: 'http:www.EkStep.in'
-basePath: /v3/assessment
+basePath: /v3
 host: api.ekstep.in
 securityDefinitions: {}
 schemes:
@@ -25,7 +25,7 @@ tags:
   - name: ItemSet
     description: Everything related to CRUD Operations of the ItemSet
 paths:
-  /assessmentitems/search:
+  /items/search:
     post:
       summary: Search an AssessmentItem
       description: >-
@@ -63,7 +63,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /assessmentitems/create:
+  /items/create:
     post:
       summary: Creates an AssessmentItem
       description: >-
@@ -102,7 +102,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  '/assessmentitems/read/{assessmentId}':
+  '/items/read/{assessmentId}':
     get:
       summary: Gets an AssessmentItem
       description: >-
@@ -140,7 +140,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  '/assessmentitems/retire/{assessmentId}':
+  '/items/retire/{assessmentId}':
     delete:
       summary: Deletes an AssessmentItem
       description: This API is used to delete an assessmentItem from the EkStep Platform
@@ -174,7 +174,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  '/assessmentitems/update/{assessmentId}':
+  '/items/update/{assessmentId}':
     patch:
       summary: Updates the given assessmentItem
       description: >-
@@ -216,7 +216,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /assessmentitems/list:
+  /items/list:
     post:
       summary: Returns list of AssessmentItems
       description: >-
