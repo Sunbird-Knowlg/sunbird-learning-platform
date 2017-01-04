@@ -8,7 +8,7 @@ info:
   license:
     name: EkStep License
     url: 'http:www.EkStep.in'
-basePath: /v3/system
+basePath: /v3
 host: api.ekstep.in
 securityDefinitions: {}
 schemes:
@@ -19,14 +19,14 @@ produces:
   - application/json
 tags:
   - name: Definitions
-    description: Provides Details about All Definitions supported by the Platform
+    description: Provides details about All definitions supported by the platform
 paths:
   /definitions/list:
     get:
       summary: Gets All Definitions
       description: >-
-        This API returns all the definitions of all ObjectTypes supported by the
-        EkStep Learning Platform
+        This API returns definitions of all ObjectTypes supported by the EkStep
+        Learning Platform
       tags:
         - Definitions
       operationId: definition.list
