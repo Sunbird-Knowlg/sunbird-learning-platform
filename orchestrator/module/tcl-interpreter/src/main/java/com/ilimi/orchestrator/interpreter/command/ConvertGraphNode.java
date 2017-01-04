@@ -59,9 +59,9 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                         if (null != def && null != def.getMetadata()) {
                             String[] arr = (String[]) def.getMetadata().get("fields");
                             if (null != arr && arr.length > 0) {
-                                List<String> arrFields = Arrays.asList(arr);
                                 fields = new ArrayList<String>();
-                                fields.addAll(arrFields);
+                                for (String field : arr)
+                                	fields.add(field);
                             }
                         }
                     }
