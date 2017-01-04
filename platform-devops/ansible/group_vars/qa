@@ -37,7 +37,7 @@ search_home: /home/{{user}}/platform/search/search-manager
 service_path: /home/{{user}}/platform/service
 neo4j_machine: 172.31.8.205
 dbms_memory_heap_initial_size: 3072
-dbms_memory_heap_initial_size: 3072
+dbms_memory_heap_max_size: 3072
 dbms_memory_pagecache_size: 3g
 graph_passport_key: TlRnwlWOW7t4dHBOlqLD0AGH373ssBk198maQL52/Z1IcP5RW4qHw8sZztCzv87M
 learning_neo4j_bolt_url: bolt://172.31.8.205:7687
