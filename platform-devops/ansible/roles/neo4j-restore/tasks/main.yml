@@ -15,7 +15,7 @@
   file: path=/home/learning/{{ neo4j_dir }}/neo4j-enterprise-3.0.4/data/databases/graph.db state=absent
 
 - name: Run the command s3
-  command: aws s3 cp s3://ekstep-public/dev/{{filename}} /mnt/backup/
+  command: aws s3 cp s3://test-neo-backup/{{filename}} /mnt/backup/
   
 - name: Runt the command s3
   unarchive: src=/mnt/backup/{{filename}} dest=/mnt/backup/ copy=no group={{user}} owner={{user}} creates=/mnt/backup/{{file}}
