@@ -35,9 +35,6 @@ public class DefinitionDTOCache {
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(DefinitionDTOCache.class.getName());
 
-	/** The definition cache. */
-	private static Map<String, Map<String, DefinitionDTO>> definitionCache = new HashMap<String, Map<String, DefinitionDTO>>();
-
 	/**
 	 * Gets the definition DTO.
 	 *
@@ -48,7 +45,7 @@ public class DefinitionDTOCache {
 	 * @return the definition DTO
 	 */
 	public static DefinitionDTO getDefinitionDTO(String definitionName, String graphId) {
-		Map<String, DefinitionDTO> defintionMap = definitionCache.get(graphId);
+		Map<String, DefinitionDTO> defintionMap = null;
 		if (defintionMap == null) {
 			defintionMap = new HashMap<String, DefinitionDTO>();
 		}
@@ -62,7 +59,6 @@ public class DefinitionDTOCache {
 			} else {
 				definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 				defintionMap.put(definitionName, definition);
-				definitionCache.put(graphId, defintionMap);
 			}
 		}
 		return definition;
@@ -213,7 +209,7 @@ public class DefinitionDTOCache {
 	 *             the exception
 	 */
 	public static void syncDefintion(String definitionName, String graphId) throws Exception {
-		Map<String, DefinitionDTO> defintionMap = definitionCache.get(graphId);
+		Map<String, DefinitionDTO> defintionMap = null;
 		if (defintionMap == null) {
 			defintionMap = new HashMap<String, DefinitionDTO>();
 		}
@@ -226,7 +222,7 @@ public class DefinitionDTOCache {
 		} else {
 			definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 			defintionMap.put(definitionName, definition);
-			definitionCache.put(graphId, defintionMap);
+			//definitionCache.put(graphId, defintionMap);
 		}
 	}
 }
