@@ -10,5 +10,5 @@ server_id=1
 dbms_mode=HA 
 initial_hosts="172.31.8.205:7001"
 
-[dev:children]
+[qa:children]
 learningcluster
