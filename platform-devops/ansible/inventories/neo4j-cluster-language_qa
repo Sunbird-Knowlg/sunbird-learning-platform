@@ -9,6 +9,7 @@ language-node1
 server_id=1 
 dbms_mode=HA 
 initial_hosts="172.31.8.205:8001"
+host_coordination: "172.31.30.205:8001"
 
 [qa:children]
 languagecluster
