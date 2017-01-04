@@ -40,7 +40,7 @@ public class ConfigV3ControllerTest {
 		
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/ordinals/list";
+		String path = "/v3/ordinals/list";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 					"user-id", "ilimi"));
@@ -65,7 +65,7 @@ public class ConfigV3ControllerTest {
 	public void getOrdinalsWithInvalidUrl(){
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/ordinal";
+		String path = "/v3/ordinal";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 					"user-id", "ilimi"));
@@ -82,7 +82,7 @@ public class ConfigV3ControllerTest {
 		
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/resourcebundles/read/" + TEST_LANGUAGE;
+		String path = "/v3/resourcebundles/read/" + TEST_LANGUAGE;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 					"user-id", "ilimi"));
@@ -106,7 +106,7 @@ public class ConfigV3ControllerTest {
 		
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/resourcebundles/list";
+		String path = "/v3/resourcebundles/list";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 					"user-id", "ilimi"));
@@ -136,7 +136,7 @@ public class ConfigV3ControllerTest {
 		
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/resourcebundl/list";
+		String path = "/v3/resourcebundl/list";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 					"user-id", "ilimi"));
@@ -151,7 +151,7 @@ public class ConfigV3ControllerTest {
 		
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/resourcebundles/read/" + INVALID_LANGUAGE;
+		String path = "/v3/resourcebundles/read/" + INVALID_LANGUAGE;
 			try {
 				actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 						"user-id", "ilimi"));
