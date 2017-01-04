@@ -71,6 +71,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                 }
 
             } catch (Exception e) {
+            	e.printStackTrace();
                 throw new TclException(interp, "Unable to read response: " + e.getMessage());
             }
         } else {
