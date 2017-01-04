@@ -32,7 +32,7 @@ public class AuditHistoryV3ControllerTest {
 	private WebApplicationContext context;
 	private ResultActions actions;
 	final private static String graphId = "test";
-	final private String objectId = "test_word";
+	final private String objectId = "test_word_01";
 	final private String InvalidObjectId = "xyz";
 	@Test
 	public void before() {
@@ -49,7 +49,7 @@ public class AuditHistoryV3ControllerTest {
 	public void getAuditLogsByValidObjectId() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/audit/read/" + objectId + "?start=2016-05-26T13:00:00";
+		String path = "/v3/audit/test_word_01?graphId=test&start=2016-05-26T13:00:00";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -70,50 +70,11 @@ public class AuditHistoryV3ControllerTest {
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Test
 	public void getAuditLogsByInValidObjectId() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/audit/read/" + InvalidObjectId + "?start=2016-05-26T13:00:00";
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Response response = jsonToObject(actions);
-		Assert.assertEquals("successful", response.getParams().getStatus());
-		Map<String, Object> result = response.getResult();
-		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(true, audit_record.isEmpty());
-		assertEquals(0, audit_record.size());
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Test
-	public void getAuditLogsWithoutObjectId() {
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/audit/read?start=2016-05-26T13:00:00";
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Response response = jsonToObject(actions);
-		Assert.assertEquals("successful", response.getParams().getStatus());
-		Map<String, Object> result = response.getResult();
-		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(true, audit_record.isEmpty());
-	}
-
-	@Test
-	public void getAuditLogsWithInvalidUrl() {
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/audit/reasd/" + InvalidObjectId + "?start=2016-05-26T13:00:00";
+		String path = "v3/audit/" + graphId + InvalidObjectId + "?start=2016-05-26T13:00:00";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
@@ -121,12 +82,39 @@ public class AuditHistoryV3ControllerTest {
 			e.printStackTrace();
 		}
 	}
+
+	@Test
+	public void getAuditLogsWithoutObjectId() {
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v3/audit/test/?start=2016-05-26T13:00:00";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
+			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void getAuditLogsWithInvalidUrl() {
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v3/audits/test/" + InvalidObjectId + "?start=2016-05-26T13:00:00";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
+			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
 	@Test
 	public void getLogRecordByObjectId(){
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path =  "/v3/public/audit/read/"+ objectId;
+		String path =  "/v3/audit/read/"+ objectId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
