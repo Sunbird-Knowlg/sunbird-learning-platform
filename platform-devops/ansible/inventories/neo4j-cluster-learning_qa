@@ -9,7 +9,7 @@ learning-node1
 server_id=1 
 dbms_mode=HA 
 initial_hosts="172.31.8.205:7001"
-host_coordination: "172.31.30.205:7001"
+host_coordination="172.31.30.205:7001"
 
 [qa:children]
 learningcluster
