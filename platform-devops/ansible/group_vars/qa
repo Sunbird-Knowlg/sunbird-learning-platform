@@ -46,4 +46,4 @@ language_neo4j_bolt_url: bolt://172.31.8.205:8687
 to_learning: 172.31.20.28
 to_language: 172.31.20.27
 to_total: 172.31.20.28
-mongo_machine: 172.31.13.121
+mongo_machine: 172.31.25.198
