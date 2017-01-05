@@ -1,23 +1,35 @@
 [learning-1]
 172.31.25.174 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
+[learning-2]
 172.31.25.198 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
 [hostlearning:children]
 learning-1
+learning-2
 
 [learning-1:vars]
 mw_shard_id=1
 
+[learning-2:vars]
+mw_shard_id=2
+
+
 [language-1]
 172.31.25.174 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
+[language-2]
 172.31.25.198 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
 [hostlanguage:children]
 language-1
+langauge-2
 
 
 [language-1:vars]
 mw_shard_id=1
+
+
+[language-2:vars]
+mw_shard_id=2
 
 [search-1]
 172.31.30.191 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
