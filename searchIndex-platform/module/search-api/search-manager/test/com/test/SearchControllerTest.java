@@ -31,7 +31,7 @@ public class SearchControllerTest extends BaseSearchControllerTest {
 				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/search-service/v2/search").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/v2/search").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertEquals("application/json", result.contentType());
@@ -108,7 +108,7 @@ public class SearchControllerTest extends BaseSearchControllerTest {
 				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/search-service/v2/search/count").method(POST)
+			RequestBuilder req = new RequestBuilder().uri("/v2/search/count").method(POST)
 					.bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
@@ -129,7 +129,7 @@ public class SearchControllerTest extends BaseSearchControllerTest {
 				+ " \"AssessmentItem\", \"Content\", \"Method\"] }}}";
 		try {
 			JsonNode data = mapper.readTree(json);
-			RequestBuilder req = new RequestBuilder().uri("/search-service/v2/metrics").method(POST).bodyJson(data);
+			RequestBuilder req = new RequestBuilder().uri("/v2/metrics").method(POST).bodyJson(data);
 			Result result = route(req);
 			assertEquals(OK, result.status());
 			assertEquals("application/json", result.contentType());
@@ -144,7 +144,7 @@ public class SearchControllerTest extends BaseSearchControllerTest {
 
 	@Test
 	public void testHealthCheckV2() {
-		RequestBuilder req = new RequestBuilder().uri("/search-service/health").method(GET);
+		RequestBuilder req = new RequestBuilder().uri("/health").method(GET);
 		Result result = route(req);
 		assertEquals(OK, result.status());
 		assertEquals("application/json", result.contentType());
