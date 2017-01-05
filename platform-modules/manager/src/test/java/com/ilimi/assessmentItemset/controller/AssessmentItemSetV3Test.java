@@ -1,5 +1,7 @@
 package com.ilimi.assessmentItemset.controller;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,13 +56,13 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	public void createItemsetWithValidRequest() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		nodes = createAssessmentItemSet();
+		nodes = createAssessmentItem(10);
 		String str = "\"" + StringUtils.join(nodes.toArray(new String[0]), "\",\"") + "\"";
 		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Akshara Worksheet Grade 5 Item Set\", \"type\": \"materialised\", \"max_score\": 15, \"total_items\": 3, \"description\": \"Akshara Worksheet Grade 5 Item Set\", \"code\": \"akshara.grade5.ws1.test\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"memberIds\": ["
 				+ str
 				+ "  ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
-			String path = "/v3/private/assessment/itemset/create";
+			String path = "/v3/assessment/itemsets/create";
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
@@ -84,7 +86,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 				+ str
 				+ " ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
-			String path = "/v3/private/assessment/itemset/create";
+			String path = "/v3/assessment/itemsets/create";
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -106,7 +108,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 				+ str
 				+ " ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
-			String path = "/v3/private/assessment/itemset/create";
+			String path = "/v3/assessment/itemsets/create";
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -128,7 +130,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 				+ str
 				+ " ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
 		try {
-			String path = "/v3/private/assessment/itemset/create";
+			String path = "/v3/assessment/itemsets/create";
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -147,7 +149,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": { } } }";
 		try {
-			String path = "/v3/private/assessment/itemset/create";
+			String path = "/v3/assessment/itemsets/create";
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8).content(request));
 			Assert.assertEquals(400, actions.andReturn().getResponse().getStatus());
@@ -165,7 +167,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": {\"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"AksharaWorksheet Grade 5 Item Set\", \"type\": \"materialised\", \"max_score\":17, \"total_items\": 17, \"description\": \"Akshara Worksheet Grade 5Item Set\", \"code\": \"akshara.grade5.ws1.test\", \"owner\": \"Ilimi\",\"used_for\": \"assessment\" } } } }";
-		String path = "/v3/private/assessment/itemset/create";
+		String path = "/v3/assessment/itemsets/create";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -184,7 +186,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": {\"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Akshara Worksheet Grade 5 Item Set\", \"type\": \"materialised\", \"max_score\":17, \"total_items\": 17, \"description\": \"Akshara Worksheet Grade 5Item Set\", \"code\": \"akshara.grade5.ws1.test\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\" } } } }";
-		String path = "/v3/private/assessment/itemst/create";
+		String path = "/v3/assessment/itemsts/create";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -199,7 +201,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	@Test
 	public void getValidItemset() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/public/assessment/itemset/read/do_10000112";
+		String path = "/v3/assessment/itemsets/read/do_100001121";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -218,7 +220,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String inValidItemSetId = "LP_UT_test_02";
-		String path = "/v3/public/assessment/itemset/read/" + inValidItemSetId;
+		String path = "/v3/assessment/itemsets/read/" + inValidItemSetId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -235,7 +237,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String validItemSetId = "do_10000112";
-		String path = "/v3/public/assessment/itemset/read" + validItemSetId;
+		String path = "/v3/assessment/itemsets/read" + validItemSetId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -252,7 +254,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Testing ItemSet - MCQQ_650.\", \"type\": \"materialised\", \"description\": \"Testing of ItemSet Using AssessmentItems\", \"code\": \"ItemSet_650\", \"difficulty_level\": \"high\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"max_score\": 3, \"memberIds\": [ \"test.q901\", \"test.q902\", \"test.q903\" ] } } } }";
-		String path = "/v3/private/assessment/itemset/update/do_10000112";
+		String path = "/v3/assessment/itemsets/update/do_100001121";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -272,7 +274,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String validItemsetId = "do_10000107";
 		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Testing ItemSet- MCQQ_650.\", \"type\": \"materialised\", \"description\": \"Testing ofItemSet Using AssessmentItems\", \"code\": \"ItemSet_650\",\"difficulty_level\": \"high\", \"owner\": \"Ilimi\", \"used_for\":\"assessment\", \"max_score\": 3 } } } }";
-		String path = "/v3/private/assessment/itemset/update" + validItemsetId;
+		String path = "/v3/assessment/itemsets/update" + validItemsetId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -290,7 +292,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String inValidItemsetId = "LP_UT_test_14";
 		String request = "{ \"request\": { \"assessment_item_set\": {\"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Testing ItemSet- MCQQ_650.\", \"type\": \"materialised\", \"description\": \"Testing ofItemSet Using AssessmentItems\", \"code\": \"ItemSet_650\",\"difficulty_level\": \"high\", \"owner\": \"Ilimi\", \"used_for\":\"assessment\", \"max_score\": 3, \"memberIds\": [ \"test.q901\",\"test.q902\", \"test.q903\" ] } } } }";
-		String path = "/v3/private/assessment/itemset/update" + inValidItemsetId;
+		String path = "/v3/assessment/itemsets/update" + inValidItemsetId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -307,7 +309,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": {\"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Testing ItemSet- MCQQ_650.\", \"type\": \"materialised\", \"description\": \"Testing ofItemSet Using AssessmentItems\", \"code\": \"ItemSet_650\", \"difficulty_level\": \"high\", \"owner\": \"Ilimi\", \"used_for\":\"assessment\", \"max_score\": 3, \"memberIds\": [ \"test.q901\",\"test.q902\", \"test.q903\" ] } } } }";
-		String path = "/v3/private/assessment/iteset/update/LP_UT_test_01";
+		String path = "/v3/assessment/itesets/update/LP_UT_test_01";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -319,14 +321,14 @@ public class AssessmentItemSetV3Test extends BaseTest {
 
 	// Search assessmentItemset with required search criteria
 	// expect 200 response
-	// @Test
+	 @Test
 	public void searchItemSetWithValidRequest() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"metadata\": { \"filters\": [ {\"property\" : \"used_for\", \"value\": \"assessment\"} ] } } }";
-		String path = "/v3/public/assessment/itemset/search";
+		String path = "/v3/assessment/itemsets/search";
 		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
@@ -343,7 +345,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"metadata\": } } }";
-		String path = "/v3/public/assessment/itemset/search";
+		String path = "/v3/assessment/itemsets/search";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -360,7 +362,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"metadata\": { \"filters\": [ {\"property\" : \"total_items\", \"operator\": \">=\", \"value\": 17} ], \"op\": \"AND\" } } }";
-		String path = "/v3/public/assessment/itemset/esarch";
+		String path = "/v3/assessment/itemsets/esarch";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));
@@ -369,15 +371,29 @@ public class AssessmentItemSetV3Test extends BaseTest {
 			e.printStackTrace();
 		}
 	}
-
+	@Test
+	public void listAssessmentitemsTest(){
+		String path = "/v3/assessment/itemsets/list?limit=200&limit=0";
+		String contentString = "{ \"request\": { \"metadata\": { \"filters\": [] }}}";
+		try {
+			actions = this.mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
+					.contentType(MediaType.APPLICATION_JSON).content(contentString));
+			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+			Response response = jsonToObject(actions);
+			assertEquals("successful", response.getParams().getStatus());
+			assertEquals(false, response.getResult().isEmpty());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	// Delete an assessmentItemset with valid itemset id
 	// expect 200 ok response
-//	@Test
+	@Test
 	public void deleteValidItemset() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String set_id = "do_10000112";
-		String path = "/v3/private/assessment/item/retire/" + set_id;
+		String path = "/v3/assessment/itemsets/retire/" + set_id;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -395,7 +411,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	public void deleteNonexistingItemset() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/private/assessment/itemset/retire/q_1_s_urdu_01";
+		String path = "/v3/assessment/itemsets/retire/q_1_s_urdu_01";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -413,7 +429,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	public void deleteItemsetWithInvalidUrl() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v3/private/assessment/itemset//q_1_s_urdu";
+		String path = "/v3/assessment/itemset//q_1_s_urdu";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -431,7 +447,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 			String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_" + i
 					+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 			try {
-				String path = "/v3/private/assessment/item/create";
+				String path = "/v3/assessment/assessmentitems/create";
 				actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8)
 						.content(request));
@@ -447,7 +463,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 		return nodes;
 	}
 
-	// method to create assessmentItems
+	// method to create assessmentItemSets
 	public List<String> createAssessmentItemSet() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -456,7 +472,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 			String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_" + num
 					+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 			try {
-				String path = "/v3/private/assessment/item/create";
+				String path = "/v3/assessment/itemsets/create";
 				actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8)
 						.content(request));

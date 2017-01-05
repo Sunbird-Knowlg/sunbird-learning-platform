@@ -10,7 +10,7 @@
         }
     },
     "host": "api.ekstep.in",
-    "basePath": "/v3/content",
+    "basePath": "/v3",
     "schemes": [
         "https"
     ],
@@ -39,6 +39,14 @@
         {
           "name": "Bundle",
           "description": "Everything related to bundling the content into single package"
+        },
+        {
+          "name": "History",
+          "description": "Everything related to history of modifications with a Content" 
+        },
+        {
+          "name": "Flag",
+          "description": "Everything related to Change in state of Content and its availability for further usage" 
         }
     ],
     "paths": {
@@ -428,6 +436,87 @@
               },
               "security": []
           }
+        },
+        "/history/{contentId}": {
+          "get": {
+              "tags": [
+                "History"
+              ],
+              "summary": "Returns the history of Contents modified",
+              "description": "The '/history/{content_id}' endpoint returns history of the content_id with its modifications. It consumes the content identifier as request path variable. In response it returns the history of modifications performed on that particular content_id",
+              "operationId": "content.history",
+              "produces": [
+                  "application/json"
+              ],
+              "parameters": [
+                  {
+                  "$ref": "#/parameters/ContentId"
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Content History returned Successfully",
+                      "schema": {
+                          "$ref": "#/definitions/ContentHistoryResponse"
+                      }
+                  },
+                  "400": {
+                      "description": "Error While fetching Content history! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentHistoryErrorResponse"
+                      }
+                  },
+                  "500": {
+                      "description": "Error While fetching Content history! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentHistoryErrorResponse"
+                      }
+                  }
+              },
+              "security": []
+          }
+      },
+     "/flag/{contentId}": {
+          "get": {
+              "tags": [
+                "Flag"
+              ],
+              "summary": "Flags a particular Content",
+              "description": "The '/flag/{content_id}' endpoint flags a particular content and makes it unavailbale for future usage. It consumes the content identifier as request path variable with falg request body. In response it returns the message that particular content has been flagged",
+              "operationId": "content.flag",
+              "produces": [
+                  "application/json"
+              ],
+              "parameters": [
+                 {
+                  "$ref": "#/parameters/ContentId"
+                  },
+                  {
+                  "$ref": "#/parameters/flagRequestBody"
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Content Flagged Successfully",
+                      "schema": {
+                          "$ref": "#/definitions/ContentFlagResponse"
+                      }
+                  },
+                  "400": {
+                      "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentFlagErrorResponse"
+                      }
+                  },
+                  "500": {
+                      "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentFlagErrorResponse"
+                      }
+                  }
+              },
+              "security": []
+          }
         }
     },
     "parameters": {
@@ -473,6 +562,15 @@
           "type": "string",
           "description": "The given Content identifier to perform operation",
           "required": true
+        },
+        "flagRequestBody":{
+            "name": "Request",
+            "in": "body",
+            "description": "Flag request object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/FlagRequestObject"
+            }
         }
     },
     "definitions": {
@@ -1685,6 +1783,36 @@
               }
           ]
         },
+        "FlagRequestObject":{
+           "title": "Content Flag Request Object",
+            "type": "object",
+            "properties": {
+                "request": {
+                    "$ref": "#/definitions/FlagObject"
+                }
+            },
+            "required": [
+                "request"
+            ]
+        },
+        "FlagObject":{
+          "properties":{
+              "flagReasons":{
+                "type":"array",
+                "items":{
+                   "type":"string"
+                }
+              },
+              "flaggedBy":{
+                  "type":"string",
+                  "description":"flaggedBy"
+              },
+              "versionKey":{
+                  "type":"string",
+                  "description":"versionKey"
+              }
+          }
+        },
         "ResponseHeader": {
             "title": "ResponseHeader",
             "type": "object",
@@ -1784,6 +1912,99 @@
                     "type": "number",
                     "format": "double",
                     "description": "TTL (Time)"
+                }
+            }
+        },
+        "audit_history_record":{
+          "properties":{
+            "audit_history_record":{
+               "type":"array",
+               "items":{
+                  "$ref":"#/definitions/audit_record"
+                }
+            }
+          }
+        },
+        "audit_record":{
+            "properties":{
+                "objectId":{
+                    "type":"string",
+                    "description":"content_id"
+                },
+                "objectType":{
+                    "type":"string",
+                    "description":"objectType"
+                },
+                "operation":{
+                     "type":"string",
+                     "description":"operation"
+                },
+                "createdOn":{
+                    "type":"string",
+                    "description":"createdOn" 
+                },
+                "userId":{
+                    "type":"string",
+                    "description":"userId"
+                },
+                "graphId":{
+                    "type":"string",
+                    "description":"graphId"
+                },
+                "label":{
+                    "type":"string",
+                    "description":"label"
+                },
+                "requestId":{
+                     "type":"string",
+                    "description":"resquestId"
+                },
+                "summary":{
+                    "$ref":"#/definitions/summary"
+                }
+            } 
+        },
+        "summary":{
+           "properties":{
+                "relations":{
+                  "type":"object",
+                    "properties":{
+                        "addedRelations":{
+                           "type":"number",
+                           "description":"added relations"
+                          },
+                          "removedRelations":{
+                              "type":"number",
+                              "description":"removedRelations"
+                          }
+                    }
+                },
+                "properties":{
+                   "properties":{
+                        "count":{
+                           "type":"number",
+                           "description":"count"
+                          },
+                          "fields":{
+                              "type":"array",
+                              "items":{
+                                  "description":"fields",
+                                  "type":"string"
+                              }
+                          }
+                    }
+                },
+                "tags":{
+                  "properties":{
+                        "removedTags":{
+                           "type":"number",
+                           "description":"removedTags"
+                          },
+                          "addedTags":{
+                              "type":"number",
+                              "description":"addedTags"
+                          }
+                    }
                 }
             }
         },
@@ -2030,7 +2251,48 @@
               }
           ]
         },
+        "ContentHistoryResponse":{
+           "title": "Content History Response",
+          "type": "object",
+          "allOf": [
+              {
+                  "$ref": "#/definitions/ResponseHeader"
+              },
+              {
+                  "$ref": "#/definitions/audit_history_record"
+              }
+          ]
+        },
+        "ContentFlagResponse":{
+            "title": "Content Flag Response",
+          "type": "object",
+          "allOf": [
+              {
+                  "$ref": "#/definitions/ResponseHeader"
+              },
+              {
+                "properties":{
+                  "result":{
+                    "type" :"string",
+                    "description":"result of Content Flagged"
+                  }
+                }
+              }
+          ]
+        },
         "ContentCreateErrorResponse": {
+            "title": "Create Content Error Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ContentFlagErrorResponse": {
             "title": "Create Content Error Response",
             "type": "object",
             "allOf": [
@@ -2128,6 +2390,18 @@
         },
         "ContentDeleteErrorResponse": {
             "title": "Delete (Retire) Content Error Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ContentHistoryErrorResponse": {
+            "title": "Content History Error Response",
             "type": "object",
             "allOf": [
                 {

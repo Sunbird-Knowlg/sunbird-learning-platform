@@ -8,7 +8,6 @@
   file: path={{item}} state=directory
   with_items:
              - /mnt/backup/neo4j-backup
-             - /mnt/backup/dailybackup
   tags:
        - fullbackup
        - incrementalbackup

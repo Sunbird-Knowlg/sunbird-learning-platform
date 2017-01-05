@@ -36,13 +36,12 @@ search_root: /home/{{user}}/platform/search
 search_home: /home/{{user}}/platform/search/search-manager
 service_path: /home/{{user}}/platform/service
 neo4j_machine:
-dbms_memory_heap_initial_size: 512
-dbms_memory_heap_initial_size: 512
-dbms_memory_pagecache_size: 10g
+dbms_memory_heap_initial_size: 3072
+dbms_memory_heap_max_size: 3072
+dbms_memory_pagecache_size: 3g
 graph_passport_key: oM2wLF8Eq3vRnt3qZ0+Y/sWQnH5pz3bHpciFo3EIifZIcP5RW4qHw8sZztCzv87M
 learning_neo4j_bolt_url: bolt://172.31.8.205:7687
 language_neo4j_bolt_url: bolt://172.31.8.205:8687
-
 
 to_learning: 10.10.1.26
 to_language: 10.10.1.30
