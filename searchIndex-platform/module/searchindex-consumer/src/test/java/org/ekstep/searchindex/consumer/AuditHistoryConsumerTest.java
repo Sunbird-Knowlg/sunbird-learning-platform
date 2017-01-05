@@ -180,7 +180,7 @@ public class AuditHistoryConsumerTest {
 			int lastRecordIndex = auditRecords.size() - 1;
 			Map<String, Object> auditRecord = auditRecords.get(lastRecordIndex);
 
-			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "CREATE");
 			Assert.assertEquals("updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
 
 		} catch (Exception e) {
@@ -211,7 +211,7 @@ public class AuditHistoryConsumerTest {
 			int lastRecordIndex = auditRecords.size() - 1;
 			Map<String, Object> auditRecord = auditRecords.get(lastRecordIndex);
 
-			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "CREATE");
 			Assert.assertEquals("updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -240,7 +240,7 @@ public class AuditHistoryConsumerTest {
 			int lastRecordIndex = auditRecords.size() - 1;
 			Map<String, Object> auditRecord = auditRecords.get(lastRecordIndex);
 
-			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "UPDATE");
+			Assert.assertEquals("updated record is not available", (String) auditRecord.get("operation"), "CREATE");
 			Assert.assertEquals("updated record is not available", (String) auditRecord.get("objectId"), nodeId1);
 
 		} catch (Exception e) {

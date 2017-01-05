@@ -9,7 +9,7 @@ info:
     name: EkStep License
     url: 'http:www.ekstep.in'
 host: api.EkStep.in
-basePath: /v3/domains
+basePath: /v3
 schemes:
   - https
 securityDefinitions: {}
@@ -2688,7 +2688,7 @@ paths:
                 type: string
                 description: 'API response code '
       security: []
-  '/{domainId}/mathods/create':
+  '/{domainId}/methods/create':
     post:
       summary: Creates New Method
       description: >-

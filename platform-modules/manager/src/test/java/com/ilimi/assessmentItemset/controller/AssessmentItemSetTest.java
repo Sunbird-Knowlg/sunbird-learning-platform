@@ -56,7 +56,7 @@ public class AssessmentItemSetTest extends BaseTest {
 	public void createItemsetWithValidRequest() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		nodes = createAssessmentItemSet();
+		nodes = createAssessmentItem(10);
 		String str = "\"" + StringUtils.join(nodes.toArray(new String[0]), "\",\"") + "\"";
 		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Akshara Worksheet Grade 5 Item Set\", \"type\": \"materialised\", \"max_score\": 15, \"total_items\": 3, \"description\": \"Akshara Worksheet Grade 5 Item Set\", \"code\": \"akshara.grade5.ws1.test\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"memberIds\": ["
 				+ str
@@ -201,7 +201,7 @@ public class AssessmentItemSetTest extends BaseTest {
 	@Test
 	public void getValidItemset() {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/assessmentitemset/do_10000112";
+		String path = "/v1/assessmentitemset/do_100001121";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON));
@@ -254,7 +254,7 @@ public class AssessmentItemSetTest extends BaseTest {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Testing ItemSet - MCQQ_650.\", \"type\": \"materialised\", \"description\": \"Testing of ItemSet Using AssessmentItems\", \"code\": \"ItemSet_650\", \"difficulty_level\": \"high\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"max_score\": 3, \"memberIds\": [ \"test.q901\", \"test.q902\", \"test.q903\" ] } } } }";
-		String path = "/v1/assessmentitemset/do_10000112";
+		String path = "/v1/assessmentitemset/do_100001121";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).header("user-id", "ilimi")
 					.contentType(MediaType.APPLICATION_JSON).content(request));

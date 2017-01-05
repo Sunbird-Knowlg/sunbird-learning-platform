@@ -37,7 +37,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
  * assessmentitem Positive and negative test senarios have been specified for
  * each of the operation
  */
-@FixMethodOrder(MethodSorters.JVM)
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssessmentitemTest extends BaseTest {
 
 	@Autowired
@@ -191,7 +191,7 @@ public class AssessmentitemTest extends BaseTest {
 	// Gets an existing assessmentItem with valid assessmentitem Id
 	// expect 200 ok response
 	@Test
-	public void getAssessmentItem() {
+	public void createAssessmentItem_get() {
 		String path = "/v1/assessmentitem/LP_UT_test_01";
 		try {
 			actions = this.mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi")

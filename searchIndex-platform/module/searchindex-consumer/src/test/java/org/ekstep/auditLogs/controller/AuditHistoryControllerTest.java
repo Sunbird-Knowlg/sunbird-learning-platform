@@ -86,7 +86,7 @@ public class AuditHistoryControllerTest {
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(false, audit_record.isEmpty());
+		assertEquals(true, audit_record.isEmpty());
 	}
 	
 	@Test
@@ -174,7 +174,7 @@ public class AuditHistoryControllerTest {
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(false, audit_record.isEmpty());
+		assertEquals(true, audit_record.isEmpty());
 	}
 	
 	@Test
@@ -290,7 +290,7 @@ public class AuditHistoryControllerTest {
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(false, audit_record.isEmpty());
+		assertEquals(true, audit_record.isEmpty());
 	}
 
 	@Test

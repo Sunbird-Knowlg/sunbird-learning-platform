@@ -10,7 +10,7 @@
     }
   },
   "host": "api.EkStep.in",
-  "basePath": "/v3/domains",
+  "basePath": "/v3",
   "schemes": [
     "https"
   ],
@@ -3620,7 +3620,7 @@
         "security": []
       }
     },
-    "/{domainId}/mathods/create":{
+    "/{domainId}/methods/create":{
       "post": {
         "summary": "Creates New Method",
         "description": "This API is used to create a method into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the method into the platform, The _method_ endpoint returns the node id as _node_id_ i.e. the identifier of created method.",
