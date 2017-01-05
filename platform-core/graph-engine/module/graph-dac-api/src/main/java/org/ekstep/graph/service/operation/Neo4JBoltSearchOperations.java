@@ -223,19 +223,17 @@ public class Neo4JBoltSearchOperations {
 
 			StatementResult result = session
 					.run(QueryUtil.getQuery(Neo4JOperation.GET_NODES_BY_PROPERTY, parameterMap));
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Ids.]");
-
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get Nodes By Property Id' Operation Finished.", record);
-				if (null != record)
-					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get Nodes By Property Id' Operation Finished.", record);
+					if (null != record)
+						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+				}
 			}
 			LOGGER.info("Node Map: ", nodeMap);
 			LOGGER.info("Relation Map: ", relationMap);
@@ -294,19 +292,17 @@ public class Neo4JBoltSearchOperations {
 			String query = QueryUtil.getQuery(Neo4JOperation.GET_NODES_BY_SEARCH_CRITERIA, parameterMap);
 			Map<String, Object> params = searchCriteria.getParams();
 			StatementResult result = session.run(query, params);
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Ids.]");
-
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get Nodes By Search Criteria' Operation Finished.", record);
-				if (null != record)
-					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get Nodes By Search Criteria' Operation Finished.", record);
+					if (null != record)
+						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+				}
 			}
 			LOGGER.info("Node Map: ", nodeMap);
 			LOGGER.info("Relation Map: ", relationMap);
@@ -369,18 +365,15 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_PROPERTY, parameterMap));
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_OR_PROPERTY_NOT_FOUND + " | [Invalid Node Id or Property.]");
-
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get Node Property' Operation Finished.", record);
-				if (null != record && null != record.get(key)) {
-					property.setPropertyName(key);
-					property.setPropertyValue(record.get(key));
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get Node Property' Operation Finished.", record);
+					if (null != record && null != record.get(key)) {
+						property.setPropertyName(key);
+						property.setPropertyValue(record.get(key));
+					}
 				}
 			}
-
 		}
 		LOGGER.info("Returning Node Property: ", property);
 		return property;
@@ -415,19 +408,17 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_ALL_NODES, parameterMap));
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Ids.]");
-
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get All Nodes' Operation Finished.", record);
-				if (null != record)
-					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get All Nodes' Operation Finished.", record);
+					if (null != record)
+						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+				}
 			}
 			LOGGER.info("Node Map: ", nodeMap);
 			LOGGER.info("Relation Map: ", relationMap);
@@ -474,18 +465,16 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_ALL_RELATIONS, parameterMap));
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Start or End Node Ids.]");
-
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get All Relations' Operation Finished.", record);
-				if (null != record)
-					getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get All Relations' Operation Finished.", record);
+					if (null != record)
+						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
+				}
 			}
 			LOGGER.info("Relation Map: ", relationMap);
 			LOGGER.info("Start Node Map: ", startNodeMap);
@@ -565,15 +554,13 @@ public class Neo4JBoltSearchOperations {
 
 			StatementResult result = session
 					.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION_PROPERTY, parameterMap));
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.RELATION_OR_PROPERTY_NOT_FOUND + " | [Invalid Relation or Property.]");
-
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get Relation Property' Operation Finished.", record);
-				if (null != record && null != record.get(key)) {
-					property.setPropertyName(key);
-					property.setPropertyValue(record.get(key));
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get Relation Property' Operation Finished.", record);
+					if (null != record && null != record.get(key)) {
+						property.setPropertyName(key);
+						property.setPropertyValue(record.get(key));
+					}
 				}
 			}
 		}
@@ -606,17 +593,16 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 			
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION_BY_ID, parameterMap));
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.RELATION_OR_PROPERTY_NOT_FOUND + " | [Invalid Relation Id.]");
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get Relation' Operation Finished.", record);
-				if (null != record)
-					getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get Relation' Operation Finished.", record);
+					if (null != record)
+						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
+				}
 			}
 			LOGGER.info("Relation Map: ", relationMap);
 			LOGGER.info("Start Node Map: ", startNodeMap);
@@ -688,7 +674,7 @@ public class Neo4JBoltSearchOperations {
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION, parameterMap));
 			if (null == result || !result.hasNext())
 				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Start or End Node Id.]");
+						DACErrorMessageConstants.NODE_NOT_FOUND + " | [No Relation found.]");
 
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
@@ -887,19 +873,17 @@ public class Neo4JBoltSearchOperations {
 			String query = QueryUtil.getQuery(Neo4JOperation.SEARCH_NODES, parameterMap);
 			Map<String, Object> params = searchCriteria.getParams();
 			StatementResult result = session.run(query, params);
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Ids.]");
-
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get All Nodes' Operation Finished.", record);
-				if (null != record)
-					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get All Nodes' Operation Finished.", record);
+					if (null != record)
+						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+				}
 			}
 			LOGGER.info("Node Map: ", nodeMap);
 			LOGGER.info("Relation Map: ", relationMap);
@@ -957,12 +941,13 @@ public class Neo4JBoltSearchOperations {
 			String query = QueryUtil.getQuery(Neo4JOperation.GET_NODES_COUNT, parameterMap);
 			Map<String, Object> params = searchCriteria.getParams();
 			StatementResult result = session.run(query, params);
-			for (Record record : result.list()) {
-				LOGGER.debug("'Get Nodes Count' Operation Finished.", record);
-				if (null != record && null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT))
-					count = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT).asLong();
+			if (null != result) {
+				for (Record record : result.list()) {
+					LOGGER.debug("'Get Nodes Count' Operation Finished.", record);
+					if (null != record && null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT))
+						count = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT).asLong();
+				}
 			}
-
 		}
 		LOGGER.info("Returning Nodes Count: ", count);
 		return count;
