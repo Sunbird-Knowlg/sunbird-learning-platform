@@ -28,17 +28,24 @@
   become: yes
   file: path={{ neo4j_home }} mode=0755 owner={{user}} group={{user}} recurse=yes
 
+
 - name: Copy the template neo4j.conf file 
   become: yes
   become_user: learning
   template: src=neo4j.conf.j2 dest={{ neo4j_home }}/conf/neo4j.conf group={{user}} owner={{user}}
+  when: dbms_mode != "ARBITER"
+  
+- name: Copy the template neo4j.conf.arbiter file 
+  become: yes
+  become_user: learning
+  template: src=neo4j.conf.arbiter.j2 dest={{ neo4j_home }}/conf/neo4j.conf group={{user}} owner={{user}}
+  when: dbms_mode == "ARBITER"
 
 - name: Copy the template file 
   become: yes
   become_user: learning
   template: src=neo4j-wrapper.conf.j2 dest={{ neo4j_home }}/conf/neo4j-wrapper.conf group={{user}} owner={{user}}
-#- name: Start the neo4j
-#  command: chdir={{ neo4j_home }}/bin ./neo4j start
+  when: dbms_mode != "ARBITER"
 
 - name: copy template of shell script to stop service
   become: yes
