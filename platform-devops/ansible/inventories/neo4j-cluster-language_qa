@@ -1,15 +1,38 @@
 [language-node1]
 172.31.8.205 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
+[language-node2]
+172.31.4.230 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
+
+[language-node3]
+172.31.19.192 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
+
+
 [languagecluster:children]
 language-node1
-
+language-node2
+language-node3
 
 [language-node1:vars]
 server_id=1 
 dbms_mode=HA 
 initial_hosts="172.31.8.205:8001"
 host_coordination="172.31.30.205:8001"
+
+
+[language-node2:vars]
+server_id=2
+dbms_mode=HA 
+initial_hosts="172.31.4.230:8001"
+host_coordination="172.31.30.205:8001"
+
+
+[language-node3:vars]
+server_id=3
+dbms_mode=ARBITER
+initial_hosts="172.31.8.205:8001"
+host_coordination="172.31.19.192:8001"
+
 
 [qa:children]
 languagecluster
