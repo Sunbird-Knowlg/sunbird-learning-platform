@@ -31,12 +31,12 @@
             "name": "fields",
             "index": 5,
             "datatype": "java.util.ArrayList",
-            "routingParam": false
+            "routingParam": false	
         }
     ],
     "requestPath": {
-        "type": "GET",
-        "url": "/v3/domains/*/list/*",
+        "type": "GET",	
+        "url": "/v3/domains/*/*/list",
         "pathParams": [
           "domain_id",
           "type"
