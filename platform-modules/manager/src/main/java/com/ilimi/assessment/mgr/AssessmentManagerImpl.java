@@ -499,7 +499,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                                 }
                             }
                         }
-                        Integer total = (Integer) itemSetMap.get("total_items");
+                        Integer total = null;
+                        if(itemSetMap.get("total_items") instanceof Long)
+                        	total = Integer.valueOf(((Long)itemSetMap.get("total_items")).intValue());
+                        else
+                        	total = (Integer) itemSetMap.get("total_items");
                         if (null == total) {
                             total = itemMaps.size();
                             itemSetMap.put("total_items", total);
