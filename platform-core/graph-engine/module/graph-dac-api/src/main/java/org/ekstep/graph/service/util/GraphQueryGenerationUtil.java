@@ -149,9 +149,10 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				for (Relationship relationship : relationships) {
 					if (StringUtils.equalsIgnoreCase(relationship.type(),
 							RelationTypes.SEQUENCE_MEMBERSHIP.relationName())) {
-						String strIndex = relationship.get(SystemProperties.IL_SEQUENCE_INDEX.name()).asString();
 						try {
-							allottedIndices.add(Integer.parseInt(strIndex));
+							Object strIndex = relationship.get(SystemProperties.IL_SEQUENCE_INDEX.name()).asObject();
+							if (null != strIndex)
+								allottedIndices.add(Integer.parseInt(strIndex.toString()));
 						} catch (Exception e) {
 						}
 					}
