@@ -98,7 +98,25 @@ public class Relation implements Serializable {
 		Iterable<String> keys = relationship.keys();
 		if (null != keys && null != keys.iterator()) {
 			for (String key : keys) {
-				this.metadata.put(key, relationship.get(key));
+				Value value = relationship.get(key);
+				if (null != value) {
+					if (StringUtils.startsWithIgnoreCase(value.type().name(), "LIST")) {
+						List<Object> list = value.asList();
+						if (null != list && list.size() > 0) {
+							Object obj = list.get(0);
+							if (obj instanceof String) {
+								this.metadata.put(key, list.toArray(new String[0]));
+							} else if (obj instanceof Number) {
+								this.metadata.put(key, list.toArray(new Number[0]));
+							} else if (obj instanceof Boolean) {
+								this.metadata.put(key, list.toArray(new Boolean[0]));
+							} else {
+								this.metadata.put(key, list.toArray(new Object[0]));
+							}
+						}
+					} else
+						this.metadata.put(key, value.asObject());
+				}
 			}
 		}
 	}
