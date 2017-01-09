@@ -10,6 +10,7 @@ server_id=1
 dbms_mode=HA 
 initial_hosts="172.31.30.52:7001"
 host_coordination="172.31.30.52:7001"
+ha_host_data="172.31.30.52:6001"
 
 [dev:children]
 learningcluster

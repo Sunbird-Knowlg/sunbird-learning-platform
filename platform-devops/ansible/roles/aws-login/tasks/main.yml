@@ -1,10 +1,11 @@
 ---
 # tasks file for aws-login
 - name: create .aws
-  file: path={{ item.path }} state={{ item.state }}
+  become: yes
+  file: path={{ item.path }} state={{ item.state }} owner=learning group=learning
   with_items:
-     - { path: '.aws', state: 'directory' }
-     - { path: 'credentials', state: 'touch' }
+     - { path: '/home/learning/.aws', state: 'directory' }
+     - { path: '/home/learning/.aws/credentials', state: 'touch' }
   tags:
        - learning
        - language
@@ -13,7 +14,8 @@
        - total
   
 - name: update .aws/credentials
-  lineinfile: dest=.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
+  become: yes
+  lineinfile: dest=/home/learning/.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
   tags:
        - learning
        - language
@@ -22,7 +24,9 @@
        - total
  
 - name: update access_key from env var
-  lineinfile: dest=.aws/credentials line='aws_access_key_id={{ lookup('env', 'lp_aws_access_key_id') }}'  insertafter=EOF state=present create=yes
+  become: yes
+  become_user: learning
+  lineinfile: dest=/home/learning/.aws/credentials line='aws_access_key_id={{ lookup('env', 'lp_aws_access_key_id') }}'  insertafter=EOF state=present create=yes
   tags:
        - learning
        - language
@@ -31,7 +35,9 @@
        - total
 
 - name: update secret_key from env var 
-  lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ lookup('env', 'lp_aws_secret_access_key') }}' insertafter=EOF state=present  create=yes
+  become: yes
+  become_user: learning
+  lineinfile: dest=/home/learning/.aws/credentials line='aws_secret_access_key={{ lookup('env', 'lp_aws_secret_access_key') }}' insertafter=EOF state=present  create=yes
   tags:
        - learning
        - language
