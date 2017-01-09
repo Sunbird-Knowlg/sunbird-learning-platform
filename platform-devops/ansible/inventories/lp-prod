@@ -9,7 +9,7 @@ mw_shard_id=1
 
 
 [language-1]
-10.10.1.30 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+10.10.1.30 ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
 [hostlanguage:children]
 language-1
@@ -50,7 +50,7 @@ redis-1
 [total-1]
  ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hosttotal:children]
+[hosttotal:children]	
 total-1
 
 [cassandra]
