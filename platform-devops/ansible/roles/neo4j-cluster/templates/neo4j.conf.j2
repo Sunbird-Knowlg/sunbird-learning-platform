@@ -143,7 +143,7 @@ ha.host.coordination={{host_coordination}}
 # IP and port for this instance to listen on, for communicating transaction
 # data with other instances (also see ha.initial_hosts). The IP
 # must be the configured IP address for one of the local interfaces.
-#ha.host.data=127.0.0.1:6001
+ha.host.data={{ha_host_data}}
 
 # The interval at which slaves will pull updates from the master. Comment out
 # the option to disable periodic pulling of updates. Unit is seconds.
