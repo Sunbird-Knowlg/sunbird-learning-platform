@@ -625,6 +625,874 @@
         },
         "security": []
       }
+    },
+    "/v3/synsets/list?language_id=###": {
+      "get": {
+        "summary": "Gets all sysnets in the specified language",
+        "description": "This endpoint returns all the synsets available in the specified language. Each synset object in the response contains details of its meanings.",
+        "tags": [
+          "Synset"
+        ],
+        "operationId": "synsets.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language for which all synsets are returned",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All Synsets Returned Successfully",
+            "schema": {
+              "$ref": "#/definitions/getAllSynsetsResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all synsets! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all synsets! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+   "/v3/synsets/create?language_id=###": {
+      "post": {
+        "summary": "Creates a synset in the specified language",
+        "description": "This endpoint creates a synset using the data in the request body",
+        "tags": [
+          "Synset"
+        ],
+        "operationId": "synsets.create",
+        "consumes" : [ "application/json" ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the synset should be created",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createSynsetRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Synset Created Successfully",
+            "schema": {
+              "$ref": "#/definitions/createSynsetResponse"
+            }
+          },
+          "400": {
+            "description": "Error While creating Synset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While Creating Synset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/synsets/read/{synsetId}?language_id=###": {
+      "get": {
+        "summary": "Gets the synset object for the given synset identifier in the specified language",
+        "description": "This endpoint returns a synset object from the EkStep language platform.",
+        "tags": [
+          "Synset"
+        ],
+        "operationId": "synsets.find",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the synset is searched for",
+            "type": "string"
+          },
+          {
+            "name": "synsetId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the synset to be fetched",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Synset object found and returned successfully",
+            "schema": {
+              "$ref": "#/definitions/getSynsetResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching synset for the specified synset identifier! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching synset for the specified synset identifier! | Error occurred when synset is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching synset for the specified synset identifier! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/synsets/update/{synsetId}?language_id=###":{
+      "patch": {
+        "summary": "Updates a Synset in the specified language",
+        "description": "This endpoint updates a synset using the data in the request body",
+        "tags": [
+          "Synset"
+        ],
+        "operationId": "synsets.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the synset exists",
+            "type": "string"
+          },
+          {
+            "name": "synsetId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the synset to be updated",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createSynsetRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Synset Updated Successfully",
+            "schema": {
+              "$ref": "#/definitions/createSynsetResponse"
+            }
+          },
+          "400": {
+            "description": "Error While updating Synset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching synset for the specified synset identifier! | Error occurred when synset is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating Synset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/wordlists/list?language_id=###": {
+      "get": {
+        "summary": "Gets all wordlists in the specified language",
+        "description": "This endpoint returns all the wordlists available in the specified language. Each WordList object in the response contains list of words.",
+        "tags": [
+          "WordList"
+        ],
+        "operationId": "wordlists.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language for which all wordlists are returned",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All Wordlists Returned Successfully",
+            "schema": {
+              "$ref": "#/definitions/getAllWordListsResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all wordlists! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all wordlists! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+   "/v3/wordlists/create?language_id=###": {
+      "post": {
+        "summary": "Creates a WordList in the specified language",
+        "description": "This endpoint creates a WordList using the data in the request body",
+        "tags": [
+          "WordList"
+        ],
+        "operationId": "wordlists.create",
+        "consumes" : [ "application/json" ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the wordlist should be created",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createWordlistRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WordList Created Successfully",
+            "schema": {
+              "$ref": "#/definitions/createWordlistResponse"
+            }
+          },
+          "400": {
+            "description": "Error While creating WordList! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While Creating WordList! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/wordlists/read/{wordlistId}?language_id=###": {
+      "get": {
+        "summary": "Gets the WordList object for the given WordList identifier in the specified language",
+        "description": "This endpoint returns a WordList object from the EkStep language platform.",
+        "tags": [
+          "WordList"
+        ],
+        "operationId": "wordlists.find",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the wordlist is searched for",
+            "type": "string"
+          },
+          {
+            "name": "wordlistId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the wordlist to be fetched",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WordList object found and returned successfully",
+            "schema": {
+              "$ref": "#/definitions/getWordlistResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching wordlist for the specified wordlist identifier! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching wordlist for the specified wordlist identifier! | Error occurred when wordlist is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching wordlist for the specified wordlist identifier! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/wordlists/update/{wordlistId}?language_id=###":{
+      "patch": {
+        "summary": "Updates a WordList in the specified language",
+        "description": "This endpoint updates a wordlist using the data in the request body",
+        "tags": [
+          "WordList"
+        ],
+        "operationId": "wordlists.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the wordlist exists",
+            "type": "string"
+          },
+          {
+            "name": "wordlistId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the wordlist to be updated",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createWordlistRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "WordList Updated Successfully",
+            "schema": {
+              "$ref": "#/definitions/createWordlistResponse"
+            }
+          },
+          "400": {
+            "description": "Error While updating WordList! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching WordList for the specified wordlist identifier! | Error occurred when wordlist is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating WordList! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/traversals/list?language_id=###": {
+      "get": {
+        "summary": "Gets all traversal rules in the specified language",
+        "description": "This endpoint returns all the traversal rules available in the specified language. Each traversal rule object in the response contains information regading traversal.",
+        "tags": [
+          "Traversal Rule"
+        ],
+        "operationId": "traversals.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language for which all wordlists are returned",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All Traversal Rules Returned Successfully",
+            "schema": {
+              "$ref": "#/definitions/getAllTraversalsResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all Traversal Rules! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all Traversal Rules! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+   "/v3/traversals/create?language_id=###": {
+      "post": {
+        "summary": "Creates a traversal rule in the specified language",
+        "description": "This endpoint creates a traversal rule using the data in the request body",
+        "tags": [
+          "Traversal Rule"
+        ],
+        "operationId": "traversals.create",
+        "consumes" : [ "application/json" ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the traversal rule should be created",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createTraversalRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Traversal Rule Created Successfully",
+            "schema": {
+              "$ref": "#/definitions/createTraversalResponse"
+            }
+          },
+          "400": {
+            "description": "Error While creating Traversal Rule! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While Creating Traversal Rule! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/traversals/read/{traversalRuleId}?language_id=###": {
+      "get": {
+        "summary": "Gets the Traversal Rule object for the given Traversal Rule identifier in the specified language",
+        "description": "This endpoint returns a Traversal Rule object from the EkStep language platform.",
+        "tags": [
+          "Traversal Rule"
+        ],
+        "operationId": "traversals.find",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the Traversal Rule is searched for",
+            "type": "string"
+          },
+          {
+            "name": "traversalRuleId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the traversal rule to be fetched",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Traversal Rule object found and returned successfully",
+            "schema": {
+              "$ref": "#/definitions/getTraversalResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching Traversal Rule for the specified traversal rule identifier! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching Traversal Rule for the specified traversal rule identifier! | Error occurred when traversal rule is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching Traversal Rule for the specified traversal rule identifier! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/traversals/update/{traversalRuleId}?language_id=###":{
+      "patch": {
+        "summary": "Updates a Traversal Rule in the specified language",
+        "description": "This endpoint updates a Traversal Rule using the data in the request body",
+        "tags": [
+          "Traversal Rule"
+        ],
+        "operationId": "traversals.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the traversal rule  exists",
+            "type": "string"
+          },
+          {
+            "name": "traversalRuleId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the traversal rule to be updated",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createTraversalRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Traversal Rule Updated Successfully",
+            "schema": {
+              "$ref": "#/definitions/createTraversalResponse"
+            }
+          },
+          "400": {
+            "description": "Error While updating Traversal Rule! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching Traversal Rule for the specified traversal rule identifier! | Error occurred when traversal rule is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating Traversal Rule! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/varnas/list?language_id=###": {
+      "get": {
+        "summary": "Gets all varnas in the specified language",
+        "description": "This endpoint returns all the varna available in the specified language.",
+        "tags": [
+          "Varna"
+        ],
+        "operationId": "varnas.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language for which all varnas are returned",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All Varnas Returned Successfully",
+            "schema": {
+              "$ref": "#/definitions/getAllVarnasResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all Varnas! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all Varnas! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+   "/v3/varnas/create?language_id=###": {
+      "post": {
+        "summary": "Creates a varna in the specified language",
+        "description": "This endpoint creates a varna using the data in the request body",
+        "tags": [
+          "Varna"
+        ],
+        "operationId": "varnas.create",
+        "consumes" : [ "application/json" ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the varna should be created",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createVarnaRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Varna Created Successfully",
+            "schema": {
+              "$ref": "#/definitions/createVarnaResponse"
+            }
+          },
+          "400": {
+            "description": "Error While creating Varna! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While Creating Varna! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/varnas/read/{varnaId}?language_id=###": {
+      "get": {
+        "summary": "Gets the Varna object for the given Varna identifier in the specified language",
+        "description": "This endpoint returns a Varna object from the EkStep language platform.",
+        "tags": [
+          "Varna"
+        ],
+        "operationId": "varnas.find",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the Varna is searched for",
+            "type": "string"
+          },
+          {
+            "name": "varnaId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the Varna to be fetched",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Varna object found and returned successfully",
+            "schema": {
+              "$ref": "#/definitions/getVarnaResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching Varna for the specified varna identifier! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching Varna for the specified varna identifier! | Error occurred when varna is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching Varna for the specified varna identifier! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v3/varnas/update/{varnaId}?language_id=###":{
+      "patch": {
+        "summary": "Updates a Varna in the specified language",
+        "description": "This endpoint updates a Varna using the data in the request body",
+        "tags": [
+          "Varna"
+        ],
+        "operationId": "varnas.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "language_id",
+            "in": "query",
+            "required": true,
+            "description": "Unique code of the language in which the Varna exists",
+            "type": "string"
+          },
+          {
+            "name": "varnaId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the Varna to be updated",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createVarnaRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Varna Updated Successfully",
+            "schema": {
+              "$ref": "#/definitions/createVarnaResponse"
+            }
+          },
+          "400": {
+            "description": "Error While updating Varna! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching Varna for the specified varna identifier! | Error occurred when varna is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating Varna! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
     }
   },
   "definitions": {
@@ -649,7 +1517,7 @@
         }
       },
       "title" : "Create Word Request Body"
-    },
+    }, 
     "updateWordRequestBody" : {
       "type" : "object",
       "required" : [ "id", "params", "request", "ts", "ver" ],
@@ -804,6 +1672,94 @@
       },
       "title" : "Transliterate Request Body"
     },
+   "createSynsetRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/meaningObject"
+        }
+      },
+      "title" : "synset Request Body"
+    },
+   "createWordlistRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/wordlistObject"
+        }
+      },
+      "title" : "wordlist Request Body"
+    },
+   "createTraversalRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/traversalObject"
+        }
+      },
+      "title" : "wordlist Request Body"
+    },
+   "createVarnaRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/varnaObject"
+        }
+      },
+      "title" : "wordlist Request Body"
+    },
     "getAllWordsResponse": {
       "type": "object",
       "title": "result",
@@ -870,6 +1826,308 @@
         },
         "result":{
           "$ref": "#/definitions/nodeIdsObject"
+        }
+      }
+    },
+    "getAllSynsetsResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/synsetsResponse"
+        }
+      }
+    },
+    "getSynsetResponse": {
+      "type": "object",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/synsetResponse"
+        }
+      }
+    },
+    "createSynsetResponse": {
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/nodeIdsObject"
+        }
+      }
+    },
+    "getAllWordListsResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/wordlistsResponse"
+        }
+      }
+    },
+    "getWordlistResponse": {
+      "type": "object",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/wordlistResponse"
+        }
+      }
+    },
+    "createWordlistResponse": {
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "type": "object",
+          "properties":{
+                "set_id" : {
+                    "description": "wordList identifier",
+                    "type": "string"
+                }
+          }
+        }
+      }
+    },
+    "getAllTraversalsResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/traversalsResponse"
+        }
+      }
+    },
+    "getTraversalResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/traversalResponse"
+        }
+      }
+    },
+    "createTraversalResponse": {
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "type": "object",
+          "properties":{
+                "node_id" : {
+                    "description": "traversal rule identifier",
+                    "type": "string"
+                }
+          }
+        }
+      }
+    },
+    "getAllVarnasResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "type":"object",
+          "properties":{
+            "result": {
+              "type" :"array",
+              "items":  {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "getVarnaResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/varnaObject"
+        }
+      }
+    },
+    "createVarnaResponse": {
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "type": "object",
+          "properties":{
+                "node_id" : {
+                    "description": "varna identifier",
+                    "type": "string"
+                }
+          }
         }
       }
     },
@@ -1081,7 +2339,7 @@
               "type": "string",
               "description": "Search request can contain multiple filters. Each filter has a key, which is one of the properties of object and value can be an array (to do an IN search) or a single value (to do an exact match search) or to check ranges using min/max parameters"
             }
-          },
+          }
         },
         "exists": {
           "type": "array",
@@ -1186,6 +2444,57 @@
             "items": {
                 "$ref": "#/definitions/wordObject"
             }
+        }
+      }
+    },
+    "synsetResponse": {
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/synsetNodeObject"
+        }
+      }
+    },
+    "synsetsResponse": {
+      "properties": {
+        "synsets": { 
+          "type": "array",
+           "items": {
+               "$ref": "#/definitions/synsetObject"
+           }
+        }
+      }
+    },
+    "wordlistsResponse": {
+      "properties": {
+        "wordlists": { 
+          "type": "array",
+          "items": {
+                "$ref": "#/definitions/wordlistNodeObjects"
+          }
+        }
+      }
+    },
+    "wordlistResponse": {
+      "properties": {
+        "wordlists": { 
+              "$ref": "#/definitions/wordlistNodeObject"
+        }
+      }
+    },
+    "traversalsResponse": {
+      "properties": {
+        "rules": { 
+              "type": "array",
+              "items": {
+                  "$ref": "#/definitions/traversalObject"
+              }
+        }
+      }
+    },
+    "traversalResponse": {
+      "properties": {
+        "rule": { 
+                "$ref": "#/definitions/traversalObject"
         }
       }
     },
@@ -1459,6 +2768,128 @@
         }
       }
     },
+    "synsetObject": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unique identifier of the synset"
+        },
+        "gloss": {
+          "type": "string",
+          "description": "meaning of a word"
+        },
+        "pos": {
+          "type": "string",
+          "description": "parts of speech(pos) is category of words such as  noun, verb, adjective, adverb, pronoun, preposition, conjunction, interjection, etc"
+        },
+        "status": {
+           "type": "string",
+          "description": "status if the synset"
+        }    
+      }
+    },
+    "synsetNodeObject": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the synset in graph database"
+        },
+        "graphId": {
+          "type": "string",
+          "description": "id of the language"
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Unique identifier of the synset"
+        },
+        "nodeType": {
+          "type": "string",
+          "description": "node type in graph database "
+        },
+        "objectType": {
+          "type": "string",
+          "description": "object type in graph database"
+        },
+        "metadata": {
+          "$ref": "#/definitions/synsetObject"
+        },
+        "outRelations": {
+          "type": "array",
+          "description": "List of Relations",
+          "items": {
+              "$ref": "#/definitions/synsetRelationObject"
+          }
+        },
+        "inRelations": {
+          "type": "array",
+          "description": "List of Relations",
+          "items": {
+              "$ref": "#/definitions/synsetRelationObject"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags added to the meaning",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "synsetRelationObject": {
+      "properties" : {
+        "id": {
+            "type": "string",
+            "description": "Identifier of the relation"
+        },
+        "graphId": {
+            "type": "string",
+            "description": "Language id"
+        },
+        "relationType": {
+            "type": "string",
+            "description": "Type of the relation between nodes"
+        },
+        "startNodeId": {
+            "type": "string",
+            "description": "Identifier of the start node"
+        },
+        "startNodeName": {
+            "type": "string",
+            "description": "Node name of the start node"
+        },
+        "startNodeType": {
+            "type": "string",
+            "description": "Node type of the start node"
+        },
+        "startNodeObjectType": {
+            "type": "string",
+            "description": "Node Object Type of the start node"
+        },
+        "endNodeId": {
+            "type": "string",
+            "description": "Identifier of the end node"
+        },
+        "endNodeName": {
+            "type": "string",
+            "description": "Node name of the end node"
+        },
+        "endNodeType": {
+            "type": "string",
+            "description": "Node type of the end node"
+        },
+        "endNodeObjectType": {
+            "type": "string",
+            "description": "Node Object Type of the end node"
+        },
+        "startNodeMetadata" : {
+                    "$ref": "#/definitions/synsetObject"
+        },
+        "endNodeMetadata" : {
+                    "$ref": "#/definitions/wordSearchObject"
+        }
+      }
+    },
     "textAnalysisObject": {
       "properties": {
         "text_complexity": {
@@ -1563,6 +2994,141 @@
         "output": {
           "type": "string",
           "description": "transliteration of the input english text in the specified language"
+        }
+      }
+    },
+    "wordlistObject": {
+      "properties" : {
+        "words": {
+            "description": "list of word that given wordlist contains",
+            "type": "array",
+            "items":  {"type": "string"}
+        },
+        "metadata": {
+          "type": "object",
+          "description": "metadata of the wordlist",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "collection name value"
+            }
+          }
+        }
+      }
+    },
+    "wordlistNodeObjects": {
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/wordlistNodeObject"
+        }
+      }
+    },
+    "wordlistNodeObject": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unique identifier of the wordlist"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "metadata of the wordlist",
+          "properties": {
+            "SET_OBJECT_TYPE_KEY": {
+              "type": "string",
+              "description": "object type that collection holds"
+            },
+            "name": {
+              "type": "string",
+              "description": "collection name value"
+            },
+            "SET_TYPE": {
+              "type": "string",
+              "description": "Collection type value"
+            }
+          }
+        },
+        "words": {
+            "description": "list of word that given wordlist contains",
+            "type": "array",
+            "items":  {"type": "string"}
+        }
+      }
+    },
+    "traversalObject": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unique identifier of the traversal rule"
+        },
+        "description": {
+            "description": "description of the traversal rule",
+            "type": "string"
+        },
+        "ruleId": {
+            "description": "identifier of the traversal rule",
+            "type": "string"
+        },
+        "ruleScript": {
+            "description": "script name of the traversal rule",
+            "type": "string"
+        },
+        "status": {
+            "description": "status of the traversal rule",
+            "type": "string"
+        },
+        "minChainLength": {
+            "description": "minimum chain length",
+            "type": "string"
+        },
+        "maxChainLength": {
+            "description": "maximum chain length",
+            "type": "string"
+        },
+        "type": {
+            "description": "type of the traversal rule",
+            "type": "string"
+        },
+        "name": {
+            "description": "name of the traversal rule",
+            "type": "string"
+        },
+        "ruleObjectType": {
+            "description": "object type of the traversal rule ",
+            "type": "string"
+        },
+        "maxWords": {
+            "description": "maximum number of words that traversal rule can return",
+            "type": "string"
+        }
+      }
+    },
+    "varnaObject": {
+      "properties": {
+        "varna": {
+            "description": "varna text",
+            "type": "string"
+        },
+        "unicode": {
+            "description": "unicode of the varna",
+            "type": "string"
+        },
+        "type": {
+            "description": "type of the varna",
+            "type": "string"
+        },
+        "isoSymbol": {
+            "description": "isoSymbol of the varna",
+            "type": "string"
+        },
+        "orthoAttribVector": {
+            "description": "vector of orthographic attribute",
+            "type": "array",
+            "items": {"type": "string"}
+        },
+        "modifierOrthoAttribVector": {
+            "description": "vector of modifier orthographic attribute",
+            "type": "array",
+            "items": {"type": "string"}
         }
       }
     },
