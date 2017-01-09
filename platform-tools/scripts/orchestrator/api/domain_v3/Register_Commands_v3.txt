@@ -8,8 +8,6 @@ node registerScript.js api/domain_v2/getDomainObjects.tcl api/domain_v3/json/reg
 
 node registerScript.js api/domain_v2/saveDomainObject.tcl api/domain_v3/json/register-saveDomainObject-v3.json update
 
-node registerScript.js api/domain_v2/searchDomainObjects.tcl api/domain_v3/json/register-searchDomainObjects-v3.json update
-
 node registerScript.js api/domain_v2/updateDomainObject.tcl api/domain_v3/json/register-updateDomainObject-v3.json update
 
 node registerScript.js api/domain_v2/retireConcept.tcl api/domain_v3/json/register-retireConcept-v3.json update
