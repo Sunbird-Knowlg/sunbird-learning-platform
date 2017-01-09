@@ -1,0 +1,68 @@
+[learning-1]
+10.10.1.26 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+
+[hostlearning:children]
+learning-1
+
+[learning-1:vars]
+mw_shard_id=1
+
+
+[language-1]
+10.10.1.30 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+
+[hostlanguage:children]
+language-1
+
+
+[language-1:vars]
+mw_shard_id=1
+
+[search-1]
+10.10.1.212 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+
+
+[hostsearch:children]
+search-1
+
+
+[config-1]
+10.10.1.212 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+
+[hostconfig:children]
+config-1
+
+
+[mongodb-1]
+10.10.1.26 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+
+[hostmongodb:children]
+mongodb-1
+
+
+[redis-1]
+10.10.1.26 ansible_user=learning ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
+
+[hostredis:children]
+redis-1
+
+
+[total-1]
+ ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+[hosttotal:children]
+total-1
+
+[cassandra]
+10.10.1.62 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+
+[prod:children]
+hostlearning
+hostlanguage
+hostsearch
+hostconfig
+hostredis
+hostmongodb
+hosttotal
+cassandra

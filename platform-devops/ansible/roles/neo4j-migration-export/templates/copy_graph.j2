@@ -1,4 +1,5 @@
 #!/bin/bash
 ssh -o "StrictHostKeyChecking no" {{user}}@{{neo4j_machine}}
-scp -r -i /home/ec2-user/learning-platform.pem /data/graphDB/{{graph_machine}} {{user}}@{{neo4j_machine}}:/home/{{user}}/
+scp -r -i /home/ec2-user/learning-platform.pem /data/graphDB/{{graph_machine}} {{user}}@{{neo4j_machine1}}:/home/{{user}}/
+scp -r -i /home/ec2-user/learning-platform.pem /data/graphDB/{{graph_machine}} {{user}}@{{neo4j_machine2}}:/home/{{user}}/
 
