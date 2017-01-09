@@ -13,6 +13,11 @@ learning-node1
 learning-node2
 learning-node3
 
+[learningimport:children]
+learning-node1
+learning-node2
+
+
 [learning-node1:vars]
 server_id=1 
 dbms_mode=HA 

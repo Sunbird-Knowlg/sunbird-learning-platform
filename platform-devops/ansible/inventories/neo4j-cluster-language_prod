@@ -13,6 +13,12 @@ language-node1
 language-node2
 language-node3
 
+
+[languageimport:children]
+language-node1
+language-node2
+
+
 [language-node1:vars]
 server_id=1 
 dbms_mode=HA 
