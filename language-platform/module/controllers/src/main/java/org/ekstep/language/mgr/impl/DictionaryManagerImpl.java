@@ -3280,7 +3280,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				existingWordMap.put(LanguageParams.primaryMeaning.name(), primaryMeaning);
 			List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordMap
 					.get(LanguageParams.otherMeanings.name());
-			if (otherMeanings != null && otherMeanings.size() > 0) {
+			if (otherMeanings != null) {
 				List<Map<String, Object>> updatedOtherMeanings = new ArrayList<>();
 				for (Map<String, Object> otherMeaning : otherMeanings) {
 					otherMeaning = mergeWithGraphData(languageId, id, otherMeaning);

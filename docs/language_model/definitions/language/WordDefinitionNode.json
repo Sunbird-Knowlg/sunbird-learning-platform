@@ -677,9 +677,13 @@
           "dataType": "Multi-Select",
           "range":
           [
-              "neutral",
-              "male",
-              "female"
+            "any",
+            "f",
+            "female",
+            "m",
+            "male",
+            "n",
+            "neutral"          
           ],
           "required": false,
           "indexed": true,

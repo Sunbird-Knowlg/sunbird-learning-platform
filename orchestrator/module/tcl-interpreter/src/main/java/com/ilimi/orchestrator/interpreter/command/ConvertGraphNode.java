@@ -57,12 +57,20 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                         fields = (List<String>) obj3;
                     } else {
                         if (null != def && null != def.getMetadata()) {
-                            String[] arr = (String[]) def.getMetadata().get("fields");
-                            if (null != arr && arr.length > 0) {
-                                List<String> arrFields = Arrays.asList(arr);
-                                fields = new ArrayList<String>();
-                                fields.addAll(arrFields);
-                            }
+                        	try {
+                        		String[] arr = (String[]) def.getMetadata().get("fields");
+                        		if (null != arr && arr.length > 0) {
+                                    fields = new ArrayList<String>();
+                                    for (String field : arr)
+                                    	fields.add(field);
+                                }
+                        	} catch (Exception e) {
+                        		List<String> arr = (List<String>) def.getMetadata().get("fields");
+                        		if (null != arr && arr.size() > 0) {
+                                    fields = new ArrayList<String>();
+                                    fields.addAll(arr);
+                                }
+                        	}
                         }
                     }
                     Map<String, Object> map = convertGraphNode(node, node.getGraphId(), def, fields);
@@ -71,6 +79,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                 }
 
             } catch (Exception e) {
+            	e.printStackTrace();
                 throw new TclException(interp, "Unable to read response: " + e.getMessage());
             }
         } else {
