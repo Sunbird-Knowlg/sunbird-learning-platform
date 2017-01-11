@@ -13,3 +13,7 @@ node registerScript.js qe/orthographic-search.tcl qe/json/register-orthographic-
 node registerScript.js qe/getTranslations.tcl qe/json/register-getTranslations.json register
 
 node registerScript.js qe/updateVarnaCache.tcl qe/json/register-updateVarnaCache.json register
+
+node registerScript.js qe/updateTextBookAndVerbWords.tcl qe/json/register-updateTextBookAndVerbWords.json update
+
+node registerScript.js qe/cleanupDuplicateWords.tcl qe/json/register-cleanupDuplicateWords.json update
