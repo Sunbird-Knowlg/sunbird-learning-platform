@@ -74,7 +74,12 @@ public class DataNode extends AbstractNode {
 						relation.getRelationType())) {
 					Map<String, Object> metadata = relation.getMetadata();
 					if (null != metadata && !metadata.isEmpty()) {
-						Integer idx = (Integer) metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+						Integer idx = null;
+						try {
+							String str = (String) metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+							idx = Integer.parseInt(str);
+						} catch (Exception e) {
+						}
 						if (null != idx && index < idx.intValue())
 							index = idx.intValue() + 1;
 						else
@@ -88,7 +93,12 @@ public class DataNode extends AbstractNode {
 						relation.getRelationType())) {
 					Map<String, Object> metadata = (null == relation.getMetadata()) ? new HashMap<String, Object>()
 							: relation.getMetadata();
-					Integer idx = (Integer) metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+					Integer idx = null;
+					try {
+						String str = (String) metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+						idx = Integer.parseInt(str);
+					} catch (Exception e) {
+					}
 					if (null == idx) {
 						idx = index++;
 						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
