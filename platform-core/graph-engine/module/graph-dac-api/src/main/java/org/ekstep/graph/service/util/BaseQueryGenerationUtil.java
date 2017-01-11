@@ -137,11 +137,12 @@ public class BaseQueryGenerationUtil {
 				query.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name())
 						.append(CypherQueryConfigurationConstants.COLON)
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE).append(node.getObjectType())
-						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
+						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE)
+						.append(CypherQueryConfigurationConstants.COMMA);
 		}
 
 		LOGGER.info("Returning System Property String: " + query.toString());
-		return query.toString();
+		return StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA);
 	}
 
 	protected static Map<String, Object> getSystemPropertyQueryMap(Node node, String date) {
@@ -167,11 +168,11 @@ public class BaseQueryGenerationUtil {
 			// Adding 'IL_FUNC_OBJECT_TYPE' Property
 			if (StringUtils.isNotBlank(node.getObjectType())) {
 				query.append(SystemProperties.IL_FUNC_OBJECT_TYPE.name() + ":  { SP_"
-						+ SystemProperties.IL_FUNC_OBJECT_TYPE.name() + " }");
+						+ SystemProperties.IL_FUNC_OBJECT_TYPE.name() + " }, ");
 				paramValuesMap.put("SP_" + SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
 			}
 
-			queryMap.put(GraphDACParams.query.name(), query.toString());
+			queryMap.put(GraphDACParams.query.name(), StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 		}
 
