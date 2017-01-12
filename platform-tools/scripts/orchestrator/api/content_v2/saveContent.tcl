@@ -3,6 +3,7 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package java.util HashSet Set
 java::import -package com.ilimi.graph.dac.model Node Relation
+java::import -package com.ilimi.graph.model.node MetadataDefinition
 
 proc proc_isEmpty {value} {
 	set exist false
@@ -66,11 +67,20 @@ if {$object_null == 1} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		} else {
+			set externalProps [java::new HashMap]
 			set body [$content get "body"]
 			set bodyEmpty [proc_isEmpty $body]
 			if {!$bodyEmpty} {
 				$content put "body" [java::null]
+				$externalProps put "body" $body
 			}
+			set oldBody [$content get "oldBody"]
+			set oldBodyEmpty [proc_isEmpty $oldBody]
+			if {!$oldBodyEmpty} {
+				$content put "oldBody" [java::null]
+				$externalProps put "oldBody" $oldBody
+			}
+			
 			set codeValidationFailed 0
 			if {!$mimeTypeEmpty} {
 				set isPluginMimeType [[java::new String [$mimeType toString]] equalsIgnoreCase "application/vnd.ekstep.plugin-archive"]
@@ -100,7 +110,7 @@ if {$object_null == 1} {
 				} else {
 					set content_id [get_resp_value $create_response "node_id"]
 					if {!$bodyEmpty} {
-						set bodyResponse [updateContentBody $content_id $body]
+						set bodyResponse [updateContentProperties $content_id $externalProps]
 						set check_error [check_response_error $bodyResponse]
 						if {$check_error} {
 							return $bodyResponse

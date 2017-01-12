@@ -9,3 +9,5 @@ CREATE TABLE IF NOT EXISTS content_store.content_data (
   body blob,
   PRIMARY KEY (content_id)
 );
+
+ALTER TABLE content_store.content_data ADD oldBody blob;
