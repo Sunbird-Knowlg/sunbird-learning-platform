@@ -13,7 +13,7 @@
        - incrementalbackup
         
 - name: Run the backup command
-  command: {{neo4j_home}}/bin/neo4j-backup --from={{neo4j_machine}} --to=/mnt/backup/neo4j-backup
+  command: "{{neo4j_home}}"/bin/neo4j-backup --from="{{neo4j_machine}}" --to=/mnt/backup/neo4j-backup
   tags:
        - fullbackup
        - incrementalbackup
