@@ -177,9 +177,18 @@ public class SearchCriteria implements Serializable {
                 sb.append(rel.getCypher(this, null));
         }
         if (!countQuery) {
+        	boolean returnNode = true;
             if (null == fields || fields.isEmpty()) {
-                sb.append("RETURN DISTINCT ee ");
+            	sb.append("WITH DISTINCT ee ");
+            	if (startPosition > 0) {
+                    sb.append("SKIP ").append(startPosition).append(" ");
+                }
+                if (resultSize > 0) {
+                    sb.append("LIMIT ").append(resultSize).append(" ");
+                }
+                sb.append("OPTIONAL MATCH (ee)-[r]-() RETURN ee, r, startNode(r) as __startNode, endNode(r) as __endNode ");
             } else {
+            	returnNode = false;
                 sb.append("RETURN ");
                 for (int i = 0; i < fields.size(); i++) {
                     sb.append("ee.").append(fields.get(i)).append(" as ").append(fields.get(i)).append(" ");
@@ -200,11 +209,13 @@ public class SearchCriteria implements Serializable {
                 }
             }
 
-            if (startPosition > 0) {
-                sb.append("SKIP ").append(startPosition).append(" ");
-            }
-            if (resultSize > 0) {
-                sb.append("LIMIT ").append(resultSize).append(" ");
+            if (!returnNode) {
+            	if (startPosition > 0) {
+                    sb.append("SKIP ").append(startPosition).append(" ");
+                }
+                if (resultSize > 0) {
+                    sb.append("LIMIT ").append(resultSize).append(" ");
+                }
             }
         } else {
             sb.append("RETURN count(ee) as __count");

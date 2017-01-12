@@ -862,7 +862,11 @@ public class Neo4JBoltSearchOperations {
 		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
-
+			List<String> fields = searchCriteria.getFields();
+			boolean returnNode = true;
+			if (null != fields && !fields.isEmpty())
+				returnNode = false;
+			
 			LOGGER.info("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
@@ -881,8 +885,14 @@ public class Neo4JBoltSearchOperations {
 			if (null != result) {
 				for (Record record : result.list()) {
 					LOGGER.debug("'Get All Nodes' Operation Finished.", record);
-					if (null != record)
-						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+					if (null != record) {
+						if (returnNode)
+							getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+						else {
+							Node node = new Node(graphId, record.asMap());
+							nodes.add(node);
+						}
+					}
 				}
 			}
 			LOGGER.info("Node Map: ", nodeMap);
