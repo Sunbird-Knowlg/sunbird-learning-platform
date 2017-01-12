@@ -82,10 +82,10 @@ if {$object_null == 1} {
 		}
 		set osIdCheck 1
 		if {$contentTypeNotNull} {
-			set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Asset"]
+			set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Game"]
 		}
-		if {$osIdCheck != 1 && $osIdEmpty} {
-			set osId_Error true
+		if {$osIdCheck == 1 && $osIdEmpty} {
+			set osId_Error false
 		}
 		if {$osId_Error} {
 			set result_map [java::new HashMap]
@@ -109,7 +109,6 @@ if {$object_null == 1} {
 				set graph_node [get_resp_value $get_node_response "node"]
 				set metadata [java::prop $graph_node "metadata"]
 				set mimeType [$metadata get "mimeType"]
-
 				set domain_val [$metadata get "domain"]
 				set domain_val_null [java::isnull $domain_val]
 				if {$domain_val_null == 0} {

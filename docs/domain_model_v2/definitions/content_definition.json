@@ -986,7 +986,7 @@
           "description": "Operating System specific Id",
           "category": "Technical",
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": "org.ekstep.launcher",
           "renderingHints": "{ 'inputType': 'table', 'order': 6 }",
           "indexed": true,
           "draft": false
@@ -1703,6 +1703,19 @@
           "description": "",
           "category": "Flagging",
           "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}"
+        },
+        {
+          "propertyName": "tempData",
+          "title": "Property to store temporary values",
+          "description": "",
+          "category": "General",
+          "dataType": "Text",
           "range": [],
           "required": false,
           "indexed": true,

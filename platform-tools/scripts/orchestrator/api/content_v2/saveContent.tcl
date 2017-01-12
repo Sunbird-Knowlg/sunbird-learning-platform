@@ -39,15 +39,24 @@ if {$object_null == 1} {
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	$content put "objectType" $object_type
 
+	set mimeType [$content get "mimeType"]
+	set mimeTypeEmpty [proc_isEmpty $mimeType]
+	if {!$mimeTypeEmpty} {
+		set isApkMimeType [[java::new String [$mimeType toString]] equalsIgnoreCase "application/vnd.android.package-archive"]
+		if {$isApkMimeType != 1} {
+			$content put "osId" "org.ekstep.quiz.app"
+		}
+	}
+
 	set osId_Error false
 	set contentType [$content get "contentType"]
 	set contentTypeEmpty [proc_isEmpty $contentType]
 	if {!$contentTypeEmpty} {
 		set osId [$content get "osId"]
 		set osIdEmpty [proc_isEmpty $osId]
-		set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Asset"]
-		if {$osIdCheck != 1 && $osIdEmpty} {
-			set osId_Error true
+		set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Game"]
+		if {$osIdCheck == 1 && $osIdEmpty} {
+			set osId_Error false
 		}
 		if {$osId_Error} {
 			set result_map [java::new HashMap]
@@ -62,8 +71,6 @@ if {$object_null == 1} {
 			if {!$bodyEmpty} {
 				$content put "body" [java::null]
 			}
-			set mimeType [$content get "mimeType"]
-			set mimeTypeEmpty [proc_isEmpty $mimeType]
 			set codeValidationFailed 0
 			if {!$mimeTypeEmpty} {
 				set isPluginMimeType [[java::new String [$mimeType toString]] equalsIgnoreCase "application/vnd.ekstep.plugin-archive"]
