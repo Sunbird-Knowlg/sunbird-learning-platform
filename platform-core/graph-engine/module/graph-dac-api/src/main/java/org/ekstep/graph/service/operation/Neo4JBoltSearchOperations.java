@@ -37,7 +37,7 @@ import com.ilimi.graph.dac.model.Traverser;
 public class Neo4JBoltSearchOperations {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedSearchOperations.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(Neo4JBoltSearchOperations.class.getName());
 
 	/**
 	 * Gets the node by id.
@@ -875,7 +875,9 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			String query = QueryUtil.getQuery(Neo4JOperation.SEARCH_NODES, parameterMap);
+			LOGGER.info("Search Query: " + query);
 			Map<String, Object> params = searchCriteria.getParams();
+			LOGGER.info("Search Params: " + params);
 			StatementResult result = session.run(query, params);
 			LOGGER.info("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
@@ -883,8 +885,9 @@ public class Neo4JBoltSearchOperations {
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
+				LOGGER.debug("'Search Nodes' result: " + result);
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get All Nodes' Operation Finished.", record);
+					LOGGER.debug("'Search Nodes' Operation Finished.", record);
 					if (null != record) {
 						if (returnNode)
 							getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
@@ -895,10 +898,10 @@ public class Neo4JBoltSearchOperations {
 					}
 				}
 			}
-			LOGGER.info("Node Map: ", nodeMap);
-			LOGGER.info("Relation Map: ", relationMap);
-			LOGGER.info("Start Node Map: ", startNodeMap);
-			LOGGER.info("End Node Map: ", endNodeMap);
+			LOGGER.info("Node Map: " + nodeMap);
+			LOGGER.info("Relation Map: " + relationMap);
+			LOGGER.info("Start Node Map: " + startNodeMap);
+			LOGGER.info("End Node Map: " + endNodeMap);
 
 			LOGGER.info("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
@@ -907,7 +910,7 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap));
 			}
 		}
-		LOGGER.info("Returning Search Nodes: ", nodes);
+		LOGGER.info("Returning Search Nodes: " + nodes);
 		return nodes;
 	}
 
