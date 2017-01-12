@@ -1,6 +1,7 @@
 package com.ilimi.orchestrator.interpreter.command;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -11,6 +12,8 @@ import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
 public class GetResponseValue implements ICommand, Command {
+	
+	private static LogHelper LOGGER = LogHelper.getInstance(GetResponseValue.class.getName());
 
 	@Override
 	public String getCommandName() {
@@ -29,6 +32,7 @@ public class GetResponseValue implements ICommand, Command {
 				TclObject tclResp = ReflectObject.newInstance(interp, result.getClass(), result);
 				interp.setResult(tclResp);
 			} catch (Exception e) {
+				LOGGER.error(e.getMessage(), e);
 				throw new TclException(interp, "Unable to read response: " + e.getMessage());
 			}
 		} else {
