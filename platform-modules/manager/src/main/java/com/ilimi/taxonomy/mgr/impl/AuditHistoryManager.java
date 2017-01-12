@@ -3,7 +3,6 @@ package com.ilimi.taxonomy.mgr.impl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -47,8 +46,9 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 				LOGGER.info("Throws Client Exception when audit record is null");
 				throw new ClientException(AuditLogErrorCodes.ERR_SAVE_AUDIT_MISSING_REQ_PARAMS.name(),
 						"Required params missing...");
-			}
+			}		
 			Request request = new Request();
+			request.setRequest_id(audit.getRequestId());
 			request.put(CommonDACParams.audit_history_record.name(), audit);
 			LOGGER.info("Sending request to save Logs to DB" + request);
 			auditHistoryEsService.saveAuditHistoryLog(request);
