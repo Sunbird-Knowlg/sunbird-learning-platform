@@ -33,11 +33,13 @@ public class ContentStoreUtil {
 	}
 
 	public static String getContentProperty(String contentId, String property) {
+		LOGGER.info("GetContentProperty | Content: " + contentId + " | Property: " + property);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(property);
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
 					"Invalid property name. Please specify a valid property name");
+		LOGGER.info("GetContentProperty | Query: " + query);
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = ps.bind(contentId);
 		try {
@@ -58,11 +60,13 @@ public class ContentStoreUtil {
 	}
 	
 	public static Map<String, Object> getContentProperties(String contentId, List<String> properties) {
+		LOGGER.info("GetContentProperties | Content: " + contentId + " | Properties: " + properties);
 		Session session = CassandraConnector.getSession();
 		String query = getSelectQuery(properties);
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
 					"Invalid properties list. Please specify a valid list of property names");
+		LOGGER.info("GetContentProperties | Query: " + query);
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = ps.bind(contentId);
 		try {
@@ -87,11 +91,13 @@ public class ContentStoreUtil {
 	}
 	
 	public static void updateContentProperty(String contentId, String property, String value) {
+		LOGGER.info("UpdateContentProperty | Content: " + contentId + " | Property: " + property + " - Value: " + value);
 		Session session = CassandraConnector.getSession();
 		String query = getUpdateQuery(property);
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_NAME.name(),
 					"Invalid property name. Please specify a valid property name");
+		LOGGER.info("UpdateContentProperty | Query: " + query);
 		PreparedStatement ps = session.prepare(query);
 		BoundStatement bound = ps.bind(value, contentId);
 		try {
@@ -104,6 +110,7 @@ public class ContentStoreUtil {
 	}
 	
 	public static void updateContentProperties(String contentId, Map<String, Object> map) {
+		LOGGER.info("UpdateContentProperties | Content: " + contentId + " | Properties: " + map);
 		Session session = CassandraConnector.getSession();
 		if (null == map || map.isEmpty())
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
@@ -112,6 +119,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isBlank(query))
 			throw new ClientException(ContentStoreParams.ERR_INVALID_PROPERTY_VALUES.name(),
 					"Invalid property values. Please specify valid property values");
+		LOGGER.info("UpdateContentProperties | Query: " + query);
 		PreparedStatement ps = session.prepare(query);
 		Object[] values = new Object[map.size() + 1];
 		int i = 0;
