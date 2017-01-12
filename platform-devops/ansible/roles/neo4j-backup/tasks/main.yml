@@ -13,21 +13,21 @@
        - incrementalbackup
         
 - name: Run the backup command
-  command: "{{neo4j_home}}"/bin/neo4j-backup --from="{{neo4j_machine}}" --to=/mnt/backup/neo4j-backup
+  command: "{{neo4j_home}}"/bin/neo4j-backup --from={{neo4j_machine}} --to=/mnt/backup/neo4j-backup
   tags:
        - fullbackup
        - incrementalbackup
        
 - name: copy template of shell script to stop service
   become: yes
-  template: src=backup_script.j2 dest=/home/{{user}}/backup_script.sh owner=learning group=learning
+  template: src=backup_script.j2 dest=/home/learning/backup_script.sh owner=learning group=learning
   tags:
        - fullbackup
        - incrementalbackup
        
 - name: run script
   become: yes
-  command: "/home/{{user}}/backup_script.sh"
+  command: "/home/learning/backup_script.sh"
   tags:
        - fullbackup
        - incrementalbackup
