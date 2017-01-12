@@ -159,11 +159,18 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		if (StringUtils.equals(versionKey, graphVersionKey))
 			isValidVersionKey = true;
 
+		// Remove 'SYS_INTERNAL_LAST_UPDATED_ON' property
+		node.getMetadata().remove(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name());
+
 		// May be the Given 'versionKey' is a Passport Key.
 		// Check for the Valid Passport Key
 		if (BooleanUtils.isFalse(isValidVersionKey)
-				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED))
+				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED)) {
 			isValidVersionKey = PassportUtil.isValidPassportKey(versionKey);
+			if (BooleanUtils.isTrue(isValidVersionKey))
+				node.getMetadata().put(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name(),
+						DateUtils.formatCurrentDate());
+		}
 
 		return isValidVersionKey;
 	}
@@ -202,11 +209,18 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 		if (StringUtils.equals(versionKey, graphVersionKey))
 			isValidVersionKey = true;
 
+		// Remove 'SYS_INTERNAL_LAST_UPDATED_ON' property
+		node.getMetadata().remove(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name());
+
 		// May be the Given 'versionKey' is a Passport Key.
 		// Check for the Valid Passport Key
 		if (BooleanUtils.isFalse(isValidVersionKey)
-				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED))
+				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED)) {
 			isValidVersionKey = PassportUtil.isValidPassportKey(versionKey);
+			if (BooleanUtils.isTrue(isValidVersionKey))
+				node.getMetadata().put(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name(),
+						DateUtils.formatCurrentDate());
+		}
 
 		return isValidVersionKey;
 	}
