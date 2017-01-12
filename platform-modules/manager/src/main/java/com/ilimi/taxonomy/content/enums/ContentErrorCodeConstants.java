@@ -44,7 +44,8 @@ public enum ContentErrorCodeConstants {
 	MISSING_CONTENT(28, "Missing one or more Content for Bundling."),
 	OPERATION_DENIED(29, "The Content Operation cannot be Performed."),
 	VALIDATOR_ERROR(30, "Invalid Content."),
-	MANIFEST_FILE_READ(6, "Error while reading Manifest file."),;
+	MANIFEST_FILE_READ(31, "Error while reading Manifest file."), 
+	INVALID_CONTENT(32, "Invalid Content (Node) Object.");
 
 	private final int code;
 	private final String description;
