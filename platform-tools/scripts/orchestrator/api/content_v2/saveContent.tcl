@@ -109,7 +109,7 @@ if {$object_null == 1} {
 					return $create_response
 				} else {
 					set content_id [get_resp_value $create_response "node_id"]
-					if {!$bodyEmpty} {
+					if {!$bodyEmpty || !$oldBodyEmpty} {
 						set bodyResponse [updateContentProperties $content_id $externalProps]
 						set check_error [check_response_error $bodyResponse]
 						if {$check_error} {

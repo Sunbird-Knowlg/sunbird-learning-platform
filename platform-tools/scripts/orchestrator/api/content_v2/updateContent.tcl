@@ -104,15 +104,15 @@ if {$object_null == 1} {
 				set body [$content get "body"]
 				set bodyEmpty [proc_isEmpty $body]
 				if {!$bodyEmpty} {
+					$externalProps put "body" $body
 					$content put "artifactUrl" [java::null]
 					$content put "body" [java::null]
-					$externalProps put "body" $body
 				}
 				set oldBody [$content get "oldBody"]
 				set oldBodyEmpty [proc_isEmpty $oldBody]
 				if {!$oldBodyEmpty} {
-					$content put "oldBody" [java::null]
 					$externalProps put "oldBody" $oldBody
+					$content put "oldBody" [java::null]
 				}
 
 				set graph_node [get_resp_value $get_node_response "node"]
@@ -161,7 +161,7 @@ if {$object_null == 1} {
 						$metadata put "prevState" $status_val_str
 						set log_response [log_content_lifecycle_event $content_id $metadata]
 					}
-					if {!$bodyEmpty} {
+					if {!$bodyEmpty || !$oldBodyEmpty} {
 						set bodyResponse [updateContentProperties $content_id $externalProps]
 						set check_error [check_response_error $bodyResponse]
 						if {$check_error} {

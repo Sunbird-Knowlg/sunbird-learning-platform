@@ -158,6 +158,30 @@
             "draft": false
         }, {
             "required": false,
+            "dataType": "Text",
+            "propertyName": "question_audio",
+            "title": "Question Audio",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
+            "dataType": "Text",
+            "propertyName": "question_image",
+            "title": "Question Image",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
             "dataType": "JSON",
             "propertyName": "media",
             "title": "Media",
