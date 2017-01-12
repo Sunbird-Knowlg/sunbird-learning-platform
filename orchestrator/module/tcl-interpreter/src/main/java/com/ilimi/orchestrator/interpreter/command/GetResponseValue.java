@@ -29,8 +29,13 @@ public class GetResponseValue implements ICommand, Command {
 				Response response = (Response) obj;
 				String param = argv[2].toString();
 				Object result = response.get(param);
-				TclObject tclResp = ReflectObject.newInstance(interp, result.getClass(), result);
-				interp.setResult(tclResp);
+				if (null != result) {
+					TclObject tclResp = ReflectObject.newInstance(interp, result.getClass(), result);
+					interp.setResult(tclResp);
+				} else {
+					TclObject tclResp = ReflectObject.newInstance(interp, Object.class, null);
+					interp.setResult(tclResp);
+				}
 			} catch (Exception e) {
 				LOGGER.error(e.getMessage(), e);
 				throw new TclException(interp, "Unable to read response: " + e.getMessage());
