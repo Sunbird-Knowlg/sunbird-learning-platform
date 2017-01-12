@@ -8,6 +8,7 @@ dbms_connector_https_address: "localhost:7473"
 backup: "true"
 backup_port: "7362"
 dbms_backup_enabled: true
+backup_add: "127.0.0.1:7362"
 dbms_backup_address: "0.0.0.0:7362"
 zip_file: learning-graph-extension-1.0.jar
 custom_procs_file: custom-procedures-1.0.jar

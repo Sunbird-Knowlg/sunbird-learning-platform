@@ -9,5 +9,6 @@ backup: "true"
 backup_port: "8362"
 dbms_backup_enabled: true
 dbms_backup_address: "0.0.0.0:8362"
+backup_add: "127.0.0.1:8362"
 zip_file: language-graph-extension-1.0.jar
 custom_procs_file: custom-procedures-1.0.jar
