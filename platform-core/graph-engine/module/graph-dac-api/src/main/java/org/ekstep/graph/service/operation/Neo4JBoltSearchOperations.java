@@ -2,6 +2,7 @@ package org.ekstep.graph.service.operation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -880,7 +881,7 @@ public class Neo4JBoltSearchOperations {
 			LOGGER.info("Search Params: " + params);
 			StatementResult result = session.run(query, params);
 			LOGGER.info("Initializing the Result Maps.");
-			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
+			Map<Long, Object> nodeMap = new LinkedHashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
