@@ -2,6 +2,7 @@ package org.ekstep.graph.service.operation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,7 +38,7 @@ import com.ilimi.graph.dac.model.Traverser;
 public class Neo4JBoltSearchOperations {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedSearchOperations.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(Neo4JBoltSearchOperations.class.getName());
 
 	/**
 	 * Gets the node by id.
@@ -862,7 +863,11 @@ public class Neo4JBoltSearchOperations {
 		LOGGER.info("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.info("Session Initialised. | [Graph Id: " + graphId + "]");
-
+			List<String> fields = searchCriteria.getFields();
+			boolean returnNode = true;
+			if (null != fields && !fields.isEmpty())
+				returnNode = false;
+			
 			LOGGER.info("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
@@ -871,24 +876,33 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			String query = QueryUtil.getQuery(Neo4JOperation.SEARCH_NODES, parameterMap);
+			LOGGER.info("Search Query: " + query);
 			Map<String, Object> params = searchCriteria.getParams();
+			LOGGER.info("Search Params: " + params);
 			StatementResult result = session.run(query, params);
 			LOGGER.info("Initializing the Result Maps.");
-			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
+			Map<Long, Object> nodeMap = new LinkedHashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
+				LOGGER.debug("'Search Nodes' result: " + result);
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get All Nodes' Operation Finished.", record);
-					if (null != record)
-						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+					LOGGER.debug("'Search Nodes' Operation Finished.", record);
+					if (null != record) {
+						if (returnNode)
+							getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+						else {
+							Node node = new Node(graphId, record.asMap());
+							nodes.add(node);
+						}
+					}
 				}
 			}
-			LOGGER.info("Node Map: ", nodeMap);
-			LOGGER.info("Relation Map: ", relationMap);
-			LOGGER.info("Start Node Map: ", startNodeMap);
-			LOGGER.info("End Node Map: ", endNodeMap);
+			LOGGER.info("Node Map: " + nodeMap);
+			LOGGER.info("Relation Map: " + relationMap);
+			LOGGER.info("Start Node Map: " + startNodeMap);
+			LOGGER.info("End Node Map: " + endNodeMap);
 
 			LOGGER.info("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
@@ -897,7 +911,7 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap));
 			}
 		}
-		LOGGER.info("Returning Search Nodes: ", nodes);
+		LOGGER.info("Returning Search Nodes: " + nodes);
 		return nodes;
 	}
 

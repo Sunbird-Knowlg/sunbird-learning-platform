@@ -100,12 +100,21 @@ if {$object_null == 1} {
 			if {$get_node_response_error} {
 				return $get_node_response;
 			} else {
+				set externalProps [java::new HashMap]
 				set body [$content get "body"]
 				set bodyEmpty [proc_isEmpty $body]
 				if {!$bodyEmpty} {
+					$externalProps put "body" $body
 					$content put "artifactUrl" [java::null]
 					$content put "body" [java::null]
 				}
+				set oldBody [$content get "oldBody"]
+				set oldBodyEmpty [proc_isEmpty $oldBody]
+				if {!$oldBodyEmpty} {
+					$externalProps put "oldBody" $oldBody
+					$content put "oldBody" [java::null]
+				}
+
 				set graph_node [get_resp_value $get_node_response "node"]
 				set metadata [java::prop $graph_node "metadata"]
 				set mimeType [$metadata get "mimeType"]
@@ -152,8 +161,8 @@ if {$object_null == 1} {
 						$metadata put "prevState" $status_val_str
 						set log_response [log_content_lifecycle_event $content_id $metadata]
 					}
-					if {!$bodyEmpty} {
-						set bodyResponse [updateContentBody $content_id $body]
+					if {!$bodyEmpty || !$oldBodyEmpty} {
+						set bodyResponse [updateContentProperties $content_id $externalProps]
 						set check_error [check_response_error $bodyResponse]
 						if {$check_error} {
 							return $bodyResponse
