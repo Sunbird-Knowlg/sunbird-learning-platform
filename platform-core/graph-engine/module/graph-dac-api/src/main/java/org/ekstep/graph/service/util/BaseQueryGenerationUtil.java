@@ -479,6 +479,18 @@ public class BaseQueryGenerationUtil {
 				// Adding Clause 'SET'
 				query.append(GraphDACParams.SET.name()).append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
+			// Adding Metadata
+			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
+						+ entry.getKey() + " }, ");
+
+				LOGGER.info("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+
+				// Populating Param Map
+				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
+				LOGGER.info("Populating ParamMap:", paramValuesMap);
+			}
+
 			if (null != node.getMetadata()
 					&& null == node.getMetadata().get(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name())) {
 				// Adding 'lastUpdatedOn' Property
@@ -495,18 +507,6 @@ public class BaseQueryGenerationUtil {
 					.append(" { MD_" + GraphDACParams.versionKey.name() + " } ")
 					.append(CypherQueryConfigurationConstants.COMMA);
 			paramValuesMap.put("MD_" + GraphDACParams.versionKey.name(), versionKey);
-
-			// Adding Metadata
-			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
-				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
-						+ entry.getKey() + " }, ");
-
-				LOGGER.info("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
-
-				// Populating Param Map
-				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
-				LOGGER.info("Populating ParamMap:", paramValuesMap);
-			}
 
 			queryMap.put(GraphDACParams.query.name(),
 					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
