@@ -129,6 +129,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String STRING_WRITER_AUTO_CLOSE_ERROR = "Error! While closing the StringWriter.";
 	
+	public static final String INVALID_CONTENT = "Error! Invalid Content.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

@@ -39,7 +39,7 @@ public class Neo4JEmbeddedNodeOperations {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedNodeOperations.class.getName());
-	
+
 	Neo4JEmbeddedDataVersionKeyValidator versionValidator = new Neo4JEmbeddedDataVersionKeyValidator();
 
 	/**
@@ -71,12 +71,13 @@ public class Neo4JEmbeddedNodeOperations {
 				LOGGER.info("Validating the Update Operation for Node Id: " + node.getIdentifier());
 				versionValidator.validateUpdateOperation(graphId, neo4jNode, node, request);
 				LOGGER.info("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
-				
+
 			} catch (ResourceNotFoundException e) {
 				LOGGER.info("Node Doesn't Exist, Creating a New Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode = graphDb.createNode(NODE_LABEL);
 				if (StringUtils.isBlank(node.getIdentifier()))
-					node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
+					node.setIdentifier(
+							Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
 				LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
@@ -86,7 +87,9 @@ public class Neo4JEmbeddedNodeOperations {
 			}
 			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
-			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
+			if (null != node.getMetadata()
+					&& null == node.getMetadata().get(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name()))
+				neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			if (!StringUtils.isBlank(date)) {
 				neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 
@@ -123,7 +126,8 @@ public class Neo4JEmbeddedNodeOperations {
 
 			Node neo4jNode = graphDb.createNode(NODE_LABEL);
 			if (StringUtils.isBlank(node.getIdentifier()))
-				node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
+				node.setIdentifier(
+						Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
 
 			LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 			neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
@@ -179,7 +183,9 @@ public class Neo4JEmbeddedNodeOperations {
 
 			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
-			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
+			if (null != node.getMetadata()
+					&& null == node.getMetadata().get(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name()))
+				neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			if (!StringUtils.isBlank(date)) {
 				neo4jNode.setProperty(GraphDACParams.versionKey.name(), Long.toString(DateUtils.parse(date).getTime()));
 
@@ -216,7 +222,7 @@ public class Neo4JEmbeddedNodeOperations {
 				try {
 					neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
 					LOGGER.info("Fetched Neo4J Node: " + neo4jNode.getId());
-					
+
 					LOGGER.info("Validating the Update Operation for Node Id: " + node.getIdentifier());
 					versionValidator.validateUpdateOperation(graphId, neo4jNode, node, request);
 					LOGGER.info("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
@@ -226,7 +232,8 @@ public class Neo4JEmbeddedNodeOperations {
 					neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
 				}
 				if (StringUtils.isBlank(node.getIdentifier()))
-					node.setIdentifier(Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
+					node.setIdentifier(
+							Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromNeo4jId(neo4jNode.getId())));
 				LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
