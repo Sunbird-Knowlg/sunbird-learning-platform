@@ -1,6 +1,6 @@
 - name: Complete backup
   become: yes
-  file: path=/mnt/backup/neo4j-backup state=absent
+  file: path=/home/learning/neo4j-backup state=absent
   tags:
        - fullbackup
 
@@ -8,7 +8,7 @@
   become: yes
   file: path={{item}} state=directory owner=learning group=learning recurse=yes
   with_items:
-             - /mnt/backup/neo4j-backup
+             - /home/learning/neo4j-backup
   tags:
        - fullbackup
        - incrementalbackup

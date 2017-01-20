@@ -1,9 +1,9 @@
 #!/bin/sh
 cd {{neo4j_home}}
-`bin/neo4j-backup --from={{backup_add}} --to=/mnt/backup/neo4j-backup`
+`bin/neo4j-backup --from={{backup_add}} --to=/home/learning/neo4j-backup`
 time=$(date '+%d-%b-%Y')
 var="neo4jbackup"
 var2=$var$time
-mkdir /mnt/backup/$var2
-cp -r /mnt/backup/neo4j-backup/* /mnt/backup/$var2/
-zip -r /mnt/backup/$var2.zip /mnt/backup/$var2
+mkdir /home/learning/$var2
+cp -r /home/learning/neo4j-backup/* /home/learning/$var2/
+zip -r /home/learning/$var2.zip /home/learning/$var2
