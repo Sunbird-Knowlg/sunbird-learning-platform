@@ -61,12 +61,12 @@ total-1
 
 
 [dev:children]
-hostlearning
-hostlanguage
-hostsearch
-hostconfig
-hostredis
-hostmongodb
-hosttotal
+learninghost
+languagehost
+searchhost
+confighost
+redishost
+mongodbhost
+totalhost
 cassandra
                      
