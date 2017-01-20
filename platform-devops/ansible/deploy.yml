@@ -1,3 +1,4 @@
 - hosts: "{{remote}}"
   roles:
         - deployartifact
+  serial: 1
