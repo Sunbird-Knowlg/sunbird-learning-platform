@@ -2652,8 +2652,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
 		boolean proxy = proxyNodeExists(graphId,primaryMeaningId);
 		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
+		node.setGraphId(graphId);
+		node.setMetadata(new HashMap<>());
 		proxyReq.put(GraphDACParams.node.name(), node);
-		proxyReq = createTranslationCollection(proxyReq, indowordId, primaryMeaningId);
+		proxyReq = createTranslationCollection(proxyReq, graphId, indowordId, primaryMeaningId);
 		String id = "";
 		if(englishTranslationId!=0)
 		{
@@ -2698,9 +2700,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param synsetId
 	 * @return
 	 */
-	private Request createTranslationCollection(Request proxyReq, int indowordId, String synsetId)
+	private Request createTranslationCollection(Request proxyReq, String graphId, int indowordId, String synsetId)
 	{
 		Node translationSet = new Node();
+		translationSet.setGraphId(graphId);
 		String id = ""+indowordId;
 		translationSet.setObjectType(LanguageObjectTypes.TranslationSet.name());
 		Map<String,Object> metadata = new HashMap<String,Object>();
