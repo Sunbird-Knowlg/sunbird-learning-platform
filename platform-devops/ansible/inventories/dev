@@ -1,7 +1,7 @@
 [learning-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
-[hostlearning:children]
+[learninghost:children]
 learning-1
 
 [learning-1:vars]
@@ -10,7 +10,7 @@ mw_shard_id=1
 [language-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
-[hostlanguage:children]
+[languagehost:children]
 language-1
 
 
@@ -21,7 +21,7 @@ mw_shard_id=1
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
 
-[hostsearch:children]
+[searchhost:children]
 search-1
 
 	
@@ -31,56 +31,32 @@ search-1
 config-1
 
 
-[hostconfig:children]
+[confighost:children]
 config-1
 
 
 [mongodb-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
-[hostmongodb:children]
+[mongodbhost:children]
 mongodb-1
 
 
 [redis-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning ansible_sudo_pass=l3arn1ng
 
-[hostredis:children]
+[redishost:children]
 redis-1
 
 
 [total-1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hosttotal:children]
+[totalhost:children]
 total-1
 
 [cassandra]
 172.31.25.29 ansible_connection=ssh ansible_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
-
-[learning-node1]
-172.31.30.52 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
-
-
-[learning-node1:vars]
-server_id=1 
-dbms_mode=HA 
-initial_hosts="172.31.30.52:7001"
-
-
-[learningcluster:children]
-learning-node1
-
-[language-node1]
-172.31.30.52 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
-
-[language-node1:vars]
-server_id=1 
-dbms_mode=HA 
-initial_hosts="172.31.30.52:8001"
-
-[languagecluster:children]
-language-node1
 
 
 
@@ -93,6 +69,4 @@ hostredis
 hostmongodb
 hosttotal
 cassandra
-learningcluster
-languagecluster
                      
