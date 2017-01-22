@@ -25,42 +25,7 @@ proc isNotEmpty {relations} {
 	return $exist
 }
 
-proc getNodeRelationIds {graph_node relationType property languages} {
-
-	set relationIds [java::new ArrayList]
-	set outRelations [getOutRelations $graph_node]
-	set hasRelations [isNotEmpty $outRelations]
-	if {$hasRelations} {
-		
-		java::for {Relation relation} $outRelations {
-			set index 0
-			if {[java::prop $relation "endNodeObjectType"] == $relationType} {
-				set prop_value [java::prop $relation $property]
-				set idArray [split $prop_value ":"]
-				foreach entry $idArray {
-				 set languageContains [$languages contains $entry]
-					if {$languageContains == 1} {
-					$relationIds add $prop_value
-				 }
-				 set index [expr $index + 1]
-				}
-				if {$index == 1} {
-					set idArray [split $prop_value "_"]
-					foreach entry $idArray {
-					 set languageContains [$languages contains $entry]
-						if {$languageContains == 1} {
-						$relationIds add $prop_value
-				 }
-				 }
-				}
-					
-			}
-		}
-	}
-	return $relationIds
-}
-
-proc filterSynset{synset_ids languages} {
+proc filterSynset {synset_ids languages} {
 
 	set filteredSynsets [java::new ArrayList]
 
@@ -111,11 +76,11 @@ $filters put "lemma" $lemma
 $filters put "status" [java::new ArrayList]
 set limit [java::new Integer 1]
 
-set null_var [java::null]
-set empty_list [java::new ArrayList]
-set empty_map [java::new HashMap]
+set indexSearchCriteria [java::new HashMap]
+$indexSearchCriteria put "filters" $filters
+$indexSearchCriteria put "limit" $limit
 
-set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $limit]
+set searchResponse [compositeSearch $indexSearchCriteria]
 set searchResultsMap [$searchResponse getResult]
 set wordsList [java::cast List [$searchResultsMap get "results"]]
 set wordsListNull [java::isnull $wordsList]
@@ -130,7 +95,6 @@ if {$wordsListNull == 1 || [$wordsList size] == 0} {
 
 set wordObject [java::cast Map [$wordsList get 0]]
 set word_id [$wordObject get "identifier"]
-
 set object_type "TranslationSet"
 set graph_id "translations"
 set node_id $word_id
@@ -146,15 +110,16 @@ set synonym_list [getInNodeRelationIds $word_node "Synset" "synonym" "startNodeI
 set synset_list [java::new ArrayList]
 $synset_list addAll $synonym_list
 
-
 set filters [java::new HashMap]
 $filters put "objectType" $object_type
 $filters put "graph_id" $graph_id
 $filters put "synsets" $synset_list
 $filters put "status" [java::new ArrayList]
-set limit [java::new Integer 1000]
 
-set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $limit]
+set indexSearchCriteria [java::new HashMap]
+$indexSearchCriteria put "filters" $filters
+
+set searchResponse [compositeSearch $indexSearchCriteria]
 set searchResultsMap [$searchResponse getResult]
 set translations [java::cast List [$searchResultsMap get "results"]]
 set translationsNull [java::isnull $translations]
@@ -165,16 +130,16 @@ if {$translationsNull == 1 || [$translations size] == 0} {
 	return $response_list
 }
 
-set wordObject [java::cast Map [$translations get 0]]
-java::try {
+set result_map [java::new HashMap]
+set result_list [java::new HashMap]
 
+java::try {
 	java::for {Object translation} $translations {
 		set translation [java::cast Map $translation]
 		set synsets [$translation get "synsets"]
 		set current_language [java::new ArrayList]
 		$current_language add $language_id
 		set synset_id_list [java::new ArrayList]
-		#set current_synset_id [getNodeRelationIds $graph_node "Synset" "endNodeId" $current_language]
 		set current_synset_id [filterSynset $synsets $current_language]
 		set synsetObjectResponse [multiLanguageWordSearch $current_synset_id]
 		set synsetMap [java::cast Map [$synsetObjectResponse get "translations"]]
@@ -183,7 +148,6 @@ java::try {
 		set synsetObjectMap [java::cast Map [$synsetMap get $synsetId]]
 		$synsetObjectMap remove $language_id
 
-		#set synset_ids [getNodeRelationIds $graph_node "Synset" "endNodeId" $languages]
 		set synset_ids [filterSynset $synsets $languages]
 		set not_empty_list [isNotEmpty $synset_ids]
 		if {$not_empty_list} {
@@ -201,7 +165,6 @@ java::try {
 
 	}
 	$result_map put "translations" $result_list
-
 } catch {Exception err} {
 	$result_map put "error" [$err getMessage]
 }
