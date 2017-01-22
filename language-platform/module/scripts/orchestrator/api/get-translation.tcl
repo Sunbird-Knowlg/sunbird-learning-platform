@@ -125,7 +125,6 @@ set translations [java::cast List [$searchResultsMap get "results"]]
 set translationsNull [java::isnull $translations]
 if {$translationsNull == 1 || [$translations size] == 0} {
 	set result_map [java::new HashMap]
-	$result_map put "status" "OK"
 	set response_list [create_response $result_map]
 	return $response_list
 }
