@@ -629,6 +629,8 @@
             "Tamil",
             "Telugu",
             "Urdu",
+            "Sanskrit",
+            "Maithili",
             "Other"
           ],
           "displayProperty": "Editable",

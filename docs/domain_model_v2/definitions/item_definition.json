@@ -30,7 +30,7 @@
             "category": "General",
             "dataType": "Multi-Select",
             "required": false,
-            "range": ["English", "Hindi", "Assamese", "Bengali", "Gujarati", "Kannada", "Malayalam", "Marathi", "Nepali", "Odia", "Punjabi", "Tamil", "Telugu", "Urdu", "Other"],
+            "range": ["English", "Hindi", "Assamese", "Bengali", "Gujarati", "Kannada", "Malayalam", "Marathi", "Nepali", "Odia", "Punjabi", "Tamil", "Telugu", "Urdu", "Sanskrit", "Maithili", "Other"],
             "displayProperty": "Editable",
             "defaultValue": "English",
             "renderingHints": "{'inputType': 'text', 'order': 5}",

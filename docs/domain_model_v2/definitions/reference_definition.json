@@ -207,6 +207,8 @@
 	            "Tamil",
 	            "Telugu",
 	            "Urdu",
+              "Sanskrit",
+              "Maithili",
 	            "Other"
             ],
             "required": true,
