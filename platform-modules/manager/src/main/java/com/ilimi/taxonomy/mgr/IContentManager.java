@@ -129,5 +129,10 @@ public interface IContentManager {
 	 *         <code>node_id</code> in its Result Set
 	 */
 	Response bundle(Request request, String taxonomyId, String version);
+	
+	/**
+	 * 
+	 */
+	Response review(String taxonomyId, String contentId, Request request);
 
 }

@@ -446,6 +446,38 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 	
+	@Override
+	public Response review(String taxonomyId, String contentId, Request request) {
+		LOGGER.debug("Graph Id: ", taxonomyId);
+		LOGGER.debug("Content Id: ", contentId);
+		LOGGER.debug("Request: ", request);
+		
+		LOGGER.info("Validating The Input Parameter.");
+		if (StringUtils.isBlank(taxonomyId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
+		
+		Response response = new Response();
+		Response getNodeRes = getResponse(request, LOGGER);
+		response = copyResponse(getNodeRes);
+		if (checkError(response)) {
+			return response;
+		}
+		
+		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+		LOGGER.debug("Node: ", node);
+		
+		// Update the Node status to 'Review'
+		node.getMetadata().put(ContentAPIParams.status.name(), ContentAPIParams.Review.name());
+		
+		// Updating the Node
+		response = updateNode(node);
+		
+		LOGGER.debug("Returning 'Response' Object: ", response);
+		return response;
+	}
+	
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
