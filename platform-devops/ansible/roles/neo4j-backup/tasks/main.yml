@@ -13,9 +13,8 @@
        - fullbackup
        - incrementalbackup
 
-- name: copy template of shell script to stop service
+- name: copy template of scripthell script to stop service
   become: yes
-  become_user: learning
   template: src=backup_script.j2 dest=/home/learning/backup_script.sh  mode=777 owner=learning group=learning
   tags:
        - fullbackup
@@ -29,9 +28,8 @@
        - fullbackup
        - incrementalbackup
 
-- name: ddd
+- name: COPY the copy_s3.sh 
   become: yes
-  become_user: learning
   template: src=copy_s3.j2 dest=/home/learning/copy_s3.sh  mode=777 owner=learning group=learning
   tags:
        - fullbackup
