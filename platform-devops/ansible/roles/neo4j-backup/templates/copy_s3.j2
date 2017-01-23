@@ -1,5 +1,8 @@
 #!/bin/sh
-time=$(date '+%d-%b-%Y')
-var="neo4jbackup"
-var2=$var$time
+time=$(date '+%e%b%Y')
+var="{{service}}"
+var1="_"
+var3="{{instance}}"
+var2=$var$var1$var3$var1$time
 aws s3 cp /home/learning/$var2.zip s3://test-neo-backup/
+rm -rf /home/learning/$var2.zip

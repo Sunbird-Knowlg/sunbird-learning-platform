@@ -1,3 +1,4 @@
+instance: dev
 user: learning
 user_home: /home/{{user}}
 service_url: 172.31.24.39:8080
