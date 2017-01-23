@@ -22,8 +22,9 @@ public class LogTelemetryEventUtil {
 		te.setEts(unixTime);
 		te.setVer("2.0");
 		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
-		te.setEdata(contentId, metadata.get("status"), metadata.get("prevState"), metadata.get("size"),
-				metadata.get("pkgVersion"), metadata.get("concepts"), metadata.get("flags"));
+		te.setEdata(contentId, metadata.get("status"), metadata.get("prevState"),
+				metadata.get("size"),metadata.get("pkgVersion"),
+				metadata.get("concepts"), metadata.get("flags"), metadata.get("downloadUrl"));
 		String jsonMessage = null;
 		try {
 			jsonMessage = mapper.writeValueAsString(te);

@@ -46,7 +46,7 @@ public class TelemetryBEEvent {
 		this.pdata.put("pid", pid);
 		this.pdata.put("ver", ver);
 	}
-	public void setEdata(String cid, Object status, Object prevState, Object size, Object pkgVersion, Object concepts, Object flags) {
+	public void setEdata(String cid, Object status, Object prevState, Object size, Object pkgVersion, Object concepts, Object flags, Object downloadUrl) {
 		this.edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
 		eks.put("cid", cid);
@@ -56,7 +56,7 @@ public class TelemetryBEEvent {
 		eks.put("pkgVersion", pkgVersion);
 		eks.put("concepts", concepts);
 		eks.put("flags", concepts);
-		
+		eks.put("downloadUrl", downloadUrl);
 		edata.put("eks", eks);
 	}
 	public void setEdata(String query, Object filters, Object sort, String correlationId, int size) {
