@@ -15,6 +15,7 @@
 
 - name: copy template of shell script to stop service
   become: yes
+  become_user: learning
   template: src=backup_script.j2 dest=/home/learning/backup_script.sh  mode=777 owner=learning group=learning
   tags:
        - fullbackup
@@ -22,6 +23,7 @@
 
 - name: run script
   become: yes
+  become_user: learning
   command: "/home/learning/backup_script.sh"
   tags:
        - fullbackup
