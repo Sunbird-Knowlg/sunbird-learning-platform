@@ -25,7 +25,7 @@ public interface ICompositeSearchManager {
 	 *            the total
 	 * @return the response
 	 */
-	Response sync(String graphId, String objectType, Integer start, Integer total);
+	Response sync(String graphId, String objectType, Integer start, Integer total, boolean delete) throws Exception;
 
 	/**
 	 * Synchronizes objects fetched using the given identifiers list, from the
