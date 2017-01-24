@@ -1,6 +1,8 @@
 package org.ekstep.searchindex.processor;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,19 +17,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.util.BaseLearningManager;
-import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.OptimizerUtil;
 import org.ekstep.visionApi.VisionApi;
 
 import com.ilimi.graph.dac.model.Node;
 
-import apoc.date.Date;
-
 public class ImageMessageProcessor implements IMessageProcessor {
 
 	/** The logger. */
-	@SuppressWarnings("unused")
 	private static Logger LOGGER = LogManager.getLogger(ImageMessageProcessor.class.getName());
 	
 	String pattern = "yyyy-MM-dd";
@@ -36,18 +33,26 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
-	@SuppressWarnings("unused")
-	private ConsumerUtil consumerUtil = new ConsumerUtil();
+	/** The ObjectMapper */
 	private ObjectMapper mapper = new ObjectMapper();
-	@SuppressWarnings("unused")
-	private BaseLearningManager mgr = new BaseLearningManager() {};
 	
+	/** The Image Optimiser Util. */
 	private OptimizerUtil util = new OptimizerUtil();
 	
+	/** The keywords List */
+	private List<String> keywords = new ArrayList<String>();
+	
+	/** The constructor */
 	public ImageMessageProcessor() {
 		super();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Override
 	public void processMessage(String messageData) {
 		try {
@@ -62,59 +67,110 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void processMessage(Map<String, Object> message) throws Exception {
+	public void processMessage(Map<String, Object> message) {
+		
+		LOGGER.info("Reading from kafka consumer" + message);
 		Map<String,Object> edata = (Map) message.get("edata");
 		Map<String,Object> eks = (Map) edata.get("eks");
-		Map<String, String> variantsMap = util.optimiseImage(eks.get("cid").toString());
-		if(variantsMap.get("medium").isEmpty()){
-			variantsMap.put("medium", eks.get("downloadUrl").toString());
+		
+		LOGGER.info("Calling image optimiser to get optimized image resolutions");
+		Map<String, String> variantsMap;
+		try {
+			variantsMap = util.optimiseImage(eks.get("cid").toString());
+			LOGGER.debug("optimized images returned from optimizer util" + variantsMap);
+		
+		if(!variantsMap.isEmpty()){
+			LOGGER.debug("Checking if variantsMap is empty");
+			
+			if(variantsMap.get("medium").isEmpty()){
+				
+				LOGGER.debug("Checking if variantsMap contains medium resolution image", variantsMap);
+				variantsMap.put("medium", eks.get("downloadUrl").toString());
+				LOGGER.debug("adding image from node metadat if medium resolution image is empty", variantsMap);
+			}
 		}
-		String medium = variantsMap.get("medium");
-		File file = HttpDownloadUtility.downloadFile(medium, tempFileLocation);
-		VisionApi vision = new VisionApi(VisionApi.getVisionService());
+			String image_url = variantsMap.get("medium");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private void processImage(String image_url, Map<String,Object> variantsMap, Map<String,Object> eks){
+		LOGGER.info("Downloading the medium resolution image",image_url);
+		File file = HttpDownloadUtility.downloadFile(image_url, tempFileLocation);
 		
-		Map<String,Object> labels = vision.getTags(file, vision);
-		System.out.println("labels" + labels);
+		Map<String,Object> labels = new HashMap<String, Object>();
 		
-		Map<String, List<String>> flags = vision.getFlags(file, vision);
-		System.out.println("flags" + flags);
+		Map<String, List<String>> flags = new HashMap<String, List<String>>();
 		
-		Node node = util.controllerUtil.getNode("domain", eks.get("cid").toString());
-		List<String> keywords = new ArrayList<String>();
+		LOGGER.info("Initilizing the Vision API");
+		VisionApi vision;
+		try {
+			vision = new VisionApi(VisionApi.getVisionService());
+		
+			labels = vision.getTags(file, vision);
+			LOGGER.info("Getting labels from Vision API", labels);
+			
+			flags = vision.getFlags(file, vision);
+			LOGGER.info("Getting flags from Vision API", flags);
+			
+		} catch (IOException | GeneralSecurityException e) {
+			e.printStackTrace();
+		}
+			Node node = util.controllerUtil.getNode("domain", eks.get("cid").toString());
+			LOGGER.info("Getting Node from graphDB based on assetId", node);
+		
 		for (Entry<String, Object> entry : labels.entrySet()) {
 			keywords.add(entry.getValue().toString());
 		}
-		node.getMetadata().put("keywords", keywords);
+		for(String data : keywords){
+			LOGGER.debug("Adding keywords to to node", data);
+			node.getMetadata().put("keywords", data);
+		}
+		
+		LOGGER.info("Adding image variants to node", variantsMap);
 		node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+		
+		LOGGER.info("Setting node status to Live");
 		node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 		
+		LOGGER.info("Checking for Flags returned from Vision API", flags.entrySet());
 		for(Entry<String, List<String>> entry : flags.entrySet()){
+			LOGGER.info("Checking for different flagReasons");
 			if(StringUtils.equalsIgnoreCase(entry.getKey(), "Likely")){
 				node.getMetadata().put("flaggedBy", "Ekstep");
 				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
 				node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
-				node.getMetadata().put("flagList", entry.getValue());
+				node.getMetadata().put("flags", entry.getValue());
 			}
 			else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")){
 				node.getMetadata().put("flaggedBy", "Ekstep");
 				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
 				node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
-				node.getMetadata().put("flagList", entry.getValue());
+				node.getMetadata().put("flags", entry.getValue());
 			}
 			else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Possible")){
 				node.getMetadata().put("flaggedBy", "Ekstep");
 				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
 				node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());	
-				node.getMetadata().put("flagList", entry.getValue());
+				node.getMetadata().put("flags", entry.getValue());
 			}
 		}
 		util.controllerUtil.updateNode(node);
+		LOGGER.info("Updating the node after setting all required metadata", node);
 
 	}
 }
