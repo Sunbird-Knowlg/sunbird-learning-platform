@@ -1,3 +1,4 @@
+
 - name: Check if neo4j is running
   become: yes
   become_user: learning
@@ -31,14 +32,28 @@
        - learning
        - language
 
-- name: copy all the graph files 
+- name: Download the  backup zip file 
   become: yes
   become_user: learning
-  shell: cp -r /home/learning/{{graph_machine}}/* /home/learning/{{ neo4j_dir }}/neo4j-enterprise-3.0.4/data/databases/graph.db/
+  command: aws s3 cp {{neo4j_backup_url}}/{{graph_machine}}_{{instance}}_{{date}}.tar.gz home/learning/
   tags: 
        - learning
        - language
 
 
+- name: Unarchieve 
+  become: yes
+  become_user: learning
+  unarchive: src=home/learning/{{graph_machine}}_{{instance}}_{{date}}.tar.gz dest=home/learning/ copy=no group={{user}} owner={{user}} creates={{graph_machine}}_{{instance}}_{{date}}
+  tags: 
+       - learning
+       - language
 
- 
+
+- name: copy all the graph files 
+  become: yes
+  become_user: learning
+  shell: cp -r /home/learning/{{graph_machine}}_{{instance}}_{{date}}/* /home/learning/{{ neo4j_dir }}/neo4j-enterprise-3.0.4/data/databases/graph.db/
+  tags: 
+       - learning
+       - language
