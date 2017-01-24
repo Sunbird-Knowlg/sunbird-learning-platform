@@ -22,7 +22,7 @@
 - name: Download the  backup zip file 
   become: yes
   become_user: learning
-  command: aws s3 cp {{neo4j_backup_path}}{{graph_machine}}_{{instance}}_{{date}}.tar.gz /home/learning/
+  command: aws s3 cp {{neo4j_backup_url}}{{graph_machine}}_{{instance}}_{{date}}.tar.gz /home/learning/
   
 - name: remove 
   become: yes
