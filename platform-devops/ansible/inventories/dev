@@ -1,7 +1,7 @@
 [learning1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
-[learninghost:children]
+[learningall:children]
 learning1
 
 [learning1:vars]
@@ -27,7 +27,7 @@ search1
 	
 [config1]
 172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
-[hostconfig:children]
+[configall:children]
 config1
 
 

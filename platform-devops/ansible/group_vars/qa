@@ -1,4 +1,4 @@
-neo4j_backup_url: "s3://ekstep-backups-qa/neo4j"
+neo4j_backup_url: "s3://ekstep-backups-to-mumbai/qa/neo4j"
 instance: qa
 user: learning
 neo4j_home: /home/{{user}}/neo4j-community-3.0.4
