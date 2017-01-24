@@ -55,11 +55,13 @@ public class LanguageDataSyncController extends BaseController {
 	public ResponseEntity<Response> sync(@PathVariable(value = "id") String graphId,
 			@RequestParam(name = "objectType", required = false) String objectType,
 			@RequestParam(name = "start", required = false) Integer start,
-			@RequestParam(name = "total", required = false) Integer total, @RequestBody Map<String, Object> map) {
+			@RequestParam(name = "total", required = false) Integer total, 
+			@RequestParam(name = "delete", required = false, defaultValue = "false") boolean delete,
+			@RequestBody Map<String, Object> map) {
 		String apiId = "composite-search.sync";
 		LOGGER.info(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
 		try {
-			Response response = compositeSearchManager.sync(graphId, objectType, start, total);
+			Response response = compositeSearchManager.sync(graphId, objectType, start, total, delete);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.error("Error: " + apiId, e);
