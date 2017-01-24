@@ -1,0 +1,28 @@
+{
+    "name": "getTransliteration",
+    "parameters": [
+        {
+			"name":"lemma",
+			"index": 0,
+			"routingParam": false
+		},
+        {
+            "name": "languages",
+            "index": 1,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/language/transliteration/*",
+        "pathParams": [
+		  "lemma"
+        ],
+        "requestParams": [
+          "languages"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.transliteration.get"
+}

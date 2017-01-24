@@ -53,3 +53,6 @@ node registerScript.js api/getRhymingWords.tcl api/json/register-getRhymingWords
 node registerScript.js api/flag-word.tcl api/json/register-flag-word.json register
 
 node registerScript.js api/composite-search.tcl api/json/register-composite-search.json update
+
+node registerScript.js api/get-transliterate.tcl api/json/register-get-transliterate.json update
+
