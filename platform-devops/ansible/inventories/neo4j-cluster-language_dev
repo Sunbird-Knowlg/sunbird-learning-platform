@@ -5,6 +5,9 @@
 language-node1
 
 
+[languageimport:children]
+language-node1
+
 [language-node1:vars]
 server_id=1 
 dbms_mode=HA 

@@ -5,6 +5,9 @@
 learning-node1
 
 
+[learningimport:children]
+learning-node1
+
 [learning-node1:vars]
 server_id=1 
 dbms_mode=HA 
