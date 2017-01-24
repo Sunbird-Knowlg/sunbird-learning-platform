@@ -126,15 +126,4 @@ public class VisionApi {
 		}
 		return result;
 	}
-
-	public static List<Path> listFilesForFolder(final File folder) {
-		List<Path> paths = new ArrayList<Path>();
-		for (final File fileEntry : folder.listFiles()) {
-			if (fileEntry.isDirectory()) {
-				listFilesForFolder(fileEntry);
-			}
-			paths.add(fileEntry.toPath());
-		}
-		return paths;
-	}
 }
