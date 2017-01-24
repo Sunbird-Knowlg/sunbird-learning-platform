@@ -1,4 +1,4 @@
-neo4j_backup_url: s3://test-neo-backup/
+neo4j_backup_url: "s3://ekstep-backups-prod/neo4j"
 instance: prod
 user: learning
 neo4j_home: /home/{{user}}/neo4j-community-3.0.4
