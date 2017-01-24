@@ -1711,6 +1711,18 @@
           "indexed": true
         },
         {
+          "propertyName": "flags",
+          "title": "flags list",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true
+        },
+        {
           "propertyName": "lastFlaggedOn",
           "title": "Last Flagged On",
           "description": "",
@@ -1921,7 +1933,7 @@
         "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
         "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants","flagReasons",
-        "flaggedBy","lastFlaggedOn"]
+        "flaggedBy","lastFlaggedOn","flags"]
       }
     }
   ]
