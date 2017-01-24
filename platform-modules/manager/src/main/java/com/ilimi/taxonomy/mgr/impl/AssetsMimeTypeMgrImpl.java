@@ -94,5 +94,11 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 		return updateContentNode(node, null);
 	}
+	
+	@Override
+	public Response review(Node node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

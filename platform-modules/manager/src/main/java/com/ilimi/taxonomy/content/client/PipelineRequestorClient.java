@@ -28,12 +28,14 @@ public class PipelineRequestorClient {
 		
 		switch (operation) {
 		case "compress":
+		case "COMPRESS":
 			LOGGER.info("Registering the Processors for 'COMPRESS' Operation.");
 			contentPipeline.registerProcessor(localizeAssetProcessor);
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			break;
 			
 		case "extract":
+		case "EXTRACT":
 			LOGGER.info("Registering the Processors for 'EXTRACT' Operation.");
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			contentPipeline.registerProcessor(assetsValidatorProcessor);
@@ -43,6 +45,7 @@ public class PipelineRequestorClient {
 			break;
 			
 		case "validate":
+		case "VALIDATE":
 			LOGGER.info("Registering the Processors for 'VALIDATE' Operation.");
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			contentPipeline.registerProcessor(assetsValidatorProcessor);
@@ -50,6 +53,7 @@ public class PipelineRequestorClient {
 			break;
 
 		default:
+			LOGGER.warn("Invalid Pipeline Operation.");
 			break;
 		}
 		
@@ -68,6 +72,7 @@ public class PipelineRequestorClient {
 		
 		switch (operation) {
 		case "compress":
+		case "COMPRESS":
 			LOGGER.info("Initialising the Processor's Chain for 'COMPRESS' Operation.");
 			localizeAssetProcessor.setNextProcessor(embedControllerProcessor);
 			embedControllerProcessor.setNextProcessor(missingAssetValidatorProcessor);
@@ -75,6 +80,7 @@ public class PipelineRequestorClient {
 			break;
 			
 		case "extract":
+		case "EXTRACT":
 			LOGGER.info("Initialising the Processor's Chain for 'EXTRACT' Operation.");
 			missingAssetValidatorProcessor.setNextProcessor(assetsValidatorProcessor);
 			assetsValidatorProcessor.setNextProcessor(missingCtrlValidatorProcessor);
@@ -84,6 +90,7 @@ public class PipelineRequestorClient {
 			break;
 			
 		case "validate":
+		case "VALIDATE":
 			LOGGER.info("Initialising the Processor's Chain for 'VALIDATE' Operation.");
 			missingAssetValidatorProcessor.setNextProcessor(assetsValidatorProcessor);
 			assetsValidatorProcessor.setNextProcessor(missingCtrlValidatorProcessor);

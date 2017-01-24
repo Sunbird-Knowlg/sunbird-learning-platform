@@ -138,4 +138,25 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return pipeline.init(ContentAPIParams.upload.name(), parameterMap);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#review(com.ilimi.graph.dac.model.
+	 * Node, java.io.File, java.lang.String)
+	 */
+	@Override
+	public Response review(Node node) {
+		LOGGER.debug("Node: ", node);
+
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		Map<String, Object> parameterMap = new HashMap<String, Object>();
+		parameterMap.put(ContentAPIParams.node.name(), node);
+		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
+
+		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + node.getIdentifier());
+		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
+	}
+
 }

@@ -70,5 +70,11 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 		LOGGER.info("Calling the 'Publish' Initializer for Node ID: " + node.getIdentifier());
 		return pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 	}
+	
+	@Override
+	public Response review(Node node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

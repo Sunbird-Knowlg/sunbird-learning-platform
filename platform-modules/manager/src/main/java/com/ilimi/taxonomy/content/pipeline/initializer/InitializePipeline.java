@@ -88,6 +88,13 @@ public class InitializePipeline extends BasePipeline {
 				response = bundleInitializer.initialize(parameterMap);
 			}
 				break;
+				
+			case "review":
+			case "REVIEW": {
+				BundleInitializer bundleInitializer = new BundleInitializer(basePath, contentId);
+				response = bundleInitializer.initialize(parameterMap);
+			}
+				break;
 
 			default:
 				LOGGER.info("Invalid Content Operation: " + operation);

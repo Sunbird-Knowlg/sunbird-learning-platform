@@ -91,6 +91,13 @@ public class FinalizePipeline extends BasePipeline {
 					}
 					break;
 					
+				case "review":
+				case "REVIEW": {
+						BundleFinalizer bundleFinalizer = new BundleFinalizer(basePath, contentId);
+						response = bundleFinalizer.finalize(parameterMap);
+					}
+					break;	
+					
 				default:
 					LOGGER.info("Invalid Operation: " + operation);
 					break;
