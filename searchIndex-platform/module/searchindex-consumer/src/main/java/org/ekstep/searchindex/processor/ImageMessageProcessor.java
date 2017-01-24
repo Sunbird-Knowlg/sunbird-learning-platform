@@ -18,7 +18,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.searchindex.util.OptimizerUtil;
-import org.ekstep.visionApi.VisionApi;
+import org.ekstep.visionApi.*;
 
 import com.ilimi.graph.dac.model.Node;
 
@@ -56,6 +56,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(String messageData) {
 		try {
+			LOGGER.info("Reading from kafka consumer" + messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 			if(StringUtils.isNotBlank(messageData)){
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
@@ -99,13 +100,13 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			}
 		}
 			String image_url = variantsMap.get("medium");
+			processImage(image_url, variantsMap, eks);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	@SuppressWarnings("unused")
-	private void processImage(String image_url, Map<String,Object> variantsMap, Map<String,Object> eks){
+	private void processImage(String image_url, Map<String,String> variantsMap, Map<String,Object> eks){
 		LOGGER.info("Downloading the medium resolution image",image_url);
 		File file = HttpDownloadUtility.downloadFile(image_url, tempFileLocation);
 		
