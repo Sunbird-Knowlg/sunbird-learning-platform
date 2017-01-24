@@ -27,18 +27,3 @@
   tags:
        - fullbackup
        - incrementalbackup
-
-- name: COPY the copy_s3.sh 
-  become: yes
-  template: src=copy_s3.j2 dest=/home/learning/copy_s3.sh  mode=777 owner=learning group=learning
-  tags:
-       - fullbackup
-       - incrementalbackup
-
-- name: run script
-  become: yes
-  become_user: learning
-  command: chdir="/home/learning" sh copy_s3.sh
-  tags:
-       - fullbackup
-       - incrementalbackup

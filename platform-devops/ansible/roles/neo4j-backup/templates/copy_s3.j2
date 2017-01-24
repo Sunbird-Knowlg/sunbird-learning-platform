@@ -1,9 +1,0 @@
-#!/bin/sh
-time=$(date '+%e%b%Y')
-var="{{graph_machine}}"
-var1="_"
-var3="{{instance}}"
-time1=$(date '+%H')
-var2=$var$var1$var3$var1$time$var1$time1
-aws s3 cp /home/learning/$var2.tar.gz {{neo4j_backup_url}}
-rm -rf /home/learning/$var2.tar.gz
