@@ -9,7 +9,9 @@ time1="$(date '+%H%M%S')"
 var2="$var$var1$var3$var1$time$var1$time1"
 mkdir /home/learning/$var2
 cp -r /home/learning/neo4j-backup/* /home/learning/$var2/
-tar -cvzf /home/learning/$var2.tar.gz /home/learning/$var2
+cd /home/learning
+tar -cvzf $var2.tar.gz $var2
+cd -
 rm -rf /home/learning/$var2
 aws s3 cp /home/learning/$var2.tar.gz {{neo4j_backup_url}}
 rm -rf /home/learning/$var2.tar.gz
