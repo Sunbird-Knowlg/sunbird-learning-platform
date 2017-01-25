@@ -131,6 +131,10 @@ public class ContentErrorMessageConstants {
 	
 	public static final String INVALID_CONTENT = "Error! Invalid Content.";
 	
+	public static final String INVALID_OPERATION = "Error! Invalid Content Operation.";
+	
+	public static final String INVALID_ASYNC_OPERATION_PARAMETER_MAP = "Error! Invalid Async Content Operation Parameter Map.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

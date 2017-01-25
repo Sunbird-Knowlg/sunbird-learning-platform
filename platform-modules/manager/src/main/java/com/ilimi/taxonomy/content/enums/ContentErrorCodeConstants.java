@@ -45,7 +45,8 @@ public enum ContentErrorCodeConstants {
 	OPERATION_DENIED(29, "The Content Operation cannot be Performed."),
 	VALIDATOR_ERROR(30, "Invalid Content."),
 	MANIFEST_FILE_READ(31, "Error while reading Manifest file."), 
-	INVALID_CONTENT(32, "Invalid Content (Node) Object.");
+	INVALID_CONTENT(32, "Invalid Content (Node) Object."), 
+	INVALID_OPERATION(33, "Invalid Content Operation.");
 
 	private final int code;
 	private final String description;
