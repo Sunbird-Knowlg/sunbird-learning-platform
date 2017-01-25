@@ -1,11 +1,11 @@
 [learning-node1]
 172.31.30.52 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
-[learningcluster:children]
+[learning-cluster:children]
 learning-node1
 
 
-[learningimport:children]
+[learning-import:children]
 learning-node1
 
 [learning-node1:vars]
@@ -16,4 +16,4 @@ host_coordination="172.31.30.52:7001"
 ha_host_data="172.31.30.52:6001"
 
 [dev:children]
-learningcluster
+learning-cluster
