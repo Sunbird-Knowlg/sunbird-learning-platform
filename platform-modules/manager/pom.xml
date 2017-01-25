@@ -93,11 +93,6 @@
 		    <version>1.12.1</version>
 		    <scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>VisionAPI</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<build>

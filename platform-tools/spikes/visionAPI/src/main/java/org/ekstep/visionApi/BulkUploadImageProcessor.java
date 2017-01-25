@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.content.util;
+package org.ekstep.visionApi;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.SocketException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,9 +24,10 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
-import org.ekstep.visionApi.TestVisionApi;
 
 public class BulkUploadImageProcessor {
 
@@ -34,9 +36,18 @@ public class BulkUploadImageProcessor {
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	private static final String s3AssetsFolder = "s3.asset.folder";
 	private static final String output = "src/main/resources/output";
-
+	private static Logger LOGGER = LogManager.getLogger(BulkUploadImageProcessor.class.getName());
+	
+	/**
+	 * Method to get the tags and flags for all images in the csv file
+	 * using Google vision API
+	 * and uploading all the images to AWS
+	 * @param csvfileName
+	 * @param zipFiles
+	 */
 	@SuppressWarnings("unchecked")
 	public void updateCSV(String fileName, String[] zipFile) {
+		LOGGER.info("In update CSV ");
 		String opfileName = fileName.replace(".csv", "-Output.csv");
 		FileReader fileReader = null;
 		FileWriter fileWriter = null;
@@ -49,7 +60,7 @@ public class BulkUploadImageProcessor {
 			List<CSVRecord> csvRecords = csvFileParser.getRecords();
 			Set<String> headerSet = csvFileParser.getHeaderMap().keySet();
 			FILE_HEADER_MAPPING_INPUT = headerSet.toArray(new String[headerSet.size()]);
-			List<String> headerList = new ArrayList<>(headerSet);
+			List<String> headerList = new ArrayList<String>(headerSet);
 			headerList.add("DownloadUrl");
 			headerList.add("Flags");
 			fileWriter = new FileWriter(opfileName);
@@ -61,7 +72,7 @@ public class BulkUploadImageProcessor {
 			for (CSVRecord record : csvRecords) {
 				Map<String, Object> outputData = callVisionAPIandAWSUpload(folderLocation,
 						record.get(FILE_HEADER_MAPPING_INPUT[0]));
-				List<String> updatedData = new ArrayList<>();
+				List<String> updatedData = new ArrayList<String>();
 				for (Object header : FILE_HEADER_MAPPING_OUTPUT) {
 					if ("Tags".equalsIgnoreCase(header.toString()) || "Keywords".equalsIgnoreCase(header.toString())) {
 						Map<String, Object> data = (Map<String, Object>) outputData.get("Tags");
@@ -114,6 +125,7 @@ public class BulkUploadImageProcessor {
 				csvFilePrinter.printRecord(updatedData);
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
@@ -124,11 +136,15 @@ public class BulkUploadImageProcessor {
 				fileWriter.close();
 				csvFilePrinter.close();
 			} catch (IOException e) {
+				LOGGER.error(e.getMessage());
 				e.printStackTrace();
 			}
 		}
 	}
-
+	
+	/**
+	 * Deletes the files/folder extracted while upload process
+	 */
 	private void deleteFile() {
 		File file = new File(output);
 		try {
@@ -136,6 +152,7 @@ public class BulkUploadImageProcessor {
 				delete(file);
 			}
 		} catch (IOException e) {
+			LOGGER.error(e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -158,7 +175,13 @@ public class BulkUploadImageProcessor {
 			file.delete();
 		}
 	}
-
+	
+	/**
+	 * extracts the zipfile so that each file can be easily uploaded by 
+	 * google vision API and AWS
+	 * @param zipFilePaths
+	 * @return folderName where extracted
+	 */
 	public String unzip(String[] zipFilePaths) {
 		String finalOutput = output;
 		byte[] bytesIn = new byte[4096];
@@ -191,35 +214,56 @@ public class BulkUploadImageProcessor {
 				zipIn.close();
 			}
 		} catch (FileNotFoundException e) {
+			LOGGER.error(e.getMessage());
 			e.printStackTrace();
 		} catch (IOException e) {
+			LOGGER.error(e.getMessage());
 			e.printStackTrace();
 		}
 		return finalOutput;
 	}
-
+	
+	/**
+	 * Calls GoogleVision API to get tags and flags for an image
+	 * @param folder
+	 * @param fileName
+	 * @return map of Flags,Tags from Google Vision API 
+	 * and DownloadUrls from AWS
+	 */
 	public Map<String, Object> callVisionAPIandAWSUpload(String folder, String fileName) {
-		Map<String, Object> result = new HashMap<>();
+		LOGGER.info("In callVisionAPI");
+		Map<String, Object> result = new HashMap<String,Object>();
 		File file = new File(folder + "/" + fileName);
 		File newFile = new File(folder + "/" + fileName.substring(0, fileName.lastIndexOf(".")) + "_"
 				+ System.currentTimeMillis() + fileName.substring(fileName.lastIndexOf("."), fileName.length()));
 		try {
 			if (file.renameTo(newFile)) {
 				file = newFile;
-				TestVisionApi api = new TestVisionApi(TestVisionApi.getVisionService());
-				result.put("Tags", api.labelImage(file.toPath()));
-				result.put("Flags", api.safeSearch(file.toPath()));
+				VisionApi vision = new VisionApi(VisionApi.getVisionService());
+				result.put("Tags", vision.getTags(file, vision));
+				result.put("Flags", vision.getFlags(file,vision));
 				result.put("DownloadUrl", callAWSUploader(file));
 			}
+		} catch (SocketException e) {
+			LOGGER.error(e.getMessage());
+			e.printStackTrace();
 		} catch (IOException e) {
+			LOGGER.error(e.getMessage());
 			e.printStackTrace();
 		} catch (GeneralSecurityException e) {
+			LOGGER.error(e.getMessage());
 			e.printStackTrace();
 		}
 		return result;
 	}
-
+	
+	/**
+	 * Calls AWSUploader to upload the file to AWS
+	 * @param file
+	 * @return AWS url of the image file uploaded
+	 */
 	public String callAWSUploader(File file) {
+		LOGGER.info("In callAWSUploader");
 		String url = "";
 		try {
 			String folder = S3PropertyReader.getProperty(s3AssetsFolder);
@@ -228,6 +272,7 @@ public class BulkUploadImageProcessor {
 				url = result[1];
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
 			e.printStackTrace();
 		}
 		return url;
