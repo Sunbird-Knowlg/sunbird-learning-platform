@@ -53,6 +53,21 @@
 			<version>0.10.0.1</version>
 		</dependency>
 		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+			<version>1.22.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-vision</artifactId>
+			<version>v1-rev30-1.22.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client-gson</artifactId>
+			<version>1.22.0</version>
+		</dependency>
+		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
@@ -95,11 +110,6 @@
 		    <artifactId>jackson-databind</artifactId>
 		    <version>2.7.4</version>
 		    <scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>VisionAPI</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>

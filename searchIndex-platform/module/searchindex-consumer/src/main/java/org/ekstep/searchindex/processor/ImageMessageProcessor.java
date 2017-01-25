@@ -3,8 +3,8 @@ package org.ekstep.searchindex.processor;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,18 +18,23 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.searchindex.util.OptimizerUtil;
-import org.ekstep.visionApi.VisionApi;
-
+import org.ekstep.searchindex.util.*;
 import com.ilimi.graph.dac.model.Node;
 
+/**
+ * The Class ImageMessageProcessor provides implementations of the core
+ * Asset upload operations defined in the IMessageProcessor along with the methods to
+ * implement image tagging and flagging
+ * 
+ * @author Rashmi
+ * 
+ * @see IMessageProcessor
+ */
 public class ImageMessageProcessor implements IMessageProcessor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ImageMessageProcessor.class.getName());
-	
-	String pattern = "yyyy-MM-dd";
-	SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern); 
-	
+
 	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
@@ -153,21 +158,21 @@ public class ImageMessageProcessor implements IMessageProcessor {
 					node.getMetadata().put("flaggedBy", "Ekstep");
 					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-					node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
+					node.getMetadata().put("lastFlaggedOn", new Date());
 					node.getMetadata().put("flags", entry.getValue());
 				}
 				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")){
 					node.getMetadata().put("flaggedBy", "Ekstep");
 					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-					node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
+					node.getMetadata().put("lastFlaggedOn", new Date());
 					node.getMetadata().put("flags", entry.getValue());
 				}
 				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Possible")){
 					node.getMetadata().put("flaggedBy", "Ekstep");
 					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-					node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());	
+					node.getMetadata().put("lastFlaggedOn",new Date());	
 					node.getMetadata().put("flags", entry.getValue());
 				}
 			}
