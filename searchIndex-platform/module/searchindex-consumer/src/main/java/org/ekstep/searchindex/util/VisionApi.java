@@ -27,26 +27,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.ekstep.searchindex.processor.IMessageProcessor;
+/**
+ * The Class Vision API provides image tagging 
+ * and image flagging for any given image. It internally calls 
+ * Google Vision API to fetch tags and flags for images
+ * 
+ * @author Rashmi
+ * 
+ */
 public class VisionApi {
 
+	/** APPLICATION_NAME */
 	private static final String APPLICATION_NAME = "Google-VisionSample/1.0";
 	
+	/** The Vision */
 	private final Vision vision;
 
+	/** The Constructor */
 	public VisionApi(Vision vision) {
 		this.vision = vision;
 	}
 	
+	/** gets Tags from Google Vision API */
 	public Map<String, Object> getTags(File url, VisionApi vision) throws IOException, GeneralSecurityException{
 		Map<String, Object> label =	vision.labelImage(url.toPath());
 	 	return label;
 	}
 
+	/** gets Flags from Google Vision API */
 	public Map<String, List<String>> getFlags(File url, VisionApi vision) throws IOException, GeneralSecurityException{
 		Map<String, List<String>> flags = vision.safeSearch(url.toPath());
 	 	return flags;
 	}
 	
+	/** Process tags returned from Google Vision API */
 	private static Map<String, Object> processLabels(List<EntityAnnotation> label_map) {
 		Map<String, Object> labelMap = new HashMap<String, Object>();
 		List<String> list_90 = new ArrayList<String>();
@@ -63,6 +78,7 @@ public class VisionApi {
 		return labelMap;
 	}
 
+	/** Initiates and Authenticates Google Vision Service */
 	public static Vision getVisionService() throws IOException, GeneralSecurityException {
 		GoogleCredential credential = GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
 		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -70,6 +86,7 @@ public class VisionApi {
 				.setApplicationName(APPLICATION_NAME).build();
 	}
 
+	/** Calls Google Vision API to fetch labels/tags for a given image */
 	public Map<String, Object> labelImage(Path path) throws IOException {
 		byte[] data = Files.readAllBytes(path);
 
@@ -89,6 +106,7 @@ public class VisionApi {
 		return labels;
 	}
 
+	/** Calls Google Vision API to fetch flags for a given image */
 	public Map<String, List<String>> safeSearch(Path path) throws IOException {
 		byte[] data = Files.readAllBytes(path);
 
@@ -108,6 +126,7 @@ public class VisionApi {
 		return search;
 	}
 
+	/** process flags returned from Google Vision API */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Map<String, List<String>> processSearch(SafeSearchAnnotation safeSearchAnnotation) {
 		Map<String, String> map = (Map) safeSearchAnnotation;
