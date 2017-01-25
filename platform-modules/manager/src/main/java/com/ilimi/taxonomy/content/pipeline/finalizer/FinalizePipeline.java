@@ -13,6 +13,7 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.operation.finalizer.BundleFinalizer;
 import com.ilimi.taxonomy.content.operation.finalizer.PublishFinalizer;
+import com.ilimi.taxonomy.content.operation.finalizer.ReviewFinalizer;
 import com.ilimi.taxonomy.content.operation.finalizer.UploadFinalizer;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 
@@ -93,8 +94,8 @@ public class FinalizePipeline extends BasePipeline {
 					
 				case "review":
 				case "REVIEW": {
-						BundleFinalizer bundleFinalizer = new BundleFinalizer(basePath, contentId);
-						response = bundleFinalizer.finalize(parameterMap);
+						ReviewFinalizer reviewFinalizer = new ReviewFinalizer(basePath, contentId);
+						response = reviewFinalizer.finalize(parameterMap);
 					}
 					break;	
 					
