@@ -18,7 +18,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.searchindex.util.OptimizerUtil;
-import org.ekstep.visionApi.*;
+import org.ekstep.visionApi.VisionApi;
 
 import com.ilimi.graph.dac.model.Node;
 
@@ -38,9 +38,6 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	
 	/** The Image Optimiser Util. */
 	private OptimizerUtil util = new OptimizerUtil();
-	
-	/** The keywords List */
-	private List<String> keywords = new ArrayList<String>();
 	
 	/** The constructor */
 	public ImageMessageProcessor() {
@@ -65,6 +62,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			if (null != message)
 				processMessage(message);
 		} catch (Exception e) {
+			LOGGER.error("Error while reading kafka message",e);
 			e.printStackTrace();
 		}
 	}
@@ -102,10 +100,12 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			String image_url = variantsMap.get("medium");
 			processImage(image_url, variantsMap, eks);
 		} catch (Exception e) {
+			LOGGER.error("Error while optimizing the images",e);
 			e.printStackTrace();
 		}
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void processImage(String image_url, Map<String,String> variantsMap, Map<String,Object> eks){
 		LOGGER.info("Downloading the medium resolution image",image_url);
 		File file = HttpDownloadUtility.downloadFile(image_url, tempFileLocation);
@@ -126,52 +126,55 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.info("Getting flags from Vision API", flags);
 			
 		} catch (IOException | GeneralSecurityException e) {
+			LOGGER.error("Vision API returns security exception", e);
 			e.printStackTrace();
 		}
 			Node node = util.controllerUtil.getNode("domain", eks.get("cid").toString());
 			LOGGER.info("Getting Node from graphDB based on assetId", node);
-		
-		for (Entry<String, Object> entry : labels.entrySet()) {
-			keywords.add(entry.getValue().toString());
-		}
-		for(String data : keywords){
-			LOGGER.debug("Adding keywords to to node", data);
-			node.getMetadata().put("keywords", data);
-		}
-		
-		LOGGER.info("Adding image variants to node", variantsMap);
-		node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
-		
-		LOGGER.info("Setting node status to Live");
-		node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-		
-		LOGGER.info("Checking for Flags returned from Vision API", flags.entrySet());
-		for(Entry<String, List<String>> entry : flags.entrySet()){
-			LOGGER.info("Checking for different flagReasons");
-			if(StringUtils.equalsIgnoreCase(entry.getKey(), "Likely")){
-				node.getMetadata().put("flaggedBy", "Ekstep");
-				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
-				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-				node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
-				node.getMetadata().put("flags", entry.getValue());
-			}
-			else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")){
-				node.getMetadata().put("flaggedBy", "Ekstep");
-				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
-				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-				node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
-				node.getMetadata().put("flags", entry.getValue());
-			}
-			else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Possible")){
-				node.getMetadata().put("flaggedBy", "Ekstep");
-				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
-				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-				node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());	
-				node.getMetadata().put("flags", entry.getValue());
-			}
-		}
-		util.controllerUtil.updateNode(node);
-		LOGGER.info("Updating the node after setting all required metadata", node);
 
+		List<String> keywords = new ArrayList<String>();
+		try{	
+			for (Entry<String, Object> entry : labels.entrySet()) {
+				List<String> list = (List)entry.getValue();
+				keywords.addAll(list);
+			}
+			node.getMetadata().put("keywords", keywords.toString());
+			
+			LOGGER.info("Adding image variants to node", variantsMap);
+			node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+			
+			LOGGER.info("Setting node status to Live");
+			node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+			
+			LOGGER.info("Checking for Flags returned from Vision API", flags.entrySet());
+			for(Entry<String, List<String>> entry : flags.entrySet()){
+				LOGGER.info("Checking for different flagReasons");
+				if(StringUtils.equalsIgnoreCase(entry.getKey(), "Likely")){
+					node.getMetadata().put("flaggedBy", "Ekstep");
+					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
+					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
+					node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
+					node.getMetadata().put("flags", entry.getValue());
+				}
+				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")){
+					node.getMetadata().put("flaggedBy", "Ekstep");
+					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
+					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
+					node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());
+					node.getMetadata().put("flags", entry.getValue());
+				}
+				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Possible")){
+					node.getMetadata().put("flaggedBy", "Ekstep");
+					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
+					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
+					node.getMetadata().put("lastFlaggedOn", simpleDateFormat.toPattern());	
+					node.getMetadata().put("flags", entry.getValue());
+				}
+			}
+			util.controllerUtil.updateNode(node);
+			LOGGER.info("Updating the node after setting all required metadata", node);
+		}catch(Exception e){
+			LOGGER.error("Error while updating the content node", e);
+		}
 	}
 }
