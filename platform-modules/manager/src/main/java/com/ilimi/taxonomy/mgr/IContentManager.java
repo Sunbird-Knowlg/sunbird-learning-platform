@@ -131,7 +131,24 @@ public interface IContentManager {
 	Response bundle(Request request, String taxonomyId, String version);
 	
 	/**
+	 * Review is High level Content Operation mainly deals with the tasks
+	 * needed for making any content in <code>Review</code> state. It includes the
+	 * validation of Content based on its type.
 	 * 
+	 * <p>
+	 * It is a <code>Pipelined Operation</code> which is accomplished by several
+	 * <code>Processors</code> meant for atomic tasks.
+	 * 
+	 * <p>
+	 * A subclass must provide an implementation of this method.
+	 *
+	 * @param taxonomyId
+	 *            the <code>graph id</code> of the content.
+	 * @param contentId
+	 *            the content <code>identifier</code> which needs to be review.
+	 * @param requestMap
+	 * 			  the map of request params
+	 * @return the response contains the Node <code>identifier</code> in its Result Set.
 	 */
 	Response review(String taxonomyId, String contentId, Request request);
 

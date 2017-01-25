@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 // TODO: Auto-generated Javadoc
@@ -97,8 +98,16 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	
 	@Override
 	public Response review(Node node) {
-		// TODO Auto-generated method stub
-		return null;
+		LOGGER.debug("Node: ", node);
+
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		Map<String, Object> parameterMap = new HashMap<String, Object>();
+		parameterMap.put(ContentAPIParams.node.name(), node);
+		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
+
+		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + node.getIdentifier());
+		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 
 }

@@ -157,6 +157,18 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 	
+	/**
+	 * This method carries all the tasks related to 'Review' operation of
+	 * content work-flow.
+	 *
+	 * @param contentId
+	 *            The Content Id which needs to be published.
+	 * @param userId
+	 *            Unique 'id' of the user mainly for authentication purpose, It
+	 *            can impersonation details as well.
+	 * @return The Response entity with Content Id in its Result
+	 *         Set.
+	 */
 	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> review(@PathVariable(value = "id") String contentId,

@@ -468,11 +468,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		LOGGER.debug("Node: ", node);
 		
-		// Update the Node status to 'Review'
-		node.getMetadata().put(ContentAPIParams.status.name(), ContentAPIParams.Review.name());
+		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+		if (StringUtils.isBlank(mimeType)) {
+			mimeType = "assets";
+		}
+		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		
-		// Updating the Node
-		response = updateNode(node);
+		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
+		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		
+		response = mimeTypeManager.review(node);
 		
 		LOGGER.debug("Returning 'Response' Object: ", response);
 		return response;
