@@ -8,12 +8,12 @@
 10.10.1.242 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
 
-[learningcluster:children]
+[learning-cluster:children]
 learning-node1
 learning-node2
 learning-node3
 
-[learningimport:children]
+[learning-import:children]
 learning-node1
 learning-node2
 
@@ -43,4 +43,4 @@ ha_host_data="10.10.1.242:6001"
 
 
 [prod:children]
-learningcluster
+learning-cluster

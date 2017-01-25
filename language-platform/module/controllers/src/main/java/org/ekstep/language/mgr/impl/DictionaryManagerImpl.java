@@ -1702,7 +1702,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (primaryMeaning.containsKey(ATTRIB_EXAMPLE_SENTENCES)) {
 				Object exampleSentences = primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES);
 				item.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
-				primaryMeaning.remove(ATTRIB_EXAMPLE_SENTENCES);
 			}
 			
 			Response primaryMeaningRes = createMeaningWithRelatedWord(primaryMeaning, definition, languageId, createFlag, nodeIdList, errorMessages, forceUpdate, true);

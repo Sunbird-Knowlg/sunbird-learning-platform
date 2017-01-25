@@ -166,7 +166,8 @@ public class IndowordnetUtil {
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
-					HibernateSessionFactory.closeSession();
+					session.flush();
+					session.close();
 				}
 
 			} while (true);
