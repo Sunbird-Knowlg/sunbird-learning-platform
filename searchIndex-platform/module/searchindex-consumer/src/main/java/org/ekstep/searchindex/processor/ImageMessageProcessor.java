@@ -153,14 +153,14 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 			
 			LOGGER.info("Checking for Flags returned from Vision API", flags.entrySet());
+			List<String> flaggedByList = new ArrayList<>();
+			if(null!=node.getMetadata()&& null!= node.getMetadata().get("flaggedBy")){
+				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get("flaggedBy"));
+			}
+			flaggedByList.add("Ekstep");
 			for(Entry<String, List<String>> entry : flags.entrySet()){
 				LOGGER.info("Checking for different flagReasons");
 				if(StringUtils.equalsIgnoreCase(entry.getKey(), "Likely")){
-					List<String> flaggedByList = new ArrayList<>();
-					if(null!=node.getMetadata()&& null!= node.getMetadata().get("flaggedBy")){
-						flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get("flaggedBy"));
-					}
-					flaggedByList.add("Ekstep");
 					node.getMetadata().put("flaggedBy", flaggedByList);
 					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
@@ -168,14 +168,14 @@ public class ImageMessageProcessor implements IMessageProcessor {
 					node.getMetadata().put("flags", entry.getValue());
 				}
 				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")){
-					node.getMetadata().put("flaggedBy", "Ekstep");
+					node.getMetadata().put("flaggedBy", flaggedByList);
 					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
 					node.getMetadata().put("lastFlaggedOn", new Date());
 					node.getMetadata().put("flags", entry.getValue());
 				}
 				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Possible")){
-					node.getMetadata().put("flaggedBy", "Ekstep");
+					node.getMetadata().put("flaggedBy", flaggedByList);
 					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
 					node.getMetadata().put("lastFlaggedOn",new Date());	
