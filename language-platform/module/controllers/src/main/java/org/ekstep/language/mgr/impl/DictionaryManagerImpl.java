@@ -1828,56 +1828,56 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		List<Map<String, Object>> synonyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.synonyms.name());
 		List<String> synonymWordIds = processRelationWords(synonyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.synonyms.name());
 
 		List<Map<String, Object>> hypernyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.hypernyms.name());
 		List<String> hypernymWordIds = processRelationWords(hypernyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.hypernyms.name());
 
 		List<Map<String, Object>> holonyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.holonyms.name());
 		List<String> holonymWordIds = processRelationWords(holonyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.holonyms.name());
 
 		List<Map<String, Object>> antonyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.antonyms.name());
 		List<String> antonymWordIds = processRelationWords(antonyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.antonyms.name());
 
 		List<Map<String, Object>> hyponyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.hyponyms.name());
 		List<String> hyponymWordIds = processRelationWords(hyponyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.hyponyms.name());
 
 		List<Map<String, Object>> meronyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.meronyms.name());
 		List<String> meronymWordIds = processRelationWords(meronyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.meronyms.name());
 
 		List<Map<String, Object>> tools = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.tools.name());
-		List<String> toolWordIds = processRelationWords(tools, languageId, errorMessages, definition, nodeIdList);
+		List<String> toolWordIds = processRelationWords(tools, languageId, errorMessages, definition, nodeIdList, LanguageParams.tools.name());
 
 		List<Map<String, Object>> workers = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.workers.name());
 		List<String> workerWordIds = processRelationWords(workers, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.workers.name());
 
 		List<Map<String, Object>> actions = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.actions.name());
 		List<String> actionWordIds = processRelationWords(actions, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.actions.name());
 
 		List<Map<String, Object>> objects = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.objects.name());
 		List<String> objectWordIds = processRelationWords(objects, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.objects.name());
 
 		List<Map<String, Object>> converse = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.converse.name());
 		List<String> converseWordIds = processRelationWords(converse, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.converse.name());
 
 		meaningDataMap.remove(LanguageParams.synonyms.name());
 		meaningDataMap.remove(LanguageParams.hypernyms.name());
@@ -2084,16 +2084,17 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *            the word defintion
 	 * @param nodeIdList
 	 *            the node id list
+	 * @param relationName TODO
 	 * @return the list
 	 */
 	private List<String> processRelationWords(List<Map<String, Object>> synsetRelations, String languageId,
-			List<String> errorMessages, DefinitionDTO wordDefintion, List<String> nodeIdList) {
+			List<String> errorMessages, DefinitionDTO wordDefintion, List<String> nodeIdList, String relationName) {
 		List<String> wordIds = null;
 		if (synsetRelations != null) {
 			wordIds = new ArrayList<String>();
 			for (Map<String, Object> word : synsetRelations) {
 				String wordId = createOrUpdateWordsWithoutPrimaryMeaning(word, languageId, errorMessages,
-						wordDefintion);
+						wordDefintion, relationName);
 				if (wordId != null) {
 					wordIds.add(wordId);
 				}
@@ -2115,15 +2116,16 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *            the error messages
 	 * @param definition
 	 *            the definition
+	 * @param relationName TODO
 	 * @return the string
 	 */
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
-			List<String> errorMessages, DefinitionDTO definition) {
+			List<String> errorMessages, DefinitionDTO definition, String relationName) {
 		String lemma = (String) word.get(LanguageParams.name.name());
 		if (StringUtils.isBlank(lemma))
 			lemma = (String) word.get(LanguageParams.lemma.name());
 		if (StringUtils.isBlank(lemma)) {
-			errorMessages.add("Lemma is mandatory");
+			errorMessages.add("word(lemma) is empty in "+relationName + " List");
 			return null;
 		} else {
 			lemma = lemma.trim().toLowerCase();
@@ -2132,7 +2134,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
 			boolean isValid = isValidWord(lemma, language);
 			if (!isValid) {
-				errorMessages.add("Lemma cannot be in a different language than " + language);
+				errorMessages.add("Lemma cannot be in a different language than " + language +" for word in "+relationName + " List");
 				return null;
 			}
 			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
