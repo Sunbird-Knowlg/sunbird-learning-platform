@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -155,10 +156,15 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			for(Entry<String, List<String>> entry : flags.entrySet()){
 				LOGGER.info("Checking for different flagReasons");
 				if(StringUtils.equalsIgnoreCase(entry.getKey(), "Likely")){
-					node.getMetadata().put("flaggedBy", "Ekstep");
+					List<String> flaggedByList = new ArrayList<>();
+					if(null!=node.getMetadata()&& null!= node.getMetadata().get("flaggedBy")){
+						flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get("flaggedBy"));
+					}
+					flaggedByList.add("Ekstep");
+					node.getMetadata().put("flaggedBy", flaggedByList);
 					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-					node.getMetadata().put("lastFlaggedOn", new Date());
+					node.getMetadata().put("lastFlaggedOn", new Date().toString());
 					node.getMetadata().put("flags", entry.getValue());
 				}
 				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")){
