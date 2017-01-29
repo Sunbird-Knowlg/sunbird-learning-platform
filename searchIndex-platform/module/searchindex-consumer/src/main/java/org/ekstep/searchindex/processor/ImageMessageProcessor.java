@@ -30,7 +30,7 @@ import com.ilimi.graph.dac.model.Node;
  * @author Rashmi
  * 
  * @see IMessageProcessor
- */
+ */					
 public class ImageMessageProcessor implements IMessageProcessor {
 
 	/** The logger. */
@@ -91,7 +91,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			variantsMap = OptimizerUtil.optimiseImage(eks.get("cid").toString());
 			LOGGER.debug("optimized images returned from optimizer util" + variantsMap);
 			
-			if(!variantsMap.isEmpty() && variantsMap.get("medium").isEmpty()){
+			if(!variantsMap.isEmpty() && (!variantsMap.get("medium").isEmpty())){
 				
 				LOGGER.debug("Checking if variantsMap contains medium resolution image", variantsMap);
 				variantsMap.put("medium", eks.get("downloadUrl").toString());
@@ -133,6 +133,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.info("Getting Node from graphDB based on assetId", node);
 
 		List<String> keywords = new ArrayList<String>();
+		keywords = node.getTags();
 		try{	
 			for (Entry<String, Object> entry : labels.entrySet()) {
 				List<String> list = (List)entry.getValue();
@@ -148,33 +149,27 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			
 			LOGGER.info("Checking for Flags returned from Vision API", flags.entrySet());
 			List<String> flaggedByList = new ArrayList<>();
-			if(null!=node.getMetadata()&& null!= node.getMetadata().get("flaggedBy")){
+			if(null!= node.getMetadata().get("flaggedBy")){
 				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get("flaggedBy"));
 			}
 			flaggedByList.add("Ekstep");
 			for(Entry<String, List<String>> entry : flags.entrySet()){
 				LOGGER.info("Checking for different flagReasons");
+				List<String> flagList = new ArrayList<String>();
 				if(StringUtils.equalsIgnoreCase(entry.getKey(), "Likely")){
-					node.getMetadata().put("flaggedBy", flaggedByList);
-					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
-					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-					node.getMetadata().put("lastFlaggedOn", new Date().toString());
-					node.getMetadata().put("flags", entry.getValue());
+					flagList.add(entry.getValue().toString());
 				}
 				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")){
-					node.getMetadata().put("flaggedBy", flaggedByList);
-					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
-					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-					node.getMetadata().put("lastFlaggedOn", new Date());
-					node.getMetadata().put("flags", entry.getValue());
+					flagList.add(entry.getValue().toString());
 				}
 				else if(StringUtils.equalsIgnoreCase(entry.getKey(), "Possible")){
-					node.getMetadata().put("flaggedBy", flaggedByList);
-					node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
-					node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
-					node.getMetadata().put("lastFlaggedOn",new Date());	
-					node.getMetadata().put("flags", entry.getValue());
+					flagList.add(entry.getValue().toString());
 				}
+				node.getMetadata().put("flaggedBy", flaggedByList);
+				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
+				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
+				node.getMetadata().put("lastFlaggedOn", new Date().toString());
+				node.getMetadata().put("flags", flagList);
 			}
 			OptimizerUtil.controllerUtil.updateNode(node);
 			LOGGER.info("Updating the node after setting all required metadata", node);
