@@ -44,8 +44,9 @@ public class Request implements Serializable {
     public Request() {
     	this.params = new RequestParams();
     	this.params.setMsgid(request_id);
+   
     }
-
+    
     public Request(Request request) {
     	this.params = request.getParams();
     	if (null == this.params)
@@ -87,8 +88,12 @@ public class Request implements Serializable {
     public Object get(String key) {
         return request.get(key);
     }
+    
+	public void setRequest_id(String request_id) {
+		this.request_id = request_id;
+	}
 
-    public void put(String key, Object vo) {
+	public void put(String key, Object vo) {
         request.put(key, vo);
     }
 

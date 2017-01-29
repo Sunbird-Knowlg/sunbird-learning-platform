@@ -42,21 +42,22 @@ public class Neo4JBoltDataVersionKeyValidator {
 			return true;
 		LOGGER.info("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name()) + " | [Node Id: '"
 				+ node.getIdentifier() + "']");
-		
+
 		boolean isValidUpdateOperation = false;
-		
+
 		// Fetching Version Check Mode ('OFF', 'STRICT', 'LENIENT')
 		String objectType = (String) neo4jNode.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
 		String nodeType = (String) neo4jNode.get(SystemProperties.IL_SYS_NODE_TYPE.name());
 		String versionCheckMode = null;
 		if (StringUtils.isNotBlank(objectType))
-			versionCheckMode = DefinitionNodeUtil.getMetadataValue(graphId, objectType, GraphDACParams.versionCheckMode.name());
+			versionCheckMode = DefinitionNodeUtil.getMetadataValue(graphId, objectType,
+					GraphDACParams.versionCheckMode.name());
 		LOGGER.info("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
 				+ node.getObjectType());
 
 		// Checking if the 'versionCheckMode' Property is not specified,
 		// then default Mode is OFF
-		if (StringUtils.isBlank(versionCheckMode) 
+		if (StringUtils.isBlank(versionCheckMode)
 				|| StringUtils.equalsIgnoreCase(SystemNodeTypes.DEFINITION_NODE.name(), nodeType))
 			versionCheckMode = NodeUpdateMode.OFF.name();
 
@@ -97,7 +98,7 @@ public class Neo4JBoltDataVersionKeyValidator {
 
 	private boolean isValidVersionKey(String graphId, Node node, Map<String, Object> neo4jNode) {
 		LOGGER.debug("Node: ", node);
-		
+
 		boolean isValidVersionKey = false;
 		String versionKey = (String) node.getMetadata().get(GraphDACParams.versionKey.name());
 		LOGGER.info("Data Node Version Key Value: " + versionKey + " | [Node Id: '" + node.getIdentifier() + "']");
@@ -114,21 +115,28 @@ public class Neo4JBoltDataVersionKeyValidator {
 			throw new ClientException(DACErrorCodeConstants.INVALID_TIMESTAMP.name(),
 					DACErrorMessageConstants.INVALID_LAST_UPDATED_ON_TIMESTAMP + " | [Node Id: " + node.getIdentifier()
 							+ "]");
-		
+
 		String graphVersionKey = (String) neo4jNode.get(GraphDACParams.versionKey.name());
 		if (StringUtils.isBlank(graphVersionKey))
 			graphVersionKey = String.valueOf(DateUtils.parse(lastUpdateOn).getTime());
 		LOGGER.info("'lastUpdatedOn' Time Stamp: " + graphVersionKey + " | [Node Id: '" + node.getIdentifier() + "']");
-		
+
 		// Compare both the Time Stamp
 		if (StringUtils.equals(versionKey, graphVersionKey))
 			isValidVersionKey = true;
 
+		// Remove 'SYS_INTERNAL_LAST_UPDATED_ON' property
+		node.getMetadata().remove(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name());
+
 		// May be the Given 'versionKey' is a Passport Key.
 		// Check for the Valid Passport Key
 		if (BooleanUtils.isFalse(isValidVersionKey)
-				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED))
+				&& BooleanUtils.isTrue(DACConfigurationConstants.IS_PASSPORT_AUTHENTICATION_ENABLED)) {
 			isValidVersionKey = PassportUtil.isValidPassportKey(versionKey);
+			if (BooleanUtils.isTrue(isValidVersionKey))
+				node.getMetadata().put(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name(),
+						DateUtils.formatCurrentDate());
+		}
 
 		return isValidVersionKey;
 	}

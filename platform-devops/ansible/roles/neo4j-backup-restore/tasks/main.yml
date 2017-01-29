@@ -1,0 +1,101 @@
+- name: delete learning_graph or language_graph
+  become: yes
+  file: path=/home/learning/{{graph_machine}} state=absent
+  tags:
+       - backup 
+  
+- name: create directory
+  become: yes
+  file: path=/home/learning/{{graph_machine}} state=directory owner=learning group=learning recurse=yes
+  tags:
+       - backup
+  
+- name: copy template of scripthell script to stop service
+  become: yes
+  template: src=backup_script.j2 dest=/home/learning/backup_script.sh  mode=777 owner=learning group=learning
+  tags:
+       - backup
+  
+- name: run script
+  become: yes
+  become_user: learning
+  command: "/home/learning/backup_script.sh"
+  tags:
+       - backup
+  
+#Restore
+
+- name: Check if neo4j is running
+  become: yes
+  become_user: learning
+  shell: ps -ef | grep {{neo4j_home}}  | grep -v grep | wc -l
+  register: neo4j_process
+  tags:
+       - restore
+  
+- name: Stop the neo4j
+  become: yes
+  become_user: learning
+  command: chdir={{ neo4j_home }}/bin ./neo4j stop
+  when: "neo4j_process.stdout != '0'"
+  tags:
+       - restore
+
+- name: Cleanup
+  become: yes
+  file: path={{ neo4j_home }}/data/databases/graph.db state=absent
+  tags:
+       - restore
+  
+- name: create graph.db
+  become: yes
+  file: path={{ neo4j_home }}/data/databases/graph.db state=directory owner={{user}} group={{user}}
+  tags:
+       - restore
+  
+- name: Download the  backup zip file 
+  become: yes
+  become_user: learning
+  command: aws s3 cp {{neo4j_backup_url}}{{graph_machine}}_{{instance}}_{{date}}.tar.gz /home/learning/
+  tags:
+       - restore
+  
+- name: remove 
+  become: yes
+  become_user: learning
+  file: path=/home/learning/{{graph_machine}} state=absent
+  tags:
+       - restore
+  
+
+- name: Unarchieve 
+  become: yes
+  become_user: learning
+  command: chdir=/home/learning tar xzf {{graph_machine}}_{{instance}}_{{date}}.tar.gz
+  tags:
+       - restore
+  
+
+- name: copy all the graph files 
+  become: yes
+  become_user: learning
+  shell: cp -r /home/learning/{{graph_machine}}/* /home/learning/{{ neo4j_dir }}/neo4j-enterprise-3.0.4/data/databases/graph.db/
+  tags:
+       - restore
+
+- name: Check if neo4j is running
+  become_user: learning
+  shell: ps -ef | grep "{{ neo4j_home }}"  | grep -v grep | wc -l
+  register: neo4j_process
+  tags:
+       - restore
+          
+- name: Start the neo4j
+  become: yes
+  become_user: learning
+  shell: "{{ neo4j_home }}/bin/neo4j start"
+  when: "neo4j_process.stdout == '0'"
+  tags:
+       - restore
+               
+

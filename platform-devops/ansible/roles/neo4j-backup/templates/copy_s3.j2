@@ -1,5 +1,0 @@
-#!/bin/sh
-time=$(date '+%d-%b-%Y')
-var="neo4jbackup"
-var2=$var$time
-aws s3 cp /mnt/backup/$var2.zip s3://test-neo-backup/

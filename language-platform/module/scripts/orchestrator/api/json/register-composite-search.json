@@ -1,0 +1,15 @@
+{
+    "name": "compositeSearch",
+    "parameters": [
+		{
+	        "name": "request",
+	        "index": 0,
+	        "datatype": "java.util.HashMap",
+	        "routingParam": false
+		}],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/compositeSearch"
+    },
+    "body": ""
+}

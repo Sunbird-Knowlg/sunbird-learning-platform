@@ -156,6 +156,23 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> review(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.review";
+		Response response;
+		LOGGER.info("Review content | Content Id : " + contentId);
+		try {
+			LOGGER.info("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]");
+			Request request = getRequest(map);
+			response = contentManager.review(graphId, contentId, request);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
 	protected String getAPIVersion() {
 		return API_VERSION_3;

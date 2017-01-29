@@ -1285,18 +1285,43 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Node> getAllObjects(String languageId, String objectType) {
-		Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType);
-		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
-		request.put(GraphDACParams.metadata.name(), property);
-		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
-		if (!checkError(findRes)) {
-			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-			return nodes;
+
+		int batch =1000;
+		int start = 0;
+		boolean found = true;
+		List<Node> allNodes =new ArrayList<>();
+		while (found) {
+			List<Node> nodes = getDataNodes(languageId, objectType, start, batch);
+			if (null != nodes && !nodes.isEmpty()) {
+				allNodes.addAll(nodes);
+				start += batch;
+			} else {
+				found = false;
+				break;
+			}
 		}
-		return null;
+		
+		return allNodes;
 	}
 
+	private List<Node> getDataNodes(String graphId, String objectType, int startPosition, int batchSize) {
+		SearchCriteria sc = new SearchCriteria();
+		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		sc.setObjectType(objectType);
+		sc.setResultSize(batchSize);
+		sc.setStartPosition(startPosition);
+		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), sc);
+		req.put(GraphDACParams.get_tags.name(), true);
+		Response listRes = getResponse(req, LOGGER);
+		if (checkError(listRes))
+			throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: " + graphId);
+		else {
+			List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+			return nodes;
+		}
+	}
+	
 	/**
 	 * Get the data node from Graph based on the node Id
 	 * 
@@ -2652,8 +2677,12 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
 		boolean proxy = proxyNodeExists(graphId,primaryMeaningId);
 		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
+		node.setGraphId(graphId);
+		Map<String, Object> proxyMeta =new HashMap<>();
+		proxyMeta.put("language_id", graphId);
+		node.setMetadata(proxyMeta);
 		proxyReq.put(GraphDACParams.node.name(), node);
-		proxyReq = createTranslationCollection(proxyReq, indowordId, primaryMeaningId);
+		proxyReq = createTranslationCollection(proxyReq, graphId, indowordId, primaryMeaningId);
 		String id = "";
 		if(englishTranslationId!=0)
 		{
@@ -2698,9 +2727,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param synsetId
 	 * @return
 	 */
-	private Request createTranslationCollection(Request proxyReq, int indowordId, String synsetId)
+	private Request createTranslationCollection(Request proxyReq, String graphId, int indowordId, String synsetId)
 	{
 		Node translationSet = new Node();
+		translationSet.setGraphId(graphId);
 		String id = ""+indowordId;
 		translationSet.setObjectType(LanguageObjectTypes.TranslationSet.name());
 		Map<String,Object> metadata = new HashMap<String,Object>();

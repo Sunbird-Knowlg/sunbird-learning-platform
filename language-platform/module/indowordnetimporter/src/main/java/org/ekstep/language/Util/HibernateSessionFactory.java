@@ -9,7 +9,6 @@ import org.hibernate.cfg.AnnotationConfiguration;
 public class HibernateSessionFactory {
 
 	private static SessionFactory sessionFactory;
-	private static Session session;
 
 	static {
 		try {
@@ -24,13 +23,10 @@ public class HibernateSessionFactory {
 	}
 
 	public static Session getSession() throws HibernateException {
-		if (session == null || !session.isOpen()) {
-			if (sessionFactory == null) {
-				buildSessionFactory();
-			}
-			session = (sessionFactory != null) ? sessionFactory.openSession() : null;
+		if (sessionFactory == null) {
+			buildSessionFactory();
 		}
-		return session;
+		return sessionFactory.openSession();
 	}
 
 	public static void buildSessionFactory() {
@@ -39,13 +35,6 @@ public class HibernateSessionFactory {
 			sessionFactory = new AnnotationConfiguration().configure().buildSessionFactory();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-	}
-
-	public static void closeSession() throws HibernateException {
-		if (session != null) {
-			session.flush();
-			session.close();
 		}
 	}
 
