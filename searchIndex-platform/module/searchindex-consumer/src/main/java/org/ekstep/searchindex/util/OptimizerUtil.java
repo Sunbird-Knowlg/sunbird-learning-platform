@@ -49,9 +49,9 @@ public class OptimizerUtil {
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
 	private static final String s3Content = "s3.content.folder";
-    private static final String s3Artifact = "s3.artifact.folder";
+    
+	private static final String s3Artifact = "s3.artifact.folder";
 
-    private static Map<String, String> variantsMap = new HashMap<String, String>();
 	/**
 	 * Optimise image.
 	 *
@@ -64,7 +64,7 @@ public class OptimizerUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	public static Map<String, String> optimiseImage(String contentId) throws Exception {
-
+		 Map<String, String> variantsMap = new HashMap<String, String>();
 		// get content definition to get configured resolution
 		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Content");
 		String variantsStr = (String) contentDefinition.getMetadata().get(ContentAPIParams.variants.name());
