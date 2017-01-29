@@ -37,13 +37,13 @@ public class OptimizerUtil {
 	private static Logger LOGGER = LogManager.getLogger(OptimizerUtil.class.getName());
 
 	/** The ekstep optimizr. */
-	private Optimizr ekstepOptimizr = new Optimizr();
+	private static Optimizr ekstepOptimizr = new Optimizr();
 
 	/** The controller util. */
-	public ControllerUtil controllerUtil = new ControllerUtil();
+	public static ControllerUtil controllerUtil = new ControllerUtil();
 
 	/** The mapper. */
-	private ObjectMapper mapper = new ObjectMapper();
+	private static ObjectMapper mapper = new ObjectMapper();
 
 	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -51,7 +51,7 @@ public class OptimizerUtil {
 	private static final String s3Content = "s3.content.folder";
     private static final String s3Artifact = "s3.artifact.folder";
 
-    Map<String, String> variantsMap = new HashMap<String, String>();
+    private static Map<String, String> variantsMap = new HashMap<String, String>();
 	/**
 	 * Optimise image.
 	 *
@@ -63,7 +63,7 @@ public class OptimizerUtil {
 	 *             the exception
 	 */
 	@SuppressWarnings("unchecked")
-	public  Map<String, String> optimiseImage(String contentId) throws Exception {
+	public static Map<String, String> optimiseImage(String contentId) throws Exception {
 
 		// get content definition to get configured resolution
 		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Content");
@@ -144,7 +144,7 @@ public class OptimizerUtil {
 	 * @throws IOException
 	 *             Signals that an I/O exception has occurred.
 	 */
-	private void delete(File file) throws IOException {
+	private static void delete(File file) throws IOException {
 		if (file.isDirectory()) {
 			// directory is empty, then delete it
 			if (file.list().length == 0) {
@@ -179,7 +179,7 @@ public class OptimizerUtil {
 	 *            the folder
 	 * @return the string[]
 	 */
-	public String[] uploadToAWS(File uploadedFile, String identifier) {
+	public static String[] uploadToAWS(File uploadedFile, String identifier) {
 		String[] urlArray = new String[] {};
 		try {
 			String folder = S3PropertyReader.getProperty(s3Content);

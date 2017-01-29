@@ -40,10 +40,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
 	/** The ObjectMapper */
-	private ObjectMapper mapper = new ObjectMapper();
-	
-	/** The Image Optimiser Util. */
-	private OptimizerUtil util = new OptimizerUtil();
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	/** The constructor */
 	public ImageMessageProcessor() {
@@ -56,6 +53,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String,
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void processMessage(String messageData) {
 		try {
@@ -66,9 +64,14 @@ public class ImageMessageProcessor implements IMessageProcessor {
 				});
 			}
 			if (null != message)
-				processMessage(message);
+				LOGGER.info("Reading from kafka consumer" + message);
+				Map<String,Object> edata = (Map) message.get("edata");
+				Map<String,Object> eks = (Map) edata.get("eks");
+				if((StringUtils.equalsIgnoreCase(eks.get("contentType").toString(), "Asset")) && (StringUtils.equalsIgnoreCase(eks.get("mediaType").toString(), "image"))){
+					processMessage(eks);
+				}
 		} catch (Exception e) {
-			LOGGER.error("Error while reading kafka message",e);
+			LOGGER.error("Error while processing kafka message",e);
 			e.printStackTrace();
 		}
 	}
@@ -79,30 +82,21 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void processMessage(Map<String, Object> message) {
-		
-		LOGGER.info("Reading from kafka consumer" + message);
-		Map<String,Object> edata = (Map) message.get("edata");
-		Map<String,Object> eks = (Map) edata.get("eks");
+	public void processMessage(Map<String, Object> eks) {
 		
 		LOGGER.info("Calling image optimiser to get optimized image resolutions");
 		Map<String, String> variantsMap;
 		try {
-			variantsMap = util.optimiseImage(eks.get("cid").toString());
+			variantsMap = OptimizerUtil.optimiseImage(eks.get("cid").toString());
 			LOGGER.debug("optimized images returned from optimizer util" + variantsMap);
-		
-		if(!variantsMap.isEmpty()){
-			LOGGER.debug("Checking if variantsMap is empty");
 			
-			if(variantsMap.get("medium").isEmpty()){
+			if(!variantsMap.isEmpty() && variantsMap.get("medium").isEmpty()){
 				
 				LOGGER.debug("Checking if variantsMap contains medium resolution image", variantsMap);
 				variantsMap.put("medium", eks.get("downloadUrl").toString());
 				LOGGER.debug("adding image from node metadat if medium resolution image is empty", variantsMap);
 			}
-		}
 			String image_url = variantsMap.get("medium");
 			processImage(image_url, variantsMap, eks);
 		} catch (Exception e) {
@@ -135,7 +129,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.error("Vision API returns security exception", e);
 			e.printStackTrace();
 		}
-			Node node = util.controllerUtil.getNode("domain", eks.get("cid").toString());
+			Node node = OptimizerUtil.controllerUtil.getNode("domain", eks.get("cid").toString());
 			LOGGER.info("Getting Node from graphDB based on assetId", node);
 
 		List<String> keywords = new ArrayList<String>();
@@ -182,7 +176,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 					node.getMetadata().put("flags", entry.getValue());
 				}
 			}
-			util.controllerUtil.updateNode(node);
+			OptimizerUtil.controllerUtil.updateNode(node);
 			LOGGER.info("Updating the node after setting all required metadata", node);
 		}catch(Exception e){
 			LOGGER.error("Error while updating the content node", e);
