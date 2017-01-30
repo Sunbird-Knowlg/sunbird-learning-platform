@@ -53,7 +53,6 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String,
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void processMessage(String messageData) {
 		try {
@@ -84,23 +83,22 @@ public class ImageMessageProcessor implements IMessageProcessor {
 
 		LOGGER.info("process kafka message" + message);
 		Map<String, Object> edata = (Map) message.get("edata");
-		Map<String, Object> eks = (Map) edata.get("eks");
-		if ((StringUtils.equalsIgnoreCase(eks.get("contentType").toString(), "Asset"))
-				&& (StringUtils.equalsIgnoreCase(eks.get("mediaType").toString(), "image"))) {
+		if ((StringUtils.equalsIgnoreCase(edata.get("contentType").toString(), "Asset"))
+				&& (StringUtils.equalsIgnoreCase(edata.get("mediaType").toString(), "image"))) {
 
 			LOGGER.info("Calling image optimiser to get optimized image resolutions");
 			Map<String, String> variantsMap;
 			try {
-				variantsMap = OptimizerUtil.optimiseImage(eks.get("cid").toString());
+				variantsMap = OptimizerUtil.optimiseImage(edata.get("cid").toString());
 				LOGGER.debug("optimized images returned from optimizer util" + variantsMap);
 
 				if ((null == variantsMap || StringUtils.isBlank(variantsMap.get("medium")))) {
 					LOGGER.debug("Checking if variantsMap contains medium resolution image", variantsMap);
-					variantsMap.put("medium", eks.get("downloadUrl").toString());
+					variantsMap.put("medium", edata.get("downloadUrl").toString());
 					LOGGER.debug("adding image from node metadat if medium resolution image is empty", variantsMap);
 				}
 				String image_url = variantsMap.get("medium");
-				processImage(image_url, variantsMap, eks);
+				processImage(image_url, variantsMap, edata);
 			} catch (Exception e) {
 				LOGGER.error("Error while optimizing the images", e);
 				e.printStackTrace();
@@ -115,13 +113,12 @@ public class ImageMessageProcessor implements IMessageProcessor {
 
 		Map<String, Object> labels = new HashMap<String, Object>();
 
-		Map<String, List<String>> flags = new HashMap<String, List<String>>();
-
+		List<String> flags = new ArrayList<String>();
 		LOGGER.info("Initilizing the Vision API");
 		VisionApi vision;
 		try {
 			vision = new VisionApi(VisionApi.getVisionService());
-
+			
 			labels = vision.getTags(file, vision);
 			LOGGER.info("Getting labels from Vision API", labels);
 
@@ -140,7 +137,8 @@ public class ImageMessageProcessor implements IMessageProcessor {
 		try {
 			for (Entry<String, Object> entry : labels.entrySet()) {
 				List<String> list = (List) entry.getValue();
-				keywords.addAll(list);
+				if (null != list && (!list.isEmpty()))
+					keywords.addAll(list);
 			}
 			node.getMetadata().put("keywords", keywords.toString());
 
@@ -150,29 +148,18 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.info("Setting node status to Live");
 			node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 
-			LOGGER.info("Checking for Flags returned from Vision API", flags.entrySet());
+			LOGGER.info("Checking for Flags returned from Vision API", flags);
 			List<String> flaggedByList = new ArrayList<>();
 			if (null != node.getMetadata().get("flaggedBy")) {
 				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get("flaggedBy"));
 			}
-			flaggedByList.add("Ekstep");
-			for (Entry<String, List<String>> entry : flags.entrySet()) {
-				LOGGER.info("Checking for different flagReasons");
-				List<String> flagList = new ArrayList<String>();
-				if (StringUtils.equalsIgnoreCase(entry.getKey(), "Likely")) {
-					flagList.add(entry.getValue().toString());
-				} else if (StringUtils.equalsIgnoreCase(entry.getKey(), "Very_Likely")) {
-					flagList.add(entry.getValue().toString());
-				} else if (StringUtils.equalsIgnoreCase(entry.getKey(), "Possible")) {
-					flagList.add(entry.getValue().toString());
-				}
+			if (null != flags && (!flags.isEmpty())) {
+				node.getMetadata().put("flags", flags);
+				flaggedByList.add("Ekstep");
 				node.getMetadata().put("flaggedBy", flaggedByList);
 				node.getMetadata().put("versionKey", node.getMetadata().get("versionKey"));
 				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
 				node.getMetadata().put("lastFlaggedOn", new Date().toString());
-				if (!flagList.isEmpty()) {
-					node.getMetadata().put("flags", flagList);
-				}
 			}
 			OptimizerUtil.controllerUtil.updateNode(node);
 			LOGGER.info("Updating the node after setting all required metadata", node);

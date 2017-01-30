@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.ekstep.searchindex.processor.IMessageProcessor;
 /**
  * The Class Vision API provides image tagging 
  * and image flagging for any given image. It internally calls 
@@ -56,8 +54,8 @@ public class VisionApi {
 	}
 
 	/** gets Flags from Google Vision API */
-	public Map<String, List<String>> getFlags(File url, VisionApi vision) throws IOException, GeneralSecurityException{
-		Map<String, List<String>> flags = vision.safeSearch(url.toPath());
+	public List<String> getFlags(File url, VisionApi vision) throws IOException, GeneralSecurityException{
+		List<String> flags = vision.safeSearch(url.toPath());
 	 	return flags;
 	}
 	
@@ -107,7 +105,7 @@ public class VisionApi {
 	}
 
 	/** Calls Google Vision API to fetch flags for a given image */
-	public Map<String, List<String>> safeSearch(Path path) throws IOException {
+	public List<String> safeSearch(Path path) throws IOException {
 		byte[] data = Files.readAllBytes(path);
 
 		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data))
@@ -122,15 +120,16 @@ public class VisionApi {
 			throw new IOException(response.getError() != null ? response.getError().getMessage()
 					: "Unknown error getting image annotations");
 		}
-		Map<String, List<String>> search = processSearch(response.getSafeSearchAnnotation());
+		List<String> search = processSearch(response.getSafeSearchAnnotation());
 		return search;
 	}
 
 	/** process flags returned from Google Vision API */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Map<String, List<String>> processSearch(SafeSearchAnnotation safeSearchAnnotation) {
+	private List<String> processSearch(SafeSearchAnnotation safeSearchAnnotation) {
 		Map<String, String> map = (Map) safeSearchAnnotation;
 		Map<String, List<String>> result = new HashMap<String, List<String>>();
+		List<String> flagList = new ArrayList<String>();
 		List<String> res;
 		for (Entry<String, String> entry : map.entrySet()) {
 			if (result.containsKey(entry.getValue())) {
@@ -143,6 +142,11 @@ public class VisionApi {
 				result.put(entry.getValue(), res);
 			}
 		}
-		return result;
+		for(Entry<String,List<String>> entry : result.entrySet()){
+			if(entry.getKey().equalsIgnoreCase("LIKELY")|| entry.getKey().equalsIgnoreCase("VERY_LIKELY") || entry.getKey().equalsIgnoreCase("POSSIBLE")){
+				flagList.addAll(entry.getValue());
+			}
+		}
+		return flagList;
 	}
 }
