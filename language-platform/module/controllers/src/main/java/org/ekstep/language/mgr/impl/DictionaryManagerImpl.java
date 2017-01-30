@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -89,6 +91,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
 	private static final String s3Media = "s3.media.folder";
+	
+	// inside regex all special character mentioned!, by default inside string black slash and double quote should be escaped using black slash, in addition to that here open bracket([) and close bracket(]) has been escaped and dash(-) were mentioned at last special character for regex constraints to work
+	private static final Pattern special = Pattern.compile(".*[`~!@#$%^&*()_=+\\[\\]{}|\\;:'\",<.>/?-].*");
 
 	/** The word util. */
 	@Autowired
@@ -129,39 +134,40 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *
 	 * @param word
 	 *            the word
-	 * @param language
-	 *            the language
+	 * @param languageId
+	 *            the languageId
 	 * @return true, if is valid word
 	 */
-	public boolean isValidWord(String word, String language) {
-		boolean result = false;
+	public boolean isValidWord(String word, String languageId) {
 		try {
-			if (StringUtils.isBlank(language))
-				return true;
-			switch (language) {
-			case "HINDI": {
-				language = Character.UnicodeBlock.DEVANAGARI.toString();
-				break;
+			
+			Matcher hasSpecial = special.matcher(word);
+			if(hasSpecial.matches()){
+				return false;
 			}
-			case "ENGLISH": {
-				language = Character.UnicodeBlock.BASIC_LATIN.toString();
-				break;
+
+			char firstLetter = word.charAt(0);
+			int i = firstLetter;
+	        String uc = String.format("%04x", i);
+	        int hexVal = Integer.parseInt(uc, 16);
+			Node languageNode = getDataNode("domain","lang_"+languageId,"Language");
+			String startUnicode = (String) languageNode.getMetadata().get("startUnicode");
+			String endUnicode = (String) languageNode.getMetadata().get("endUnicode");
+			
+			if(startUnicode!=null&&endUnicode!=null){
+				int min = Integer.parseInt(startUnicode, 16);
+		        int max = Integer.parseInt(endUnicode, 16);
+		        if (hexVal >= min && hexVal <= max){
+		        }else {
+		        	return false;
+		        }
 			}
-			}
-			UnicodeBlock wordBlock = UnicodeBlock.forName(language);
-			for (int i = 0; i < word.length(); i++) {
-				UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
-				if (wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi")
-						&& charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))) {
-					result = true;
-					break;
-				}
-			}
+				
+			
 		} catch (Exception e) {
-			// return true... if UnicodeBlock is not identified...
-			result = true;
+			// return true... if language object is not defined...
 		}
-		return result;
+		return true;
 	}
 
 	/*
@@ -1576,7 +1582,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						for (Map item : items) {
 							String lemma = (String) item.get(LanguageParams.lemma.name());
 							String language = LanguageMap.getLanguage(languageId).toUpperCase();
-							boolean isValid = isValidWord(lemma, language);
+							boolean isValid = isValidWord(lemma, languageId);
 							if (!isValid) {
 								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
 										"Lemma cannot be in a different language than " + language,
@@ -2132,7 +2138,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			word.put(LanguageParams.lemma.name(), lemma);
 			word.remove(LanguageParams.name.name());
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, language);
+			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
 				errorMessages.add("Lemma cannot be in a different language than " + language +" for word in "+relationName + " List");
 				return null;
@@ -2304,7 +2310,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			item.put(LanguageParams.identifier.name(), id);
 			String lemma = (String) item.get(LanguageParams.lemma.name());
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, language);
+			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
 				return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
 						"Lemma cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
@@ -2769,7 +2775,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				continue;
 			}
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, language);
+			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
 				addMessage(rowNo, "Lemma cannot be in a different language than " + language, errorMessageMap);
 				continue;
@@ -3221,7 +3227,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String lemma = (String) item.get(LanguageParams.lemma.name());
 			if (lemma != null) {
 				String language = LanguageMap.getLanguage(languageId).toUpperCase();
-				boolean isValid = isValidWord(lemma, language);
+				boolean isValid = isValidWord(lemma, languageId);
 				if (!isValid) {
 					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
 							"Lemma cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
