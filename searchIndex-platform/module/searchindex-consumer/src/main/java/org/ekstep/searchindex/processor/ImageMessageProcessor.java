@@ -42,6 +42,9 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	/** The ObjectMapper */
 	private static ObjectMapper mapper = new ObjectMapper();
 
+	/** The Properties Util */
+	private static PropertiesUtil util = new PropertiesUtil();
+	
 	/** The constructor */
 	public ImageMessageProcessor() {
 		super();
@@ -80,45 +83,92 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void processMessage(Map<String, Object> message) {
+		
+		Map<String, Object> edata = new HashMap<String,Object>();
+		Map<String, Object> eks = new HashMap<String,Object>();
+		
+		LOGGER.info("processing kafka message" + message);
+		if(null != message.get("edata")){
+			edata = (Map) message.get("edata");
+			if(null != edata.get("eks")){
+				eks = (Map) edata.get("eks");
+				if(null != eks){
+					if(null != eks.get("contentType") && null != eks.get("mediaType")){
+						if ((StringUtils.equalsIgnoreCase(eks.get("contentType").toString(), "Asset"))
+							&& (StringUtils.equalsIgnoreCase(eks.get("mediaType").toString(), "image"))) {
 
-		LOGGER.info("process kafka message" + message);
-		Map<String, Object> edata = (Map) message.get("edata");
-		if ((StringUtils.equalsIgnoreCase(edata.get("contentType").toString(), "Asset"))
-				&& (StringUtils.equalsIgnoreCase(edata.get("mediaType").toString(), "image"))) {
-
-			LOGGER.info("Calling image optimiser to get optimized image resolutions");
-			Map<String, String> variantsMap;
-			try {
-				variantsMap = OptimizerUtil.optimiseImage(edata.get("cid").toString());
-				LOGGER.debug("optimized images returned from optimizer util" + variantsMap);
-
-				if ((null == variantsMap || StringUtils.isBlank(variantsMap.get("medium")))) {
-					LOGGER.debug("Checking if variantsMap contains medium resolution image", variantsMap);
-					variantsMap.put("medium", edata.get("downloadUrl").toString());
-					LOGGER.debug("adding image from node metadat if medium resolution image is empty", variantsMap);
+							LOGGER.info("Calling image optimiser to get optimized image resolutions");
+							Map<String, String> variantsMap;
+							try {
+								variantsMap = OptimizerUtil.optimiseImage(eks.get("cid").toString());
+								LOGGER.debug("optimized images returned from optimizer util" + variantsMap);
+				
+								if(null == variantsMap)
+									variantsMap = new HashMap<String,String>();
+								if (StringUtils.isBlank(variantsMap.get("medium"))) {
+									LOGGER.debug("Checking if variantsMap contains medium resolution image", variantsMap);
+									variantsMap.put("medium", edata.get("downloadUrl").toString());
+									LOGGER.debug("adding image from node metadat if medium resolution image is empty", variantsMap);
+								}
+								String image_url = variantsMap.get("medium");
+								processImage(image_url, variantsMap, eks);
+							} catch (Exception e) {
+								LOGGER.error("Error while optimizing the images", e);
+								e.printStackTrace();
+							}
+						}
+					}
 				}
-				String image_url = variantsMap.get("medium");
-				processImage(image_url, variantsMap, edata);
-			} catch (Exception e) {
-				LOGGER.error("Error while optimizing the images", e);
-				e.printStackTrace();
 			}
 		}
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("static-access")
 	private void processImage(String image_url, Map<String, String> variantsMap, Map<String, Object> eks) {
-		LOGGER.info("Downloading the medium resolution image", image_url);
-		File file = HttpDownloadUtility.downloadFile(image_url, tempFileLocation);
+
+		Node node = OptimizerUtil.controllerUtil.getNode("domain", eks.get("cid").toString());
+		LOGGER.info("Getting Node from graphDB based on assetId", node);
+		try {
+			util.loadProperties("consumer-config.properties");
+			String key = util.getProperty("google.vision.tagging.enabled");
+			if("true".equalsIgnoreCase(key)){ 
+				
+				Node data = callVisionService(image_url, node, variantsMap);
+				
+				LOGGER.info("Adding image variants to node", variantsMap);
+				data.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+
+				OptimizerUtil.controllerUtil.updateNode(data);
+				LOGGER.info("Updating the node after setting all required metadata", data);
+			}
+			else{
+				LOGGER.info("Adding image variants to node", variantsMap);
+				node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+
+				OptimizerUtil.controllerUtil.updateNode(node);
+				LOGGER.info("Updating the node after setting all required metadata", node);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error while updating the content node", e);
+			e.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Node callVisionService(String image, Node node, Map<String, String> variantsMap) {
+
+		LOGGER.info("Downloading the medium resolution image", image);
+		File file = HttpDownloadUtility.downloadFile(image, tempFileLocation);
 
 		Map<String, Object> labels = new HashMap<String, Object>();
 
 		List<String> flags = new ArrayList<String>();
+
 		LOGGER.info("Initilizing the Vision API");
 		VisionApi vision;
 		try {
 			vision = new VisionApi(VisionApi.getVisionService());
-			
+
 			labels = vision.getTags(file, vision);
 			LOGGER.info("Getting labels from Vision API", labels);
 
@@ -129,31 +179,36 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.error("Vision API returns security exception", e);
 			e.printStackTrace();
 		}
-		Node node = OptimizerUtil.controllerUtil.getNode("domain", eks.get("cid").toString());
-		LOGGER.info("Getting Node from graphDB based on assetId", node);
-
 		List<String> keywords = new ArrayList<String>();
-		keywords = node.getTags();
+		if(null != node.getMetadata().get("keywords")){
+			keywords = (List)node.getMetadata().get("keywords");
+		}
 		try {
-			for (Entry<String, Object> entry : labels.entrySet()) {
-				List<String> list = (List) entry.getValue();
-				if (null != list && (!list.isEmpty()))
-					keywords.addAll(list);
+			if(!labels.isEmpty()){
+				for (Entry<String, Object> entry : labels.entrySet()) {
+					List<String> list = (List) entry.getValue();
+					if (null != list && (!list.isEmpty()))
+						keywords.addAll(list);
+				}
 			}
-			node.getMetadata().put("keywords", keywords.toString());
-
-			LOGGER.info("Adding image variants to node", variantsMap);
-			node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
-
-			LOGGER.info("Setting node status to Live");
-			node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-
-			LOGGER.info("Checking for Flags returned from Vision API", flags);
+			if(!keywords.isEmpty()){
+				
+				LOGGER.info("Updating node with the keywords", keywords);
+				node.getMetadata().put("keywords", keywords.toString());
+				
+				LOGGER.info("Setting node status to Live");
+				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+			}
+			
+			LOGGER.info("Checking for flaggedByList from the node");
 			List<String> flaggedByList = new ArrayList<>();
 			if (null != node.getMetadata().get("flaggedBy")) {
 				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get("flaggedBy"));
 			}
+			
+			LOGGER.info("Checking for Flags returned from Vision API is empty or not", flags);
 			if (null != flags && (!flags.isEmpty())) {
+				LOGGER.debug("setting Flags in node metadata", flags);
 				node.getMetadata().put("flags", flags);
 				flaggedByList.add("Ekstep");
 				node.getMetadata().put("flaggedBy", flaggedByList);
@@ -161,10 +216,10 @@ public class ImageMessageProcessor implements IMessageProcessor {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Flagged");
 				node.getMetadata().put("lastFlaggedOn", new Date().toString());
 			}
-			OptimizerUtil.controllerUtil.updateNode(node);
-			LOGGER.info("Updating the node after setting all required metadata", node);
 		} catch (Exception e) {
-			LOGGER.error("Error while updating the content node", e);
+			LOGGER.info("error while setting node metadata", e);
+			e.printStackTrace();
 		}
+		return node;
 	}
 }

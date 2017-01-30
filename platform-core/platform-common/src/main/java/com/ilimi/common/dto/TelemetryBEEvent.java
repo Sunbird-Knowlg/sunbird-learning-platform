@@ -37,9 +37,9 @@ public class TelemetryBEEvent {
 	public Map<String, Object> getEdata() {
 		return edata;
 	}
-	public void setEdata(Map<String, Object> edata) {
-		this.edata = edata;
-		edata.putAll(edata);
+	public void setEdata(Map<String, Object> eks) {
+		this.edata = new HashMap<String, Object>();
+		edata.put("eks",eks);
 	}
 	public void setPdata(String id, String pid, String ver, String uid) {
 		this.pdata = new HashMap<String, String>();
