@@ -142,6 +142,10 @@ public class ImageMessageProcessor implements IMessageProcessor {
 				LOGGER.info("Updating the node after setting all required metadata", data);
 			}
 			else{
+				
+				LOGGER.info("Setting node status to Live");
+				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+				
 				LOGGER.info("Adding image variants to node", variantsMap);
 				node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 
@@ -194,7 +198,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			if(!keywords.isEmpty()){
 				
 				LOGGER.info("Updating node with the keywords", keywords);
-				node.getMetadata().put("keywords", keywords.toString());
+				node.getMetadata().put("keywords", keywords);
 				
 				LOGGER.info("Setting node status to Live");
 				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
