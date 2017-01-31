@@ -1583,9 +1583,15 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							String language = LanguageMap.getLanguage(languageId).toUpperCase();
 							boolean isValid = isValidWord(lemma, languageId);
 							if (!isValid) {
-								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-										"Lemma cannot be in a different language than " + language,
+								Matcher hasSpecial = special.matcher(lemma);
+								if(hasSpecial.matches()){
+									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+											"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
+								}else {
+									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+										"Word cannot be in a different language than " + language,
 										ResponseCode.CLIENT_ERROR);
+								}
 							}
 							Response wordResponse = createOrUpdateWord(item, definition, languageId, true, lstNodeId,
 									forceUpdate);
@@ -2130,7 +2136,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		if (StringUtils.isBlank(lemma))
 			lemma = (String) word.get(LanguageParams.lemma.name());
 		if (StringUtils.isBlank(lemma)) {
-			errorMessages.add("word(lemma) is empty in "+relationName + " List");
+			errorMessages.add("Word is empty in "+relationName + " List");
 			return null;
 		} else {
 			lemma = lemma.trim().toLowerCase();
@@ -2139,7 +2145,12 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
 			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
-				errorMessages.add("Lemma cannot be in a different language than " + language +" for word in "+relationName + " List");
+				Matcher hasSpecial = special.matcher(lemma);
+				if(hasSpecial.matches()){
+					errorMessages.add("Word should not contain any special characters for word in "+relationName + " List");
+				}else{
+					errorMessages.add("Word cannot be in a different language than " + language +" for word in "+relationName + " List");
+				}
 				return null;
 			}
 			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
@@ -2311,8 +2322,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
 			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
-				return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-						"Lemma cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+				Matcher hasSpecial = special.matcher(lemma);
+				if(hasSpecial.matches()){
+					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+							"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
+				}else {
+					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+							"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+				}
 			}
 			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 					GraphDACParams.object_type.name(), objectType);
@@ -2776,7 +2793,12 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
 			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
-				addMessage(rowNo, "Lemma cannot be in a different language than " + language, errorMessageMap);
+				Matcher hasSpecial = special.matcher(lemma);
+				if(hasSpecial.matches()){
+					addMessage(rowNo, "Word should not contain any special characters " , errorMessageMap);
+				}else{
+					addMessage(rowNo, "Word cannot be in a different language than " + language, errorMessageMap);
+				}
 				continue;
 			}
 			String gloss = (String) synsetMap.get(LanguageParams.gloss.name());
@@ -2817,7 +2839,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			if (wordId != null && !wordId.isEmpty()) {
 				if (existingWordId != null && !existingWordId.equalsIgnoreCase(wordId)) {
-					addMessage(rowNo, "Lemma already exists with node Id: " + existingWordId, errorMessageMap);
+					addMessage(rowNo, "Word already exists with node Id: " + existingWordId, errorMessageMap);
 					continue;
 				}
 			} else {
@@ -3228,8 +3250,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				String language = LanguageMap.getLanguage(languageId).toUpperCase();
 				boolean isValid = isValidWord(lemma, languageId);
 				if (!isValid) {
-					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-							"Lemma cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+					Matcher hasSpecial = special.matcher(lemma);
+					if(hasSpecial.matches()){
+						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+								"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
+					}else {
+						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+								"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+					}
 				}
 			}
 			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
