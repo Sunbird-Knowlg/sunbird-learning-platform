@@ -37,8 +37,9 @@ public class TelemetryBEEvent {
 	public Map<String, Object> getEdata() {
 		return edata;
 	}
-	public void setEdata(Map<String, Object> edata) {
-		this.edata = edata;
+	public void setEdata(Map<String, Object> eks) {
+		this.edata = new HashMap<String, Object>();
+		edata.put("eks",eks);
 	}
 	public void setPdata(String id, String pid, String ver, String uid) {
 		this.pdata = new HashMap<String, String>();
@@ -46,7 +47,7 @@ public class TelemetryBEEvent {
 		this.pdata.put("pid", pid);
 		this.pdata.put("ver", ver);
 	}
-	public void setEdata(String cid, Object status, Object prevState, Object size, Object pkgVersion, Object concepts, Object flags) {
+	public void setEdata(String cid, Object status, Object prevState, Object size, Object pkgVersion, Object concepts) {
 		this.edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
 		eks.put("cid", cid);
@@ -55,8 +56,6 @@ public class TelemetryBEEvent {
 		eks.put("size", size);
 		eks.put("pkgVersion", pkgVersion);
 		eks.put("concepts", concepts);
-		eks.put("flags", concepts);
-		
 		edata.put("eks", eks);
 	}
 	public void setEdata(String query, Object filters, Object sort, String correlationId, int size) {

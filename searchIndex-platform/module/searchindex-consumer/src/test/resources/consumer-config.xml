@@ -5,25 +5,35 @@
 		ekstepPlatformApiUserId="ilimi">
 	</ConsumerInit>
 	<ConsumerGroups>
-		<ConsumerGroup id="composite-search-group" messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">
+		<ConsumerGroup id="composite-search-group"
+			messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">
 			<Consumers>
 				<Consumer partitions="0,1,2,3,4,5" />
 				<Consumer partitions="6,7,8,9,10" />
 			</Consumers>
 		</ConsumerGroup>
-		<ConsumerGroup id="Audit-History-group" messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMessageProcessor">
+		<ConsumerGroup id="Audit-History-group"
+			messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMessageProcessor">
 			<Consumers>
 				<Consumer partitions="0,1,2,3,4,5" />
 				<Consumer partitions="6,7,8,9,10" />
 			</Consumers>
 		</ConsumerGroup>
-		
-		<ConsumerGroup id="word-count-group" messageProcessor="org.ekstep.searchindex.processor.WordCountMessageProcessor">
+
+		<ConsumerGroup id="word-count-group"
+			messageProcessor="org.ekstep.searchindex.processor.WordCountMessageProcessor">
 			<Consumers>
 				<Consumer partitions="8" />
 			</Consumers>
 		</ConsumerGroup>
-		<ConsumerGroup id="word-translation-group" messageProcessor="org.ekstep.searchindex.processor.WordTranslationMessageProcessor">
+		<ConsumerGroup id="word-translation-group"
+			messageProcessor="org.ekstep.searchindex.processor.WordTranslationMessageProcessor">
+			<Consumers>
+				<Consumer partitions="8" />
+			</Consumers>
+		</ConsumerGroup>
+		<ConsumerGroup id="telemetry-event-group"
+			messageProcessor="org.ekstep.searchindex.processor.ImageMessageProcessor">
 			<Consumers>
 				<Consumer partitions="8" />
 			</Consumers>
