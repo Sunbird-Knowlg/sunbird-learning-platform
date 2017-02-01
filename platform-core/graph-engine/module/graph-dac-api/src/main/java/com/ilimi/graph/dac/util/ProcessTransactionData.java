@@ -82,6 +82,7 @@ public class ProcessTransactionData {
 
 	private List<Map<String, Object>> getCretedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
+		LOGGER.info("getting neo4j transaction data" + data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> createdNodeIds = getCreatedNodeIds(data);
@@ -119,11 +120,13 @@ public class ProcessTransactionData {
 		} catch (Exception e) {
 			LOGGER.error("Error building created nodes message", e);
 		}
+		LOGGER.info("returning processed transaction data" + lstMessageMap);
 		return lstMessageMap;
 	}
 
 	private List<Map<String, Object>> getUpdatedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
+		LOGGER.info("Getting neo4j transaction data" + data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> updatedNodeIds = getUpdatedNodeIds(data);
@@ -159,12 +162,14 @@ public class ProcessTransactionData {
 		} catch (Exception e) {
 			LOGGER.error("Error building updated nodes message", e);
 		}
+		LOGGER.info("returning processed transaction data" + lstMessageMap);
 		return lstMessageMap;
 	}
 
 	@SuppressWarnings("rawtypes")
 	private List<Map<String, Object>> getDeletedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
+		LOGGER.info("Getting neo4j transaction data" + data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> deletedNodeIds = getDeletedNodeIds(data);
@@ -201,10 +206,12 @@ public class ProcessTransactionData {
 		} catch (Exception e) {
 			LOGGER.error("Error building deleted nodes message", e);
 		}
+		LOGGER.info("returning processed transaction data" + lstMessageMap);
 		return lstMessageMap;
 	}
 
 	private Map<String, Object> getAllPropertyEntry(Long nodeId, TransactionData data) {
+		LOGGER.info("Getting neo4j transaction data" + data);
 		Map<String, Object> map = getAssignedNodePropertyEntry(nodeId, data);
 		map.putAll(getRemovedNodePropertyEntry(nodeId, data));
 		return map;
@@ -216,6 +223,7 @@ public class ProcessTransactionData {
 	}
 	
 	private String getLastUpdatedByValue(Long nodeId, TransactionData data) {
+		LOGGER.info("Getting neo4j transaction data" + data);
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (nodeId == pe.entity().getId()) {

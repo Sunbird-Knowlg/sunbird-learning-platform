@@ -40,19 +40,22 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	@Override
 	// @Async
 	public void saveAuditHistory(AuditHistoryRecord audit) {
+		LOGGER.info("setting request object from audit history record" + audit);
 		if (null != audit) {
 			LOGGER.debug("Checking if audit record is empty or not" + audit);
 			if (StringUtils.isBlank(audit.getObjectId())) {
 				LOGGER.info("Throws Client Exception when audit record is null");
 				throw new ClientException(AuditLogErrorCodes.ERR_SAVE_AUDIT_MISSING_REQ_PARAMS.name(),
 						"Required params missing...");
-			}		
+			}	
+			LOGGER.info("checking if requestId is null or not" + audit.getRequestId());
 			Request request = new Request();
 			request.setRequest_id(audit.getRequestId());
 			request.put(CommonDACParams.audit_history_record.name(), audit);
 			LOGGER.info("Sending request to save Logs to DB" + request);
 			auditHistoryEsService.saveAuditHistoryLog(request);
 		} else {
+			LOGGER.info("Throws new exception on processing audit history record");
 			throw new ClientException(AuditLogErrorCodes.ERR_INVALID_AUDIT_RECORD.name(), "audit record is null.");
 		}
 
@@ -69,7 +72,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	public Response getAuditHistory(String graphId, String startTime, String endTime, String versionId) {
 		Request request = new Request();
 		try {
-			LOGGER.debug("Checking if graphId is empty or not" + graphId);
+			LOGGER.info("Checking if graphId is empty or not" + graphId);
 			if (StringUtils.isNotBlank(graphId)) {
 				request.put(CommonDACParams.graph_id.name(), graphId);
 			}

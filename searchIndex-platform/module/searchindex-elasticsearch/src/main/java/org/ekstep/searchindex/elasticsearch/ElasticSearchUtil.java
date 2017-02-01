@@ -403,6 +403,7 @@ public class ElasticSearchUtil {
 
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String query) throws IOException {
+		LOGGER.info("getting query to search from ES" + query);
 		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
@@ -411,6 +412,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
+		LOGGER.info("search result" + result);
 		return result;
 	}
 
