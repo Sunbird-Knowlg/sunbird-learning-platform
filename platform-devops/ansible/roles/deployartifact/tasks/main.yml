@@ -103,7 +103,7 @@
 - name: copy the consumer-config.xml
   become: yes
   become_user: learning
-  template: src=learning/consumer-config.properties.j2 dest=/data/properties/learning/consumer-config.xml
+  template: src=learning/consumer-config.properties.j2 dest=/data/properties/learning/consumer-config.properties
   tags:
        - learning
        - total
