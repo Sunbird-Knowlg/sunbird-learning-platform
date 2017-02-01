@@ -104,7 +104,7 @@
        - total
 
 - name: Update bashrc for VisionKey.json
-  lineinfile: dest=/home/learning/.profile line='GOOGLE_APPLICATION_CREDENTIALS=/home/learning/platform/VisionKey.json'  state=present insertafter=EOF create=yes
+  lineinfile: dest=/home/learning/.profile line='export GOOGLE_APPLICATION_CREDENTIALS=/home/learning/platform/VisionKey.json'  state=present insertafter=EOF create=yes
   tags:
        - learning
        - language
