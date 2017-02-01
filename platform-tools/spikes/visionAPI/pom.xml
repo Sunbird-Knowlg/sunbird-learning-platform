@@ -1,10 +1,11 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.ekstep</groupId>
-  <artifactId>VisionAPI</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <name>VisionAPI</name>
-  	<dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.ekstep</groupId>
+	<artifactId>VisionAPI</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>VisionAPI</name>
+	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -13,7 +14,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -36,6 +37,16 @@
 			<groupId>com.google.api-client</groupId>
 			<artifactId>google-api-client-gson</artifactId>
 			<version>1.22.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.ilimi</groupId>
+			<artifactId>ekstep-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.1</version>
 		</dependency>
 	</dependencies>
 </project>

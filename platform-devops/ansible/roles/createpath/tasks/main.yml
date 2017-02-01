@@ -91,3 +91,24 @@
        - language
        - config
        - search
+
+- include_vars: secrets/lp-secrets.yml
+
+- name: Add VisionKey.json key
+  copy: content="{{ vision_key }}" dest={{user_home}}/platform/VisionKey.json mode=755 owner={{user}} group={{user}}
+  tags:
+       - learning
+       - language
+       - config
+       - search
+       - total
+
+- name: Update bashrc for VisionKey.json
+  lineinfile: dest=/home/learning/.profile line='GOOGLE_APPLICATION_CREDENTIALS=/home/learning/platform/VisionKey.json'  state=present insertafter=EOF create=yes
+  tags:
+       - learning
+       - language
+       - config
+       - search
+       - total
+

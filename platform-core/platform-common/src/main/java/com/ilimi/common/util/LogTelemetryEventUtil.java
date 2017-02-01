@@ -1,5 +1,6 @@
 package com.ilimi.common.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,12 +19,23 @@ public class LogTelemetryEventUtil {
 	public static String logContentLifecycleEvent(String contentId, Map<String, Object> metadata) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();
+		Map<String,Object> data = new HashMap<String,Object>();
 		te.setEid("BE_CONTENT_LIFECYCLE");
 		te.setEts(unixTime);
 		te.setVer("2.0");
 		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
-		te.setEdata(contentId, metadata.get("status"), metadata.get("prevState"), metadata.get("size"),
-				metadata.get("pkgVersion"), metadata.get("concepts"), metadata.get("flags"));
+		data.put("cid", contentId);
+		data.put("size", metadata.get("size"));
+		data.put("pkgVersion", metadata.get("pkgVersion"));
+		data.put("concepts", metadata.get("concepts"));
+		data.put("state", metadata.get("status"));
+		data.put("prevState", metadata.get("prevState"));
+		data.put("downloadUrl", metadata.get("downloadUrl"));
+		data.put("contentType", metadata.get("contentType"));
+		data.put("mediaType", metadata.get("mediaType"));
+		data.put("flags",metadata.get("flags"));
+		te.setEdata(data);
+		
 		String jsonMessage = null;
 		try {
 			jsonMessage = mapper.writeValueAsString(te);

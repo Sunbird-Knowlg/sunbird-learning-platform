@@ -817,6 +817,7 @@ public class SearchProcessor {
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		LOGGER.info("AuditHistory search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
+		LOGGER.info("search result from elastic search" + searchResult);
 		Map<String,Object> result_map = (Map) searchResult.getValue("hits");
 		List<Map<String,Object>> result = (List) result_map.get("hits");
 		for(Map<String,Object> map : result){

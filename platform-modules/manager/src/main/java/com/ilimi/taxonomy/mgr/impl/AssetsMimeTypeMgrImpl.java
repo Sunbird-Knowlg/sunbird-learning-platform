@@ -6,15 +6,11 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.common.optimizr.FileType;
-import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.LearningActorNames;
-import org.ekstep.learning.common.enums.LearningOperations;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
@@ -57,22 +53,19 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-		node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+		node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 		Map<String, String> variantsMap = new HashMap<String, String>();
 		node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 		
 		LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 		Response response = updateContentNode(node, urlArray[1]);
-		
-		FileType type = FileUtils.getFileType(uploadFile);
-		// Call async image optimiser for configured resolutions if asset type is image
-		if(type == FileType.Image){
-			//make async request to image optimiser actor
-			Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(), LearningOperations.optimizeImage.name());
-			request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
-			makeAsyncLearningRequest(request, LOGGER);
+		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
+		if (!checkError(response)) {
+			node.getMetadata().put("prevState", prevState);
+
+			LOGGER.info("Generating Telemetry Event. | [Content ID: " + node.getIdentifier()+ "]");
+			LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
 		}
-		
 		return response;
 	}
 
