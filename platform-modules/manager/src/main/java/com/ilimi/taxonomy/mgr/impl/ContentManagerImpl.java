@@ -459,7 +459,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 		
 		Response response = new Response();
-		Response getNodeRes = getResponse(request, LOGGER);
+		Response getNodeRes = getDataNode(taxonomyId, contentId);
 		response = copyResponse(getNodeRes);
 		if (checkError(response)) {
 			return response;
