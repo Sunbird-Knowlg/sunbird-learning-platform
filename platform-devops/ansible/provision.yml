@@ -1,13 +1,13 @@
 - hosts: "{{remote}}"
   remote_user: learning
   roles:
-        - aws-login
-        - java
+       # - aws-login
+       # - java
         - createpath
-        - tomcat
-        - ffmpeg
-        - imagemagick
-        - logstash
-        - search-service
-        - redis
-        - mongodb       
+       # - tomcat
+       # - ffmpeg
+       # - imagemagick
+       # - logstash
+       # - search-service
+       # - redis
+       # - mongodb       
