@@ -10,5 +10,5 @@ var2="$var$var1$var3$var1$time$var1$time1"
 cd /home/learning
 tar -cvzf $var2.tar.gz {{graph_machine}}
 cd -
-aws s3 cp /home/learning/$var2.tar.gz {{neo4j_backup_url}}
+aws  s3 cp /home/learning/$var2.tar.gz {{neo4j_backup_url}}
 rm -rf /home/learning/$var2.tar.gz
