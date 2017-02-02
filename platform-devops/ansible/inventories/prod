@@ -73,4 +73,4 @@ searchall
 configall
 redisall
 mongodball
-cassandraall
+cassandra
