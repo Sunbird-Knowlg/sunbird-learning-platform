@@ -93,17 +93,22 @@ if {$check_error} {
 				set hasFlagReasons [isNotEmpty $flagReasons]
 				if {$hasFlagReasons} {
 					set flagResaons [addFlagReasons $flagReasons $node_metadata]
-					puts "flagResaons [$flagResaons toString]"
 					$request put "flagReasons" $flagResaons
 				}
 			}
 			$request put "objectType" $object_type
 			$request put "identifier" $content_id
-			puts "making update"
 			set resp_def_node [getDefinition $graph_id $object_type]
 			set def_node [get_resp_value $resp_def_node "definition_node"]
 			set domain_obj [convert_to_graph_node $request $def_node]
 			set create_response [updateDataNode $graph_id $content_id $domain_obj]
+			set check_error [check_response_error $create_response]
+			if {$check_error} {
+			} else {
+				$node_metadata putAll $request
+				$node_metadata put "prevState" $status_val_str
+				set log_response [log_content_lifecycle_event $content_id $node_metadata]
+			}
 			return $create_response
 		} else {
 			set result_map [java::new HashMap]

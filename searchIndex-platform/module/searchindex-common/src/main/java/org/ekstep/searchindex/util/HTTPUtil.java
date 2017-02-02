@@ -7,6 +7,7 @@ import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -51,4 +52,20 @@ public class HTTPUtil {
 		}
 
 	}
+	
+	public static void makePatchRequest(String url, String body) throws Exception{
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpPatch patch = new HttpPatch(url);
+		patch.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
+		patch.addHeader("Content-Type", "application/json");
+		patch.setEntity(new StringEntity(body));
+
+		HttpResponse response = client.execute(patch);
+		if (response.getStatusLine().getStatusCode() != 200) {
+			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
+					+ response.getStatusLine().getReasonPhrase());
+		}
+
+	}
+
 }
