@@ -93,6 +93,13 @@
        - search
 
 - include_vars: secrets/lp-secrets.yml
+  tags:
+       - learning
+       - language
+       - config
+       - search
+       - total
+
 
 - name: Add VisionKey.json key
   copy: content="{{ vision_key }}" dest={{user_home}}/platform/VisionKey.json mode=755 owner={{user}} group={{user}}
