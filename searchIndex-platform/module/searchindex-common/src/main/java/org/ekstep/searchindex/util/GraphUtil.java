@@ -1,6 +1,5 @@
 package org.ekstep.searchindex.util;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
@@ -49,35 +48,4 @@ public class GraphUtil {
 		return dataNode;
 	}
 
-	/**
-	 * Update data node.
-	 *
-	 * @param graphId
-	 *            the graph id
-	 * @param identifier
-	 *            the identifier
-	 * @param ObjectType
-	 *            the object type
-	 * @param metadata
-	 *            the metadata
-	 * @throws Exception
-	 *             the exception
-	 */
-	public static void updateDataNode(String graphId, String identifier, String ObjectType,
-			Map<String, Object> metadata) throws Exception {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v1/graph/" + graphId + "/datanode/"
-				+ identifier;
-
-		Map<String, Object> requestBodyMap = new HashMap<String, Object>();
-		Map<String, Object> requestMap = new HashMap<String, Object>();
-		requestMap.put("nodeType", "DATA_NODE");
-		requestMap.put("objectType", ObjectType);
-		requestMap.put("metadata", metadata);
-		requestBodyMap.put("request", requestMap);
-
-		String requestBody = mapper.writeValueAsString(requestBodyMap);
-
-		HTTPUtil.makePatchRequest(url, requestBody);
-
-	}
 }

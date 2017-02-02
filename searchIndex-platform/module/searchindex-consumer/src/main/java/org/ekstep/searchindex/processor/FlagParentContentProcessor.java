@@ -16,7 +16,8 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
 /**
- * The Class FlagParentProcessor, flags parent content if the content is flagged and it has parent
+ * The Class FlagParentProcessor, flags parent content if the content is flagged
+ * and it has parent
  *
  * @author karthik
  */
@@ -71,7 +72,6 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
-		System.out.println(message.toString());
 		LOGGER.info("processing kafka message" + message);
 		if (null != message.get("edata")) {
 			edata = (Map) message.get("edata");
@@ -91,7 +91,8 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 								for (Relation relation : node.getInRelations())
 									if (relation.getRelationType().equalsIgnoreCase("hasSequenceMember")) {
 										String parentContentId = relation.getStartNodeId();
-										LOGGER.info("content id - " + contentId + " has parent - parent content id -"+parentContentId);
+										LOGGER.info("content id - " + contentId + " has parent - parent content id -"
+												+ parentContentId + ", to flag");
 										Map<String, Object> parentNodeMap = GraphUtil.getDataNode("domain",
 												parentContentId);
 										Node parentNode = mapper.convertValue(parentNodeMap, Node.class);
