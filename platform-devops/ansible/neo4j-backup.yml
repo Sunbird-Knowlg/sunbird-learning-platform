@@ -1,6 +1,5 @@
 - hosts: "{{remote}}"
   remote_user: learning
   roles:
-        - neo4j-backup-restore
-  
+        - neo4j-backup
  

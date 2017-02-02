@@ -100,7 +100,13 @@
   tags:
        - learning
        - total
- 
+- name: copy the consumer-config.xml properties
+  become: yes
+  become_user: learning
+  template: src=learning/consumer-config.properties.j2 dest=/data/properties/learning/consumer-config.properties
+  tags:
+       - learning
+       - total
 
 - name: copy the database.properties
   become: yes

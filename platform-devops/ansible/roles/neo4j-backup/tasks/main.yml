@@ -1,0 +1,17 @@
+- name: delete learning_graph or language_graph
+  become: yes
+  file: path=/home/learning/{{graph_machine}} state=absent
+  
+- name: create directory
+  become: yes
+  file: path=/home/learning/{{graph_machine}} state=directory owner=learning group=learning recurse=yes
+  
+- name: copy template of scripthell script to stop service
+  become: yes
+  template: src=backup_script.j2 dest=/home/learning/backup_script.sh  mode=777 owner=learning group=learning
+  
+- name: run script
+  become: yes
+  become_user: learning
+  command: "/home/learning/backup_script.sh"
+ 
