@@ -37,7 +37,7 @@
 	</ConsumerGroups>
 </ConsumerConfig>
 <ConsumerConfig>
-	<ConsumerInit serverURI="{{ zookeeper_url }}" topic="telemetry-event-topic"></ConsumerInit>
+	<ConsumerInit serverURI="{{ zookeeper_url }}" topic="{{ backend_event_topic_id }}"></ConsumerInit>
 	<ConsumerGroups>
 		<ConsumerGroup id="lp-image-tagging-group" messageProcessor="org.ekstep.searchindex.processor.ImageMessageProcessor">
 			<Consumers>
