@@ -1,6 +1,6 @@
 - name: create folder data for learning
   become: yes
-  file: path={{ item }} state=directory mode=0755
+  file: path={{ item }} state=directory mode=0755 
   with_items:
      - /data
      - /data/graphDB
@@ -102,6 +102,7 @@
 
 
 - name: Add VisionKey.json key
+  become: yes
   copy: content="{{ vision_key }}" dest={{user_home}}/platform/VisionKey.json mode=755 owner={{user}} group={{user}}
   tags:
        - learning
@@ -111,6 +112,7 @@
        - total
 
 - name: Update bashrc for VisionKey.json
+  become: yes
   lineinfile: dest=/home/learning/.profile line='GOOGLE_APPLICATION_CREDENTIALS=/home/learning/platform/VisionKey.json'  state=present insertafter=EOF create=yes
   tags:
        - learning
