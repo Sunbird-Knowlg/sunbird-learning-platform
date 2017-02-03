@@ -3272,6 +3272,12 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 			List<String> lstNodeId = new ArrayList<String>();
+			
+			String wordStatus = (String) item.get(LanguageParams.status.name());
+			if(StringUtils.isEmpty(wordStatus)){
+				item.put(LanguageParams.status.name(), LanguageParams.Live.name());
+			}
+
 			Map<String, Object> updatedWordMap = updateMapFromGraph(languageId, id, item);
 			Response updateResponse = createOrUpdateWord(updatedWordMap, definition, languageId, false, lstNodeId,
 					forceUpdate);
