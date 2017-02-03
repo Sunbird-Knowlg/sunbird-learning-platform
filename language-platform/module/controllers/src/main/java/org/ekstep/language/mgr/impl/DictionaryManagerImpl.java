@@ -1794,7 +1794,11 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			} else {
 				String wordStatus = (String) node.getMetadata().get(LanguageParams.status.name());
 				if(StringUtils.isNotEmpty(wordStatus)&&StringUtils.equalsIgnoreCase(wordStatus, LanguageParams.Live.name()))
-					node.getMetadata().put(ATTRIB_FLAG_REASONS, null);	
+					node.getMetadata().put(ATTRIB_FLAG_REASONS, null);
+				//make word to live status when status is empty or Draft during update
+				if(StringUtils.isEmpty(wordStatus)||StringUtils.equalsIgnoreCase(wordStatus, LanguageParams.Draft.name())){
+					node.getMetadata().put(LanguageParams.status.name(), LanguageParams.Live.name());
+				}
 				createRes = updateWord(node, languageId, wordIdentifier);
 			}
 			if (!checkError(createRes)) {
