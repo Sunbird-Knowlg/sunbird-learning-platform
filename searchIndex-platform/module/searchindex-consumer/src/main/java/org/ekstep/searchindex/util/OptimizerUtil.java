@@ -26,14 +26,14 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Class OptimizerActor, provides akka actor functionality to optimiseImage
+ * The Class OptimizerUtil functionality to optimiseImage
  * operation for different resolutions.
  *
  * @author karthik
  */
 public class OptimizerUtil {
-
 	/** The logger. */
+	
 	private static Logger LOGGER = LogManager.getLogger(OptimizerUtil.class.getName());
 
 	/** The ekstep optimizr. */

@@ -29,17 +29,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+/**
+ * This class TestVisionAPI is a sample 
+ * spike project to demonstrate the GOOGLE_VISION_SERVICE
+ * for Image-tagging and Image-flagging
+ * 
+ * @author Rashmi
+ * 
+ */
 public class TestVisionApi {
 
+	/** The APPLICATION_NAME */
 	private static final String APPLICATION_NAME = "Google-VisionSample/1.0";
 
-	static String outputPath = "src/main/resources/output.json";
+	/** The output path */
+	private static String outputPath = "src/main/resources/output.json";
 
+	/** The folder */
 	private static File folder = new File("src/main/resources/images");
 
-	static ObjectMapper mapper = new ObjectMapper();
+	/** The Object Mapper */
+	private static ObjectMapper mapper = new ObjectMapper();
 
+	/** The main entry point to Test the vision API */ 
 	public static void main(String[] args) throws IOException, GeneralSecurityException {
 
 		TestVisionApi app = new TestVisionApi(getVisionService());
@@ -61,6 +73,63 @@ public class TestVisionApi {
 		pw.close();
 	}
 
+	/** The Vision Variable */
+	private final Vision vision;
+
+	/** The constructer */
+	public TestVisionApi(Vision vision) {
+		this.vision = vision;
+	}
+	
+	/**
+	 * The method getVisionService() holds logic for
+	 * instantiaing and Authentication GOOGLE_VISION_SERVICE
+	 * @return
+	 * @throws IOException
+	 * @throws GeneralSecurityException
+	 */
+	public static Vision getVisionService() throws IOException, GeneralSecurityException {
+		GoogleCredential credential = GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
+		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+		return new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential)
+				.setApplicationName(APPLICATION_NAME).build();
+	}
+
+	/**
+	 * The method labelImage holds logic to call the GOOGLE_VISION_API
+	 * LABEL_DETECTION to get LABELS for a given image
+	 * 
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
+	public Map<String, Object> labelImage(Path path) throws IOException {
+		byte[] data = Files.readAllBytes(path);
+
+		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data))
+				.setFeatures(ImmutableList.of(new Feature().setType("LABEL_DETECTION")));
+		Vision.Images.Annotate annotate = vision.images()
+				.annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
+		annotate.setDisableGZipContent(true);
+		BatchAnnotateImagesResponse batchResponse = annotate.execute();
+		assert batchResponse.getResponses().size() == 1;
+		AnnotateImageResponse response = batchResponse.getResponses().get(0);
+		if (response.getLabelAnnotations() == null) {
+			throw new IOException(response.getError() != null ? response.getError().getMessage()
+					: "Unknown error getting image annotations");
+		}
+		Map<String, Object> labels = processLabels(response.getLabelAnnotations());
+		return labels;
+	}
+
+	/**
+	 * The method processLabels method holds logic to 
+	 * process the result for LABEL_DETECTION from 
+	 * Google Vision API as a MAP
+	 * 
+	 * @param label_map
+	 * @return
+	 */
 	private static Map<String, Object> processLabels(List<EntityAnnotation> label_map) {
 		Map<String, Object> labelMap = new HashMap<String, Object>();
 		List<String> list_90 = new ArrayList<String>();
@@ -90,38 +159,14 @@ public class TestVisionApi {
 		return labelMap;
 	}
 
-	public static Vision getVisionService() throws IOException, GeneralSecurityException {
-		GoogleCredential credential = GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
-		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-		return new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential)
-				.setApplicationName(APPLICATION_NAME).build();
-	}
-
-	private final Vision vision;
-
-	public TestVisionApi(Vision vision) {
-		this.vision = vision;
-	}
-
-	public Map<String, Object> labelImage(Path path) throws IOException {
-		byte[] data = Files.readAllBytes(path);
-
-		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data))
-				.setFeatures(ImmutableList.of(new Feature().setType("LABEL_DETECTION")));
-		Vision.Images.Annotate annotate = vision.images()
-				.annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
-		annotate.setDisableGZipContent(true);
-		BatchAnnotateImagesResponse batchResponse = annotate.execute();
-		assert batchResponse.getResponses().size() == 1;
-		AnnotateImageResponse response = batchResponse.getResponses().get(0);
-		if (response.getLabelAnnotations() == null) {
-			throw new IOException(response.getError() != null ? response.getError().getMessage()
-					: "Unknown error getting image annotations");
-		}
-		Map<String, Object> labels = processLabels(response.getLabelAnnotations());
-		return labels;
-	}
-
+	/**
+	 * The method safeSearch holds logic to call the GOOGLE_VISION_API
+	 * safe_search to get FLAGS for a given image
+	 * 
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
 	public Map<String, List<String>> safeSearch(Path path) throws IOException {
 		byte[] data = Files.readAllBytes(path);
 
@@ -141,6 +186,14 @@ public class TestVisionApi {
 		return search;
 	}
 
+	/**
+	 * The method processflags method holds logic to 
+	 * process the result for SAFE_SEARCH from 
+	 * Google Vision API as a MAP
+	 * 
+	 * @param safeSearchAnnotation
+	 * @return
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Map<String, List<String>> processSearch(SafeSearchAnnotation safeSearchAnnotation) {
 		Map<String, String> map = (Map) safeSearchAnnotation;
@@ -160,6 +213,9 @@ public class TestVisionApi {
 		return result;
 	}
 
+	/**
+	 * This method is used to listFiles in the given folder
+	 */
 	public static List<Path> listFilesForFolder(final File folder) {
 		List<Path> paths = new ArrayList<Path>();
 		for (final File fileEntry : folder.listFiles()) {
