@@ -34,7 +34,7 @@
 - name: Unarchieve 
   become: yes
   become_user: learning
-  command: chdir=/home/learning tar xzf {{graph_machine}}_{{instance}}_{{date}}.tar.gz
+  command: chdir=/home/learning tar xzf {{date}}_{{graph_machine}}_{{instance}}.tar.gz
   
 
 - name: copy all the graph files 
