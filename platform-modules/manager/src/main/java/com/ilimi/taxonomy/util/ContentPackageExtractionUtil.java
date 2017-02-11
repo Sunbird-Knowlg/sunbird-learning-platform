@@ -420,7 +420,7 @@ public class ContentPackageExtractionUtil {
 					+ pathSuffix;
 			break;
 		case "application/vnd.ekstep.plugin-archive":
-			path += s3Environment + File.separator + S3_CONTENT_PLUGIN_DIRECTORY + File.separator
+			path += S3_CONTENT_PLUGIN_DIRECTORY + File.separator
 					+ node.getIdentifier() + DASH + pathSuffix;
 			break;
 
