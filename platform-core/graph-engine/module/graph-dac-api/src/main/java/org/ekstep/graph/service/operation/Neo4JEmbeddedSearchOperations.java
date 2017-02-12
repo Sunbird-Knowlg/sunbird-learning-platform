@@ -57,7 +57,7 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 	 */
 	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
-		LOGGER.info("Transaction Started For 'upsertNode' Operation. | [Graph ID: '" + graphId + "']");
+		LOGGER.debug("Transaction Started For 'upsertNode' Operation. | [Graph ID: '" + graphId + "']");
 		try (Transaction tx = graphDb.beginTx()) {
 			org.neo4j.graphdb.Node neo4jNode = graphDb.getNodeById(nodeId);
 			tx.success();
