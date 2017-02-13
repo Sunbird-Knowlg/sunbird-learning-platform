@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
@@ -54,19 +55,31 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
 		node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
-		Map<String, String> variantsMap = new HashMap<String, String>();
-		node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
-		
 		LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 		Response response = updateContentNode(node, urlArray[1]);
 		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
+		String mimeType = (String) node.getMetadata().get("mimeType");
 		if (!checkError(response)) {
-			node.getMetadata().put("prevState", prevState);
-
-			LOGGER.info("Generating Telemetry Event. | [Content ID: " + node.getIdentifier()+ "]");
-			LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
+			LOGGER.info("Checking if mimeType is of image" + mimeType);
+			if(StringUtils.startsWith("image", mimeType)){
+				
+				LOGGER.info("Initiatizing variants map if mimeType is image");
+				Map<String, String> variantsMap = new HashMap<String, String>();
+				node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+				node.getMetadata().put("prevState", prevState);
+				
+				LOGGER.info("Generating Telemetry Event. | [Content ID: " + node.getIdentifier()+ "]");
+				LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
+				
+			}
+			else{
+				LOGGER.info("Updating status to Live for mimeTypes other than image");
+				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+			}
 		}
-		return response;
+		LOGGER.info("updating the node" + node);
+		Response resp = updateNode(node);
+		return resp;
 	}
 
 	/*
