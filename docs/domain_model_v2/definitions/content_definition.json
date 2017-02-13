@@ -957,8 +957,8 @@
         {
           "required": false,
           "dataType": "Number",
-          "propertyName": "portalScore",
-          "title": "Portal Score",
+          "propertyName": "authoringScore",
+          "title": "Authoring Score",
           "description": "",
           "category": "Analytics",
           "displayProperty": "Readonly",
