@@ -786,8 +786,8 @@
             "Asset",
             "Template",
             "Plugin",
-			      "ContentTemplate",
-			      "ItemTemplate"
+			"ContentTemplate",
+			"ItemTemplate"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -933,6 +933,32 @@
           "dataType": "Number",
           "propertyName": "quality",
           "title": "Quality",
+          "description": "",
+          "category": "Analytics",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 20 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "genieScore",
+          "title": "Genie Score",
+          "description": "",
+          "category": "Analytics",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 20 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "portalScore",
+          "title": "Portal Score",
           "description": "",
           "category": "Analytics",
           "displayProperty": "Readonly",
