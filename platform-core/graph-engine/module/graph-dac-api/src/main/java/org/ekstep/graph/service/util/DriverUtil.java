@@ -34,31 +34,31 @@ public class DriverUtil {
 		if (StringUtils.isBlank(driverType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_DRIVER.name(),
 					DACErrorMessageConstants.INVALID_DRIVER_TYPE + " | [Driver Initialization Failed.]");
-		LOGGER.info("Driver Type: " + driverType);
+		LOGGER.debug("Driver Type: " + driverType);
 		
 		Driver driver = null;
 		switch (driverType) {
 		case "simple":
 		case "SIMPLE":
-			LOGGER.info("Reading Simple Driver. | [Driver Initialization.]");
+			LOGGER.debug("Reading Simple Driver. | [Driver Initialization.]");
 			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), ConfigUtil.getConfig());
 			break;
 			
 		case "medium":
 		case "MEDIUM":
-			LOGGER.info("Reading Medium Driver. | [Driver Initialization.]");
+			LOGGER.debug("Reading Medium Driver. | [Driver Initialization.]");
 			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), AuthTokenUtil.getAuthToken(), ConfigUtil.getConfig());
 			break;
 			
 		case "complex":
 		case "COMPLEX":
-			LOGGER.info("Reading Complex Driver. | [Driver Initialization.]");
+			LOGGER.debug("Reading Complex Driver. | [Driver Initialization.]");
 			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId), AuthTokenUtil.getAuthToken(),
 					ConfigUtil.getConfig());
 			break;
 
 		default:
-			LOGGER.info("Invalid Database (Bolt) Driver Type: " + driverType + " | [Default Driver Type is ]");
+			LOGGER.debug("Invalid Database (Bolt) Driver Type: " + driverType + " | [Default Driver Type is ]");
 			driver = GraphDatabase.driver(RoutingUtil.getRoute(graphId));
 			break;
 		}

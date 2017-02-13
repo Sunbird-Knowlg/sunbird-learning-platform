@@ -24,12 +24,12 @@ public class EncryptionUtil {
 		String encryptedValue = "";
 		try {
 			Key key = generateKey();
-			LOGGER.info("Key: ", key);
+			LOGGER.debug("Key: ", key);
 			Cipher c = Cipher.getInstance(ALGO);
 			c.init(Cipher.ENCRYPT_MODE, key);
 			byte[] encVal = c.doFinal(data.getBytes());
 			encryptedValue = new BASE64Encoder().encode(encVal);
-			LOGGER.info("E_Value: " + encryptedValue);
+			LOGGER.debug("E_Value: " + encryptedValue);
 		} catch (Exception e) {
 			LOGGER.error("Error! While Encrypting Data.", e);
 		}
@@ -44,13 +44,13 @@ public class EncryptionUtil {
 		String decryptedValue = "";
 		try {
 			Key key = generateKey();
-			LOGGER.info("Key: ", key);
+			LOGGER.debug("Key: ", key);
 			Cipher c = Cipher.getInstance(ALGO);
 			c.init(Cipher.DECRYPT_MODE, key);
 			byte[] decordedValue = new BASE64Decoder().decodeBuffer(encryptedData);
 			byte[] decValue = c.doFinal(decordedValue);
 			decryptedValue = new String(decValue);
-			LOGGER.info("D_Value: " + decryptedValue);
+			LOGGER.debug("D_Value: " + decryptedValue);
 		} catch (Exception e) {
 			LOGGER.error("Error! While Decrypting Values.", e);
 		}

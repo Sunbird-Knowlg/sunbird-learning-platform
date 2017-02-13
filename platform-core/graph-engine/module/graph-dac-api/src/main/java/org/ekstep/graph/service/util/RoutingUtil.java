@@ -27,10 +27,10 @@ public class RoutingUtil {
 		String routeUrl = "bolt://localhost:7687";
 		try {
 			String path = Configuration.getProperty(ROUTE_PROP_PREFIX + graphId);
-			LOGGER.info("Request path for graph: " + graphId + " | URL: " + path);
+			LOGGER.debug("Request path for graph: " + graphId + " | URL: " + path);
 			if (StringUtils.isBlank(path)) {
 				path = Configuration.getProperty(ROUTE_PROP_PREFIX + DEFAULT_ROUTE_ID);
-				LOGGER.info("Using default graph path for " + graphId + " | URL: " + path);
+				LOGGER.debug("Using default graph path for " + graphId + " | URL: " + path);
 			}
 			if (StringUtils.isNotBlank(path))
 				routeUrl = path;
