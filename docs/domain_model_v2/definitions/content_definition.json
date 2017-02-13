@@ -786,8 +786,9 @@
             "Asset",
             "Template",
             "Plugin",
-			      "ContentTemplate",
-			      "ItemTemplate"
+		    "ContentTemplate",
+		    "ItemTemplate",
+		    "TextBook"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
