@@ -197,17 +197,14 @@ public class S3URLUpdater {
 		String oldConfigStringV2 = s3 + hyphen + oldRegion + dotOper + aws + forwardSlash + oldConfigBucketName;
 		String newPublicString = oldPublicBucketName + hyphen + env + dotOper + s3 + hyphen + newRegion + dotOper + aws;
 		String newConfigString = oldConfigBucketName + hyphen + env + dotOper + s3 + hyphen + newRegion + dotOper + aws;
-		String oldProxyString = "https://community.ekstep.in/assets";
-		String newProxyString = "https://community1.ekstep.in/assets";
 		if (null != propertyVal && propertyVal instanceof String) {
 			String url = propertyVal.toString();
 			if (url.contains(oldPublicStringV1) || url.contains(oldPublicStringV2) || url.contains(oldConfigStringV1)
-					|| url.contains(oldConfigStringV2) || url.contains(oldProxyString)) {
+					|| url.contains(oldConfigStringV2)) {
 				url = url.replaceAll(oldPublicStringV1, newPublicString);
 				url = url.replaceAll(oldPublicStringV2, newPublicString);
 				url = url.replaceAll(oldConfigStringV1, newConfigString);
 				url = url.replaceAll(oldConfigStringV2, newConfigString);
-				url = url.replaceAll(oldProxyString, newProxyString);
 				return url;
 			}
 		}
