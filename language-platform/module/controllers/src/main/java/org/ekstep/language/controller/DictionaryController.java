@@ -128,7 +128,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 	 * @param userId
 	 *            the user id
 	 * @return the response entity
-	 */
+	 
 	@RequestMapping(value = "/importWords/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importWordSynset(@PathVariable(value = "languageId") String languageId,
@@ -142,6 +142,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	*/
 
 	/**
 	 * Delete relations between two nodes.
