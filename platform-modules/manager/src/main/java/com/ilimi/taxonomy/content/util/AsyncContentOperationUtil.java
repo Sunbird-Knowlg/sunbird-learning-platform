@@ -1,20 +1,28 @@
 package com.ilimi.taxonomy.content.util;
 
+import java.io.File;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.common.ContentOperations;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 
 public class AsyncContentOperationUtil {
 
+	private static final String tempFileLocation = "/data/contentBundle/";
+	
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(AsyncContentOperationUtil.class.getName());
-
+	
 	public static void makeAsyncOperation(ContentOperations operation, Map<String, Object> parameterMap) {
 		LOGGER.debug("Content Operation: ", operation);
 		LOGGER.debug("Parameter Map: ", parameterMap);
@@ -36,23 +44,34 @@ public class AsyncContentOperationUtil {
 					String opt = operation.name();
 					switch (opt) {
 					case "upload":
-					case "UPLOAD":
-
+					case "UPLOAD": {
+						Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
+						InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+						pipeline.init(ContentWorkflowPipelineParams.upload.name(), parameterMap);
+					}
 						break;
 
 					case "publish":
-					case "PUBLISH":
-
+					case "PUBLISH": {
+						Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
+						InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+						pipeline.init(ContentWorkflowPipelineParams.publish.name(), parameterMap);
+					}
 						break;
 
 					case "bundle":
-					case "BUNDLE":
-
+					case "BUNDLE": {
+						InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
+						pipeline.init(ContentWorkflowPipelineParams.bundle.name(), parameterMap);
+					}
 						break;
 
 					case "review":
-					case "REVIEW":
-
+					case "REVIEW": {
+						Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
+						InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+						pipeline.init(ContentAPIParams.review.name(), parameterMap);
+					}
 						break;
 
 					default:
@@ -67,4 +86,11 @@ public class AsyncContentOperationUtil {
 		new Thread(task, "AsyncContentOperationThread").start();
 	}
 
+	protected static String getBasePath(String contentId) {
+		String path = "";
+		if (!StringUtils.isBlank(contentId))
+			path = tempFileLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
+					+ File.separator + contentId;
+		return path;
+	}
 }

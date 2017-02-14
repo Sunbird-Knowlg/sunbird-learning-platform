@@ -1151,7 +1151,8 @@
             "Mock",
             "Processing",
             "FlagDraft",
-            "FlagReview"
+            "FlagReview",
+            "Error"
           ],
           "required": false,
           "displayProperty": "Editable",
