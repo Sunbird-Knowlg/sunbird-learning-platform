@@ -94,7 +94,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.info("checking if kafka message contains edata or not" + message.get("edata"));
 			edata = (Map) message.get("edata");
 			if(null != edata.get("eks")){
-				LOGGER.debug("checking if edata has eks present in it" + eks);
+				LOGGER.info("checking if edata has eks present in it" + eks);
 				eks = (Map) edata.get("eks");
 				if(null != eks){
 					LOGGER.info("checking if node contains contentType as Asset and mediaType as image");
@@ -106,14 +106,14 @@ public class ImageMessageProcessor implements IMessageProcessor {
 							Map<String, String> variantsMap;
 							try {
 								variantsMap = OptimizerUtil.optimiseImage(eks.get("cid").toString());
-								LOGGER.debug("optimized images returned from optimizer util" + variantsMap);
+								LOGGER.info("optimized images returned from optimizer util" + variantsMap);
 				
 								if(null == variantsMap)
 									variantsMap = new HashMap<String,String>();
 								if (StringUtils.isBlank(variantsMap.get("medium"))) {
-									LOGGER.debug("Checking if variantsMap contains medium resolution image", variantsMap);
+									LOGGER.info("Checking if variantsMap contains medium resolution image", variantsMap);
 									variantsMap.put("medium", edata.get("downloadUrl").toString());
-									LOGGER.debug("adding image from node metadata if medium resolution image is empty", variantsMap);
+									LOGGER.info("adding image from node metadata if medium resolution image is empty", variantsMap);
 								}
 								String image_url = variantsMap.get("medium");
 								LOGGER.info("calling processImage to initiate Google Vision Service");

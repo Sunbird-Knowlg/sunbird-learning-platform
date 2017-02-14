@@ -133,6 +133,7 @@ public class OptimizerUtil {
 			}
 
 		}
+		LOGGER.info("updated variants map" + variantsMap);
 		return variantsMap;
 	}
 
