@@ -16,7 +16,9 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.taxonomy.content.common.ContentOperations;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
+import com.ilimi.taxonomy.content.util.AsyncContentOperationUtil;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -106,14 +108,24 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	public Response publish(Node node) {
 		LOGGER.debug("Node: ", node);
 
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
+		Response response = new Response();
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		LOGGER.info("Calling the 'Publish' Initializer for Node ID: " + node.getIdentifier());
-		return pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+		LOGGER.info("Calling the 'Publish' Initializer for Node Id: " + node.getIdentifier());
+		response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+
+		AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
+		LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+
+		response.put(ContentAPIParams.publishStatus.name(),
+				"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+
+		return response;
 	}
 
 	/*
