@@ -119,6 +119,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
 
+		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
+		
 		AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
 		LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
 
