@@ -62,6 +62,11 @@ public class ReviewFinalizer extends BaseFinalizer {
 	 * @return the response
 	 */
 	public Response finalize(Map<String, Object> parameterMap) {
+		LOGGER.debug("Parameter Map: ", parameterMap);
+		if (null == parameterMap)
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_PARAMETER_MAP + " | [Parameter Map Cannot be 'null']");
+		
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),

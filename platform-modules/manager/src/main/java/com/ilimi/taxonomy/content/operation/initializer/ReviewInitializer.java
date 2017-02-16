@@ -67,6 +67,9 @@ public class ReviewInitializer extends BaseInitializer {
 	 */
 	public Response initialize(Map<String, Object> parameterMap) {
 		LOGGER.debug("Parameter Map: ", parameterMap);
+		if (null == parameterMap)
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_PARAMETER_MAP + " | [Parameter Map Cannot be 'null']");
 
 		Response response = new Response();
 
@@ -108,6 +111,8 @@ public class ReviewInitializer extends BaseInitializer {
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);
 			response = finalize.finalyze(ContentWorkflowPipelineParams.review.name(), finalizeParamMap);
+			// TODO: Make first Parameter for all operation's initialize and
+			// finalyze methods as ContentOperation Enum.
 		}
 		return response;
 	}

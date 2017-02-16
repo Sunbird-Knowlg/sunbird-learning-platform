@@ -15,6 +15,7 @@ import org.ekstep.common.util.S3PropertyReader;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
@@ -25,37 +26,39 @@ import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
 
 /**
- * The Class BundleFinalizer, extends BaseFinalizer which
- * mainly holds common methods and operations of a ContentBody.
- * PublishFinalizer holds methods which perform ContentPublishPipeline operations
+ * The Class BundleFinalizer, extends BaseFinalizer which mainly holds common
+ * methods and operations of a ContentBody. PublishFinalizer holds methods which
+ * perform ContentPublishPipeline operations
  */
 public class PublishFinalizer extends BaseFinalizer {
-	
+
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(PublishFinalizer.class.getName());
-	
+
 	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
-	
+
 	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
-	
+
 	/** The BasePath. */
 	protected String basePath;
-	
+
 	/** The ContentId. */
 	protected String contentId;
-	
-	 private static final String s3Artifact = "s3.artifact.folder";
+
+	private static final String s3Artifact = "s3.artifact.folder";
 
 	/**
-	 * Instantiates a new PublishFinalizer and sets the base
-	 * path and current content id for further processing.
+	 * Instantiates a new PublishFinalizer and sets the base path and current
+	 * content id for further processing.
 	 *
 	 * @param basePath
-	 *            the base path is the location for content package file handling and all manipulations. 
+	 *            the base path is the location for content package file
+	 *            handling and all manipulations.
 	 * @param contentId
-	 *            the content id is the identifier of content for which the Processor is being processed currently.
+	 *            the content id is the identifier of content for which the
+	 *            Processor is being processed currently.
 	 */
 	public PublishFinalizer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -67,29 +70,22 @@ public class PublishFinalizer extends BaseFinalizer {
 		this.basePath = basePath;
 		this.contentId = contentId;
 	}
-	
+
 	/**
 	 * finalize()
 	 *
-	 * @param Map the parameterMap
+	 * @param Map
+	 *            the parameterMap
 	 * 
-	 * checks if Node, ecrfType,ecmlType
-	 * exists in the parameterMap else throws ClientException
-	 * Output only ECML format
-	 * create 'artifactUrl'
-	 * Get Content String
-	 * write ECML File
-	 * Create 'ZIP' Package
-	 * Upload Package
-	 * Upload to S3
-	 * Set artifact file For Node
-	 * Download App Icon and create thumbnail
-	 * Set Package Version
-	 * Create ECAR Bundle
-	 * Delete local compressed artifactFile
-	 * Populate Fields and Update Node
+	 *            checks if Node, ecrfType,ecmlType exists in the parameterMap
+	 *            else throws ClientException Output only ECML format create
+	 *            'artifactUrl' Get Content String write ECML File Create 'ZIP'
+	 *            Package Upload Package Upload to S3 Set artifact file For Node
+	 *            Download App Icon and create thumbnail Set Package Version
+	 *            Create ECAR Bundle Delete local compressed artifactFile
+	 *            Populate Fields and Update Node
 	 * @return the response
-	 */	
+	 */
 	public Response finalize(Map<String, Object> parameterMap) {
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
@@ -102,8 +98,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 		if (null == ecrf)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
-					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM
-							+ " | [Invalid or null ECRF Object.]");
+					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
 		LOGGER.info("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
@@ -126,20 +121,19 @@ public class PublishFinalizer extends BaseFinalizer {
 				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName(contentId, folderName));
 				if (null != urlArray && urlArray.length >= 2)
 					artifactUrl = urlArray[IDX_S3_URL];
-				
+
 				// Set artifact file For Node
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), packageFile);
 			}
 		}
 		// Download App Icon and create thumbnail
 		createThumbnail(basePath, node);
-		
+
 		// Set Package Version
 		double version = 1.0;
 		if (null != node && null != node.getMetadata()
 				&& null != node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
-			version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
-					+ 1;
+			version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())) + 1;
 		node.getMetadata().put(ContentWorkflowPipelineParams.pkgVersion.name(), version);
 
 		// Create ECAR Bundle
@@ -149,13 +143,18 @@ public class PublishFinalizer extends BaseFinalizer {
 		List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
 		List<String> childrenIds = new ArrayList<String>();
 		getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
+
+		LOGGER.debug("Publishing the Un-Published Children.");
+		publishChildren(nodes);
+
 		String bundleFileName = Slug
-				.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true)
-				+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + "_" 
+				.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true) + "_"
+				+ System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
 				+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
 		ContentBundle contentBundle = new ContentBundle();
 		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
-		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
+				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
@@ -165,11 +164,11 @@ public class PublishFinalizer extends BaseFinalizer {
 				packageFile.delete();
 			LOGGER.info("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
-			
+
 			if (StringUtils.isNotBlank(artifactUrl))
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
-		
+
 		// Populate Fields and Update Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), urlArray[IDX_S3_URL]);
@@ -180,16 +179,49 @@ public class PublishFinalizer extends BaseFinalizer {
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
-		
-		// TODO: Once AWS Lambda for 'ZIP' Extraction is in place then disable it.  
+
+		// TODO: Once AWS Lambda for 'ZIP' Extraction is in place then disable
+		// it.
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.version);
-			
+
 			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.latest);
 		}
-		
+
 		return updateContentNode(newNode, urlArray[IDX_S3_URL]);
 	}
-	
+
+	private void publishChildren(List<Node> nodes) {
+		LOGGER.debug("Node List: ", nodes);
+		if (null != nodes && !nodes.isEmpty()) {
+			LOGGER.debug("Node is not Empty.");
+			for (Node node : nodes) {
+				if (null != node && null != node.getMetadata()) {
+					LOGGER.debug("Checking Node Id: " + node.getIdentifier());
+					if ((StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Draft.name(),
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name()))
+							|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Review.name(),
+									(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name())))
+							&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Parent.name(),
+									(String) node.getMetadata().get(ContentWorkflowPipelineParams.visibility.name()))) {
+						LOGGER.debug("Fetching 'MimeType' for Content Id: " + node.getIdentifier());
+						String mimeType = (String) node.getMetadata()
+								.get(ContentWorkflowPipelineParams.mimeType.name());
+						if (StringUtils.isBlank(mimeType))
+							throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(),
+									ContentErrorMessageConstants.INVALID_CONTENT_MIMETYPE
+											+ " | [Invalid or 'null' MimeType for Content Id: " + node.getIdentifier()
+											+ "]");
+						LOGGER.debug("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
+
+						LOGGER.info("Publishing Content Id: " + node.getIdentifier());
+						ContentMimeTypeFactory factory = new ContentMimeTypeFactory();
+						factory.getImplForService(mimeType).publish(node);
+					}
+				}
+			}
+		}
+	}
+
 }
