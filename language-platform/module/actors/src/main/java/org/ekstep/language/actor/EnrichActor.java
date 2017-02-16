@@ -20,17 +20,22 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.util.ControllerUtil;
+import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.ekstep.language.wordchian.WordChainUtil;
 
+import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.model.node.DefinitionDTO;
 
 import akka.actor.ActorRef;
 
@@ -41,7 +46,7 @@ import akka.actor.ActorRef;
  *
  * @author rayulu, amarnath and karthik
  */
-public class EnrichActor extends LanguageBaseActor {
+public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(EnrichActor.class.getName());
@@ -134,6 +139,33 @@ public class EnrichActor extends LanguageBaseActor {
 						&& (nodeIds.size() - count) < BATCH_SIZE)) {
 					long startTime = System.currentTimeMillis();
 					List<Node> nodeList = getNodesList(batch_node_ids, languageId);
+					for(Node word:nodeList) {
+						String primaryMeaningId = (String) word.getMetadata().get(LanguageParams.primaryMeaningId.name());
+						if(primaryMeaningId!=null){
+							Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
+							DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+							Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
+							if(wordMap.get(LanguageParams.synonyms.name())!=null)
+								word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
+							if(wordMap.get(LanguageParams.antonyms.name())!=null)
+								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
+							if(wordMap.get(LanguageParams.synonyms.name())!=null){
+								List<NodeDTO> synonyms =(List<NodeDTO>) wordMap.get(LanguageParams.synonyms.name());
+								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, synonyms.size());
+							}
+							if(synset.getMetadata().get(ATTRIB_POS)!=null)
+								word.getMetadata().put(ATTRIB_POS, synset.getMetadata().get(ATTRIB_POS));
+							if(synset.getMetadata().get(ATTRIB_CATEGORY)!=null)
+								word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
+							if(synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES)!=null)
+								word.getMetadata().put(ATTRIB_EXAMPLE_SENTENCES, synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES));
+							if(synset.getMetadata().get(ATTRIB_PICTURES)!=null)
+								word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
+							if(synset.getMetadata().get(ATTRIB_PICTURES)!=null)
+								word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
+						}
+					}
+					
 					if (languageId.equalsIgnoreCase("en")) {
 						updateSyllablesList(nodeList);
 					}
@@ -178,6 +210,43 @@ public class EnrichActor extends LanguageBaseActor {
 		return nodeList;
 	}
 
+	public DefinitionDTO getDefinitionDTO(String definitionName, String graphId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put(GraphDACParams.object_type.name(), definitionName);
+		Request requestDefinition = new Request();
+		requestDefinition.setRequest(map);
+		requestDefinition.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
+		requestDefinition.setOperation("getNodeDefinition");
+		requestDefinition.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+		requestDefinition.put(GraphDACParams.object_type.name(), definitionName);
+		requestDefinition.put(GraphDACParams.graph_id.name(), graphId);
+
+		Response responseDefiniton = controllerUtil.getResponse(requestDefinition, LOGGER);
+		if (checkError(responseDefiniton)) {
+			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(responseDefiniton));
+		} else {
+			DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+			return definition;
+		}
+	}
+	
+	public Node getDataNode(String languageId, String nodeId, String objectType) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put(LanguageParams.node_id.name(), nodeId);
+		Request getNodeReq = new Request();
+		getNodeReq.setRequest(map);
+		getNodeReq.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
+		getNodeReq.setOperation("getDataNode");
+		getNodeReq.getContext().put(GraphHeaderParams.graph_id.name(), languageId);
+		getNodeReq.put(GraphDACParams.node_id.name(), nodeId);
+		getNodeReq.put(GraphDACParams.graph_id.name(), languageId);
+		getNodeReq.put(GraphDACParams.objectType.name(), objectType);
+		Response getNodeRes = controllerUtil.getResponse(getNodeReq, LOGGER);
+		if (checkError(getNodeRes)) {
+			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getNodeRes.getParams().getErrmsg());
+		}
+		return (Node) getNodeRes.get(GraphDACParams.node.name());
+	}
 	/**
 	 * Update frequency count.
 	 *

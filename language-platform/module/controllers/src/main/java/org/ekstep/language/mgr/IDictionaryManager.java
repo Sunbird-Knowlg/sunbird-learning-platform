@@ -118,7 +118,7 @@ public interface IDictionaryManager {
 	 * @throws Exception
 	 *             the exception
 	 */
-	Response importWordSynset(String languageId, InputStream inputStream) throws Exception;
+	//Response importWordSynset(String languageId, InputStream inputStream) throws Exception;
 
 	/**
 	 * Find words using the lemma in the CSV.

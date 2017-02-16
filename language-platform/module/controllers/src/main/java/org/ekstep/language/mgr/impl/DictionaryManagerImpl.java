@@ -39,7 +39,6 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
-import org.ekstep.language.util.LogWordEventUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -72,10 +71,11 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 
+// TODO: Auto-generated Javadoc
 /**
- * Provides implementation for word, synsets and relations manipulations
- * 
- * @author Amarnath, Rayulu, Azhar
+ * Provides implementation for word, synsets and relations manipulations.
+ *
+ * @author Amarnath, Rayulu, Azhar and karthik
  */
 @Component
 public class DictionaryManagerImpl extends BaseLanguageManager implements IDictionaryManager, IWordnetConstants {
@@ -89,9 +89,15 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	/** The Constant DEFAULT_STATUS. */
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
+	/** The Constant s3Media. */
 	private static final String s3Media = "s3.media.folder";
-	
-	// inside regex all special character mentioned!, by default inside string black slash and double quote should be escaped using black slash, in addition to that here open bracket([) and close bracket(]) has been escaped and dash(-) were mentioned at last special character for regex constraints to work
+
+	/** The Constant special. */
+	// inside regex all special character mentioned!, by default inside string
+	// black slash and double quote should be escaped using black slash, in
+	// addition to that here open bracket([) and close bracket(]) has been
+	// escaped and dash(-) were mentioned at last special character for regex
+	// constraints to work
 	private static final Pattern special = Pattern.compile(".*[`~!@#$%^&*()_=+\\[\\]{}|\\;:'\",<.>/?-].*");
 
 	/** The word util. */
@@ -101,6 +107,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	static {
 		DEFAULT_STATUS.add("Live");
 	}
+
+	/** The synset relations. */
+	private static List<String> synsetRelations = null;
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
@@ -139,30 +148,29 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 */
 	public boolean isValidWord(String word, String languageId) {
 		try {
-			
+
 			Matcher hasSpecial = special.matcher(word);
-			if(hasSpecial.matches()){
+			if (hasSpecial.matches()) {
 				return false;
 			}
 
 			char firstLetter = word.charAt(0);
 			int i = firstLetter;
-	        String uc = String.format("%04x", i);
-	        int hexVal = Integer.parseInt(uc, 16);
-			Node languageNode = getDataNode("domain","lang_"+languageId,"Language");
+			String uc = String.format("%04x", i);
+			int hexVal = Integer.parseInt(uc, 16);
+			Node languageNode = getDataNode("domain", "lang_" + languageId, "Language");
 			String startUnicode = (String) languageNode.getMetadata().get("startUnicode");
 			String endUnicode = (String) languageNode.getMetadata().get("endUnicode");
-			
-			if(startUnicode!=null&&endUnicode!=null){
+
+			if (startUnicode != null && endUnicode != null) {
 				int min = Integer.parseInt(startUnicode, 16);
-		        int max = Integer.parseInt(endUnicode, 16);
-		        if (hexVal >= min && hexVal <= max){
-		        }else {
-		        	return false;
-		        }
+				int max = Integer.parseInt(endUnicode, 16);
+				if (hexVal >= min && hexVal <= max) {
+				} else {
+					return false;
+				}
 			}
-				
-			
+
 		} catch (Exception e) {
 			// return true... if language object is not defined...
 		}
@@ -1584,17 +1592,17 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							boolean isValid = isValidWord(lemma, languageId);
 							if (!isValid) {
 								Matcher hasSpecial = special.matcher(lemma);
-								if(hasSpecial.matches()){
+								if (hasSpecial.matches()) {
 									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-											"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
-								}else {
+											"Word should not contain any special characters ",
+											ResponseCode.CLIENT_ERROR);
+								} else {
 									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-										"Word cannot be in a different language than " + language,
-										ResponseCode.CLIENT_ERROR);
+											"Word cannot be in a different language than " + language,
+											ResponseCode.CLIENT_ERROR);
 								}
 							}
-							Response wordResponse = createOrUpdateWord(item, definition, languageId, true, lstNodeId,
-									forceUpdate);
+							Response wordResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
 							if (checkError(wordResponse)) {
 								errorMessages.add(wordUtil.getErrorMessage(wordResponse));
 							}
@@ -1651,294 +1659,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	}
 
 	/**
-	 * Creates the or update word.
-	 *
-	 * @param item
-	 *            the item
-	 * @param definition
-	 *            the definition
-	 * @param languageId
-	 *            the language id
-	 * @param createFlag
-	 *            the create flag
-	 * @param nodeIdList
-	 *            the node id list
-	 * @param forceUpdate
-	 *            the force update
-	 * @return the response
-	 */
-	@SuppressWarnings({ "unchecked" })
-	private Response createOrUpdateWord(Map<String, Object> item, DefinitionDTO definition, String languageId,
-			boolean createFlag, List<String> nodeIdList, boolean forceUpdate) {
-		Response createRes = new Response();
-		List<String> errorMessages = new ArrayList<String>();
-		try {
-			Map<String, Object> primaryMeaning = (Map<String, Object>) item.get(LanguageParams.primaryMeaning.name());
-			if (primaryMeaning == null) {
-				return ERROR(LanguageErrorCodes.ERROR_PRIMARY_MEANING_EMPTY.name(),
-						"Primary meaning field is mandatory", ResponseCode.SERVER_ERROR);
-			}
-			String wordPrimaryMeaningId = (String) item.get(LanguageParams.primaryMeaningId.name());
-			String primarySynsetId = (String) primaryMeaning.get(LanguageParams.identifier.name());
-			/*
-			 * if (wordPrimaryMeaningId != null && primarySynsetId != null &&
-			 * !wordPrimaryMeaningId.equalsIgnoreCase(primarySynsetId)) { return
-			 * ERROR(LanguageErrorCodes.ERROR_PRIMARY_MEANING_MISMATCH.name(),
-			 * "primaryMeaningId cannot be different from primary meaning synset Id"
-			 * , ResponseCode.SERVER_ERROR); }
-			 */
-			if (primarySynsetId != null)
-				item.put(LanguageParams.primaryMeaningId.name(), primarySynsetId);
-			validateListProperty(item, ATTRIB_PRONUNCIATIONS);
-			validateListProperty(primaryMeaning, ATTRIB_PICTURES);
-			validateListProperty(primaryMeaning, ATTRIB_EXAMPLE_SENTENCES);
-			validateListProperty(primaryMeaning, LanguageParams.tags.name());
-			String gloss = (String) primaryMeaning.get(ATTRIB_GLOSS);
-
-			// create or update Primary meaning Synset
-			List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
-					.get(LanguageParams.synonyms.name());
-			if (null != synonyms && !synonyms.isEmpty())
-				item.put(ATTRIB_HAS_SYNONYMS, true);
-			else
-				item.put(ATTRIB_HAS_SYNONYMS, null);
-
-			List<Map<String, Object>> antonyms = (List<Map<String, Object>>) primaryMeaning
-					.get(LanguageParams.antonyms.name());
-			if (null != antonyms && !antonyms.isEmpty())
-				item.put(ATTRIB_HAS_ANTONYMS, true);
-			else
-				item.put(ATTRIB_HAS_ANTONYMS, null);
-
-			if (primaryMeaning.containsKey(ATTRIB_EXAMPLE_SENTENCES)) {
-				Object exampleSentences = primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES);
-				item.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
-			}
-			
-			Response primaryMeaningRes = createMeaningWithRelatedWord(primaryMeaning, definition, languageId, createFlag, nodeIdList, errorMessages, forceUpdate, true);
-			if (checkError(primaryMeaningRes)) {
-				return primaryMeaningRes;
-			}
-			String primaryMeaningId = (String) primaryMeaningRes.get(GraphDACParams.node_id.name());
-			Node synsetNode = wordUtil.getDataNode(languageId, primaryMeaningId);
-			// update wordMap with primary synset data
-			item.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
-
-			// get Synset data and set to word
-			if (synsetNode != null) {
-				Map<String, Object> synsetMetadata = synsetNode.getMetadata();
-				String category = (String) synsetMetadata.get(LanguageParams.category.name());
-				if (StringUtils.isNotBlank(category))
-					item.put(LanguageParams.category.name(), category);
-				List<String> tags = synsetNode.getTags();
-				item.put(LanguageParams.tags.name(), tags);
-				if (primaryMeaning.containsKey(ATTRIB_PICTURES)) {
-					Object pictures = primaryMeaning.get(ATTRIB_PICTURES);
-					item.put(ATTRIB_PICTURES, pictures);
-				}
-			}
-
-			// create or update Other meaning Synsets
-			List<String> otherMeaningIds = new ArrayList<String>();
-			List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) item
-					.get(LanguageParams.otherMeanings.name());
-			if (otherMeanings != null && !otherMeanings.isEmpty()) {
-				for (Map<String, Object> otherMeaning : otherMeanings) {
-					Response otherMeaningResponse = createMeaningWithRelatedWord(otherMeaning, definition, languageId, createFlag, nodeIdList, errorMessages, forceUpdate, false);
-					if (checkError(primaryMeaningRes)) {
-						return primaryMeaningRes;
-					}
-					String otherMeaningId = (String) otherMeaningResponse.get(GraphDACParams.node_id.name());
-					otherMeaningIds.add(otherMeaningId);
-				}
-			}
-
-			// create Word
-			item.remove(LanguageParams.primaryMeaning.name());
-			item.remove(LanguageParams.otherMeanings.name());
-			Integer synsetCount = otherMeaningIds.size() + 1;
-			item.put(ATTRIB_SYNSET_COUNT, synsetCount);
-			String lemma = (String) item.get(ATTRIB_LEMMA);
-			lemma = lemma.trim().toLowerCase();
-			item.put(ATTRIB_LEMMA, lemma);
-			item.put(ATTRIB_MEANING, gloss);
-			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
-				Object isPhrase = item.get(ATTRIB_IS_PHRASE);
-				if (null == isPhrase)
-					item.put(ATTRIB_IS_PHRASE, true);
-			}
-
-			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
-			node.setObjectType(LanguageParams.Word.name());
-			String wordIdentifier = (String) item.get(LanguageParams.identifier.name());
-			String prevState = LanguageParams.Draft.name();
-			if (wordIdentifier == null && createFlag) {
-				Node existingWordNode = wordUtil.searchWord(languageId, (String) item.get(LanguageParams.lemma.name()));
-				if (existingWordNode != null) {
-					wordIdentifier = existingWordNode.getIdentifier();
-					item.put(LanguageParams.identifier.name(), wordIdentifier);
-					Object lastUpdatedBy = existingWordNode.getMetadata().get(ATTRIB_LAST_UPDATED_BY);
-					String stringLastUpdatedBy = null;
-					if (lastUpdatedBy != null && lastUpdatedBy instanceof String[]) {
-						if (((String[]) lastUpdatedBy).length > 0) {
-							stringLastUpdatedBy = ((String[]) lastUpdatedBy)[0];
-						}
-						node.getMetadata().put(ATTRIB_LAST_UPDATED_BY, stringLastUpdatedBy);
-					}
-					prevState = (String) existingWordNode.getMetadata().get(LanguageParams.status.name());
-					createFlag = false;
-				}
-			}
-			if (createFlag) {
-				createRes = createWord(node, languageId);
-			} else {
-				String wordStatus = (String) node.getMetadata().get(LanguageParams.status.name());
-				if(StringUtils.isNotEmpty(wordStatus)&&StringUtils.equalsIgnoreCase(wordStatus, LanguageParams.Live.name()))
-					node.getMetadata().put(ATTRIB_FLAG_REASONS, null);
-				//make word to live status when status is empty or Draft during update
-				if(StringUtils.isEmpty(wordStatus)||StringUtils.equalsIgnoreCase(wordStatus, LanguageParams.Draft.name())){
-					node.getMetadata().put(LanguageParams.status.name(), LanguageParams.Live.name());
-				}
-				createRes = updateWord(node, languageId, wordIdentifier);
-			}
-			if (!checkError(createRes)) {
-				String wordId = (String) createRes.get("node_id");
-				Node word = getWord(wordId, languageId, errorMessages);
-				Object status = word.getMetadata().get(LanguageParams.status.name());
-				if (null != status && !StringUtils.equalsIgnoreCase((String) status, prevState)) {
-					word.getMetadata().put("prevState", prevState);
-					LogWordEventUtil.logWordLifecycleEvent(word.getIdentifier(), word.getMetadata());
-				}
-				if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
-					for (Relation rel : word.getInRelations()) {
-						if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())) {
-							String synsetId = rel.getStartNodeId();
-							if (!StringUtils.equals(synsetId, primaryMeaningId) && !otherMeaningIds.contains(synsetId))
-								removeSynonymRelation(languageId, wordId, synsetId);
-						}
-					}
-				}
-				// add Primary Synonym Relation
-				addSynonymRelation(languageId, wordId, primaryMeaningId);
-				// add other meaning Synonym Relation
-				for (String otherMeaningId : otherMeaningIds) {
-					addSynonymRelation(languageId, wordId, otherMeaningId);
-				}
-			} else {
-				errorMessages.add(wordUtil.getErrorMessage(createRes));
-			}
-		} catch (Exception e) {
-			errorMessages.add(e.getMessage());
-		}
-		if (!errorMessages.isEmpty()) {
-			createRes.put(LanguageParams.error_messages.name(), errorMessages);
-		}
-		return createRes;
-	}
-
-	private Response createMeaningWithRelatedWord(Map<String, Object> meaningDataMap, DefinitionDTO definition, String languageId,
-			boolean createFlag, List<String> nodeIdList, List<String> errorMessages, boolean forceUpdate, boolean isPrimary) throws Exception{
-		
-		// create or update Primary meaning Synset
-		List<Map<String, Object>> synonyms = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.synonyms.name());
-		List<String> synonymWordIds = processRelationWords(synonyms, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.synonyms.name());
-
-		List<Map<String, Object>> hypernyms = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.hypernyms.name());
-		List<String> hypernymWordIds = processRelationWords(hypernyms, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.hypernyms.name());
-
-		List<Map<String, Object>> holonyms = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.holonyms.name());
-		List<String> holonymWordIds = processRelationWords(holonyms, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.holonyms.name());
-
-		List<Map<String, Object>> antonyms = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.antonyms.name());
-		List<String> antonymWordIds = processRelationWords(antonyms, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.antonyms.name());
-
-		List<Map<String, Object>> hyponyms = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.hyponyms.name());
-		List<String> hyponymWordIds = processRelationWords(hyponyms, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.hyponyms.name());
-
-		List<Map<String, Object>> meronyms = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.meronyms.name());
-		List<String> meronymWordIds = processRelationWords(meronyms, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.meronyms.name());
-
-		List<Map<String, Object>> tools = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.tools.name());
-		List<String> toolWordIds = processRelationWords(tools, languageId, errorMessages, definition, nodeIdList, LanguageParams.tools.name());
-
-		List<Map<String, Object>> workers = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.workers.name());
-		List<String> workerWordIds = processRelationWords(workers, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.workers.name());
-
-		List<Map<String, Object>> actions = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.actions.name());
-		List<String> actionWordIds = processRelationWords(actions, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.actions.name());
-
-		List<Map<String, Object>> objects = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.objects.name());
-		List<String> objectWordIds = processRelationWords(objects, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.objects.name());
-
-		List<Map<String, Object>> converse = (List<Map<String, Object>>) meaningDataMap
-				.get(LanguageParams.converse.name());
-		List<String> converseWordIds = processRelationWords(converse, languageId, errorMessages, definition,
-				nodeIdList, LanguageParams.converse.name());
-
-		meaningDataMap.remove(LanguageParams.synonyms.name());
-		meaningDataMap.remove(LanguageParams.hypernyms.name());
-		meaningDataMap.remove(LanguageParams.hyponyms.name());
-		meaningDataMap.remove(LanguageParams.holonyms.name());
-		meaningDataMap.remove(LanguageParams.antonyms.name());
-		meaningDataMap.remove(LanguageParams.meronyms.name());
-		meaningDataMap.remove(LanguageParams.tools.name());
-		meaningDataMap.remove(LanguageParams.objects.name());
-		meaningDataMap.remove(LanguageParams.actions.name());
-		meaningDataMap.remove(LanguageParams.workers.name());
-		meaningDataMap.remove(LanguageParams.converse.name());
-
-		Response synsetResponse = createSynset(languageId, meaningDataMap);
-		if (checkError(synsetResponse)) {
-			return synsetResponse;
-		}
-
-		String meaningId = (String) synsetResponse.get(GraphDACParams.node_id.name());
-		Node synsetNode = wordUtil.getDataNode(languageId, meaningId);
-		addSynsetRelation(synonymWordIds, RelationTypes.SYNONYM.relationName(), languageId, synsetNode,
-				errorMessages, forceUpdate, isPrimary);
-		addSynsetRelation(hypernymWordIds, RelationTypes.HYPERNYM.relationName(), languageId, synsetNode,
-				errorMessages, forceUpdate, isPrimary);
-		addSynsetRelation(holonymWordIds, RelationTypes.HOLONYM.relationName(), languageId, synsetNode,
-				errorMessages, forceUpdate, isPrimary);
-		addSynsetRelation(antonymWordIds, RelationTypes.ANTONYM.relationName(), languageId, synsetNode,
-				errorMessages, forceUpdate, isPrimary);
-		addSynsetRelation(hyponymWordIds, RelationTypes.HYPONYM.relationName(), languageId, synsetNode,
-				errorMessages, forceUpdate, isPrimary);
-		addSynsetRelation(meronymWordIds, RelationTypes.MERONYM.relationName(), languageId, synsetNode,
-				errorMessages, forceUpdate, isPrimary);
-		addSynsetRelation(toolWordIds, RelationTypes.TOOL.relationName(), languageId, synsetNode, errorMessages,
-				forceUpdate, isPrimary);
-		addSynsetRelation(workerWordIds, RelationTypes.WORKER.relationName(), languageId, synsetNode, errorMessages,
-				forceUpdate, isPrimary);
-		addSynsetRelation(actionWordIds, RelationTypes.ACTION.relationName(), languageId, synsetNode, errorMessages,
-				forceUpdate, isPrimary);
-		addSynsetRelation(objectWordIds, RelationTypes.OBJECT.relationName(), languageId, synsetNode, errorMessages,
-				forceUpdate, isPrimary);
-		addSynsetRelation(converseWordIds, RelationTypes.CONVERSE.relationName(), languageId, synsetNode,
-				errorMessages, forceUpdate, isPrimary);
-		
-		return synsetResponse;
-	}
-	/**
 	 * Adds the synset relation of the word.
 	 *
 	 * @param wordIds
@@ -1953,6 +1673,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *            the error messages
 	 * @param forceUpdate
 	 *            the force update
+	 * @param isPrimary
+	 *            the is primary
 	 */
 	private void addSynsetRelation(List<String> wordIds, String relationType, String languageId, Node synsetNode,
 			List<String> errorMessages, boolean forceUpdate, boolean isPrimary) {
@@ -1968,7 +1690,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 			}
 			for (String wordId : wordIds) {
-				if (relationType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())&&isPrimary) {
+				if (relationType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName()) && isPrimary) {
 					Node wordNode = getWord(wordId, languageId, errorMessages);
 					Map<String, Object> metadata = wordNode.getMetadata();
 					if (metadata != null) {
@@ -2087,147 +1809,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	}
 
 	/**
-	 * Process relation words of a given word.
-	 *
-	 * @param synsetRelations
-	 *            the synset relations
-	 * @param languageId
-	 *            the language id
-	 * @param errorMessages
-	 *            the error messages
-	 * @param wordDefintion
-	 *            the word defintion
-	 * @param nodeIdList
-	 *            the node id list
-	 * @param relationName TODO
-	 * @return the list
-	 */
-	private List<String> processRelationWords(List<Map<String, Object>> synsetRelations, String languageId,
-			List<String> errorMessages, DefinitionDTO wordDefintion, List<String> nodeIdList, String relationName) {
-		List<String> wordIds = null;
-		if (synsetRelations != null) {
-			wordIds = new ArrayList<String>();
-			for (Map<String, Object> word : synsetRelations) {
-				String wordId = createOrUpdateWordsWithoutPrimaryMeaning(word, languageId, errorMessages,
-						wordDefintion, relationName);
-				if (wordId != null) {
-					wordIds.add(wordId);
-				}
-			}
-			if (!wordIds.isEmpty())
-				nodeIdList.addAll(wordIds);
-		}
-		return wordIds;
-	}
-
-	/**
-	 * Creates or update words without processing primary meaning.
-	 *
-	 * @param word
-	 *            the word
-	 * @param languageId
-	 *            the language id
-	 * @param errorMessages
-	 *            the error messages
-	 * @param definition
-	 *            the definition
-	 * @param relationName TODO
-	 * @return the string
-	 */
-	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
-			List<String> errorMessages, DefinitionDTO definition, String relationName) {
-		String lemma = (String) word.get(LanguageParams.name.name());
-		if (StringUtils.isBlank(lemma))
-			lemma = (String) word.get(LanguageParams.lemma.name());
-		if (StringUtils.isBlank(lemma)) {
-			errorMessages.add("Word is empty in "+relationName + " List");
-			return null;
-		} else {
-			lemma = lemma.trim().toLowerCase();
-			word.put(LanguageParams.lemma.name(), lemma);
-			word.remove(LanguageParams.name.name());
-			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, languageId);
-			if (!isValid) {
-				Matcher hasSpecial = special.matcher(lemma);
-				if(hasSpecial.matches()){
-					errorMessages.add("Word should not contain any special characters for word in "+relationName + " List");
-				}else{
-					errorMessages.add("Word cannot be in a different language than " + language +" for word in "+relationName + " List");
-				}
-				return null;
-			}
-			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
-				Object isPhrase = word.get(ATTRIB_IS_PHRASE);
-				if (null == isPhrase)
-					word.put(ATTRIB_IS_PHRASE, true);
-			}
-			String identifier = (String) word.get(LanguageParams.identifier.name());
-			if (StringUtils.isBlank(identifier)) {
-				Node existingWordNode = wordUtil.searchWord(languageId, lemma);
-				if (existingWordNode != null) {
-					identifier = existingWordNode.getIdentifier();
-					word.put(LanguageParams.identifier.name(), identifier);
-					Object lastUpdatedBy = existingWordNode.getMetadata().get(ATTRIB_LAST_UPDATED_BY);
-					String stringLastUpdatedBy = null;
-					if (lastUpdatedBy != null && lastUpdatedBy instanceof String[]) {
-						if (((String[]) lastUpdatedBy).length > 0) {
-							stringLastUpdatedBy = ((String[]) lastUpdatedBy)[0];
-						}
-						word.put(ATTRIB_LAST_UPDATED_BY, stringLastUpdatedBy);
-					}
-				}
-			}
-			Response wordResponse;
-			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
-			wordNode.setObjectType(LanguageParams.Word.name());
-			if (identifier == null) {
-				wordResponse = createWord(wordNode, languageId);
-			} else {
-				wordResponse = updateWord(wordNode, languageId, identifier);
-			}
-			if (checkError(wordResponse)) {
-				errorMessages.add(wordUtil.getErrorMessage(wordResponse));
-				return null;
-			}
-			String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
-			return nodeId;
-		}
-	}
-
-	/**
-	 * Creates the synset.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param synsetObj
-	 *            the synset obj
-	 * @return the response
-	 * @throws Exception
-	 *             the exception
-	 */
-	private Response createSynset(String languageId, Map<String, Object> synsetObj) throws Exception {
-		String operation = "updateDataNode";
-		String identifier = (String) synsetObj.get(LanguageParams.identifier.name());
-		if (StringUtils.isBlank(identifier)) {
-			operation = "createDataNode";
-		}
-
-		DefinitionDTO synsetDefinition = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
-		// synsetObj.put(GraphDACParams.object_type.name(),
-		// LanguageParams.Synset.name());
-		Node synsetNode = convertToGraphNode(synsetObj, synsetDefinition);
-		synsetNode.setObjectType(LanguageParams.Synset.name());
-		Request synsetReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, operation);
-		synsetReq.put(GraphDACParams.node.name(), synsetNode);
-		if (operation.equalsIgnoreCase("updateDataNode")) {
-			synsetReq.put(GraphDACParams.node_id.name(), synsetNode.getIdentifier());
-		}
-		Response res = getResponse(synsetReq, LOGGER);
-		return res;
-	}
-
-	/**
 	 * Adds the synonym relation.
 	 *
 	 * @param languageId
@@ -2245,29 +1826,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		Response response = getResponse(request, LOGGER);
 		if (checkError(response)) {
 			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
-		}
-	}
-
-	/**
-	 * Creates the word using the Node object.
-	 *
-	 * @param node
-	 *            the node
-	 * @param languageId
-	 *            the language id
-	 * @return the response
-	 */
-	private Response createWord(Node node, String languageId) {
-		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-		validateReq.put(GraphDACParams.node.name(), node);
-		Response validateRes = getResponse(validateReq, LOGGER);
-		if (checkError(validateRes)) {
-			return validateRes;
-		} else {
-			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-			createReq.put(GraphDACParams.node.name(), node);
-			Response res = getResponse(createReq, LOGGER);
-			return res;
 		}
 	}
 
@@ -2327,23 +1885,16 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
 				Matcher hasSpecial = special.matcher(lemma);
-				if(hasSpecial.matches()){
+				if (hasSpecial.matches()) {
 					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-							"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
-				}else {
+							"Word should not contain any special characters ", ResponseCode.CLIENT_ERROR);
+				} else {
 					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
 							"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
 				}
 			}
-			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-					GraphDACParams.object_type.name(), objectType);
-			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-			if (checkError(responseDefiniton)) {
-				return responseDefiniton;
-			}
-			DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 			List<String> lstNodeId = new ArrayList<String>();
-			Response updateResponse = createOrUpdateWord(item, definition, languageId, false, lstNodeId, forceUpdate);
+			Response updateResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
 			String wordId = (String) updateResponse.get(GraphDACParams.node_id.name());
 			if (StringUtils.isNotBlank(wordId))
 				lstNodeId.add(wordId);
@@ -2648,7 +2199,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					Node otherSynonym = synsets.get(i);
 					String otherMeaningId = otherSynonym.getIdentifier();
 					if (primaryMeaningId != null && !otherMeaningId.equalsIgnoreCase(primaryMeaningId)) {
-						Map<String, Object> otherMeaning = getMeaningObjectMap(languageId, otherMeaningId, wordIdentifier);
+						Map<String, Object> otherMeaning = getMeaningObjectMap(languageId, otherMeaningId,
+								wordIdentifier);
 						otherMeaningsList.add(otherMeaning);
 					}
 				}
@@ -2684,229 +2236,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 		}
 		return false;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.ekstep.language.mgr.IDictionaryManager#importWordSynset(java.lang.
-	 * String, java.io.InputStream)
-	 */
-	@Override
-	@CoverageIgnore
-	public Response importWordSynset(String languageId, InputStream inputStream) throws Exception {
-		Response importResponse = OK();
-		String delimiter = "::";
-		List<Map<String, String>> records = readFromCSV(inputStream);
-		Map<Integer, String> errorMessageMap = new HashMap<Integer, String>();
-		Map<Integer, String> messageMap = new HashMap<Integer, String>();
-		int rowNo = 0;
-		Map<String, String> wordIdMap = new HashMap<String, String>();
-		Map<String, String> synsetIdMap = new HashMap<String, String>();
-		List<String> wordNodeIds = new ArrayList<String>();
-		DefinitionDTO wordDefintion = getDefintiion(languageId, LanguageParams.Word.name());
-		DefinitionDTO defintion = getDefintiion(languageId, LanguageParams.Synset.name());
-		for (Map<String, String> csvRecord : records) {
-			rowNo++;
-			Map<String, Object> synsetMap = new HashMap<String, Object>();
-			Map<String, Object> wordMap = new HashMap<String, Object>();
-			Map<String, Boolean> booleanProps = new HashMap<String, Boolean>();
-			String wordId = null;
-			String lemma = null;
-			List<String> exampleSentences = null;
-			String synsetId = null;
-			List<String> pronunciations = null;
-			List<String> tagList = null;
-			boolean primaryMeaning = false;
-			for (Map.Entry<String, String> entry : csvRecord.entrySet()) {
-				switch (entry.getKey()) {
-				case "identifier": {
-					wordId = entry.getValue();
-					break;
-				}
-				case ATTRIB_LEMMA: {
-					lemma = entry.getValue();
-					break;
-				}
-				case "tags": {
-					tagList = new ArrayList<String>();
-					if (StringUtils.isNotBlank(entry.getValue())) {
-						String[] arr = entry.getValue().split(",");
-						tagList = Arrays.asList(arr);
-					}
-					break;
-				}
-				case ATTRIB_PICTURES: {
-					if (StringUtils.isNotBlank(entry.getValue())) {
-						String[] arr = entry.getValue().split(",");
-						synsetMap.put(ATTRIB_PICTURES, Arrays.asList(arr));
-					}
-					break;
-				}
-				case ATTRIB_PRONUNCIATIONS: {
-					pronunciations = new ArrayList<String>();
-					if (StringUtils.isNotBlank(entry.getValue())) {
-						String[] arr = entry.getValue().split(",");
-						pronunciations = Arrays.asList(arr);
-					}
-					break;
-				}
-				case ATTRIB_EXAMPLE_SENTENCES: {
-					exampleSentences = new ArrayList<String>();
-					if (StringUtils.isNotBlank(entry.getValue())) {
-						String[] arr = entry.getValue().split(delimiter);
-						exampleSentences = Arrays.asList(arr);
-					}
-					break;
-				}
-				case ATTRIB_HAS_CONNOTATIVE:
-				case ATTRIB_HAS_CONNOTATIVE_MEANING: {
-					booleanProps.put(ATTRIB_HAS_CONNOTATIVE, getBooleanValue(entry.getValue()));
-					break;
-				}
-				case ATTRIB_IS_PHRASE:
-				case ATTRIB_IS_LOAN_WORD: {
-					booleanProps.put(entry.getKey(), getBooleanValue(entry.getValue()));
-					break;
-				}
-				case "synsetId": {
-					synsetId = entry.getValue();
-					break;
-				}
-				case "primaryMeaning": {
-					primaryMeaning = getBooleanValue(entry.getValue());
-					break;
-				}
-				case ATTRIB_POS: {
-					if (StringUtils.isNotBlank(entry.getValue()))
-						synsetMap.put(entry.getKey(), entry.getValue().trim().toLowerCase());
-					break;
-				}
-				default: {
-					if (StringUtils.isNotBlank(entry.getValue()))
-						synsetMap.put(entry.getKey(), entry.getValue());
-					break;
-				}
-				}
-			}
-			if (lemma == null || lemma.isEmpty()) {
-				addMessage(rowNo, "lemma is mandatory", errorMessageMap);
-				continue;
-			}
-			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, languageId);
-			if (!isValid) {
-				Matcher hasSpecial = special.matcher(lemma);
-				if(hasSpecial.matches()){
-					addMessage(rowNo, "Word should not contain any special characters " , errorMessageMap);
-				}else{
-					addMessage(rowNo, "Word cannot be in a different language than " + language, errorMessageMap);
-				}
-				continue;
-			}
-			String gloss = (String) synsetMap.get(LanguageParams.gloss.name());
-			if (gloss == null || gloss.isEmpty()) {
-				addMessage(rowNo, "Gloss is mandatory", errorMessageMap);
-				continue;
-			}
-			// create or update Synset
-			if (synsetId == null || synsetId.isEmpty())
-				synsetId = synsetIdMap.get(gloss);
-			if (synsetId != null && !synsetId.isEmpty())
-				synsetMap.put(LanguageParams.identifier.name(), synsetId);
-			Node synsetNode = convertToGraphNode(languageId, LanguageParams.Synset.name(), synsetMap, defintion);
-			synsetNode.setObjectType(LanguageParams.Synset.name());
-			if (null != tagList && !tagList.isEmpty())
-				synsetNode.setTags(tagList);
-			Response synsetResponse = createOrUpdateNode(languageId, synsetNode);
-			if (checkError(synsetResponse)) {
-				addMessage(rowNo, wordUtil.getErrorMessage(synsetResponse), errorMessageMap);
-				continue;
-			} else {
-				synsetId = (String) synsetResponse.get(GraphDACParams.node_id.name());
-				addMessage(rowNo, "Synset Id: " + synsetId, messageMap);
-			}
-			synsetIdMap.put(gloss, synsetId);
-			// create or update Word
-			if (wordId != null && !wordId.isEmpty()) {
-				wordMap.put(LanguageParams.identifier.name(), wordId);
-			}
-			wordMap.put(LanguageParams.lemma.name(), lemma);
-			String existingWordId = wordIdMap.get(lemma);
-			if (existingWordId == null) {
-				Node tempWordNode = wordUtil.searchWord(languageId, lemma);
-				if (tempWordNode != null) {
-					existingWordId = tempWordNode.getIdentifier();
-					wordIdMap.put(lemma, existingWordId);
-				}
-			}
-			if (wordId != null && !wordId.isEmpty()) {
-				if (existingWordId != null && !existingWordId.equalsIgnoreCase(wordId)) {
-					addMessage(rowNo, "Word already exists with node Id: " + existingWordId, errorMessageMap);
-					continue;
-				}
-			} else {
-				// wordId not present in csv
-				wordId = existingWordId;
-			}
-			// wordId not present in map and DB
-			if (wordId == null || wordId.isEmpty()) {
-				// create Word
-				Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefintion);
-				wordNode.setObjectType(LanguageParams.Word.name());
-				Response wordResponse = createOrUpdateNode(languageId, wordNode);
-				if (checkError(wordResponse)) {
-					addMessage(rowNo, wordUtil.getErrorMessage(wordResponse), errorMessageMap);
-					continue;
-				}
-				wordId = (String) wordResponse.get(GraphDACParams.node_id.name());
-				addMessage(rowNo, "Word Id: " + wordId, messageMap);
-				if (!wordNodeIds.contains(wordId))
-					wordNodeIds.add(wordId);
-				wordIdMap.put(lemma, wordId);
-			}
-			if (primaryMeaning) {
-				wordMap.put(LanguageParams.primaryMeaningId.name(), synsetId);
-				wordMap.putAll(booleanProps);
-				if (null != pronunciations && !pronunciations.isEmpty())
-					wordMap.put(ATTRIB_PRONUNCIATIONS, pronunciations);
-				if (null != exampleSentences && !exampleSentences.isEmpty())
-					wordMap.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
-				Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefintion);
-				wordNode.setObjectType(LanguageParams.Word.name());
-				wordNode.setTags(tagList);
-				if (wordId != null && !wordId.isEmpty())
-					wordNode.setIdentifier(wordId);
-				Response wordResponse = createOrUpdateNode(languageId, wordNode);
-				if (checkError(wordResponse)) {
-					addMessage(rowNo, wordUtil.getErrorMessage(wordResponse), errorMessageMap);
-					continue;
-				}
-				wordId = (String) wordResponse.get(GraphDACParams.node_id.name());
-				addMessage(rowNo, "Word Id: " + wordId, messageMap);
-				wordIdMap.put(lemma, wordId);
-				if (!wordNodeIds.contains(wordId))
-					wordNodeIds.add(wordId);
-			}
-			if (wordId != null && synsetId != null) {
-				Response relationResponse = createRelation(wordId, RelationTypes.SYNONYM.relationName(), languageId,
-						synsetId);
-				if (checkError(relationResponse)) {
-					addMessage(rowNo, wordUtil.getErrorMessage(relationResponse), errorMessageMap);
-				} else {
-					if (relationResponse.get("messages") != null)
-						addMessage(rowNo, wordUtil.getErrorMessage(relationResponse), errorMessageMap);
-				}
-			}
-		}
-		if (!wordNodeIds.isEmpty())
-			asyncUpdate(wordNodeIds, languageId);
-		if (!errorMessageMap.isEmpty())
-			importResponse.put(LanguageParams.errorMessages.name(), errorMessageMap);
-		if (!messageMap.isEmpty())
-			importResponse.put(LanguageParams.messages.name(), messageMap);
-		return importResponse;
 	}
 
 	/**
@@ -3234,6 +2563,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		return getLanguageResponse(transliterateRequest, LOGGER);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.ekstep.language.mgr.IDictionaryManager#partialUpdateWordV2(java.lang.
+	 * String, java.lang.String, java.lang.String, com.ilimi.common.dto.Request,
+	 * boolean)
+	 */
 	@Override
 	public Response partialUpdateWordV2(String languageId, String id, String objectType, Request request,
 			boolean forceUpdate) {
@@ -3255,32 +2592,23 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				boolean isValid = isValidWord(lemma, languageId);
 				if (!isValid) {
 					Matcher hasSpecial = special.matcher(lemma);
-					if(hasSpecial.matches()){
+					if (hasSpecial.matches()) {
 						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-								"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
-					}else {
+								"Word should not contain any special characters ", ResponseCode.CLIENT_ERROR);
+					} else {
 						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
 								"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
 					}
 				}
 			}
-			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-					GraphDACParams.object_type.name(), objectType);
-			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-			if (checkError(responseDefiniton)) {
-				return responseDefiniton;
-			}
-			DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 			List<String> lstNodeId = new ArrayList<String>();
-			
+
 			String wordStatus = (String) item.get(LanguageParams.status.name());
-			if(StringUtils.isEmpty(wordStatus)){
+			if (StringUtils.isEmpty(wordStatus)) {
 				item.put(LanguageParams.status.name(), LanguageParams.Live.name());
 			}
 
-			Map<String, Object> updatedWordMap = updateMapFromGraph(languageId, id, item);
-			Response updateResponse = createOrUpdateWord(updatedWordMap, definition, languageId, false, lstNodeId,
-					forceUpdate);
+			Response updateResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
 			String wordId = (String) updateResponse.get(GraphDACParams.node_id.name());
 			if (StringUtils.isNotBlank(wordId))
 				lstNodeId.add(wordId);
@@ -3296,104 +2624,17 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 	}
 
-	private Map<String, Object> updateMapFromGraph(String languageId, String id, Map<String, Object> wordMap) {
-
-		Map<String, Object> existingWordMap = null;
-		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-				GraphDACParams.node_id.name(), id);
-		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request, LOGGER);
-		if (checkError(getNodeRes)) {
-			throw new ClientException(LanguageErrorCodes.ERR_INVALID_WORD.name(), "Request format incorrect");
-		} else {
-			Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-			existingWordMap = addPrimaryAndOtherMeaningsToWord(node, languageId);
-			existingWordMap.remove(LanguageParams.wordsets.name());
-
-			for (Map.Entry<String, Object> wordMapEntry : wordMap.entrySet()) {
-				String key = wordMapEntry.getKey();
-				if (key.equalsIgnoreCase(LanguageParams.primaryMeaning.name())
-						|| key.equalsIgnoreCase(LanguageParams.otherMeanings.name()))
-					continue;
-				existingWordMap.put(key, wordMapEntry.getValue());
-			}
-
-			Map<String, Object> primaryMeaning = mergeWithGraphData(languageId, id,
-					(Map<String, Object>) wordMap.get(LanguageParams.primaryMeaning.name()));
-			if (primaryMeaning != null)
-				existingWordMap.put(LanguageParams.primaryMeaning.name(), primaryMeaning);
-			List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordMap
-					.get(LanguageParams.otherMeanings.name());
-			if (otherMeanings != null) {
-				List<Map<String, Object>> updatedOtherMeanings = new ArrayList<>();
-				for (Map<String, Object> otherMeaning : otherMeanings) {
-					otherMeaning = mergeWithGraphData(languageId, id, otherMeaning);
-					if (otherMeaning != null)
-						updatedOtherMeanings.add(otherMeaning);
-				}
-				existingWordMap.put(LanguageParams.otherMeanings.name(), updatedOtherMeanings);
-			}
-
-			existingWordMap.put(LanguageParams.primaryMeaning.name(),
-					changeExsitingRelatedWordType(existingWordMap.get(LanguageParams.primaryMeaning.name())));
-			existingWordMap.put(LanguageParams.otherMeanings.name(),
-					changeExsitingRelatedWordType(existingWordMap.get(LanguageParams.otherMeanings.name())));
-			existingWordMap = changeExsitingRelatedWordType(existingWordMap);
-
-		}
-
-		return existingWordMap;
-	}
-
-	private Object changeExsitingRelatedWordType(Object obj) {
-		if (obj instanceof List<?>)
-			return changeExsitingRelatedWordType((List<Map<String, Object>>) obj);
-		else if (obj instanceof Map)
-			return changeExsitingRelatedWordType((Map<String, Object>) obj);
-		else
-			return null;
-	}
-
-	private List<Map<String, Object>> changeExsitingRelatedWordType(List<Map<String, Object>> list) {
-		List<Map<String, Object>> convertedList = new ArrayList<>();
-		for (Map<String, Object> map : list)
-			convertedList.add(changeExsitingRelatedWordType(map));
-		return convertedList;
-	}
-
-	private Map<String, Object> changeExsitingRelatedWordType(Map<String, Object> map) {
-		Map<String, Object> convertedMap = new HashMap<>();
-		for (Map.Entry<String, Object> mapEntry : map.entrySet()) {
-			String key = mapEntry.getKey();
-			Object obj = mapEntry.getValue();
-			if (obj instanceof List<?>) {
-				List<Object> listObj = (List<Object>) obj;
-				if (isRelationTypeObject(listObj)) {
-					obj = convertNodeDTOToMap((List<NodeDTO>) obj);
-				}
-			}
-			convertedMap.put(key, obj);
-		}
-		return convertedMap;
-	}
-
-	private boolean isRelationTypeObject(List<Object> obj) {
-		if (obj != null && obj.size() > 0 && obj.get(0) instanceof NodeDTO)
-			return true;
-		return false;
-	}
-
-	private Object convertNodeDTOToMap(List<NodeDTO> nodes) {
-		List<Map<String, Object>> newNodes = new ArrayList<>();
-		for (NodeDTO nodedto : nodes) {
-			Map<String, Object> map = new HashMap<>();
-			map.put(LanguageParams.identifier.name(), nodedto.getIdentifier());
-			map.put(LanguageParams.lemma.name(), nodedto.getName());
-			newNodes.add(map);
-		}
-		return newNodes;
-	}
-
+	/**
+	 * Gets the meaning object map.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param meaningId
+	 *            the meaning id
+	 * @param wordId
+	 *            the word id
+	 * @return the meaning object map
+	 */
 	private Map<String, Object> getMeaningObjectMap(String languageId, String meaningId, String wordId) {
 		try {
 			Node synsetNode = getDataNode(languageId, meaningId, "Synset");
@@ -3421,22 +2662,591 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		}
 	}
 
-	private Map<String, Object> mergeWithGraphData(String languageId, String wordId, Map<String, Object> meaningMap) {
-		Map<String, Object> currentMeaningMap = null;
+	/**
+	 * Creates the or update word.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordRequestMap
+	 *            the word request map
+	 * @param wordIds
+	 *            the word ids
+	 * @param forceUpdate
+	 *            the force update
+	 * @return the response
+	 */
+	private Response createOrUpdateWord(String languageId, Map<String, Object> wordRequestMap, List<String> wordIds,
+			boolean forceUpdate) {
 
-		if (meaningMap != null) {
-			String synsetId = (String) meaningMap.get(LanguageParams.identifier.name());
+		List<String> errorMessages = new ArrayList<String>();
+		Response wordResponse = new Response();
+		try {
+			Map<String, Object> lemmaWordMap = getLemmaWordMap(languageId, wordRequestMap);
+			String wordIdentifier = (String) wordRequestMap.get(LanguageParams.identifier.name());
+			List<Relation> wordInRelations = new ArrayList<>();
 
-			if (synsetId != null)
-				currentMeaningMap = getMeaningObjectMap(languageId, synsetId, wordId);
-			else
-				currentMeaningMap = new HashMap<String, Object>();
+			Map<String, Object> primaryMeaning = (Map<String, Object>) wordRequestMap
+					.get(LanguageParams.primaryMeaning.name());
+			wordRequestMap.remove(LanguageParams.primaryMeaning.name());
 
-			for (Map.Entry<String, Object> mapEntry : meaningMap.entrySet())
-				currentMeaningMap.put(mapEntry.getKey(), mapEntry.getValue());
+			Map<String, Object> primaryMeaningSynonym = null;
+			String primaryMeaningId = null;
+
+			if (primaryMeaning != null) {
+
+				if (primaryMeaning.get(LanguageParams.synonyms.name()) != null) {
+					Map<String, Object> synonyms = (Map<String, Object>) primaryMeaning
+							.get(LanguageParams.synonyms.name());
+					Map<String, Object> synonymCopy = new HashMap<>(synonyms);
+					primaryMeaningSynonym = new HashMap<>();
+					primaryMeaningSynonym.put(LanguageParams.synonyms.name(), synonymCopy);
+				}
+
+				Node primaryMeaningSynset = createNodeObjectForSynset(languageId, primaryMeaning, lemmaWordMap, wordIds,
+						errorMessages);
+				Response synsetResponse = createOrUpdateNode(languageId, primaryMeaningSynset);
+				if (checkError(synsetResponse)) {
+					return synsetResponse;
+				}
+				primaryMeaningId = (String) synsetResponse.get(GraphDACParams.node_id.name());
+				wordRequestMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+
+				Relation relation = new Relation(primaryMeaningId, RelationTypes.SYNONYM.relationName(),
+						wordIdentifier);
+				wordInRelations.add(relation);
+
+				if (primaryMeaningSynonym != null) {
+					List<String> synonms = getRelatedWordLemmaFrom(primaryMeaningSynonym);
+					List<Node> synonmNodes = searchWords(languageId, synonms);
+					for (Node pmSynonymWord : synonmNodes) {
+						String existingPmId = (String) pmSynonymWord.getMetadata()
+								.get(LanguageParams.primaryMeaningId.name());
+						String synWordLemma = (String) pmSynonymWord.getMetadata().get(LanguageParams.lemma.name());
+						if (existingPmId != null && primaryMeaningId.equalsIgnoreCase(existingPmId)) {
+
+						} else {
+							if (forceUpdate || existingPmId == null) {
+								setPrimaryMeaningId(languageId, pmSynonymWord.getIdentifier(), primaryMeaningId);
+								if (existingPmId != null)
+									removeSynonymRelation(languageId, pmSynonymWord.getIdentifier(), existingPmId);
+							} else {
+								errorMessages.add("Word '" + synWordLemma + "' has a different primary meaning");
+							}
+						}
+					}
+				}
+
+			}
+
+			List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordRequestMap
+					.get(LanguageParams.otherMeanings.name());
+			if (otherMeanings != null) {
+				for (Map<String, Object> otherMeaning : otherMeanings) {
+					Node otherMeaningSynset = createNodeObjectForSynset(languageId, otherMeaning, lemmaWordMap, wordIds,
+							errorMessages);
+					Response synsetResponse = createOrUpdateNode(languageId, otherMeaningSynset);
+					if (checkError(synsetResponse)) {
+						return synsetResponse;
+					}
+					String otherMeaningId = (String) synsetResponse.get(GraphDACParams.node_id.name());
+					Relation relation = new Relation(otherMeaningId, RelationTypes.SYNONYM.relationName(),
+							wordIdentifier);
+					wordInRelations.add(relation);
+				}
+			}
+			wordRequestMap.remove(LanguageParams.otherMeanings.name());
+			wordRequestMap.remove(LanguageParams.tags.name());
+			String lemma = (String) wordRequestMap.get(LanguageParams.lemma.name());
+			lemma = lemma.trim();
+
+			Node word = new Node(wordIdentifier, SystemNodeTypes.DATA_NODE.name(), "Word");
+
+			word.setMetadata(wordRequestMap);
+			if (wordInRelations.size() > 0)
+				word.setInRelations(wordInRelations);
+
+			wordResponse = createOrUpdateNode(languageId, word);
+			if (checkError(wordResponse)) {
+				errorMessages.add(wordUtil.getErrorMessage(wordResponse));
+			}
+		} catch (Exception e) {
+			errorMessages.add(e.getMessage());
+		}
+		if (!errorMessages.isEmpty()) {
+			wordResponse.put(LanguageParams.error_messages.name(), errorMessages);
+		}
+		return wordResponse;
+
+	}
+
+	/**
+	 * Gets the relations.
+	 *
+	 * @return the relations
+	 */
+	private static List<String> getRelations() {
+
+		if (synsetRelations == null) {
+			synsetRelations = new ArrayList<>();
+			synsetRelations.add(LanguageParams.synonyms.name());
+			synsetRelations.add(LanguageParams.hypernyms.name());
+			synsetRelations.add(LanguageParams.hyponyms.name());
+			synsetRelations.add(LanguageParams.holonyms.name());
+			synsetRelations.add(LanguageParams.antonyms.name());
+			synsetRelations.add(LanguageParams.meronyms.name());
+			synsetRelations.add(LanguageParams.tools.name());
+			synsetRelations.add(LanguageParams.objects.name());
+			synsetRelations.add(LanguageParams.actions.name());
+			synsetRelations.add(LanguageParams.workers.name());
+			synsetRelations.add(LanguageParams.converse.name());
+		}
+		return synsetRelations;
+	}
+
+	/**
+	 * Gets the related word lemma from.
+	 *
+	 * @param meaningObj
+	 *            the meaning obj
+	 * @return the related word lemma from
+	 */
+	private List<String> getRelatedWordLemmaFrom(Map<String, Object> meaningObj) {
+
+		List<String> lemmas = new ArrayList<>();
+
+		for (Entry<String, Object> entry : meaningObj.entrySet()) {
+			if (getRelations().contains(entry.getKey())) {
+				List<Map<String, Object>> words = (List<Map<String, Object>>) entry.getValue();
+				for (Map<String, Object> word : words) {
+					String lemma = (String) word.get(LanguageParams.lemma.name());
+					if (lemma == null) {
+						lemma = (String) word.get(LanguageParams.name.name());
+					}
+					if (lemma != null) {
+						lemma = lemma.trim();
+						word.put(LanguageParams.lemma.name(), lemma);
+						lemmas.add(lemma);
+					}
+
+				}
+			}
+		}
+
+		return lemmas;
+	}
+
+	/**
+	 * Gets the all lemma.
+	 *
+	 * @param wordRequestMap
+	 *            the word request map
+	 * @return the all lemma
+	 */
+	private List<String> getAllLemma(Map<String, Object> wordRequestMap) {
+		List<String> lemmas = new ArrayList<>();
+
+		Map<String, Object> primaryMeaning = (Map<String, Object>) wordRequestMap
+				.get(LanguageParams.primaryMeaning.name());
+		lemmas.addAll(getRelatedWordLemmaFrom(primaryMeaning));
+
+		List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordRequestMap
+				.get(LanguageParams.otherMeanings.name());
+		for (Map<String, Object> otherMeaning : otherMeanings)
+			lemmas.addAll(getRelatedWordLemmaFrom(otherMeaning));
+
+		return lemmas;
+	}
+
+	/**
+	 * Search words.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param words
+	 *            the words
+	 * @return the list
+	 */
+	private List<Node> searchWords(String languageId, List<String> words) {
+		SearchCriteria sc = new SearchCriteria();
+		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		sc.setObjectType(LanguageParams.Word.name());
+		List<Filter> filters = new ArrayList<Filter>();
+		if (null != words && !words.isEmpty()) {
+			for (String word : words)
+				filters.add(new Filter("lemma", SearchConditions.OP_EQUAL, word));
+		}
+		MetadataCriterion mc = MetadataCriterion.create(filters);
+		sc.addMetadata(mc);
+		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), sc);
+		req.put(GraphDACParams.get_tags.name(), true);
+		Response listRes = getResponse(req, LOGGER);
+		if (checkError(listRes))
+			throw new ServerException(LanguageErrorCodes.ERR_PARSER_ERROR.name(), "Search failed");
+		else {
+			List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+			return nodes;
+		}
+	}
+
+	/**
+	 * Gets the lemma word map.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordRequestMap
+	 *            the word request map
+	 * @return the lemma word map
+	 */
+	private Map<String, Object> getLemmaWordMap(String languageId, Map<String, Object> wordRequestMap) {
+
+		Map<String, Object> lemmaWordMap = new HashMap<>();
+		List<String> lemmas = getAllLemma(wordRequestMap);
+		List<Node> words = searchWords(languageId, lemmas);
+
+		for (Node word : words) {
+			lemmaWordMap.put(word.getMetadata().get(LanguageParams.lemma.name()).toString(), word);
+		}
+
+		return lemmaWordMap;
+	}
+
+	/**
+	 * Creates the node object for synset.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param meaningMap
+	 *            the meaning map
+	 * @param lemmaWordMap
+	 *            the lemma word map
+	 * @param wordIds
+	 *            the word ids
+	 * @param errorMessages
+	 *            the error messages
+	 * @return the node
+	 */
+	private Node createNodeObjectForSynset(String languageId, Map<String, Object> meaningMap,
+			Map<String, Object> lemmaWordMap, List<String> wordIds, List<String> errorMessages) {
+
+		String synsetId = (String) meaningMap.get("identifier");
+		Node synset = new Node(synsetId, SystemNodeTypes.DATA_NODE.name(), "Synset");
+
+		List<Relation> outRelations = new ArrayList<Relation>();
+		for (Entry<String, Object> entry : meaningMap.entrySet()) {
+			if (getRelations().contains(entry.getKey())
+					&& !entry.getKey().equalsIgnoreCase(LanguageParams.synonyms.name())) {
+
+				List<Map<String, Object>> relationWordMap = (List<Map<String, Object>>) entry.getValue();
+
+				for (Map<String, Object> word : relationWordMap) {
+					String lemma = (String) word.get(LanguageParams.lemma.name());
+					String primaryMeaningId = getPrimaryMeaningId(languageId, lemma, lemmaWordMap, wordIds,
+							errorMessages, entry.getKey());
+					if (primaryMeaningId != null) {
+						Relation relation = new Relation(synsetId, getRelationName(entry.getKey()), primaryMeaningId);
+						outRelations.add(relation);
+					}
+				}
+
+			}
+		}
+
+		List<Map<String, Object>> synonyms = (List<Map<String, Object>>) meaningMap.get(LanguageParams.synonyms.name());
+
+		if (synonyms != null && synonyms.size() > 0) {
+
+			for (Map<String, Object> word : synonyms) {
+				String lemma = (String) word.get(LanguageParams.lemma.name());
+				Node wordNode = (Node) lemmaWordMap.get(lemma);
+				String wordId;
+				if (wordNode == null) {
+					wordId = createWord(languageId, lemma, errorMessages, LanguageParams.synonyms.name());
+					if (wordId == null)
+						continue;
+				} else {
+					wordId = wordNode.getIdentifier();
+				}
+				wordIds.add(wordId);
+				Relation relation = new Relation(synsetId, getRelationName(LanguageParams.synonyms.name()), wordId);
+				outRelations.add(relation);
+			}
+		}
+
+		meaningMap.remove(LanguageParams.synonyms.name());
+		meaningMap.remove(LanguageParams.hypernyms.name());
+		meaningMap.remove(LanguageParams.hyponyms.name());
+		meaningMap.remove(LanguageParams.holonyms.name());
+		meaningMap.remove(LanguageParams.antonyms.name());
+		meaningMap.remove(LanguageParams.meronyms.name());
+		meaningMap.remove(LanguageParams.tools.name());
+		meaningMap.remove(LanguageParams.objects.name());
+		meaningMap.remove(LanguageParams.actions.name());
+		meaningMap.remove(LanguageParams.workers.name());
+		meaningMap.remove(LanguageParams.converse.name());
+
+		// set synset tags
+		String tags = (String) meaningMap.get(LanguageParams.tags.name());
+		if (StringUtils.isNotBlank(tags)) {
+			String[] arr = tags.split(",");
+			List<String> tagList = Arrays.asList(arr);
+			synset.setTags(tagList);
+			meaningMap.remove(LanguageParams.tags.name());
+		}
+
+		// set synset metadata
+		synset.setMetadata(meaningMap);
+
+		if (outRelations.size() > 0)
+			synset.setOutRelations(outRelations);
+
+		return synset;
+
+	}
+
+	/**
+	 * Gets the synonym id.
+	 *
+	 * @param word
+	 *            the word
+	 * @return the synonym id
+	 */
+	private String getSynonymId(Node word) {
+
+		List<Relation> inRelation = word.getInRelations();
+		for (Relation rel : inRelation) {
+			String relType = rel.getRelationType();
+			Map<String, Object> startNodeMetadata = rel.getStartNodeMetadata();
+			String startNodeObjType = (String) startNodeMetadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+			if (relType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
+					&& startNodeObjType.equalsIgnoreCase(LanguageObjectTypes.Synset.name())) {
+				return rel.getStartNodeId();
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Gets the primary meaning id.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param lemma
+	 *            the lemma
+	 * @param lemmaWordMap
+	 *            the lemma word map
+	 * @param wordIds
+	 *            the word ids
+	 * @param errorMessages
+	 *            the error messages
+	 * @param relationName
+	 *            the relation name
+	 * @return the primary meaning id
+	 */
+	private String getPrimaryMeaningId(String languageId, String lemma, Map<String, Object> lemmaWordMap,
+			List<String> wordIds, List<String> errorMessages, String relationName) {
+
+		String primaryMeaningId = null;
+		Node word = (Node) lemmaWordMap.get(lemma);
+
+		if (word != null) {
+			primaryMeaningId = (String) word.getMetadata().get(LanguageParams.primaryMeaningId.name());
+			if (primaryMeaningId == null) {
+				primaryMeaningId = getSynonymId(word);
+				if (primaryMeaningId == null) {
+					primaryMeaningId = createSynset(languageId, lemma, errorMessages, relationName);
+					if (primaryMeaningId != null) {
+						addSynonymRelation(languageId, word.getIdentifier(), primaryMeaningId);
+					}
+				}
+				setPrimaryMeaningId(languageId, word.getIdentifier(), primaryMeaningId);
+			}
+			wordIds.add(word.getIdentifier());
+		} else {
+			String wordId = createWord(languageId, lemma, errorMessages, relationName);
+			if (wordId != null) {
+				primaryMeaningId = createSynset(languageId, lemma, errorMessages, relationName);
+				if (primaryMeaningId != null) {
+					addSynonymRelation(languageId, wordId, primaryMeaningId);
+					setPrimaryMeaningId(languageId, wordId, primaryMeaningId);
+				}
+				wordIds.add(wordId);
+			}
+		}
+
+		return primaryMeaningId;
+	}
+
+	/**
+	 * Sets the primary meaning id.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordId
+	 *            the word id
+	 * @param primaryMeaningId
+	 *            the primary meaning id
+	 */
+	private void setPrimaryMeaningId(String languageId, String wordId, String primaryMeaningId) {
+		Node node = new Node(wordId, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Synset.name());
+		Map<String, Object> metadata = new HashMap<String, Object>();
+		metadata.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+		node.setMetadata(metadata);
+		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		req.put(GraphDACParams.node.name(), node);
+		Response res = getResponse(req, LOGGER);
+		if (checkError(res)) {
+			throw new ServerException(LanguageErrorCodes.ERR_CREATE_UPDATE_SYNSET.name(), getErrorMessage(res));
+		}
+	}
+
+	/**
+	 * Creates the synset.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param lemma
+	 *            the lemma
+	 * @param errorMessages
+	 *            the error messages
+	 * @param relationName
+	 *            the relation name
+	 * @return the string
+	 */
+	private String createSynset(String languageId, String lemma, List<String> errorMessages, String relationName) {
+
+		Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Synset.name());
+		Map<String, Object> metadata = new HashMap<String, Object>();
+		metadata.put(LanguageParams.gloss.name(), lemma);
+		node.setMetadata(metadata);
+		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), node);
+		Response res = getResponse(req, LOGGER);
+		if (checkError(res)) {
+			errorMessages.add(wordUtil.getErrorMessage(res) + "- synset creation error in " + relationName);
+			return null;
+
+		}
+		String nodeId = (String) res.get(GraphDACParams.node_id.name());
+		return nodeId;
+	}
+
+	/**
+	 * Creates the word.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param lemma
+	 *            the lemma
+	 * @param errorMessages
+	 *            the error messages
+	 * @param relationName
+	 *            the relation name
+	 * @return the string
+	 */
+	private String createWord(String languageId, String lemma, List<String> errorMessages, String relationName) {
+
+		if (!isValidWord(lemma, languageId, errorMessages, relationName))
+			return null;
+		Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
+		Map<String, Object> metadata = new HashMap<String, Object>();
+		metadata.put(LEMMA_PROPERTY, lemma);
+		node.setMetadata(metadata);
+		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), node);
+		Response res = getResponse(req, LOGGER);
+		if (checkError(res)) {
+			errorMessages.add(wordUtil.getErrorMessage(res) + "- word creation error in " + relationName);
+			return null;
+		}
+		String nodeId = (String) res.get(GraphDACParams.node_id.name());
+		return nodeId;
+	}
+
+	/**
+	 * Checks if is valid word.
+	 *
+	 * @param word
+	 *            the word
+	 * @param languageId
+	 *            the language id
+	 * @param errorMessages
+	 *            the error messages
+	 * @param relationName
+	 *            the relation name
+	 * @return true, if is valid word
+	 */
+	public boolean isValidWord(String word, String languageId, List<String> errorMessages, String relationName) {
+		try {
+
+			Matcher hasSpecial = special.matcher(word);
+			if (hasSpecial.matches()) {
+				errorMessages
+						.add("Word should not contain any special characters for word in " + relationName + " List");
+				return false;
+			}
+
+			char firstLetter = word.charAt(0);
+			int i = firstLetter;
+			String uc = String.format("%04x", i);
+			int hexVal = Integer.parseInt(uc, 16);
+			Node languageNode = getDataNode("domain", "lang_" + languageId, "Language");
+			String startUnicode = (String) languageNode.getMetadata().get("startUnicode");
+			String endUnicode = (String) languageNode.getMetadata().get("endUnicode");
+
+			if (startUnicode != null && endUnicode != null) {
+				int min = Integer.parseInt(startUnicode, 16);
+				int max = Integer.parseInt(endUnicode, 16);
+				if (hexVal >= min && hexVal <= max) {
+				} else {
+					String language = LanguageMap.getLanguage(languageId).toUpperCase();
+					errorMessages.add("Word cannot be in a different language than " + language + " for word in "
+							+ relationName + " List");
+					return false;
+				}
+			}
+
+		} catch (Exception e) {
+			// return true... if language object is not defined...
+		}
+		return true;
+	}
+
+	/**
+	 * Gets the relation name.
+	 *
+	 * @param relation
+	 *            the relation
+	 * @return the relation name
+	 */
+	private String getRelationName(String relation) {
+
+		switch (relation) {
+		case "synonyms":
+			return RelationTypes.SYNONYM.relationName();
+		case "hypernyms":
+			return RelationTypes.HYPERNYM.relationName();
+		case "hyponyms":
+			return RelationTypes.HYPONYM.relationName();
+		case "holonyms":
+			return RelationTypes.HOLONYM.relationName();
+		case "antonyms":
+			return RelationTypes.ANTONYM.relationName();
+		case "meronyms":
+			return RelationTypes.MERONYM.relationName();
+		case "tools":
+			return RelationTypes.TOOL.relationName();
+		case "objects":
+			return RelationTypes.OBJECT.relationName();
+		case "actions":
+			return RelationTypes.ACTION.relationName();
+		case "workers":
+			return RelationTypes.WORKER.relationName();
+		case "converse":
+			return RelationTypes.CONVERSE.relationName();
 
 		}
 
-		return currentMeaningMap;
+		return null;
 	}
 }
