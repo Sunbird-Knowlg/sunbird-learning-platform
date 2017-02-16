@@ -829,26 +829,6 @@
         {
           "required": false,
           "dataType": "Select",
-          "propertyName": "curriculum",
-          "title": "Curriculum",
-          "description": "",
-          "category": "Pedagogy",
-          "displayProperty": "Editable",
-          "range": [
-            "NCERT",
-            "CBSE",
-            "ICSE",
-            "State Curriculum",
-            "Other"
-          ],
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
-        },
-        {
-          "required": false,
-          "dataType": "Select",
           "propertyName": "contentType",
           "title": "Content Type",
           "description": "",
