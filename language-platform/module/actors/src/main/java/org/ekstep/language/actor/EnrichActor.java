@@ -140,19 +140,20 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 					long startTime = System.currentTimeMillis();
 					List<Node> nodeList = getNodesList(batch_node_ids, languageId);
 					for(Node word:nodeList) {
+						
+						DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+						Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
+						if(wordMap.get(LanguageParams.synonyms.name())!=null)
+							word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
+						if(wordMap.get(LanguageParams.antonyms.name())!=null)
+							word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
+						if(wordMap.get(LanguageParams.synonyms.name())!=null){
+							List<NodeDTO> synonyms =(List<NodeDTO>) wordMap.get(LanguageParams.synonyms.name());
+							word.getMetadata().put(ATTRIB_HAS_ANTONYMS, synonyms.size());
+						}
 						String primaryMeaningId = (String) word.getMetadata().get(LanguageParams.primaryMeaningId.name());
 						if(primaryMeaningId!=null){
 							Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
-							DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
-							Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
-							if(wordMap.get(LanguageParams.synonyms.name())!=null)
-								word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
-							if(wordMap.get(LanguageParams.antonyms.name())!=null)
-								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
-							if(wordMap.get(LanguageParams.synonyms.name())!=null){
-								List<NodeDTO> synonyms =(List<NodeDTO>) wordMap.get(LanguageParams.synonyms.name());
-								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, synonyms.size());
-							}
 							if(synset.getMetadata().get(ATTRIB_POS)!=null)
 								word.getMetadata().put(ATTRIB_POS, synset.getMetadata().get(ATTRIB_POS));
 							if(synset.getMetadata().get(ATTRIB_CATEGORY)!=null)
