@@ -68,6 +68,30 @@ proc addFlaggedBy {flaggedBy node_metadata} {
 	return $flaggedByList
 }
 
+proc addFlags {flags node_metadata} {
+	set flagsList [java::new ArrayList]
+	$flagsList add $flags
+	set existingFlagsBy [$node_metadata get "flags"]	
+	set isExistingFlagsByNull [java::isnull $existingFlagsBy]
+	if {$isExistingFlagsByNull == 0} {
+		set arr_instance [java::instanceof $existingFlagsBy {String[]}]
+		if {$arr_instance == 1} {
+			set existingFlagsBy [java::cast {String[]} $existingFlagsBy]
+			set existingFlagsBy [java::call Arrays asList $existingFlagsBy]
+		} else {
+			set existingFlagsBy [java::cast ArrayList $existingFlagsBy]
+		}
+		if {[isNotEmpty $existingFlagsBy]} {
+			set flagSet [java::new HashSet $existingFlagsBy]
+			$flagSet addAll $flagsList
+			set flagsList [java::new ArrayList $flagSet]
+			return $flagsList
+		}
+	}
+
+	return $flagsList
+}
+
 set resp_get_node [getDataNode $graph_id $content_id]
 set check_error [check_response_error $resp_get_node]
 if {$check_error} {
@@ -79,11 +103,12 @@ if {$check_error} {
 		set node_metadata [java::prop $graph_node "metadata"]
 		set status_val [$node_metadata get "status"]
 		set status_val_str [java::new String [$status_val toString]]
-		set isLiveState [$status_val_str equalsIgnoreCase "Live"]
+		set isLiveState [$status_val_str equalsIgnoreCase "Live" || "Processing"]
 		set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isLiveState == 1 || $isFlaggedState == 1} {
 			set request [java::new HashMap]
 			$request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
+			$request put "flags" [addFlags $flags $node_metadata]
 			$request put "versionKey" $versionKey
 			$request put "status" "Flagged"
 			$request put "lastFlaggedOn" [java::call DateUtils format [java::new Date]]

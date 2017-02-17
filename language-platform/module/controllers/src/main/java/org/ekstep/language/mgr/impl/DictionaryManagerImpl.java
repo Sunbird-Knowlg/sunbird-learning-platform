@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.Character.UnicodeBlock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -89,6 +90,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
 	private static final String s3Media = "s3.media.folder";
+	
+	// inside regex all special character mentioned!, by default inside string black slash and double quote should be escaped using black slash, in addition to that here open bracket([) and close bracket(]) has been escaped and dash(-) were mentioned at last special character for regex constraints to work
+	private static final Pattern special = Pattern.compile(".*[`~!@#$%^&*()_=+\\[\\]{}|\\;:'\",<.>/?-].*");
 
 	/** The word util. */
 	@Autowired
@@ -129,39 +133,40 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *
 	 * @param word
 	 *            the word
-	 * @param language
-	 *            the language
+	 * @param languageId
+	 *            the languageId
 	 * @return true, if is valid word
 	 */
-	public boolean isValidWord(String word, String language) {
-		boolean result = false;
+	public boolean isValidWord(String word, String languageId) {
 		try {
-			if (StringUtils.isBlank(language))
-				return true;
-			switch (language) {
-			case "HINDI": {
-				language = Character.UnicodeBlock.DEVANAGARI.toString();
-				break;
+			
+			Matcher hasSpecial = special.matcher(word);
+			if(hasSpecial.matches()){
+				return false;
 			}
-			case "ENGLISH": {
-				language = Character.UnicodeBlock.BASIC_LATIN.toString();
-				break;
+
+			char firstLetter = word.charAt(0);
+			int i = firstLetter;
+	        String uc = String.format("%04x", i);
+	        int hexVal = Integer.parseInt(uc, 16);
+			Node languageNode = getDataNode("domain","lang_"+languageId,"Language");
+			String startUnicode = (String) languageNode.getMetadata().get("startUnicode");
+			String endUnicode = (String) languageNode.getMetadata().get("endUnicode");
+			
+			if(startUnicode!=null&&endUnicode!=null){
+				int min = Integer.parseInt(startUnicode, 16);
+		        int max = Integer.parseInt(endUnicode, 16);
+		        if (hexVal >= min && hexVal <= max){
+		        }else {
+		        	return false;
+		        }
 			}
-			}
-			UnicodeBlock wordBlock = UnicodeBlock.forName(language);
-			for (int i = 0; i < word.length(); i++) {
-				UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
-				if (wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi")
-						&& charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))) {
-					result = true;
-					break;
-				}
-			}
+				
+			
 		} catch (Exception e) {
-			// return true... if UnicodeBlock is not identified...
-			result = true;
+			// return true... if language object is not defined...
 		}
-		return result;
+		return true;
 	}
 
 	/*
@@ -1576,11 +1581,17 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						for (Map item : items) {
 							String lemma = (String) item.get(LanguageParams.lemma.name());
 							String language = LanguageMap.getLanguage(languageId).toUpperCase();
-							boolean isValid = isValidWord(lemma, language);
+							boolean isValid = isValidWord(lemma, languageId);
 							if (!isValid) {
-								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-										"Lemma cannot be in a different language than " + language,
+								Matcher hasSpecial = special.matcher(lemma);
+								if(hasSpecial.matches()){
+									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+											"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
+								}else {
+									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+										"Word cannot be in a different language than " + language,
 										ResponseCode.CLIENT_ERROR);
+								}
 							}
 							Response wordResponse = createOrUpdateWord(item, definition, languageId, true, lstNodeId,
 									forceUpdate);
@@ -1783,7 +1794,11 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			} else {
 				String wordStatus = (String) node.getMetadata().get(LanguageParams.status.name());
 				if(StringUtils.isNotEmpty(wordStatus)&&StringUtils.equalsIgnoreCase(wordStatus, LanguageParams.Live.name()))
-					node.getMetadata().put(ATTRIB_FLAG_REASONS, null);	
+					node.getMetadata().put(ATTRIB_FLAG_REASONS, null);
+				//make word to live status when status is empty or Draft during update
+				if(StringUtils.isEmpty(wordStatus)||StringUtils.equalsIgnoreCase(wordStatus, LanguageParams.Draft.name())){
+					node.getMetadata().put(LanguageParams.status.name(), LanguageParams.Live.name());
+				}
 				createRes = updateWord(node, languageId, wordIdentifier);
 			}
 			if (!checkError(createRes)) {
@@ -1828,56 +1843,56 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		List<Map<String, Object>> synonyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.synonyms.name());
 		List<String> synonymWordIds = processRelationWords(synonyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.synonyms.name());
 
 		List<Map<String, Object>> hypernyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.hypernyms.name());
 		List<String> hypernymWordIds = processRelationWords(hypernyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.hypernyms.name());
 
 		List<Map<String, Object>> holonyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.holonyms.name());
 		List<String> holonymWordIds = processRelationWords(holonyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.holonyms.name());
 
 		List<Map<String, Object>> antonyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.antonyms.name());
 		List<String> antonymWordIds = processRelationWords(antonyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.antonyms.name());
 
 		List<Map<String, Object>> hyponyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.hyponyms.name());
 		List<String> hyponymWordIds = processRelationWords(hyponyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.hyponyms.name());
 
 		List<Map<String, Object>> meronyms = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.meronyms.name());
 		List<String> meronymWordIds = processRelationWords(meronyms, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.meronyms.name());
 
 		List<Map<String, Object>> tools = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.tools.name());
-		List<String> toolWordIds = processRelationWords(tools, languageId, errorMessages, definition, nodeIdList);
+		List<String> toolWordIds = processRelationWords(tools, languageId, errorMessages, definition, nodeIdList, LanguageParams.tools.name());
 
 		List<Map<String, Object>> workers = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.workers.name());
 		List<String> workerWordIds = processRelationWords(workers, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.workers.name());
 
 		List<Map<String, Object>> actions = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.actions.name());
 		List<String> actionWordIds = processRelationWords(actions, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.actions.name());
 
 		List<Map<String, Object>> objects = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.objects.name());
 		List<String> objectWordIds = processRelationWords(objects, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.objects.name());
 
 		List<Map<String, Object>> converse = (List<Map<String, Object>>) meaningDataMap
 				.get(LanguageParams.converse.name());
 		List<String> converseWordIds = processRelationWords(converse, languageId, errorMessages, definition,
-				nodeIdList);
+				nodeIdList, LanguageParams.converse.name());
 
 		meaningDataMap.remove(LanguageParams.synonyms.name());
 		meaningDataMap.remove(LanguageParams.hypernyms.name());
@@ -2084,16 +2099,17 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *            the word defintion
 	 * @param nodeIdList
 	 *            the node id list
+	 * @param relationName TODO
 	 * @return the list
 	 */
 	private List<String> processRelationWords(List<Map<String, Object>> synsetRelations, String languageId,
-			List<String> errorMessages, DefinitionDTO wordDefintion, List<String> nodeIdList) {
+			List<String> errorMessages, DefinitionDTO wordDefintion, List<String> nodeIdList, String relationName) {
 		List<String> wordIds = null;
 		if (synsetRelations != null) {
 			wordIds = new ArrayList<String>();
 			for (Map<String, Object> word : synsetRelations) {
 				String wordId = createOrUpdateWordsWithoutPrimaryMeaning(word, languageId, errorMessages,
-						wordDefintion);
+						wordDefintion, relationName);
 				if (wordId != null) {
 					wordIds.add(wordId);
 				}
@@ -2115,24 +2131,30 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *            the error messages
 	 * @param definition
 	 *            the definition
+	 * @param relationName TODO
 	 * @return the string
 	 */
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
-			List<String> errorMessages, DefinitionDTO definition) {
+			List<String> errorMessages, DefinitionDTO definition, String relationName) {
 		String lemma = (String) word.get(LanguageParams.name.name());
 		if (StringUtils.isBlank(lemma))
 			lemma = (String) word.get(LanguageParams.lemma.name());
 		if (StringUtils.isBlank(lemma)) {
-			errorMessages.add("Lemma is mandatory");
+			errorMessages.add("Word is empty in "+relationName + " List");
 			return null;
 		} else {
 			lemma = lemma.trim().toLowerCase();
 			word.put(LanguageParams.lemma.name(), lemma);
 			word.remove(LanguageParams.name.name());
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, language);
+			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
-				errorMessages.add("Lemma cannot be in a different language than " + language);
+				Matcher hasSpecial = special.matcher(lemma);
+				if(hasSpecial.matches()){
+					errorMessages.add("Word should not contain any special characters for word in "+relationName + " List");
+				}else{
+					errorMessages.add("Word cannot be in a different language than " + language +" for word in "+relationName + " List");
+				}
 				return null;
 			}
 			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
@@ -2302,10 +2324,16 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			item.put(LanguageParams.identifier.name(), id);
 			String lemma = (String) item.get(LanguageParams.lemma.name());
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, language);
+			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
-				return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-						"Lemma cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+				Matcher hasSpecial = special.matcher(lemma);
+				if(hasSpecial.matches()){
+					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+							"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
+				}else {
+					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+							"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+				}
 			}
 			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 					GraphDACParams.object_type.name(), objectType);
@@ -2767,9 +2795,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				continue;
 			}
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, language);
+			boolean isValid = isValidWord(lemma, languageId);
 			if (!isValid) {
-				addMessage(rowNo, "Lemma cannot be in a different language than " + language, errorMessageMap);
+				Matcher hasSpecial = special.matcher(lemma);
+				if(hasSpecial.matches()){
+					addMessage(rowNo, "Word should not contain any special characters " , errorMessageMap);
+				}else{
+					addMessage(rowNo, "Word cannot be in a different language than " + language, errorMessageMap);
+				}
 				continue;
 			}
 			String gloss = (String) synsetMap.get(LanguageParams.gloss.name());
@@ -2810,7 +2843,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			if (wordId != null && !wordId.isEmpty()) {
 				if (existingWordId != null && !existingWordId.equalsIgnoreCase(wordId)) {
-					addMessage(rowNo, "Lemma already exists with node Id: " + existingWordId, errorMessageMap);
+					addMessage(rowNo, "Word already exists with node Id: " + existingWordId, errorMessageMap);
 					continue;
 				}
 			} else {
@@ -3219,10 +3252,16 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String lemma = (String) item.get(LanguageParams.lemma.name());
 			if (lemma != null) {
 				String language = LanguageMap.getLanguage(languageId).toUpperCase();
-				boolean isValid = isValidWord(lemma, language);
+				boolean isValid = isValidWord(lemma, languageId);
 				if (!isValid) {
-					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-							"Lemma cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+					Matcher hasSpecial = special.matcher(lemma);
+					if(hasSpecial.matches()){
+						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+								"Word should not contain any special characters " , ResponseCode.CLIENT_ERROR);
+					}else {
+						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+								"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+					}
 				}
 			}
 			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
@@ -3233,6 +3272,12 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 			List<String> lstNodeId = new ArrayList<String>();
+			
+			String wordStatus = (String) item.get(LanguageParams.status.name());
+			if(StringUtils.isEmpty(wordStatus)){
+				item.put(LanguageParams.status.name(), LanguageParams.Live.name());
+			}
+
 			Map<String, Object> updatedWordMap = updateMapFromGraph(languageId, id, item);
 			Response updateResponse = createOrUpdateWord(updatedWordMap, definition, languageId, false, lstNodeId,
 					forceUpdate);

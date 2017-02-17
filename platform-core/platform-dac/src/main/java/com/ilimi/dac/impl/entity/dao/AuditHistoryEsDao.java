@@ -40,8 +40,11 @@ public class AuditHistoryEsDao {
 	public List<Object> search(SearchDTO search) {
 		List<Object>  result= new ArrayList<Object>();
 			try {
+				LOGGER.info("sending search request to search processor" + search);
 				result = (List<Object>) processor.processSearchAuditHistory(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX);
+				LOGGER.info("result from search processor" + result);
 			} catch (Exception e) {
+				LOGGER.error("error while processing the search request", e);
 				e.printStackTrace();
 			}
 		return result;
@@ -57,10 +60,10 @@ public class AuditHistoryEsDao {
 
 	public void addDocument(Map<String, Object> request) throws IOException {
 		String document = null;
-		LOGGER.debug("Checking if document is empty : " + request);
+		LOGGER.info("Checking if document is empty : " + request);
 		if(!request.isEmpty()){
 			document = mapper.writeValueAsString(request);
-			LOGGER.debug("converting request map tp string : " + request);
+			LOGGER.info("converting request map tp string : " + document);
 		}
 		if(StringUtils.isNotBlank(document)){
 			es.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);

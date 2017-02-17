@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,14 +12,11 @@ import org.apache.tika.mime.MimeTypes;
 import org.ekstep.common.optimizr.FileType;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.LearningActorNames;
-import org.ekstep.learning.common.enums.LearningOperations;
 import org.springframework.stereotype.Component;
-
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
@@ -29,9 +25,9 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 /**
  * The Class AssetsMimeTypeMgrImpl is a implementation of IMimeTypeManager for
  * Mime-Type as <code>assets</code> or for Asset type Content.
- * 
+ *
  * @author Azhar
- * 
+ *
  * @see IMimeTypeManager
  * @see HTMLMimeTypeMgrImpl
  * @see APKMimeTypeMgrImpl
@@ -46,7 +42,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.
 	 * Node, java.io.File, java.lang.String)
@@ -75,9 +71,29 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-			node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-			Map<String, String> variantsMap = new HashMap<String, String>();
-			node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+
+			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
+			LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
+			Response response = updateContentNode(node, urlArray[1]);
+			String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
+			if (!checkError(response)) {
+					if ((StringUtils.equalsIgnoreCase(node.getMetadata().get("contentType").toString(), "Asset"))
+						&& (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image"))) {
+								LOGGER.info("Initiatizing variants map if mimeType is image");
+
+								Map<String, String> variantsMap = new HashMap<String, String>();
+								node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
+								node.getMetadata().put("prevState", prevState);
+
+								LOGGER.info("Generating Telemetry Event. | [Content ID: " + node.getIdentifier()+ "]");
+								LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
+					}
+					else{
+
+						LOGGER.info("Updating status to Live for mimeTypes other than image");
+						node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+					}
+			}
 
 			LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 			response = updateContentNode(node, urlArray[1]);
@@ -92,6 +108,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 				request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
 				makeAsyncLearningRequest(request, LOGGER);
 			}
+
+
 		} catch (IOException e) {
 			throw new ServerException(ContentAPIParams.FILE_ERROR.name(),
 					"Error! While Reading the MimeType of Uploaded File. | [Node Id: " + node.getIdentifier() + "]");
@@ -109,7 +127,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model
 	 * .Node)

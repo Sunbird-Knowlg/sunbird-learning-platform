@@ -710,6 +710,10 @@
             "Urdu",
             "Sanskrit",
             "Maithili",
+            "Munda",
+            "Santali",
+            "Juang",
+            "Ho",
             "Other"
           ],
           "displayProperty": "Editable",
@@ -845,9 +849,9 @@
             "Asset",
             "Template",
             "Plugin",
-		    "ContentTemplate",
-		    "ItemTemplate",
-		    "TextBook"
+    		    "ContentTemplate",
+    		    "ItemTemplate",
+    		    "TextBook"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -993,6 +997,32 @@
           "dataType": "Number",
           "propertyName": "quality",
           "title": "Quality",
+          "description": "",
+          "category": "Analytics",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 20 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "genieScore",
+          "title": "Genie Score",
+          "description": "",
+          "category": "Analytics",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 20 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "authoringScore",
+          "title": "Authoring Score",
           "description": "",
           "category": "Analytics",
           "displayProperty": "Readonly",
@@ -1774,6 +1804,18 @@
           "indexed": true
         },
         {
+          "propertyName": "flags",
+          "title": "flags list",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true
+        },
+        {
           "propertyName": "lastFlaggedOn",
           "title": "Last Flagged On",
           "description": "",
@@ -1970,8 +2012,8 @@
         "status": ["Live"],
         "ttl": 0.08,
         "variants": {
-         "high": {"dimensions": [1024, 1024], "dpi": 240}, 
-         "medium": {"dimensions": [512, 512], "dpi": 240}, 
+         "high": {"dimensions": [1024, 1024], "dpi": 240},
+         "medium": {"dimensions": [512, 512], "dpi": 240},
          "low": {"dimensions": [128, 128], "dpi": 240}
         },
         "versionCheckMode": "STRICT",
@@ -1979,12 +2021,12 @@
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
         "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
-        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable", 
-        "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount", 
-        "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
-        "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
+        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable",
+        "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount",
+        "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice",
+        "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads",
         "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants","flagReasons",
-        "flaggedBy","lastFlaggedOn"]
+        "flaggedBy","lastFlaggedOn","flags"]
       }
     }
   ]

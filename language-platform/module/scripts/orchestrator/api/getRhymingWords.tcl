@@ -68,15 +68,18 @@ proc getRhymingSoundWords {word_node language_id} {
 						set hasRhymingSoundSetMembers [isNotEmpty $rhymingSoundSetMembers]
 						if {$hasRhymingSoundSetMembers} {
 							$rhymingSoundSetMembers remove $actualWordId
-							set rhymingSoundWords [getWordList $rhymingSoundSetMembers $language_id]
-							return $rhymingSoundWords
+							set hasRhymingSoundSetMembers [isNotEmpty $rhymingSoundSetMembers]
+							if {$hasRhymingSoundSetMembers} {
+								set rhymingSoundWords [getWordList $rhymingSoundSetMembers $language_id]
+								return $rhymingSoundWords
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	return [java::null]
+	return [java::new ArrayList]
 }
 
 set searchProperty [java::new HashMap]

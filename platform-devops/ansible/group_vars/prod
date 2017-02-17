@@ -1,3 +1,4 @@
+google_vision_tagging: false
 neo4j_backup_url: "s3://ekstep-backups-to-mumbai/prod/neo4j/"
 instance: prod
 user: learning
