@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -85,8 +83,8 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
-		List<String> ExistingConcepts = new ArrayList<String>();
-		
+		Set<String> existingConcepts = new HashSet<String>();
+		Set<String> existingConceptGrades = new HashSet<String>();
 		LOGGER.info("processing kafka message" + message);
 		if (null != message.get("edata")) {
 			LOGGER.info("checking if kafka message contains edata or not" + message.get("edata"));
@@ -94,23 +92,28 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 			if (null != edata.get("eks")) {
 				LOGGER.info("checking if edata has eks present in it" + eks);
 				eks = (Map) edata.get("eks");
-				if(null != eks.get("concepts")){
-					LOGGER.info("getting conceptsMap from kafka message" + eks.get("concepts"));
-					List<String> conceptList = (List)eks.get("concepts");
-					for(Object data : conceptList){
-						Map<String,String> map = (Map)data;
-						for (Entry<String, String> entry : map.entrySet()){
-							if(entry.getKey().equalsIgnoreCase("identifier")){
-								ExistingConcepts.add(entry.getValue());
-							}
-						} 
-					}
-				}
-				LOGGER.info("conceptId retrieved from kafka message" + ExistingConcepts);
 				if (null != eks.get("cid")) {
 					Node node = util.getNode("domain", eks.get("cid").toString());
+					List<Relation> outRelations = (List) node.getOutRelations();
+					if (null != outRelations && !outRelations.isEmpty()) {
+						for (Relation rel : outRelations) {
+							if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType()) && !existingConcepts.contains(rel.getEndNodeId()))
+								LOGGER.info("getting status from node");
+							String status = (String) rel.getEndNodeMetadata()
+									.get(ContentWorkflowPipelineParams.status.name());
+							LOGGER.info("checking if status is LIVE and fetching conceptIds from it" + status);
+							if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
+								existingConcepts.add(rel.getEndNodeId());
+							LOGGER.info("concepts fetched form LIVE items" + existingConcepts);
+							if(null != rel.getEndNodeMetadata().get("gradeLevel")){
+								List list = (List) (rel.getEndNodeMetadata().get("gradeLevel"));
+								existingConceptGrades.addAll(list);
+								LOGGER.info("Adding gradeLevel from concepts" + existingConceptGrades);
+							}
+						}
+					}
 					LOGGER.info("Calling tagNewConcepts method to extract content data" + node);
-					tagNewConcepts(node, ExistingConcepts);
+					tagNewConcepts(node, existingConcepts,existingConceptGrades );
 				}
 			}
 		}
@@ -123,10 +126,11 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	 * 
 	 * @param content
 	 * 			the content node 
+	 * @param existingConceptGrades 
 	 * @param concepts 
 	 * 			the list of existing concepts
 	 */
-	private void tagNewConcepts(Node content, List<String> ExistingConcepts) {
+	private void tagNewConcepts(Node content, Set<String> existingConcepts, Set<String> existingConceptGrades) {
 
 		List<String> itemSets = new ArrayList<String>();
 		List<Relation> outRelations = content.getOutRelations();
@@ -155,7 +159,7 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 			if (!itemIds.isEmpty()) {
 				List<String> items = new ArrayList<String>(itemIds);
 				LOGGER.info("getting concepts associated with items" + items);
-				Node node = MapConceptsFromItems(graphId, items, content, ExistingConcepts, contentId);
+				Node node = mapConceptsFromItems(graphId, items, content, existingConcepts,  existingConceptGrades, contentId);
 				LOGGER.info("calling content update operation after adding required metadata" + node);
 				util.updateNode(node);
 			}
@@ -192,20 +196,21 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	 *            identifier of the domain graph
 	 * @param items
 	 *            list of assessment item identifiers
+	 * @param existingConceptGrades 
 	 * @return list of concept identifiers associated with the input assessment
 	 *         items
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Node MapConceptsFromItems(String graphId, List<String> items, Node content, List<String> ExistingConcepts, String contentId) {
+	private Node mapConceptsFromItems(String graphId, List<String> items, Node content, Set<String> existingConcepts, Set<String> existingConceptGrades, String contentId) {
 		
 		LOGGER.info("getting all itemsData from itemIds" + items);
 		
 		Response response = util.getDataNodes(graphId, items);
 		LOGGER.info("response from getDataNodes" + response);
 		
-		List<String> conceptIds = new ArrayList<String>();
-		List<String> itemGrades = new ArrayList<String>();
-		List<String> conceptGrades = new ArrayList<String>();
+		Set<String> conceptIds = new HashSet<String>();
+		Set<String> itemGrades = new HashSet<String>();
+		Set<String> conceptGrades = new HashSet<String>();
 		if (null != response) {
 			
 			List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
@@ -215,7 +220,9 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 				for (Node node : nodes) {
 					LOGGER.info("getting gradeLevel from assessment items");
 					if(null != node.getMetadata().get("gradeLevel")){
-						itemGrades.addAll((List)node.getMetadata().get("gradeLevel"));
+						List<String> list = (List)node.getMetadata().get("gradeLevel");
+						if(null != list && !list.isEmpty())
+							itemGrades.addAll(list);
 						LOGGER.info("gradeLevels retrieved from items" + itemGrades);
 					}
 
@@ -235,7 +242,9 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 									conceptIds.add(rel.getEndNodeId());
 								LOGGER.info("concepts fetched form LIVE items" + conceptIds);
 								if(null != rel.getEndNodeMetadata().get("gradeLevel")){
-									conceptGrades.addAll((List)rel.getEndNodeMetadata().get("gradeLevel"));
+									List<String> grades = (List)rel.getEndNodeMetadata().get("gradeLevel");
+									if(null != grades && grades.isEmpty())
+										conceptGrades.addAll(grades);
 									LOGGER.info("Adding gradeLevel from concepts" + conceptGrades);
 								}
 							}
@@ -244,31 +253,31 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 				}
 			}
 		}
-		LOGGER.info("getting nodes of existing conceptIds");
-		if(null != ExistingConcepts && !ExistingConcepts.isEmpty()){
-			Response result = util.getDataNodes(graphId,ExistingConcepts);
-			if(null != result){
-				List<Node> nodes = (List) result.get(GraphDACParams.node_list.name());
-				for(Node node : nodes){
-					LOGGER.info("Checking if concept has gradeLevel associated with it");
-					if(null != node.getMetadata().get("gradeLevel")){
-						LOGGER.info("adding gradeLevel from existing concepts" + node.getMetadata().get("gradeLevel"));
-						conceptGrades.addAll((List)node.getMetadata().get("gradeLevel"));
-					}
-				}
-			}
-		}
 		LOGGER.info("Adding concepts from content node to concepts extracted from items");
-		conceptIds.addAll(ExistingConcepts);
-		if (null != conceptIds && !conceptIds.isEmpty()) {
-			LOGGER.info("Number of concepts: " + conceptIds.size());
-			Response resp = util.addOutRelations(graphId, contentId, conceptIds,
+		List<String> totalConceptIds = new ArrayList<String>();
+		if(!existingConcepts.isEmpty())
+			totalConceptIds.addAll(existingConcepts);
+		
+		if(!conceptIds.isEmpty())
+			totalConceptIds.addAll(conceptIds);
+		
+		if (null != totalConceptIds && !totalConceptIds.isEmpty()) {
+			LOGGER.info("Number of concepts: " + totalConceptIds.size());
+			Response resp = util.addOutRelations(graphId, contentId, totalConceptIds,
 					RelationTypes.ASSOCIATED_TO.relationName());
 			if (null != resp) {
 				LOGGER.info("New concepts tagged successfully: " + contentId);
 			}
 		}	
-		Node node = getConceptMetadata(content, itemGrades, conceptGrades);
+		Node node = getConceptMetadata(content, itemGrades, conceptGrades, existingConceptGrades);
+		List<Relation> outRelations = new ArrayList<Relation>();
+		if(null != conceptIds && !conceptIds.isEmpty()){
+			for(String conceptId : totalConceptIds){
+				Relation relation = new Relation(contentId, RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
+				outRelations.add(relation);
+			}
+			node.setOutRelations(outRelations);
+		}
 		LOGGER.info("result node after adding required metadata" + node);
 		return node;
 	}
@@ -281,27 +290,36 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	 * @param content
 	 * 			The content node
 	 * 
-	 * @param itemsGrades
+	 * @param itemGrades
 	 * 			The itemGrades
 	 * 
 	 * @param conceptGrades
 	 * 			The conceptGrades
+	 * @param existingConceptGrades 
 	 * 
 	 * @return Node
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Node getConceptMetadata(Node content, List itemsGrades, List<String> conceptGrades) {
-		LOGGER.info("checking if conceptGrades are empty" + conceptGrades.size());
-		if(!conceptGrades.isEmpty() && null != conceptGrades){
-			LOGGER.info("Mapping grades with ageGroup" + conceptGrades);
-			List<String> ageGroup = mapGradeWithAge(conceptGrades);
+	private Node getConceptMetadata(Node content, Set<String> itemGrades, Set<String> conceptGrades, Set<String> existingConceptGrades) {
+		List<String> totalGrades = new ArrayList<String>();
+		if(!existingConceptGrades.isEmpty())
+			totalGrades.addAll(existingConceptGrades);
+		if(!conceptGrades.isEmpty())
+			totalGrades.addAll(conceptGrades);
+		if(null != content.getMetadata().get("ageGroup"));
+			List<String> existingAgeGroup = (List)content.getMetadata().get("ageGroup");
+		LOGGER.info("checking if conceptGrades are empty" + totalGrades.size());
+		if(null != totalGrades && !totalGrades.isEmpty()){
+			LOGGER.info("Mapping grades with ageGroup" + totalGrades);
+			List<String> ageGroup = mapGradeWithAge(totalGrades, existingAgeGroup);
 			content.getMetadata().put("gradeLevel", conceptGrades);
 			content.getMetadata().put("ageGroup", ageGroup);
 			LOGGER.info("ageGroup and conceptGrades added to content successfully" + content);
 		}
-		else{
-			List<String> ageGroup = mapGradeWithAge(itemsGrades);
-			content.getMetadata().put("gradeLevel", itemsGrades);
+		else if(!itemGrades.isEmpty()){
+			List<String> grades = new ArrayList<String>(itemGrades);
+			List<String> ageGroup = mapGradeWithAge(grades, existingAgeGroup);
+			content.getMetadata().put("gradeLevel", itemGrades);
 			content.getMetadata().put("ageGroup", ageGroup);
 			LOGGER.info("ageGroup and itemGrades added to content successfully" + content);
 		}
@@ -313,32 +331,39 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	 * 
 	 * @param grades
 	 * 			The gradeMap
+	 * @param existingAgeGroup 
 	 * @return
 	 * 			The ageMap
 	 */
-	private List<String> mapGradeWithAge(List<String> grades) {
-		List<String> age = new ArrayList<String>();
+	private List<String> mapGradeWithAge(List<String> grades, List<String> existingAgeGroup) {
+		List<String> ageList = new ArrayList<String>();
 		if (!grades.isEmpty()) {
 			for (String grade : grades) {
 				LOGGER.info("mapping age group based on grades");
 				if ("Kindergarten".equalsIgnoreCase(grade)) {
-					age.add("<5");
+					ageList.add("<5");
 				} else if ("Grade 1".equalsIgnoreCase(grade)) {
-					age.add("5-6");
+					ageList.add("5-6");
 				} else if ("Grade 2".equalsIgnoreCase(grade)) {
-					age.add("6-7");
+					ageList.add("6-7");
 				} else if ("Grade 3".equalsIgnoreCase(grade)) {
-					age.add("7-8");
+					ageList.add("7-8");
 				} else if ("Grade 4".equalsIgnoreCase(grade)) {
-					age.add("8-10");
+					ageList.add("8-10");
 				} else if ("Grade 5".equalsIgnoreCase(grade)) {
-					age.add(">10");
-				} else if ("other".equalsIgnoreCase(grade)) {
-					age.add("other");
+					ageList.add(">10");
+				} else if ("Other".equalsIgnoreCase(grade)) {
+					ageList.add("Other");
 				}
 			}
 		}
-		LOGGER.info("age map mapped from grade" + age);
-		return age;
+		for(String str : ageList){
+			if(!existingAgeGroup.contains(str)){
+				LOGGER.info("adding new age group if its not there in content age group" + str);
+				existingAgeGroup.add(str);
+			}
+		}
+		LOGGER.info("age map mapped from grade" + existingAgeGroup);
+		return existingAgeGroup;
 	}
 }

@@ -1,6 +1,7 @@
 package org.ekstep.learning.util;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -106,9 +107,9 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 	
-	public Response getDataNodes(String taxonomyId, List<String> nodes){
+	public Response getDataNodes(String taxonomyId, List<String> existingConcepts){
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
-				GraphDACParams.node_ids.name(), nodes);
+				GraphDACParams.node_ids.name(), existingConcepts);
 		Response response = getResponse(request, LOGGER);
 		if (!checkError(response)){
 			return response;
