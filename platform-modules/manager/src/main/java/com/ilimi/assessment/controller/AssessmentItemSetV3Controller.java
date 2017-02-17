@@ -30,7 +30,7 @@ import com.ilimi.graph.dac.model.Node;
  */
 
 @Controller
-@RequestMapping("/v3/assessment/itemsets")
+@RequestMapping("/v3/itemsets")
 public class AssessmentItemSetV3Controller extends BaseController {
 
     private static LogHelper LOGGER = LogHelper.getInstance(AssessmentItemSetController.class.getName());
