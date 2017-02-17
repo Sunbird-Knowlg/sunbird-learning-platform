@@ -127,16 +127,20 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * This method gets the list of concepts associated with items that are
-	 * members of item sets used in the content. These concepts are then
-	 * associated with the input content object.
+	 * This method gets the list of itemsets associated with content node and
+	 * items which are members of item sets used in the content.
 	 * 
 	 * @param content
-	 * 			the content node 
+	 * 			The Content node 
+	 * 
 	 * @param existingConceptGrades 
-	 * 			the conceptGrades from content node
+	 * 			The conceptGrades from content node
+	 * 
+	 * @param existingConceptIds
+	 * 			The existingConceptIds from Content node
+	 * 
 	 * @param concepts 
-	 * 			the list of existing concepts from content node
+	 * 			The list of existing concepts from content node
 	 */
 	private void tagNewConcepts(Node content, Set<String> existingConceptIds, Set<String> existingConceptGrades) {
 
@@ -179,13 +183,16 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * Returns the list of identifiers of the items that are members of the
+	 * This methods holds logic to get members of givens item set,
+	 * returns the list of identifiers of the items that are members of the
 	 * given item set.
 	 * 
 	 * @param graphId
 	 *            identifier of the domain graph
+	 *            
 	 * @param itemSetId
 	 *            identifier of the item set
+	 *            
 	 * @return list of identifiers of member items
 	 */
 	@SuppressWarnings("unchecked")
@@ -201,15 +208,25 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * Returns the list of identifiers of concepts associated with the given
-	 * list of assessment items.
+	 * This method holds logic to map Concepts from the Items, 
+	 * get their gradeLevel and age Group and add it as a part of
+	 * node metadata.
 	 * 
 	 * @param graphId
-	 *            identifier of the domain graph
+	 *           The identifier of the domain graph
+	 *            
 	 * @param items
-	 *            list of assessment item identifiers
+	 *          The list of assessment item identifiers
+	 *      
+	 * @param content
+	 * 			The Content node
+	 * 
+	 * @param existingConceptIds
+	 * 			The existingConceptIds from content node
+	 * 
 	 * @param existingConceptGrades 
 	 * 			grades from concepts associated with content node
+	 * 
 	 * @return updated node with all metadata 
 	 * 
 	 */
@@ -297,9 +314,8 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 		return node;
 	}
 	
-	
 	/**
-	 * This methods mainly holds logic to map the content node
+	 * This method mainly holds logic to map the content node
 	 * with concept metadata like gradeLevel and ageGroup
 	 *  
 	 * @param content
@@ -314,43 +330,43 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 	 * @param existingConceptGrades 
 	 * 			The concept grades from content
 	 * 
-	 * @return Node
-	 * 			The updated node with required metadata
+	 * @return updated node with required metadata
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node getConceptMetadata(Node content, Set<String> itemGrades, Set<String> conceptGrades, Set<String> existingConceptGrades) {
 		try{
 			List<String> totalGrades = new ArrayList<String>();
 			
+			LOGGER.info("Adding grades associated with content node" + existingConceptGrades);
 			if(null != existingConceptGrades && !existingConceptGrades.isEmpty())
 				totalGrades.addAll(existingConceptGrades);
 			
+			if(null != content.getMetadata().get("ageGroup"));
+				List<String> existingAgeGroup = (List)content.getMetadata().get("ageGroup");
+			LOGGER.info("Adding age group associated with content node" + existingAgeGroup);
+				
+			LOGGER.info("checking if conceptGrades are empty" + conceptGrades.size());
 			if(null != conceptGrades && !conceptGrades.isEmpty()){
 				for(String grade : conceptGrades){
 					if(!totalGrades.contains(grade)){
 						totalGrades.add(grade);
 					}
 				}
-			}
-			if(null != content.getMetadata().get("ageGroup"));
-				List<String> existingAgeGroup = (List)content.getMetadata().get("ageGroup");
-				
-			LOGGER.info("checking if conceptGrades are empty" + totalGrades.size());
-			if(null != totalGrades && !totalGrades.isEmpty()){
-				LOGGER.info("Mapping conceptgrades with ageGroup" + totalGrades);
-				List<String> grades = new ArrayList<String>();
-				grades.addAll(totalGrades);
-				List<String> ageGroup = mapGradeWithAge(grades, existingAgeGroup);
-				content.getMetadata().put("gradeLevel", grades);
+				LOGGER.info("Mapping totalGrades with ageGroup from concept"+  totalGrades);
+				List<String> ageGroup = mapGradeWithAge(totalGrades, existingAgeGroup);
+				content.getMetadata().put("gradeLevel", totalGrades);
 				content.getMetadata().put("ageGroup", ageGroup);
 				LOGGER.info("ageGroup and conceptGrades added to content successfully" + content);
 			}
 			else if(null != itemGrades && !itemGrades.isEmpty()){
-				LOGGER.info("Mapping itemgrades with ageGroup" + itemGrades);
-				List<String> grades = new ArrayList<String>();
-				grades.addAll(itemGrades);
-				List<String> ageGroup = mapGradeWithAge(grades, existingAgeGroup);
-				content.getMetadata().put("gradeLevel", grades);
+				for(String grade : itemGrades){
+					if(!totalGrades.contains(grade)){
+						totalGrades.add(grade);
+					}
+				}
+				LOGGER.info("Mapping totalGrades with ageGroup from items" + totalGrades);
+				List<String> ageGroup = mapGradeWithAge(totalGrades, existingAgeGroup);
+				content.getMetadata().put("gradeLevel", totalGrades);
 				content.getMetadata().put("ageGroup", ageGroup);
 				LOGGER.info("ageGroup and itemGrades added to content successfully" + content);
 			}
