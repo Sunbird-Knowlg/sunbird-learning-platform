@@ -1580,42 +1580,35 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						objectType + " Object is blank");
 			try {
 				if (null != items && !items.isEmpty()) {
-					Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER,
-							"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
-					Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-					if (!checkError(responseDefiniton)) {
-						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
-								.get(GraphDACParams.definition_node.name());
-						for (Map item : items) {
-							String lemma = (String) item.get(LanguageParams.lemma.name());
-							String language = LanguageMap.getLanguage(languageId).toUpperCase();
-							boolean isValid = isValidWord(lemma, languageId);
-							if (!isValid) {
-								Matcher hasSpecial = special.matcher(lemma);
-								if (hasSpecial.matches()) {
-									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-											"Word should not contain any special characters ",
-											ResponseCode.CLIENT_ERROR);
-								} else {
-									return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-											"Word cannot be in a different language than " + language,
-											ResponseCode.CLIENT_ERROR);
-								}
+					for (Map item : items) {
+						String lemma = (String) item.get(LanguageParams.lemma.name());
+						String language = LanguageMap.getLanguage(languageId).toUpperCase();
+						boolean isValid = isValidWord(lemma, languageId);
+						if (!isValid) {
+							Matcher hasSpecial = special.matcher(lemma);
+							if (hasSpecial.matches()) {
+								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+										"Word should not contain any special characters ",
+										ResponseCode.CLIENT_ERROR);
+							} else {
+								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+										"Word cannot be in a different language than " + language,
+										ResponseCode.CLIENT_ERROR);
 							}
-							Response wordResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
-							if (checkError(wordResponse)) {
-								errorMessages.add(wordUtil.getErrorMessage(wordResponse));
-							}
-							List<String> errorMessage = (List<String>) wordResponse
-									.get(LanguageParams.error_messages.name());
-							if (errorMessage != null && !errorMessage.isEmpty()) {
-								errorMessages.addAll(errorMessage);
-							}
-							String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
-							if (nodeId != null) {
-								createRes.put(GraphDACParams.node_id.name(), nodeId);
-								lstNodeId.add(nodeId);
-							}
+						}
+						Response wordResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
+						if (checkError(wordResponse)) {
+							errorMessages.add(wordUtil.getErrorMessage(wordResponse));
+						}
+						List<String> errorMessage = (List<String>) wordResponse
+								.get(LanguageParams.error_messages.name());
+						if (errorMessage != null && !errorMessage.isEmpty()) {
+							errorMessages.addAll(errorMessage);
+						}
+						String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
+						if (nodeId != null) {
+							createRes.put(GraphDACParams.node_id.name(), nodeId);
+							lstNodeId.add(nodeId);
 						}
 					}
 				}
@@ -1882,16 +1875,18 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			item.put(LanguageParams.identifier.name(), id);
 			String lemma = (String) item.get(LanguageParams.lemma.name());
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
-			boolean isValid = isValidWord(lemma, languageId);
-			if (!isValid) {
-				Matcher hasSpecial = special.matcher(lemma);
-				if (hasSpecial.matches()) {
-					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-							"Word should not contain any special characters ", ResponseCode.CLIENT_ERROR);
-				} else {
-					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-							"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
-				}
+			if(lemma!=null){
+				boolean isValid = isValidWord(lemma, languageId);
+				if (!isValid) {
+					Matcher hasSpecial = special.matcher(lemma);
+					if (hasSpecial.matches()) {
+						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+								"Word should not contain any special characters ", ResponseCode.CLIENT_ERROR);
+					} else {
+						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+								"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+					}
+				}				
 			}
 			List<String> lstNodeId = new ArrayList<String>();
 			Response updateResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
@@ -2695,9 +2690,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (primaryMeaning != null) {
 
 				if (primaryMeaning.get(LanguageParams.synonyms.name()) != null) {
-					Map<String, Object> synonyms = (Map<String, Object>) primaryMeaning
+					List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
 							.get(LanguageParams.synonyms.name());
-					Map<String, Object> synonymCopy = new HashMap<>(synonyms);
+					List<Map<String, Object>> synonymCopy = new ArrayList<>(synonyms);
 					primaryMeaningSynonym = new HashMap<>();
 					primaryMeaningSynonym.put(LanguageParams.synonyms.name(), synonymCopy);
 				}
@@ -2757,7 +2752,19 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			wordRequestMap.remove(LanguageParams.otherMeanings.name());
 			wordRequestMap.remove(LanguageParams.tags.name());
 			String lemma = (String) wordRequestMap.get(LanguageParams.lemma.name());
-			lemma = lemma.trim();
+			if(lemma != null){
+				lemma = lemma.trim();
+				wordRequestMap.put(LanguageParams.lemma.name(), lemma);
+			}
+			
+
+			if (wordIdentifier == null) {
+				 		Node existingWordNode = wordUtil.searchWord(languageId, lemma);
+				 		if (existingWordNode != null) {
+				 			wordIdentifier = existingWordNode.getIdentifier();
+				 			wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);
+				 		}
+			}
 
 			Node word = new Node(wordIdentifier, SystemNodeTypes.DATA_NODE.name(), "Word");
 
@@ -2847,12 +2854,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		Map<String, Object> primaryMeaning = (Map<String, Object>) wordRequestMap
 				.get(LanguageParams.primaryMeaning.name());
-		lemmas.addAll(getRelatedWordLemmaFrom(primaryMeaning));
+		if (null != primaryMeaning)
+			lemmas.addAll(getRelatedWordLemmaFrom(primaryMeaning));
 
 		List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordRequestMap
 				.get(LanguageParams.otherMeanings.name());
-		for (Map<String, Object> otherMeaning : otherMeanings)
-			lemmas.addAll(getRelatedWordLemmaFrom(otherMeaning));
+		if (null != otherMeanings && !otherMeanings.isEmpty()) 
+			for (Map<String, Object> otherMeaning : otherMeanings)
+				lemmas.addAll(getRelatedWordLemmaFrom(otherMeaning));
 
 		return lemmas;
 	}
@@ -2876,6 +2885,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				filters.add(new Filter("lemma", SearchConditions.OP_EQUAL, word));
 		}
 		MetadataCriterion mc = MetadataCriterion.create(filters);
+		mc.setOp(SearchConditions.LOGICAL_OR);
 		sc.addMetadata(mc);
 		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
@@ -2902,7 +2912,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		Map<String, Object> lemmaWordMap = new HashMap<>();
 		List<String> lemmas = getAllLemma(wordRequestMap);
-		List<Node> words = searchWords(languageId, lemmas);
+		List<Node> words = new ArrayList<>();
+		if(lemmas!=null && lemmas.size()>0)
+			words = searchWords(languageId, lemmas);
 
 		for (Node word : words) {
 			lemmaWordMap.put(word.getMetadata().get(LanguageParams.lemma.name()).toString(), word);
@@ -2986,12 +2998,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		meaningMap.remove(LanguageParams.converse.name());
 
 		// set synset tags
-		String tags = (String) meaningMap.get(LanguageParams.tags.name());
-		if (StringUtils.isNotBlank(tags)) {
-			String[] arr = tags.split(",");
-			List<String> tagList = Arrays.asList(arr);
-			synset.setTags(tagList);
-			meaningMap.remove(LanguageParams.tags.name());
+		List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
+		if(tags!=null){
+			synset.setTags(tags);
+			meaningMap.remove(LanguageParams.tags.name());			
 		}
 
 		// set synset metadata
@@ -3088,15 +3098,16 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *            the primary meaning id
 	 */
 	private void setPrimaryMeaningId(String languageId, String wordId, String primaryMeaningId) {
-		Node node = new Node(wordId, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Synset.name());
+		Node node = new Node(wordId, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
 		node.setMetadata(metadata);
 		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		req.put(GraphDACParams.node.name(), node);
+		req.put(GraphDACParams.node_id.name(), wordId);
 		Response res = getResponse(req, LOGGER);
 		if (checkError(res)) {
-			throw new ServerException(LanguageErrorCodes.ERR_CREATE_UPDATE_SYNSET.name(), getErrorMessage(res));
+			throw new ServerException(LanguageErrorCodes.ERR_UPDATE_WORD.name(), getErrorMessage(res));
 		}
 	}
 

@@ -145,17 +145,26 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 						Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
 						if(wordMap.get(LanguageParams.synonyms.name())!=null)
 							word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
+						else
+							word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
+						
 						if(wordMap.get(LanguageParams.antonyms.name())!=null)
 							word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
+						else
+							word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
+						
 						if(wordMap.get(LanguageParams.synonyms.name())!=null){
 							List<NodeDTO> synonyms =(List<NodeDTO>) wordMap.get(LanguageParams.synonyms.name());
-							word.getMetadata().put(ATTRIB_HAS_ANTONYMS, synonyms.size());
+							word.getMetadata().put(ATTRIB_SYNSET_COUNT, synonyms.size());
 						}
+						String lemma = (String) wordMap.get(LanguageParams.lemma.name());
+						if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
+							 	word.getMetadata().put(ATTRIB_IS_PHRASE, true);
+						}
+						
 						String primaryMeaningId = (String) word.getMetadata().get(LanguageParams.primaryMeaningId.name());
 						if(primaryMeaningId!=null){
 							Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
-							if(synset.getMetadata().get(ATTRIB_POS)!=null)
-								word.getMetadata().put(ATTRIB_POS, synset.getMetadata().get(ATTRIB_POS));
 							if(synset.getMetadata().get(ATTRIB_CATEGORY)!=null)
 								word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
 							if(synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES)!=null)
@@ -164,6 +173,12 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 								word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
 							if(synset.getMetadata().get(ATTRIB_PICTURES)!=null)
 								word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
+							if(synset.getMetadata().get(ATTRIB_GLOSS)!=null)
+								word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
+							List<String> tags = synset.getTags();
+							if(tags!=null&&tags.size()>0)
+								 word.setTags(tags);
+							 
 						}
 					}
 					
