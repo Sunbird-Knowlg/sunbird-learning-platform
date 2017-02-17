@@ -12,7 +12,11 @@ import org.apache.tika.mime.MimeTypes;
 import org.ekstep.common.optimizr.FileType;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.LearningActorNames;
+import org.ekstep.learning.common.enums.LearningOperations;
 import org.springframework.stereotype.Component;
+
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -74,7 +78,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 			LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
-			Response response = updateContentNode(node, urlArray[1]);
+			response = updateContentNode(node, urlArray[1]);
 			String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 			if (!checkError(response)) {
 					if ((StringUtils.equalsIgnoreCase(node.getMetadata().get("contentType").toString(), "Asset"))
