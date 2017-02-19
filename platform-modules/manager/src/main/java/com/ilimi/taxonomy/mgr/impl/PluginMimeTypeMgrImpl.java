@@ -38,7 +38,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)
 	 */
 	@Override
-	public Response upload(Node node, File uploadFile) {
+	public Response upload(Node node, File uploadFile, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadFile.getName());
 
@@ -101,7 +101,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model.Node)
 	 */
 	@Override
-	public Response publish(Node node) {
+	public Response publish(Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
@@ -115,7 +115,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	}
 	
 	@Override
-	public Response review(Node node) {
+	public Response review(Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());

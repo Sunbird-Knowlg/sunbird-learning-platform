@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
@@ -105,7 +107,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * .Node)
 	 */
 	@Override
-	public Response publish(Node node) {
+	public Response publish(Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		Response response = new Response();
@@ -116,17 +118,23 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
 		LOGGER.info("Calling the 'Publish' Initializer for Node Id: " + node.getIdentifier());
-		response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
 
 		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
-		
-		AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
-		LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
 
-		response.put(ContentAPIParams.publishStatus.name(),
-				"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+		if (BooleanUtils.isTrue(isAsync)) {
+			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
+			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+
+			response.put(ContentAPIParams.publishStatus.name(),
+					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+		} else {
+			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+
+			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+		}
 
 		return response;
 	}
@@ -139,7 +147,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(Node node, File uploadedFile) {
+	public Response upload(Node node, File uploadedFile, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadedFile.getName());
 
@@ -161,7 +169,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response review(Node node) {
+	public Response review(Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());

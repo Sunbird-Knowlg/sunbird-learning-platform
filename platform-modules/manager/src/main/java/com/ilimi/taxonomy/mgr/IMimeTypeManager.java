@@ -47,7 +47,7 @@ public interface IMimeTypeManager {
 	 *         <code>node_id</code> and the <code>artifactUrl</code> property
 	 *         i.e. the <code>URL</code> where the file is uploaded.
 	 */
-	public Response upload(Node node, File uploadFile);
+	public Response upload(Node node, File uploadFile, boolean isAsync);
 
 	/**
 	 * The <code>publish</code> method is a vital method in Content work-flow
@@ -63,7 +63,7 @@ public interface IMimeTypeManager {
 	 *         file i.e. the value as <code>downloadUrl</code> property of
 	 *         content node.
 	 */
-	public Response publish(Node node);
+	public Response publish(Node node, boolean isAsync);
 
 	/**
 	 * The <code>review</code> method is a vital method in Content work-flow
@@ -80,6 +80,6 @@ public interface IMimeTypeManager {
 	 *         file i.e. the value as <code>downloadUrl</code> property of
 	 *         content node.
 	 */
-	public Response review(Node node);
+	public Response review(Node node, boolean isAsync);
 
 }

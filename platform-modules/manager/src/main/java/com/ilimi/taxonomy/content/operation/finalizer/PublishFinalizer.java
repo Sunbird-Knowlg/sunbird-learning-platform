@@ -11,6 +11,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.S3PropertyReader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -21,6 +23,7 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.util.ContentMimeTypeFactoryUtil;
 import com.ilimi.taxonomy.enums.ExtractionType;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
@@ -34,6 +37,8 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(PublishFinalizer.class.getName());
+
+	private static String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 
 	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
@@ -196,30 +201,52 @@ public class PublishFinalizer extends BaseFinalizer {
 		LOGGER.debug("Node List: ", nodes);
 		if (null != nodes && !nodes.isEmpty()) {
 			LOGGER.debug("Node is not Empty.");
+
+			LOGGER.debug("Fetching the Non-Collection Content Nodes.");
+			List<Node> nonCollectionNodes = new ArrayList<Node>();
+			List<Node> collectionNodes = new ArrayList<Node>();
 			for (Node node : nodes) {
 				if (null != node && null != node.getMetadata()) {
-					LOGGER.debug("Checking Node Id: " + node.getIdentifier());
-					if ((StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Draft.name(),
-							(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name()))
-							|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Review.name(),
-									(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name())))
-							&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Parent.name(),
-									(String) node.getMetadata().get(ContentWorkflowPipelineParams.visibility.name()))) {
-						LOGGER.debug("Fetching 'MimeType' for Content Id: " + node.getIdentifier());
-						String mimeType = (String) node.getMetadata()
-								.get(ContentWorkflowPipelineParams.mimeType.name());
-						if (StringUtils.isBlank(mimeType))
-							throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(),
-									ContentErrorMessageConstants.INVALID_CONTENT_MIMETYPE
-											+ " | [Invalid or 'null' MimeType for Content Id: " + node.getIdentifier()
-											+ "]");
-						LOGGER.debug("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
-
-						LOGGER.info("Publishing Content Id: " + node.getIdentifier());
-						ContentMimeTypeFactory factory = new ContentMimeTypeFactory();
-						factory.getImplForService(mimeType).publish(node);
-					}
+					LOGGER.debug("Content Id: " + node.getIdentifier() + " has MimeType: "
+							+ node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
+					if (StringUtils.equalsIgnoreCase(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
+							COLLECTION_MIMETYPE))
+						collectionNodes.add(node);
+					else
+						nonCollectionNodes.add(node);
 				}
+			}
+
+			// Publishing all Non-Collection nodes
+			for (Node node : nonCollectionNodes)
+				publishChild(node);
+
+			// Publishing all Non-Collection nodes
+			for (Node node : collectionNodes)
+				publishChild(node);
+		}
+	}
+
+	private void publishChild(Node node) {
+		if (null != node && null != node.getMetadata()) {
+			LOGGER.debug("Checking Node Id: " + node.getIdentifier());
+			if ((StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Draft.name(),
+					(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name()))
+					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Review.name(),
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name())))
+					&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Parent.name(),
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.visibility.name()))) {
+				LOGGER.debug("Fetching 'MimeType' for Content Id: " + node.getIdentifier());
+				String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+				if (StringUtils.isBlank(mimeType))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(),
+							ContentErrorMessageConstants.INVALID_CONTENT_MIMETYPE
+									+ " | [Invalid or 'null' MimeType for Content Id: " + node.getIdentifier() + "]");
+				LOGGER.debug("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
+
+				LOGGER.info("Publishing Content Id: " + node.getIdentifier());
+				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(node, false);
 			}
 		}
 	}

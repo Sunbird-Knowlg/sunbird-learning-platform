@@ -6,7 +6,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
@@ -19,10 +18,10 @@ import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 public class AsyncContentOperationUtil {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
-	
+
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(AsyncContentOperationUtil.class.getName());
-	
+
 	public static void makeAsyncOperation(ContentOperations operation, Map<String, Object> parameterMap) {
 		LOGGER.debug("Content Operation: ", operation);
 		LOGGER.debug("Parameter Map: ", parameterMap);
@@ -46,31 +45,78 @@ public class AsyncContentOperationUtil {
 					case "upload":
 					case "UPLOAD": {
 						Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
-						InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
-						pipeline.init(ContentWorkflowPipelineParams.upload.name(), parameterMap);
+						if (null == node)
+							throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
+									ContentErrorMessageConstants.INVALID_CONTENT
+											+ " | ['null' or Invalid Content Node (Object). Async Upload Operation Failed.]");
+						try {
+							InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
+									node.getIdentifier());
+							pipeline.init(ContentWorkflowPipelineParams.upload.name(), parameterMap);
+						} catch (Exception e) {
+							LOGGER.error(
+									"Something Went Wrong While Performing 'Content Upload' Operation in Async Mode. | [Content Id: "
+											+ node.getIdentifier() + "]");
+							node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), e.getMessage());
+							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
+							updateDataNodeUtil.updateDataNode(node);
+						}
 					}
 						break;
 
 					case "publish":
 					case "PUBLISH": {
 						Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
-						InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
-						pipeline.init(ContentWorkflowPipelineParams.publish.name(), parameterMap);
+						if (null == node)
+							throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
+									ContentErrorMessageConstants.INVALID_CONTENT
+											+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
+						try {
+							InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
+									node.getIdentifier());
+							pipeline.init(ContentWorkflowPipelineParams.publish.name(), parameterMap);
+						} catch (Exception e) {
+							LOGGER.error(
+									"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
+											+ node.getIdentifier() + "]");
+							node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
+							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
+							updateDataNodeUtil.updateDataNode(node);
+						}
 					}
 						break;
 
 					case "bundle":
 					case "BUNDLE": {
-						InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
-						pipeline.init(ContentWorkflowPipelineParams.bundle.name(), parameterMap);
+						try {
+							InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
+							pipeline.init(ContentWorkflowPipelineParams.bundle.name(), parameterMap);
+						} catch (Exception e) {
+							LOGGER.error(
+									"Something Went Wrong While Performing 'Content Bundle' Operation in Async Mode.");
+						}
 					}
 						break;
 
 					case "review":
 					case "REVIEW": {
 						Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
-						InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
-						pipeline.init(ContentAPIParams.review.name(), parameterMap);
+						if (null == node)
+							throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
+									ContentErrorMessageConstants.INVALID_CONTENT
+											+ " | ['null' or Invalid Content Node (Object). Async Review Operation Failed.]");
+						try {
+							InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
+									node.getIdentifier());
+							pipeline.init(ContentWorkflowPipelineParams.review.name(), parameterMap);
+						} catch (Exception e) {
+							LOGGER.error(
+									"Something Went Wrong While Performing 'Content Review (Send For Review)' Operation in Async Mode. | [Content Id: "
+											+ node.getIdentifier() + "]");
+							node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), e.getMessage());
+							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
+							updateDataNodeUtil.updateDataNode(node);
+						}
 					}
 						break;
 
@@ -86,10 +132,10 @@ public class AsyncContentOperationUtil {
 		new Thread(task, "AsyncContentOperationThread").start();
 	}
 
-	protected static String getBasePath(String contentId) {
+	private static String getBasePath(String contentId) {
 		String path = "";
 		if (!StringUtils.isBlank(contentId))
-			path = tempFileLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
+			path = tempFileLocation + File.separator + System.currentTimeMillis() + ContentWorkflowPipelineParams._temp.name()
 					+ File.separator + contentId;
 		return path;
 	}

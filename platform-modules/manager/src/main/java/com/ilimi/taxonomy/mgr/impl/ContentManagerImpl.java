@@ -141,7 +141,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(node, uploadedFile);
+		Response res = mimeTypeManager.upload(node, uploadedFile, false);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
 				LOGGER.info("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]");
@@ -422,7 +422,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 
 		try {
-			response = mimeTypeManager.publish(node);
+			response = mimeTypeManager.publish(node, true);
 			String contentType = (String) node.getMetadata().get("contentType");
 			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
 				node.getMetadata().put("prevState", prevState);
@@ -477,7 +477,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		
-		response = mimeTypeManager.review(node);
+		response = mimeTypeManager.review(node, false);
 		
 		LOGGER.debug("Returning 'Response' Object: ", response);
 		return response;

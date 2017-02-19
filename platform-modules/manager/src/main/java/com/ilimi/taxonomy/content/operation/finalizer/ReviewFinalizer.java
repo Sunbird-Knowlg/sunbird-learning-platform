@@ -72,8 +72,8 @@ public class ReviewFinalizer extends BaseFinalizer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 
-		boolean isPublishOperation = (boolean) parameterMap
-				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
+		boolean isPublishOperation = BooleanUtils.toBoolean((String) parameterMap
+				.get(ContentWorkflowPipelineParams.isPublishOperation.name()));
 		if (BooleanUtils.isTrue(isPublishOperation)) {
 			LOGGER.info("Changing the Content Status to 'Processing'.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
