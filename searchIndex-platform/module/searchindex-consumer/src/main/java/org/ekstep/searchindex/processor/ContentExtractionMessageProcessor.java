@@ -105,7 +105,7 @@ public class ContentExtractionMessageProcessor implements IMessageProcessor {
 									LOGGER.info("checking if status is LIVE and fetching conceptIds from it" + status);
 									if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
 										existingConceptIds.add(rel.getEndNodeId());
-									LOGGER.info("concepts fetched form LIVE items" + existingConceptIds);
+									LOGGER.info("concepts fetched form LIVE Content" + existingConceptIds);
 									if(null != rel.getEndNodeMetadata().get("gradeLevel")){
 										List<String> list = (List) (rel.getEndNodeMetadata().get("gradeLevel"));
 										if(null != list && !list.isEmpty())
