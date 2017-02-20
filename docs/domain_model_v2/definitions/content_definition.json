@@ -849,9 +849,10 @@
             "Asset",
             "Template",
             "Plugin",
-    		    "ContentTemplate",
-    		    "ItemTemplate",
-    		    "TextBook"
+		    "ContentTemplate",
+		    "ItemTemplate",
+		    "TextBook",
+		    "TextBookUnit"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
