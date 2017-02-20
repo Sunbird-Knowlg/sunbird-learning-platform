@@ -58,6 +58,8 @@ public class AsyncContentOperationUtil {
 									"Something Went Wrong While Performing 'Content Upload' Operation in Async Mode. | [Content Id: "
 											+ node.getIdentifier() + "]");
 							node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), e.getMessage());
+							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+									ContentWorkflowPipelineParams.Failed.name());
 							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
 							updateDataNodeUtil.updateDataNode(node);
 						}
@@ -80,6 +82,8 @@ public class AsyncContentOperationUtil {
 									"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 											+ node.getIdentifier() + "]");
 							node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
+							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+									ContentWorkflowPipelineParams.Failed.name());
 							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
 							updateDataNodeUtil.updateDataNode(node);
 						}
@@ -114,6 +118,8 @@ public class AsyncContentOperationUtil {
 									"Something Went Wrong While Performing 'Content Review (Send For Review)' Operation in Async Mode. | [Content Id: "
 											+ node.getIdentifier() + "]");
 							node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), e.getMessage());
+							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+									ContentWorkflowPipelineParams.Failed.name());
 							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
 							updateDataNodeUtil.updateDataNode(node);
 						}
@@ -135,8 +141,8 @@ public class AsyncContentOperationUtil {
 	private static String getBasePath(String contentId) {
 		String path = "";
 		if (!StringUtils.isBlank(contentId))
-			path = tempFileLocation + File.separator + System.currentTimeMillis() + ContentWorkflowPipelineParams._temp.name()
-					+ File.separator + contentId;
+			path = tempFileLocation + File.separator + System.currentTimeMillis()
+					+ ContentWorkflowPipelineParams._temp.name() + File.separator + contentId;
 		return path;
 	}
 }

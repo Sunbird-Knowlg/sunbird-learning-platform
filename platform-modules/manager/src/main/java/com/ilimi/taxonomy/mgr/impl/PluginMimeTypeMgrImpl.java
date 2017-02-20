@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +22,10 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.ContentOperations;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
+import com.ilimi.taxonomy.content.util.AsyncContentOperationUtil;
 import com.ilimi.taxonomy.content.validator.ContentValidator;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
@@ -104,14 +107,33 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	public Response publish(Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
+		Response response = new Response();
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.info("Calling the 'Publish' Initializer for Node ID: " + node.getIdentifier());
-		return pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+		LOGGER.info("Calling the 'Publish' Initializer for Node Id: " + node.getIdentifier());
+		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
+		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+
+		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
+
+		if (BooleanUtils.isTrue(isAsync)) {
+			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
+			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+
+			response.put(ContentAPIParams.publishStatus.name(),
+					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+		} else {
+			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+
+			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+		}
+
+		return response;
 	}
 	
 	@Override
