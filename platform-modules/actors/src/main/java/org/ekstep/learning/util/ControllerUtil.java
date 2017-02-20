@@ -1,18 +1,14 @@
 package org.ekstep.learning.util;
 
 import java.util.List;
-import java.util.Set;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.graph.enums.CollectionTypes;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
 // TODO: Auto-generated Javadoc
@@ -110,6 +106,51 @@ public class ControllerUtil extends BaseLearningManager {
 	public Response getDataNodes(String taxonomyId, List<String> existingConcepts){
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
 				GraphDACParams.node_ids.name(), existingConcepts);
+		Response response = getResponse(request, LOGGER);
+		if (!checkError(response)){
+			return response;
+		}
+		return null;
+	}
+	
+	/**
+	 * Sets the context.
+	 *
+	 * @param request
+	 *            the request
+	 * @param graphId
+	 *            the graph id
+	 * @param manager
+	 *            the manager
+	 * @param operation
+	 *            the operation
+	 * @return the request
+	 */
+	public Request setLanguageContext(Request request,String languageId, String graphId, String manager, String operation) {
+		request.getContext().put(languageId, graphId);
+		request.setManagerName(manager);
+		request.setOperation(operation);
+		return request;
+	}
+	
+	/**
+	 * Gets the request from the Language request router.
+	 *
+	 * @param graphId
+	 *            the graph id
+	 * @param manager
+	 *            the manager
+	 * @param operation
+	 *            the operation
+	 * @return the language request
+	 */
+	public Request getLanguageRequest(String graphId, String manager, String languageId, String operation) {
+		Request request = new Request();
+		return setLanguageContext(request, graphId, manager,languageId, operation);
+	}
+
+	public Response getComplexityMeasures(String graphId, String languageId, String text){
+		Request request = getLanguageRequest(graphId, "LEXILE_MEASURES_ACTOR", languageId, "computeTextComplexity");
 		Response response = getResponse(request, LOGGER);
 		if (!checkError(response)){
 			return response;
