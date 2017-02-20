@@ -1582,6 +1582,11 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (null != items && !items.isEmpty()) {
 					for (Map item : items) {
 						String lemma = (String) item.get(LanguageParams.lemma.name());
+						if (null == lemma)
+							throw new ClientException(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+									"Word - lemma can not be empty");
+						lemma = lemma.trim();
+						item.put(LanguageParams.lemma.name(),lemma);
 						String language = LanguageMap.getLanguage(languageId).toUpperCase();
 						boolean isValid = isValidWord(lemma, languageId);
 						if (!isValid) {
@@ -2067,13 +2072,23 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (null != synset.getOutRelations() && !synset.getOutRelations().isEmpty()) {
 					List<Relation> relations = synset.getOutRelations();
 					for (Relation rel : relations) {
-						if (StringUtils.equalsIgnoreCase(LanguageParams.Word.name(), rel.getEndNodeObjectType())) {
+						if (StringUtils.equalsIgnoreCase(LanguageParams.Word.name(), rel.getEndNodeObjectType())&&
+								StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.name())) {
 							String title = relTitleMap.get(rel.getRelationType());
 							if (StringUtils.isNotBlank(title)) {
 								List<NodeDTO> list = relMap.get(title);
 								String lemma = (String) rel.getEndNodeMetadata().get(LanguageParams.lemma.name());
 								list.add(new NodeDTO(rel.getEndNodeId(), lemma, rel.getEndNodeObjectType()));
 							}
+						}
+						else if(StringUtils.equalsIgnoreCase(LanguageParams.Synset.name(), rel.getEndNodeObjectType())){
+							String title = relTitleMap.get(rel.getRelationType());
+							if (StringUtils.isNotBlank(title)) {
+								List<NodeDTO> list = relMap.get(title);
+								String gloss = (String) rel.getEndNodeMetadata().get(LanguageParams.gloss.name());
+								list.add(new NodeDTO(rel.getEndNodeId(), gloss, rel.getEndNodeObjectType()));
+							}
+
 						}
 					}
 				}
@@ -2158,35 +2173,18 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 			}
 			if (primaryMeaningId != null) {
-				Node synsetNode = getDataNode(languageId, primaryMeaningId, "Synset");
-				DefinitionDTO synsetDefintion = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
-				Map<String, Object> synsetMap = getSynsetMap(synsetNode, synsetDefintion);
-				String category = (String) synsetMap.get(LanguageParams.category.name());
+				Map<String, Object> primaryMeaningMap = getMeaningObjectMap(languageId, primaryMeaningId,
+						wordIdentifier);
+				String category = (String) primaryMeaningMap.get(LanguageParams.category.name());
 				if (StringUtils.isNotBlank(category))
 					map.put(LanguageParams.category.name(), category);
-
-				synsetMap.remove(ATTRIB_EXAMPLE_SENTENCES);
+				primaryMeaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 				Object exampleSentences = map.get(ATTRIB_EXAMPLE_SENTENCES);
 				if (exampleSentences != null) {
-					synsetMap.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
+					primaryMeaningMap.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
 				}
 				map.remove(ATTRIB_EXAMPLE_SENTENCES);
-
-				// remove same word from synset
-
-				List<NodeDTO> synonymsNewList = new ArrayList<NodeDTO>();
-				List<NodeDTO> synonymsList = (List<NodeDTO>) synsetMap.get(LanguageParams.synonyms.name());
-				if (synonymsList != null) {
-					for (NodeDTO synonym : synonymsList) {
-						String synsetIdentifier = synonym.getIdentifier();
-						if (synsetIdentifier != null && wordIdentifier != null
-								&& !synsetIdentifier.equalsIgnoreCase(wordIdentifier)) {
-							synonymsNewList.add(synonym);
-						}
-					}
-					synsetMap.put(LanguageParams.synonyms.name(), synonymsNewList);
-				}
-				map.put(LanguageParams.primaryMeaning.name(), synsetMap);
+				map.put(LanguageParams.primaryMeaning.name(), primaryMeaningMap);
 			}
 			if (synsets != null && !synsets.isEmpty()) {
 				List<Map<String, Object>> otherMeaningsList = new ArrayList<Map<String, Object>>();
@@ -2583,6 +2581,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			item.put(LanguageParams.identifier.name(), id);
 			String lemma = (String) item.get(LanguageParams.lemma.name());
 			if (lemma != null) {
+				lemma = lemma.trim();
+				item.put(LanguageParams.lemma.name(),lemma);
 				String language = LanguageMap.getLanguage(languageId).toUpperCase();
 				boolean isValid = isValidWord(lemma, languageId);
 				if (!isValid) {
@@ -2647,6 +2647,31 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					}
 				}
 				synsetMap.put(LanguageParams.synonyms.name(), synonymsNewList);
+			}
+			
+			for (Entry<String, Object> entry : synsetMap.entrySet()) {
+				if (getRelations().contains(entry.getKey())
+						&& !entry.getKey().equalsIgnoreCase(LanguageParams.synonyms.name())) {
+
+					List<NodeDTO> wordList = new ArrayList<NodeDTO>();
+					List<NodeDTO> relatedSynsets = (List<NodeDTO>) entry.getValue();
+					
+					if (relatedSynsets != null) {
+						for (NodeDTO relatedSynset : relatedSynsets) {
+							String synsetIdentifier = relatedSynset.getIdentifier();
+							if (synsetIdentifier != null) {
+								Node relatedSynsetNode = getDataNode(languageId, synsetIdentifier, "Synset");
+								Map<String, Object> relatedSynsetMap = getSynsetMap(relatedSynsetNode, synsetDefintion);
+								List<NodeDTO> relatedSynsetWordList = (List<NodeDTO>) relatedSynsetMap.get(LanguageParams.synonyms.name());
+								if(relatedSynsetWordList!=null){
+									wordList.addAll(relatedSynsetWordList);
+								}
+							}
+						}
+					}
+					
+					entry.setValue(wordList);
+				}
 			}
 
 			return synsetMap;
@@ -3260,4 +3285,5 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		return null;
 	}
+	
 }
