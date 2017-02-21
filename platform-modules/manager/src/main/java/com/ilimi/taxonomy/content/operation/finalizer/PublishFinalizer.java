@@ -107,6 +107,11 @@ public class PublishFinalizer extends BaseFinalizer {
 		LOGGER.info("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
+		String downloadUrl = null;
+		boolean isAssetTypeContent = StringUtils.equalsIgnoreCase(
+				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+				ContentWorkflowPipelineParams.Asset.name());
+
 		if (BooleanUtils.isTrue(isCompressionApplied)) {
 			// Get Content String
 			String ecml = getECMLString(ecrf, ecmlType);
@@ -161,6 +166,9 @@ public class PublishFinalizer extends BaseFinalizer {
 		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
 				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 
+		// Setting Download Url
+		downloadUrl = urlArray[IDX_S3_URL];
+
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 		if (null != artifact && artifact instanceof File) {
@@ -174,13 +182,17 @@ public class PublishFinalizer extends BaseFinalizer {
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
 
+		if (BooleanUtils.isTrue(isAssetTypeContent))
+			downloadUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+
 		// Populate Fields and Update Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);
-		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), urlArray[IDX_S3_URL]);
+		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
 		node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
 		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
 		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());

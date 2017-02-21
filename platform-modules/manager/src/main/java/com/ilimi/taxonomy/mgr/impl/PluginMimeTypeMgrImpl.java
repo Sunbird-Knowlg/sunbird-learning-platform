@@ -113,13 +113,13 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
-
-		LOGGER.info("Calling the 'Publish' Initializer for Node Id: " + node.getIdentifier());
-		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
-
+		
 		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
+
+		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
+		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
+		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);

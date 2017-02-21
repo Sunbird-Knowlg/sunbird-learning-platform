@@ -110,6 +110,8 @@ public class ReviewInitializer extends BaseInitializer {
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);
+			finalizeParamMap.put(ContentWorkflowPipelineParams.isPublishOperation.name(),
+					parameterMap.get(ContentWorkflowPipelineParams.isPublishOperation.name()));
 			response = finalize.finalyze(ContentWorkflowPipelineParams.review.name(), finalizeParamMap);
 			// TODO: Make first Parameter for all operation's initialize and
 			// finalyze methods as ContentOperation Enum.

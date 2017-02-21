@@ -116,6 +116,7 @@ public class UploadFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
 		node.getMetadata().put(ContentWorkflowPipelineParams.editorState.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), null);
 		
 		// update content body in content store
 		response = updateContentBody(node.getIdentifier(), ecml);

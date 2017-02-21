@@ -70,14 +70,14 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
+		
+		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.info("Calling the 'Publish' Initializer for Node Id: " + node.getIdentifier());
+		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
 
-		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
-		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
-		
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
 			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
