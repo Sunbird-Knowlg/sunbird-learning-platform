@@ -80,6 +80,23 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 	
+	/**
+	 * Adds out relations.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 *            
+	 * @param startNodeId
+	 *            the startNodeId
+	 *            
+	 * @param endNodeIds
+	 * 			the list of endNodeIds
+	 * 
+	 * @param relationType
+	 *          the relationType
+	 *          
+	 * @return the response
+	 */
 	public Response addOutRelations(String taxonomyId, String startNodeId, List<String> endNodeIds, String relationType){
 		Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "addOutRelations",
 				GraphDACParams.start_node_id.name(), startNodeId);
@@ -92,6 +109,18 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 	
+	/**
+	 * Gets the collection members.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 * @param collectionId
+	 *            the collectionId
+	 * @param  collectionType
+	 *            the collectionType
+	 *            
+	 * @return the response
+	 */
 	public Response getCollectionMembers(String taxonomyId, String collectionId, String collectionType){
 		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers",
 				GraphDACParams.collection_id.name(), collectionId);
@@ -103,54 +132,19 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 	
-	public Response getDataNodes(String taxonomyId, List<String> existingConcepts){
+	/**
+	 * Gets Data nodes.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 * @param node 
+	 * 			the list of nodes
+	 * 
+	 * @return the response
+	 */
+	public Response getDataNodes(String taxonomyId, List<String> nodes){
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
 				GraphDACParams.node_ids.name(), existingConcepts);
-		Response response = getResponse(request, LOGGER);
-		if (!checkError(response)){
-			return response;
-		}
-		return null;
-	}
-	
-	/**
-	 * Sets the context.
-	 *
-	 * @param request
-	 *            the request
-	 * @param graphId
-	 *            the graph id
-	 * @param manager
-	 *            the manager
-	 * @param operation
-	 *            the operation
-	 * @return the request
-	 */
-	public Request setLanguageContext(Request request,String languageId, String graphId, String manager, String operation) {
-		request.getContext().put(languageId, graphId);
-		request.setManagerName(manager);
-		request.setOperation(operation);
-		return request;
-	}
-	
-	/**
-	 * Gets the request from the Language request router.
-	 *
-	 * @param graphId
-	 *            the graph id
-	 * @param manager
-	 *            the manager
-	 * @param operation
-	 *            the operation
-	 * @return the language request
-	 */
-	public Request getLanguageRequest(String graphId, String manager, String languageId, String operation) {
-		Request request = new Request();
-		return setLanguageContext(request, graphId, manager,languageId, operation);
-	}
-
-	public Response getComplexityMeasures(String graphId, String languageId, String text){
-		Request request = getLanguageRequest(graphId, "LEXILE_MEASURES_ACTOR", languageId, "computeTextComplexity");
 		Response response = getResponse(request, LOGGER);
 		if (!checkError(response)){
 			return response;
