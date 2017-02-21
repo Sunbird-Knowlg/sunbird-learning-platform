@@ -144,7 +144,7 @@ public class ControllerUtil extends BaseLearningManager {
 	 */
 	public Response getDataNodes(String taxonomyId, List<String> nodes){
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
-				GraphDACParams.node_ids.name(), existingConcepts);
+				GraphDACParams.node_ids.name(), nodes);
 		Response response = getResponse(request, LOGGER);
 		if (!checkError(response)){
 			return response;

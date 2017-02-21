@@ -49,6 +49,28 @@ public class HTTPUtil {
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
 					+ response.getStatusLine().getReasonPhrase());
 		}
+	}
+	
+	public static String makePostCall(String url, String body) throws Exception{
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpPost post = new HttpPost(url);
+		post.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
+		post.addHeader("Content-Type", "application/json");
+		post.setEntity(new StringEntity(body));
 
+		HttpResponse response = client.execute(post);
+		if (response.getStatusLine().getStatusCode() != 200) {
+			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
+					+ response.getStatusLine().getReasonPhrase());
+		}
+		BufferedReader rd = new BufferedReader(
+				new InputStreamReader(response.getEntity().getContent(),Charsets.UTF_8));
+
+			StringBuffer result = new StringBuffer();
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				result.append(line);
+			}
+			return result.toString();
 	}
 }
