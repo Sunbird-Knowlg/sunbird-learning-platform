@@ -15,6 +15,7 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.taxonomy.content.common.AssetsMimeTypeMap;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
@@ -77,7 +78,7 @@ public class ContentValidator {
 		LOGGER.info("Is it a valid Content Package File ? : " + isValidContentPackage);
 		return isValidContentPackage;
 	}
-	
+
 	/**
 	 * Validates the Uploaded Plugin package File.
 	 *
@@ -241,7 +242,7 @@ public class ContentValidator {
 		}
 		return isValidPackage;
 	}
-	
+
 	/**
 	 * validates the Uploaded ContentPackage's folderStructure
 	 *
@@ -327,7 +328,7 @@ public class ContentValidator {
 				case "application/vnd.ekstep.content-collection":
 					isValid = true;
 					break;
-					
+
 				case "application/vnd.ekstep.plugin-archive":
 					isValid = true;
 					break;
@@ -337,7 +338,10 @@ public class ContentValidator {
 					break;
 
 				default:
-					LOGGER.info("Invalid Mime-Type: " + mimeType);
+					LOGGER.info("Deafult Case for Mime-Type: " + mimeType);
+					if (AssetsMimeTypeMap.isAllowedMimeType(mimeType) && StringUtils.isNotBlank(
+							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
+						isValid = true;
 					break;
 				}
 			}

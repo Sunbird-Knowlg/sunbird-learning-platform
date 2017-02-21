@@ -28,7 +28,6 @@ import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.BaseLearningManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -55,9 +54,6 @@ import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
-
-	@Autowired
-	private ContentBundle contentBundle;
 
 	private static final String tempFileLocation = "/data/contentBundle/";
 	private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
@@ -239,6 +235,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 				.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true) + "_"
 				+ System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
 				+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
+		ContentBundle contentBundle = new ContentBundle();
 		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
 		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, "1.1", downloadUrls,
 				node.getIdentifier());

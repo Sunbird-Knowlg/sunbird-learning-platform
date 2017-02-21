@@ -46,7 +46,6 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 /**
  * The Class ContentBundle.
  */
-@Component
 public class ContentBundle {
 
 	/** The logger. */
