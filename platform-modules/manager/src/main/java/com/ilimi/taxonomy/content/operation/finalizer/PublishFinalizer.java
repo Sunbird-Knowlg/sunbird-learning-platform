@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.content.operation.finalizer;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
 		String downloadUrl = null;
+		String s3Key = null;
 		boolean isAssetTypeContent = StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.Asset.name());
@@ -146,28 +148,34 @@ public class PublishFinalizer extends BaseFinalizer {
 			version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())) + 1;
 		node.getMetadata().put(ContentWorkflowPipelineParams.pkgVersion.name(), version);
 
-		// Create ECAR Bundle
-		List<Node> nodes = new ArrayList<Node>();
-		node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
-		nodes.add(node);
-		List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-		List<String> childrenIds = new ArrayList<String>();
-		getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
+		if (BooleanUtils.isFalse(isAssetTypeContent)) {
+			// Create ECAR Bundle
+			List<Node> nodes = new ArrayList<Node>();
+			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+					ContentWorkflowPipelineParams.Live.name());
+			nodes.add(node);
+			List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+			List<String> childrenIds = new ArrayList<String>();
+			getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
 
-		LOGGER.debug("Publishing the Un-Published Children.");
-		publishChildren(nodes);
+			LOGGER.debug("Publishing the Un-Published Children.");
+			publishChildren(nodes);
 
-		String bundleFileName = Slug
-				.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true) + "_"
-				+ System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
-				+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
-		ContentBundle contentBundle = new ContentBundle();
-		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
-		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
-				ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+			String bundleFileName = Slug
+					.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true) + "_"
+					+ System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
+					+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
+			ContentBundle contentBundle = new ContentBundle();
+			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
+			String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
+					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 
-		// Setting Download Url
-		downloadUrl = urlArray[IDX_S3_URL];
+			// Setting Download Url
+			downloadUrl = urlArray[IDX_S3_URL];
+
+			// Setting s3Key
+			s3Key = urlArray[IDX_S3_KEY];
+		}
 
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
@@ -182,14 +190,16 @@ public class PublishFinalizer extends BaseFinalizer {
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
 
-		if (BooleanUtils.isTrue(isAssetTypeContent))
+		if (BooleanUtils.isTrue(isAssetTypeContent)) {
 			downloadUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+			s3Key = getS3KeyFromUrl((String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()));
+		}
 
 		// Populate Fields and Update Node
-		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);
+		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
 		node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
-		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
+		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
 		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
@@ -206,7 +216,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.latest);
 		}
 
-		return updateContentNode(newNode, urlArray[IDX_S3_URL]);
+		return updateContentNode(newNode, downloadUrl);
 	}
 
 	private void publishChildren(List<Node> nodes) {
@@ -261,6 +271,19 @@ public class PublishFinalizer extends BaseFinalizer {
 				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(node, false);
 			}
 		}
+	}
+
+	private String getS3KeyFromUrl(String s3Url) {
+		String s3Key = "";
+		if (StringUtils.isNotBlank(s3Url)) {
+			try {
+				URL url = new URL(s3Url);
+				s3Key = url.getPath();
+			} catch (Exception e) {
+				LOGGER.error("Something Went Wrong While Getting 's3Key' from s3Url.", e);
+			}
+		}
+		return s3Key;
 	}
 
 }
