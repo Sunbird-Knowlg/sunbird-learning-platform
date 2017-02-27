@@ -27,7 +27,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
  */
 
 @Controller
-@RequestMapping("/v3/history")
+@RequestMapping("/v3/audit")
 public class AuditHistoryV3Controller extends BaseController {
 	
 	/** The Logger */

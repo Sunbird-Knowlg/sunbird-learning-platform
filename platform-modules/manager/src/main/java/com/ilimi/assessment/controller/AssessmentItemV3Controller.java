@@ -33,7 +33,7 @@ import com.ilimi.graph.model.node.MetadataDefinition;
  */
 
 @Controller
-@RequestMapping("/v3/items")
+@RequestMapping("/v3/assessment/assessmentitems")
 public class AssessmentItemV3Controller extends BaseController {
 
     private static LogHelper LOGGER = LogHelper.getInstance(AssessmentItemV3Controller.class.getName());

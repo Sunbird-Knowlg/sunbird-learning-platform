@@ -32,7 +32,7 @@ import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 @Controller
-@RequestMapping("/v3/")
+@RequestMapping("/v3/system")
 public class GraphV3Controller extends BaseController {
 
 	private static LogHelper LOGGER = LogHelper.getInstance(GraphV3Controller.class.getName());
