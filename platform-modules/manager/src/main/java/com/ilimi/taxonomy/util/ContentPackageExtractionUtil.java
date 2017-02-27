@@ -29,7 +29,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.enums.ExtractionType;
+import com.ilimi.taxonomy.content.common.ExtractionType;
 
 /**
  * The Class ContentPackageExtractionUtil.

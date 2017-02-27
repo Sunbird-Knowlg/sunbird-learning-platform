@@ -45,10 +45,11 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.EcarPackageType;
+import com.ilimi.taxonomy.content.common.ExtractionType;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
-import com.ilimi.taxonomy.enums.ExtractionType;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
@@ -236,7 +237,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 				+ System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
 				+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
 		ContentBundle contentBundle = new ContentBundle();
-		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
+		Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null, EcarPackageType.FULL);
 		String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, "1.1", downloadUrls,
 				node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);

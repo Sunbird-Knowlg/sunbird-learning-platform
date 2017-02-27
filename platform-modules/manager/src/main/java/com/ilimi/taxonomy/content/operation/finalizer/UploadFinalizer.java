@@ -12,10 +12,10 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.ExtractionType;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.enums.ExtractionType;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
 
 /**

@@ -18,6 +18,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.EcarPackageType;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
@@ -214,7 +215,7 @@ public class BundleFinalizer extends BaseFinalizer {
 		
 		// Update Content data with relative paths
 		ContentBundle contentBundle = new ContentBundle();
-		contentBundle.createContentManifestData(contents, childrenIds, expiresOn);
+		contentBundle.createContentManifestData(contents, childrenIds, expiresOn, EcarPackageType.FULL);
 
 		// Create Manifest JSON File
 		File manifestFile = new File(basePath + File.separator + ContentWorkflowPipelineParams.manifest.name()

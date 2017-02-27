@@ -21,11 +21,12 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.EcarPackageType;
+import com.ilimi.taxonomy.content.common.ExtractionType;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.util.ContentMimeTypeFactoryUtil;
-import com.ilimi.taxonomy.enums.ExtractionType;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
 
@@ -166,7 +167,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					+ System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
 					+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
 			ContentBundle contentBundle = new ContentBundle();
-			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
+			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null, EcarPackageType.FULL);
 			String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 

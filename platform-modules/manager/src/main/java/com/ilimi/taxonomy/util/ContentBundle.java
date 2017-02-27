@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,12 +35,12 @@ import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.springframework.stereotype.Component;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.EcarPackageType;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
@@ -50,33 +51,40 @@ public class ContentBundle {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentBundle.class.getName());
-	
+
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The Constant URL_FIELD. */
 	protected static final String URL_FIELD = "URL";
-	
+
 	/** The Constant BUNDLE_PATH. */
 	protected static final String BUNDLE_PATH = "/data/contentBundle";
-	
+
 	private static final String s3EcarFolder = "s3.ecar.folder";
 
 	/**
 	 * Creates the content manifest data.
 	 *
-	 * @param contents the contents
-	 * @param children the children
-	 * @param expiresOn the expires on
+	 * @param contents
+	 *            the contents
+	 * @param children
+	 *            the children
+	 * @param expiresOn
+	 *            the expires on
 	 * @return the map
 	 */
 	public Map<Object, List<String>> createContentManifestData(List<Map<String, Object>> contents,
-			List<String> children, String expiresOn) {
+			List<String> children, String expiresOn, EcarPackageType packageType) {
 		List<String> urlFields = new ArrayList<String>();
 		urlFields.add("appIcon");
 		urlFields.add("grayScaleAppIcon");
 		urlFields.add("posterImage");
-		urlFields.add("artifactUrl");
+
+		// Do not add 'artifactUrl' When the ECAR Package Type is 'SPINE'
+		if (packageType != EcarPackageType.SPINE)
+			urlFields.add("artifactUrl");
+
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
@@ -106,10 +114,12 @@ public class ContentBundle {
 					}
 				}
 			}
+			content.put(ContentWorkflowPipelineParams.baseUrl.name(),
+					getS3UrlHost((String) content.get(ContentWorkflowPipelineParams.artifactUrl.name())));
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
-					content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
+					getS3UrlPath((String) content.get(ContentWorkflowPipelineParams.artifactUrl.name())));
 			Object posterImage = content.get(ContentWorkflowPipelineParams.posterImage.name());
-			if (null != posterImage && StringUtils.isNotBlank(posterImage.toString()))
+			if (null != posterImage && StringUtils.isNotBlank((String) posterImage))
 				content.put(ContentWorkflowPipelineParams.appIcon.name(), posterImage);
 			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
 			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
@@ -121,10 +131,14 @@ public class ContentBundle {
 	/**
 	 * Creates the content bundle.
 	 *
-	 * @param contents the contents
-	 * @param fileName the file name
-	 * @param version the version
-	 * @param downloadUrls the download urls
+	 * @param contents
+	 *            the contents
+	 * @param fileName
+	 *            the file name
+	 * @param version
+	 *            the version
+	 * @param downloadUrls
+	 *            the download urls
 	 * @return the string[]
 	 */
 	public String[] createContentBundle(List<Map<String, Object>> contents, String fileName, String version,
@@ -158,12 +172,14 @@ public class ContentBundle {
 			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Creates the bundle.
 	 *
-	 * @param files the files
-	 * @param bundleFileName the bundle file name
+	 * @param files
+	 *            the files
+	 * @param bundleFileName
+	 *            the bundle file name
 	 * @return the file
 	 */
 	public File createBundle(List<File> files, String bundleFileName) {
@@ -184,14 +200,18 @@ public class ContentBundle {
 		}
 		return bundleFile;
 	}
-	
+
 	/**
 	 * Creates the manifest file.
 	 *
-	 * @param manifestFileName the manifest file name
-	 * @param manifestVersion the manifest version
-	 * @param expiresOn the expires on
-	 * @param contents the contents
+	 * @param manifestFileName
+	 *            the manifest file name
+	 * @param manifestVersion
+	 *            the manifest version
+	 * @param expiresOn
+	 *            the expires on
+	 * @param contents
+	 *            the contents
 	 */
 	public void createManifestFile(File manifestFileName, String manifestVersion, String expiresOn,
 			List<Map<String, Object>> contents) {
@@ -226,9 +246,12 @@ public class ContentBundle {
 	/**
 	 * Adds the download url.
 	 *
-	 * @param downloadUrls the download urls
-	 * @param val the val
-	 * @param identifier the identifier
+	 * @param downloadUrls
+	 *            the download urls
+	 * @param val
+	 *            the val
+	 * @param identifier
+	 *            the identifier
 	 */
 	private void addDownloadUrl(Map<Object, List<String>> downloadUrls, Object val, String identifier) {
 		List<String> ids = downloadUrls.get(val);
@@ -242,8 +265,10 @@ public class ContentBundle {
 	/**
 	 * Gets the content bundle.
 	 *
-	 * @param downloadUrls the download urls
-	 * @param bundlePath the bundle path
+	 * @param downloadUrls
+	 *            the download urls
+	 * @param bundlePath
+	 *            the bundle path
 	 * @return the content bundle
 	 */
 	private List<File> getContentBundle(final Map<Object, List<String>> downloadUrls, final String bundlePath) {
@@ -316,13 +341,15 @@ public class ContentBundle {
 		}
 		return files;
 	}
-	
+
 	/**
 	 * Creates the ECAR.
 	 *
-	 * @param files the files
+	 * @param files
+	 *            the files
 	 * @return the byte[]
-	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	private byte[] createECAR(List<File> files) throws IOException {
 		// creating byteArray stream, make it bufforable and passing this buffor
@@ -364,7 +391,8 @@ public class ContentBundle {
 	/**
 	 * Creates the directory if needed.
 	 *
-	 * @param directoryName the directory name
+	 * @param directoryName
+	 *            the directory name
 	 */
 	private void createDirectoryIfNeeded(String directoryName) {
 		File theDir = new File(directoryName);
@@ -392,5 +420,31 @@ public class ContentBundle {
 	private String getUUID() {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
+	}
+
+	private String getS3UrlPath(String s3Url) {
+		String s3Key = "";
+		if (StringUtils.isNotBlank(s3Url)) {
+			try {
+				URL url = new URL(s3Url);
+				s3Key = url.getPath();
+			} catch (Exception e) {
+				LOGGER.error("Something Went Wrong While Getting 's3Key' from s3Url.", e);
+			}
+		}
+		return s3Key;
+	}
+
+	private String getS3UrlHost(String s3Url) {
+		String host = "";
+		if (StringUtils.isNotBlank(s3Url)) {
+			try {
+				URL url = new URL(s3Url);
+				host = url.getHost();
+			} catch (Exception e) {
+				LOGGER.error("Something Went Wrong While Getting 's3Key' from s3Url.", e);
+			}
+		}
+		return host;
 	}
 }
