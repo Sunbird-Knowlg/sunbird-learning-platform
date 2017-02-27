@@ -473,7 +473,8 @@ public class EnglishHindiSynsetData implements LanguageSynsetData {
 	public HindiSynsetDataLite getHindiTranslation() {
 		HindiSynsetDataLite temp = new HindiSynsetDataLite();
 		temp.setSynset_id(this.synset_id);
-		temp.setSynset(this.synset);
+		temp.setGloss(this.gloss);
+		temp.setCategory(this.category);
 		return temp;
 	}
 }

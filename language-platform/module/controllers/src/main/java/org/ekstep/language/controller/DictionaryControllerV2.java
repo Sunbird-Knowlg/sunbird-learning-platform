@@ -139,55 +139,6 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> partialUpdate(@PathVariable(value = "languageId") String languageId,
-			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
-			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
-			@RequestHeader(value = "user-id") String userId) {
-		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".update";
-		Request request = getRequest(map);
-		try {
-			Response response = dictionaryManager.partialUpdateWordV2(languageId, objectId, objectType, request, forceUpdate);
-			LOGGER.info("Update | Response: " + response);
-			if (!checkError(response)) {
-				String nodeId = (String) response.get(GraphDACParams.node_id.name());
-				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
-				asyncUpdate(nodeIds, languageId);
-				response.getResult().remove(GraphDACParams.node_ids.name());
-				response.getResult().remove(GraphDACParams.node_id.name());
-				if (StringUtils.isNotBlank(nodeId))
-					response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
-			} else {
-				response.getResult().remove(GraphDACParams.node_ids.name());
-				response.getResult().remove(GraphDACParams.node_id.name());
-			}
-			return getResponseEntity(response, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-		}
-	}
-
-	/**
-	 * Updates word by processing primary meaning and related words.
-	 *
-	 * @param languageId
-	 *            Graph Id
-	 * @param objectId
-	 *            Id of the object that needs to be updated
-	 * @param map
-	 *            Request map
-	 * @param forceUpdate
-	 *            Indicates if the update should be forced
-	 * @param userId
-	 *            User making the request
-	 * @return the response entity
-	 */
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PUT)
-	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
@@ -217,7 +168,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
-	}	
+	}
+
 	/**
 	 * Makes an Async call to Enrich actor to enrich the words.
 	 *

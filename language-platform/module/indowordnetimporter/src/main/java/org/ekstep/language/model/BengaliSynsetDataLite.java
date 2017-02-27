@@ -8,21 +8,23 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "tbl_all_bengali_synset_data")
 public class BengaliSynsetDataLite implements LanguageSynsetDataLite {
-
 	@Id
 	private int synset_id;
 
-	@Column(name = "synset", unique = false, nullable = false, length = 100000)
-	private byte[] synset;
+	@Column(name = "gloss", unique = false, nullable = false, length = 100000)
+	private byte[] gloss;
 
+	private String category;
+	
 	public BengaliSynsetDataLite() {
 		super();
 	}
 
-	public BengaliSynsetDataLite(int synset_id, byte[] synset) {
+	public BengaliSynsetDataLite(int synset_id, byte[] gloss, String category) {
 		super();
 		this.synset_id = synset_id;
-		this.synset = synset;
+		this.gloss = gloss;
+		this.category =category;
 	}
 
 	public int getSynset_id() {
@@ -33,18 +35,24 @@ public class BengaliSynsetDataLite implements LanguageSynsetDataLite {
 		this.synset_id = synset_id;
 	}
 
-	public byte[] getSynset() {
-		return synset;
+	public byte[] getGloss() {
+		return gloss;
 	}
-
-	public void setSynset(byte[] synset) {
-		this.synset = synset;
+	public void setGloss(byte[] gloss) {
+		this.gloss = gloss;
+	}
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public SynsetDataLite getSynsetDataLite() {
 		SynsetDataLite synsetDataLite = new SynsetDataLite();
 		synsetDataLite.setSynset_id(this.synset_id);
-		synsetDataLite.setSynset(this.synset);
+		synsetDataLite.setGloss(this.gloss);
+		synsetDataLite.setCategory(this.category);
 		return synsetDataLite;
 	}
 

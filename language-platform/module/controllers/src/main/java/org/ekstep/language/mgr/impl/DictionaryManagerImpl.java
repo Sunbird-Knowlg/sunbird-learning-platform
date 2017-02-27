@@ -16,7 +16,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -106,9 +105,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	static {
 		DEFAULT_STATUS.add("Live");
 	}
-
-	/** The synset relations. */
-	private static List<String> synsetRelations = null;
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
@@ -2237,7 +2233,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 
 			for (Entry<String, Object> entry : synsetMap.entrySet()) {
-				if (getRelations().contains(entry.getKey())
+				if (wordUtil.getRelations().contains(entry.getKey())
 						&& !entry.getKey().equalsIgnoreCase(LanguageParams.synonyms.name())) {
 
 					List<NodeDTO> wordList = new ArrayList<NodeDTO>();
@@ -2398,29 +2394,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 	}
 
-	/**
-	 * Gets the relations.
-	 *
-	 * @return the relations
-	 */
-	private static List<String> getRelations() {
 
-		if (synsetRelations == null) {
-			synsetRelations = new ArrayList<>();
-			synsetRelations.add(LanguageParams.synonyms.name());
-			synsetRelations.add(LanguageParams.hypernyms.name());
-			synsetRelations.add(LanguageParams.hyponyms.name());
-			synsetRelations.add(LanguageParams.holonyms.name());
-			synsetRelations.add(LanguageParams.antonyms.name());
-			synsetRelations.add(LanguageParams.meronyms.name());
-			synsetRelations.add(LanguageParams.tools.name());
-			synsetRelations.add(LanguageParams.objects.name());
-			synsetRelations.add(LanguageParams.actions.name());
-			synsetRelations.add(LanguageParams.workers.name());
-			synsetRelations.add(LanguageParams.converse.name());
-		}
-		return synsetRelations;
-	}
 
 	/**
 	 * Gets the related word lemma from.
@@ -2434,7 +2408,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		List<String> lemmas = new ArrayList<>();
 
 		for (Entry<String, Object> entry : meaningObj.entrySet()) {
-			if (getRelations().contains(entry.getKey())) {
+			if (wordUtil.getRelations().contains(entry.getKey())) {
 				List<Map<String, Object>> words = (List<Map<String, Object>>) entry.getValue();
 				for (Map<String, Object> word : words) {
 					String lemma = (String) word.get(LanguageParams.lemma.name());
@@ -2558,7 +2532,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		List<Relation> outRelations = new ArrayList<Relation>();
 		for (Entry<String, Object> entry : meaningMap.entrySet()) {
-			if (getRelations().contains(entry.getKey())
+			if (wordUtil.getRelations().contains(entry.getKey())
 					&& !entry.getKey().equalsIgnoreCase(LanguageParams.synonyms.name())) {
 
 				List<Map<String, Object>> relationWordMap = (List<Map<String, Object>>) entry.getValue();
@@ -2568,7 +2542,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					String primaryMeaningId = getPrimaryMeaningId(languageId, lemma, lemmaWordMap, wordIds,
 							errorMessages, entry.getKey());
 					if (primaryMeaningId != null) {
-						Relation relation = new Relation(synsetId, getRelationName(entry.getKey()), primaryMeaningId);
+						Relation relation = new Relation(synsetId, wordUtil.getRelationName(entry.getKey()), primaryMeaningId);
 						outRelations.add(relation);
 					}
 				}
@@ -2592,7 +2566,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					wordId = wordNode.getIdentifier();
 				}
 				wordIds.add(wordId);
-				Relation relation = new Relation(synsetId, getRelationName(LanguageParams.synonyms.name()), wordId);
+				Relation relation = new Relation(synsetId, wordUtil.getRelationName(LanguageParams.synonyms.name()), wordId);
 				outRelations.add(relation);
 			}
 		}
@@ -2624,7 +2598,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (synsetId != null) {
 				try {
 					Node existingSynset = getDataNode(languageId, synsetId, "Synset");
-					outRelations = getMergedRelations(outRelations, existingSynset.getOutRelations());
+					outRelations = wordUtil.getMergedRelations(outRelations, existingSynset.getOutRelations());
 				} catch (Exception e) {
 				}
 
@@ -2847,59 +2821,4 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		return true;
 	}
 
-	/**
-	 * Gets the relation name.
-	 *
-	 * @param relation
-	 *            the relation
-	 * @return the relation name
-	 */
-	private String getRelationName(String relation) {
-
-		switch (relation) {
-		case "synonyms":
-			return RelationTypes.SYNONYM.relationName();
-		case "hypernyms":
-			return RelationTypes.HYPERNYM.relationName();
-		case "hyponyms":
-			return RelationTypes.HYPONYM.relationName();
-		case "holonyms":
-			return RelationTypes.HOLONYM.relationName();
-		case "antonyms":
-			return RelationTypes.ANTONYM.relationName();
-		case "meronyms":
-			return RelationTypes.MERONYM.relationName();
-		case "tools":
-			return RelationTypes.TOOL.relationName();
-		case "objects":
-			return RelationTypes.OBJECT.relationName();
-		case "actions":
-			return RelationTypes.ACTION.relationName();
-		case "workers":
-			return RelationTypes.WORKER.relationName();
-		case "converse":
-			return RelationTypes.CONVERSE.relationName();
-
-		}
-
-		return null;
-	}
-
-	private List<Relation> getMergedRelations(List<Relation> newRelations, List<Relation> oldRelations) {
-		Map<String, List<Relation>> groupedNewRelationMap = newRelations.stream()
-				.collect(Collectors.groupingBy(Relation::getRelationType));
-
-		Map<String, List<Relation>> groupedOldRelationMap = oldRelations.stream()
-				.collect(Collectors.groupingBy(Relation::getRelationType));
-
-		for (Entry<String, List<Relation>> newRelationEntry : groupedNewRelationMap.entrySet()) {
-			groupedOldRelationMap.put(newRelationEntry.getKey(), newRelationEntry.getValue());
-		}
-
-		List<Relation> mergedRelations = new ArrayList<>();
-		groupedOldRelationMap.values().forEach(mergedRelations::addAll);
-
-		return mergedRelations;
-
-	}
 }
