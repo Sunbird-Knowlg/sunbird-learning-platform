@@ -60,6 +60,19 @@
         },
         {
           "required": false,
+          "dataType": "Number",
+          "propertyName": "minCompatibilityLevel",
+          "title": "Minimum Compatibility Level",
+          "description": "It is the integer value being used by Genie for the Compatibility information of Content.",
+          "category": "Technical",
+          "displayProperty": "Editable",
+          "defaultValue": "1",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "Text",
           "propertyName": "minGenieVersion",
           "title": "Min Supported Genie Version",
