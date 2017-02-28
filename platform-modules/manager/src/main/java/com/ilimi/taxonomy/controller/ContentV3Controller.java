@@ -201,7 +201,7 @@ public class ContentV3Controller extends BaseController {
 		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
 		try {
 			LOGGER.info("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
-			response = contentManager.getHierarchy(apiId, contentId);
+			response = contentManager.getHierarchy(graphId, contentId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
