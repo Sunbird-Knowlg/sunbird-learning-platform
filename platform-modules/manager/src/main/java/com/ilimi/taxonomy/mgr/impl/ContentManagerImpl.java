@@ -468,6 +468,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		LOGGER.debug("Node: ", node);
 		
+		String body = getContentBody(contentId);
+		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		LOGGER.debug("Body Fetched From Content Store.");
+		
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (StringUtils.isBlank(mimeType)) {
 			mimeType = "assets";
