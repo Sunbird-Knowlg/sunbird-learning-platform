@@ -3,6 +3,7 @@ package com.ilimi.taxonomy.content.operation.finalizer;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -162,20 +163,33 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.debug("Publishing the Un-Published Children.");
 			publishChildren(nodes);
 
-			String bundleFileName = Slug
-					.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true) + "_"
-					+ System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
-					+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + ".ecar";
+			LOGGER.debug("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
+			Map<String, Object> variants = new HashMap<String, Object>();
+			
+			LOGGER.debug("Creating Full ECAR For Content Id: " + node.getIdentifier());
+			String bundleFileName = getBundleFileName(node, EcarPackageType.FULL);
 			ContentBundle contentBundle = new ContentBundle();
 			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null, EcarPackageType.FULL);
 			String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
-
-			// Setting Download Url
 			downloadUrl = urlArray[IDX_S3_URL];
-
-			// Setting s3Key
 			s3Key = urlArray[IDX_S3_KEY];
+			LOGGER.debug("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
+			
+			LOGGER.debug("Creating Spine ECAR For Content Id: " + node.getIdentifier());
+			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
+			String spineEcarFileName = getBundleFileName(node, EcarPackageType.SPINE);
+			downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null, EcarPackageType.SPINE);
+			urlArray = contentBundle.createContentBundle(ctnts, spineEcarFileName,
+					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
+			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
+			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
+			
+			LOGGER.debug("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
+			
+			LOGGER.debug("Adding variants to Content Id: " + node.getIdentifier());
+			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 		}
 
 		// Delete local compressed artifactFile
@@ -285,6 +299,20 @@ public class PublishFinalizer extends BaseFinalizer {
 			}
 		}
 		return s3Key;
+	}
+
+	private String getBundleFileName(Node node, EcarPackageType packageType) {
+		LOGGER.debug("Generating Bundle File Name For ECAR Package Type: " + packageType.name());
+		String fileName = "";
+		if (null != node && null != node.getMetadata() && null != packageType) {
+			String suffix = "";
+			if (packageType != EcarPackageType.FULL)
+				suffix = "_" + packageType.name();
+			fileName = Slug.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true)
+					+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
+					+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + suffix + ".ecar";
+		}
+		return fileName;
 	}
 
 }
