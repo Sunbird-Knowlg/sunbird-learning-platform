@@ -185,6 +185,28 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	/**
+	 * This method fetches the hierarchy of a given content
+	 *
+	 * @param contentId
+	 *            The Content Id whose hierarchy needs to be fetched
+	 * @return The Response entity with Content hierarchy in the result set
+	 */
+	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId) {
+		String apiId = "content.hierarchy";
+		Response response;
+		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
+		try {
+			LOGGER.info("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			response = contentManager.getHierarchy(apiId, contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
 	protected String getAPIVersion() {
 		return API_VERSION_3;
