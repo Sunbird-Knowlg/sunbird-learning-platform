@@ -1,7 +1,6 @@
 package org.ekstep.language.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.ekstep.language.common.enums.LanguageParams;
@@ -21,7 +19,6 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.WhereJoinTable;
 
 @Entity
 @Table(name = "tbl_all_telugu_synset_data")
@@ -87,196 +84,8 @@ public class TeluguSynsetData implements LanguageSynsetData {
 			@JoinColumn(name = "synset_id") })
 	protected List<TeluguSynsetDataLite> objects = new ArrayList<>();
 
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected AssameseSynsetDataLite assameseTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected BengaliSynsetDataLite bengaliTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected BodoSynsetDataLite bodoTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected GujaratiSynsetDataLite gujaratiTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected HindiSynsetDataLite hindiTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected KannadaSynsetDataLite kannadaTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected KonkaniSynsetDataLite konkaniTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected MalayalamSynsetDataLite malayalamTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected MarathiSynsetDataLite marathiTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected NepaliSynsetDataLite nepaliTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected OdiaSynsetDataLite oriyaTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected PunjabiSynsetDataLite punjabiTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected SanskritSynsetDataLite sanskritTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
-	protected TamilSynsetDataLite tamilTranslation;
-
-	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "english_hindi_id_mapping", joinColumns = @JoinColumn(name = "hindi_id") , inverseJoinColumns = @JoinColumn(name = "english_id") )
-	@WhereJoinTable(clause = "type_link='Direct'")
-	@Cascade(CascadeType.MERGE)
-	private List<EnglishSynsetDataLite> englishTranslations;
-
 	public TeluguSynsetData() {
 		super();
-	}
-
-	public MalayalamSynsetDataLite getMalayalamTranslation() {
-		return malayalamTranslation;
-	}
-
-	public void setMalayalamTranslation(MalayalamSynsetDataLite malayalamTranslation) {
-		this.malayalamTranslation = malayalamTranslation;
-	}
-
-	public MarathiSynsetDataLite getMarathiTranslation() {
-		return marathiTranslation;
-	}
-
-	public void setMarathiTranslation(MarathiSynsetDataLite marathiTranslation) {
-		this.marathiTranslation = marathiTranslation;
-	}
-
-	public NepaliSynsetDataLite getNepaliTranslation() {
-		return nepaliTranslation;
-	}
-
-	public void setNepaliTranslation(NepaliSynsetDataLite nepaliTranslation) {
-		this.nepaliTranslation = nepaliTranslation;
-	}
-
-	public OdiaSynsetDataLite getOriyaTranslation() {
-		return oriyaTranslation;
-	}
-
-	public void setOriyaTranslation(OdiaSynsetDataLite oriyaTranslation) {
-		this.oriyaTranslation = oriyaTranslation;
-	}
-
-	public PunjabiSynsetDataLite getPunjabiTranslation() {
-		return punjabiTranslation;
-	}
-
-	public void setPunjabiTranslation(PunjabiSynsetDataLite punjabiTranslation) {
-		this.punjabiTranslation = punjabiTranslation;
-	}
-
-	public SanskritSynsetDataLite getSanskritTranslation() {
-		return sanskritTranslation;
-	}
-
-	public void setSanskritTranslation(SanskritSynsetDataLite sanskritTranslation) {
-		this.sanskritTranslation = sanskritTranslation;
-	}
-
-	public TamilSynsetDataLite getTamilTranslation() {
-		return tamilTranslation;
-	}
-
-	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
-		this.tamilTranslation = tamilTranslation;
-	}
-
-	public KonkaniSynsetDataLite getKonkaniTranslation() {
-		return konkaniTranslation;
-	}
-
-	public void setKonkaniTranslation(KonkaniSynsetDataLite konkaniTranslation) {
-		this.konkaniTranslation = konkaniTranslation;
-	}
-
-	public HindiSynsetDataLite getHindiTranslation() {
-		return hindiTranslation;
-	}
-
-	public void setHindiTranslation(HindiSynsetDataLite hindiTranslation) {
-		this.hindiTranslation = hindiTranslation;
-	}
-
-	public AssameseSynsetDataLite getAssameseTranslation() {
-		return assameseTranslation;
-	}
-
-	public void setAssameseTranslation(AssameseSynsetDataLite assameseTranslation) {
-		this.assameseTranslation = assameseTranslation;
-	}
-
-	public BengaliSynsetDataLite getBengaliTranslation() {
-		return bengaliTranslation;
-	}
-
-	public void setBengaliTranslation(BengaliSynsetDataLite bengaliTranslation) {
-		this.bengaliTranslation = bengaliTranslation;
-	}
-
-	public BodoSynsetDataLite getBodoTranslation() {
-		return bodoTranslation;
-	}
-
-	public void setBodoTranslation(BodoSynsetDataLite bodoTranslation) {
-		this.bodoTranslation = bodoTranslation;
-	}
-
-	public GujaratiSynsetDataLite getGujaratiTranslation() {
-		return gujaratiTranslation;
-	}
-
-	public void setGujaratiTranslation(GujaratiSynsetDataLite gujaratiTranslation) {
-		this.gujaratiTranslation = gujaratiTranslation;
-	}
-
-	public KannadaSynsetDataLite getKannadaTranslation() {
-		return kannadaTranslation;
-	}
-
-	public void setKannadaTranslation(KannadaSynsetDataLite kannadaTranslation) {
-		this.kannadaTranslation = kannadaTranslation;
 	}
 
 	public List<TeluguSynsetDataLite> getHypernyms() {
@@ -355,14 +164,6 @@ public class TeluguSynsetData implements LanguageSynsetData {
 		this.category = category;
 	}
 
-	public List<EnglishSynsetDataLite> getEnglishTranslations() {
-		return englishTranslations;
-	}
-
-	public void setEnglishTranslations(List<EnglishSynsetDataLite> englishTranslations) {
-		this.englishTranslations = englishTranslations;
-	}
-
 	public List<TeluguSynsetDataLite> getActions() {
 		return actions;
 	}
@@ -397,40 +198,6 @@ public class TeluguSynsetData implements LanguageSynsetData {
 		relationsMap.put(LanguageParams.actions.name(), getSynsetDataLiteList(getActions()));
 		synsetData.setRelations(relationsMap);
 
-		// translations
-		Map<String, List<SynsetDataLite>> translationsMap = new HashMap<String, List<SynsetDataLite>>();
-		if (getAssameseTranslation() != null)
-			translationsMap.put("Assamese", Arrays.asList(getAssameseTranslation().getSynsetDataLite()));
-		if (getBengaliTranslation() != null)
-			translationsMap.put("Bengali", Arrays.asList(getBengaliTranslation().getSynsetDataLite()));
-		if (getBodoTranslation() != null)
-			translationsMap.put("Bodo", Arrays.asList(getBodoTranslation().getSynsetDataLite()));
-		if (getGujaratiTranslation() != null)
-			translationsMap.put("Gujarati", Arrays.asList(getGujaratiTranslation().getSynsetDataLite()));
-		if (getHindiTranslation() != null)
-			translationsMap.put("Hindi", Arrays.asList(getHindiTranslation().getSynsetDataLite()));
-		if (getKannadaTranslation() != null)
-			translationsMap.put("Konkani", Arrays.asList(getKannadaTranslation().getSynsetDataLite()));
-		if (getKonkaniTranslation() != null)
-			translationsMap.put("Konkani", Arrays.asList(getKonkaniTranslation().getSynsetDataLite()));
-		if (getMalayalamTranslation() != null)
-			translationsMap.put("Malayalam", Arrays.asList(getMalayalamTranslation().getSynsetDataLite()));
-		if (getMarathiTranslation() != null)
-			translationsMap.put("Konkani", Arrays.asList(getMarathiTranslation().getSynsetDataLite()));
-		if (getNepaliTranslation() != null)
-			translationsMap.put("Nepali", Arrays.asList(getNepaliTranslation().getSynsetDataLite()));
-		if (getOriyaTranslation() != null)
-			translationsMap.put("Oriya", Arrays.asList(getOriyaTranslation().getSynsetDataLite()));
-		if (getPunjabiTranslation() != null)
-			translationsMap.put("Punjabi", Arrays.asList(getPunjabiTranslation().getSynsetDataLite()));
-		if (getSanskritTranslation() != null)
-			translationsMap.put("Sanskrit", Arrays.asList(getSanskritTranslation().getSynsetDataLite()));
-		if (getTamilTranslation() != null)
-			translationsMap.put("Tamil", Arrays.asList(getTamilTranslation().getSynsetDataLite()));
-		if (getEnglishTranslations() != null)
-			translationsMap.put("English", getEnglishSynsetDataLiteList(getEnglishTranslations()));
-		synsetData.setTranslations(translationsMap);
-
 		return synsetData;
 	}
 
@@ -445,14 +212,4 @@ public class TeluguSynsetData implements LanguageSynsetData {
 		return synsetDataLiteList;
 	}
 
-	private List<SynsetDataLite> getEnglishSynsetDataLiteList(List<EnglishSynsetDataLite> englishSynsetDataLiteList) {
-		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
-		for (EnglishSynsetDataLite englishSynsetDataLite : englishSynsetDataLiteList) {
-			SynsetDataLite liteSynsetData = englishSynsetDataLite.getSynsetDataLite();
-			if (!synsetDataLiteList.contains(liteSynsetData)) {
-				synsetDataLiteList.add(liteSynsetData);
-			}
-		}
-		return synsetDataLiteList;
-	}
 }
