@@ -46,7 +46,7 @@ public class AssessmentitemV3Test extends BaseTest {
 	private WebApplicationContext context;
 	private MockMvc mockMvc;
 	private ResultActions actions;
-	private final String base_path = "/v3/items";
+	private final String base_path = "/v3/assessment/assessmentitems";
 	@Before
 	public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();

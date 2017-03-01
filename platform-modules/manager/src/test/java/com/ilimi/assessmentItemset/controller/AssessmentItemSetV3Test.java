@@ -49,7 +49,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 	String set_id = null;
 	String set_id1 = null;
 	List<Integer> items = new ArrayList<Integer>();
-	private final String base_path = "/v3/itemsets";
+	private final String base_path = "/v3/assessment/itemsets";
 	
 	// Create assessmentItemset
 	// expect 200 response
@@ -449,7 +449,7 @@ public class AssessmentItemSetV3Test extends BaseTest {
 			String request = "{ \"request\": { \"assessment_item\": { \"identifier\": \"LP_UT_test_" + i
 					+ "\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template\": \"mtf_template_3\", \"qlevel\": \"MEDIUM\", \"title\": \"ಕೊಟ್ಟಿರುವ ಸಂಖ್ಯೆಗಳನ್ನು ಇಳಿಕೆ ಕ್ರಮದಲ್ಲಿ ಜೋಡಿಸಿರಿ.\", \"question\":\"2080\", \"model\":{ \"data0\":\"23450\", \"data1\":\"23540\" }, \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"feedback\": \"\" } } } }";
 			try {
-				String path = "/v3/items/create";
+				String path = "/v3/assessment/assessmentitems/create";
 				actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")
 						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON_UTF8)
 						.content(request));
