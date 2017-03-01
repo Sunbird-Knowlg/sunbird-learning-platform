@@ -1,5 +1,6 @@
 package org.ekstep.searchindex.processor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ import com.ilimi.kafka.util.PropertiesUtil;
  * @author Rashmi
  *
  */
-public class LanguageEnrichmentMessageProcessor implements IMessageProcessor {
+public class LanguageEnrichmentMessageProcessor extends BaseProcessor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(LanguageEnrichmentMessageProcessor.class.getName());
@@ -42,90 +43,35 @@ public class LanguageEnrichmentMessageProcessor implements IMessageProcessor {
 		super();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
-	 */
-	@Override
-	public void processMessage(String messageData) {
-		try {
-			LOGGER.info("Reading from kafka consumer" + messageData);
-			Map<String, Object> message = new HashMap<String, Object>();
-			if (StringUtils.isNotBlank(messageData)) {
-				LOGGER.debug("checking if kafka message is blank or not" + messageData);
-				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
-				});
-			}
-			if (null != message) {
-				LOGGER.info("checking if kafka message is null" + message);
-				processMessage(message);
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error while processing kafka message", e);
-			e.printStackTrace();
-		}
-	}
+	@SuppressWarnings({ "unused" })
+	private void processData(Map<String, Object> message) throws Exception {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
-	 * java.lang.String, java.io.File, java.lang.String)
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	public void processMessage(Map<String, Object> message) throws Exception {
-		Map<String, Object> edata = new HashMap<String, Object>();
-		Map<String, Object> eks = new HashMap<String, Object>();
 		String languageId = null;
-		try {
-			LOGGER.info("processing kafka message" + message);
-			if (null != message.get("edata")) {
-				LOGGER.info("checking if kafka message contains edata or not" + message.get("edata"));
-				edata = (Map) message.get("edata");
-				if (null != edata.get("eks")) {
-					LOGGER.info("checking if edata has eks present in it" + eks);
-					eks = (Map) edata.get("eks");
-					if (null != eks.get("cid")) {
-						LOGGER.debug("checking if eks contains cid" + eks.get("cid"));
-						Node node = util.getNode("domain", eks.get("cid").toString());
-						LOGGER.info("Checking if node contains languageCode" + node.getMetadata().get("languageCode"));
-						if (null != node.getMetadata().get("languageCode"))
-							languageId = (String) node.getMetadata().get("languageCode");
-						if (StringUtils.isNotBlank(languageId) && !StringUtils.equalsIgnoreCase(languageId, "en")) {
-							LOGGER.info("checking if node metadata contains text tag in it" + node.getMetadata().containsKey("text"));
-							if (null != node.getMetadata().get("text")) {
-								Object object = node.getMetadata().get("text");
-								if (object instanceof String[]) {
-									String[] textArray = (String[]) object;
-									String text = Arrays.toString(textArray);
-									LOGGER.info("text tag fetched from node and sending for complexity measures actor" + text);
-									Map result = getComplexityMeasures(languageId, text);
-									LOGGER.info("complexity measures result" + result);
-									if (null != result && !result.isEmpty()) {
-										LOGGER.info("mapping complexity measures with node metadata and updating the node");
-										updateComplexityMeasures(node, result);
-									}
-								} else if(object instanceof String) {
-									String text = object.toString();
-									LOGGER.info("text tag fetched from node and sending for complexity measures actor" + text);
-									Map result = getComplexityMeasures(languageId, text);
-									LOGGER.info("complexity measures result" + result);
-									if (null != result && !result.isEmpty()) {
-										LOGGER.info("mapping complexity measures with node metadata and updating the node");
-										updateComplexityMeasures(node, result);
-									}
-								}
-							}
-						}
-					}
+		LOGGER.info("filtering out the kafka message" + message);
+		Node node = filterMessage(message);
+
+		LOGGER.info("Checking if node contains languageCode");
+		String language = getLanguage(node);
+
+		LOGGER.info("Checking if languageId is null" + language);
+		if (StringUtils.isNotBlank(language)) {
+
+			LOGGER.info("checking if node contains text tag" + node.getMetadata().containsKey("text"));
+			if (null != node.getMetadata().get("text")) {
+				Object object = node.getMetadata().get("text");
+
+				if (object instanceof String[]) {
+					LOGGER.info("fetched object is an string array");
+					String[] textArray = (String[]) object;
+					String text = Arrays.toString(textArray);
+					updateData(text, languageId, node);
+
+				} else if (object instanceof String) {
+					LOGGER.info("fetched object is a string");
+					String text = object.toString();
+					updateData(text, languageId, node);
 				}
 			}
-		} catch (Exception e) {
-			LOGGER.error("Exception occured while processing text_complexity map", e);
-			e.printStackTrace();
 		}
 	}
 
@@ -136,10 +82,10 @@ public class LanguageEnrichmentMessageProcessor implements IMessageProcessor {
 	 * @param languageId
 	 *            The languageId
 	 * 
-	 * @param text
-	 *            The text to analysed
+	 * @param Text
+	 *            The text to be analysed
 	 * 
-	 * @return resultMap
+	 * @return result The complexity measures result
 	 * 
 	 * @throws Exception
 	 */
@@ -153,24 +99,26 @@ public class LanguageEnrichmentMessageProcessor implements IMessageProcessor {
 		Map<String, Object> request_map = new HashMap<String, Object>();
 		request_map.put("languageId", languageId);
 		request_map.put("text", text);
+
 		Request request = new Request();
 		request.setRequest(request_map);
 		LOGGER.info("creating request map to make rest post call" + request);
 
 		LOGGER.info("making a post call to get complexity measures for a given text");
-		String result = HTTPUtil.makePostCall(api_url, request.toString());
+		String result = HTTPUtil.makePostRequest(api_url, request.toString());
 
 		LOGGER.info("response from complexity measures api" + result);
 		Map<String, Object> responseObject = mapper.readValue(result, new TypeReference<Map<String, Object>>() {
 		});
-
 		LOGGER.info("converting result string to response map" + responseObject);
+
 		if (responseObject == null) {
 			throw new Exception("Unable to get complexity measures");
 		}
-		Map<String, Object> resultMap = new HashMap<String, Object>();
 
+		Map<String, Object> resultMap = new HashMap<String, Object>();
 		resultMap = (Map) responseObject.get("result");
+
 		LOGGER.info("getting resultMap from response Object" + resultMap);
 		if (resultMap == null) {
 			throw new Exception("Result in response is empty");
@@ -184,105 +132,172 @@ public class LanguageEnrichmentMessageProcessor implements IMessageProcessor {
 	 * 
 	 * @param node
 	 *            The node
+	 * 
 	 * @param result
 	 *            The result map
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static void updateComplexityMeasures(Node node, Map result) {
+	@SuppressWarnings({ "rawtypes" })
+	private void updateComplexityMeasures(Node node, Map result) {
 
 		try {
 			LOGGER.info("extracting required fields from result map" + result);
 			if (null != result.get("text_complexity")) {
+
 				LOGGER.info("Getting text_complexity map from result object" + result.containsKey("text_complexity"));
 				Map text_complexity = (Map) result.get("text_complexity");
+
 				if (null != text_complexity && !text_complexity.isEmpty()) {
-					if (text_complexity.containsKey("wordCount") && null != text_complexity.get("wordCount")) {
-						Integer wordCount = (Integer) text_complexity.get("wordCount");
-						LOGGER.info("updating node with wordCount" + wordCount);
-						node.getMetadata().put("wordCount", wordCount);
-					}
-					if (text_complexity.containsKey("syllableCount") && null != text_complexity.get("syllableCount")) {
-						Integer syllableCount = (Integer) text_complexity.get("syllableCount");
-						LOGGER.info("updating node with syllableCount" + syllableCount);
-						node.getMetadata().put("syllableCount", syllableCount);
-					}
-					if (text_complexity.containsKey("totalOrthoComplexity")
-							&& null != text_complexity.get("totalOrthoComplexity")) {
-						Object object = text_complexity.get("totalOrthoComplexity");
-						if (object instanceof Integer) {
-							Integer totalOrthoComplexity = (Integer) text_complexity.get("totalOrthoComplexity");
-							node.getMetadata().put("totalOrthoComplexity", totalOrthoComplexity);
-						} else {
-							double totalOrthoComplexity = (double) text_complexity.get("totalOrthoComplexity");
-							node.getMetadata().put("totalOrthoComplexity", totalOrthoComplexity);
-						}
-						LOGGER.info("updating node with totalOrthoComplexity"
-								+ text_complexity.get("totalOrthoComplexity"));
-					}
-					if (text_complexity.containsKey("totalPhonicComplexity")
-							&& null != text_complexity.get("totalPhonicComplexity")) {
-						Object object = text_complexity.get("totalPhonicComplexity");
-						if (object instanceof Integer) {
-							Integer totalPhonicComplexity = (Integer) text_complexity.get("totalPhonicComplexity");
-							node.getMetadata().put("totalOrthoComplexity", totalPhonicComplexity);
-						} else {
-							double totalPhonicComplexity = (double) text_complexity.get("totalPhonicComplexity");
-							node.getMetadata().put("totalPhonicComplexity", totalPhonicComplexity);
-						}
-						LOGGER.info("updating node with totalPhonicComplexity"
-								+ text_complexity.get("totalPhonicComplexity"));
-					}
-					if (text_complexity.containsKey("totalWordComplexity")
-							&& null != text_complexity.get("totalWordComplexity")) {
-						Object object = text_complexity.get("totalWordComplexity");
-						if (object instanceof Integer) {
-							Integer totalWordComplexity = (Integer) text_complexity.get("totalWordComplexity");
-							node.getMetadata().put("totalOrthoComplexity", totalWordComplexity);
-						} else {
-							double totalWordComplexity = (double) text_complexity.get("totalWordComplexity");
-							node.getMetadata().put("totalWordComplexity", totalWordComplexity);
-						}
-						LOGGER.info(
-								"updating node with totalWordComplexity" + text_complexity.get("totalWordComplexity"));
-					}
-					if (text_complexity.containsKey("gradeLevels") && null != text_complexity.get("gradeLevels")) {
 
-						List<String> grades = (List) text_complexity.get("gradeLevels");
-						LOGGER.info("getting gradeLevel from complexity map" + grades);
+					LOGGER.info("checking if text complexity map contains wordCount");
+					if (text_complexity.containsKey("wordCount")) {
+						if (null == text_complexity.get("wordCount")) {
+							node.getMetadata().put("wordCount", null);
+						} else {
+							Object wordCount = text_complexity.get("wordCount");
+							LOGGER.info("updating node with wordCount" + wordCount);
+							updateNodeMetadata("wordCount", wordCount, node);
+						}
+					}
 
-						List<String> gradeLevel = (List) node.getMetadata().get("gradeLevel");
-						LOGGER.info("getting gradeLevel from node" + gradeLevel);
+					LOGGER.info("checking if text complexity map contains syllableCount");
+					if (text_complexity.containsKey("syllableCount")) {
+						if (null == text_complexity.get("syllableCount")) {
+							node.getMetadata().put("syllableCount", null);
+						} else {
+							Object syllableCount = text_complexity.get("syllableCount");
+							LOGGER.info("updating node with syllableCount" + syllableCount);
+							updateNodeMetadata("syllableCount", syllableCount, node);
+						}
+					}
 
-						if (null != grades && !grades.isEmpty()) {
-							for (Object obj : grades) {
-								Map gradeMap = (Map) obj;
-								if (null != gradeMap && !gradeMap.isEmpty()) {
-									String grade = gradeMap.get("Grade").toString();
-									String language = gradeMap.get("Language Level").toString();
-									if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
-										gradeLevel.add(grade);
-										node.getMetadata().put("gradeLevel", gradeLevel);
-									}
-									if (StringUtils.isNotBlank(language)) {
-										node.getMetadata().put("Language Level", language);
-										LOGGER.info("updating node with grade level and language level" + node);
-									}
-								}
+					LOGGER.info("checking if text complexity map contains totalOrthoComplexity");
+					if (text_complexity.containsKey("totalOrthoComplexity")) {
+						if (null == text_complexity.get("totalOrthoComplexity")) {
+							node.getMetadata().put("totalOrthoComplexity", null);
+						} else {
+							Object totalOrthoComplexity = text_complexity.get("totalOrthoComplexity");
+							LOGGER.info("updating node with totalOrthoComplexity"
+									+ text_complexity.get("totalOrthoComplexity"));
+							updateNodeMetadata("totalOrthoComplexity", totalOrthoComplexity, node);
+						}
+					}
+
+					LOGGER.info("checking if text complexity map contains totalPhonicComplexity");
+					if (text_complexity.containsKey("totalPhonicComplexity")) {
+						if (null == text_complexity.get("totalPhonicComplexity")) {
+							node.getMetadata().put("totalPhonicComplexity", null);
+						} else {
+							Object totalPhonicComplexity = text_complexity.get("totalPhonicComplexity");
+							LOGGER.info("updating node with totalPhonicComplexity"
+									+ text_complexity.get("totalPhonicComplexity"));
+							updateNodeMetadata("totalPhonicComplexity", totalPhonicComplexity, node);
+						}
+					}
+
+					LOGGER.info("checking if text complexity map contains totalWordComplexity");
+					if (text_complexity.containsKey("totalWordComplexity")) {
+						if (null == text_complexity.get("totalWordComplexity")) {
+							node.getMetadata().put("totalWordComplexity", null);
+						} else {
+							Object totalWordComplexity = text_complexity.get("totalWordComplexity");
+							LOGGER.info("updating node with totalWordComplexity"
+									+ text_complexity.get("totalWordComplexity"));
+							updateNodeMetadata("totalWordComplexity", totalWordComplexity, node);
+						}
+					}
+
+					LOGGER.info("checking if text complexity map contains gradeLevel");
+					if (text_complexity.containsKey("gradeLevel")) {
+						updateGradeMap(node, text_complexity);
+					}
+
+					LOGGER.info("checking if text complexity map contains gradeLevel");
+					if (text_complexity.containsKey("themes")) {
+						if (null == text_complexity.get("themes")) {
+							node.getMetadata().put("themes", null);
+						} else {
+							LOGGER.info("checking if complexity map contains themes");
+							Object themes = text_complexity.get("themes");
+							node.getMetadata().put("themes", themes);
+						}
+					}
+					LOGGER.info("updating node with extracted language metadata" + node);
+					Response response = util.updateNode(node);
+					LOGGER.info("response of content update" + response.getResponseCode());
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("exception occured while setting language metadata" + e);
+		}
+	}
+
+	private void updateData(String text, String languageId, Node node) {
+
+		LOGGER.info("calling get complexity measures to get text_complexity" + text + languageId);
+		if (StringUtils.isNotBlank(text) && StringUtils.isNotBlank(languageId)) {
+
+			Map<String, Object> result = new HashMap<String, Object>();
+			try {
+				result = getComplexityMeasures(languageId, text);
+				LOGGER.info("complexity measures result" + result);
+
+				if (null != result && !result.isEmpty()) {
+					LOGGER.info("mapping complexity measures with node metadata and updating the node");
+					updateComplexityMeasures(node, result);
+				}
+
+			} catch (Exception e) {
+				LOGGER.error("Exception occured while getting complexity measures", e);
+			}
+		}
+	}
+
+	public void updateNodeMetadata(String key, Object value, Node node) {
+		LOGGER.info("Checking if Object value is null");
+		if (value == null) {
+			LOGGER.info("setting node metadata to null if value is null" + key + value);
+			node.getMetadata().put(key, null);
+		}
+		LOGGER.info("Checking if Object is instance of Integer");
+		if (value instanceof Integer) {
+			Integer data = (Integer) value;
+			LOGGER.info("setting node metadata with integer value" + key + value);
+			node.getMetadata().put(key, data);
+		}
+		LOGGER.info("Checking if Object is instance of Double");
+		if (value instanceof Double) {
+			double data = (double) value;
+			LOGGER.info("setting node metadata with double value" + key + value);
+			node.getMetadata().put(key, data);
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void updateGradeMap(Node node, Map text_complexity) {
+		List<String> gradeLevel = new ArrayList<String>();
+		List<String> grades = new ArrayList<String>();
+		if (null != node.getMetadata().get("gradeLevel")) {
+			gradeLevel = (List) node.getMetadata().get("gradeLevel");
+		}
+
+		if (text_complexity.containsKey("gradeLevel")) {
+			grades = (List) text_complexity.get("gradeLevel");
+		}
+		if (!gradeLevel.isEmpty()) {
+			if (!grades.isEmpty()) {
+				for (Object obj : grades) {
+					Map gradeMap = (Map) obj;
+					if (null != gradeMap && !gradeMap.isEmpty()) {
+						if (gradeMap.containsKey("grade")) {
+							String grade = gradeMap.get("grade").toString();
+							if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
+								gradeLevel.add(grade);
+								node.getMetadata().put("gradeLevel", gradeLevel);
 							}
 						}
 					}
 				}
-				if (text_complexity.containsKey("themes") && null != text_complexity.get("themes")) {
-					LOGGER.info("checking if complexity map contains themes");
-					Object themes = text_complexity.get("themes");
-					node.getMetadata().put("themes", themes);
-				}
 			}
-			LOGGER.info("updating node with extracted language metadata" + node);
-			Response response = util.updateNode(node);
-			LOGGER.info("response of content update" + response.getResponseCode());
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }
