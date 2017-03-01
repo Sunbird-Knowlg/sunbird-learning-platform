@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -161,21 +162,28 @@ public class PublishFinalizer extends BaseFinalizer {
 			getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
 
 			LOGGER.debug("Publishing the Un-Published Children.");
-			publishChildren(nodes);
+			publishChildren(nodes.stream().filter(n -> !n.getIdentifier().equalsIgnoreCase(node.getIdentifier()))
+					.collect(Collectors.toList()));
+
+			// TODO: Refactor this part since it is being called twice
+			ctnts = new ArrayList<Map<String, Object>>();
+			childrenIds = new ArrayList<String>();
+			getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
 
 			LOGGER.debug("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
 			Map<String, Object> variants = new HashMap<String, Object>();
-			
+
 			LOGGER.debug("Creating Full ECAR For Content Id: " + node.getIdentifier());
 			String bundleFileName = getBundleFileName(node, EcarPackageType.FULL);
 			ContentBundle contentBundle = new ContentBundle();
-			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null, EcarPackageType.FULL);
+			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null,
+					EcarPackageType.FULL);
 			String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			downloadUrl = urlArray[IDX_S3_URL];
 			s3Key = urlArray[IDX_S3_KEY];
 			LOGGER.debug("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
-			
+
 			LOGGER.debug("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(node, EcarPackageType.SPINE);
@@ -184,10 +192,10 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
-			
+
 			LOGGER.debug("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
-			
+
 			LOGGER.debug("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 		}
@@ -218,12 +226,19 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.minCompatibilityLevel.name(), 1);
+		if (StringUtils.equalsIgnoreCase(
+				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+				ContentWorkflowPipelineParams.TextBook.name())
+				|| StringUtils.equalsIgnoreCase(
+						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+						ContentWorkflowPipelineParams.TextBookUnit.name()))
+			node.getMetadata().put(ContentWorkflowPipelineParams.minCompatibilityLevel.name(), 2);
+
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
 
-		// TODO: Once AWS Lambda for 'ZIP' Extraction is in place then disable
-		// it.
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.version);
