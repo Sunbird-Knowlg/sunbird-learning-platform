@@ -2289,6 +2289,23 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String wordIdentifier = (String) wordRequestMap.get(LanguageParams.identifier.name());
 			List<Relation> wordInRelations = new ArrayList<>();
 
+			String lemma = (String) wordRequestMap.get(LanguageParams.lemma.name());
+			if (lemma != null) {
+				lemma = lemma.trim();
+				wordRequestMap.put(LanguageParams.lemma.name(), lemma);
+			}
+
+			Node existingWordNode = null;
+			if (wordIdentifier == null) {
+				existingWordNode = wordUtil.searchWord(languageId, lemma);
+				if (existingWordNode != null) {
+					wordIdentifier = existingWordNode.getIdentifier();
+					wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);
+				}
+			} else {
+				existingWordNode = getDataNode(languageId, wordIdentifier, LanguageParams.Word.name());
+			}
+
 			Map<String, Object> primaryMeaning = (Map<String, Object>) wordRequestMap
 					.get(LanguageParams.primaryMeaning.name());
 			wordRequestMap.remove(LanguageParams.primaryMeaning.name());
@@ -2362,22 +2379,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			wordRequestMap.remove(LanguageParams.otherMeanings.name());
 			wordRequestMap.remove(LanguageParams.tags.name());
-			String lemma = (String) wordRequestMap.get(LanguageParams.lemma.name());
-			if (lemma != null) {
-				lemma = lemma.trim();
-				wordRequestMap.put(LanguageParams.lemma.name(), lemma);
-			}
-
-			Node existingWordNode = null;
-			if (wordIdentifier == null) {
-				existingWordNode = wordUtil.searchWord(languageId, lemma);
-				if (existingWordNode != null) {
-					wordIdentifier = existingWordNode.getIdentifier();
-					wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);
-				}
-			} else {
-				existingWordNode = getDataNode(languageId, wordIdentifier, LanguageParams.Word.name());
-			}
 
 			if (existingWordNode != null) {
 				String existingPrimaryMeaningId = (String) existingWordNode.getMetadata()
