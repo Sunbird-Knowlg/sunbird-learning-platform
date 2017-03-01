@@ -43,8 +43,21 @@
 	                <OnStartupTriggeringPolicy />
 	            </Policies>
 	    </RollingRandomAccessFile>
+	    
+	    <RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/language_telemetry_event.log"
+			filePattern="/data/logs/anguage_telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+		</RollingRandomAccessFile>
 	</Appenders>
 	<Loggers>
+		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="TelemetryEventAppender" />
+		</Logger>
 		<Logger name="GraphEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="GraphEventAppender" />
 		</Logger>
