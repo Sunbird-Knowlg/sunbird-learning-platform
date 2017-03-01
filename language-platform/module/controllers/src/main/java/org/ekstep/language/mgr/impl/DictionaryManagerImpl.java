@@ -2301,9 +2301,11 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (primaryMeaning.get(LanguageParams.synonyms.name()) != null) {
 					List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
 							.get(LanguageParams.synonyms.name());
-					List<Map<String, Object>> synonymCopy = new ArrayList<>(synonyms);
-					primaryMeaningSynonym = new HashMap<>();
-					primaryMeaningSynonym.put(LanguageParams.synonyms.name(), synonymCopy);
+					if(!synonyms.isEmpty()){
+						List<Map<String, Object>> synonymCopy = new ArrayList<>(synonyms);
+						primaryMeaningSynonym = new HashMap<>();
+						primaryMeaningSynonym.put(LanguageParams.synonyms.name(), synonymCopy);
+					}
 				}
 
 				Node primaryMeaningSynset = createNodeObjectForSynset(languageId, primaryMeaning, lemmaWordMap, wordIds,
@@ -2367,39 +2369,41 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 
 			Node existingWordNode = null;
-			if(wordIdentifier == null){
+			if (wordIdentifier == null) {
 				existingWordNode = wordUtil.searchWord(languageId, lemma);
 				if (existingWordNode != null) {
 					wordIdentifier = existingWordNode.getIdentifier();
 					wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);
 				}
-			}else {
-					existingWordNode = getDataNode(languageId, wordIdentifier, LanguageParams.Word.name());
+			} else {
+				existingWordNode = getDataNode(languageId, wordIdentifier, LanguageParams.Word.name());
 			}
-				
+
 			if (existingWordNode != null) {
-				String existingPrimaryMeaningId =(String) existingWordNode.getMetadata().get(LanguageParams.primaryMeaningId.name());
-				
-				//merge relations from existing if either primaryMeaning or otherMeaning is exist while other one is not exist for update 
-				if((primaryMeaning != null && otherMeanings == null)||(primaryMeaning == null && otherMeanings != null)){
-					if(primaryMeaning!=null) {
-						//existing other meaning should be persisted
+				String existingPrimaryMeaningId = (String) existingWordNode.getMetadata()
+						.get(LanguageParams.primaryMeaningId.name());
+
+				// merge relations from existing if either primaryMeaning or
+				// otherMeaning is exist while other one is not exist for update
+				if ((primaryMeaning != null && otherMeanings == null)
+						|| (primaryMeaning == null && otherMeanings != null)) {
+					if (primaryMeaning != null) {
+						// existing other meaning should be persisted
 						wordInRelations = wordUtil.getSynonymRelations(existingWordNode.getInRelations());
-						if(!StringUtils.equalsIgnoreCase(primaryMeaningId, existingPrimaryMeaningId)){
-							for(Relation relation : wordInRelations)
-								if(relation.getStartNodeId().equalsIgnoreCase(existingPrimaryMeaningId))
+						if (!StringUtils.equalsIgnoreCase(primaryMeaningId, existingPrimaryMeaningId)) {
+							for (Relation relation : wordInRelations)
+								if (relation.getStartNodeId().equalsIgnoreCase(existingPrimaryMeaningId))
 									relation.setStartNodeId(primaryMeaningId);
 						}
-					} else{
-						//existing primary meaning should be persisted
+					} else {
+						// existing primary meaning should be persisted
 						Relation relation = new Relation(existingPrimaryMeaningId, RelationTypes.SYNONYM.relationName(),
 								wordIdentifier);
 						wordInRelations.add(relation);
 					}
-					
+
 				}
 			}
-			
 
 			Node word = new Node(wordIdentifier, SystemNodeTypes.DATA_NODE.name(), "Word");
 
@@ -2420,8 +2424,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		return wordResponse;
 
 	}
-
-
 
 	/**
 	 * Gets the related word lemma from.
@@ -2558,20 +2560,30 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		Node synset = new Node(synsetId, SystemNodeTypes.DATA_NODE.name(), "Synset");
 
 		List<Relation> outRelations = new ArrayList<Relation>();
+		List<String> emptyRelations = new ArrayList<String>();
 		for (Entry<String, Object> entry : meaningMap.entrySet()) {
 			if (wordUtil.getRelations().contains(entry.getKey())
 					&& !entry.getKey().equalsIgnoreCase(LanguageParams.synonyms.name())) {
 
 				List<Map<String, Object>> relationWordMap = (List<Map<String, Object>>) entry.getValue();
 
-				for (Map<String, Object> word : relationWordMap) {
-					String lemma = (String) word.get(LanguageParams.lemma.name());
-					String primaryMeaningId = getPrimaryMeaningId(languageId, lemma, lemmaWordMap, wordIds,
-							errorMessages, entry.getKey());
-					if (primaryMeaningId != null) {
-						Relation relation = new Relation(synsetId, wordUtil.getRelationName(entry.getKey()), primaryMeaningId);
-						outRelations.add(relation);
+				if (relationWordMap != null) {
+
+					if (relationWordMap.size() == 0) {
+						emptyRelations.add(wordUtil.getRelationName(entry.getKey()));
+					} else {
+						for (Map<String, Object> word : relationWordMap) {
+							String lemma = (String) word.get(LanguageParams.lemma.name());
+							String primaryMeaningId = getPrimaryMeaningId(languageId, lemma, lemmaWordMap, wordIds,
+									errorMessages, entry.getKey());
+							if (primaryMeaningId != null) {
+								Relation relation = new Relation(synsetId, wordUtil.getRelationName(entry.getKey()),
+										primaryMeaningId);
+								outRelations.add(relation);
+							}
+						}
 					}
+
 				}
 
 			}
@@ -2579,22 +2591,35 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		List<Map<String, Object>> synonyms = (List<Map<String, Object>>) meaningMap.get(LanguageParams.synonyms.name());
 
-		if (synonyms != null && synonyms.size() > 0) {
+		if (synonyms != null) {
 
-			for (Map<String, Object> word : synonyms) {
-				String lemma = (String) word.get(LanguageParams.lemma.name());
-				Node wordNode = (Node) lemmaWordMap.get(lemma);
-				String wordId;
-				if (wordNode == null) {
-					wordId = createWord(languageId, lemma, errorMessages, LanguageParams.synonyms.name());
-					if (wordId == null)
-						continue;
-				} else {
-					wordId = wordNode.getIdentifier();
+			if (synonyms.size() == 0) {
+				emptyRelations.add(wordUtil.getRelationName(LanguageParams.synonyms.name()));
+			} else {
+				for (Map<String, Object> word : synonyms) {
+					String lemma = (String) word.get(LanguageParams.lemma.name());
+					Node wordNode = (Node) lemmaWordMap.get(lemma);
+					String wordId;
+					if (wordNode == null) {
+						wordId = createWord(languageId, lemma, errorMessages, LanguageParams.synonyms.name());
+						if (wordId == null)
+							continue;
+
+						try {
+							Node wordTocache = getDataNode(languageId, wordId, LanguageParams.Word.name());
+							lemmaWordMap.put(lemma, wordTocache);
+						} catch (Exception e) {
+							errorMessages.add("eror while getting recently created word in order to cache it");
+						}
+
+					} else {
+						wordId = wordNode.getIdentifier();
+					}
+					wordIds.add(wordId);
+					Relation relation = new Relation(synsetId, wordUtil.getRelationName(LanguageParams.synonyms.name()),
+							wordId);
+					outRelations.add(relation);
 				}
-				wordIds.add(wordId);
-				Relation relation = new Relation(synsetId, wordUtil.getRelationName(LanguageParams.synonyms.name()), wordId);
-				outRelations.add(relation);
 			}
 		}
 
@@ -2620,12 +2645,13 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		// set synset metadata
 		synset.setMetadata(meaningMap);
 
-		if (outRelations.size() > 0) {
+		if (outRelations.size() > 0 || emptyRelations.size() > 0) {
 
 			if (synsetId != null) {
 				try {
 					Node existingSynset = getDataNode(languageId, synsetId, "Synset");
-					outRelations = wordUtil.getMergedRelations(outRelations, existingSynset.getOutRelations());
+					outRelations = wordUtil.getMergedRelations(outRelations, existingSynset.getOutRelations(),
+							emptyRelations);
 				} catch (Exception e) {
 				}
 
@@ -2706,6 +2732,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					setPrimaryMeaningId(languageId, wordId, primaryMeaningId);
 				}
 				wordIds.add(wordId);
+
+				try {
+					Node wordTocache = getDataNode(languageId, wordId, LanguageParams.Word.name());
+					lemmaWordMap.put(lemma, wordTocache);
+				} catch (Exception e) {
+					errorMessages.add("eror while getting recently created word in order to cache it");
+				}
+
 			}
 		}
 

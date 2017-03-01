@@ -374,23 +374,23 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
-		.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
-		.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
-		.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
-		.endObject().endObject().endObject().endObject();
+				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
+				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
+				.endObject().endObject().endObject().endObject();
 
 		JSONBuilder mappingBuilder = new JSONStringer();
 		mappingBuilder.object().key(indexType).object().key("properties").object().key("word").object().key("type")
-		.value("string").key("analyzer").value("ind_normalizer").endObject().key("rootWord").object()
-		.key("type").value("string").key("analyzer").value("ind_normalizer").endObject().key("inflection")
-		.object().key("type").value("string").key("analyzer").value("ind_normalizer").endObject().key("pos")
-		.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("gender")
-		.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("number")
-		.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("pers")
-		.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("wordCase")
-		.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("rts").object()
-		.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
-		.endObject();
+				.value("string").key("analyzer").value("ind_normalizer").endObject().key("rootWord").object()
+				.key("type").value("string").key("analyzer").value("ind_normalizer").endObject().key("inflection")
+				.object().key("type").value("string").key("analyzer").value("ind_normalizer").endObject().key("pos")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("gender")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("number")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("pers")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("wordCase")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("rts").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
+				.endObject();
 
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
@@ -414,19 +414,19 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
-		.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
-		.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
-		.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
-		.endObject().endObject().endObject().endObject();
+				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
+				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
+				.endObject().endObject().endObject().endObject();
 
 		JSONBuilder mappingBuilder = new JSONStringer();
 		mappingBuilder.object().key(indexType).object().key("properties").object().key("word").object().key("type")
-		.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
-		.key("type").value("murmur3").endObject().endObject().endObject().key("rootWord").object().key("type")
-		.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
-		.key("type").value("murmur3").endObject().endObject().endObject().key("date").object().key("type")
-		.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().endObject().endObject()
-		.endObject();
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("rootWord").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("date").object().key("type")
+				.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().endObject().endObject()
+				.endObject();
 
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
@@ -450,24 +450,24 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
-		.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
-		.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
-		.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
-		.endObject().endObject().endObject().endObject();
+				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
+				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
+				.endObject().endObject().endObject().endObject();
 
 		JSONBuilder mappingBuilder = new JSONStringer();
 		mappingBuilder.object().key(indexType).object().key("properties").object().key("word").object().key("type")
-		.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
-		.key("type").value("murmur3").endObject().endObject().endObject().key("rootWord").object().key("type")
-		.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
-		.key("type").value("murmur3").endObject().endObject().endObject().key("date").object().key("type")
-		.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().key("sourceType").object()
-		.key("type").value("string").key("index").value("not_analyzed").endObject().key("source").object()
-		.key("type").value("string").key("index").value("not_analyzed").endObject().key("fileName").object()
-		.key("type").value("string").key("index").value("not_analyzed").endObject().key("pos").object()
-		.key("type").value("string").key("index").value("not_analyzed").endObject().key("grade").object()
-		.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
-		.endObject();
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("rootWord").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("date").object().key("type")
+				.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().key("sourceType").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("source").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("fileName").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("pos").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("grade").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
+				.endObject();
 
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
@@ -1289,10 +1289,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	@SuppressWarnings("unchecked")
 	public List<Node> getAllObjects(String languageId, String objectType) {
 
-		int batch =1000;
+		int batch = 1000;
 		int start = 0;
 		boolean found = true;
-		List<Node> allNodes =new ArrayList<>();
+		List<Node> allNodes = new ArrayList<>();
 		while (found) {
 			List<Node> nodes = getDataNodes(languageId, objectType, start, batch);
 			if (null != nodes && !nodes.isEmpty()) {
@@ -1303,7 +1303,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				break;
 			}
 		}
-		
+
 		return allNodes;
 	}
 
@@ -1324,7 +1324,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			return nodes;
 		}
 	}
-	
+
 	/**
 	 * Get the data node from Graph based on the node Id
 	 * 
@@ -1453,9 +1453,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
-	private String createSynset(String languageId, String identifier, Map<String, Object> meaningObj, List<String> errorMessages){
+	private String createSynset(String languageId, String identifier, Map<String, Object> meaningObj,
+			List<String> errorMessages) {
 		Node node = new Node(identifier, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Synset.name());
-		
+
 		meaningObj.remove(LanguageParams.indowordnetId.name());
 		meaningObj.remove(LanguageParams.english_indowordnetId.name());
 
@@ -1466,26 +1467,26 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		req.put(GraphDACParams.node_id.name(), node.getIdentifier());
 		Response res = getResponse(req, LOGGER);
 		if (checkError(res)) {
-			errorMessages.add(getErrorMessage(res)+"- synset create/update");
+			errorMessages.add(getErrorMessage(res) + "- synset create/update");
 			return null;
 		}
 		String meaningId = (String) res.get(GraphDACParams.node_id.name());
 		return meaningId;
 	}
-	
-	private String createSynset(String languageId, Node node, List<String> errorMessages){
+
+	private String createSynset(String languageId, Node node, List<String> errorMessages) {
 		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		req.put(GraphDACParams.node.name(), node);
 		req.put(GraphDACParams.node_id.name(), node.getIdentifier());
 		Response res = getResponse(req, LOGGER);
 		if (checkError(res)) {
-			errorMessages.add(getErrorMessage(res)+"- synset create/update");
+			errorMessages.add(getErrorMessage(res) + "- synset create/update");
 			return null;
 		}
 		String meaningId = (String) res.get(GraphDACParams.node_id.name());
 		return meaningId;
 	}
-		
+
 	private Node getDataNode(String languageId, String nodeId, String objectType) throws Exception {
 		Request getNodeReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		getNodeReq.put(GraphDACParams.node_id.name(), nodeId);
@@ -1496,9 +1497,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return (Node) getNodeRes.get(GraphDACParams.node.name());
 	}
-	
+
 	private Node createNodeObjectForSynset(String languageId, Map<String, Object> meaningMap,
-			  List<String> errorMessages) {
+			List<String> errorMessages) {
 
 		String synsetId = (String) meaningMap.get("identifier");
 		Node synset = new Node(synsetId, SystemNodeTypes.DATA_NODE.name(), "Synset");
@@ -1515,7 +1516,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					String relationSynsetId = languageId + ":S:" + String.format("%08d", indowordnetId);
 					relationSynset.put(LanguageParams.identifier.name(), relationSynsetId);
 
-					relationSynsetId = createSynset(languageId, relationSynsetId, relationSynset, errorMessages); 
+					relationSynsetId = createSynset(languageId, relationSynsetId, relationSynset, errorMessages);
 					if (relationSynsetId != null) {
 						Relation relation = new Relation(synsetId, getRelationName(entry.getKey()), relationSynsetId);
 						outRelations.add(relation);
@@ -1543,7 +1544,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			if (synsetId != null) {
 				try {
 					Node existingSynset = getDataNode(languageId, synsetId, "Synset");
-					outRelations = getMergedRelations(outRelations, existingSynset.getOutRelations());
+					outRelations = getMergedRelations(outRelations, existingSynset.getOutRelations(),
+							ListUtils.EMPTY_LIST);
 				} catch (Exception e) {
 				}
 			}
@@ -1554,7 +1556,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 		return synset;
 	}
-	
+
 	/**
 	 * Gets the relation name.
 	 *
@@ -1593,7 +1595,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
-	public List<Relation> getMergedRelations(List<Relation> newRelations, List<Relation> oldRelations) {
+	public List<Relation> getMergedRelations(List<Relation> newRelations, List<Relation> oldRelations,
+			List<String> emptyRelations) {
 		Map<String, List<Relation>> groupedNewRelationMap = newRelations.stream()
 				.collect(Collectors.groupingBy(Relation::getRelationType));
 
@@ -1604,19 +1607,31 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			groupedOldRelationMap.put(newRelationEntry.getKey(), newRelationEntry.getValue());
 		}
 
+		for (String emptyRelation : emptyRelations)
+			groupedOldRelationMap.remove(emptyRelation);
+
 		List<Relation> mergedRelations = new ArrayList<>();
 		groupedOldRelationMap.values().forEach(mergedRelations::addAll);
 
 		return mergedRelations;
 
 	}
-	
-	public List<Relation> getSynonymRelations(List<Relation> relations) {
+
+	public List<Relation> getRelations(List<Relation> relations, String relationName) {
 		Map<String, List<Relation>> groupedRelationMap = relations.stream()
 				.collect(Collectors.groupingBy(Relation::getRelationType));
 
-		return groupedRelationMap.get(RelationTypes.SYNONYM.relationName());
+		return groupedRelationMap.get(relationName);
 	}
+
+	public List<Relation> getSynonymRelations(List<Relation> relations) {
+		return getRelations(relations, RelationTypes.SYNONYM.relationName());
+	}
+
+	public List<Relation> getAntonymRelations(List<Relation> relations) {
+		return getRelations(relations, RelationTypes.ANTONYM.relationName());
+	}
+
 	/**
 	 * Gets the relations.
 	 *
@@ -1640,7 +1655,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return synsetRelations;
 	}
-	
+
 	/**
 	 * Creates or updates a word with a primary meaning and processes all
 	 * relation words
@@ -1668,12 +1683,11 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Map<String, Object> primaryMeaning = (Map<String, Object>) item.get(LanguageParams.primaryMeaning.name());
 			if (primaryMeaning == null) {
 				errorMessages
-				.add("Primary meaning field is missing: Id: " + indowordnetId + " Language: " + languageId);
+						.add("Primary meaning field is missing: Id: " + indowordnetId + " Language: " + languageId);
 			}
 
 			// get gloss of the primary meaning
 			String gloss = (String) primaryMeaning.get(LanguageParams.gloss.name());
-
 
 			primaryMeaning.remove(LanguageParams.indowordnetId.name());
 			int englishTranslationId = (Integer) primaryMeaning.get(LanguageParams.english_indowordnetId.name());
@@ -1684,9 +1698,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 			Node primaryMeaningNode = createNodeObjectForSynset(languageId, primaryMeaning, errorMessages);
 			String primaryMeaningId = createSynset(languageId, primaryMeaningNode, errorMessages);
-			
-			if(StringUtils.isNotBlank(primaryMeaningId))
-				createProxyNodeAndTranslationSet(primaryMeaningId, LanguageParams.translations.name(),indowordnetId, englishTranslationId);
+
+			if (StringUtils.isNotBlank(primaryMeaningId))
+				createProxyNodeAndTranslationSet(primaryMeaningId, LanguageParams.translations.name(), indowordnetId,
+						englishTranslationId);
 
 			// create Word
 			item.remove(LanguageParams.primaryMeaning.name());
@@ -1706,19 +1721,25 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List<String> sources = new ArrayList<String>();
 				sources.add(ATTRIB_SOURCE_IWN);
 				wordMap.put(ATTRIB_SOURCES, sources);
-				//Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition,true);
+				// Node node = convertToGraphNode(languageId,
+				// LanguageParams.Word.name(), wordMap, wordDefinition,true);
 				Node node = new Node(wordIdentifier, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
 				node.setMetadata(wordMap);
 				if (createFlag) {
 					createRes = createWord(node, languageId);
 				} else {
 					String status = (String) node.getMetadata().get(LanguageParams.status.name());
-					if(!StringUtils.equalsIgnoreCase(languageId, "en") || 
-							(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.Draft.name()))){
+					if (!StringUtils.equalsIgnoreCase(languageId, "en")
+							|| (StringUtils.equalsIgnoreCase(languageId, "en")
+									&& StringUtils.equalsIgnoreCase(status, LanguageParams.Draft.name()))) {
 						createRes = updateWord(node, languageId, wordIdentifier);
-					}/*else if(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.live.name())){
-						createRes = updateWord(node, languageId, wordIdentifier);
-					}*/
+					} /*
+						 * else if(StringUtils.equalsIgnoreCase(languageId,
+						 * "en") &&
+						 * StringUtils.equalsIgnoreCase(status,LanguageParams.
+						 * live.name())){ createRes = updateWord(node,
+						 * languageId, wordIdentifier); }
+						 */
 				}
 				if (!checkError(createRes)) {
 					String wordId = (String) createRes.get("node_id");
@@ -2203,199 +2224,199 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Double complexity = 0.0;
 		for (MetadataDefinition property : properties) {
 			nextProperty: {
-			String renderingHintsString = property.getRenderingHints();
-			renderingHintsString = renderingHintsString.replaceAll("'", "\"");
-			Double defaultValue = Double.valueOf((String) property.getDefaultValue());
-			Map<String, Object> renderingHintsMap = mapper.readValue(renderingHintsString,
-					new TypeReference<Map<String, Object>>() {
-			});
-			String field = (String) renderingHintsMap.get("metadata");
-			String dataType = (String) renderingHintsMap.get("datatype");
-			if (StringUtils.isBlank(dataType))
-				dataType = "String";
-			Map<String, Object> valueMap = (Map<String, Object>) renderingHintsMap.get("value");
-			Object wordField = wordMap.get(field);
-			List fieldValues = new ArrayList<>();
-			if (wordField == null) {
-				fieldValues.add(null);
-			} else {
-				fieldValues = getList(mapper, wordField, null);
-			}
-			for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
-				String operation = entry.getKey();
-				List compareValues = getList(mapper, entry.getValue(), null);
-				for (Object fieldValue : fieldValues) {
-					for (Object compareValue : compareValues) {
-						switch (dataType) {
-						case "String": {
-							if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
-								try {
-									String compareString = (String) compareValue;
-									String fieldString = (String) fieldValue;
-									switch (operation) {
-									case "in":
-									case "eq": {
-										if (compareString.equalsIgnoreCase(fieldString)) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+				String renderingHintsString = property.getRenderingHints();
+				renderingHintsString = renderingHintsString.replaceAll("'", "\"");
+				Double defaultValue = Double.valueOf((String) property.getDefaultValue());
+				Map<String, Object> renderingHintsMap = mapper.readValue(renderingHintsString,
+						new TypeReference<Map<String, Object>>() {
+						});
+				String field = (String) renderingHintsMap.get("metadata");
+				String dataType = (String) renderingHintsMap.get("datatype");
+				if (StringUtils.isBlank(dataType))
+					dataType = "String";
+				Map<String, Object> valueMap = (Map<String, Object>) renderingHintsMap.get("value");
+				Object wordField = wordMap.get(field);
+				List fieldValues = new ArrayList<>();
+				if (wordField == null) {
+					fieldValues.add(null);
+				} else {
+					fieldValues = getList(mapper, wordField, null);
+				}
+				for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
+					String operation = entry.getKey();
+					List compareValues = getList(mapper, entry.getValue(), null);
+					for (Object fieldValue : fieldValues) {
+						for (Object compareValue : compareValues) {
+							switch (dataType) {
+							case "String": {
+								if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
+									try {
+										String compareString = (String) compareValue;
+										String fieldString = (String) fieldValue;
+										switch (operation) {
+										case "in":
+										case "eq": {
+											if (compareString.equalsIgnoreCase(fieldString)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									}
-									case "not in":
-										if (!compareValues.containsAll(fieldValues)) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+										case "not in":
+											if (!compareValues.containsAll(fieldValues)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										case "ne": {
+											if (!compareString.equalsIgnoreCase(fieldString)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									case "ne": {
-										if (!compareString.equalsIgnoreCase(fieldString)) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
 										}
-										break;
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									}
-								} catch (Exception e) {
-									throw new Exception("Invalid operation or operands");
 								}
-							}
-							if (compareValue != null) {
-								try {
-									switch (operation) {
-									case "null": {
-										boolean nullBool = Boolean.valueOf((String) compareValue);
-										if (fieldValue == null && nullBool) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									}
-								} catch (Exception e) {
-									throw new Exception("Invalid operation or operands");
 								}
+								break;
 							}
-							break;
-						}
-						case "Number": {
-							if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
-								try {
-									Double compareNumber = Double.valueOf((String) compareValue);
-									Double fieldNumber = Double.valueOf((String) fieldValue);
-									switch (operation) {
-									case "eq": {
-										if (compareNumber == fieldNumber) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+							case "Number": {
+								if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
+									try {
+										Double compareNumber = Double.valueOf((String) compareValue);
+										Double fieldNumber = Double.valueOf((String) fieldValue);
+										switch (operation) {
+										case "eq": {
+											if (compareNumber == fieldNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									}
-									case "ne": {
-										if (compareNumber != fieldNumber) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+										case "ne": {
+											if (compareNumber != fieldNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									}
-									case "ge": {
-										if (fieldNumber >= compareNumber) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+										case "ge": {
+											if (fieldNumber >= compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									}
-									case "gt": {
-										if (fieldNumber > compareNumber) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+										case "gt": {
+											if (fieldNumber > compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									}
-									case "le": {
-										if (fieldNumber <= compareNumber) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+										case "le": {
+											if (fieldNumber <= compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									}
-									case "lt": {
-										if (fieldNumber < compareNumber) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+										case "lt": {
+											if (fieldNumber < compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									}
-								} catch (Exception e) {
-									throw new Exception("Invalid operation or operands");
 								}
-							}
-							if (compareValue != null) {
-								try {
-									switch (operation) {
-									case "null": {
-										boolean nullBool = Boolean.valueOf((String) compareValue);
-										if (fieldValue == null && nullBool) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									}
-								} catch (Exception e) {
-									throw new Exception("Invalid operation or operands");
 								}
+								break;
 							}
-							break;
-						}
-						case "Boolean": {
-							if (compareValue != null && fieldValue != null) {
-								try {
-									boolean compareBoolean = Boolean.valueOf((String) compareValue);
-									boolean fieldBoolean = Boolean.valueOf((String) fieldValue);
-									switch (operation) {
-									case "eq": {
-										if (compareBoolean == fieldBoolean) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+							case "Boolean": {
+								if (compareValue != null && fieldValue != null) {
+									try {
+										boolean compareBoolean = Boolean.valueOf((String) compareValue);
+										boolean fieldBoolean = Boolean.valueOf((String) fieldValue);
+										switch (operation) {
+										case "eq": {
+											if (compareBoolean == fieldBoolean) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
-									}
-									case "ne": {
-										if (compareBoolean != fieldBoolean) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+										case "ne": {
+											if (compareBoolean != fieldBoolean) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									}
-								} catch (Exception e) {
-									throw new Exception("Invalid operation or operands");
 								}
-							}
-							if (compareValue != null) {
-								try {
-									switch (operation) {
-									case "null": {
-										boolean nullBool = Boolean.valueOf((String) compareValue);
-										if (fieldValue == null && nullBool) {
-											complexity = complexity + defaultValue;
-											break nextProperty;
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
 										}
-										break;
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									}
-								} catch (Exception e) {
-									throw new Exception("Invalid operation or operands");
 								}
+								break;
 							}
-							break;
-						}
+							}
 						}
 					}
 				}
 			}
-		}
 		}
 
 		BigDecimal bd = new BigDecimal(complexity);
@@ -2408,46 +2429,42 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return bd.doubleValue();
 	}
 
-
 	/**
 	 * Creates proxy node and translation set if not present for the synset
+	 * 
 	 * @param primaryMeaningId
 	 * @param graphId
 	 * @param indowordId
 	 * @param englishTranslationId
 	 */
-	private void createProxyNodeAndTranslationSet(String primaryMeaningId, String graphId, int indowordId, int englishTranslationId)
-	{
+	private void createProxyNodeAndTranslationSet(String primaryMeaningId, String graphId, int indowordId,
+			int englishTranslationId) {
 		String operation = "createProxyNodeAndTranslation";
 		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
-		boolean proxy = proxyNodeExists(graphId,primaryMeaningId);
-		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
+		boolean proxy = proxyNodeExists(graphId, primaryMeaningId);
+		Node node = new Node(primaryMeaningId, SystemNodeTypes.PROXY_NODE.name(), LanguageParams.Synset.name());
 		node.setGraphId(graphId);
-		Map<String, Object> proxyMeta =new HashMap<>();
+		Map<String, Object> proxyMeta = new HashMap<>();
 		proxyMeta.put("language_id", graphId);
 		node.setMetadata(proxyMeta);
 		proxyReq.put(GraphDACParams.node.name(), node);
 		proxyReq = createTranslationCollection(proxyReq, graphId, indowordId, primaryMeaningId);
 		String id = "";
-		if(englishTranslationId!=0)
-		{
-			id = ""+englishTranslationId;
-		}else{
-			id = ""+indowordId;
+		if (englishTranslationId != 0) {
+			id = "" + englishTranslationId;
+		} else {
+			id = "" + indowordId;
 		}
-		LOGGER.info("Primary meaning id and indowordnetid:"+primaryMeaningId+":"+id);
+		LOGGER.info("Primary meaning id and indowordnetid:" + primaryMeaningId + ":" + id);
 		boolean create = false;
-		String nodeId = getTranslationSetWithMember(primaryMeaningId,id,graphId);
-		if(nodeId==null)
-		{
+		String nodeId = getTranslationSetWithMember(primaryMeaningId, id, graphId);
+		if (nodeId == null) {
 			nodeId = getTranslationSet(id, graphId);
-			if(nodeId==null)
-			{
+			if (nodeId == null) {
 				create = true;
 			}
-			if(!create)
-			{
-				LOGGER.info("Translation set already exists for indowordnetid:"+nodeId);
+			if (!create) {
+				LOGGER.info("Translation set already exists for indowordnetid:" + nodeId);
 				proxyReq.put(GraphDACParams.collection_id.name(), nodeId);
 			}
 			proxyReq.put("create", create);
@@ -2455,30 +2472,27 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Response res = getResponse(proxyReq, LOGGER);
 			if (!checkError(res)) {
 				String proxyId = (String) res.get("node_id");
-				LOGGER.info("Proxy node created:"+proxyId);
+				LOGGER.info("Proxy node created:" + proxyId);
 			}
-		}else
-		{
-			LOGGER.info("Translation set already exists with this member:"+nodeId);
+		} else {
+			LOGGER.info("Translation set already exists with this member:" + nodeId);
 		}
 	}
 
-
-
 	/**
 	 * Generates request object for creating translation set
+	 * 
 	 * @param proxyReq
 	 * @param indowordId
 	 * @param synsetId
 	 * @return
 	 */
-	private Request createTranslationCollection(Request proxyReq, String graphId, int indowordId, String synsetId)
-	{
+	private Request createTranslationCollection(Request proxyReq, String graphId, int indowordId, String synsetId) {
 		Node translationSet = new Node();
 		translationSet.setGraphId(graphId);
-		String id = ""+indowordId;
+		String id = "" + indowordId;
 		translationSet.setObjectType(LanguageObjectTypes.TranslationSet.name());
-		Map<String,Object> metadata = new HashMap<String,Object>();
+		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata.put("indowordnetId", id);
 		translationSet.setMetadata(metadata);
 		List<String> members = null;
@@ -2490,15 +2504,16 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return proxyReq;
 	}
 
-
 	/**
-	 * Fetches translation set from graph if it already exists for the indowordnet id
+	 * Fetches translation set from graph if it already exists for the
+	 * indowordnet id
+	 * 
 	 * @param wordnetId
 	 * @param graphId
 	 * @return
 	 */
-	public String getTranslationSet(String wordnetId, String graphId){
-		LOGGER.info("Logging wordnet id for getting translation set:"+wordnetId);
+	public String getTranslationSet(String wordnetId, String graphId) {
+		LOGGER.info("Logging wordnet id for getting translation set:" + wordnetId);
 		Node node = null;
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.SET.name());
@@ -2516,7 +2531,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			return null;
 		else {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-			if (null != nodes && nodes.size() > 0){
+			if (null != nodes && nodes.size() > 0) {
 				node = nodes.get(0);
 				return node.getIdentifier();
 			}
@@ -2524,19 +2539,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
-
-
 	/**
 	 * Fetches translation set if it exists with the same synset member
+	 * 
 	 * @param id
 	 * @param wordnetId
 	 * @param graphId
 	 * @return
 	 */
-	public String getTranslationSetWithMember(String id, String wordnetId, String graphId){
-		LOGGER.info("Logging synsetid and wordnetid for getting with member:"+id+":"+wordnetId);
+	public String getTranslationSetWithMember(String id, String wordnetId, String graphId) {
+		LOGGER.info("Logging synsetid and wordnetid for getting with member:" + id + ":" + wordnetId);
 		Node node = null;
-		RelationCriterion rc = new RelationCriterion("hasMember","Synset");
+		RelationCriterion rc = new RelationCriterion("hasMember", "Synset");
 		List<String> identifiers = new ArrayList<String>();
 		identifiers.add(id);
 		rc.setIdentifiers(identifiers);
@@ -2557,7 +2571,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			return null;
 		else {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-			if (null != nodes && nodes.size() > 0){
+			if (null != nodes && nodes.size() > 0) {
 				node = nodes.get(0);
 				return node.getIdentifier();
 			}
@@ -2565,16 +2579,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
-
-
 	/**
 	 * Checks if a proxy node exists for the synset in translations graph
+	 * 
 	 * @param graphId
 	 * @param proxyId
 	 * @return
 	 */
-	private boolean proxyNodeExists(String graphId, String proxyId)
-	{
+	private boolean proxyNodeExists(String graphId, String proxyId) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getProxyNode");
 		request.put(GraphDACParams.node_id.name(), proxyId);
 

@@ -33,6 +33,7 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -144,15 +145,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 						
 						DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
 						Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
-						if(wordMap.get(LanguageParams.synonyms.name())!=null)
-							word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
-						else
-							word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
-						
-						if(wordMap.get(LanguageParams.antonyms.name())!=null)
-							word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
-						else
-							word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
 						
 						if(wordMap.get(LanguageParams.synonyms.name())!=null){
 							List<NodeDTO> synonyms =(List<NodeDTO>) wordMap.get(LanguageParams.synonyms.name());
@@ -179,6 +171,16 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 						String primaryMeaningId = (String) word.getMetadata().get(LanguageParams.primaryMeaningId.name());
 						if(primaryMeaningId!=null){
 							Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
+							if(wordUtil.getSynonymRelations(synset.getOutRelations())!=null)
+								word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
+							else
+								word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
+
+							if(wordUtil.getAntonymRelations(synset.getOutRelations())!=null)
+								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
+							else
+								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
+
 							if(synset.getMetadata().get(ATTRIB_CATEGORY)!=null)
 								word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
 							if(synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES)!=null)
