@@ -34,6 +34,7 @@ import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
@@ -156,6 +157,19 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 						if(wordMap.get(LanguageParams.synonyms.name())!=null){
 							List<NodeDTO> synonyms =(List<NodeDTO>) wordMap.get(LanguageParams.synonyms.name());
 							word.getMetadata().put(ATTRIB_SYNSET_COUNT, synonyms.size());
+							
+							Set<String> posSet = new HashSet<>();
+							List<Relation> synsets = wordUtil.getSynonymRelations(word.getInRelations());
+							for(Relation synsetRelation:synsets) {
+								String pos = (String)synsetRelation.getStartNodeMetadata().get(ATTRIB_POS);
+								if(pos!=null)
+									posSet.add(pos);
+							}
+							
+							if(posSet.size()>0){
+								List<String> posList= new ArrayList<>(posSet);
+								word.getMetadata().put(ATTRIB_POS, posList);
+							}
 						}
 						String lemma = (String) wordMap.get(LanguageParams.lemma.name());
 						if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {

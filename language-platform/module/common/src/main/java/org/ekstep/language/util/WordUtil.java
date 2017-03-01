@@ -1611,6 +1611,12 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	}
 	
+	public List<Relation> getSynonymRelations(List<Relation> relations) {
+		Map<String, List<Relation>> groupedRelationMap = relations.stream()
+				.collect(Collectors.groupingBy(Relation::getRelationType));
+
+		return groupedRelationMap.get(RelationTypes.SYNONYM.relationName());
+	}
 	/**
 	 * Gets the relations.
 	 *
@@ -1697,12 +1703,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				wordMap.put(LanguageParams.lemma.name(), lemma);
 				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
 				wordMap.put(LanguageParams.meaning.name(), gloss);
-				String pos = (String) primaryMeaning.get(LanguageParams.pos.name());
-				if (StringUtils.isNotBlank(pos)) {
-					List<String> posList = new ArrayList<String>();
-					posList.add(pos);
-					wordMap.put(LanguageParams.pos.name(), posList);
-				}
 				List<String> sources = new ArrayList<String>();
 				sources.add(ATTRIB_SOURCE_IWN);
 				wordMap.put(ATTRIB_SOURCES, sources);
@@ -1719,7 +1719,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					}/*else if(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.live.name())){
 						createRes = updateWord(node, languageId, wordIdentifier);
 					}*/
-
 				}
 				if (!checkError(createRes)) {
 					String wordId = (String) createRes.get("node_id");

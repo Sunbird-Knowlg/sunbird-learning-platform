@@ -2366,13 +2366,40 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				wordRequestMap.put(LanguageParams.lemma.name(), lemma);
 			}
 
-			if (wordIdentifier == null) {
-				Node existingWordNode = wordUtil.searchWord(languageId, lemma);
+			Node existingWordNode = null;
+			if(wordIdentifier == null){
+				existingWordNode = wordUtil.searchWord(languageId, lemma);
 				if (existingWordNode != null) {
 					wordIdentifier = existingWordNode.getIdentifier();
 					wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);
 				}
+			}else {
+					existingWordNode = getDataNode(languageId, wordIdentifier, LanguageParams.Word.name());
 			}
+				
+			if (existingWordNode != null) {
+				String existingPrimaryMeaningId =(String) existingWordNode.getMetadata().get(LanguageParams.primaryMeaningId.name());
+				
+				//merge relations from existing if either primaryMeaning or otherMeaning is exist while other one is not exist for update 
+				if((primaryMeaning != null && otherMeanings == null)||(primaryMeaning == null && otherMeanings != null)){
+					if(primaryMeaning!=null) {
+						//existing other meaning should be persisted
+						wordInRelations = wordUtil.getSynonymRelations(existingWordNode.getInRelations());
+						if(!StringUtils.equalsIgnoreCase(primaryMeaningId, existingPrimaryMeaningId)){
+							for(Relation relation : wordInRelations)
+								if(relation.getStartNodeId().equalsIgnoreCase(existingPrimaryMeaningId))
+									relation.setStartNodeId(primaryMeaningId);
+						}
+					} else{
+						//existing primary meaning should be persisted
+						Relation relation = new Relation(existingPrimaryMeaningId, RelationTypes.SYNONYM.relationName(),
+								wordIdentifier);
+						wordInRelations.add(relation);
+					}
+					
+				}
+			}
+			
 
 			Node word = new Node(wordIdentifier, SystemNodeTypes.DATA_NODE.name(), "Word");
 
