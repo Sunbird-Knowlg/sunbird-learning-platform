@@ -30,7 +30,7 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
  * 
  * @see IMessageProcessor
  */
-public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
+public class ContentEnrichmentMessageProcessor extends BaseProcessor implements IMessageProcessor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentEnrichmentMessageProcessor.class.getName());
@@ -78,54 +78,64 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
-		Map<String, Object> edata = new HashMap<String, Object>();
-		Map<String, Object> eks = new HashMap<String, Object>();
-		Set<String> existingConceptIds = new HashSet<String>();
-		Set<String> existingConceptGrades = new HashSet<String>();
-		try {
-			LOGGER.info("processing kafka message" + message);
-			if (null != message.get("edata")) {
-				LOGGER.info("checking if kafka message contains edata or not" + message.get("edata"));
-				edata = (Map) message.get("edata");
-				if (null != edata.get("eks")) {
-					LOGGER.info("checking if edata has eks present in it" + eks);
-					eks = (Map) edata.get("eks");
-					if (null != eks.get("cid")) {
-						Node node = util.getNode("domain", eks.get("cid").toString());
-						List<Relation> outRelations = (List) node.getOutRelations();
-						if (null != outRelations && !outRelations.isEmpty()) {
-							for (Relation rel : outRelations) {
-								if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
-									LOGGER.info("getting status from node");
-									String status = (String) rel.getEndNodeMetadata()
-											.get(ContentWorkflowPipelineParams.status.name());
-									LOGGER.info("checking if status is LIVE and fetching conceptIds from it" + status);
-									if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
-										existingConceptIds.add(rel.getEndNodeId());
-									LOGGER.info("concepts fetched form LIVE Content" + existingConceptIds);
-									if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
-										List<String> list = (List) (rel.getEndNodeMetadata().get("gradeLevel"));
-										if (null != list && !list.isEmpty())
-											existingConceptGrades.addAll(list);
-										LOGGER.info("Adding gradeLevel from concepts" + existingConceptGrades);
-									}
-								}
-							}
+		
+		LOGGER.info("filtering out the kafka message" + message);
+		Node node = filterMessage(message);
+		
+		LOGGER.info("calling processData to process out relations" + node.getOutRelations());
+		processData(node);
+	}
+	
+	/**
+	 * This method holds logic to fetch conceptIds and conceptGrades 
+	 * from the out relations
+	 * 
+	 * @param node
+	 * 		The content node
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void processData(Node node) {
+
+		Set<String> conceptIds = new HashSet<String>();
+		Set<String> conceptGrades = new HashSet<String>();
+		List<Relation> outRelations = node.getOutRelations();
+
+		LOGGER.info("Checking if out relations is empty");
+		if (null != outRelations && !outRelations.isEmpty()) {
+
+			LOGGER.info("Iterating through out relations map");
+			for (Relation rel : outRelations) {
+
+				LOGGER.info("Checking if relation has end node type as content");
+				if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
+
+					LOGGER.info("getting status from node");
+					String status = (String) rel.getEndNodeMetadata().get(ContentWorkflowPipelineParams.status.name());
+
+					LOGGER.info("checking if status is LIVE and fetching conceptIds from it" + status);
+					if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status)) {
+						conceptIds.add(rel.getEndNodeId());
+					}
+
+					LOGGER.info("checking if concept contains gradeLevel");
+					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
+						List<String> list = (List) (rel.getEndNodeMetadata().get("gradeLevel"));
+
+						LOGGER.info("checking if grade level list is empty");
+						if (null != list && !list.isEmpty()) {
+							LOGGER.info("adding all concept grades" + list);
+							conceptGrades.addAll(list);
 						}
-						LOGGER.info("Calling tagNewConcepts method to extract content data" + node);
-						tagNewConcepts(node, existingConceptIds, existingConceptGrades);
 					}
 				}
 			}
-		} catch (Exception e) {
-			LOGGER.info("exception occured while processing kafka message and node operations", e);
-			e.printStackTrace();
 		}
+		LOGGER.info("calling tag new concepts method" + conceptIds + conceptGrades);
+		tagNewConcepts(node, conceptIds, conceptGrades);
 	}
-
+	
 	/**
 	 * This method gets the list of itemsets associated with content node and
 	 * items which are members of item sets used in the content.

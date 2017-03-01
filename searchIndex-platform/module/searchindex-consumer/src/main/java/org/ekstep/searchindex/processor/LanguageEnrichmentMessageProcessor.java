@@ -27,7 +27,7 @@ import com.ilimi.kafka.util.PropertiesUtil;
  * @author Rashmi
  *
  */
-public class LanguageEnrichmentMessageProcessor extends BaseProcessor {
+public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements IMessageProcessor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(LanguageEnrichmentMessageProcessor.class.getName());
@@ -43,18 +43,54 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor {
 		super();
 	}
 
-	@SuppressWarnings({ "unused" })
-	private void processData(Map<String, Object> message) throws Exception {
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
+	@Override
+	public void processMessage(String messageData) {
+		try {
+			LOGGER.info("Reading from kafka consumer" + messageData);
+			Map<String, Object> message = new HashMap<String, Object>();
+			if (StringUtils.isNotBlank(messageData)) {
+				LOGGER.debug("checking if kafka message is blank or not" + messageData);
+				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
+				});
+			}
+			if (null != message) {
+				LOGGER.info("checking if kafka message is null" + message);
+				processMessage(message);
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error while processing kafka message", e);
+		}
+	}
 
-		String languageId = null;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
+	@SuppressWarnings("unused")
+	@Override
+	public void processMessage(Map<String, Object> message) throws Exception {
+		
 		LOGGER.info("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
-
+		
+		String languageId = null;
 		LOGGER.info("Checking if node contains languageCode");
 		String language = getLanguage(node);
+		processData(node, language);
+	}
 
-		LOGGER.info("Checking if languageId is null" + language);
-		if (StringUtils.isNotBlank(language)) {
+	private void processData(Node node, String languageId) throws Exception {
+
+		LOGGER.info("Checking if languageId is null" + languageId);
+		if (StringUtils.isNotBlank(languageId)) {
 
 			LOGGER.info("checking if node contains text tag" + node.getMetadata().containsKey("text"));
 			if (null != node.getMetadata().get("text")) {
@@ -211,7 +247,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor {
 						updateGradeMap(node, text_complexity);
 					}
 
-					LOGGER.info("checking if text complexity map contains gradeLevel");
+					LOGGER.info("checking if text complexity map contains Themes");
 					if (text_complexity.containsKey("themes")) {
 						if (null == text_complexity.get("themes")) {
 							node.getMetadata().put("themes", null);
@@ -252,12 +288,8 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor {
 		}
 	}
 
-	public void updateNodeMetadata(String key, Object value, Node node) {
-		LOGGER.info("Checking if Object value is null");
-		if (value == null) {
-			LOGGER.info("setting node metadata to null if value is null" + key + value);
-			node.getMetadata().put(key, null);
-		}
+	private void updateNodeMetadata(String key, Object value, Node node) {
+
 		LOGGER.info("Checking if Object is instance of Integer");
 		if (value instanceof Integer) {
 			Integer data = (Integer) value;
@@ -273,25 +305,45 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void updateGradeMap(Node node, Map text_complexity) {
+	private void updateGradeMap(Node node, Map text_complexity) {
+
 		List<String> gradeLevel = new ArrayList<String>();
 		List<String> grades = new ArrayList<String>();
+
+		LOGGER.info("Checking if gradeLevel is null and fetched gradeLevel from node");
 		if (null != node.getMetadata().get("gradeLevel")) {
 			gradeLevel = (List) node.getMetadata().get("gradeLevel");
+			LOGGER.info("gradeLevel fetched from node" + gradeLevel);
 		}
 
+		LOGGER.info("Checking if text_complexity result has gradeLevel");
 		if (text_complexity.containsKey("gradeLevel")) {
 			grades = (List) text_complexity.get("gradeLevel");
+			LOGGER.info("grades fetched from complexity map" + grades);
 		}
+
+		LOGGER.info("Checking if gradeLevel from node is empty");
 		if (!gradeLevel.isEmpty()) {
+
+			LOGGER.info("Checking if grades from complexity map is empty");
 			if (!grades.isEmpty()) {
+
+				LOGGER.info("Iterating through the grades from complexity map");
 				for (Object obj : grades) {
 					Map gradeMap = (Map) obj;
+
+					LOGGER.info("Iterating through the grades from gradeMap" + gradeMap);
 					if (null != gradeMap && !gradeMap.isEmpty()) {
+
+						LOGGER.info("Checking if gradeMap contains grade in it");
 						if (gradeMap.containsKey("grade")) {
 							String grade = gradeMap.get("grade").toString();
+
+							LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + grade);
 							if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
 								gradeLevel.add(grade);
+
+								LOGGER.info("Updating node with gradeLevel" + gradeLevel);
 								node.getMetadata().put("gradeLevel", gradeLevel);
 							}
 						}

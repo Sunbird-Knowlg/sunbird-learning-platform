@@ -1,18 +1,21 @@
 package org.ekstep.searchindex.processor;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
-public class BaseProcessor implements IMessageProcessor {
+public class BaseProcessor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(LanguageEnrichmentMessageProcessor.class.getName());
@@ -20,52 +23,11 @@ public class BaseProcessor implements IMessageProcessor {
 	/** The Controller Utility */
 	private static ControllerUtil util = new ControllerUtil();
 
-	/** The ObjectMapper */
-	private static ObjectMapper mapper = new ObjectMapper();
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
-	 */
-	@Override
-	public void processMessage(String messageData) {
-		try {
-			LOGGER.info("Reading from kafka consumer" + messageData);
-			Map<String, Object> message = new HashMap<String, Object>();
-			if (StringUtils.isNotBlank(messageData)) {
-				LOGGER.debug("checking if kafka message is blank or not" + messageData);
-				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
-				});
-			}
-			if (null != message) {
-				LOGGER.info("checking if kafka message is null" + message);
-				processMessage(message);
-			}
-		} catch (Exception e) {
-			LOGGER.error("Error while processing kafka message", e);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
-	 * java.lang.String, java.io.File, java.lang.String)
-	 */
-	@Override
-	public void processMessage(Map<String, Object> message) throws Exception {
-		filterMessage(message);
-	}
-
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected Node filterMessage(Map<String, Object> message) {
-
+	public Node filterMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
 		Node node = null;
-
 		LOGGER.info("checking if kafka message contains edata");
 		if (null != message.get("edata")) {
 			LOGGER.debug("checking if kafka message contains edata" + edata);
@@ -77,7 +39,7 @@ public class BaseProcessor implements IMessageProcessor {
 				eks = (Map) edata.get("eks");
 
 				LOGGER.info("checking if the content is a live content");
-				if (null != edata.get("state") && StringUtils.equalsIgnoreCase("Live", edata.get("state").toString())) {
+				if (null != eks.get("state") && StringUtils.equalsIgnoreCase("Live", eks.get("state").toString())) {
 
 					LOGGER.info("checking if eks contains cid/nodeId");
 					if (null != eks.get("cid")) {
@@ -92,12 +54,37 @@ public class BaseProcessor implements IMessageProcessor {
 		return null;
 	}
 
-	@SuppressWarnings("unused")
+	/**
+	 * This method holds logic to fetch languageId from node metadata
+	 * 
+	 * @param node
+	 *            The node
+	 * 
+	 * @return The languageId
+	 */
 	protected String getLanguage(Node node) {
-		if (null != node.getMetadata().get("languageCode")) {
-			String language = (String) node.getMetadata().get("languageCode");
-			if (StringUtils.isNotBlank(language) && !StringUtils.equalsIgnoreCase(language, "en")) {
-				return language;
+		Map<String, String> languageMap = new HashMap<String, String>();
+		languageMap.put("english", "en");
+		languageMap.put("telugu", "te");
+		languageMap.put("hindi", "hi");
+		languageMap.put("kannada", "ka");
+		languageMap.put("tamil", "ta");
+		languageMap.put("marathi", "mr");
+		languageMap.put("bengali", "bn");
+		languageMap.put("gujarati", "gu");
+		languageMap.put("odia", "or");
+		languageMap.put("assamese", "as");
+		if (null != node.getMetadata().get("language")) {
+			Object language = node.getMetadata().get("language");
+			if (null != language) {
+				String[] lang = (String[]) language;
+				for (String str : lang) {
+					String langId = str;
+					String languageCode = languageMap.get(langId.toLowerCase());
+					if (StringUtils.isNotBlank(languageCode) && !StringUtils.equalsIgnoreCase(languageCode, "en")) {
+						return languageCode;
+					}
+				}
 			}
 		}
 		return null;
