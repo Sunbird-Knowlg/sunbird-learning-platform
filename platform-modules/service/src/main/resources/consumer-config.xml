@@ -45,7 +45,7 @@
 <ConsumerConfig>
 	<ConsumerInit serverURI="localhost:2181" topic="telemetry-event-topic"></ConsumerInit>
 	<ConsumerGroups>
-		<ConsumerGroup id="lp-content-extraction-group" messageProcessor="org.ekstep.searchindex.processor.ContentExtractionMessageProcessor">
+		<ConsumerGroup id="lp-content-extraction-group" messageProcessor="org.ekstep.searchindex.processor.ContentEnrichmentMessageProcessor">
 			<Consumers>
 				<Consumer partitions="8" />
 			</Consumers>
