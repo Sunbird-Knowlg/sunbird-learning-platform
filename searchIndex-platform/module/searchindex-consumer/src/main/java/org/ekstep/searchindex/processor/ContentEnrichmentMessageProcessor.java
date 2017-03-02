@@ -18,7 +18,6 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.enums.CollectionTypes;
-import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
 /**
  * The Class ContentEnrichmentMessageProcessor is a kafka consumer which
@@ -57,18 +56,19 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		try {
 			LOGGER.info("Reading from kafka consumer" + messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
+
 			if (StringUtils.isNotBlank(messageData)) {
 				LOGGER.debug("checking if kafka message is blank or not" + messageData);
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}
+
 			if (null != message) {
 				LOGGER.info("checking if kafka message is null" + message);
 				processMessage(message);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error while processing kafka message", e);
-			e.printStackTrace();
 		}
 	}
 
@@ -80,62 +80,61 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 */
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
-		
+
 		LOGGER.info("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
-		
-		LOGGER.info("calling processData to process out relations" + node.getOutRelations());
-		processData(node);
+		if(null != node){
+			LOGGER.info("calling processData to process out relations" + node);
+			processData(node);
+		}
 	}
-	
+
 	/**
-	 * This method holds logic to fetch conceptIds and conceptGrades 
-	 * from the out relations
+	 * This method holds logic to fetch conceptIds and conceptGrades from the
+	 * out relations
 	 * 
 	 * @param node
-	 * 		The content node
+	 *            The content node
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void processData(Node node) {
 
 		Set<String> conceptIds = new HashSet<String>();
 		Set<String> conceptGrades = new HashSet<String>();
-		List<Relation> outRelations = node.getOutRelations();
+		Map<String, Object> result = new HashMap<String, Object>();
 
-		LOGGER.info("Checking if out relations is empty");
-		if (null != outRelations && !outRelations.isEmpty()) {
+		LOGGER.info("getting graphId and contentId from node");
+		String graphId = node.getGraphId();
+		String contentId = node.getIdentifier();
 
-			LOGGER.info("Iterating through out relations map");
-			for (Relation rel : outRelations) {
-
-				LOGGER.info("Checking if relation has end node type as content");
-				if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
-
-					LOGGER.info("getting status from node");
-					String status = (String) rel.getEndNodeMetadata().get(ContentWorkflowPipelineParams.status.name());
-
-					LOGGER.info("checking if status is LIVE and fetching conceptIds from it" + status);
-					if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status)) {
-						conceptIds.add(rel.getEndNodeId());
-					}
-
-					LOGGER.info("checking if concept contains gradeLevel");
-					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
-						List<String> list = (List) (rel.getEndNodeMetadata().get("gradeLevel"));
-
-						LOGGER.info("checking if grade level list is empty");
-						if (null != list && !list.isEmpty()) {
-							LOGGER.info("adding all concept grades" + list);
-							conceptGrades.addAll(list);
-						}
-					}
-				}
-			}
+		LOGGER.info("checking if node contains outRelations");
+		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+			List<Relation> outRelations = node.getOutRelations();
+			result = getOutRelationsMap(outRelations);
 		}
-		LOGGER.info("calling tag new concepts method" + conceptIds + conceptGrades);
-		tagNewConcepts(node, conceptIds, conceptGrades);
+
+		LOGGER.info("fetching conceptIds from result" + result.containsKey("conceptIds"));
+		if (null != result.get("conceptIds")) {
+			List list = (List) result.get("conceptIds");
+			if (null != list && !list.isEmpty())
+				conceptIds.addAll(list);
+		}
+
+		LOGGER.info("fetching conceptGrades from result" + result.containsKey("conceptGrades"));
+		if (null != result.get("conceptGrades")) {
+			List list = (List) result.get("conceptGrades");
+			if (null != list && !list.isEmpty())
+				conceptGrades.addAll(list);
+		}
+
+		LOGGER.info("calling getItemsMap method to get items from item sets");
+		List<String> items = getItemsMap(node, graphId, contentId);
+
+		LOGGER.info("calling getConceptsFromItems method to get concepts from items" + items);
+		getConceptsFromItems(graphId, contentId, items, node, conceptIds, conceptGrades);
+
 	}
-	
+
 	/**
 	 * This method gets the list of itemsets associated with content node and
 	 * items which are members of item sets used in the content.
@@ -149,48 +148,57 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 * @param existingConceptIds
 	 *            The existingConceptIds from Content node
 	 * 
-	 * @param concepts
-	 *            The list of existing concepts from content node
 	 */
-	private void tagNewConcepts(Node content, Set<String> existingConceptIds, Set<String> existingConceptGrades) {
+	private List<String> getItemsMap(Node node, String graphId, String contentId) {
 
-		List<String> itemSets = new ArrayList<String>();
-		List<Relation> outRelations = content.getOutRelations();
-		String contentId = content.getIdentifier();
-		String graphId = "domain";
+		Set<String> itemSets = new HashSet<String>();
+		List<String> items = new ArrayList<String>();
+
 		try {
-			LOGGER.info("Get item sets associated with the content: " + contentId);
-			if (null != outRelations && !outRelations.isEmpty()) {
-				for (Relation rel : outRelations) {
-					if (StringUtils.equalsIgnoreCase("ItemSet", rel.getEndNodeObjectType())
-							&& !itemSets.contains(rel.getEndNodeId()))
-						itemSets.add(rel.getEndNodeId());
-					LOGGER.info("checking if endNodeType is ItemSet and fetching the itemSets" + itemSets);
+			if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+				List<Relation> outRelations = node.getOutRelations();
+
+				LOGGER.info("outRelations fetched from each item" + outRelations);
+				if (null != outRelations && !outRelations.isEmpty()) {
+
+					LOGGER.info("Iterating through relations");
+					for (Relation rel : outRelations) {
+
+						LOGGER.info("Get item sets associated with the content: " + contentId);
+						if (StringUtils.equalsIgnoreCase("ItemSet", rel.getEndNodeObjectType())
+								&& !itemSets.contains(rel.getEndNodeId()))
+							itemSets.add(rel.getEndNodeId());
+					}
 				}
 			}
+			LOGGER.info("checking if itemSets are empty" + itemSets);
 			if (null != itemSets && !itemSets.isEmpty()) {
+
 				LOGGER.info("Number of item sets: " + itemSets.size());
 				Set<String> itemIds = new HashSet<String>();
+
+				LOGGER.info("Iterating through itemSet map" + itemSets);
 				for (String itemSet : itemSets) {
+
+					LOGGER.info("calling getItemSetMembers methods to get items from itemSets");
 					List<String> members = getItemSetMembers(graphId, itemSet);
+
 					LOGGER.info("getting item memebers from item set" + members);
 					if (null != members && !members.isEmpty())
 						itemIds.addAll(members);
 				}
 				LOGGER.info("Total number of items: " + itemIds.size());
 				if (!itemIds.isEmpty()) {
-					List<String> items = new ArrayList<String>(itemIds);
-					LOGGER.info("getting concepts associated with items" + items);
-					Node node = mapConceptsFromItems(graphId, items, content, existingConceptIds, existingConceptGrades,
-							contentId);
-					LOGGER.info("calling content update operation after adding required metadata" + node);
-					util.updateNode(node);
+					items = new ArrayList<String>(itemIds);
+					LOGGER.info("getting items associated with itemsets" + items);
+
 				}
 			}
 		} catch (Exception e) {
 			LOGGER.info("exception occured while getting item and itemsets", e);
 			e.printStackTrace();
 		}
+		return items;
 	}
 
 	/**
@@ -207,10 +215,14 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 */
 	@SuppressWarnings("unchecked")
 	private List<String> getItemSetMembers(String graphId, String itemSetId) {
+
 		List<String> members = new ArrayList<String>();
 		LOGGER.info("Get members of items set: " + itemSetId);
 		Response response = util.getCollectionMembers(graphId, itemSetId, CollectionTypes.SET.name());
+
+		LOGGER.info("checking if response is null" + response);
 		if (null != response) {
+			LOGGER.info("getting members from response");
 			members = (List<String>) response.get(GraphDACParams.members.name());
 		}
 		LOGGER.info("item members fetched from itemSets" + members);
@@ -240,8 +252,8 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 * 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Node mapConceptsFromItems(String graphId, List<String> items, Node content, Set<String> existingConceptIds,
-			Set<String> existingConceptGrades, String contentId) {
+	private void getConceptsFromItems(String graphId, String contentId, List<String> items, Node content,
+			Set<String> existingConceptIds, Set<String> existingConceptGrades) {
 
 		LOGGER.info("getting all items Data from itemIds" + items);
 
@@ -250,59 +262,48 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 		Set<String> conceptIds = new HashSet<String>();
 		Set<String> itemGrades = new HashSet<String>();
-		Set<String> conceptGrades = new HashSet<String>();
-		try {
-			if (null != response) {
 
-				List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-				LOGGER.info("List of nodes retrieved from response" + nodes.size());
+		if (null != response) {
 
-				if (null != nodes && !nodes.isEmpty()) {
-					for (Node node : nodes) {
-						LOGGER.info("getting gradeLevel from assessment items");
-						if (null != node.getMetadata().get("gradeLevel")) {
-							List<String> list = (List) node.getMetadata().get("gradeLevel");
-							if (null != list && !list.isEmpty())
-								itemGrades.addAll(list);
-							LOGGER.info("gradeLevels retrieved from items" + itemGrades);
-						}
+			List<Node> item_nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 
-						List<Relation> outRelations = node.getOutRelations();
-						LOGGER.info("outRelations fetched from each item");
+			LOGGER.info("List of nodes retrieved from response" + item_nodes.size());
+			if (null != item_nodes && !item_nodes.isEmpty()) {
 
-						if (null != outRelations && !outRelations.isEmpty()) {
-							for (Relation rel : outRelations) {
-								LOGGER.info("checking if endNodeType is Concept");
-								if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
-									LOGGER.info("getting status from node");
-									String status = (String) rel.getEndNodeMetadata()
-											.get(ContentWorkflowPipelineParams.status.name());
-									LOGGER.info("checking if status is LIVE and fetching conceptIds from it" + status);
-									if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
-										conceptIds.add(rel.getEndNodeId());
-									LOGGER.info("concepts fetched form LIVE items" + conceptIds);
-									if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
-										List<String> grades = (List) rel.getEndNodeMetadata().get("gradeLevel");
-										if (null != grades && !grades.isEmpty())
-											conceptGrades.addAll(grades);
-										LOGGER.info("Adding gradeLevel from concepts" + conceptGrades);
-									}
-								}
-							}
-						}
+				LOGGER.info("Iterating through item_nodes");
+				for (Node node : item_nodes) {
+
+					LOGGER.info("Checking if item node contains gradeLevel");
+					if (null != node.getMetadata().get("gradeLevel")) {
+						List<String> list = (List) node.getMetadata().get("gradeLevel");
+
+						LOGGER.info("adding item grades" + list);
+						if (null != list && !list.isEmpty())
+							itemGrades.addAll(list);
+					}
+
+					List<Relation> outRelations = node.getOutRelations();
+					LOGGER.info("calling getOutRelationsMap" + outRelations);
+					Map<String, Object> result = getOutRelationsMap(outRelations);
+
+					LOGGER.info("fetching conceptIds from result" + result);
+					if (null != result.get("conceptIds")) {
+						List list = (List) result.get("conceptIds");
+						if (null != list && !list.isEmpty())
+							conceptIds.addAll(list);
 					}
 				}
 			}
-		} catch (Exception e) {
-			LOGGER.error("exception occured while getting concept maps", e);
-			e.printStackTrace();
 		}
 		LOGGER.info("Adding concepts from content node to concepts extracted from items");
 		List<String> totalConceptIds = new ArrayList<String>();
 
-		if (null != existingConceptIds && !existingConceptIds.isEmpty())
+		LOGGER.info("adding conceptId from content node to list");
+		if (null != existingConceptIds && !existingConceptIds.isEmpty()) {
 			totalConceptIds.addAll(existingConceptIds);
+		}
 
+		LOGGER.info("Adding conceptIds from items to list");
 		if (null != conceptIds && !conceptIds.isEmpty()) {
 			for (String concept : conceptIds) {
 				if (!totalConceptIds.contains(concept)) {
@@ -310,18 +311,17 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				}
 			}
 		}
+		LOGGER.info("calling process grades method to fetch and update grades");
+		Node node = processGrades(content, itemGrades, existingConceptGrades);
 
-		Node node = getConceptMetadata(content, itemGrades, conceptGrades, existingConceptGrades);
-		List<Relation> outRelations = new ArrayList<Relation>();
-		if (null != totalConceptIds && !totalConceptIds.isEmpty()) {
-			for (String conceptId : totalConceptIds) {
-				Relation relation = new Relation(contentId, RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
-				outRelations.add(relation);
-			}
-			node.setOutRelations(outRelations);
-		}
+		LOGGER.info("calling processAgeGroup method to process ageGroups from gradeLevels");
+		Node content_node = processAgeGroup(node);
+
+		LOGGER.info("updating node with extracted features" + content_node);
+		util.updateNode(content_node);
+
 		LOGGER.info("result node after adding required metadata" + node);
-		return node;
+		util.addOutRelations(graphId, contentId, totalConceptIds, RelationTypes.ASSOCIATED_TO.relationName());
 	}
 
 	/**
@@ -342,51 +342,65 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 * 
 	 * @return updated node with required metadata
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Node getConceptMetadata(Node content, Set<String> itemGrades, Set<String> conceptGrades,
-			Set<String> existingConceptGrades) {
+	private Node processGrades(Node node, Set<String> itemGrades, Set<String> existingConceptGrades) {
+		Node content_node = null;
 		try {
-			List<String> totalGrades = new ArrayList<String>();
 
-			LOGGER.info("Adding grades associated with content node" + existingConceptGrades);
-			if (null != existingConceptGrades && !existingConceptGrades.isEmpty())
-				totalGrades.addAll(existingConceptGrades);
-
-			if (null != content.getMetadata().get("ageGroup"))
-				;
-			List<String> existingAgeGroup = (List) content.getMetadata().get("ageGroup");
-			LOGGER.info("Adding age group associated with content node" + existingAgeGroup);
-
-			LOGGER.info("checking if conceptGrades are empty" + conceptGrades.size());
-			if (null != conceptGrades && !conceptGrades.isEmpty()) {
-				for (String grade : conceptGrades) {
-					if (!totalGrades.contains(grade)) {
-						totalGrades.add(grade);
-					}
+			LOGGER.info("checking if concept grades exist" + existingConceptGrades);
+			if (null != existingConceptGrades && !existingConceptGrades.isEmpty()) {
+				content_node = setGradeLevels(existingConceptGrades, node);
+			} else {
+				LOGGER.info("checking if item grades exist" + itemGrades);
+				if (null != itemGrades && !itemGrades.isEmpty()) {
+					content_node = setGradeLevels(existingConceptGrades, node);
 				}
-				LOGGER.info("Mapping totalGrades with ageGroup from concept" + totalGrades);
-				List<String> ageGroup = mapGradeWithAge(totalGrades, existingAgeGroup);
-				content.getMetadata().put("gradeLevel", totalGrades);
-				content.getMetadata().put("ageGroup", ageGroup);
-				LOGGER.info("ageGroup and conceptGrades added to content successfully" + content);
-			} else if (null != itemGrades && !itemGrades.isEmpty()) {
-				for (String grade : itemGrades) {
-					if (!totalGrades.contains(grade)) {
-						totalGrades.add(grade);
-					}
-				}
-				LOGGER.info("Mapping totalGrades with ageGroup from items" + totalGrades);
-				List<String> ageGroup = mapGradeWithAge(totalGrades, existingAgeGroup);
-				content.getMetadata().put("gradeLevel", totalGrades);
-				content.getMetadata().put("ageGroup", ageGroup);
-				LOGGER.info("ageGroup and itemGrades added to content successfully" + content);
 			}
 
 		} catch (Exception e) {
 			LOGGER.error("Exception occured while setting age group from grade level", e);
-			e.printStackTrace();
 		}
-		return content;
+		return content_node;
+	}
+
+	/**
+	 * This method holds logic to getGrades levels either for itemGrades or
+	 * conceptGrades and add it to node metadata
+	 * 
+	 * @param grades
+	 *            The grades
+	 * 
+	 * @param node
+	 *            The content node
+	 * 
+	 * @return The updated content node
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Node setGradeLevels(Set<String> grades, Node node) {
+
+		LOGGER.info("checking if node contains gradeLevel");
+		if (null == node.getMetadata().get("gradeLevel")) {
+			node.getMetadata().put("gradeLevel", grades);
+
+		} else {
+			LOGGER.info("fetching grade levels from node");
+			List<String> list = (List) node.getMetadata().get("gradeLevel");
+
+			LOGGER.info("checking if grade levels obtained are empty " + list.isEmpty());
+			if (null != list) {
+
+				LOGGER.info("adding grades which doesnt exist in node" + grades);
+				for (String grade : grades) {
+
+					LOGGER.info("checking if grade already exists" + grade);
+					if (!list.contains(grade)) {
+						list.add(grade);
+						node.getMetadata().put("gradeLevel", list);
+						LOGGER.info("updating node metadata with additional grades" + node);
+					}
+				}
+			}
+		}
+		return node;
 	}
 
 	/**
@@ -400,10 +414,16 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 * 
 	 * @return The ageMap mapped from gradeLevel
 	 */
-	private List<String> mapGradeWithAge(List<String> grades, List<String> existingAgeGroup) {
-		try {
-			List<String> ageList = new ArrayList<String>();
-			if (!grades.isEmpty()) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Node processAgeGroup(Node node) {
+		Node data = null;
+		List<String> ageList = new ArrayList<String>();
+
+		if (null != node.getMetadata().get("gradeLevel")) {
+			List<String> grades = (List) node.getMetadata().get("gradeLevel");
+
+			if (null != grades && !grades.isEmpty()) {
+
 				for (String grade : grades) {
 					LOGGER.info("mapping age group based on grades");
 					if ("Kindergarten".equalsIgnoreCase(grade)) {
@@ -422,18 +442,31 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 						ageList.add("Other");
 					}
 				}
+				data = setAgeGroup(node, ageList);
 			}
-			for (String str : ageList) {
-				if (!existingAgeGroup.contains(str)) {
-					LOGGER.info("adding new age group if its not there in content age group" + str);
-					existingAgeGroup.add(str);
+		}
+
+		return data;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Node setAgeGroup(Node node, List<String> ageList) {
+
+		if (null == node.getMetadata().get("ageGroup")) {
+			if (!ageList.isEmpty()) {
+				node.getMetadata().put("ageGroup", ageList);
+			}
+		} else {
+			List ageGroup = (List) node.getMetadata().get("ageGroup");
+			if (null != ageList) {
+				for (String age : ageList) {
+					if (!ageGroup.contains(age)) {
+						ageGroup.add(age);
+						node.getMetadata().put("ageGroup", ageGroup);
+					}
 				}
 			}
-			LOGGER.info("age map mapped from grade" + existingAgeGroup);
-		} catch (Exception e) {
-			LOGGER.info("exception occured while getting age group", e);
-			e.printStackTrace();
 		}
-		return existingAgeGroup;
+		return node;
 	}
 }
