@@ -141,6 +141,12 @@ public class ConvertGraphNode {
                     map.put(relDefMap.get(entry.getKey()), entry.getValue());
                 }
             }
+        } else if (null != relDefMap && !relDefMap.isEmpty()) {
+        	List<Object> list = new ArrayList<Object>();
+        	for (String val : relDefMap.values()) {
+        		if (StringUtils.isNotBlank(val))
+        			map.put(val, list);
+        	}
         }
     }
 
