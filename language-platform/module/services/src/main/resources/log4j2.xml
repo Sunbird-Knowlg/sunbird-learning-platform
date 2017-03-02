@@ -24,8 +24,8 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingFile>
-		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/lang_graph_event.log"
-			filePattern="/data/logs/lang_graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="GraphEventAppender"
+			fileName="/data/logs/lang_graph_event.log" filePattern="/data/logs/lang_graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -33,19 +33,20 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingRandomAccessFile>
-		
-		<RollingRandomAccessFile name="WordEventAppender" fileName="/data/logs/word_event.log"
-	            filePattern="/data/logs/word_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
-	            <PatternLayout>
-	                <Pattern>%d %msg%n</Pattern>
-	            </PatternLayout>
-	            <Policies>
-	                <OnStartupTriggeringPolicy />
-	            </Policies>
-	    </RollingRandomAccessFile>
-	    
-	    <RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/language_telemetry_event.log"
-			filePattern="/data/logs/anguage_telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+
+		<RollingRandomAccessFile name="WordEventAppender"
+			fileName="/data/logs/word_event.log" filePattern="/data/logs/word_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+		</RollingRandomAccessFile>
+
+		<RollingRandomAccessFile name="TelemetryEventAppender"
+			fileName="/data/logs/language_telemetry_event.log"
+			filePattern="/data/logs/language_telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
