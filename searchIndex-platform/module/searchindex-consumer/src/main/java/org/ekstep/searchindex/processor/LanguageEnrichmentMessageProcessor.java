@@ -13,10 +13,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
+import org.ekstep.searchindex.util.PropertiesUtil;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.kafka.util.PropertiesUtil;
 
 /**
  * The Class LanguageEnrichmentMessageProcessor is a kafka consumer which
