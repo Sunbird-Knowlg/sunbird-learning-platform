@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -114,15 +113,8 @@ public class ContentBundle {
 					}
 				}
 			}
-
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
 					(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
-			if (packageType == EcarPackageType.SPINE) {
-				content.put(ContentWorkflowPipelineParams.baseUrl.name(),
-						getS3UrlHost((String) content.get(ContentWorkflowPipelineParams.artifactUrl.name())));
-				content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
-						getS3UrlPath((String) content.get(ContentWorkflowPipelineParams.artifactUrl.name())));
-			}
 			Object posterImage = content.get(ContentWorkflowPipelineParams.posterImage.name());
 			if (null != posterImage && StringUtils.isNotBlank((String) posterImage))
 				content.put(ContentWorkflowPipelineParams.appIcon.name(), posterImage);
@@ -426,30 +418,5 @@ public class ContentBundle {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
 	}
-
-	private String getS3UrlPath(String s3Url) {
-		String s3Key = "";
-		if (StringUtils.isNotBlank(s3Url)) {
-			try {
-				URL url = new URL(s3Url);
-				s3Key = url.getPath();
-			} catch (Exception e) {
-				LOGGER.error("Something Went Wrong While Getting 's3Key' from s3Url.", e);
-			}
-		}
-		return s3Key;
-	}
-
-	private String getS3UrlHost(String s3Url) {
-		String host = "";
-		if (StringUtils.isNotBlank(s3Url)) {
-			try {
-				URL url = new URL(s3Url);
-				host = url.getHost();
-			} catch (Exception e) {
-				LOGGER.error("Something Went Wrong While Getting 's3Key' from s3Url.", e);
-			}
-		}
-		return host;
-	}
+	
 }

@@ -226,14 +226,14 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
-		node.getMetadata().put(ContentWorkflowPipelineParams.minCompatibilityLevel.name(), 1);
+		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.TextBook.name())
 				|| StringUtils.equalsIgnoreCase(
 						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 						ContentWorkflowPipelineParams.TextBookUnit.name()))
-			node.getMetadata().put(ContentWorkflowPipelineParams.minCompatibilityLevel.name(), 2);
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
 
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());

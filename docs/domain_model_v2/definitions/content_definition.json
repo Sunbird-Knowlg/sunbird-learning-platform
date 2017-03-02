@@ -61,21 +61,8 @@
         {
           "required": false,
           "dataType": "Number",
-          "propertyName": "minCompatibilityLevel",
-          "title": "Minimum Compatibility Level",
-          "description": "It is the integer value being used by Client (Genie) for the Compatibility information of Content.",
-          "category": "Technical",
-          "displayProperty": "Editable",
-          "defaultValue": "1",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
-        },
-        {
-          "required": false,
-          "dataType": "Number",
-          "propertyName": "maxCompatibilityLevel",
-          "title": "Maximum Compatibility Level",
+          "propertyName": "compatibilityLevel",
+          "title": "Compatibility Level",
           "description": "It is the integer value being used by Client (Genie) for the Compatibility information of Content.",
           "category": "Technical",
           "displayProperty": "Editable",
