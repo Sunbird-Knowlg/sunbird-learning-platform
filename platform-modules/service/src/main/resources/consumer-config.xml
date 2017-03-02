@@ -42,4 +42,24 @@
 		</ConsumerGroup>
 	</ConsumerGroups>
 </ConsumerConfig>
+<ConsumerConfig>
+	<ConsumerInit serverURI="localhost:2181" topic="telemetry-event-topic"></ConsumerInit>
+	<ConsumerGroups>
+		<ConsumerGroup id="lp-content-extraction-group" messageProcessor="org.ekstep.searchindex.processor.ContentEnrichmentMessageProcessor">
+			<Consumers>
+				<Consumer partitions="8" />
+			</Consumers>
+		</ConsumerGroup>
+	</ConsumerGroups>
+</ConsumerConfig>
+<ConsumerConfig>
+	<ConsumerInit serverURI="localhost:2181" topic="telemetry-event-topic"></ConsumerInit>
+	<ConsumerGroups>
+		<ConsumerGroup id="lp-language-extraction-group" messageProcessor="org.ekstep.searchindex.processor.LanguageEnrichmentMessageProcessor">
+			<Consumers>
+				<Consumer partitions="8" />
+			</Consumers>
+		</ConsumerGroup>
+	</ConsumerGroups>
+</ConsumerConfig>
 </ConsumerConfigs>

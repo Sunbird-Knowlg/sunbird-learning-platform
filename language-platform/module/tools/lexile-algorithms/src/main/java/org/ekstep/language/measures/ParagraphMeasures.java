@@ -582,8 +582,8 @@ public class ParagraphMeasures {
 		if (suitableGrade != null) {
 			for (com.ilimi.graph.dac.model.Node sg : suitableGrade) {
 				Map<String, String> gradeInfo = new HashMap<>();
-				gradeInfo.put("Grade", (String) sg.getMetadata().get("gradeLevel"));
-				gradeInfo.put("Language Level", (String) sg.getMetadata().get("languageLevel"));
+				gradeInfo.put("grade", (String) sg.getMetadata().get("gradeLevel"));
+				gradeInfo.put("languageLevel", (String) sg.getMetadata().get("languageLevel"));
 				suitableGradeSummary.add(gradeInfo);
 			}
 			return suitableGradeSummary;
@@ -600,6 +600,7 @@ public class ParagraphMeasures {
 	 *            the language id
 	 * @return the themes
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Map<String, Integer> getThemes(List<String> words, String language_id) {
 
 		Map<String, Object> searchCriteria = new HashMap<>();

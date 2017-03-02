@@ -1,5 +1,6 @@
 package org.ekstep.learning.util;
 
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -79,4 +80,75 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 	
+	/**
+	 * Adds out relations.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 *            
+	 * @param startNodeId
+	 *            the startNodeId
+	 *            
+	 * @param endNodeIds
+	 * 			the list of endNodeIds
+	 * 
+	 * @param relationType
+	 *          the relationType
+	 *          
+	 * @return the response
+	 */
+	public Response addOutRelations(String taxonomyId, String startNodeId, List<String> endNodeIds, String relationType){
+		Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "addOutRelations",
+				GraphDACParams.start_node_id.name(), startNodeId);
+		request.put(GraphDACParams.relation_type.name(), relationType);
+		request.put(GraphDACParams.end_node_id.name(), endNodeIds);
+		Response response = getResponse(request, LOGGER);
+		if (!checkError(response)){
+			return response;
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the collection members.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 * @param collectionId
+	 *            the collectionId
+	 * @param  collectionType
+	 *            the collectionType
+	 *            
+	 * @return the response
+	 */
+	public Response getCollectionMembers(String taxonomyId, String collectionId, String collectionType){
+		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers",
+				GraphDACParams.collection_id.name(), collectionId);
+		request.put(GraphDACParams.collection_type.name(), collectionType);
+		Response response = getResponse(request, LOGGER);
+		if (!checkError(response)){
+			return response;
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets Data nodes.
+	 *
+	 * @param taxonomyId
+	 *            the taxonomy id
+	 * @param node 
+	 * 			the list of nodes
+	 * 
+	 * @return the response
+	 */
+	public Response getDataNodes(String taxonomyId, List<String> nodes){
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
+				GraphDACParams.node_ids.name(), nodes);
+		Response response = getResponse(request, LOGGER);
+		if (!checkError(response)){
+			return response;
+		}
+		return null;
+	}
 }
