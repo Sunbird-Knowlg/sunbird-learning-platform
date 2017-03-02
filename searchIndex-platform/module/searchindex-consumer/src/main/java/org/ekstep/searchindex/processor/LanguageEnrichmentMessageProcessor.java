@@ -303,9 +303,9 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 					}
 
 					LOGGER.info("checking if text complexity map contains gradeLevel");
-					if (text_complexity.containsKey("gradeLevel")) {
-						
-						List<String> list = (List)text_complexity.get("gradeLevel");
+					if (text_complexity.containsKey("gradeLevels")) {
+
+						List<Map<String, Object>> list = (List) text_complexity.get("gradeLevels");
 						LOGGER.info("calling upadeGraph method");
 						node = updateGradeMap(node, list);
 					}
@@ -347,25 +347,32 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	 * @return The updated content node
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Node updateGradeMap(Node node, List gradeList) {
+	private Node updateGradeMap(Node node, List<Map<String, Object>> gradeList) {
 
 		List<String> gradeLevel = new ArrayList<String>();
 		
+		LOGGER.info("Checking if gradeLevel from node is empty");
 		if (null == node.getMetadata().get("gradeLevel")) {
 			gradeLevel = new ArrayList<String>();
+			
+			LOGGER.info("Checking if grades from complexity map is empty");
 			if (null != gradeList) {
-				LOGGER.info("Iterating through the grades from complexity map");
-				for (Object obj : gradeList) {
-					Map gradeMap = (Map) obj;
-					
-					LOGGER.info("Checking if gradeMap contains grade in it");
-					if (gradeMap.containsKey("grade")) {
-						String grade = gradeMap.get("grade").toString();
 
+				LOGGER.info("Iterating through the grades from complexity map");
+				for (Map<String, Object> map : gradeList) {
+
+					LOGGER.info("checking if map contains grade");
+					if (map.containsKey("grade")) {
+						String grade = (String) map.get("grade");
 						LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + grade);
-						node.getMetadata().put("gradeLevel", grade);
+						if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
+							gradeLevel.add(grade);
+							LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + grade);
+							node.getMetadata().put("gradeLevel", grade);
+						}
 					}
 				}
+
 			}
 		} else {
 			gradeLevel = (List) node.getMetadata().get("gradeLevel");
@@ -376,24 +383,18 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 				if (!gradeList.isEmpty()) {
 
 					LOGGER.info("Iterating through the grades from complexity map");
-					for (Object obj : gradeList) {
-						Map gradeMap = (Map) obj;
+					for (Map<String, Object> map : gradeList) {
 
-						LOGGER.info("Iterating through the grades from gradeMap" + gradeMap);
-						if (null != gradeMap && !gradeMap.isEmpty()) {
+						LOGGER.info("checking if map contains grade");
+						if (map.containsKey("grade")) {
+							String grade = (String) map.get("grade");
+							
+							LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + grade);
+							if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
+								gradeLevel.add(grade);
 
-							LOGGER.info("Checking if gradeMap contains grade in it");
-							if (gradeMap.containsKey("grade")) {
-								String grade = gradeMap.get("grade").toString();
-
-								LOGGER.info(
-										"Checking if grade is not there in gradeLevel from node and adding it" + grade);
-								if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
-									gradeLevel.add(grade);
-
-									LOGGER.info("Updating node with gradeLevel" + gradeLevel);
-									node.getMetadata().put("gradeLevel", gradeLevel);
-								}
+								LOGGER.info("Updating node with gradeLevel" + gradeLevel);
+								node.getMetadata().put("gradeLevel", gradeLevel);
 							}
 						}
 					}

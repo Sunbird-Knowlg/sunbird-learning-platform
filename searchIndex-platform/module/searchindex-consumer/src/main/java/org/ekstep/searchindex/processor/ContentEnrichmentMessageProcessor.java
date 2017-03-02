@@ -318,6 +318,8 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		Node content_node = processAgeGroup(node);
 
 		LOGGER.info("updating node with extracted features" + content_node);
+		node.setOutRelations(null);
+		node.setInRelations(null);
 		util.updateNode(content_node);
 
 		LOGGER.info("result node after adding required metadata" + node);
