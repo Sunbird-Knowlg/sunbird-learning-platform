@@ -57,7 +57,9 @@ public class Global extends GlobalSettings {
 							parameterMap = req.getParams();
 						}
 						if (null != request.getHeader("X-Session-ID")) {
-							parameterMap = new RequestParams();
+							if (null == parameterMap) {
+								parameterMap = new RequestParams();
+							}
 							if (null == parameterMap.getSid())
 								parameterMap.setSid(request.getHeader("X-Session-ID"));
 						}

@@ -75,7 +75,9 @@ public class ResponseFilter implements Filter {
 				parameterMap = requestObj.getParams();
 			}
 			if (null != requestWrapper.getHeader("X-Session-ID")) {
-				parameterMap = new RequestParams();
+				if (null == parameterMap) {
+					parameterMap = new RequestParams();
+				}
 				if (null == parameterMap.getSid())
 					parameterMap.setSid(requestWrapper.getHeader("X-Session-ID"));
 			}
