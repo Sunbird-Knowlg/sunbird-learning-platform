@@ -114,7 +114,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestHeader(value = "user-id") String userId) {
-		return wordController.partialUpdate(languageId, objectId, map, forceUpdate, userId);
+		return wordController.update(languageId, objectId, map, forceUpdate, userId);
 	}
 
 	/**
