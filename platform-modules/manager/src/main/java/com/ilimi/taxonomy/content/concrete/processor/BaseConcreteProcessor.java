@@ -356,7 +356,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	protected void createDirectoryIfNeeded(String directoryName) {
 		File theDir = new File(directoryName);
 		if (!theDir.exists()) {
-			theDir.mkdir();
+			theDir.mkdirs();
 		}
 	}
 
