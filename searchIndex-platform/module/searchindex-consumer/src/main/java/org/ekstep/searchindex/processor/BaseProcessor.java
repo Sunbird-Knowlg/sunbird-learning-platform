@@ -119,7 +119,6 @@ public class BaseProcessor {
 	 *            outRelationsMap
 	 * @return result map
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Map<String, Object> getOutRelationsMap(List<Relation> outRelations) {
 
 		Set<String> nodeIds = new HashSet<String>();
@@ -152,12 +151,9 @@ public class BaseProcessor {
 
 					LOGGER.info("checking if concept contains gradeLevel");
 					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
-						List<String> list = (List) (rel.getEndNodeMetadata().get("gradeLevel"));
-
-						LOGGER.info("checking if grade level list is empty");
-						if (null != list && !list.isEmpty()) {
-							LOGGER.info("adding all concept grades" + list);
-							conceptGrades.addAll(list);
+						String[] grade_array =  (String[])(rel.getEndNodeMetadata().get("gradeLevel"));
+						for(String garde : grade_array){
+							conceptGrades.add(garde);
 						}
 					}
 				}

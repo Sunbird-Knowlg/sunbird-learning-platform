@@ -275,11 +275,11 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 					LOGGER.info("Checking if item node contains gradeLevel");
 					if (null != node.getMetadata().get("gradeLevel")) {
-						List<String> list = (List) node.getMetadata().get("gradeLevel");
-
-						LOGGER.info("adding item grades" + list);
-						if (null != list && !list.isEmpty())
-							itemGrades.addAll(list);
+						String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
+						for(String grade : grade_array){
+							LOGGER.info("adding item grades" + grade);
+							itemGrades.add(grade);
+						}
 					}
 
 					List<Relation> outRelations = node.getOutRelations();
@@ -376,7 +376,6 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 * 
 	 * @return The updated content node
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node setGradeLevels(Set<String> grades, Node node) {
 
 		LOGGER.info("checking if node contains gradeLevel");
@@ -385,18 +384,18 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 		} else {
 			LOGGER.info("fetching grade levels from node");
-			List<String> list = (List) node.getMetadata().get("gradeLevel");
+			String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
 
-			LOGGER.info("checking if grade levels obtained are empty " + list.isEmpty());
-			if (null != list) {
+			LOGGER.info("checking if grade levels obtained are empty ");
+			if (null != grade_array) {
 
 				LOGGER.info("adding grades which doesnt exist in node" + grades);
-				for (String grade : grades) {
-
+				for (String grade : grade_array) {
+					
 					LOGGER.info("checking if grade already exists" + grade);
-					if (!list.contains(grade)) {
-						list.add(grade);
-						node.getMetadata().put("gradeLevel", list);
+					if (!grades.contains(grade)) {
+						grades.add(grade);
+						node.getMetadata().put("gradeLevel", grades);
 						LOGGER.info("updating node metadata with additional grades" + node);
 					}
 				}
@@ -416,15 +415,14 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 * 
 	 * @return The ageMap mapped from gradeLevel
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node processAgeGroup(Node node) {
 		Node data = null;
 		List<String> ageList = new ArrayList<String>();
 
 		if (null != node.getMetadata().get("gradeLevel")) {
-			List<String> grades = (List) node.getMetadata().get("gradeLevel");
+			String[] grades = (String[]) node.getMetadata().get("gradeLevel");
 
-			if (null != grades && !grades.isEmpty()) {
+			if (null != grades) {
 
 				for (String grade : grades) {
 					LOGGER.info("mapping age group based on grades");
