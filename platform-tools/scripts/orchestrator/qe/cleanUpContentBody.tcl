@@ -33,6 +33,7 @@ set contentTypes [java::new ArrayList]
 $contentTypes add "Story"
 $contentTypes add "Worksheet"
 $contentTypes add "Collection"
+$contentTypes add "Template"
 $map put "contentType" $contentTypes
 
 set search_criteria [create_search_criteria $map]
