@@ -14,13 +14,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.S3PropertyReader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.common.EcarPackageType;
@@ -31,6 +27,7 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.util.ContentMimeTypeFactoryUtil;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
+import com.rits.cloning.Cloner;
 
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which mainly holds common
@@ -157,18 +154,22 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
 			nodes.add(node);
-			List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+			List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 			List<String> childrenIds = new ArrayList<String>();
-			getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
+			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
 
 			LOGGER.debug("Publishing the Un-Published Children.");
 			publishChildren(nodes.stream().filter(n -> !n.getIdentifier().equalsIgnoreCase(node.getIdentifier()))
 					.collect(Collectors.toList()));
 
-			// TODO: Refactor this part since it is being called twice
-			ctnts = new ArrayList<Map<String, Object>>();
+			// TODO: Refactor this part since it is being called twice and cloned
+			contents = new ArrayList<Map<String, Object>>();
 			childrenIds = new ArrayList<String>();
-			getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
+			new ArrayList<Map<String, Object>>();
+			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
+			// Cloning contents to spineContent
+			Cloner cloner = new Cloner();
+			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
 
 			LOGGER.debug("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
 			Map<String, Object> variants = new HashMap<String, Object>();
@@ -176,9 +177,9 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.debug("Creating Full ECAR For Content Id: " + node.getIdentifier());
 			String bundleFileName = getBundleFileName(node, EcarPackageType.FULL);
 			ContentBundle contentBundle = new ContentBundle();
-			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null,
+			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(contents, childrenIds, null,
 					EcarPackageType.FULL);
-			String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName,
+			String[] urlArray = contentBundle.createContentBundle(contents, bundleFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			downloadUrl = urlArray[IDX_S3_URL];
 			s3Key = urlArray[IDX_S3_KEY];
@@ -187,8 +188,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.debug("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(node, EcarPackageType.SPINE);
-			downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null, EcarPackageType.SPINE);
-			urlArray = contentBundle.createContentBundle(ctnts, spineEcarFileName,
+			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null, EcarPackageType.SPINE);
+			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
