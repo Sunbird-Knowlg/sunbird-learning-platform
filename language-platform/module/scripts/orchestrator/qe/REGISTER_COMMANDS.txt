@@ -17,3 +17,7 @@ node registerScript.js qe/updateVarnaCache.tcl qe/json/register-updateVarnaCache
 node registerScript.js qe/updateTextBookAndVerbWords.tcl qe/json/register-updateTextBookAndVerbWords.json update
 
 node registerScript.js qe/cleanupDuplicateWords.tcl qe/json/register-cleanupDuplicateWords.json update
+
+node registerScript.js qe/updateSynsetRelations.tcl qe/json/register-updateSynsetRelations.json update
+
+node registerScript.js qe/enrichAllWords.tcl qe/json/register-enrichAllWords.json update
