@@ -47,6 +47,7 @@ public class PipelineRequestorClient {
 		case "validate":
 		case "VALIDATE":
 			LOGGER.info("Registering the Processors for 'VALIDATE' Operation.");
+			contentPipeline.registerProcessor(localizeAssetProcessor);
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			contentPipeline.registerProcessor(assetsValidatorProcessor);
 			contentPipeline.registerProcessor(missingCtrlValidatorProcessor);

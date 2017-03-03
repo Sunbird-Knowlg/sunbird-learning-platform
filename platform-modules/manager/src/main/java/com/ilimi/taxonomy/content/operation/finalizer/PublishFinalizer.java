@@ -247,6 +247,13 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.latest);
 		}
 
+		try {
+			LOGGER.info("Deleting the temporary folder: " + basePath);
+			delete(new File(basePath));
+		} catch (Exception e) {
+			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
+		}
+		
 		return updateContentNode(newNode, downloadUrl);
 	}
 

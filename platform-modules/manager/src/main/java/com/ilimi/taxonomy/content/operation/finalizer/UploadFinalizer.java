@@ -128,6 +128,13 @@ public class UploadFinalizer extends BaseFinalizer {
 		response = updateContentNode(node, urlArray[IDX_S3_URL]);
 		LOGGER.info("Content Node Update Status: " + response.getResponseCode());
 		
+		try {
+			LOGGER.info("Deleting the temporary folder: " + basePath);
+			delete(new File(basePath));
+		} catch (Exception e) {
+			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
+		}
+		
 		return response;
 	}
 

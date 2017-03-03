@@ -233,6 +233,13 @@ public class BundleFinalizer extends BaseFinalizer {
 		if (null != urlArray && urlArray.length >= 2)
 			response.put(ContentWorkflowPipelineParams.ECAR_URL.name(), urlArray[IDX_S3_URL]);
 
+		try {
+			LOGGER.info("Deleting the temporary folder: " + basePath);
+			delete(new File(basePath));
+		} catch (Exception e) {
+			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
+		}
+		
 		return response;
 	}
 }
