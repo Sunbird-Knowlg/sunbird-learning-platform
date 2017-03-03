@@ -1,12 +1,12 @@
 package com.ilimi.taxonomy.content.operation.finalizer;
 
-import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
@@ -90,13 +90,6 @@ public class ReviewFinalizer extends BaseFinalizer {
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
 		
-		try {
-			LOGGER.info("Deleting the temporary folder: " + basePath);
-			delete(new File(basePath));
-		} catch (Exception e) {
-			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
-		}
-
 		LOGGER.debug("Updating the Node: ", node);
 		return updateNode(newNode);
 	}
