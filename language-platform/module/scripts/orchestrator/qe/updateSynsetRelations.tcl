@@ -26,7 +26,6 @@ proc getSynset { language_id startPosition resultSize } {
 	$map put "startPosition" [java::new Integer $startPosition]
 	$map put "resultSize" [java::new Integer $resultSize]
 
-	puts "criteria [$map toString]"
 	set search_criteria [create_search_criteria $map]
 	set synsets [java::new ArrayList]
 
@@ -35,9 +34,7 @@ proc getSynset { language_id startPosition resultSize } {
 	if {$check_error} {
 	} else {
 		set graph_nodes [get_resp_value $search_response "node_list"]
-		puts "graph_nodes info [[$graph_nodes getClass] getName]"
 		set synsets [java::cast List $graph_nodes]
-		puts "graph_nodes info [[$synsets getClass] getName]"
 	}
 
 	return $synsets
@@ -63,9 +60,7 @@ proc correctSynset {language_id synset } {
 				set relationType [java::prop $relation "relationType"]
 				set endNodeId [java::prop $relation "endNodeId"]
 				set endNodeName [java::prop $relation "endNodeName"]
-				puts "relationType - $relationType endNodeName - $endNodeName"
 				if {($relationType != "synonym") && ($endNodeName == "Word") } {
-					puts "getting word $endNodeId"
 					set resp_get_node [getDataNode $language_id $endNodeId]
 					set check_error [check_response_error $resp_get_node]
 					if {$check_error} {
@@ -78,8 +73,6 @@ proc correctSynset {language_id synset } {
 						set primaryMeaningIdNull [java::isnull $nodePrimaryMeaningId]
 						if {$primaryMeaningIdNull == 1} {
 							set nodeLemma [$node_metadata get "lemma"]
-
-							puts "creating synset"
 							set synsetResponse [createSynsetNode $language_id $nodeLemma]
 							set check_error [check_response_error $synsetResponse]
 							if {$check_error} {
@@ -88,16 +81,13 @@ proc correctSynset {language_id synset } {
 
 							set nodePrimaryMeaningId [get_resp_value $synsetResponse "node_id"]
 							set nodePrimaryMeaningId [$nodePrimaryMeaningId toString]
-							puts "creating synset $nodePrimaryMeaningId"
 							$node_metadata put "primaryMeaningId" $nodePrimaryMeaningId
-							puts "updating $endNodeId word's primaryMeaningId"
 							set wordResponse [updateDataNode $language_id $node_identifier $graph_node]
 							set check_error [check_response_error $wordResponse]
 							if {$check_error} {
 								return $wordResponse
 							}
 
-							puts "adding relation between node $node_identifier and synset $nodePrimaryMeaningId"
 							set addRelation_response [addRelation $language_id $nodePrimaryMeaningId "synonym" $node_identifier]
 							set check_addRelation_error [check_response_error $addRelation_response]
 							if {$check_addRelation_error} {
@@ -105,7 +95,6 @@ proc correctSynset {language_id synset } {
 							}
 
 						}
-						puts "nodePrimaryMeaningId $nodePrimaryMeaningId reassiging relation $relationType from word to synset"
 
 						set deleteRelation_response [deleteRelation $language_id $synsetIdentifier $relationType $node_identifier]
 						set check_deleteRelation_error [check_response_error $deleteRelation_response]
@@ -119,7 +108,6 @@ proc correctSynset {language_id synset } {
 							return $addRelation_response;
 						}
 
-						puts "synset $synsetIdentifier - relation $relationType  -> nodePrimaryMeaningId $nodePrimaryMeaningId, endNodeId $endNodeId"
 					}
 				}
 			}
@@ -134,17 +122,16 @@ set continue true
 while {$continue} {
 	
 	set synsets [getSynset $language_id $startPosition $resultSize]
-	puts "synsets size : [$synsets size]"
+	puts "synsets size : [$synsets size], startPosition $startPosition ,resultSize $resultSize"
 	set hasSynsets [isNotEmpty $synsets]
 	if {$hasSynsets} {
 		java::for {Node synset} $synsets {
 			set id [java::prop $synset "identifier"]
-			puts "correcting synset -  $id"
 			set correctSynsetResponse [correctSynset $language_id $synset]
 			set correctSynsetResponseNull [java::isnull $correctSynsetResponse]
 			if {$correctSynsetResponseNull == 0} {
 				set errorMsgMap [java::prop $correctSynsetResponse "result"]
-				puts "updateSynsetRelations exception [$errorMsgMap toString]"
+				puts "updateSynsetRelations exception while correcting Synset -$id , error [$errorMsgMap toString]"
 				return $correctSynsetResponse
 			} 
 		}
