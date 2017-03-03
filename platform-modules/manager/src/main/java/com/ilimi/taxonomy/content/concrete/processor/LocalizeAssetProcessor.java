@@ -236,18 +236,5 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		LOGGER.info("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']");
 		return map;
 	}
-	
-	private String getSubFolderPath(Media media) {
-		String path = "";
-		if (null != media.getData() && !media.getData().isEmpty()) {
-			Object plugin = media.getData().get(ContentWorkflowPipelineParams.plugin.name());
-			Object ver = media.getData().get(ContentWorkflowPipelineParams.ver.name());
-			if (null != plugin && StringUtils.isNotBlank(plugin.toString()))
-				path += File.separator + plugin;
-			if (null != ver && StringUtils.isNotBlank(ver.toString()))
-				path += File.separator + ver;
-		}
-		return path;
-	}
 
 }

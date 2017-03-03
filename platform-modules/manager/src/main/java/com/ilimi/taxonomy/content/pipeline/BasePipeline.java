@@ -555,4 +555,36 @@ public class BasePipeline extends BaseManager {
 				ContentWorkflowPipelineParams.contents.name());
 		return response;
 	}
+	
+	/**
+	 * Recursively deletes the give file/folder
+	 * 
+	 * @param file the file to be deleted
+	 * @throws IOException when there is a file I/O error
+	 */
+	public void delete(File file) throws IOException {
+		if (file.isDirectory()) {
+			// directory is empty, then delete it
+			if (file.list().length == 0) {
+				file.delete();
+			} else {
+				// list all the directory contents
+				String files[] = file.list();
+				for (String temp : files) {
+					// construct the file structure
+					File fileDelete = new File(file, temp);
+					// recursive delete
+					delete(fileDelete);
+				}
+				// check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+				}
+			}
+
+		} else {
+			// if file, then delete it
+			file.delete();
+		}
+	}
 }

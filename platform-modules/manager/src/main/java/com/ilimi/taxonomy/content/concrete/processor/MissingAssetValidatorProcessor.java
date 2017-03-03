@@ -93,13 +93,13 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 						mediaIds.add(getMediaId(media));
 					if (isWidgetTypeAsset(media.getType())
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.widgets.name()
-									+ File.separator + media.getSrc()).exists())
+									+ getSubFolderPath(media) + File.separator + media.getSrc()).exists())
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");
 					else if (!isWidgetTypeAsset(media.getType()) 
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.assets.name()
-									+ File.separator + media.getSrc()).exists())
+									+ getSubFolderPath(media) + File.separator + media.getSrc()).exists())
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");
