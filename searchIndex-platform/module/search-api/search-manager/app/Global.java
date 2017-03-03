@@ -1,13 +1,13 @@
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.ekstep.common.util.TelemetryAccessEventUtil;
 import org.ekstep.search.router.SearchRequestRouterPool;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.TelemetryBEAccessEvent;
-import com.ilimi.common.util.LogTelemetryEventUtil;
 
 import play.Application;
 import play.GlobalSettings;
@@ -37,34 +37,26 @@ public class Global extends GlobalSettings {
 				Promise<Result> call = delegate.call(ctx);
 				call.onRedeem((r) -> {
 					try {
-						long timeDuration = System.currentTimeMillis() - startTime;
-						JsonNode data = request.body().asJson();
-						com.ilimi.common.dto.Request req = mapper.convertValue(data,
+						JsonNode requestData = request.body().asJson();
+						com.ilimi.common.dto.Request req = mapper.convertValue(requestData,
 								com.ilimi.common.dto.Request.class);
 						byte[] body = JavaResultExtractor.getBody(r, 0l);
-						Response response = mapper.readValue(body, Response.class);
-						TelemetryBEAccessEvent accessData = new TelemetryBEAccessEvent();
-						accessData.setRid(response.getId());
-						accessData.setUip(request.remoteAddress());
-						accessData.setType("api");
-						accessData.setSize(body.length);
-						accessData.setDuration(timeDuration);
-						accessData.setStatus(r.status());
-						accessData.setProtocol(request.secure() ? "HTTPS" : "HTTP");
-						accessData.setMethod(request.method());
-						RequestParams parameterMap = null;
-						if (null != req && null != req.getParams()) {
-							parameterMap = req.getParams();
-						}
-						if (null != request.getHeader("X-Session-ID")) {
-							if (null == parameterMap) {
-								parameterMap = new RequestParams();
-							}
-							if (null == parameterMap.getSid())
-								parameterMap.setSid(request.getHeader("X-Session-ID"));
-						}
-						accessData.setParams(parameterMap);
-						LogTelemetryEventUtil.logAccessEvent(accessData);
+						Response responseObj = mapper.readValue(body, Response.class);
+						
+						Map<String,Object> data = new HashMap<String, Object>();
+						data.put("StartTime", startTime);
+						data.put("Request", req);
+						data.put("Response", responseObj);
+						data.put("RemoteAddress", request.remoteAddress());
+						data.put("ContentLength", body.length);
+						data.put("Status", r.status());
+						data.put("Protocol", request.secure() ? "HTTPS" : "HTTP");
+						data.put("Method", request.method());
+						data.put("X-Session-ID", request.getHeader("X-Session-ID"));
+						data.put("X-Consumer-ID", request.getHeader("X-Consumer-ID"));
+						data.put("X-Device-ID", request.getHeader("X-Device-ID"));
+						data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
+						TelemetryAccessEventUtil.writeTelemetryEventLog(data);
 						accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method() + " "
 								+ request.uri() + " " + r.status() + " " + body.length);
 					} catch (Exception e) {
