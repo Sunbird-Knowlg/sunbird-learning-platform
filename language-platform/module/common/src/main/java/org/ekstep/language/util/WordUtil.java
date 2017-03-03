@@ -37,6 +37,7 @@ import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -1323,6 +1324,131 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
 			return nodes;
 		}
+	}
+
+	/**
+	 * Gets the synsets of a word.
+	 *
+	 * @param word
+	 *            the word
+	 * @return the synsets
+	 */
+	@CoverageIgnore
+	public List<Node> getSynsets(Node word) {
+		List<Node> synsets = new ArrayList<Node>();
+		if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
+			List<Relation> relations = word.getInRelations();
+			for (Relation rel : relations) {
+				if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), rel.getRelationType())
+						&& StringUtils.equalsIgnoreCase(LanguageParams.Synset.name(), rel.getStartNodeObjectType())) {
+					String synsetId = rel.getStartNodeId();
+					Map<String, Object> metadata = rel.getStartNodeMetadata();
+					Node synset = new Node(synsetId, rel.getStartNodeType(), rel.getStartNodeObjectType());
+					synset.setMetadata(metadata);
+					synsets.add(synset);
+				}
+			}
+		}
+		return synsets;
+	}
+
+	/**
+	 * Checks if is valid synset.
+	 *
+	 * @param synsets
+	 *            the synsets
+	 * @param synsetId
+	 *            the synset id
+	 * @return true, if is valid synset
+	 */
+	@CoverageIgnore
+	public boolean isValidSynset(List<Node> synsets, String synsetId) {
+		if (synsets != null) {
+			for (Node synsetDTO : synsets) {
+				String id = synsetDTO.getIdentifier();
+				if (synsetId.equalsIgnoreCase(id)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * validate Primary meaning and update one of word's meaning/synset as primary meaning if it is null or invalid.
+	 *
+	 * @param languageId
+	 *            the languageId
+	 * @param wordMap
+	 *            the wordMap
+	 * @param synsets
+	 *            the synsets
+	 * @return primaryMeaningId
+	 */
+	@CoverageIgnore
+	public String updatePrimaryMeaning(String languageId, Map<String, Object> wordMap, List<Node> synsets) {
+
+		String primaryMeaningId = (String) wordMap.get(LanguageParams.primaryMeaningId.name());
+
+		if (primaryMeaningId != null) {
+			if (!isValidSynset(synsets, primaryMeaningId)) {
+				primaryMeaningId = null;
+				wordMap.put(LanguageParams.primaryMeaningId.name(), null);
+			}
+		}
+		if (primaryMeaningId == null || primaryMeaningId.isEmpty()) {
+			if (synsets != null && !synsets.isEmpty()) {
+				Node primarySynonym = synsets.get(0);
+				primaryMeaningId = primarySynonym.getIdentifier();
+				Map<String, Object> updateWordMap = new HashMap<String, Object>();
+				updateWordMap.put("identifier", wordMap.get(LanguageParams.identifier.name()));
+				updateWordMap.put("lemma", wordMap.get(LanguageParams.lemma.name()));
+				updateWordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+				Response updateResponse;
+				try {
+					updateResponse = updateWord(languageId, (String) wordMap.get(LanguageParams.identifier.name()),
+							updateWordMap);
+					if (checkError(updateResponse)) {
+						throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+								getErrorMessage(updateResponse));
+					}
+				} catch (Exception e) {
+					LOGGER.error(e.getMessage(), e);
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return primaryMeaningId;
+	}
+
+	/**
+	 * Updates word using the word map object.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param id
+	 *            the id
+	 * @param wordMap
+	 *            the word map
+	 * @return the response
+	 * @throws Exception
+	 *             the exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@CoverageIgnore
+	public Response updateWord(String languageId, String id, Map wordMap) throws Exception {
+		Node node = null;
+		DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+		node = convertToGraphNode(wordMap, definition);
+		node.setIdentifier(id);
+		node.setObjectType(LanguageParams.Word.name());
+		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), node);
+		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+		Response updateRes = getResponse(updateReq, LOGGER);
+		return updateRes;
 	}
 
 	/**

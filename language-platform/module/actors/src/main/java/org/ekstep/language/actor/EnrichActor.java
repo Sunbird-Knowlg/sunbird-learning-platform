@@ -33,9 +33,7 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
@@ -141,63 +139,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 						&& (nodeIds.size() - count) < BATCH_SIZE)) {
 					long startTime = System.currentTimeMillis();
 					List<Node> nodeList = getNodesList(batch_node_ids, languageId);
-					for(Node word:nodeList) {
-						
-						DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
-						Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
-						
-						if(wordMap.get(LanguageParams.synonyms.name())!=null){
-							List<NodeDTO> synonyms =(List<NodeDTO>) wordMap.get(LanguageParams.synonyms.name());
-							word.getMetadata().put(ATTRIB_SYNSET_COUNT, synonyms.size());
-							
-							Set<String> posSet = new HashSet<>();
-							List<Relation> synsets = wordUtil.getSynonymRelations(word.getInRelations());
-							for(Relation synsetRelation:synsets) {
-								String pos = (String)synsetRelation.getStartNodeMetadata().get(ATTRIB_POS);
-								if(pos!=null)
-									posSet.add(pos);
-							}
-							
-							if(posSet.size()>0){
-								List<String> posList= new ArrayList<>(posSet);
-								word.getMetadata().put(ATTRIB_POS, posList);
-							}
-						}
-						String lemma = (String) wordMap.get(LanguageParams.lemma.name());
-						if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
-							 	word.getMetadata().put(ATTRIB_IS_PHRASE, true);
-						}
-						
-						String primaryMeaningId = (String) word.getMetadata().get(LanguageParams.primaryMeaningId.name());
-						if(primaryMeaningId!=null){
-							Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
-							if(wordUtil.getSynonymRelations(synset.getOutRelations())!=null)
-								word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
-							else
-								word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
-
-							if(wordUtil.getAntonymRelations(synset.getOutRelations())!=null)
-								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
-							else
-								word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
-
-							if(synset.getMetadata().get(ATTRIB_CATEGORY)!=null)
-								word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
-							if(synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES)!=null)
-								word.getMetadata().put(ATTRIB_EXAMPLE_SENTENCES, synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES));
-							if(synset.getMetadata().get(ATTRIB_PICTURES)!=null)
-								word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
-							if(synset.getMetadata().get(ATTRIB_PICTURES)!=null)
-								word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
-							if(synset.getMetadata().get(ATTRIB_GLOSS)!=null)
-								word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
-							List<String> tags = synset.getTags();
-							if(tags!=null&&tags.size()>0)
-								 word.setTags(tags);
-							 
-						}
-					}
 					
+					updateWordMetadata(languageId, nodeList);
 					if (languageId.equalsIgnoreCase("en")) {
 						updateSyllablesList(nodeList);
 					}
@@ -213,6 +156,80 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 		}
 	}
 
+	private void updateWordMetadata(String languageId, List<Node> nodes){
+
+		for(Node word:nodes) {
+			
+			DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+			Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
+			List<Node> synsets = wordUtil.getSynsets(word);
+			
+			String primaryMeaningId = wordUtil.updatePrimaryMeaning(languageId, wordMap, synsets);
+			word.getMetadata().put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+			
+			if(synsets!=null && synsets.size() >0){
+				word.getMetadata().put(ATTRIB_SYNSET_COUNT, synsets.size());
+				
+				Set<String> posSet = new HashSet<>();
+
+				for(Node synset:synsets) {
+					String pos = (String)synset.getMetadata().get(ATTRIB_POS);
+					if(pos!=null)
+						posSet.add(pos);
+				}
+				
+				if(posSet.size()>0){
+					List<String> posList= new ArrayList<>(posSet);
+					word.getMetadata().put(ATTRIB_POS, posList);
+				}
+			}
+			
+			String lemma = (String) wordMap.get(LanguageParams.lemma.name());
+			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
+				 	word.getMetadata().put(ATTRIB_IS_PHRASE, true);
+			}
+			
+			if(primaryMeaningId!=null){
+				Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
+				if(wordUtil.getSynonymRelations(synset.getOutRelations())!=null)
+					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
+				else
+					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
+
+				if(wordUtil.getAntonymRelations(synset.getOutRelations())!=null)
+					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
+				else
+					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
+
+				if(synset.getMetadata().get(ATTRIB_CATEGORY)!=null)
+					word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
+				if(synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES)!=null)
+					word.getMetadata().put(ATTRIB_EXAMPLE_SENTENCES, synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES));
+				if(synset.getMetadata().get(ATTRIB_PICTURES)!=null)
+					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
+				if(synset.getMetadata().get(ATTRIB_GLOSS)!=null)
+					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
+				List<String> tags = synset.getTags();
+				if(tags!=null&&tags.size()>0)
+					 word.setTags(tags);
+				 
+			}
+			
+			try {
+				Request updateReq = controllerUtil.getRequest(languageId,
+						GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+				updateReq.put(GraphDACParams.node.name(), word);
+				updateReq.put(GraphDACParams.node_id.name(), word.getIdentifier());
+				Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
+				if (checkError(updateResponse)) {
+					throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+							updateResponse.getParams().getErrmsg());
+				}
+			} catch (Exception e) {
+				LOGGER.error("Update error : " + word.getIdentifier() + " : " + e.getMessage(), e);
+			}
+		}
+	}
 	/**
 	 * Gets the nodes list.
 	 *

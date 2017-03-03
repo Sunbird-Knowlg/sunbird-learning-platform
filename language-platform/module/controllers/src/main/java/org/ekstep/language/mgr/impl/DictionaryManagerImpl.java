@@ -28,7 +28,6 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
-import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
@@ -750,7 +749,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				map.put("tags", node.getTags());
 			}
 			map.put("identifier", node.getIdentifier());
-			map.put("language", LanguageMap.getLanguage(languageId));
 		}
 		return map;
 	}
@@ -1359,7 +1357,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 									"Word - lemma can not be empty");
 						lemma = lemma.trim();
 						item.put(LanguageParams.lemma.name(), lemma);
-						String language = LanguageMap.getLanguage(languageId).toUpperCase();
 						boolean isValid = isValidWord(lemma, languageId);
 						if (!isValid) {
 							Matcher hasSpecial = special.matcher(lemma);
@@ -1368,7 +1365,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 										"Word should not contain any special characters ", ResponseCode.CLIENT_ERROR);
 							} else {
 								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-										"Word cannot be in a different language than " + language,
+										"Word cannot be in a different language",
 										ResponseCode.CLIENT_ERROR);
 							}
 						}
@@ -1492,33 +1489,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		}
 	}
 
-	/**
-	 * Updates word using the word map object.
-	 *
-	 * @param languageId
-	 *            the language id
-	 * @param id
-	 *            the id
-	 * @param wordMap
-	 *            the word map
-	 * @return the response
-	 * @throws Exception
-	 *             the exception
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@CoverageIgnore
-	public Response updateWord(String languageId, String id, Map wordMap) throws Exception {
-		Node node = null;
-		DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
-		node = convertToGraphNode(wordMap, definition);
-		node.setIdentifier(id);
-		node.setObjectType(LanguageParams.Word.name());
-		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-		updateReq.put(GraphDACParams.node.name(), node);
-		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
-		return updateRes;
-	}
 
 	/**
 	 * Gets the data node from Graph.
@@ -1602,32 +1572,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 
 		}
-	}
-
-	/**
-	 * Gets the synsets of a word.
-	 *
-	 * @param word
-	 *            the word
-	 * @return the synsets
-	 */
-	@CoverageIgnore
-	private List<Node> getSynsets(Node word) {
-		List<Node> synsets = new ArrayList<Node>();
-		if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
-			List<Relation> relations = word.getInRelations();
-			for (Relation rel : relations) {
-				if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), rel.getRelationType())
-						&& StringUtils.equalsIgnoreCase(LanguageParams.Synset.name(), rel.getStartNodeObjectType())) {
-					String synsetId = rel.getStartNodeId();
-					Map<String, Object> metadata = rel.getStartNodeMetadata();
-					Node synset = new Node(synsetId, rel.getStartNodeType(), rel.getStartNodeObjectType());
-					synset.setMetadata(metadata);
-					synsets.add(synset);
-				}
-			}
-		}
-		return synsets;
 	}
 
 	/**
@@ -1722,39 +1666,11 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		try {
 			DefinitionDTO defintion = getDefinitionDTO(LanguageParams.Word.name(), languageId);
 			Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, languageId, defintion, null);
-			String primaryMeaningId = (String) map.get(LanguageParams.primaryMeaningId.name());
 			String wordIdentifier = (String) map.get(LanguageParams.identifier.name());
-			List<Node> synsets = getSynsets(node);
-			if (primaryMeaningId != null) {
-				if (!isValidSynset(synsets, primaryMeaningId)) {
-					primaryMeaningId = null;
-					map.put(LanguageParams.primaryMeaningId.name(), null);
-				}
-			}
-			if (primaryMeaningId == null || primaryMeaningId.isEmpty()) {
-				if (synsets != null && !synsets.isEmpty()) {
-					Node primarySynonym = synsets.get(0);
-					primaryMeaningId = primarySynonym.getIdentifier();
-					Map<String, Object> updateWordMap = new HashMap<String, Object>();
-					updateWordMap.put("identifier", map.get(LanguageParams.identifier.name()));
-					updateWordMap.put("lemma", map.get(LanguageParams.lemma.name()));
-					updateWordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
-					map.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
-					Response updateResponse;
-					try {
-						updateResponse = updateWord(languageId, (String) map.get(LanguageParams.identifier.name()),
-								updateWordMap);
-						if (checkError(updateResponse)) {
-							throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-									wordUtil.getErrorMessage(updateResponse));
-						}
-					} catch (Exception e) {
-						LOGGER.error(e.getMessage(), e);
-						e.printStackTrace();
-					}
-
-				}
-			}
+			List<Node> synsets = wordUtil.getSynsets(node);
+			
+			String primaryMeaningId =wordUtil.updatePrimaryMeaning(languageId, map, synsets);
+			
 			if (primaryMeaningId != null) {
 				Map<String, Object> primaryMeaningMap = getMeaningObjectMap(languageId, primaryMeaningId,
 						wordIdentifier);
@@ -1790,28 +1706,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			e.printStackTrace();
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
 		}
-	}
-
-	/**
-	 * Checks if is valid synset.
-	 *
-	 * @param synsets
-	 *            the synsets
-	 * @param synsetId
-	 *            the synset id
-	 * @return true, if is valid synset
-	 */
-	@CoverageIgnore
-	private boolean isValidSynset(List<Node> synsets, String synsetId) {
-		if (synsets != null) {
-			for (Node synsetDTO : synsets) {
-				String id = synsetDTO.getIdentifier();
-				if (synsetId.equalsIgnoreCase(id)) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -2166,7 +2060,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (lemma != null) {
 				lemma = lemma.trim();
 				item.put(LanguageParams.lemma.name(), lemma);
-				String language = LanguageMap.getLanguage(languageId).toUpperCase();
 				boolean isValid = isValidWord(lemma, languageId);
 				if (!isValid) {
 					Matcher hasSpecial = special.matcher(lemma);
@@ -2175,7 +2068,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								"Word should not contain any special characters ", ResponseCode.CLIENT_ERROR);
 					} else {
 						return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-								"Word cannot be in a different language than " + language, ResponseCode.CLIENT_ERROR);
+								"Word cannot be in a different language", ResponseCode.CLIENT_ERROR);
 					}
 				}
 			}
@@ -2870,8 +2763,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				int max = Integer.parseInt(endUnicode, 16);
 				if (hexVal >= min && hexVal <= max) {
 				} else {
-					String language = LanguageMap.getLanguage(languageId).toUpperCase();
-					errorMessages.add("Word cannot be in a different language than " + language + " for word in "
+					errorMessages.add("Word cannot be in a different language for word in "
 							+ relationName + " List");
 					return false;
 				}
