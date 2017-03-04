@@ -59,6 +59,7 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
+import com.rits.cloning.Cloner;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -111,9 +112,11 @@ public class BasePipeline extends BaseManager {
 	protected Response updateNode(Node node) {
 		Response response = new Response();
 		if (null != node) {
-			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-			updateReq.put(GraphDACParams.node.name(), node);
-			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			Cloner cloner = new Cloner();
+			Node clonedNode = cloner.deepClone(node);
+			Request updateReq = getRequest(clonedNode.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			updateReq.put(GraphDACParams.node.name(), clonedNode);
+			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq, LOGGER);
 		}
 		return response;

@@ -52,7 +52,7 @@ public class ContentConfigurationConstants {
 	 * The Constant DEFAULT_CONTENT_MANIFEST_VERSION is the default version of
 	 * Manifest File which is visible in Manifest File Header.
 	 */
-	public static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.1";
+	public static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
 
 	/**
 	 * The Constant DEFAULT_ZIP_EXTENSION is the default ZIP package file
