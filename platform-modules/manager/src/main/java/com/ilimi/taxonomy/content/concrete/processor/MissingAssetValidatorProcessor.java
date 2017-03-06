@@ -114,9 +114,8 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 			Object plugin = media.getData().get(ContentWorkflowPipelineParams.plugin.name());
 			Object ver = media.getData().get(ContentWorkflowPipelineParams.ver.name());
 			if (null != plugin && StringUtils.isNotBlank(plugin.toString()))
-				id += "_" + plugin;
-			if (null != ver && StringUtils.isNotBlank(ver.toString()))
-				id += "_" + ver;
+				if (null != ver && StringUtils.isNotBlank(ver.toString()))
+					id += "_" + plugin + "_" + ver;
 		}
 		return id;
 	}
