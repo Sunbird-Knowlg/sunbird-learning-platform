@@ -14,6 +14,7 @@ import com.ilimi.taxonomy.content.common.ContentOperations;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
+import com.ilimi.taxonomy.util.PublishWebHookInvoker;
 
 public class AsyncContentOperationUtil {
 
@@ -86,6 +87,7 @@ public class AsyncContentOperationUtil {
 									ContentWorkflowPipelineParams.Failed.name());
 							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
 							updateDataNodeUtil.updateDataNode(node);
+							PublishWebHookInvoker.invokePublishWebKook(node.getIdentifier(), ContentWorkflowPipelineParams.Failed.name(), e.getMessage());
 						}
 					}
 						break;

@@ -14,9 +14,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
@@ -28,6 +32,7 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.util.ContentMimeTypeFactoryUtil;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
+import com.ilimi.taxonomy.util.PublishWebHookInvoker;
 import com.rits.cloning.Cloner;
 
 /**
@@ -255,7 +260,15 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
 		}
 		
+		// Setting default version key for internal node update
+		String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		newNode.getMetadata().put(GraphDACParams.versionKey.name(), graphPassportKey);
+		
 		Response response = updateContentNode(newNode, downloadUrl);
+		if (checkError(response))
+			throw new ClientException(ContentErrorCodeConstants.PUBLISH_ERROR.name(), response.getParams().getErrmsg());
+		
+		PublishWebHookInvoker.invokePublishWebKook(newNode.getIdentifier(), ContentWorkflowPipelineParams.Live.name(), null);
 		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), ContentWorkflowPipelineParams.Processing.name());
 		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());

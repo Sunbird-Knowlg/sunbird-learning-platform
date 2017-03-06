@@ -123,17 +123,19 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+		
+		if (!checkError(response)) {
+			if (BooleanUtils.isTrue(isAsync)) {
+				AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
+				LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
 
-		if (BooleanUtils.isTrue(isAsync)) {
-			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+				response.put(ContentAPIParams.publishStatus.name(),
+						"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+			} else {
+				LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
 
-			response.put(ContentAPIParams.publishStatus.name(),
-					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
-		} else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
-
-			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+			}
 		}
 
 		return response;
