@@ -59,6 +59,12 @@ if {$object_null == 1} {
 		if {$osIdCheck == 1 && $osIdEmpty} {
 			set osId_Error false
 		}
+
+		set textbookUnitCheck [[java::new String [$contentType toString]] equalsIgnoreCase "TextBookUnit"]
+		if {$textbookUnitCheck == 1} {
+			$content put "visibility" "Parent"
+		}
+
 		if {$osId_Error} {
 			set result_map [java::new HashMap]
 			$result_map put "code" "ERR_CONTENT_INVALID_OSID"
@@ -79,6 +85,12 @@ if {$object_null == 1} {
 			if {!$oldBodyEmpty} {
 				$content put "oldBody" [java::null]
 				$externalProps put "oldBody" $oldBody
+			}
+			set stageIcons [$content get "stageIcons"]
+			set stageIconsEmpty [proc_isEmpty $stageIcons]
+			if {!$stageIconsEmpty} {
+				$content put "stageIcons" [java::null]
+				$externalProps put "stageIcons" $stageIcons
 			}
 			
 			set codeValidationFailed 0

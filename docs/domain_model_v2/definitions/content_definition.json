@@ -1333,7 +1333,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "external",
           "propertyName": "stageIcons",
           "title": "Stage Thumbnail",
           "description": "",
