@@ -111,9 +111,8 @@ public class ContentBundle {
 				}
 			}
 
-			if (packageType != EcarPackageType.SPINE)
-				content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
-						(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
+			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
+				(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
 			Object posterImage = content.get(ContentWorkflowPipelineParams.posterImage.name());
 			if (null != posterImage && StringUtils.isNotBlank((String) posterImage))
 				content.put(ContentWorkflowPipelineParams.appIcon.name(), posterImage);

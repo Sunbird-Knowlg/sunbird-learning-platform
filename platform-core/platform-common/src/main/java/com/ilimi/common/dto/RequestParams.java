@@ -15,6 +15,8 @@ public class RequestParams implements Serializable {
     private String key;
     private String msgid;
     private String uid;
+    private String cid;
+    private String sid;
 
     public String getUid() {
 		return uid;
@@ -47,4 +49,20 @@ public class RequestParams implements Serializable {
     public void setMsgid(String msgid) {
         this.msgid = msgid;
     }
+
+	public String getCid() {
+		return cid;
+	}
+
+	public void setCid(String cid) {
+		this.cid = cid;
+	}
+
+	public String getSid() {
+		return sid;
+	}
+
+	public void setSid(String sid) {
+		this.sid = sid;
+	}
 }
