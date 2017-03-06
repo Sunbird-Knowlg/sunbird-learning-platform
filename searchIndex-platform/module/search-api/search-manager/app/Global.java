@@ -37,13 +37,18 @@ public class Global extends GlobalSettings {
 				Promise<Result> call = delegate.call(ctx);
 				call.onRedeem((r) -> {
 					try {
-						JsonNode requestData = request.body().asJson();
-						com.ilimi.common.dto.Request req = mapper.convertValue(requestData,
-								com.ilimi.common.dto.Request.class);
+						com.ilimi.common.dto.Request req = null;
+						boolean isMultipart = (request.getHeader("content-type") != null
+								&& request.getHeader("content-type").indexOf("multipart/form-data") != -1);
+						if ("POST".equalsIgnoreCase(request.method()) && !isMultipart) {
+							JsonNode requestData = request.body().asJson();
+							req = mapper.convertValue(requestData, com.ilimi.common.dto.Request.class);
+						}
+
 						byte[] body = JavaResultExtractor.getBody(r, 0l);
 						Response responseObj = mapper.readValue(body, Response.class);
-						
-						Map<String,Object> data = new HashMap<String, Object>();
+
+						Map<String, Object> data = new HashMap<String, Object>();
 						data.put("StartTime", startTime);
 						data.put("Request", req);
 						data.put("Response", responseObj);

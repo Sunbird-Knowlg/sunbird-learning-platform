@@ -32,27 +32,18 @@ public class ResponseFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		String requestId = getUUID();
-		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		ExecutionContext.setRequestId(requestId);
-		boolean isMultipart = (httpRequest.getHeader("content-type") != null
-				&& httpRequest.getHeader("content-type").indexOf("multipart/form-data") != -1);
-		if (!isMultipart) {
-			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
-			
-			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
-			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
+		RequestWrapper requestWrapper = new RequestWrapper((HttpServletRequest) request);
+		LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
+				+ " | Params: " + request.getParameterMap());
 
-			chain.doFilter(requestWrapper, responseWrapper);
-			
-			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
-			response.getOutputStream().write(responseWrapper.getData());
-		} else {
-			LOGGER.info("Path: " + httpRequest.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap());
-			chain.doFilter(request, response);
-		}
+		ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
+		requestWrapper.setAttribute("startTime", System.currentTimeMillis());
+
+		chain.doFilter(requestWrapper, responseWrapper);
+
+		TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
+		response.getOutputStream().write(responseWrapper.getData());
 
 	}
 

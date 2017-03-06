@@ -78,7 +78,9 @@ public class TelemetryAccessEventUtil {
 		try {
 			data.put("StartTime", requestWrapper.getAttribute("startTime"));
 			String body = requestWrapper.getBody();
-			if ("POST".equalsIgnoreCase(requestWrapper.getMethod())) {
+			boolean isMultipart = (requestWrapper.getHeader("content-type") != null
+					&& requestWrapper.getHeader("content-type").indexOf("multipart/form-data") != -1);
+			if ("POST".equalsIgnoreCase(requestWrapper.getMethod()) && !isMultipart) {
 				request = mapper.readValue(body, Request.class);
 			}
 			byte responseContent[] = responseWrapper.getData();
