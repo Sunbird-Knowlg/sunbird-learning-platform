@@ -164,7 +164,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<String> childrenIds = new ArrayList<String>();
 			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
 
-			LOGGER.debug("Publishing the Un-Published Children.");
+			LOGGER.info("Publishing the Un-Published Children.");
 			publishChildren(nodes.stream().filter(n -> !n.getIdentifier().equalsIgnoreCase(node.getIdentifier()))
 					.collect(Collectors.toList()));
 
@@ -177,7 +177,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			Cloner cloner = new Cloner();
 			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
 
-			LOGGER.debug("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
+			LOGGER.info("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
 			Map<String, Object> variants = new HashMap<String, Object>();
 
 			LOGGER.debug("Creating Full ECAR For Content Id: " + node.getIdentifier());
@@ -189,9 +189,9 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			downloadUrl = urlArray[IDX_S3_URL];
 			s3Key = urlArray[IDX_S3_KEY];
-			LOGGER.debug("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
+			LOGGER.info("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 
-			LOGGER.debug("Creating Spine ECAR For Content Id: " + node.getIdentifier());
+			LOGGER.info("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(node, EcarPackageType.SPINE);
 			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null, EcarPackageType.SPINE);
@@ -200,10 +200,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
 
-			LOGGER.debug("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+			LOGGER.info("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
 
-			LOGGER.debug("Adding variants to Content Id: " + node.getIdentifier());
+			LOGGER.info("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 		}
 
@@ -278,14 +278,14 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishChildren(List<Node> nodes) {
 		LOGGER.debug("Node List: ", nodes);
 		if (null != nodes && !nodes.isEmpty()) {
-			LOGGER.debug("Node is not Empty.");
+			LOGGER.info("Node is not Empty.");
 
-			LOGGER.debug("Fetching the Non-Collection Content Nodes.");
+			LOGGER.info("Fetching the Non-Collection Content Nodes.");
 			List<Node> nonCollectionNodes = new ArrayList<Node>();
 			List<Node> collectionNodes = new ArrayList<Node>();
 			for (Node node : nodes) {
 				if (null != node && null != node.getMetadata()) {
-					LOGGER.debug("Content Id: " + node.getIdentifier() + " has MimeType: "
+					LOGGER.info("Content Id: " + node.getIdentifier() + " has MimeType: "
 							+ node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
 					if (StringUtils.equalsIgnoreCase(
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
@@ -308,20 +308,20 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private void publishChild(Node node) {
 		if (null != node && null != node.getMetadata()) {
-			LOGGER.debug("Checking Node Id: " + node.getIdentifier());
+			LOGGER.info("Checking Node Id: " + node.getIdentifier());
 			if ((StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Draft.name(),
 					(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name()))
 					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Review.name(),
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name())))
 					&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Parent.name(),
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.visibility.name()))) {
-				LOGGER.debug("Fetching 'MimeType' for Content Id: " + node.getIdentifier());
+				LOGGER.info("Fetching 'MimeType' for Content Id: " + node.getIdentifier());
 				String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
 				if (StringUtils.isBlank(mimeType))
 					throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_MIMETYPE
 									+ " | [Invalid or 'null' MimeType for Content Id: " + node.getIdentifier() + "]");
-				LOGGER.debug("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
+				LOGGER.info("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
 
 				LOGGER.info("Publishing Content Id: " + node.getIdentifier());
 				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(node, false);
