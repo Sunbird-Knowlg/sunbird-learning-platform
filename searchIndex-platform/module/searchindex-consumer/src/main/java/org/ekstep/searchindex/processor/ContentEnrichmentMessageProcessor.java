@@ -84,7 +84,7 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 
 		LOGGER.info("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
-		if(null != node){
+		if (null != node) {
 			LOGGER.info("calling processData to process out relations" + node);
 			processData(node);
 		}
@@ -131,10 +131,8 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 		LOGGER.info("calling getItemsMap method to get items from item sets");
 		List<String> items = getItemsMap(node, graphId, contentId);
 
-		if(null != items && !items.isEmpty()){
-			LOGGER.info("calling getConceptsFromItems method to get concepts from items" + items);
-			getConceptsFromItems(graphId, contentId, items, node, conceptIds, conceptGrades);
-		}
+		LOGGER.info("calling getConceptsFromItems method to get concepts from items" + items);
+		getConceptsFromItems(graphId, contentId, items, node, conceptIds, conceptGrades);
 
 	}
 
@@ -257,15 +255,19 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void getConceptsFromItems(String graphId, String contentId, List<String> items, Node content,
 			Set<String> existingConceptIds, Set<String> existingConceptGrades) {
-
-		LOGGER.info("getting all items Data from itemIds" + items);
-
-		Response response = util.getDataNodes(graphId, items);
-		LOGGER.info("response from getDataNodes" + response);
-
+		Response response = null;
 		Set<String> conceptIds = new HashSet<String>();
 		Set<String> itemGrades = new HashSet<String>();
+		
+		LOGGER.info("checking if itemsList is empty" + items);
+		if(null != items && !items.isEmpty()){
+			LOGGER.debug("getting all items Data from itemIds" + items);
 
+			response = util.getDataNodes(graphId, items);
+			LOGGER.info("response from getDataNodes" + response);
+		}
+
+		LOGGER.info("checking if response is null" + response);
 		if (null != response) {
 
 			List<Node> item_nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
@@ -279,7 +281,7 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 					LOGGER.info("Checking if item node contains gradeLevel");
 					if (null != node.getMetadata().get("gradeLevel")) {
 						String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
-						for(String grade : grade_array){
+						for (String grade : grade_array) {
 							LOGGER.info("adding item grades" + grade);
 							itemGrades.add(grade);
 						}
@@ -325,8 +327,10 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 		node.setInRelations(null);
 		util.updateNode(content_node);
 
-		LOGGER.info("result node after adding required metadata" + node);
-		util.addOutRelations(graphId, contentId, totalConceptIds, RelationTypes.ASSOCIATED_TO.relationName());
+		if (null != totalConceptIds && !totalConceptIds.isEmpty()) {
+			LOGGER.info("result node after adding required metadata" + node);
+			util.addOutRelations(graphId, contentId, totalConceptIds, RelationTypes.ASSOCIATED_TO.relationName());
+		}
 	}
 
 	/**
@@ -394,7 +398,7 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 
 				LOGGER.info("adding grades which doesnt exist in node" + grades);
 				for (String grade : grade_array) {
-					
+
 					LOGGER.info("checking if grade already exists" + grade);
 					if (!grades.contains(grade)) {
 						grades.add(grade);
@@ -472,6 +476,7 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 		}
 		return node;
 	}
+
 	/**
 	 * This method holds logic to filter the kafka message and return the nodeId
 	 * 
@@ -514,7 +519,7 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * This method holds logic to process outRelations and fetch concept nodes
 	 * grades from outRelations
@@ -555,8 +560,8 @@ public class ContentEnrichmentMessageProcessor implements IMessageProcessor {
 
 					LOGGER.info("checking if concept contains gradeLevel");
 					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
-						String[] grade_array =  (String[])(rel.getEndNodeMetadata().get("gradeLevel"));
-						for(String garde : grade_array){
+						String[] grade_array = (String[]) (rel.getEndNodeMetadata().get("gradeLevel"));
+						for (String garde : grade_array) {
 							conceptGrades.add(garde);
 						}
 					}
