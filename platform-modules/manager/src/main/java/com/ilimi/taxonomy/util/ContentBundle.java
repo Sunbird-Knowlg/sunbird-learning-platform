@@ -258,7 +258,7 @@ public class ContentBundle {
 		contentPackageKeys.add(ContentWorkflowPipelineParams.artifactUrl.name());
 		contentPackageKeys.add(ContentWorkflowPipelineParams.downloadUrl.name());
 
-		if (!contentPackageKeys.contains(key) && packageType != EcarPackageType.SPINE) {
+		if (!contentPackageKeys.contains(key) || packageType != EcarPackageType.SPINE) {
 			List<String> ids = downloadUrls.get(val);
 			if (null == ids) {
 				ids = new ArrayList<String>();
