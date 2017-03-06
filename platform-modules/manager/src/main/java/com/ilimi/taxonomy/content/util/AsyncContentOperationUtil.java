@@ -57,7 +57,7 @@ public class AsyncContentOperationUtil {
 						} catch (Exception e) {
 							LOGGER.error(
 									"Something Went Wrong While Performing 'Content Upload' Operation in Async Mode. | [Content Id: "
-											+ node.getIdentifier() + "]");
+											+ node.getIdentifier() + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), e.getMessage());
 							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 									ContentWorkflowPipelineParams.Failed.name());
@@ -81,7 +81,7 @@ public class AsyncContentOperationUtil {
 						} catch (Exception e) {
 							LOGGER.error(
 									"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
-											+ node.getIdentifier() + "]");
+											+ node.getIdentifier() + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 									ContentWorkflowPipelineParams.Failed.name());
@@ -99,7 +99,7 @@ public class AsyncContentOperationUtil {
 							pipeline.init(ContentWorkflowPipelineParams.bundle.name(), parameterMap);
 						} catch (Exception e) {
 							LOGGER.error(
-									"Something Went Wrong While Performing 'Content Bundle' Operation in Async Mode.");
+									"Something Went Wrong While Performing 'Content Bundle' Operation in Async Mode.", e);
 						}
 					}
 						break;
@@ -118,7 +118,7 @@ public class AsyncContentOperationUtil {
 						} catch (Exception e) {
 							LOGGER.error(
 									"Something Went Wrong While Performing 'Content Review (Send For Review)' Operation in Async Mode. | [Content Id: "
-											+ node.getIdentifier() + "]");
+											+ node.getIdentifier() + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), e.getMessage());
 							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 									ContentWorkflowPipelineParams.Failed.name());
