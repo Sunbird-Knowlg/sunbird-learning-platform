@@ -2,6 +2,7 @@ package controllers;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -22,12 +23,12 @@ public class SearchBaseController extends Controller {
 	protected String getAPIId(String apiId) {
 		return API_ID_PREFIX + "." + apiId;
 	}
-	
+
 	protected String getAPIVersion(String path) {
 		String version = "3.0";
-		if(path.contains("/v2")||path.contains("/search-service")){
+		if (path.contains("/v2") || path.contains("/search-service")) {
 			version = "2.0";
-		} else if (path.contains("/v3")){
+		} else if (path.contains("/v3")) {
 			version = "3.0";
 		}
 		return version;
@@ -41,8 +42,10 @@ public class SearchBaseController extends Controller {
 			JsonNode data = requestBody.asJson();
 			Map<String, Object> requestMap = mapper.convertValue(data, Map.class);
 			if (null != requestMap && !requestMap.isEmpty()) {
-				String id = requestMap.get("id") == null ? getAPIId(apiId) : (String) requestMap.get("id");
-				String ver = requestMap.get("ver") == null ? getAPIVersion(path) : (String) requestMap.get("ver");
+				String id = (requestMap.get("id") == null || StringUtils.isBlank((String)requestMap.get("id")))
+						? getAPIId(apiId) : (String) requestMap.get("id");
+				String ver = (requestMap.get("ver") == null || StringUtils.isBlank((String)requestMap.get("ver")))
+						? getAPIVersion(path) : (String) requestMap.get("ver");
 				String ts = (String) requestMap.get("ts");
 				request.setId(id);
 				request.setVer(ver);

@@ -46,11 +46,5 @@
 		<!-- setting maximum upload size -->
 		<property name="maxUploadSize" value="100000000" />
 	</bean>
-	
-	<!--Added Inceptor  -->
-	<mvc:interceptors>
-		<bean class="org.ekstep.interceptor.RequestInterceptor" />
-	</mvc:interceptors>
-	
 
 </beans>

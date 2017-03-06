@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
 
 public class LogTelemetryEventUtil {
@@ -62,6 +63,27 @@ public class LogTelemetryEventUtil {
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
 			LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+		}
+		return jsonMessage;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static String logAccessEvent(TelemetryBEAccessEvent accessData) {
+		TelemetryBEEvent te = new TelemetryBEEvent();
+		long unixTime = System.currentTimeMillis();
+		te.setEid("BE_ACCESS");
+		te.setEts(unixTime);
+		te.setVer("2.0");
+		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
+		String jsonMessage = null;
+		try {
+		Map<String, Object> eData = mapper.convertValue(accessData, Map.class);
+		te.setEdata(eData);
+			jsonMessage = mapper.writeValueAsString(te);
+			if (StringUtils.isNotBlank(jsonMessage))
+				telemetryEventLogger.info(jsonMessage);
+		} catch (Exception e) {
+			LOGGER.error("Error logging BE_ACCESS event", e);
 		}
 		return jsonMessage;
 	}
