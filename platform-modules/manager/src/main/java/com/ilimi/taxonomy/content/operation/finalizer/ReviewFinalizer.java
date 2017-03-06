@@ -6,9 +6,11 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
@@ -73,6 +75,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 
+		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		Boolean isPublishOperation = (Boolean) parameterMap
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 		if (BooleanUtils.isTrue(isPublishOperation)) {
@@ -91,7 +94,11 @@ public class ReviewFinalizer extends BaseFinalizer {
 		newNode.setMetadata(node.getMetadata());
 		
 		LOGGER.debug("Updating the Node: ", node);
-		return updateNode(newNode);
+		Response response = updateNode(newNode);
+		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
+		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
+		return response;
 	}
 
 }

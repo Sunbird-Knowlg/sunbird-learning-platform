@@ -394,13 +394,13 @@ public class SearchManager extends SearchBaseActor {
 			}
 		}
 		
-//		if (!compatibilityFilter && isContentSearch && !traversal) {
-//			Map<String, Object> property = new HashMap<String, Object>();
-//			property.put(CompositeSearchParams.propertyName.name(), CompositeSearchParams.compatibilityLevel.name());
-//			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-//			property.put(CompositeSearchParams.values.name(), Arrays.asList(new Integer[] { 1 }));
-//			properties.add(property);
-//		}
+		if (!compatibilityFilter && isContentSearch && !traversal) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put(CompositeSearchParams.propertyName.name(), CompositeSearchParams.compatibilityLevel.name());
+			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put(CompositeSearchParams.values.name(), Arrays.asList(new Integer[] { 1 }));
+			properties.add(property);
+		}
 
 		if (!statusFilter && !traversal) {
 			Map<String, Object> property = new HashMap<String, Object>();

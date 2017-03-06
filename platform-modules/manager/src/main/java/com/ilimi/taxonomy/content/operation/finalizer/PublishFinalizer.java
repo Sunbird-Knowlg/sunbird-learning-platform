@@ -16,6 +16,7 @@ import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.S3PropertyReader;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
@@ -254,7 +255,11 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
 		}
 		
-		return updateContentNode(newNode, downloadUrl);
+		Response response = updateContentNode(newNode, downloadUrl);
+		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), ContentWorkflowPipelineParams.Processing.name());
+		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
+		return response;
 	}
 
 	private void publishChildren(List<Node> nodes) {

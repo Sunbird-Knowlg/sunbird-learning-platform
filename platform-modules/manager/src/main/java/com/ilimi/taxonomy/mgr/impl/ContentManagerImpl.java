@@ -36,7 +36,6 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
@@ -51,7 +50,6 @@ import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.ConceptTagger;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -410,7 +408,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
-		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
+//		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
 			publisher = (String) requestMap.get("lastPublishedBy");
@@ -428,17 +426,17 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		try {
 			response = mimeTypeManager.publish(node, true);
-			String contentType = (String) node.getMetadata().get("contentType");
-			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
-				node.getMetadata().put("prevState", prevState);
-
-				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
-				LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
-
-				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
-				ConceptTagger tagger = new ConceptTagger();
-				tagger.tagConcepts(taxonomyId, contentId, node);
-			}
+//			String contentType = (String) node.getMetadata().get("contentType");
+//			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
+//				node.getMetadata().put("prevState", prevState);
+//
+//				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+//				LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+//
+//				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
+//				ConceptTagger tagger = new ConceptTagger();
+//				tagger.tagConcepts(taxonomyId, contentId, node);
+//			}
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
