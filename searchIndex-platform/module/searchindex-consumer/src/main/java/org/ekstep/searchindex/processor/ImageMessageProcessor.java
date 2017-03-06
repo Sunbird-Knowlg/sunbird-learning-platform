@@ -68,7 +68,9 @@ public class ImageMessageProcessor implements IMessageProcessor {
 				});
 			}
 			if (null != message) {
-				processMessage(message);
+				String eid = (String) message.get("eid");
+				if (StringUtils.isNotBlank(eid) && StringUtils.equals("BE_CONTENT_LIFECYCLE", eid))
+					processMessage(message);
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error while processing kafka message", e);
