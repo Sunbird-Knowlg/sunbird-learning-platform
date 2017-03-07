@@ -102,13 +102,19 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                     try {
                         String objectStr = mapper.writeValueAsString(entry.getValue());
                         List<Map> list = mapper.readValue(objectStr, List.class);
-                        if (null != list && !list.isEmpty()) {
+                        if (null != list) {
+                        	if (null == inRelations)
+                                inRelations = new ArrayList<Relation>();
                             for (Map obj : list) {
                                 NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
-                                if (null == inRelations)
-                                    inRelations = new ArrayList<Relation>();
+                                Relation relation = new Relation(dto.getIdentifier(), inRelDefMap.get(entry.getKey()), null);
+                                if (null != dto.getIndex() && dto.getIndex().intValue() >= 0) {
+                                    Map<String, Object> relMetadata = new HashMap<String, Object>();
+                                    relMetadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), dto.getIndex());
+                                    relation.setMetadata(relMetadata);
+                                }
                                 inRelations
-                                        .add(new Relation(dto.getIdentifier(), inRelDefMap.get(entry.getKey()), null));
+                                        .add(relation);
                             }
                         }
                     } catch (Exception e) {
@@ -119,7 +125,9 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                     try {
                         String objectStr = mapper.writeValueAsString(entry.getValue());
                         List<Map> list = mapper.readValue(objectStr, List.class);
-                        if (null != list && !list.isEmpty()) {
+                        if (null != list) {
+                        	if (null == outRelations)
+                                outRelations = new ArrayList<Relation>();
                             for (Map obj : list) {
                                 NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
                                 Relation relation = new Relation(null, outRelDefMap.get(entry.getKey()), dto.getIdentifier());
@@ -128,8 +136,6 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                                     relMetadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), dto.getIndex());
                                     relation.setMetadata(relMetadata);
                                 }
-                                if (null == outRelations)
-                                    outRelations = new ArrayList<Relation>();
                                 outRelations.add(relation);
                             }
                         }
