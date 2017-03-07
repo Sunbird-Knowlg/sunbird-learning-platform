@@ -37,6 +37,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.common.EcarPackageType;
@@ -112,7 +113,7 @@ public class ContentBundle {
 			}
 
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
-				(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
+					(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
 			Object posterImage = content.get(ContentWorkflowPipelineParams.posterImage.name());
 			if (null != posterImage && StringUtils.isNotBlank((String) posterImage))
 				content.put(ContentWorkflowPipelineParams.appIcon.name(), posterImage);
@@ -226,6 +227,15 @@ public class ContentBundle {
 				header.append("\"expires\": \"").append(expiresOn).append("\", ");
 			header.append("\"ttl\": 24, \"items\": ");
 			LOGGER.info("Content Items in Manifest JSON: " + contents.size());
+
+			// Updating the 'variant' Property
+			LOGGER.debug("Contents Before Updating for 'variant' Properties : " + contents);
+
+			LOGGER.info("Updating the 'variant' map from JSON string to JSON Object.");
+			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
+					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
+
+			LOGGER.debug("Contents After Updating for 'variant' Properties : " + contents);
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";

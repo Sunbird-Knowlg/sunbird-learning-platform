@@ -157,6 +157,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
