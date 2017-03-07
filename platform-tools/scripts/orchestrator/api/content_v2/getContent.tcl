@@ -94,6 +94,10 @@ if {$check_error} {
 		if {$returnOldBody == 1} {
 			$externalProps add "oldBody"
 		}
+		set returnStageIcons [$fields contains "stageIcons"]
+		if {$returnStageIcons == 1} {
+			$externalProps add "stageIcons"
+		}
 		set bodyResponse [getContentProperties $content_id $externalProps]
 		set check_error [check_response_error $bodyResponse]
 		if {!$check_error} {

@@ -27,3 +27,5 @@ node registerScript.js api/domain_v2/update-word-count.tcl api/domain_v2/json/re
 node registerScript.js api/domain_v2/get-languages-list.tcl api/domain_v2/json/register-get-languages-list.json update
 
 node registerScript.js api/domain_v2/contains-language.tcl api/domain_v2/json/register-contains-language-list.json update
+
+node registerScript.js api/domain_v2/listTerms.tcl api/domain_v2/json/register-listTerms.json update

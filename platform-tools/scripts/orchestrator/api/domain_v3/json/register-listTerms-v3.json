@@ -1,0 +1,12 @@
+{
+    "name": "listTerms_v3",
+    "parameters": [
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/terms/list"
+    },
+    "body": "",
+    "apiId": "ekstep.domain.terms.list",
+    "version": "3.0"
+}

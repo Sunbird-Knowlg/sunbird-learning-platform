@@ -13,3 +13,5 @@ node registerScript.js api/domain_v2/updateDomainObject.tcl api/domain_v3/json/r
 node registerScript.js api/domain_v2/retireConcept.tcl api/domain_v3/json/register-retireConcept-v3.json update
 
 node registerScript.js api/domain_v2/get-languages-list.tcl api/domain_v3/json/register-get-languages-list-v3.json update
+
+node registerScript.js api/domain_v2/listTerms.tcl api/domain_v3/json/register-listTerms-v3.json update
