@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.mgr.impl;
+package com.ilimi.taxonomy.content.mimetype.mgr.impl;
 
 import java.io.File;
 import java.util.HashMap;

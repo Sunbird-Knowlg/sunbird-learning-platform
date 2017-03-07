@@ -13,6 +13,7 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
  * 
  * @author Mohammad Azharuddin
  */
+@Deprecated
 @Component
 public class ContentMimeTypeFactory {
 	

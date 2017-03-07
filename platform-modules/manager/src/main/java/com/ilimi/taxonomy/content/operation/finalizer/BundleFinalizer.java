@@ -22,7 +22,7 @@ import com.ilimi.taxonomy.content.common.EcarPackageType;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.util.ContentBundle;
+import com.ilimi.taxonomy.content.util.ContentBundle;
 
 /**
  * The Class BundleFinalizer, extends BaseFinalizer which

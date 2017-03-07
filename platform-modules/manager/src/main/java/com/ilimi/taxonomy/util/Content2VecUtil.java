@@ -18,6 +18,7 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.taxonomy.content.util.PropertiesUtil;
 
+@Deprecated
 @CoverageIgnore
 public class Content2VecUtil {
 

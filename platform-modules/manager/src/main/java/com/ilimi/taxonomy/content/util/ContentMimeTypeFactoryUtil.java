@@ -5,13 +5,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.CoverageIgnore;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.mgr.impl.APKMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.CollectionMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.ECMLMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.HTMLMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.PluginMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.AssetsMimeTypeMgrImpl;
 
 public class ContentMimeTypeFactoryUtil {
 

@@ -29,10 +29,10 @@ import com.ilimi.taxonomy.content.common.ExtractionType;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.util.ContentBundle;
 import com.ilimi.taxonomy.content.util.ContentMimeTypeFactoryUtil;
-import com.ilimi.taxonomy.util.ContentBundle;
-import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
-import com.ilimi.taxonomy.util.PublishWebHookInvoker;
+import com.ilimi.taxonomy.content.util.ContentPackageExtractionUtil;
+import com.ilimi.taxonomy.content.util.PublishWebHookInvoker;
 import com.rits.cloning.Cloner;
 
 /**

@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.util;
+package com.ilimi.taxonomy.content.util;
 
 import java.util.HashMap;
 import java.util.Map;

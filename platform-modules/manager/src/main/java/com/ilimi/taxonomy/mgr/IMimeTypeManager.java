@@ -7,11 +7,11 @@ import java.io.File;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.mgr.impl.APKMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.AssetsMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.CollectionMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.ECMLMimeTypeMgrImpl;
-import com.ilimi.taxonomy.mgr.impl.HTMLMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
+import com.ilimi.taxonomy.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 
 /**
  * The Interface IMimeTypeManager provide a way to have different implementation

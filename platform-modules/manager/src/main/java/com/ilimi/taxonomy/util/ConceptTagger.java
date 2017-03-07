@@ -33,6 +33,7 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
  * @author rayulu
  *
  */
+@Deprecated
 public class ConceptTagger extends BaseManager {
 
 	/** The logger. */

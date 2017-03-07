@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.mgr.impl;
+package com.ilimi.taxonomy.content.mimetype.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,10 +49,11 @@ import com.ilimi.taxonomy.content.common.EcarPackageType;
 import com.ilimi.taxonomy.content.common.ExtractionType;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.util.ContentBundle;
+import com.ilimi.taxonomy.content.util.ContentPackageExtractionUtil;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.ContentBundle;
-import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
+import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
 
@@ -194,6 +195,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 
 	}
 
+	@Deprecated
 	protected Response rePublish(Node node) {
 		Response response = new Response();
 		node = setNodeStatus(node, ContentAPIParams.Live.name());

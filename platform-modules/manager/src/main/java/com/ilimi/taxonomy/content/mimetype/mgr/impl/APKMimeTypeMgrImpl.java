@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.mgr.impl;
+package com.ilimi.taxonomy.content.mimetype.mgr.impl;
 
 import java.io.File;
 import java.util.HashMap;
@@ -17,25 +17,24 @@ import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.content.util.AsyncContentOperationUtil;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
-// TODO: Auto-generated Javadoc
 /**
- * The Class CollectionMimeTypeMgrImpl is a implementation of IMimeTypeManager
- * for Mime-Type as <code>application/vnd.ekstep.content-collection</code> or
- * for Collection Content.
+ * The Class APKMimeTypeMgrImpl is a implementation of IMimeTypeManager for
+ * Mime-Type as <code>application/vnd.android.package-archive</code> or for APK
+ * Content.
  * 
  * @author Azhar
  * 
  * @see IMimeTypeManager
  * @see HTMLMimeTypeMgrImpl
- * @see APKMimeTypeMgrImpl
- * @see ECMLMimeTypeMgrImpl
  * @see AssetsMimeTypeMgrImpl
+ * @see ECMLMimeTypeMgrImpl
+ * @see CollectionMimeTypeMgrImpl
  */
-@Component("CollectionMimeTypeMgrImpl")
-public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
+@Component
+public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */
-	private static Logger LOGGER = LogManager.getLogger(CollectionMimeTypeMgrImpl.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(APKMimeTypeMgrImpl.class.getName());
 
 	/*
 	 * (non-Javadoc)
@@ -73,7 +72,7 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 		
 		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
-
+		
 		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
@@ -91,8 +90,11 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 		}
 
 		return response;
+
+//		LOGGER.info("Calling the 'rePublish' for Node ID: " + node.getIdentifier());
+//		return rePublish(node);
 	}
-	
+
 	@Override
 	public Response review(Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);

@@ -20,7 +20,6 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -43,10 +42,10 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
+import com.ilimi.taxonomy.content.util.ContentMimeTypeFactoryUtil;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
@@ -71,9 +70,6 @@ import scala.concurrent.Future;
  */
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
-
-	@Autowired
-	private ContentMimeTypeFactory contentFactory;
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentManagerImpl.class.getName());
@@ -143,7 +139,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 
 		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 		Response res = mimeTypeManager.upload(node, uploadedFile, false);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
@@ -422,7 +418,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), null);
 		}
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 
 		try {
 			response = mimeTypeManager.publish(node, true);
@@ -482,7 +478,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 		
 		response = mimeTypeManager.review(node, false);
 		
