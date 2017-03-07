@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -20,7 +21,6 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.CollectionTypes;
-import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
 /**
  * <code>ConceptTagger</code> is used to tag additional concepts for a given

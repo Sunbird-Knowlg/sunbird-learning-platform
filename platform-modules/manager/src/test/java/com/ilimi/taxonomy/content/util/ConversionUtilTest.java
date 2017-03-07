@@ -3,6 +3,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.content.util.ConversionUtil;
 import org.junit.Test;
 
 /**

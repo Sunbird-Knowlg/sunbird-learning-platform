@@ -10,11 +10,11 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
 public class BaseProcessor {
 

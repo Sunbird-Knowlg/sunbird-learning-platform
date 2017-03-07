@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -17,7 +18,6 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.mgr.IReferenceManager;
 
 @Component

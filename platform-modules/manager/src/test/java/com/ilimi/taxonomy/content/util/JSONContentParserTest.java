@@ -2,14 +2,15 @@ package com.ilimi.taxonomy.content.util;
 
 import static org.junit.Assert.*;
 
+import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.entity.Plugin;
+import org.ekstep.content.util.JSONContentParser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
-import com.ilimi.taxonomy.content.entity.Plugin;
 
 public class JSONContentParserTest extends BaseTest {
 	
