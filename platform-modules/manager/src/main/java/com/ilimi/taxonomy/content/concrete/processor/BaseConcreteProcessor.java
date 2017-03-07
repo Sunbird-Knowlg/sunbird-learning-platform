@@ -292,7 +292,7 @@ public class BaseConcreteProcessor extends BaseManager {
 				List<Map<String, Object>> lstConceptMap = (List<Map<String, Object>>) entry.getValue();
 				if (null != lstConceptMap && !lstConceptMap.isEmpty()) {
 					for (Map<String, Object> conceptMap : lstConceptMap) {
-						String conceptId = (String) conceptMap.get(ContentAPIParams.identifier.name());
+						String conceptId = (String) conceptMap.get(ContentWorkflowPipelineParams.identifier.name());
 						Response response = addRelation(graphId, entry.getKey(),
 								RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
 						lstResponse.add(response.getResult().toString());

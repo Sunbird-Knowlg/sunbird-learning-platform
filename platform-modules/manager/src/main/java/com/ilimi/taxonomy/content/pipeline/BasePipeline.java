@@ -379,7 +379,7 @@ public class BasePipeline extends BaseManager {
 		String path = "";
 		if (!StringUtils.isBlank(contentId))
 			path = ContentConfigurationConstants.CONTENT_BASE_PATH + File.separator + System.currentTimeMillis()
-					+ ContentAPIParams._temp.name() + File.separator + contentId;
+					+ ContentWorkflowPipelineParams._temp.name() + File.separator + contentId;
 		return path;
 	}
 
