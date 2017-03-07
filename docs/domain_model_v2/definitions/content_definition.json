@@ -483,7 +483,7 @@
         {
           "required": false,
           "dataType": "Text",
-          "propertyName": "curriculum",
+          "propertyName": "board",
           "title": "Curriculum (Board)",
           "description": "Education Board (Like MP Board, NCERT, etc)",
           "category": "Pedagogy",
@@ -499,6 +499,19 @@
           "propertyName": "subject",
           "title": "Subject",
           "description": "Subject of the Content to use to teach",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "medium",
+          "title": "Medium",
+          "description": "Medium of instruction",
           "category": "Pedagogy",
           "displayProperty": "Editable",
           "defaultValue": "",
