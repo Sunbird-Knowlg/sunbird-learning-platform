@@ -103,12 +103,21 @@ if {$check_error} {
 		set node_metadata [java::prop $graph_node "metadata"]
 		set status_val [$node_metadata get "status"]
 		set status_val_str [java::new String [$status_val toString]]
-		set isLiveState [$status_val_str equalsIgnoreCase "Live" || "Processing"]
+		set isLiveState [$status_val_str equalsIgnoreCase "Live"]
+		set isProcessingState [$status_val_str equalsIgnoreCase "Processing"]
 		set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
-		if {$isLiveState == 1 || $isFlaggedState == 1} {
+		if {$isLiveState == 1 || $isFlaggedState == 1 || $isProcessingState == 1} {
 			set request [java::new HashMap]
 			$request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
-			$request put "flags" [addFlags $flags $node_metadata]
+			set isFlagsNull [java::isnull $flags]
+			if {$isFlagsNull == 0} {
+				set flags [java::cast ArrayList $flags]
+				set hasFlags [isNotEmpty $flags]
+				if {$hasFlags} {
+					set flags [addFlagReasons $flags $node_metadata]
+					$request put "flags" $flags
+				}
+			}
 			$request put "versionKey" $versionKey
 			$request put "status" "Flagged"
 			$request put "lastFlaggedOn" [java::call DateUtils format [java::new Date]]
