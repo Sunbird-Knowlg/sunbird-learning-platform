@@ -114,7 +114,7 @@ if {$check_error} {
 				set flags [java::cast ArrayList $flags]
 				set hasFlags [isNotEmpty $flags]
 				if {$hasFlags} {
-					set flags [addFlagReasons $flags $node_metadata]
+					set flags [addFlags $flags $node_metadata]
 					$request put "flags" $flags
 				}
 			}
