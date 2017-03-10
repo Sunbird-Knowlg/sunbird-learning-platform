@@ -1,4 +1,4 @@
-package org.ekstep.visionApi;
+package org.ekstep.bulkUploader;
 
 import static org.junit.Assert.assertTrue;
 
@@ -10,7 +10,7 @@ import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.ekstep.visionApi.BulkUploadImageProcessor;
+import org.ekstep.bulkUpload.BulkUploadImageProcessor;
 import org.junit.After;
 import org.junit.Test;
 
@@ -21,7 +21,7 @@ public class BulkUploadImageProcessorTest {
 
 	@Test
 	public void testBulkUpload() {
-		String csvfileName = "src/test/resources/TestBulkUpload.csv";
+		String csvfileName = "src/test/resources/Test.csv";
 		String[] zipFiles = { "src/test/resources/test.zip" };
 		FileReader fileReader = null;
 		CSVParser csvFileParser = null;
@@ -36,8 +36,13 @@ public class BulkUploadImageProcessorTest {
 			fileReader = new FileReader(opfileName);
 			csvFileParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withHeader());
 			List<CSVRecord> csvOutputRecords = csvFileParser.getRecords();
-			assertTrue(csvFileParser.getHeaderMap().containsKey("Flags"));
-			assertTrue(csvFileParser.getHeaderMap().containsKey("DownloadUrl"));
+			assertTrue(csvFileParser.getHeaderMap().containsKey("identifier"));
+			assertTrue(csvFileParser.getHeaderMap().containsKey("name"));
+			assertTrue(csvFileParser.getHeaderMap().containsKey("code"));
+			assertTrue(csvFileParser.getHeaderMap().containsKey("keywords"));
+			assertTrue(csvFileParser.getHeaderMap().containsKey("status"));
+			assertTrue(csvFileParser.getHeaderMap().containsKey("flag"));
+			assertTrue(csvFileParser.getHeaderMap().containsKey("downloadUrl"));
 			assertTrue(csvInputRecords.size() == csvOutputRecords.size());
 		} catch (Exception e) {
 			e.printStackTrace();
