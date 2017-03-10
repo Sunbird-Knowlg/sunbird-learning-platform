@@ -32,8 +32,9 @@ public class ResponseFilter implements Filter {
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		String requestId = getUUID();
-		RequestWrapper requestWrapper = new RequestWrapper((HttpServletRequest) request);
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		ExecutionContext.setRequestId(requestId);
+		RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 		LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
 				+ " | Params: " + request.getParameterMap());
 
@@ -41,6 +42,7 @@ public class ResponseFilter implements Filter {
 		requestWrapper.setAttribute("startTime", System.currentTimeMillis());
 
 		chain.doFilter(requestWrapper, responseWrapper);
+
 		TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 		response.getOutputStream().write(responseWrapper.getData());
 	}
