@@ -21,6 +21,15 @@ public class CompositeSearchTests extends BaseTest {
 
 	String jsonSimpleSearchQuery = "{\"request\": {\"query\": \"add\",\"limit\": 10}}";
 	String jsonFilteredCompositeSearch = "{\"request\": {\"query\": \"add\",\"filters\": {\"objectType\": [\"content\", \"concept\"]},\"limit\": 10}}"; 
+	String jsonSearchWithFilter = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]}}}";
+	String jsonSearchQueryAndFilter = "{\"request\":{\"query\":\"lion\",\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]}}}";
+	String jsonSearchLogicalReq = "{\"request\":{\"filters\":{\"objectType\":[\"Word\"],\"graph_id\":[\"hi\"],\"orthographic_complexity\":{\"<=\":2,\">\":0.5},\"syllableCount\":{\">\":2,\"<=\":5}}}}";
+	String jsonSearchWithStartsEnds = "{\"request\":{\"filters\":{\"objectType\":[\"Word\"],\"graph_id\":[\"en\"],\"lemma\":{\"startsWith\":\"e\",\"endsWith\":\"t\"}}}}";
+	String jsonSearchWithEquals = "{\"request\":{\"filters\":{\"lemma\":\"eat\"}}}";
+	String jsonSearchWithFacets = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"]}}";
+	String jsonSearchWithSortByAsc = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"sort_by\":{\"name\":\"asc\"}}}";
+	String jsonSearchWithSortByDsc = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]},\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"sort_by\":{\"name\":\"desc\"}}}";
+	
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String invalidContentId = "TestQa_"+rn+"";
 	String jsonCreateValidWord = "{\"request\":{\"words\":[{\"lemma\":\"देख_ी_"+rn+"\",\"sampleUsages\":[\"महिला एक बाघ को देखीै\"],\"pronunciations\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/dekhi.mp3\"],\"pictures\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/seeing.png\"],\"phonologic_complexity\":13.25,\"orthographic_complexity\":0.7}]}}";
@@ -214,44 +223,6 @@ public class CompositeSearchTests extends BaseTest {
 		 	spec(get200ResponseSpec());		
 }
 	
-	// Create and search word without filters in query
-	
-	//Create Word
-	@Test
-	public void  createNewWordExpectSuccess200() {
-		setURI();
-		given().
-			//log().all().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(jsonCreateValidWord).
-		with().
-			contentType(JSON).
-		when().
-			post("language/v1/language/dictionary/word/hi/").
-		then().
-			//log().all().
-			spec(get200ResponseSpec());
-		
-		// Extracting Lemma
-		String lemma = "देख_ी_"+rn+"";
-		
-		// Search for the node
-		setURI();
-		JSONObject js1 = new JSONObject(jsonSimpleSearchQuery);
-		js1.getJSONObject("request").put("query", lemma);
-		String jsonSimpleQuery = js1.toString();
-		given().
-	 		spec(getRequestSpec(contentType, validuserId)).
-	 		body(jsonSimpleQuery).
-		with().
-		 	contentType(JSON).
-		when().
-		 	post("search/v2/search").
-		then().
-		 	//log().all().
-		 	spec(get200ResponseSpec());
-}
-	
 	// Simple composite search request
 	
 	@Test
@@ -269,6 +240,141 @@ public class CompositeSearchTests extends BaseTest {
 		 	spec(get200ResponseSpec());
 		}
 	
+	// Search with filters
+
+	@Test
+	public void searchWithFiltersExpectSuccess200(){
+		setURI();
+		given().
+	 		spec(getRequestSpec(contentType, validuserId)).
+	 		body(jsonSearchWithFilter).
+		with().
+		 	contentType(JSON).
+		when().
+		 	post("search/v2/search").
+		then().
+		 	//log().all().
+		 	spec(get200ResponseSpec());
+	}
+	
+	// Search with query and filters
+	
+	@Test
+	public void searchWithQueryAndFiltersExpectSuccess200(){
+		setURI();
+		given().
+	 		spec(getRequestSpec(contentType, validuserId)).
+ 		body(jsonSearchQueryAndFilter).
+		with().
+		 	contentType(JSON).
+		when().
+		 	post("search/v2/search").
+		then().
+		 	//log().all().
+		 	spec(get200ResponseSpec());
+	}
+	
+	// Search with Logical Request
+	
+	@Test
+	public void searchWithLogicalRequestExpectSuccess200(){
+	setURI();
+	given().
+ 		spec(getRequestSpec(contentType, validuserId)).
+ 		body(jsonSearchLogicalReq).
+	with().
+	 	contentType(JSON).
+	when().
+	 	post("search/v2/search").
+	then().
+	 	//log().all().
+	 	spec(get200ResponseSpec());
+	}
+	
+	// Search with starts and ends with
+	
+	@Test
+	public void searchWithStartsAndEndsExpectSuccess200(){
+		setURI();
+		given().
+	 		spec(getRequestSpec(contentType, validuserId)).
+	 		body(jsonSearchWithStartsEnds).
+		with().
+		 	contentType(JSON).
+		when().
+		 	post("search/v2/search").
+		then().
+		 	//log().all().
+		 	spec(get200ResponseSpec());
+	}
+	
+	// Search with Equals query
+	
+	public void searchWithEqualsExpectSuccess200(){
+		setURI();
+		given().
+	 		spec(getRequestSpec(contentType, validuserId)).
+	 		body(jsonSearchWithEquals).
+		with().
+		 	contentType(JSON).
+		when().
+		 	post("search/v2/search").
+		then().
+		 	//log().all().
+		 	spec(get200ResponseSpec());
+	}
+	
+	// Search with Facets
+	
+	@Test
+	public void searchWithFacetsExpectSuccess200(){
+		setURI();
+		given().
+	 		spec(getRequestSpec(contentType, validuserId)).
+	 		body(jsonSearchWithFacets).
+		with().
+		 	contentType(JSON).
+		when().
+		 	post("search/v2/search").
+		then().
+		 	//log().all().
+		 	spec(get200ResponseSpec());
+	}
+	
+	// Search with Sortby Ascending
+	
+	@Test
+	public void searchWithSortAscExpectSuccess200(){
+		setURI();
+		given().
+	 		spec(getRequestSpec(contentType, validuserId)).
+	 		body(jsonSearchWithSortByAsc).
+		with().
+		 	contentType(JSON).
+		when().
+		 	post("search/v2/search").
+		then().
+		 	//log().all().
+		 	spec(get200ResponseSpec());
+	}
+	
+	// Search with sort by descending
+	
+	@Test
+	public void searchWithSortDescExpectSuccess200(){
+		setURI();
+		given().
+	 		spec(getRequestSpec(contentType, validuserId)).
+	 		body(jsonSearchWithSortByDsc).
+		with().
+		 	contentType(JSON).
+		when().
+		 	post("search/v2/search").
+		then().
+		 	//log().all().
+		 	spec(get200ResponseSpec());
+	}
+	
 	// Composite search request with filters
 	
 	@Test
@@ -284,7 +390,8 @@ public class CompositeSearchTests extends BaseTest {
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
-	}	
+	}
+	
 	// Content clean up	
 		public void contentCleanUp(){
 			setURI();
@@ -295,6 +402,4 @@ public class CompositeSearchTests extends BaseTest {
 			when().
 			post("learning/v1/exec/content_qe_deleteContentBySearchStringInField");
 		}
-
-
 }

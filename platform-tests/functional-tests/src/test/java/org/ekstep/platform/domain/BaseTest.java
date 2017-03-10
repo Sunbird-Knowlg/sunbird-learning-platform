@@ -12,6 +12,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 import java.util.Random;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -20,13 +21,15 @@ import com.jayway.restassured.specification.ResponseSpecification;
 public class BaseTest 
 {
 	ResponseSpecBuilder builderres = new ResponseSpecBuilder();
-	
 	public String liveStatus = "Live";
 	public String contentType = "application/json";
-	public String uploadContentType = "multipart/mixed";
+	public String uploadContentType = "multipart/form-data";
 	public String validuserId = "rayuluv";
 	public String invalidUserId = "abc";
 	
+	public void parser(){
+		RestAssured.registerParser("text/csv", null);
+	}
 	/**
 	 * sets baseURI and basePath
 	 */
@@ -34,10 +37,11 @@ public class BaseTest
 	{
 		//TO-DO: This will be read from config file, soon.
 		//baseURI = "http://localhost:8080/";
-		baseURI = "https://dev.ekstep.in/api/";
-		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
+		//baseURI = "https://api.ekstep.in/";
+		baseURI ="https://dev.ekstep.in/api/"; 
 
 	}
+	
 		
 	/**
 	 * adds the given content_type and user_id to the header of RequestSpecBuilder
@@ -72,6 +76,17 @@ public class BaseTest
 		return responseSpec;
 	}
 	
+	public ResponseSpecification get200ResponseSpecUpload()
+	{
+		builderres.expectStatusCode(200);
+		builderres.expectBody("params.size()", is(5));
+		builderres.expectBody("params.status", equalTo("successful"));
+		builderres.expectBody("params.errmsg", equalTo(null));
+		builderres.expectBody("responseCode", equalTo("OK"));
+		builderres.expectBody("result.size()", is(3));
+		ResponseSpecification responseSpec = builderres.build();
+		return responseSpec;
+	}
 	
 	/**
 	 * checks whether response statuscode is 500,param size is 5, param.status is failed and responsecode is SERVER_ERROR
@@ -187,6 +202,6 @@ public class BaseTest
 		log().all().
 		spec(get200ResponseSpec());	
 	}
-	
+
 }
 
