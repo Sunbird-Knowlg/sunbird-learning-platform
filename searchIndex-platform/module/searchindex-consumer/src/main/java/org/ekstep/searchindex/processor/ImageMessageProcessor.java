@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,10 +24,10 @@ import org.ekstep.searchindex.util.*;
 import com.ilimi.graph.dac.model.Node;
 
 /**
- * The Class ImageMessageProcessor is a kafka consumer which 
- * provides implementations of the core Asset
- * upload operations defined in the IMessageProcessor along with the methods to
- * implement image tagging and flagging from Google Vision API
+ * The Class ImageMessageProcessor is a kafka consumer which provides
+ * implementations of the core Asset upload operations defined in the
+ * IMessageProcessor along with the methods to implement image tagging and
+ * flagging from Google Vision API
  * 
  * @author Rashmi
  * 
@@ -45,7 +46,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 
 	/** The Properties Util */
 	private static PropertiesUtil util = new PropertiesUtil();
-	
+
 	/** The constructor */
 	public ImageMessageProcessor() {
 		super();
@@ -85,35 +86,37 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public void processMessage(Map<String, Object> message) {
-		
-		Map<String, Object> edata = new HashMap<String,Object>();
-		Map<String, Object> eks = new HashMap<String,Object>();
-		
+
+		Map<String, Object> edata = new HashMap<String, Object>();
+		Map<String, Object> eks = new HashMap<String, Object>();
+
 		LOGGER.info("processing kafka message" + message);
-		if(null != message.get("edata")){
+		if (null != message.get("edata")) {
 			LOGGER.info("checking if kafka message contains edata or not" + message.get("edata"));
 			edata = (Map) message.get("edata");
-			if(null != edata.get("eks")){
+			if (null != edata.get("eks")) {
 				LOGGER.info("checking if edata has eks present in it" + eks);
 				eks = (Map) edata.get("eks");
-				if(null != eks){
+				if (null != eks) {
 					LOGGER.info("checking if node contains contentType as Asset and mediaType as image");
-					if(null != eks.get("contentType") && null != eks.get("mediaType")){
+					if (null != eks.get("contentType") && null != eks.get("mediaType")) {
 						if ((StringUtils.equalsIgnoreCase(eks.get("contentType").toString(), "Asset"))
-							&& (StringUtils.equalsIgnoreCase(eks.get("mediaType").toString(), "image"))) {
+								&& (StringUtils.equalsIgnoreCase(eks.get("mediaType").toString(), "image"))) {
 
 							LOGGER.info("Calling image optimiser to get optimized image resolutions");
 							Map<String, String> variantsMap;
 							try {
 								variantsMap = OptimizerUtil.optimiseImage(eks.get("cid").toString());
 								LOGGER.info("optimized images returned from optimizer util" + variantsMap);
-				
-								if(null == variantsMap)
-									variantsMap = new HashMap<String,String>();
+
+								if (null == variantsMap)
+									variantsMap = new HashMap<String, String>();
 								if (StringUtils.isBlank(variantsMap.get("medium"))) {
-									LOGGER.info("Checking if variantsMap contains medium resolution image", variantsMap);
+									LOGGER.info("Checking if variantsMap contains medium resolution image",
+											variantsMap);
 									variantsMap.put("medium", edata.get("downloadUrl").toString());
-									LOGGER.info("adding image from node metadata if medium resolution image is empty", variantsMap);
+									LOGGER.info("adding image from node metadata if medium resolution image is empty",
+											variantsMap);
 								}
 								String image_url = variantsMap.get("medium");
 								LOGGER.info("calling processImage to initiate Google Vision Service");
@@ -130,8 +133,8 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * The processImage method holds the logic to update the node with variantsMap
-	 * tags and flags to the asset node
+	 * The processImage method holds the logic to update the node with
+	 * variantsMap tags and flags to the asset node
 	 * 
 	 * @param image_url
 	 * @param variantsMap
@@ -145,21 +148,20 @@ public class ImageMessageProcessor implements IMessageProcessor {
 		try {
 			util.loadProperties("consumer-config.properties");
 			String key = util.getProperty("google.vision.tagging.enabled");
-			if("true".equalsIgnoreCase(key)){ 
-				
+			if ("true".equalsIgnoreCase(key)) {
+
 				Node data = callVisionService(image_url, node, variantsMap);
-				
+
 				LOGGER.info("Adding image variants to node", variantsMap);
 				data.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 
 				OptimizerUtil.controllerUtil.updateNode(data);
 				LOGGER.info("Updating the node after setting all required metadata", data);
-			}
-			else {
-				
+			} else {
+
 				LOGGER.info("Setting node status to Live");
 				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-				
+
 				LOGGER.info("Adding image variants to node", variantsMap);
 				node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 
@@ -173,8 +175,9 @@ public class ImageMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * The method callVisionService holds the logic to call the google vision API
-	 * get labels and flags for a given image and update the same on the node
+	 * The method callVisionService holds the logic to call the google vision
+	 * API get labels and flags for a given image and update the same on the
+	 * node
 	 * 
 	 * @param image
 	 * @param node
@@ -204,35 +207,45 @@ public class ImageMessageProcessor implements IMessageProcessor {
 
 		} catch (IOException | GeneralSecurityException e) {
 			LOGGER.error("Vision API returns security exception", e);
-			e.printStackTrace();
 		}
-		List<String> keywords = new ArrayList<String>();
-		if(null != node.getMetadata().get("keywords")){
-			keywords = (List)node.getMetadata().get("keywords");
-		}
+		
 		try {
-			if(!labels.isEmpty()){
-				for (Entry<String, Object> entry : labels.entrySet()) {
-					List<String> list = (List) entry.getValue();
-					if (null != list && (!list.isEmpty()))
-						keywords.addAll(list);
+			List<String> node_keywords = new ArrayList<String>();
+			if (null != node.getMetadata().get("keywords")) {
+				Object object = node.getMetadata().get("keywords");
+
+				LOGGER.info("checking if object is instanceof string[]");
+				if (object instanceof String[]) {
+					String[] stringArray = (String[]) node.getMetadata().get("keywords");
+					LOGGER.info("converting string array to list" + stringArray);
+					List keywords = Arrays.asList(stringArray);
+					node_keywords = setKeywords(keywords, labels);
+				}
+				
+				LOGGER.info("checking if object is instanceof string");
+				if (object instanceof String) {
+					String keyword = (String) node.getMetadata().get("keywords");
+					LOGGER.info("keyword fetched from node" + keyword);
+					node_keywords.add(keyword);
+					node_keywords = setKeywords(node_keywords, labels);
 				}
 			}
-			if(!keywords.isEmpty()){
-				
-				LOGGER.info("Updating node with the keywords", keywords);
-				node.getMetadata().put("keywords", keywords);	
-			}
 			
+			LOGGER.info("checking if keywords list is empty" + node_keywords);
+			if (!node_keywords.isEmpty()) {
+				LOGGER.info("Updating node with the keywords", node_keywords);
+				node.getMetadata().put("keywords", node_keywords);
+			}
+
 			LOGGER.info("Setting node status to Live");
 			node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-			
+
 			LOGGER.info("Checking for flaggedByList from the node");
 			List<String> flaggedByList = new ArrayList<>();
 			if (null != node.getMetadata().get("flaggedBy")) {
 				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get("flaggedBy"));
 			}
-			
+
 			LOGGER.info("Checking for Flags returned from Vision API is empty or not", flags);
 			if (null != flags && (!flags.isEmpty())) {
 				LOGGER.debug("setting Flags in node metadata", flags);
@@ -246,8 +259,46 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.info("Node updated with keywords and flags from vision API", node);
 		} catch (Exception e) {
 			LOGGER.info("error while setting node metadata", e);
-			e.printStackTrace();
 		}
 		return node;
+	}
+
+	/**
+	 * This method holds logic to set keywords from Vision API with existing keywords 
+	 * from the node
+	 * 
+	 * @param keywords
+	 * 		The keywords 
+	 * 
+	 * @param labels
+	 * 		The labels
+	 * 
+	 * @return List of keywords
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private List<String> setKeywords(List<String> keywords, Map<String, Object> labels) {
+
+		LOGGER.info("checking if labels are empty");
+		if (null != labels && !labels.isEmpty()) {
+			
+			LOGGER.info("iterating through labels map");
+			for (Entry<String, Object> entry : labels.entrySet()) {
+				
+				LOGGER.info("getting list of label values" + entry.getValue());
+				List<String> list = (List) entry.getValue();
+				if (null != list && (!list.isEmpty())) {
+					
+					for (String key : list) {
+						
+						LOGGER.info("checking if key is already present in keywords list" + key);
+						if (!keywords.contains(key)) {
+							LOGGER.info("Adding labels to keywords list" + list);
+							keywords.addAll(list);
+						}
+					}
+				}
+			}
+		}
+		return keywords;
 	}
 }

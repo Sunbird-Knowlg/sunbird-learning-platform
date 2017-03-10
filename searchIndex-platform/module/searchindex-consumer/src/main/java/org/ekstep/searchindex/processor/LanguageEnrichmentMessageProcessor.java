@@ -15,7 +15,6 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 
@@ -28,7 +27,7 @@ import com.ilimi.graph.dac.model.Node;
  * @author Rashmi
  *
  */
-public class LanguageEnrichmentMessageProcessor implements IMessageProcessor {
+public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements IMessageProcessor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(LanguageEnrichmentMessageProcessor.class.getName());
