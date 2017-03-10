@@ -144,6 +144,36 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     }
 
     @SuppressWarnings("unchecked")
+    protected Future<Boolean> checkMemberNode(Request req, final String memberId, final ExecutionContext ec) {
+        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+        request.setOperation("getNodeByUniqueId");
+        request.put(GraphDACParams.node_id.name(), memberId);
+        Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+        Future<Boolean> validMembers = dacFuture.map(new Mapper<Object, Boolean>() {
+            @Override
+            public Boolean apply(Object parameter) {
+                if (parameter instanceof Response) {
+                    Response ar = (Response) parameter;
+                    Node node = (Node) ar.get(GraphDACParams.node.name());
+                    if (manager.validateRequired(node)) {
+                        if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType()) && !StringUtils.equals(SystemNodeTypes.PROXY_NODE.name(), node.getNodeType()))
+                            return false;
+                        if (StringUtils.isNotBlank(getMemberObjectType())) {
+                            if (!StringUtils.equals(getMemberObjectType(), node.getObjectType()))
+                                return false;
+                        }
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }, ec);
+        return validMembers;
+    }
+    
+    @SuppressWarnings("unchecked")
     protected Future<Boolean> checkMemberNodes(Request req, final List<String> memberIds, final ExecutionContext ec) {
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);

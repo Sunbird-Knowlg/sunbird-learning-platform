@@ -85,27 +85,40 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 				List<String> mediaIds = new ArrayList<String>();
 				LOGGER.info("Validating Assets.");
 				for (Media media : medias) {
-					if (mediaIds.contains(media.getId()))
+					if (mediaIds.contains(getMediaId(media)))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_ASSET_ID.name(),
 								ContentErrorMessageConstants.DUPLICATE_ASSET_ID_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is used more than once in the manifest.]");
 					else
-						mediaIds.add(media.getId());
+						mediaIds.add(getMediaId(media));
 					if (isWidgetTypeAsset(media.getType())
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.widgets.name()
-									+ File.separator + media.getSrc()).exists())
+									+ getSubFolderPath(media) + File.separator + media.getSrc()).exists())
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");
 					else if (!isWidgetTypeAsset(media.getType()) 
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.assets.name()
-									+ File.separator + media.getSrc()).exists())
+									+ getSubFolderPath(media) + File.separator + media.getSrc()).exists())
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");
 				}
 			}
 		}
+	}
+	
+	private String getMediaId(Media media) {
+		String id = media.getId();
+		if (null != media.getData() && !media.getData().isEmpty()) {
+			Object plugin = media.getData().get(ContentWorkflowPipelineParams.plugin.name());
+			Object ver = media.getData().get(ContentWorkflowPipelineParams.ver.name());
+			if (null != plugin && StringUtils.isNotBlank(plugin.toString()))
+				id += "_" + plugin;
+			if (null != ver && StringUtils.isNotBlank(ver.toString()))
+				id += "_" + ver;
+		}
+		return id;
 	}
 
 }

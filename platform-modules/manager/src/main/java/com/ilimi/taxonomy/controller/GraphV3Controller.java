@@ -40,7 +40,7 @@ public class GraphV3Controller extends BaseController {
 	@Autowired
 	private ITaxonomyManager taxonomyManager;
 
-	@RequestMapping(value = "/graph/import/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/import/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@PathVariable(value = "id") String id,
 			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
@@ -67,7 +67,7 @@ public class GraphV3Controller extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/graph/export/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/export/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public void export(@PathVariable(value = "id") String id, @RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
@@ -101,31 +101,32 @@ public class GraphV3Controller extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/definition/update/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/definitions/update/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> createDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
+	public ResponseEntity<Response> updateDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.create";
-		LOGGER.info("Create Definition | Id: " + id + " | user-id: " + userId);
+		String apiId = "definition.update";
+		LOGGER.info("update Definition | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.updateDefinition(id, json);
-			LOGGER.info("Create Definition | Response: " + response);
+			LOGGER.info("update Definition | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
+			LOGGER.error("update Definition | Exception: " + e.getMessage(), e);
 			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
-	@RequestMapping(value = "/definition/read/{id:.+}/{defId:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/definitions/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
-			@PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
+	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String objectType,
+			 @RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
+			 @RequestHeader(value = "user-id") String userId) {
 		String apiId = "definition.find";
-		LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
+		LOGGER.info("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
-			Response response = taxonomyManager.findDefinition(id, objectType);
+			Response response = taxonomyManager.findDefinition(graphId, objectType);
 			LOGGER.info("Find Definition | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -134,14 +135,15 @@ public class GraphV3Controller extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/definition/list/{id:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/definitions/list", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id,
+	public ResponseEntity<Response> findAllDefinitions(
+			@RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "definition.list";
-		LOGGER.info("Find All Definitions | Id: " + id + " | user-id: " + userId);
+		LOGGER.info("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
 		try {
-			Response response = taxonomyManager.findAllDefinitions(id);
+			Response response = taxonomyManager.findAllDefinitions(graphId);
 			LOGGER.info("Find All Definitions | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

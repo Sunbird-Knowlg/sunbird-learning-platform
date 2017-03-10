@@ -3,7 +3,7 @@ package org.ekstep.searchindex.processor;
 import java.util.Map;
 
 /**
- * The Interface IMessageProcessor defines the core Audit Logs operations that
+ * The Interface IMessageProcessor defines the core kafka consumer operations that
  * needs to be implemented by implementing classes.
  * 
  */
@@ -11,7 +11,7 @@ public interface IMessageProcessor {
 
 	/**
 	 * The class processMessage is mainly responsible for processing the messages sent from
-	 * consumers and saves the processed message to mysql DB
+	 * consumers based on required specifications
 	 *
 	 * @param MessageData
 	 *            The messageData
@@ -20,7 +20,7 @@ public interface IMessageProcessor {
 	
 	/**
 	 * The class processMessage is mainly responsible for processing the messages sent from
-	 * consumers and saves the processed message to mysql DB
+	 * consumers based on required specifications
 	 *
 	 * @param Message
 	 *            The message

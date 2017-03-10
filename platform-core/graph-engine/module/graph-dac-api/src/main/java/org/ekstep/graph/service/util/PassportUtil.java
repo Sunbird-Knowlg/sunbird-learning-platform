@@ -17,11 +17,11 @@ public class PassportUtil {
 
 		// Read the 'graph.passport.key.base' in Graph Properties
 		String graphPassportKeyBase = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-		LOGGER.info("Passport Key Base: " + graphPassportKeyBase);
-		LOGGER.info("G_P_K: " + passportKey);
+		LOGGER.debug("Passport Key Base: " + graphPassportKeyBase);
+		LOGGER.debug("G_P_K: " + passportKey);
 
 		String expectedPassportKey = graphPassportKeyBase;
-		LOGGER.info("E_P_K: " + expectedPassportKey);
+		LOGGER.debug("E_P_K: " + expectedPassportKey);
 
 		// Encryption(Platform Passport. Key) = Raw(Analytics Passport);
 		if (StringUtils.isNotBlank(passportKey) && StringUtils.equals(passportKey, expectedPassportKey))

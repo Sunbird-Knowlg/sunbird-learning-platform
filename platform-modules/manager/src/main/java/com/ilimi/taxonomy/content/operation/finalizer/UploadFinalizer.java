@@ -12,10 +12,10 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.ExtractionType;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.enums.ExtractionType;
 import com.ilimi.taxonomy.util.ContentPackageExtractionUtil;
 
 /**
@@ -116,6 +116,7 @@ public class UploadFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
 		node.getMetadata().put(ContentWorkflowPipelineParams.editorState.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), null);
 		
 		// update content body in content store
 		response = updateContentBody(node.getIdentifier(), ecml);
@@ -126,6 +127,13 @@ public class UploadFinalizer extends BaseFinalizer {
 		// Update Node
 		response = updateContentNode(node, urlArray[IDX_S3_URL]);
 		LOGGER.info("Content Node Update Status: " + response.getResponseCode());
+		
+		try {
+			LOGGER.info("Deleting the temporary folder: " + basePath);
+			delete(new File(basePath));
+		} catch (Exception e) {
+			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
+		}
 		
 		return response;
 	}

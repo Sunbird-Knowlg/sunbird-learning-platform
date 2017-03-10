@@ -29,7 +29,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.enums.ExtractionType;
+import com.ilimi.taxonomy.content.common.ExtractionType;
 
 /**
  * The Class ContentPackageExtractionUtil.
@@ -420,7 +420,7 @@ public class ContentPackageExtractionUtil {
 					+ pathSuffix;
 			break;
 		case "application/vnd.ekstep.plugin-archive":
-			path += s3Environment + File.separator + S3_CONTENT_PLUGIN_DIRECTORY + File.separator
+			path += S3_CONTENT_PLUGIN_DIRECTORY + File.separator
 					+ node.getIdentifier() + DASH + pathSuffix;
 			break;
 

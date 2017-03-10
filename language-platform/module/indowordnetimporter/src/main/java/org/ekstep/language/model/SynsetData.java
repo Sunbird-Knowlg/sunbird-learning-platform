@@ -15,8 +15,6 @@ public class SynsetData {
 	private byte[] gloss;
 
 	private String category;
-
-	protected Map<String, List<SynsetDataLite>> translations = new HashMap<String, List<SynsetDataLite>>();
 	
 	protected Map<String, List<SynsetDataLite>> relations = new HashMap<String, List<SynsetDataLite>>();
 
@@ -71,14 +69,6 @@ public class SynsetData {
 
 	public void setCategory(String category) {
 		this.category = category;
-	}
-
-	public Map<String, List<SynsetDataLite>> getTranslations() {
-		return translations;
-	}
-
-	public void setTranslations(Map<String, List<SynsetDataLite>> translations) {
-		this.translations = translations;
 	}
 
 }

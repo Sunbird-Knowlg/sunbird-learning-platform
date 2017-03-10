@@ -23,22 +23,26 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
@@ -46,7 +50,6 @@ import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.ConceptTagger;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -141,7 +144,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(node, uploadedFile);
+		Response res = mimeTypeManager.upload(node, uploadedFile, false);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
 				LOGGER.info("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]");
@@ -405,7 +408,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
-		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
+//		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
 			publisher = (String) requestMap.get("lastPublishedBy");
@@ -422,18 +425,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 
 		try {
-			response = mimeTypeManager.publish(node);
-			String contentType = (String) node.getMetadata().get("contentType");
-			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
-				node.getMetadata().put("prevState", prevState);
-
-				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
-				LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
-
-				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
-				ConceptTagger tagger = new ConceptTagger();
-				tagger.tagConcepts(taxonomyId, contentId, node);
-			}
+			response = mimeTypeManager.publish(node, true);
+//			String contentType = (String) node.getMetadata().get("contentType");
+//			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
+//				node.getMetadata().put("prevState", prevState);
+//
+//				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+//				LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+//
+//				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
+//				ConceptTagger tagger = new ConceptTagger();
+//				tagger.tagConcepts(taxonomyId, contentId, node);
+//			}
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
@@ -445,6 +448,112 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Returning 'Response' Object.");
 		return response;
 	}
+	
+	@Override
+	public Response review(String taxonomyId, String contentId, Request request) {
+		LOGGER.debug("Graph Id: ", taxonomyId);
+		LOGGER.debug("Content Id: ", contentId);
+		LOGGER.debug("Request: ", request);
+		
+		LOGGER.info("Validating The Input Parameter.");
+		if (StringUtils.isBlank(taxonomyId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
+		
+		Response response = new Response();
+		Response getNodeRes = getDataNode(taxonomyId, contentId);
+		response = copyResponse(getNodeRes);
+		if (checkError(response)) {
+			return response;
+		}
+		
+		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+		LOGGER.debug("Node: ", node);
+		
+		String body = getContentBody(contentId);
+		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		LOGGER.debug("Body Fetched From Content Store.");
+		
+		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+		if (StringUtils.isBlank(mimeType)) {
+			mimeType = "assets";
+		}
+		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
+		
+		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
+		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		
+		response = mimeTypeManager.review(node, false);
+		
+		LOGGER.debug("Returning 'Response' Object: ", response);
+		return response;
+	}
+	
+	@Override
+	public Response getHierarchy(String graphId, String contentId) {
+		LOGGER.debug("Graph Id: ", graphId);
+		LOGGER.debug("Content Id: ", contentId);
+		Node node = getContentNode(graphId, contentId);
+		
+		LOGGER.info("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
+		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
+		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition);
+		
+		Response response = new Response();
+        response.put("content", map);
+        response.setParams(getSucessStatus());
+        return response;
+	}
+	
+	private ResponseParams getSucessStatus() {
+        ResponseParams params = new ResponseParams();
+        params.setErr("0");
+        params.setStatus(StatusType.successful.name());
+        params.setErrmsg("Operation successful");
+        return params;
+    }
+	
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition) {
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
+		if (null != children && !children.isEmpty()) {
+			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
+			for (NodeDTO dto : children) {
+				Node childNode = getContentNode(graphId, dto.getIdentifier());
+				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition);
+				childMap.put("index", dto.getIndex());
+				childList.add(childMap);
+			}
+			contentMap.put("children", childList);
+		} else {
+			
+		}
+		return contentMap;
+	}
+	
+	private Node getContentNode(String graphId, String contentId) {
+		Response responseNode = getDataNode(graphId, contentId);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with id: " + contentId);
+
+		Node content = (Node) responseNode.get(GraphDACParams.node.name());
+		LOGGER.debug("Got Node: ", content);
+		return content;
+	}
+	
+	private DefinitionDTO getDefinition(String graphId, String objectType) {
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+                GraphDACParams.object_type.name(), objectType);
+        Response response = getResponse(request, LOGGER);
+        if (!checkError(response)) {
+            DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
+            return definition;
+        }
+        return null;
+    }
 	
 	private String getContentBody(String contentId) {
 		Request request = new Request();

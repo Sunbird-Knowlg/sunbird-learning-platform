@@ -291,6 +291,8 @@ public class SearchManager extends SearchBaseActor {
 	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters, Boolean traversal)
 			throws Exception {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
+		boolean compatibilityFilter = false;
+		boolean isContentSearch = false;
 		boolean statusFilter = false;
 		if (null != filters && !filters.isEmpty()) {
 			for (Entry<String, Object> entry : filters.entrySet()) {
@@ -369,9 +371,35 @@ public class SearchManager extends SearchBaseActor {
 						properties.add(property);
 					}
 				}
+				if (StringUtils.equals(CompositeSearchParams.objectType.name(), entry.getKey())) {
+					String objectType = null;
+					if(filterObject instanceof List){
+						List objectTypeList = (List) filterObject;
+						if (objectTypeList.size() == 1)
+							objectType = (String) objectTypeList.get(0);
+					} else if(filterObject instanceof Object[]) {
+						Object[] objectTypeList = (Object[]) filterObject;
+						if (objectTypeList.length == 1)
+							objectType = (String) objectTypeList[0];
+					} else if (filterObject instanceof String){
+						objectType = (String) filterObject;
+					}
+					if (StringUtils.equalsIgnoreCase(CompositeSearchParams.Content.name(), objectType))
+						isContentSearch = true;
+				}
 				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
 					statusFilter = true;
+				if (StringUtils.equals(CompositeSearchParams.compatibilityLevel.name(), entry.getKey()))
+					compatibilityFilter = true;
 			}
+		}
+		
+		if (!compatibilityFilter && isContentSearch && !traversal) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put(CompositeSearchParams.propertyName.name(), CompositeSearchParams.compatibilityLevel.name());
+			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put(CompositeSearchParams.values.name(), Arrays.asList(new Integer[] { 1 }));
+			properties.add(property);
 		}
 
 		if (!statusFilter && !traversal) {

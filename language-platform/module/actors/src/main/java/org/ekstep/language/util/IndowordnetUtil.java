@@ -131,14 +131,9 @@ public class IndowordnetUtil {
 							// get Word object
 							Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages, languageGraphId);
 							long synsetStartTime = System.currentTimeMillis();
-							int englishTranslationId = 0;
-							if(synsetData!=null && StringUtils.equalsIgnoreCase(languageGraphId, "en")){
-								englishTranslationId = synsetData.getSynset_id();
-
-							}
 							// Create/update word in the Graph
 							errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId,
-									wordLemmaMap, wordDefinition, nodeIds, synsetDefinition, englishTranslationId));
+									wordLemmaMap, wordDefinition, nodeIds, synsetDefinition));
 							long synsetEndTime = System.currentTimeMillis();
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
@@ -166,7 +161,8 @@ public class IndowordnetUtil {
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
-					HibernateSessionFactory.closeSession();
+					session.flush();
+					session.close();
 				}
 
 			} while (true);
@@ -219,14 +215,15 @@ public class IndowordnetUtil {
 			if(synsetData.getEnglish_synset_id()!=0){
 				wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getEnglish_synset_id());
 				primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getEnglish_synset_id());
+				primaryMeaningMap.put(LanguageParams.english_indowordnetId.name(), synsetData.getSynset_id());
 				setFlag = true;
 			}
 		}if(!setFlag)
 		{
 			wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
 			primaryMeaningMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
-		}
-		
+			primaryMeaningMap.put(LanguageParams.english_indowordnetId.name(), (int)0);
+		}		
 
 		bytesGloss = synsetData.getGloss();
 		glossString = new String(bytesGloss, Charsets.UTF_8);
@@ -253,19 +250,34 @@ public class IndowordnetUtil {
 		for (Map.Entry<String, List<SynsetDataLite>> entry : synsetData.getRelations().entrySet()) {
 			String relationName = entry.getKey();
 			List<SynsetDataLite> relationDataList = entry.getValue();
-			List<Map<String, String>> relationsList = new ArrayList<>();
+			List<Map<String, Object>> relationsList = new ArrayList<>();
 
 			for (SynsetDataLite relation : relationDataList) {
-				bytesSynset = relation.getSynset();
-				synsetString = new String(bytesSynset, Charsets.UTF_8);
-				String[] relationWords = synsetString.split(COMMA_SEPARATOR);
-
-				for (String relationWord : relationWords) {
-					Map<String, String> lemmaMap = new HashMap<String, String>();
-					lemmaMap.put(LanguageParams.lemma.name(), relationWord);
-					relationsList.add(lemmaMap);
+				byte[] relationbytesGloss = relation.getGloss();
+				String relationGlossString = new String(relationbytesGloss, Charsets.UTF_8);
+				int index = relationGlossString.indexOf(DOUBLE_QUOTES);
+				List<String> relationExampleSentences = null;
+				String relationGloss = "";
+				if (index > 0) {
+					relationGloss = relationGlossString.substring(0, index - 1);
+					relationGloss = relationGloss.replaceAll(SEMI_COLON_SEPARATOR, "");
+					relationGloss = relationGloss.replaceAll(COLON_SEPARATOR, "");
+					String relationExampleSentencesString = relationGlossString.substring(index + 1, relationGlossString.length() - 1);
+					relationExampleSentencesString = relationExampleSentencesString.replaceAll("\"", "");
+					relationExampleSentences = Arrays.asList(relationExampleSentencesString.split(COMMA_SEPARATOR));
+				} else {
+					relationGloss = relationGlossString;
 				}
+				
+				Map<String, Object> meaningMap = new HashMap<>();
+				meaningMap.put(LanguageParams.identifier.name(), relation.getSynset_id());
+				meaningMap.put(LanguageParams.gloss.name(), relationGloss);
+				meaningMap.put(LanguageParams.exampleSentences.name(), relationExampleSentences);
+				meaningMap.put(LanguageParams.pos.name(), StringUtils.lowerCase(
+						relation.getCategory() != null ? relation.getCategory().toLowerCase() : StringUtils.EMPTY));
+				relationsList.add(meaningMap);
 			}
+				
 			primaryMeaningMap.put(relationName, relationsList);
 		}
 		wordMap.put(LanguageParams.primaryMeaning.name(), primaryMeaningMap);

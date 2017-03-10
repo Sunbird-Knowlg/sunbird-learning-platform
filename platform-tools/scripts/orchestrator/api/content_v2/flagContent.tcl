@@ -68,6 +68,30 @@ proc addFlaggedBy {flaggedBy node_metadata} {
 	return $flaggedByList
 }
 
+proc addFlags {flags node_metadata} {
+	set flagsList [java::new ArrayList]
+	$flagsList add $flags
+	set existingFlagsBy [$node_metadata get "flags"]	
+	set isExistingFlagsByNull [java::isnull $existingFlagsBy]
+	if {$isExistingFlagsByNull == 0} {
+		set arr_instance [java::instanceof $existingFlagsBy {String[]}]
+		if {$arr_instance == 1} {
+			set existingFlagsBy [java::cast {String[]} $existingFlagsBy]
+			set existingFlagsBy [java::call Arrays asList $existingFlagsBy]
+		} else {
+			set existingFlagsBy [java::cast ArrayList $existingFlagsBy]
+		}
+		if {[isNotEmpty $existingFlagsBy]} {
+			set flagSet [java::new HashSet $existingFlagsBy]
+			$flagSet addAll $flagsList
+			set flagsList [java::new ArrayList $flagSet]
+			return $flagsList
+		}
+	}
+
+	return $flagsList
+}
+
 set resp_get_node [getDataNode $graph_id $content_id]
 set check_error [check_response_error $resp_get_node]
 if {$check_error} {
@@ -79,11 +103,12 @@ if {$check_error} {
 		set node_metadata [java::prop $graph_node "metadata"]
 		set status_val [$node_metadata get "status"]
 		set status_val_str [java::new String [$status_val toString]]
-		set isLiveState [$status_val_str equalsIgnoreCase "Live"]
+		set isLiveState [$status_val_str equalsIgnoreCase "Live" || "Processing"]
 		set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isLiveState == 1 || $isFlaggedState == 1} {
 			set request [java::new HashMap]
 			$request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
+			$request put "flags" [addFlags $flags $node_metadata]
 			$request put "versionKey" $versionKey
 			$request put "status" "Flagged"
 			$request put "lastFlaggedOn" [java::call DateUtils format [java::new Date]]
@@ -93,17 +118,22 @@ if {$check_error} {
 				set hasFlagReasons [isNotEmpty $flagReasons]
 				if {$hasFlagReasons} {
 					set flagResaons [addFlagReasons $flagReasons $node_metadata]
-					puts "flagResaons [$flagResaons toString]"
 					$request put "flagReasons" $flagResaons
 				}
 			}
 			$request put "objectType" $object_type
 			$request put "identifier" $content_id
-			puts "making update"
 			set resp_def_node [getDefinition $graph_id $object_type]
 			set def_node [get_resp_value $resp_def_node "definition_node"]
 			set domain_obj [convert_to_graph_node $request $def_node]
 			set create_response [updateDataNode $graph_id $content_id $domain_obj]
+			set check_error [check_response_error $create_response]
+			if {$check_error} {
+			} else {
+				$node_metadata putAll $request
+				$node_metadata put "prevState" $status_val_str
+				set log_response [log_content_lifecycle_event $content_id $node_metadata]
+			}
 			return $create_response
 		} else {
 			set result_map [java::new HashMap]

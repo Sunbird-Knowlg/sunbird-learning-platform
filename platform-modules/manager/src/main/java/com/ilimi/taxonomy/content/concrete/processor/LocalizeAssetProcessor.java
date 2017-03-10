@@ -198,14 +198,22 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 								downloadPath += File.separator + ContentWorkflowPipelineParams.widgets.name();
 							else
 								downloadPath += File.separator + ContentWorkflowPipelineParams.assets.name();
+							
+							String subFolder = getSubFolderPath(media);
+							if (StringUtils.isNotBlank(subFolder))
+								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
 							File downloadedFile = HttpDownloadUtility.downloadFile(media.getSrc(), downloadPath);
 							LOGGER.info("Downloaded file : " + media.getSrc() + " - " + downloadedFile
 									+ " | [Content Id '" + contentId + "']");
 							if (null == downloadedFile)
 								skippedMediaDownloads.add(media);
-							else
-								downloadMap.put(media.getId(), downloadedFile.getName());
+							else {
+								if (StringUtils.isNotBlank(subFolder))
+									downloadMap.put(media.getId(), subFolder + File.separator + downloadedFile.getName());
+								else
+									downloadMap.put(media.getId(), downloadedFile.getName());
+							}
 						}
 						return downloadMap;
 					}

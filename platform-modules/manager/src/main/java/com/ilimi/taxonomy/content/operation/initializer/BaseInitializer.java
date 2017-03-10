@@ -15,22 +15,24 @@ import com.ilimi.taxonomy.content.util.JSONContentParser;
 import com.ilimi.taxonomy.content.util.XMLContentParser;
 
 /**
- * The Class BaseInitializer is a BaseClass for all Initializers, extends BasePipeline which
- * mainly holds Common Methods and operations of a ContentNode.
- * BaseInitializer holds methods to get ECML and ECRFtype from the ContentBody
+ * The Class BaseInitializer is a BaseClass for all Initializers, extends
+ * BasePipeline which mainly holds Common Methods and operations of a
+ * ContentNode. BaseInitializer holds methods to get ECML and ECRFtype from the
+ * ContentBody
  */
 public class BaseInitializer extends BasePipeline {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(BaseInitializer.class.getName());
 
-	/** isCompressRequired()
+	/**
+	 * isCompressRequired()
 	 * 
-	 *  @param Node the node
-	 *  checks if contentBody and artifactUrl are not present in node's metadata
-	 *  throws ClientException
-	 *  return true if validation is successful else false
-	 *  */
+	 * @param Node
+	 *            the node checks if contentBody and artifactUrl are not present
+	 *            in node's metadata throws ClientException return true if
+	 *            validation is successful else false
+	 */
 	protected boolean isCompressRequired(Node node) {
 		boolean required = false;
 		if (null != node && null != node.getMetadata()) {
@@ -41,19 +43,27 @@ public class BaseInitializer extends BasePipeline {
 				throw new ClientException(ContentErrorCodeConstants.OPERATION_DENIED.name(),
 						ContentErrorMessageConstants.UNABLE_TO_PUBLISH_OR_BUNDLE_CONTENT
 								+ " | [Either Content 'body' or 'artifactUrl' is needed for the operation.]");
+
+			/** Checking for the required conditions for applying 'Compression'.
+			* Below if Condition is the basic difference between this method
+			* and Content Validator's 'isAllRequiredFieldsAvailable' method's
+			* 'application/vnd.ekstep.ecml-archive' Case block.
+			*/
 			if (StringUtils.isBlank(artifactUrl) && StringUtils.isNotBlank(contentBody))
 				required = true;
 		}
 		return required;
 	}
 
-	/** gets the ECRFObject(Ekstep Common Representation Format) from  ContentBody.
+	/**
+	 * gets the ECRFObject(Ekstep Common Representation Format) from
+	 * ContentBody.
 	 * 
-	 *  @param ContentBody the contentBody
-	 *  gets the EcmlType from the ContentBody, if type is JSON calls JSONContentParser
-	 *  else XMLContentParser
-	 *  return ECRFObject 
-	 *  */
+	 * @param ContentBody
+	 *            the contentBody gets the EcmlType from the ContentBody, if
+	 *            type is JSON calls JSONContentParser else XMLContentParser
+	 *            return ECRFObject
+	 */
 	protected Plugin getECRFObject(String contentBody) {
 		Plugin plugin = new Plugin();
 		String ecml = contentBody;
@@ -67,13 +77,15 @@ public class BaseInitializer extends BasePipeline {
 		}
 		return plugin;
 	}
-	
-	/** gets the ECMLtype of the ContentBody.
+
+	/**
+	 * gets the ECMLtype of the ContentBody.
 	 * 
-	 *  @param contentBody the contentBody
-	 *  checks if contentBody isValidJSON else isValidXML else throws ClientException
-	 *  return EcmlType of the given ContentBody
-	 *  */
+	 * @param contentBody
+	 *            the contentBody checks if contentBody isValidJSON else
+	 *            isValidXML else throws ClientException return EcmlType of the
+	 *            given ContentBody
+	 */
 	protected String getECMLType(String contentBody) {
 		String type = "";
 		if (!StringUtils.isBlank(contentBody)) {

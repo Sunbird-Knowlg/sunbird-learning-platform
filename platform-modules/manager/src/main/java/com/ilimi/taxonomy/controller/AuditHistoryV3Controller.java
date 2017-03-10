@@ -27,7 +27,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
  */
 
 @Controller
-@RequestMapping("v3/audit")
+@RequestMapping("/v3/audit")
 public class AuditHistoryV3Controller extends BaseController {
 	
 	/** The Logger */
@@ -77,43 +77,4 @@ public class AuditHistoryV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-
-	/**
-	 * This method carries all the tasks related to 'get LogRecord By objectId' operation of
-	 * AuditHistory work-flow.
-	 * 
-	 * @param graphId
-	 *            The graphId for which the Audit History needs to be fetched
-	 *            
-	 * @param objectId
-	 *  	    The auditId for which the audit Log record needs to be fetched
-	 *  
-	 * @param userId
-	 *            Unique id of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 *            
-	 * @return The Response entity with details of All Audit LogRecord for a given objectId
-	 *  in its ResultSet
-	 */
-	@RequestMapping(value = "/read/{objectId:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "objectId") String objectId,
-			@RequestParam(value = "timestamp", required = false) String timeStamp,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getLogRecordById";
-
-		LOGGER.info("get AuditHistory By objectId | TimeStamp1: " + timeStamp
-				+ " | objectId: " + objectId);
-		try {
-				Response response = auditHistoryManager.getAuditLogRecordById(objectId, timeStamp);
-				LOGGER.info("Find Item | Response: " + response);
-				return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-	 protected String getAPIVersion() {
-	        return API_VERSION_3;
-	 }
 }

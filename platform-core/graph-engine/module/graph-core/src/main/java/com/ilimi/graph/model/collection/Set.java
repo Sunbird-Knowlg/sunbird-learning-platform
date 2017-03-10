@@ -347,7 +347,11 @@ public class Set extends AbstractCollection {
 											"Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR,
 											getParent());
 								} else {
-									Future<Boolean> nodeFuture = checkMemberNodes(req, members, ec);
+									Future<Boolean> nodeFuture = null;
+									if(members.size()==1)
+										nodeFuture = checkMemberNode(req, members.get(0), ec);
+									else 
+										nodeFuture = checkMemberNodes(req, members, ec);
 									nodeFuture.onComplete(new OnComplete<Boolean>() {
 										public void onComplete(Throwable arg0, Boolean member) throws Throwable {
 											if (null != arg0 || null == member || !member) {

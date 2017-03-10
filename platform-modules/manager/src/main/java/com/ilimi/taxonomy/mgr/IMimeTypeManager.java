@@ -47,12 +47,12 @@ public interface IMimeTypeManager {
 	 *         <code>node_id</code> and the <code>artifactUrl</code> property
 	 *         i.e. the <code>URL</code> where the file is uploaded.
 	 */
-	public Response upload(Node node, File uploadFile);
+	public Response upload(Node node, File uploadFile, boolean isAsync);
 
 	/**
-	 * The <code>publish</code> method is a vital in Content work-flow carries
-	 * all the tasks needed for Content Publish Operation. This Method is
-	 * directly backed by Content Work-flow Pipeline.
+	 * The <code>publish</code> method is a vital method in Content work-flow
+	 * carries all the tasks needed for Content Publish Operation. This Method
+	 * is directly backed by Content Work-flow Pipeline.
 	 *
 	 * @param node
 	 *            the content <code>node</code> for which the publish operation
@@ -63,6 +63,23 @@ public interface IMimeTypeManager {
 	 *         file i.e. the value as <code>downloadUrl</code> property of
 	 *         content node.
 	 */
-	public Response publish(Node node);
+	public Response publish(Node node, boolean isAsync);
+
+	/**
+	 * The <code>review</code> method is a vital method in Content work-flow
+	 * carries all the tasks needed for Content Review Process Operation When is
+	 * is sent for review from the Content Author. This Method is directly
+	 * backed by Content Work-flow Pipeline.
+	 *
+	 * @param node
+	 *            the content <code>node</code> for which the review operation
+	 *            has to be performed.
+	 * @return the <code>response</code> object contains node id as
+	 *         <code>node_id<c/ode> of the content
+	 *         being reviewed and the <code>URL</code> of the <code>ECAR</code>
+	 *         file i.e. the value as <code>downloadUrl</code> property of
+	 *         content node.
+	 */
+	public Response review(Node node, boolean isAsync);
 
 }

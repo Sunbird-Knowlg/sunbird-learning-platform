@@ -24,9 +24,9 @@ import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 import com.ilimi.taxonomy.content.validator.ContentValidator;
 
 /**
- * The Class BundleInitializer, extends BaseInitializer which
- * mainly holds methods to get ECML and ECRFtype from the ContentBody.
- * BundleInitializer holds methods which perform ContentBundlePipeline operations
+ * The Class BundleInitializer, extends BaseInitializer which mainly holds
+ * methods to get ECML and ECRFtype from the ContentBody. BundleInitializer
+ * holds methods which perform ContentBundlePipeline operations
  */
 public class BundleInitializer extends BaseInitializer {
 
@@ -35,7 +35,7 @@ public class BundleInitializer extends BaseInitializer {
 
 	/** The BasePath. */
 	protected String basePath;
-	
+
 	/** The ContentId. */
 	protected String contentId;
 
@@ -43,13 +43,15 @@ public class BundleInitializer extends BaseInitializer {
 	private static final String ECML_MIME_TYPE = "application/vnd.ekstep.ecml-archive";
 
 	/**
-	 * Instantiates a new BundleInitializer and sets the base
-	 * path and current content id for further processing.
+	 * Instantiates a new BundleInitializer and sets the base path and current
+	 * content id for further processing.
 	 *
 	 * @param basePath
-	 *            the base path is the location for content package file handling and all manipulations. 
+	 *            the base path is the location for content package file
+	 *            handling and all manipulations.
 	 * @param contentId
-	 *            the content id is the identifier of content for which the Processor is being processed currently.
+	 *            the content id is the identifier of content for which the
+	 *            Processor is being processed currently.
 	 */
 	public BundleInitializer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -65,20 +67,19 @@ public class BundleInitializer extends BaseInitializer {
 	/**
 	 * initialize()
 	 *
-	 * @param Map the parameterMap
+	 * @param Map
+	 *            the parameterMap
 	 * 
-	 * checks if nodes, contentIdList, bundleFileName, manifestVersion 
-	 * exists in the parameterMap else throws ClientException
+	 *            checks if nodes, contentIdList, bundleFileName,
+	 *            manifestVersion exists in the parameterMap else throws
+	 *            ClientException
 	 * 
-	 * Validates the availability of all the Requested Contents
-	 * Populates the Content Hierarchical Data (Include Children Content also)
-	 * validates the ContentNode based on MimeType
-	 * Sets Attribute Value
-	 * Checks if Compression is Required
-	 * Gets ECRF Object
-	 * Gets Pipeline Object
-	 * Starts Pipeline Operation
-	 * Calls Finalizer
+	 *            Validates the availability of all the Requested Contents
+	 *            Populates the Content Hierarchical Data (Include Children
+	 *            Content also) validates the ContentNode based on MimeType Sets
+	 *            Attribute Value Checks if Compression is Required Gets ECRF
+	 *            Object Gets Pipeline Object Starts Pipeline Operation Calls
+	 *            Finalizer
 	 * 
 	 * @return the response
 	 */
@@ -105,13 +106,14 @@ public class BundleInitializer extends BaseInitializer {
 			manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
 
 		LOGGER.info("Total Input Content Ids: " + contentIdList.size());
-		
-		// Validate the availability of all the Requested Contents 
+
+		// Validate the availability of all the Requested Contents
 		if (nodes.size() < contentIdList.size())
 			throw new ResourceNotFoundException(ContentErrorCodeConstants.MISSING_CONTENT.name(),
 					ContentErrorMessageConstants.MISSING_BUNDLE_CONTENT);
-		
-		// Populate the Content Hierarchical Data (Include Children Content also) 
+
+		// Populate the Content Hierarchical Data (Include Children Content
+		// also)
 		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 		List<String> childrenIds = new ArrayList<String>();
 		LOGGER.info("Populating the Recursive (Children) Contents.");
@@ -121,7 +123,14 @@ public class BundleInitializer extends BaseInitializer {
 		ContentValidator validator = new ContentValidator();
 		Map<String, Object> bundleMap = new HashMap<String, Object>();
 		for (Node node : nodes) {
-			// Validating the Content Node 
+			// Checking if the node is not retired
+			if (null != node && StringUtils.equalsIgnoreCase(
+					((String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name())),
+					ContentWorkflowPipelineParams.Retired.name()))
+				throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(),
+						ContentErrorMessageConstants.INVALID_CONTENT + " | [Content Id: " + node.getIdentifier()
+								+ " is 'Retired' Content.]");
+			// Validating the Content Node
 			if (validator.isValidContentNode(node)) {
 				Map<String, Object> nodeMap = new HashMap<String, Object>();
 
@@ -132,23 +141,23 @@ public class BundleInitializer extends BaseInitializer {
 				LOGGER.info("Is ECML Mime-Type? " + ecmlContent);
 				LOGGER.info("Processing Content Id: " + node.getIdentifier());
 
-				// Setting Attribute Value 
+				// Setting Attribute Value
 				this.basePath = getBasePath(node.getIdentifier());
 				this.contentId = node.getIdentifier();
 				LOGGER.info("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
 
-				// Check if Compression Required 
+				// Check if Compression Required
 				boolean isCompressRequired = ecmlContent && isCompressRequired(node);
 
-				// Get ECRF Object 
+				// Get ECRF Object
 				Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
 
 				if (isCompressRequired) {
-					// Get Pipeline Object 
+					// Get Pipeline Object
 					AbstractProcessor pipeline = PipelineRequestorClient
 							.getPipeline(ContentWorkflowPipelineParams.compress.name(), basePath, contentId);
 
-					// Start Pipeline Operation 
+					// Start Pipeline Operation
 					ecrf = pipeline.execute(ecrf);
 				}
 				nodeMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
@@ -166,7 +175,7 @@ public class BundleInitializer extends BaseInitializer {
 			}
 		}
 
-		// Call Finalizer 
+		// Call Finalizer
 		FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 		Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 		finalizeParamMap.put(ContentWorkflowPipelineParams.Contents.name(), contents);

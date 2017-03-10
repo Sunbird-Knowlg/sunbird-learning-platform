@@ -1,7 +1,13 @@
 package com.ilimi.taxonomy.content.processor;
 
+import java.io.File;
+
+import org.apache.commons.lang3.StringUtils;
+
 import com.ilimi.taxonomy.content.concrete.processor.BaseConcreteProcessor;
+import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.entity.Plugin;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
 /**
  * The Class <code>AbstractProcessor</code> is the base of All the Concrete
@@ -88,6 +94,19 @@ public abstract class AbstractProcessor extends BaseConcreteProcessor {
 			content = nextProcessor.execute(content);
 		}
 		return content;
+	}
+	
+	protected String getSubFolderPath(Media media) {
+		String path = "";
+		if (null != media.getData() && !media.getData().isEmpty()) {
+			Object plugin = media.getData().get(ContentWorkflowPipelineParams.plugin.name());
+			Object ver = media.getData().get(ContentWorkflowPipelineParams.ver.name());
+			if (null != plugin && StringUtils.isNotBlank(plugin.toString()))
+				path += File.separator + plugin;
+			if (null != ver && StringUtils.isNotBlank(ver.toString()))
+				path += File.separator + ver;
+		}
+		return path;
 	}
 
 	/**

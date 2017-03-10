@@ -1,70 +1,70 @@
-[learning-1]
+[learning1]
 172.31.25.174 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
-[learning-2]
+[learning2]
 172.31.25.198 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hostlearning:children]
-learning-1
-learning-2
+[learningall:children]
+learning1
+learning2
 
-[learning-1:vars]
+[learning1:vars]
 mw_shard_id=1
 
-[learning-2:vars]
+[learning2:vars]
 mw_shard_id=2
 
 
-[language-1]
+[language1]
 172.31.25.174 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
-[language-2]
+[language2]
 172.31.25.198 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hostlanguage:children]
-language-1
-language-2
+[languageall:children]
+language1
+language2
 
 
-[language-1:vars]
+[language1:vars]
 mw_shard_id=1
 
 
-[language-2:vars]
+[language2:vars]
 mw_shard_id=2
 
-[search-1]
+[search1]
 172.31.30.191 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 172.31.8.95 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hostsearch:children]
-search-1
+[searchall:children]
+search1
 
 	
-[config-1]
+[config1]
 172.31.25.174 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 172.31.25.198 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hostconfig:children]
-config-1
+[configall:children]
+config1
 
-[mongodb-1]
+[mongodb1]
 172.31.25.198 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hostmongodb:children]
-mongodb-1
+[mongodball:children]
+mongodb1
 
 
-[redis-1]
+[redis1]
 172.31.25.174 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
 
-[hostredis:children]
-redis-1
+[redisall:children]
+redis1
 
 
-[total-1]
-#172.31.24.39 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+[total1]
+# ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[hosttotal:children]
-total-1
+[totalall:children]
+total1
 
 
 [cassandra]
@@ -72,10 +72,10 @@ total-1
 
 
 [qa:children]
-hostlearning
-hostlanguage
-hostsearch
-hostconfig
-hostredis
-hostmongodb
+learningall
+languageall
+searchall
+configall
+redisall
+mongodball
 cassandra

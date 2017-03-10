@@ -1,0 +1,19 @@
+[language-node1]
+172.31.30.52 ansible_connection=ssh ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform 
+
+[language-cluster:children]
+language-node1
+
+
+[language-import:children]
+language-node1
+
+[language-node1:vars]
+server_id=1 
+dbms_mode=HA 
+initial_hosts="172.31.30.52:8001"
+host_coordination="172.31.30.52:8001"
+ha_host_data="172.31.30.52:6002"
+
+[dev:children]
+language-cluster

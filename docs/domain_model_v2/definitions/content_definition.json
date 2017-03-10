@@ -60,6 +60,19 @@
         },
         {
           "required": false,
+          "dataType": "Number",
+          "propertyName": "compatibilityLevel",
+          "title": "Compatibility Level",
+          "description": "It is the integer value being used by Client (Genie) for the Compatibility information of Content.",
+          "category": "Technical",
+          "displayProperty": "Editable",
+          "defaultValue": "1",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "Text",
           "propertyName": "minGenieVersion",
           "title": "Min Supported Genie Version",
@@ -470,6 +483,84 @@
         {
           "required": false,
           "dataType": "Text",
+          "propertyName": "curriculum",
+          "title": "Curriculum (Board)",
+          "description": "Education Board (Like MP Board, NCERT, etc)",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "subject",
+          "title": "Subject",
+          "description": "Subject of the Content to use to teach",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "notes",
+          "title": "Teacher Notes",
+          "description": "Notes for the instructor.",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "pageNumber",
+          "title": "Page Number",
+          "description": "Page number of Textbook which the Content belongs to.",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "publication",
+          "title": "Publication House",
+          "description": "Name of the Publication House.",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "edition",
+          "title": "Edition",
+          "description": "Edition Information of the Content.",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
           "propertyName": "publisher",
           "title": "Publisher",
           "description": "Publisher of the content (e.g. Pratham Books)",
@@ -592,6 +683,7 @@
           "description": "",
           "range": [
             "Against DRM license",
+            "Creative Commons Attribution-NoDerivs (CC-BY-ND)",
             "Creative Commons Attribution (CC BY)",
             "Creative Commons Attribution-ShareAlike (CC BY-SA)",
             "Creative Commons Zero (CC0)",
@@ -629,6 +721,12 @@
             "Tamil",
             "Telugu",
             "Urdu",
+            "Sanskrit",
+            "Maithili",
+            "Munda",
+            "Santali",
+            "Juang",
+            "Ho",
             "Other"
           ],
           "displayProperty": "Editable",
@@ -748,26 +846,6 @@
         {
           "required": false,
           "dataType": "Select",
-          "propertyName": "curriculum",
-          "title": "Curriculum",
-          "description": "",
-          "category": "Pedagogy",
-          "displayProperty": "Editable",
-          "range": [
-            "NCERT",
-            "CBSE",
-            "ICSE",
-            "State Curriculum",
-            "Other"
-          ],
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
-        },
-        {
-          "required": false,
-          "dataType": "Select",
           "propertyName": "contentType",
           "title": "Content Type",
           "description": "",
@@ -784,8 +862,10 @@
             "Asset",
             "Template",
             "Plugin",
-			      "ContentTemplate",
-			      "ItemTemplate"
+		    "ContentTemplate",
+		    "ItemTemplate",
+		    "TextBook",
+		    "TextBookUnit"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -942,6 +1022,32 @@
         {
           "required": false,
           "dataType": "Number",
+          "propertyName": "genieScore",
+          "title": "Genie Score",
+          "description": "",
+          "category": "Analytics",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 20 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "authoringScore",
+          "title": "Authoring Score",
+          "description": "",
+          "category": "Analytics",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 20 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
           "propertyName": "popularity",
           "title": "Popularity",
           "description": "",
@@ -986,7 +1092,7 @@
           "description": "Operating System specific Id",
           "category": "Technical",
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": "org.ekstep.launcher",
           "renderingHints": "{ 'inputType': 'table', 'order': 6 }",
           "indexed": true,
           "draft": false
@@ -1148,7 +1254,8 @@
             "Mock",
             "Processing",
             "FlagDraft",
-            "FlagReview"
+            "FlagReview",
+            "Failed"
           ],
           "required": false,
           "displayProperty": "Editable",
@@ -1203,6 +1310,19 @@
           "dataType": "external",
           "propertyName": "body",
           "title": "Body",
+          "description": "",
+          "category": "Authoring",
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+          "indexed": false,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "external",
+          "propertyName": "oldBody",
+          "title": "Old Body",
           "description": "",
           "category": "Authoring",
           "displayProperty": "Hidden",
@@ -1698,11 +1818,36 @@
           "indexed": true
         },
         {
+          "propertyName": "flags",
+          "title": "flags list",
+          "description": "",
+          "category": "Flagging",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true
+        },
+        {
           "propertyName": "lastFlaggedOn",
           "title": "Last Flagged On",
           "description": "",
           "category": "Flagging",
           "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}"
+        },
+        {
+          "propertyName": "tempData",
+          "title": "Property to store temporary values",
+          "description": "",
+          "category": "General",
+          "dataType": "Text",
           "range": [],
           "required": false,
           "indexed": true,
@@ -1881,8 +2026,8 @@
         "status": ["Live"],
         "ttl": 0.08,
         "variants": {
-         "high": {"dimensions": [1024, 1024], "dpi": 240}, 
-         "medium": {"dimensions": [512, 512], "dpi": 240}, 
+         "high": {"dimensions": [1024, 1024], "dpi": 240},
+         "medium": {"dimensions": [512, 512], "dpi": 240},
          "low": {"dimensions": [128, 128], "dpi": 240}
         },
         "versionCheckMode": "STRICT",
@@ -1890,12 +2035,12 @@
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
         "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
-        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable", 
-        "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount", 
-        "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice", 
-        "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads", 
+        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable",
+        "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount",
+        "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice",
+        "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads",
         "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants","flagReasons",
-        "flaggedBy","lastFlaggedOn"]
+        "flaggedBy","lastFlaggedOn","flags"]
       }
     }
   ]

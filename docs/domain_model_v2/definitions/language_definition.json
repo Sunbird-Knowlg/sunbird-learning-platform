@@ -31,6 +31,18 @@
                     "renderingHints": "{'inputType': 'text', 'order': 2}"
                 },
                 {
+                    "propertyName": "isoCode",
+                    "title": "ISO Code",
+                    "description": "ISO code of the language",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+                    "indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 2}"
+                },
+                {
                     "propertyName": "status",
                     "title": "Status",
                     "description": "Status of the domain",
@@ -84,6 +96,30 @@
                     "displayProperty": "Readonly",
                     "defaultValue": "",
                     "renderingHints": "{'order': 6}"
+                },
+                {
+                    "propertyName": "startUnicode",
+                    "title": "startUnicode",
+                    "description": "Start of unicode range for the language",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+                    "indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 7}"
+                },
+                {
+                    "propertyName": "endUnicode",
+                    "title": "endUnicode",
+                    "description": "End of unicode range for the language",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+                    "indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 8}"
                 }
             ],
             "inRelations":

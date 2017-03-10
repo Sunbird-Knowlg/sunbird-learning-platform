@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.BaseDataAccessService;
 import com.ilimi.dac.TransformationHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
@@ -49,8 +50,10 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	/** The Object mapper */
 	private ObjectMapper objectMapper = null;
 
+	/** The Logger */
+	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryEsService.class.getName());
+	
 	/** This is the init method for the AuditHistoryEsService */
-
 	public AuditHistoryEsService() {
 		modelMapper = new ModelMapper();
 		TransformationHelper.createTypeMap(modelMapper, AuditHistoryRecord.class, AuditHistoryEntity.class);
@@ -72,13 +75,19 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	@SuppressWarnings("unchecked")
 	@Transactional
 	public Response saveAuditHistoryLog(Request request) {
+		
+		LOGGER.info("getting request object from audit history manager" + request);
 		AuditHistoryRecord auditRecord = (AuditHistoryRecord) request.get(CommonDACParams.audit_history_record.name());
+		
+		LOGGER.info("getting audit record from request object" + auditRecord);
 		AuditHistoryEntity entity = new AuditHistoryEntity();
 		modelMapper.map(auditRecord, entity);
 		Map<String, Object> entity_map = objectMapper.convertValue(entity, Map.class);
 		try {
+			LOGGER.info("sending entity object to audit history dao" + entity_map);
 			dao.save(entity_map);
 		} catch (IOException e) {
+			LOGGER.error("exception while proceesing audit history entity map", e);
 			e.printStackTrace();
 		}
 		return OK(CommonDACParams.audit_history_record_id.name(), entity.getId());
@@ -93,7 +102,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 */
 	@Transactional
 	public Response getAuditHistoryLog(Request request, String versionId) {
-
+		LOGGER.info("getting request for get all audit records" + request);
 		String start_date = (String) request.get(CommonDACParams.start_date.name());
 		String end_date = (String) request.get(CommonDACParams.end_date.name());
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
@@ -105,7 +114,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		search.setFields(setSearchCriteria(versionId));
 		search.setSortBy(sortBy);
+		LOGGER.info("creating search criteria to fetch audit history from ES" + search);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
+		LOGGER.info("list of fields returned from search result" + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
@@ -118,7 +129,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 */
 	@Transactional
 	public Response getAuditHistoryLogByObjectType(Request request, String versionId) {
-
+		LOGGER.info("getting request to fetch audit records based on object type"+ request);
 		String graphId = (String) request.get(CommonDACParams.graph_id.name());
 		String objectType = (String) request.get(CommonDACParams.object_type.name());
 		String start_date = (String) request.get(CommonDACParams.start_date.name());
@@ -131,7 +142,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
+		LOGGER.info("setting search criteria to fetch audit records from ES" + search);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
+		LOGGER.info("list of fields returned from ES based on search query" + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 
 	}
@@ -157,7 +170,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
+		LOGGER.info("setting search criteria to fetch audit records from ES" + search);
 		List<Object> auditHistoryLogEntities = dao.search(search);
+		LOGGER.info("list of fields returned from ES based on search query" + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
@@ -180,7 +195,9 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
+		LOGGER.info("setting search criteria to fetch audit records from ES" + search);
 		List<Object> auditHistoryLogEntities = dao.search(search);
+		LOGGER.info("list of fields returned from ES based on search query" + auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 	/*
@@ -192,9 +209,11 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	 */
 	@Transactional
 	public Response deleteEsData(Request request) {
+		LOGGER.info("getting request to delete audit history records from ES" + request);
 		String timeStamp = (String) request.get(CommonDACParams.time_stamp.name());
 		String query = "{\"query\": {\"range\" : {\"createdOn\" : {\"lte\" :\"" +timeStamp+ "\"}}}}";
 		try {
+			LOGGER.info("Sending query to delete the data from ES" + query);
 			dao.delete(query);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -249,6 +268,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 				e.printStackTrace();
 			}
 		}
+		LOGGER.info("returning the setted response object" + respObj);
 		return respObj;
 	}
 
@@ -294,6 +314,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 			else
 				fields.add("summary");
 		}
+		LOGGER.info("returning the search criteria fields" + fields);
 		return fields;
 	}
 
@@ -360,6 +381,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 			property.put("values", Arrays.asList(objectId));
 			properties.add(property);
 		}
+		LOGGER.info("returning the search filters" + properties);
 		return properties;
 	}
 }

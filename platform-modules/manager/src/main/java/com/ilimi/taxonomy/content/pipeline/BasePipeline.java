@@ -59,6 +59,7 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
+import com.rits.cloning.Cloner;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -111,9 +112,11 @@ public class BasePipeline extends BaseManager {
 	protected Response updateNode(Node node) {
 		Response response = new Response();
 		if (null != node) {
-			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-			updateReq.put(GraphDACParams.node.name(), node);
-			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			Cloner cloner = new Cloner();
+			Node clonedNode = cloner.deepClone(node);
+			Request updateReq = getRequest(clonedNode.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			updateReq.put(GraphDACParams.node.name(), clonedNode);
+			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq, LOGGER);
 		}
 		return response;
@@ -486,6 +489,8 @@ public class BasePipeline extends BaseManager {
 							for (Object obj : list) {
 								List<Node> nodeList = (List<Node>) obj;
 								for (Node child : nodeList) {
+									String body = getContentBody(child.getIdentifier());
+									child.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
 									childrenNodes.add(child);
 									getContentRecursive(graphId, childrenNodes, child, nodeMap, childrenIds, ctnts,
 											onlyLive);
@@ -496,6 +501,16 @@ public class BasePipeline extends BaseManager {
 				}
 			}
 		}
+	}
+	
+	private String getContentBody(String contentId) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getContentBody.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		Response response = makeLearningRequest(request, LOGGER);
+		String body = (String) response.get(ContentStoreParams.body.name());
+		return body;
 	}
 
 	/**
@@ -511,6 +526,15 @@ public class BasePipeline extends BaseManager {
 		List<Filter> filters = new ArrayList<Filter>();
 		Filter filter = new Filter(ContentWorkflowPipelineParams.identifier.name(), SearchConditions.OP_IN, contentIds);
 		filters.add(filter);
+		
+		List<String> status = new ArrayList<String>();
+		status.add(ContentWorkflowPipelineParams.Draft.name());
+		status.add(ContentWorkflowPipelineParams.Live.name());
+		status.add(ContentWorkflowPipelineParams.Review.name());
+		status.add(ContentWorkflowPipelineParams.Processing.name());
+		Filter statusFilter = new Filter(ContentWorkflowPipelineParams.status.name(), SearchConditions.OP_IN, status);
+		filters.add(statusFilter);
+		
 		MetadataCriterion metadata = MetadataCriterion.create(filters);
 		metadata.addFilter(filter);
 		criteria.setMetadata(metadata);
@@ -533,5 +557,37 @@ public class BasePipeline extends BaseManager {
 		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
 				ContentWorkflowPipelineParams.contents.name());
 		return response;
+	}
+	
+	/**
+	 * Recursively deletes the give file/folder
+	 * 
+	 * @param file the file to be deleted
+	 * @throws IOException when there is a file I/O error
+	 */
+	public void delete(File file) throws IOException {
+		if (file.isDirectory()) {
+			// directory is empty, then delete it
+			if (file.list().length == 0) {
+				file.delete();
+			} else {
+				// list all the directory contents
+				String files[] = file.list();
+				for (String temp : files) {
+					// construct the file structure
+					File fileDelete = new File(file, temp);
+					// recursive delete
+					delete(fileDelete);
+				}
+				// check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+				}
+			}
+
+		} else {
+			// if file, then delete it
+			file.delete();
+		}
 	}
 }

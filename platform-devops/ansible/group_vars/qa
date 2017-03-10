@@ -1,3 +1,6 @@
+google_vision_tagging: false
+neo4j_backup_url: "s3://ekstep-backups-to-mumbai/qa/neo4j/"
+instance: qa
 user: learning
 neo4j_home: /home/{{user}}/neo4j-community-3.0.4
 user_home: /home/{{user}}
@@ -40,8 +43,8 @@ dbms_memory_heap_initial_size: 3072
 dbms_memory_heap_max_size: 3072
 dbms_memory_pagecache_size: 3g
 graph_passport_key: TlRnwlWOW7t4dHBOlqLD0AGH373ssBk198maQL52/Z1IcP5RW4qHw8sZztCzv87M
-learning_neo4j_bolt_url: bolt://internal-qa-learning-neo4j-elb-678743251.ap-southeast-1.elb.amazonaws.com:7687
-language_neo4j_bolt_url: bolt://internal-qa-language-neo4j-elb-1022742769.ap-southeast-1.elb.amazonaws.com:8687
+learning_neo4j_bolt_url: bolt://172.31.8.205:7687
+language_neo4j_bolt_url: bolt://172.31.8.205:8687
 
 to_learning: 172.31.20.28
 to_language: 172.31.20.27

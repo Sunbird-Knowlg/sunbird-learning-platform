@@ -27,8 +27,6 @@
 		<module>module/searchindex-common</module>
 		<module>module/search-actors</module>
         <module>module/search-api</module>
-        <module>module/composite-search-api</module>
-        <module>module/search-service</module>
 	</modules>
 
 	<dependencies>

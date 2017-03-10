@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+message_file = ARGV[0]
+message = File.read(message_file)
+
+$regex = /.*Issue .*#\d+ .+:.+/
+
+if !$regex.match(message)
+  puts "[ERROR] Invalid Commit Message"
+  puts "The  commit messages should be  in the below format: "
+  puts "Issue #<Issue id> <Type>:<Commit message>"
+  puts "Example:"
+  puts "Issue #123 feat:Setting up hooks"
+ exit 1
+end

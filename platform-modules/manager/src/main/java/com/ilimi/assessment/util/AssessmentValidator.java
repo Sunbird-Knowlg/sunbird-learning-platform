@@ -144,7 +144,11 @@ public class AssessmentValidator extends BaseManager {
                         if (null == list || list.size() <= 0) {
                             errorMessages.add("Cannot create Item Set with no member items");
                         } else {
-                            Integer total = (Integer) metadata.get("total_items");
+                        	Integer total = null;
+                            if(metadata.get("total_items") instanceof Long)
+                            	total = Integer.valueOf(((Long)metadata.get("total_items")).intValue());
+                            else
+                            	total = (Integer) metadata.get("total_items");
                             if (null == total) {
                                 total = list.size();
                                 metadata.put("total_items", total);
@@ -282,7 +286,11 @@ public class AssessmentValidator extends BaseManager {
                     }
                     if (null != itemType) {
                         if (null != value.get("score")) {
-                            Integer score = (Integer) value.get("score");
+                            Integer score = null;
+                            if(value.get("score") instanceof Long)
+                            	score = Integer.valueOf(((Long)value.get("score")).intValue());
+                            else
+                            	score = (Integer) value.get("score");
                             if (score.intValue() > 0)
                                 answerCount += 1;
                         } else if (null != value.get("answer")) {

@@ -177,9 +177,28 @@ public class SearchCriteria implements Serializable {
                 sb.append(rel.getCypher(this, null));
         }
         if (!countQuery) {
+        	boolean returnNode = true;
             if (null == fields || fields.isEmpty()) {
-                sb.append("RETURN DISTINCT ee ");
+            	sb.append("WITH DISTINCT ee ");
+            	if (null != sortOrder && sortOrder.size() > 0) {
+                    sb.append("ORDER BY ");
+                    for (int i = 0; i < sortOrder.size(); i++) {
+                        Sort sort = sortOrder.get(i);
+                        sb.append("ee.").append(sort.getSortField()).append(" ");
+                        if (StringUtils.equals(Sort.SORT_DESC, sort.getSortOrder())) {
+                            sb.append("DESC ");
+                        }
+                        if (i < sortOrder.size() - 1)
+                            sb.append(", ");
+                    }
+                }
+            	if (startPosition > 0)
+                    sb.append("SKIP ").append(startPosition).append(" ");
+                if (resultSize > 0)
+                    sb.append("LIMIT ").append(resultSize).append(" ");
+                sb.append("OPTIONAL MATCH (ee)-[r]-() RETURN ee, r, startNode(r) as __startNode, endNode(r) as __endNode ");
             } else {
+            	returnNode = false;
                 sb.append("RETURN ");
                 for (int i = 0; i < fields.size(); i++) {
                     sb.append("ee.").append(fields.get(i)).append(" as ").append(fields.get(i)).append(" ");
@@ -187,24 +206,25 @@ public class SearchCriteria implements Serializable {
                         sb.append(", ");
                 }
             }
-            if (null != sortOrder && sortOrder.size() > 0) {
-                sb.append("ORDER BY ");
-                for (int i = 0; i < sortOrder.size(); i++) {
-                    Sort sort = sortOrder.get(i);
-                    sb.append("ee.").append(sort.getSortField()).append(" ");
-                    if (StringUtils.equals(Sort.SORT_DESC, sort.getSortOrder())) {
-                        sb.append("DESC ");
+            if (!returnNode) {
+            	if (null != sortOrder && sortOrder.size() > 0) {
+                    sb.append("ORDER BY ");
+                    for (int i = 0; i < sortOrder.size(); i++) {
+                        Sort sort = sortOrder.get(i);
+                        sb.append("ee.").append(sort.getSortField()).append(" ");
+                        if (StringUtils.equals(Sort.SORT_DESC, sort.getSortOrder())) {
+                            sb.append("DESC ");
+                        }
+                        if (i < sortOrder.size() - 1)
+                            sb.append(", ");
                     }
-                    if (i < sortOrder.size() - 1)
-                        sb.append(", ");
                 }
-            }
-
-            if (startPosition > 0) {
-                sb.append("SKIP ").append(startPosition).append(" ");
-            }
-            if (resultSize > 0) {
-                sb.append("LIMIT ").append(resultSize).append(" ");
+            	if (startPosition > 0) {
+                    sb.append("SKIP ").append(startPosition).append(" ");
+                }
+                if (resultSize > 0) {
+                    sb.append("LIMIT ").append(resultSize).append(" ");
+                }
             }
         } else {
             sb.append("RETURN count(ee) as __count");

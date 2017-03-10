@@ -1,7 +1,6 @@
 package com.ilimi.graph.model.relation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +30,11 @@ public class SequenceMembershipRelation extends AbstractRelation {
     @Override
     public Future<Map<String, List<String>>> validateRelation(Request request) {
         try {
+        	List<Future<String>> futures = new ArrayList<Future<String>>();
+            // check for cycle
+            Future<String> cyclicCheck = checkCycle(request);
+            futures.add(cyclicCheck);
+        	
             List<Future<Node>> nodeFutures = new ArrayList<Future<Node>>();
             final ExecutionContext ec = manager.getContext().dispatcher();
             Future<Node> startNodeFuture = getNode(request, this.startNodeId);
@@ -38,12 +42,10 @@ public class SequenceMembershipRelation extends AbstractRelation {
             nodeFutures.add(startNodeFuture);
             nodeFutures.add(endNodeFuture);
             Future<Iterable<Node>> nodeAggregate = Futures.sequence(nodeFutures, manager.getContext().dispatcher());
-            Future<Map<String, List<String>>> messageMap = nodeAggregate
-                    .map(new Mapper<Iterable<Node>, Map<String, List<String>>>() {
+            Future<String> messages = nodeAggregate
+                    .map(new Mapper<Iterable<Node>, String>() {
                         @Override
-                        public Map<String, List<String>> apply(Iterable<Node> parameter) {
-                            Map<String, List<String>> map = new HashMap<String, List<String>>();
-                            List<String> messages = new ArrayList<String>();
+                        public String apply(Iterable<Node> parameter) {
                             Node startNode = null;
                             Node endNode = null;
                             if (null != parameter) {
@@ -54,15 +56,17 @@ public class SequenceMembershipRelation extends AbstractRelation {
                                         endNode = node;
                                 }
                                 if (null == startNode || null == endNode)
-                                    messages.add("Invalid nodes: could not find one or more nodes");
+                                	return "Invalid nodes: could not find one or more nodes";
                             } else {
-                                messages.add("Invalid nodes: could not find one or more nodes");
+                                return "Invalid nodes: could not find one or more nodes";
                             }
-                            map.put(getStartNodeId(), messages);
-                            return map;
+                            return null;
                         }
                     }, ec);
-            return messageMap;
+            futures.add(messages);
+            
+            Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
+            return getMessageMap(aggregate, ec);
         } catch (Exception e) {
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
         }

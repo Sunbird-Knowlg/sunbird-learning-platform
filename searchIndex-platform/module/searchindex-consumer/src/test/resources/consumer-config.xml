@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<ConsumerConfig>
-	<ConsumerInit serverURI="localhost:2181" topic="composite-search-topic-test6"
-		ekstepPlatformURI="http://localhost:8080/taxonomy-service"
-		ekstepPlatformApiUserId="ilimi">
-	</ConsumerInit>
-	<ConsumerGroups>
-		<ConsumerGroup id="composite-search-group" messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">
-			<Consumers>
-				<Consumer partitions="0,1,2,3,4,5" />
-				<Consumer partitions="6,7,8,9,10" />
-			</Consumers>
-		</ConsumerGroup>
-		<ConsumerGroup id="Audit-History-group" messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMessageProcessor">
-			<Consumers>
-				<Consumer partitions="0,1,2,3,4,5" />
-				<Consumer partitions="6,7,8,9,10" />
-			</Consumers>
-		</ConsumerGroup>
-		
-		<ConsumerGroup id="word-count-group" messageProcessor="org.ekstep.searchindex.processor.WordCountMessageProcessor">
-			<Consumers>
-				<Consumer partitions="8" />
-			</Consumers>
-		</ConsumerGroup>
-		<ConsumerGroup id="word-translation-group" messageProcessor="org.ekstep.searchindex.processor.WordTranslationMessageProcessor">
-			<Consumers>
-				<Consumer partitions="8" />
-			</Consumers>
-		</ConsumerGroup>
-	</ConsumerGroups>
-</ConsumerConfig>
+<ConsumerConfigs>
+    <ConsumerConfig>
+        <ConsumerInit serverURI="localhost:2181" topic="composite-search-new"></ConsumerInit>
+        <ConsumerGroups>
+            <ConsumerGroup id="composite-search-group" messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">
+                <Consumers>
+                    <Consumer partitions="0,1,2,3,4,5" />
+                    <Consumer partitions="6,7,8,9,10" />
+                </Consumers>
+            </ConsumerGroup>
+            <ConsumerGroup id="Audit-History-group" messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMessageProcessor">
+                <Consumers>
+                    <Consumer partitions="0,1,2,3,4,5" />
+                    <Consumer partitions="6,7,8,9,10" />
+                </Consumers>
+            </ConsumerGroup>
+            <ConsumerGroup id="word-count-group" messageProcessor="org.ekstep.searchindex.processor.WordCountMessageProcessor">
+                <Consumers>
+                    <Consumer partitions="8" />
+                </Consumers>
+            </ConsumerGroup>
+        </ConsumerGroups>
+    </ConsumerConfig>
+    <ConsumerConfig>
+        <ConsumerInit serverURI="localhost:2181" topic="telemetry-event-topic"></ConsumerInit>
+        <ConsumerGroups>
+            <ConsumerGroup id="Flag-ParentContent-group" messageProcessor="org.ekstep.searchindex.processor.FlagParentContentProcessor">
+                <Consumers>
+                    <Consumer partitions="8" />
+                </Consumers>
+            </ConsumerGroup>
+            <ConsumerGroup id="Retire-ParentContent-group" messageProcessor="org.ekstep.searchindex.processor.RetireParentContentProcessor">
+                <Consumers>
+                    <Consumer partitions="8" />
+                </Consumers>
+            </ConsumerGroup>
+        </ConsumerGroups>
+    </ConsumerConfig>
+</ConsumerConfigs>

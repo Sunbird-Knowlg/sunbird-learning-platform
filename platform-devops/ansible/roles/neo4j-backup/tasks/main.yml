@@ -1,34 +1,17 @@
-- name: Complete backup
-  file: path=/mnt/backup/neo4j-backup state=absent
-  tags:
-       - fullbackup
-
+- name: delete learning_graph or language_graph
+  become: yes
+  file: path=/home/learning/{{graph_machine}} state=absent
+  
 - name: create directory
   become: yes
-  file: path={{item}} state=directory
-  with_items:
-             - /mnt/backup/neo4j-backup
-  tags:
-       - fullbackup
-       - incrementalbackup
-        
-- name: Run the backup command
-  command: {{neo4j_home}}/bin/neo4j-backup --from={{neo4j_machine}} --to=/mnt/backup/neo4j-backup
-  tags:
-       - fullbackup
-       - incrementalbackup
-       
-- name: copy template of shell script to stop service
+  file: path=/home/learning/{{graph_machine}} state=directory owner=learning group=learning recurse=yes
+  
+- name: copy template of scripthell script to stop service
   become: yes
-  template: src=backup_script.j2 dest=/home/{{user}}/backup_script.sh owner=learning group=learning
-  tags:
-       - fullbackup
-       - incrementalbackup
-       
+  template: src=backup_script.j2 dest=/home/learning/backup_script.sh  mode=777 owner=learning group=learning
+  
 - name: run script
   become: yes
-  command: "/home/{{user}}/backup_script.sh"
-  tags:
-       - fullbackup
-       - incrementalbackup
-       
+  become_user: learning
+  command: "/home/learning/backup_script.sh"
+ 

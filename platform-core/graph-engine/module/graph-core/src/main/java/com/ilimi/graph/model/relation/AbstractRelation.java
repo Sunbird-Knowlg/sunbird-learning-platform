@@ -296,7 +296,10 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                                 String msg = (String) res.get(GraphDACParams.message.name());
                                 return msg;
                             } else {
-                                return null;
+                            	if (StringUtils.equals(startNodeId, endNodeId))
+                            		return "Relation '" + getRelationType() + "' cannot be created between: " + getStartNodeId() + " and " + getEndNodeId();
+                            	else
+                            		return null;
                             }
                         }
                     } else {

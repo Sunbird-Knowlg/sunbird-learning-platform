@@ -11,6 +11,7 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.operation.initializer.BundleInitializer;
 import com.ilimi.taxonomy.content.operation.initializer.PublishInitializer;
+import com.ilimi.taxonomy.content.operation.initializer.ReviewInitializer;
 import com.ilimi.taxonomy.content.operation.initializer.UploadInitializer;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 
@@ -86,6 +87,13 @@ public class InitializePipeline extends BasePipeline {
 			case "BUNDLE": {
 				BundleInitializer bundleInitializer = new BundleInitializer(basePath, contentId);
 				response = bundleInitializer.initialize(parameterMap);
+			}
+				break;
+				
+			case "review":
+			case "REVIEW": {
+				ReviewInitializer reviewInitializer = new ReviewInitializer(basePath, contentId);
+				response = reviewInitializer.initialize(parameterMap);
 			}
 				break;
 

@@ -1,0 +1,15 @@
+#!/bin/sh
+cd /home/learning/neo4j-learning/neo4j-enterprise-3.0.4
+bin/neo4j-backup --from={{backup_add}} --to=/home/learning/{{graph_machine}}
+time="$(date '+%e%b%Y')"
+var="{{graph_machine}}"
+var1="_"
+var3="{{instance}}"
+time1="$(date '+%H%M%S')"
+var4=".tar.gz"
+var2="$time$var1$time1$var1$var$var1$var3$var4"
+echo "$var2"
+cd /home/learning
+tar -cvzf $var2 {{graph_machine}}
+aws s3 cp $var2 {{neo4j_backup_url}}
+rm -rf $var2

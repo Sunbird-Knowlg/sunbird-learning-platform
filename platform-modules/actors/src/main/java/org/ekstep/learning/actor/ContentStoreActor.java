@@ -1,5 +1,8 @@
 package org.ekstep.learning.actor;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +28,7 @@ public class ContentStoreActor extends BaseGraphManager {
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentStoreActor.class.getName());
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		LOGGER.info("Received Command: " + msg);
@@ -40,6 +44,27 @@ public class ContentStoreActor extends BaseGraphManager {
 				String contentId = (String) request.get(ContentStoreParams.content_id.name());
 				String body = ContentStoreUtil.getContentBody(contentId);
 				OK(ContentStoreParams.body.name(), body, sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getContentProperty.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				String property = (String) request.get(ContentStoreParams.property.name());
+				String value = ContentStoreUtil.getContentProperty(contentId, property);
+				OK(ContentStoreParams.value.name(), value, sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.getContentProperties.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				List<String> properties = (List<String>) request.get(ContentStoreParams.properties.name());
+				Map<String, Object> value = ContentStoreUtil.getContentProperties(contentId, properties);
+				OK(ContentStoreParams.values.name(), value, sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.updateContentProperty.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				String property = (String) request.get(ContentStoreParams.property.name());
+				String value = (String) request.get(ContentStoreParams.value.name());
+				ContentStoreUtil.updateContentProperty(contentId, property, value);
+				OK(sender());
+			} else if (StringUtils.equalsIgnoreCase(ContentStoreOperations.updateContentProperties.name(), operation)) {
+				String contentId = (String) request.get(ContentStoreParams.content_id.name());
+				Map<String, Object> map = (Map<String, Object>) request.get(ContentStoreParams.properties.name());
+				ContentStoreUtil.updateContentProperties(contentId, map);
+				OK(sender());
 			} else {
 				LOGGER.info("Unsupported operation: " + operation);
 				throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),

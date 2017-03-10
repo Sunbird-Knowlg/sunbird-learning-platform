@@ -52,12 +52,14 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = new HashMap<String, Object>();
 			if(StringUtils.isNotBlank(messageData)){
+				LOGGER.info("Reading from kafka consumer" + messageData);
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}
 			if (null != message)
 				processMessage(message);
 		} catch (Exception e) {
+			LOGGER.error("Error while processing kafka message", e);
 			e.printStackTrace();
 		}
 	}
@@ -79,13 +81,14 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 				+ message.get("operationType"));
 		if (message != null && message.get("operationType") != null && null == message.get("syncMessage")) {
 			AuditHistoryRecord record = getAuditHistory(message);
+			LOGGER.info("Sending AuditHistoryRecord to audit History manager" + record);
 			manager.saveAuditHistory(record);
 		}
 	}
 
 	/** 
 	 * This method getAuditHistory sets the required data from the transaction message 
-	 * that can be saved to mysql DB
+	 * that can be saved to elastic search
 	 * 
 	 * @param transactionDataMap
 	 *        The Neo4j TransactionDataMap
@@ -110,8 +113,9 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			String createdOn = (String) transactionDataMap.get("createdOn");
 			Date date = DateUtils.parse(createdOn);
 			record.setCreatedOn(null == date ? new Date() : date);
+			LOGGER.info("mapped audit history record from transcationData" + record);
 		} catch (Exception e) {
-			LOGGER.error("Error while setting the transactionData to mysql db" + e.getMessage(), e);
+			LOGGER.error("Error while setting the transactionData to elastic search" + e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return record;
@@ -119,7 +123,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 
 	/** 
 	 * This method setSummaryData sets the required summaryData from the transaction message 
-	 * and that can be saved to mysql DB
+	 * and that can be saved to elastic search
 	 * 
 	 * @param transactionDataMap
 	 *        The Neo4j TransactionDataMap
@@ -199,7 +203,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 				}
 			}
 		     summaryResult = mapper.writeValueAsString(summaryData);
-			
+			LOGGER.info("setting summary field from transaction data" + summaryData);
 		} catch (Exception e) {
 			LOGGER.error("Error while setting the summary info to mysql db"+ e.getMessage(), e);
 			e.printStackTrace();

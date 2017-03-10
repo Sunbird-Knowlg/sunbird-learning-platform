@@ -82,10 +82,10 @@ if {$object_null == 1} {
 		}
 		set osIdCheck 1
 		if {$contentTypeNotNull} {
-			set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Asset"]
+			set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Game"]
 		}
-		if {$osIdCheck != 1 && $osIdEmpty} {
-			set osId_Error true
+		if {$osIdCheck == 1 && $osIdEmpty} {
+			set osId_Error false
 		}
 		if {$osId_Error} {
 			set result_map [java::new HashMap]
@@ -100,16 +100,24 @@ if {$object_null == 1} {
 			if {$get_node_response_error} {
 				return $get_node_response;
 			} else {
+				set externalProps [java::new HashMap]
 				set body [$content get "body"]
 				set bodyEmpty [proc_isEmpty $body]
 				if {!$bodyEmpty} {
+					$externalProps put "body" $body
 					$content put "artifactUrl" [java::null]
 					$content put "body" [java::null]
 				}
+				set oldBody [$content get "oldBody"]
+				set oldBodyEmpty [proc_isEmpty $oldBody]
+				if {!$oldBodyEmpty} {
+					$externalProps put "oldBody" $oldBody
+					$content put "oldBody" [java::null]
+				}
+
 				set graph_node [get_resp_value $get_node_response "node"]
 				set metadata [java::prop $graph_node "metadata"]
 				set mimeType [$metadata get "mimeType"]
-
 				set domain_val [$metadata get "domain"]
 				set domain_val_null [java::isnull $domain_val]
 				if {$domain_val_null == 0} {
@@ -153,8 +161,8 @@ if {$object_null == 1} {
 						$metadata put "prevState" $status_val_str
 						set log_response [log_content_lifecycle_event $content_id $metadata]
 					}
-					if {!$bodyEmpty} {
-						set bodyResponse [updateContentBody $content_id $body]
+					if {!$bodyEmpty || !$oldBodyEmpty} {
+						set bodyResponse [updateContentProperties $content_id $externalProps]
 						set check_error [check_response_error $bodyResponse]
 						if {$check_error} {
 							return $bodyResponse

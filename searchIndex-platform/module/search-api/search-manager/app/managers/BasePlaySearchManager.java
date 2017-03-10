@@ -3,11 +3,8 @@ package managers;
 import static akka.pattern.Patterns.ask;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -17,7 +14,6 @@ import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.search.router.SearchRequestRouterPool;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,6 +50,7 @@ public class BasePlaySearchManager extends Results {
 			res = Promise.wrap(ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT))
 					.map(new Function<Object, Result>() {
 						public Result apply(Object result) {
+							String correlationId = UUID.randomUUID().toString();
 							if (result instanceof Response) {
 								Response response = (Response) result;
 								if (checkError(response)) {
@@ -65,16 +62,16 @@ public class BasePlaySearchManager extends Results {
 									Promise<Result> searchResult = getSearchResponse(response, request);
 									int count = (response.getResult() == null ? 0
 											: (Integer) response.getResult().get("count"));
-									writeTelemetryLog(request, null, count);
+									writeTelemetryLog(request, correlationId, count);
 									return searchResult.get(SearchRequestRouterPool.REQ_TIMEOUT);
 								}
-								return ok(getResult(response, request)).as("application/json");
+								return ok(getResult(response, request, null, correlationId)).as("application/json");
 							}
 							ResponseParams params = new ResponseParams();
 							params.setErrmsg("Invalid Response object");
 							Response error = new Response();
 							error.setParams(params);
-							return ok(getResult(error, request)).as("application/json");
+							return ok(getResult(error, request, null, correlationId)).as("application/json");
 						}
 					});
 			res.onRedeem(new F.Callback<Result>() {
@@ -91,7 +88,12 @@ public class BasePlaySearchManager extends Results {
 		}
 		return res;
 	}
-
+	
+	private String getUUID() {
+        UUID uid = UUID.randomUUID();
+        return uid.toString();
+    }
+	
 	protected Request setSearchContext(Request request, String manager, String operation) {
 		request.setManagerName(manager);
 		request.setOperation(operation);
@@ -103,7 +105,7 @@ public class BasePlaySearchManager extends Results {
 		return setSearchContext(request, manager, operation);
 	}
 
-	private String getResult(Response response, Request req) {
+	private String getResult(Response response, Request req, String msgId, String resMsgId) {
 		if (req == null) {
 			ResponseParams params = new ResponseParams();
 			params.setErrmsg("Null Content");
@@ -111,10 +113,10 @@ public class BasePlaySearchManager extends Results {
 			error.setParams(params);
 			response = error;
 		}
-		return getResult(response, req.getId(), req.getVer());
+		return getResult(response, req.getId(), req.getVer(), msgId ,resMsgId);
 	}
 
-	public String getResult(Response response, String apiId, String version) {
+	public String getResult(Response response, String apiId, String version, String msgId, String resMsgId) {
 		try {
 			if (response == null) {
 				ResponseParams params = new ResponseParams();
@@ -129,6 +131,12 @@ public class BasePlaySearchManager extends Results {
 			ResponseParams params = response.getParams();
 			if (null == params)
 				params = new ResponseParams();
+			 if (StringUtils.isNotBlank(msgId))
+	                params.setMsgid(msgId);
+	         if (StringUtils.isNotBlank(resMsgId))
+	            	params.setResmsgid(resMsgId);
+	         else
+	            	params.setResmsgid(getUUID());
 			if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name(), params.getStatus())) {
 				params.setErr(null);
 				params.setErrmsg(null);

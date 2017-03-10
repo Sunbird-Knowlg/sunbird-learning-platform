@@ -14,8 +14,17 @@ if {$check_error} {
 	set node_object_type [java::prop $graph_node "objectType"]
 	if {$node_object_type == $object_type} {
 		set node_metadata [java::prop $graph_node "metadata"]
+		set status_val [$node_metadata get "status"]
+		set status_val_str [java::new String [$status_val toString]]
 		$node_metadata put "status" "Retired"
 		set create_response [updateDataNode $graph_id $contentId $graph_node]
+		set check_error [check_response_error $create_response]
+		if {$check_error} {
+		} else {
+			$node_metadata put "prevState" $status_val_str
+			set log_response [log_content_lifecycle_event $contentId $node_metadata]
+		}
+
 		return $create_response
 	} else {
 		set result_map [java::new HashMap]

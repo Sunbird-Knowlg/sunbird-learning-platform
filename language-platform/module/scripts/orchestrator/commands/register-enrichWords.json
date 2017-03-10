@@ -1,0 +1,27 @@
+{
+  "name": "enrichWords",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+        "name": "node_ids",
+        "index": 1,
+        "routingParam": false,
+        "datatype": "java.util.ArrayList"
+    }
+  ],
+  "actorPath": {
+    "manager": "ENRICH_ACTOR",
+    "operation": "enrichWords",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "requestPath": {
+    "pathParams":["language_id"],
+    "type":"POST",
+    "url":"/v1/language/*/enrichWords/"
+  }
+}

@@ -85,13 +85,23 @@ if {$check_error} {
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	if {$returnFields} {
 		set resp_object [convert_graph_node $graph_node $def_node $fields]
+		set externalProps [java::new ArrayList]
 		set returnBody [$fields contains "body"]
 		if {$returnBody == 1} {
-			set bodyResponse [getContentBody $content_id]
-			set check_error [check_response_error $bodyResponse]
-			if {!$check_error} {
-				set body [get_resp_value $bodyResponse "body"]
-				$resp_object put "body" $body
+			$externalProps add "body"
+		}
+		set returnOldBody [$fields contains "oldBody"]
+		if {$returnOldBody == 1} {
+			$externalProps add "oldBody"
+		}
+		set bodyResponse [getContentProperties $content_id $externalProps]
+		set check_error [check_response_error $bodyResponse]
+		if {!$check_error} {
+			set extValues [get_resp_value $bodyResponse "values"]
+			set is_extValues_null [java::isnull $extValues]
+			if {$is_extValues_null == 0} {
+				set extValuesMap [java::cast Map $extValues]
+				$resp_object putAll $extValuesMap	
 			}
 		}
 	} else {
