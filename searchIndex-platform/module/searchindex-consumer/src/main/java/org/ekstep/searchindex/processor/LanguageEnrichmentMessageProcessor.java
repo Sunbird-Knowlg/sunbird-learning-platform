@@ -80,6 +80,8 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 
 		LOGGER.info("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
+		
+		LOGGER.info("checking if node is null" + node);
 		if (null != node) {
 			String languageId = null;
 			LOGGER.info("getting languageId");
@@ -87,8 +89,8 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 			
 			LOGGER.info("checking if language is null or not");
 			if (StringUtils.isNotBlank(language)) {
-				LOGGER.info("calling processData method");
-				processData(node, language);
+				LOGGER.info("calling initCheck method");
+				initCheck(node, language);
 			}
 		}
 	}
@@ -105,7 +107,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	 * 
 	 * @throws Exception
 	 */
-	private void processData(Node node, String languageId) throws Exception {
+	private void initCheck(Node node, String languageId) throws Exception {
 
 		LOGGER.info("checking if node contains text tag" + node.getMetadata().containsKey("text"));
 		if (null != node.getMetadata().get("text")) {
@@ -116,12 +118,12 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 				LOGGER.info("fetched object is an string array");
 				String[] textArray = (String[]) object;
 				String text = Arrays.toString(textArray);
-				updateData(text, languageId, node);
+				processData(text, languageId, node);
 
 			} else if (object instanceof String) {
 				LOGGER.info("fetched object is a string");
 				String text = object.toString();
-				updateData(text, languageId, node);
+				processData(text, languageId, node);
 			}
 		}
 	}
@@ -139,7 +141,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	 * @param node
 	 *            The content node
 	 */
-	private void updateData(String text, String languageId, Node node) {
+	private void processData(String text, String languageId, Node node) {
 
 		LOGGER.info("calling get complexity measures to get text_complexity" + text + languageId);
 		if (StringUtils.isNotBlank(text) && StringUtils.isNotBlank(languageId)) {
@@ -346,14 +348,11 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	 * 
 	 * @return The updated content node
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node updateGradeMap(Node node, List<Map<String, Object>> gradeList) {
-
-		List<String> gradeLevel = new ArrayList<String>();
 
 		LOGGER.info("Checking if gradeLevel from node is empty");
 		if (null == node.getMetadata().get("gradeLevel")) {
-			gradeLevel = new ArrayList<String>();
+			List<String> gradeLevel = new ArrayList<String>();
 
 			LOGGER.info("Checking if grades from complexity map is empty");
 			if (null != gradeList) {
@@ -368,19 +367,25 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 						LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + grade);
 						if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
 							gradeLevel.add(grade);
-							LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + grade);
-							node.getMetadata().put("gradeLevel", grade);
+							LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + gradeLevel);
+							node.getMetadata().put("gradeLevel", gradeLevel);
 						}
 					}
 				}
 
 			}
 		} else {
-			gradeLevel = (List) node.getMetadata().get("gradeLevel");
+			String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
 			
+			List<String> gradeLevel = new ArrayList<String>();
 			LOGGER.info("Checking if gradeLevel from node is empty");
-			if (!gradeLevel.isEmpty()) {
-
+			if (null != grade_array) {
+				
+				LOGGER.info("adding grades from node to list" + grade_array);
+				for(String str : grade_array){
+					gradeLevel.add(str);
+				}
+				
 				LOGGER.info("Checking if grades from complexity map is empty");
 				if (!gradeList.isEmpty()) {
 

@@ -83,8 +83,9 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 		LOGGER.info("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
+
 		if (null != node) {
-			LOGGER.info("calling processData to process out relations" + node);
+			LOGGER.info("calling processData to fetch node metadata" + node);
 			processData(node);
 		}
 	}
@@ -134,8 +135,18 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		if (null != items && !items.isEmpty()) {
 			LOGGER.info("calling getConceptsFromItems method to get concepts from items" + items);
 			getConceptsFromItems(graphId, contentId, items, node, conceptIds, conceptGrades);
-		}
 
+		} else if (null != conceptGrades && !conceptGrades.isEmpty()) {
+
+			LOGGER.info("calling process grades method to fetch and update grades");
+			Node content_node = processGrades(node, null, conceptGrades);
+
+			LOGGER.info("calling processAgeGroup method to process ageGroups from gradeLevels");
+			Node contentNode = processAgeGroup(content_node);
+
+			LOGGER.info("updating node with extracted features" + contentNode);
+			util.updateNode(contentNode);
+		}
 	}
 
 	/**
@@ -378,7 +389,8 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 		LOGGER.info("checking if node contains gradeLevel");
 		if (null == node.getMetadata().get("gradeLevel")) {
-			node.getMetadata().put("gradeLevel", grades);
+			List<String> gradeLevel = new ArrayList(grades);
+			node.getMetadata().put("gradeLevel", gradeLevel);
 
 		} else {
 			LOGGER.info("fetching grade levels from node");
@@ -392,8 +404,8 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 					LOGGER.info("checking if grade already exists" + grade);
 					grades.add(grade);
-					List gradeList = new ArrayList(grades);
-					node.getMetadata().put("gradeLevel", gradeList);
+					List gradeLevel = new ArrayList(grades);
+					node.getMetadata().put("gradeLevel", gradeLevel);
 					LOGGER.info("updating node metadata with additional grades" + node);
 				}
 			}
@@ -412,58 +424,77 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	 * 
 	 * @return The ageMap mapped from gradeLevel
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node processAgeGroup(Node node) {
 		Node data = null;
-		Set<String> ageList = new HashSet<String>();
+		Set<String> ageSet = new HashSet<String>();
 
 		if (null != node.getMetadata().get("gradeLevel")) {
-			String[] grades = (String[]) node.getMetadata().get("gradeLevel");
-
+			LOGGER.info("fetching gradeLevel from node metadata" + node);
+			List<String> grades = (List) node.getMetadata().get("gradeLevel");
 			if (null != grades) {
 
 				for (String grade : grades) {
 					LOGGER.info("mapping age group based on grades");
 					if ("Kindergarten".equalsIgnoreCase(grade)) {
-						ageList.add("<5");
+						ageSet.add("<5");
 					} else if ("Grade 1".equalsIgnoreCase(grade)) {
-						ageList.add("5-6");
+						ageSet.add("5-6");
 					} else if ("Grade 2".equalsIgnoreCase(grade)) {
-						ageList.add("6-7");
+						ageSet.add("6-7");
 					} else if ("Grade 3".equalsIgnoreCase(grade)) {
-						ageList.add("7-8");
+						ageSet.add("7-8");
 					} else if ("Grade 4".equalsIgnoreCase(grade)) {
-						ageList.add("8-10");
+						ageSet.add("8-10");
 					} else if ("Grade 5".equalsIgnoreCase(grade)) {
-						ageList.add(">10");
+						ageSet.add(">10");
 					} else if ("Other".equalsIgnoreCase(grade)) {
-						ageList.add("Other");
+						ageSet.add("Other");
 					}
 				}
-				data = setAgeGroup(node, ageList);
+				LOGGER.info("Calling set ageGroup method to set ageGroups" + ageSet);
+				data = setAgeGroup(node, ageSet);
 			}
 		}
-
 		return data;
 	}
 
-	private Node setAgeGroup(Node node, Set<String> ageList) {
+	/**
+	 * This method holds logic to set ageGroup based on the grades
+	 * 
+	 * @param node
+	 *            The node
+	 * 
+	 * @param ageSet
+	 *            The ageSet
+	 * 
+	 * @return The node
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private Node setAgeGroup(Node node, Set<String> ageSet) {
 
 		LOGGER.info("Checking if node contains ageGroup in it");
 		if (null == node.getMetadata().get("ageGroup")) {
-			
-			LOGGER.info("adding ageList to node if it doesnt have ageGroup in it");
-			if (!ageList.isEmpty()) {
-				node.getMetadata().put("ageGroup", ageList);
+
+			LOGGER.info("adding ageSet to node if it doesnt have ageGroup in it");
+			if (null != ageSet) {
+				LOGGER.info("adding age metadata to node" + ageSet);
+				List<String> ageGroup = new ArrayList(ageSet);
+				node.getMetadata().put("ageGroup", ageGroup);
 			}
+
 		} else {
+
 			LOGGER.info("fetching ageGroup from node");
 			String[] age_array = (String[]) node.getMetadata().get("ageGroup");
-			if (null != ageList) {
-				if(null != age_array){
-					for(String age: age_array){
-						ageList.add(age);
-						node.getMetadata().put("ageGroup", ageList);
+			if (null != ageSet) {
+				if (null != age_array) {
+					for (String age : age_array) {
+						ageSet.add(age);
 					}
+					LOGGER.info("adding age metadata to node" + ageSet);
+					List<String> ageGroup = new ArrayList(ageSet);
+					node.getMetadata().put("ageGroup", ageGroup);
 				}
 			}
 		}
