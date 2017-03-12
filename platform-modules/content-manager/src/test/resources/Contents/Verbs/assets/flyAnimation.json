@@ -1,0 +1,8 @@
+{
+    "framerate": 30,
+    "images": ["fixture-stories/verbs/assets/fly.png"],
+    "frames": {"regX": 0, "height": 98, "count": 8, "regY": 0, "width": 105, "spacing":5, "margin": 5},
+    "animations": {
+        "fly": [0, 7, "fly", 0.3]
+    }
+}
