@@ -14,20 +14,18 @@ import org.apache.tika.mime.MimeTypes;
 import org.ekstep.common.optimizr.FileType;
 import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.content.common.ContentOperations;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningOperations;
-import org.springframework.stereotype.Component;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -42,7 +40,6 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
  * @see ECMLMimeTypeMgrImpl
  * @see CollectionMimeTypeMgrImpl
  */
-@Component("AssetsMimeTypeMgrImpl")
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */

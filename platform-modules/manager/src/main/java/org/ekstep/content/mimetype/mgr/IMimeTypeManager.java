@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.ilimi.taxonomy.mgr;
+package org.ekstep.content.mimetype.mgr;
 
 import java.io.File;
 

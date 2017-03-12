@@ -52,13 +52,12 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
-	private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(BaseMimeTypeManager.class.getName());
 
 	private static final String s3Content = "s3.content.folder";
 	private static final String s3Artifact = "s3.artifact.folder";

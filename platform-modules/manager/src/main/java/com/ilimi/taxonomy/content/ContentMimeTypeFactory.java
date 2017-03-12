@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 
 /**
  * A factory for creating ContentMimeType objects.

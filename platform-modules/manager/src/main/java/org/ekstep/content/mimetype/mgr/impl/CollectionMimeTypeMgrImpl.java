@@ -8,14 +8,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentOperations;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.springframework.stereotype.Component;
-
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -31,7 +29,6 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
  * @see ECMLMimeTypeMgrImpl
  * @see AssetsMimeTypeMgrImpl
  */
-@Component("CollectionMimeTypeMgrImpl")
 public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */

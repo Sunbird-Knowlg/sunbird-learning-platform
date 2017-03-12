@@ -48,7 +48,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;

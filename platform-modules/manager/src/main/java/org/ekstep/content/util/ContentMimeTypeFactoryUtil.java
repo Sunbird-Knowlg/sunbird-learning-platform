@@ -11,7 +11,7 @@ import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 
 import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 
 public class ContentMimeTypeFactoryUtil {
 
@@ -26,7 +26,8 @@ public class ContentMimeTypeFactoryUtil {
 	static IMimeTypeManager pluginMimeTypeMgrImpl = new PluginMimeTypeMgrImpl();
 
 	@CoverageIgnore
-    public static IMimeTypeManager getImplForService(String mimeType){
+    public static IMimeTypeManager getImplForService(String mimeType) {
+		LOGGER.debug("MimeType: " + mimeType);
     	IMimeTypeManager manager = assetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
 			case "application/vnd.ekstep.ecml-archive":

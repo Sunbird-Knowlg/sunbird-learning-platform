@@ -13,13 +13,12 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-import org.springframework.stereotype.Component;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.ilimi.common.dto.Response;
@@ -27,12 +26,10 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 /**
  * The Class PluginMimeTypeMgrImpl.
  */
-@Component("PluginMimeTypeMgrImpl")
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
 	private static Logger LOGGER = LogManager.getLogger(PluginMimeTypeMgrImpl.class.getName());

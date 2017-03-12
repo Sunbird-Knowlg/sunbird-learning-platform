@@ -10,10 +10,10 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentOperations;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
@@ -21,7 +21,6 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.pattern.Patterns;
@@ -41,7 +40,6 @@ import scala.concurrent.Future;
  * @see CollectionMimeTypeMgrImpl
  * @see AssetsMimeTypeMgrImpl
  */
-@Component
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/** The logger. */
