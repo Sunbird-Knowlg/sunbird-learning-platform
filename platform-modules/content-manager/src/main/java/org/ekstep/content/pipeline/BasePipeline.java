@@ -57,8 +57,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.taxonomy.dto.ContentSearchCriteria;
-import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
+import org.ekstep.content.dto.ContentSearchCriteria;
 import com.rits.cloning.Cloner;
 
 import akka.actor.ActorRef;
@@ -545,15 +544,16 @@ public class BasePipeline extends BaseManager {
 					criteria.getSearchCriteria());
 			req.put(GraphDACParams.get_tags.name(), true);
 			requests.add(req);
-		} else {
-			for (String tId : TaxonomyManagerImpl.taxonomyIds) {
-				Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER,
-						ContentWorkflowPipelineParams.searchNodes.name(), GraphDACParams.search_criteria.name(),
-						criteria.getSearchCriteria());
-				req.put(GraphDACParams.get_tags.name(), true);
-				requests.add(req);
-			}
-		}
+		} 
+//		else {
+//			for (String tId : TaxonomyManagerImpl.taxonomyIds) {
+//				Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER,
+//						ContentWorkflowPipelineParams.searchNodes.name(), GraphDACParams.search_criteria.name(),
+//						criteria.getSearchCriteria());
+//				req.put(GraphDACParams.get_tags.name(), true);
+//				requests.add(req);
+//			}
+//		}
 		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
 				ContentWorkflowPipelineParams.contents.name());
 		return response;

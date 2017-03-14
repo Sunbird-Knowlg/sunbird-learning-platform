@@ -13,7 +13,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.content.util.PropertiesUtil;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;

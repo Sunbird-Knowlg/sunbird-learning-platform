@@ -15,7 +15,8 @@ import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.content.common.ContentConfigurationConstants;
-import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.content.dto.ContentSearchCriteria;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.ContentMimeTypeFactoryUtil;
 import org.ekstep.contentstore.util.ContentStoreOperations;
@@ -46,10 +47,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
-import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
-
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
@@ -194,7 +192,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 				for (Node node : nodes) {
 					String body = getContentBody(node.getIdentifier());
-					node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+					node.getMetadata().put(ContentAPIParams.body.name(), body);
 					LOGGER.debug("Body fetched from content store");
 				}
 				if (nodes.size() == 1 && StringUtils.isBlank(bundleFileName))
@@ -395,7 +393,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Got Node: ", node);
 		
 		String body = getContentBody(contentId);
-		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body fetched from content store");
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
@@ -468,7 +466,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Node: ", node);
 		
 		String body = getContentBody(contentId);
-		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body Fetched From Content Store.");
 		
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());

@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
-import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -55,7 +55,7 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
 		}
 		
 		Node referenceNode = (Node) res.get(GraphDACParams.node.name());
-		referenceNode.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), url);
+		referenceNode.getMetadata().put(ContentAPIParams.downloadUrl.name(), url);
 		
 		Request createReq = getRequest(V2_GRAPH_ID, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		createReq.put(GraphDACParams.node.name(), referenceNode);
@@ -66,7 +66,7 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
 			return createRes;
 		}
 		
-		Response response = OK(ContentWorkflowPipelineParams.url.name(), url);
+		Response response = OK(ContentAPIParams.url.name(), url);
         return response;
 	}
 }

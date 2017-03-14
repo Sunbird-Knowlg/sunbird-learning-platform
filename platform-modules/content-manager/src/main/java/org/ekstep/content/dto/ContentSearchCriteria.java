@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.dto;
+package org.ekstep.content.dto;
 
 import com.ilimi.common.dto.AbstractSearchCriteria;
 import com.ilimi.graph.dac.model.SearchCriteria;

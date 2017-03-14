@@ -1,12 +1,12 @@
 package com.ilimi.taxonomy.content;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.CoverageIgnore;
-import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 
 /**
  * A factory for creating ContentMimeType objects.
