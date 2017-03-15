@@ -171,10 +171,12 @@ public class SearchProcessor {
 		List<Map> conditionsSetOne = new ArrayList<Map>();
 		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
 		List<Map> conditionsSetMustNot = new ArrayList<Map>();
+		List<Map> conditionsSetShould = new ArrayList<Map>();
 		Map<String, List> conditionsMap = new HashMap<String, List>();
 		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_MUST, conditionsSetOne);
 		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_ARITHMETIC, conditionsSetArithmetic);
 		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_MUST_NOT, conditionsSetMustNot);
+		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_SHOULD, conditionsSetShould);
 		boolean relevanceSort = false;
 		List<Map> properties = searchDTO.getProperties();
 
@@ -292,6 +294,22 @@ public class SearchProcessor {
 				condition.put("value", values.get(0));
 			}
 			conditionsMap.get(conditionSet).add(condition);
+		}
+		
+		if(null != searchDTO.getSoftConstraints() && !searchDTO.getSoftConstraints().isEmpty()){
+			String conditionShould = CompositeSearchConstants.CONDITION_SET_SHOULD;
+			
+			for(java.util.Map.Entry<String, Object> sc : searchDTO.getSoftConstraints().entrySet()){
+				Map<String, Object> constraint = new HashMap<String, Object>();
+				constraint.put("operation", "equal");
+				constraint.put("fieldName", sc.getKey());
+				List<Object> data = (List<Object>) sc.getValue();
+				constraint.put("boost", data.get(0));
+				constraint.put("value", data.get(1));
+				conditionsMap.get(conditionShould).add(constraint);
+			}
+			
+			
 		}
 
 		if (searchDTO.getFacets() != null && groupByFinalList != null) {
@@ -537,16 +555,21 @@ public class SearchProcessor {
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
+		List<Map> shouldConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_SHOULD);
+		
 		if(null!=fields){
 			fields.add(GraphDACParams.objectType.name());
 			fields.add(GraphDACParams.identifier.name());
 		}
+		
 		if ((mustConditions != null && !mustConditions.isEmpty())
+				|| (null != shouldConditions && !shouldConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
 				|| (notConditions != null && !notConditions.isEmpty())) {
 			builder.key("query").object().key("filtered").object().key("query").object().key("bool").object();
 		}
 
+		
 		if (mustConditions != null && !mustConditions.isEmpty()) {
 			String allOperation = "should";
 			if (totalOperation == "AND") {
@@ -591,7 +614,22 @@ public class SearchProcessor {
 			}
 			builder.endArray();
 		}
-
+		
+		if (null != shouldConditions && !shouldConditions.isEmpty()){
+			String allOperation = "should";
+			builder.key(allOperation).array();
+			for(Map textCondition : shouldConditions){
+				builder.object();
+				String queryOperation = (String) textCondition.get("operation");
+				String fieldName = (String) textCondition.get("fieldName");
+				Object value = (Object) textCondition.get("value"); 
+				Integer boost = (Integer) textCondition.get("boost");
+				getConditionsQuery(queryOperation, fieldName, value, boost, builder);
+				builder.endObject();
+			}
+			builder.endArray();
+			
+		}
 		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
 			String allOperation = "||";
 			String scriptOperation = "should";
@@ -806,6 +844,11 @@ public class SearchProcessor {
 			builder.endArray();
 		}
 		builder.key("lenient").value(true).endObject();
+	}
+	
+	private void getConditionsQuery(String queryOperation, String fieldName, Object value, Integer boost, JSONBuilder builder) {
+		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object().key("query").value(value).key("boost").value(boost).endObject()
+		.endObject();
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })

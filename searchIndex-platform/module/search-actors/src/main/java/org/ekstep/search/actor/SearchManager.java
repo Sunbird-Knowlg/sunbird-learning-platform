@@ -17,6 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
+import org.ekstep.compositesearch.enums.Modes;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
@@ -158,6 +159,33 @@ public class SearchManager extends SearchBaseActor {
 				notExists.add((String) notExistsObject);
 			}
 			
+			Map<String, Object> softConstraints = null;
+			if(null != req.get(CompositeSearchParams.softConstraints.name())) {
+				softConstraints = (Map<String, Object>) req.get(CompositeSearchParams.softConstraints.name());
+			}
+			
+			String mode = (String) req.get(CompositeSearchParams.mode.name());
+			if(null != mode && mode.equals(Modes.soft.name()) && softConstraints.isEmpty()){
+				softConstraints = new HashMap<>();//TODO:update DefinitionNode and get the definition
+			}
+			
+			if(null!= softConstraints && !softConstraints.isEmpty()){	
+				LOGGER.info("SoftConstraints:" +  softConstraints);
+				
+				for(String key:softConstraints.keySet()){
+					if(!filters.containsKey(key)){
+						throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),"Invalid soft Constraints");
+					}else {
+						List<Object> data = new ArrayList<>();
+						data.add(softConstraints.get(key));
+						data.add(filters.get(key));
+						softConstraints.replace(key, softConstraints.get(key), data);
+						filters.remove(key);
+ 					}
+				}
+				searchObj.setSoftConstraints(softConstraints);
+			}
+			
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
 			LOGGER.info("Fields: " + fieldsSearch);
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
@@ -173,6 +201,7 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+			
 			
 			if (null != req.get(CompositeSearchParams.offset.name())) {
 				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
