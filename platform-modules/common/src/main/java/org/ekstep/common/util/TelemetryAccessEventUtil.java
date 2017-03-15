@@ -78,11 +78,16 @@ public class TelemetryAccessEventUtil {
 		try {
 			data.put("StartTime", requestWrapper.getAttribute("startTime"));
 			String body = requestWrapper.getBody();
-			if ("POST".equalsIgnoreCase(requestWrapper.getMethod())) {
+			if (body.contains("request") && body.length() > 0) {
 				request = mapper.readValue(body, Request.class);
 			}
+			Response response = null;
 			byte responseContent[] = responseWrapper.getData();
-			Response response = mapper.readValue(responseContent, Response.class);
+			if (responseContent.length > 0) {
+				response = mapper.readValue(responseContent, Response.class);
+			} else {
+				return;
+			}
 			data.put("Request", request);
 			data.put("Response", response);
 			data.put("RemoteAddress", requestWrapper.getRemoteHost());
