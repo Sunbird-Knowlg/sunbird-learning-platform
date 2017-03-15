@@ -7,7 +7,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.graph.dac.model.Node;
@@ -136,12 +136,12 @@ public class BaseProcessor {
 					LOGGER.info("checking relation contains status");
 					if (null != rel.getEndNodeMetadata().get("status")) {
 						LOGGER.info("getting status from node");
-						status = (String) rel.getEndNodeMetadata().get(ContentWorkflowPipelineParams.status.name());
+						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
 					}
 
 					LOGGER.info("checking if status is LIVE and fetching nodeIds from it" + status);
 					if (StringUtils.isNotBlank(status)
-							&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status)) {
+							&& StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)) {
 						LOGGER.info("nodeIds fetched form LIVE nodes" + nodeIds);
 						nodeIds.add(rel.getEndNodeId());
 					}

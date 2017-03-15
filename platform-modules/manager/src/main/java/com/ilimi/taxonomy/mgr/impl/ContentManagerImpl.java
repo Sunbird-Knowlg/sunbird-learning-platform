@@ -74,6 +74,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
+	
+	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
 
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
@@ -210,7 +212,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
 			parameterMap.put(ContentAPIParams.manifestVersion.name(),
-					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION);
+					DEFAULT_CONTENT_MANIFEST_VERSION);
 
 			LOGGER.info("Calling Content Workflow 'Bundle' Pipeline.");
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
