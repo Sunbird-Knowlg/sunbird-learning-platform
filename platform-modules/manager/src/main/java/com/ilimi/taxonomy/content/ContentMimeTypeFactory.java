@@ -2,9 +2,12 @@ package com.ilimi.taxonomy.content;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 
 import com.ilimi.common.dto.CoverageIgnore;
 
@@ -14,26 +17,25 @@ import com.ilimi.common.dto.CoverageIgnore;
  * @author Mohammad Azharuddin
  */
 @Deprecated
-@Component
 public class ContentMimeTypeFactory {
 	
 	/** The ECML mime type mgr. */
-	@Autowired @Qualifier("ECMLMimeTypeMgrImpl") IMimeTypeManager ECMLMimeTypeMgr;
+	IMimeTypeManager ECMLMimeTypeMgr = new ECMLMimeTypeMgrImpl();
     
     /** The HTML mime type mgr. */
-    @Autowired @Qualifier("HTMLMimeTypeMgrImpl") IMimeTypeManager HTMLMimeTypeMgr;
+    IMimeTypeManager HTMLMimeTypeMgr =  new HTMLMimeTypeMgrImpl();
     
     /** The APK mime type mgr. */
-    @Autowired @Qualifier("APKMimeTypeMgrImpl") IMimeTypeManager APKMimeTypeMgr;
+    IMimeTypeManager APKMimeTypeMgr = new APKMimeTypeMgrImpl();
     
     /** The Collection mime type mgr. */
-    @Autowired @Qualifier("CollectionMimeTypeMgrImpl") IMimeTypeManager CollectionMimeTypeMgr;
+    IMimeTypeManager CollectionMimeTypeMgr = new CollectionMimeTypeMgrImpl();
     
     /** The Assets mime type mgr. */
-    @Autowired @Qualifier("AssetsMimeTypeMgrImpl") IMimeTypeManager AssetsMimeTypeMgr;
+    IMimeTypeManager AssetsMimeTypeMgr = new AssetsMimeTypeMgrImpl();
     
     /** The Plugin mime type mgr impl. */
-    @Autowired @Qualifier("PluginMimeTypeMgrImpl") IMimeTypeManager PluginMimeTypeMgrImpl;
+    IMimeTypeManager PluginMimeTypeMgrImpl =  new PluginMimeTypeMgrImpl();
     
     /**
      * Gets the impl for service.
