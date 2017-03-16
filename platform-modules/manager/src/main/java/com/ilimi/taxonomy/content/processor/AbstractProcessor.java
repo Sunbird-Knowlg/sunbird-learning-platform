@@ -102,9 +102,8 @@ public abstract class AbstractProcessor extends BaseConcreteProcessor {
 			Object plugin = media.getData().get(ContentWorkflowPipelineParams.plugin.name());
 			Object ver = media.getData().get(ContentWorkflowPipelineParams.ver.name());
 			if (null != plugin && StringUtils.isNotBlank(plugin.toString()))
-				path += File.separator + plugin;
-			if (null != ver && StringUtils.isNotBlank(ver.toString()))
-				path += File.separator + ver;
+				if (null != ver && StringUtils.isNotBlank(ver.toString()))
+					path += plugin + File.separator + ver;
 		}
 		return path;
 	}

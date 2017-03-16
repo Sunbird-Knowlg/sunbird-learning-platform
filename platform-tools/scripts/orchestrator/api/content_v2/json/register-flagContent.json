@@ -20,6 +20,11 @@
             "name":"versionKey",
             "index": 3,
             "routingParam": false
+        },{
+          "name":"flags",
+          "index": 4,
+            "datatype": "java.util.ArrayList",
+          "routingParam": false
         }
     ],
     "requestPath": {

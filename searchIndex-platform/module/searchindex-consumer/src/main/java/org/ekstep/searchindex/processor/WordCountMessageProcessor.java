@@ -37,6 +37,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 
 	public void processMessage(String messageData) {
 		try {
+			LOGGER.info("Processing message: " + messageData);
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			processMessage(message);
@@ -69,6 +70,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 	
 	private void updateWordsCount() throws Exception {
 		messageProcessed = true;
+		LOGGER.info("Updating wordcount");
 		for(Map.Entry<String, Map<String, Integer>> entry: wordsCountMap.entrySet()){
 			String languageId = entry.getKey();
 			 Map<String, Integer> wordsCountObj = entry.getValue();
@@ -83,22 +85,25 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 requestBodyMap.put("request", requestMap);
 			 
 			 String requestBody = mapper.writeValueAsString(requestBodyMap);
+			 LOGGER.info("Updating Word Count | URL: " + url + " | Request body: " + requestBody);
 			 
 			 HTTPUtil.makePostRequest(url, requestBody);
+			 
+			 LOGGER.info("Word Count updated");
 			 
 			wordsCountObj.put("wordsCount", new Integer(0));
 			wordsCountObj.put("liveWordsCount", new Integer(0));
 			wordsCountMap.put(languageId, wordsCountObj);
 		}
-		if(messageProcessed){
-			timer.cancel();
-			timer = null;
-			timerTaskDone.set(true);
-		}
-		else{
-			timer.schedule(new PushTask(), BATCH_TIME_IN_SECONDS * 1000);
-			timerTaskDone.set(false);
-		}
+//		if(messageProcessed){
+//			timer.cancel();
+//			timer = null;
+//			timerTaskDone.set(true);
+//		}
+//		else{
+//			timer.schedule(new PushTask(), BATCH_TIME_IN_SECONDS * 1000);
+//			timerTaskDone.set(false);
+//		}
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -109,6 +114,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			//objectType = WordUtils.capitalize(objectType.toLowerCase());
 			String languageId = (String) message.get("graphId");
 			if (StringUtils.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD, objectType)) {
+				LOGGER.info("Processing message for Word object type");
 				Map<String, Integer> wordsCountObj = wordsCountMap.get(languageId);
 				if(wordsCountObj == null){
 					wordsCountObj = new HashMap<String, Integer>();
@@ -126,6 +132,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					switch (operationType) {
 					case CompositeSearchConstants.OPERATION_CREATE: {
 						wordsCount = wordsCount + 1;
+						LOGGER.info("Word create operation: " + wordsCount);
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -167,10 +174,12 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								}
 							}
 						}
+						LOGGER.info("Word update operation: " + liveWordsCount);
 						break;
 					}
 					case CompositeSearchConstants.OPERATION_DELETE: {
 						wordsCount = wordsCount - 1;
+						LOGGER.info("Word delete operation: " + wordsCount);
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -195,8 +204,10 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					wordsCountObj.put("wordsCount", wordsCount);
 					wordsCountObj.put("liveWordsCount", liveWordsCount);
 					wordsCountMap.put(languageId, wordsCountObj);
-					createTimer(BATCH_TIME_IN_SECONDS);
+					//createTimer(BATCH_TIME_IN_SECONDS);
 					messageProcessed = false;
+					LOGGER.info("Word count message processor: " + wordsCount + " | " + liveWordsCount);
+					updateWordsCount();
 					//System.out.println("Word count message processor: " + wordsCount + " | " + liveWordsCount);
 					break;
 				}

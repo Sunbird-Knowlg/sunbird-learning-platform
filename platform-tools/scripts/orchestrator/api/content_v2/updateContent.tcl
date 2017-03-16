@@ -114,6 +114,12 @@ if {$object_null == 1} {
 					$externalProps put "oldBody" $oldBody
 					$content put "oldBody" [java::null]
 				}
+				set stageIcons [$content get "stageIcons"]
+				set stageIconsEmpty [proc_isEmpty $stageIcons]
+				if {!$stageIconsEmpty} {
+					$content put "stageIcons" [java::null]
+					$externalProps put "stageIcons" $stageIcons
+				}
 
 				set graph_node [get_resp_value $get_node_response "node"]
 				set metadata [java::prop $graph_node "metadata"]

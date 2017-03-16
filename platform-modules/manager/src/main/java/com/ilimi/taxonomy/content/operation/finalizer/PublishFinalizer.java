@@ -153,6 +153,19 @@ public class PublishFinalizer extends BaseFinalizer {
 				&& null != node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
 			version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())) + 1;
 		node.getMetadata().put(ContentWorkflowPipelineParams.pkgVersion.name(), version);
+		node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
+		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
+		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
+		if (StringUtils.equalsIgnoreCase(
+				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+				ContentWorkflowPipelineParams.TextBook.name())
+				|| StringUtils.equalsIgnoreCase(
+						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+						ContentWorkflowPipelineParams.TextBookUnit.name()))
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
 
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
@@ -228,19 +241,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		// Populate Fields and Update Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
-		node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
 		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
-		node.getMetadata().put(ContentWorkflowPipelineParams.flagReasons.name(), null);
-		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
-		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
-		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
-		if (StringUtils.equalsIgnoreCase(
-				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-				ContentWorkflowPipelineParams.TextBook.name())
-				|| StringUtils.equalsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-						ContentWorkflowPipelineParams.TextBookUnit.name()))
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
+		
 
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());

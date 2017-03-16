@@ -93,13 +93,13 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 						mediaIds.add(getMediaId(media));
 					if (isWidgetTypeAsset(media.getType())
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.widgets.name()
-									+ getSubFolderPath(media) + File.separator + media.getSrc()).exists())
+									+ File.separator + media.getSrc()).exists())
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");
 					else if (!isWidgetTypeAsset(media.getType()) 
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.assets.name()
-									+ getSubFolderPath(media) + File.separator + media.getSrc()).exists())
+									+ File.separator + media.getSrc()).exists())
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");
@@ -114,9 +114,8 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 			Object plugin = media.getData().get(ContentWorkflowPipelineParams.plugin.name());
 			Object ver = media.getData().get(ContentWorkflowPipelineParams.ver.name());
 			if (null != plugin && StringUtils.isNotBlank(plugin.toString()))
-				id += "_" + plugin;
-			if (null != ver && StringUtils.isNotBlank(ver.toString()))
-				id += "_" + ver;
+				if (null != ver && StringUtils.isNotBlank(ver.toString()))
+					id += "_" + plugin + "_" + ver;
 		}
 		return id;
 	}

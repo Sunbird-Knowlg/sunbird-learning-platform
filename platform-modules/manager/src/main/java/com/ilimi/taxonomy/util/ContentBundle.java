@@ -37,6 +37,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.common.EcarPackageType;
@@ -79,10 +80,7 @@ public class ContentBundle {
 		urlFields.add("appIcon");
 		urlFields.add("grayScaleAppIcon");
 		urlFields.add("posterImage");
-
-		// Do not add 'artifactUrl' When the ECAR Package Type is 'SPINE'
-		if (packageType != EcarPackageType.SPINE)
-			urlFields.add("artifactUrl");
+		urlFields.add("artifactUrl");
 
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
@@ -98,10 +96,10 @@ public class ContentBundle {
 					if (null != val) {
 						if (val instanceof File) {
 							File file = (File) val;
-							addDownloadUrl(downloadUrls, val, identifier);
+							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
 							entry.setValue(identifier.trim() + File.separator + file.getName());
 						} else if (HttpDownloadUtility.isValidUrl(val)) {
-							addDownloadUrl(downloadUrls, val, identifier);
+							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
 							String file = FilenameUtils.getName(entry.getValue().toString());
 							if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 									+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
@@ -113,10 +111,9 @@ public class ContentBundle {
 					}
 				}
 			}
-			
-			if (packageType != EcarPackageType.SPINE)
-				content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
-						(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
+
+			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
+					(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
 			Object posterImage = content.get(ContentWorkflowPipelineParams.posterImage.name());
 			if (null != posterImage && StringUtils.isNotBlank((String) posterImage))
 				content.put(ContentWorkflowPipelineParams.appIcon.name(), posterImage);
@@ -231,6 +228,15 @@ public class ContentBundle {
 			header.append("\"ttl\": 24, \"items\": ");
 			LOGGER.info("Content Items in Manifest JSON: " + contents.size());
 
+			// Updating the 'variant' Property
+			LOGGER.debug("Contents Before Updating for 'variant' Properties : " + contents);
+
+			LOGGER.info("Updating the 'variant' map from JSON string to JSON Object.");
+			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
+					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
+
+			LOGGER.debug("Contents After Updating for 'variant' Properties : " + contents);
+
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
 
@@ -251,14 +257,25 @@ public class ContentBundle {
 	 *            the val
 	 * @param identifier
 	 *            the identifier
+	 * @param key
+	 *            TODO
+	 * @param packageType
+	 *            TODO
 	 */
-	private void addDownloadUrl(Map<Object, List<String>> downloadUrls, Object val, String identifier) {
-		List<String> ids = downloadUrls.get(val);
-		if (null == ids) {
-			ids = new ArrayList<String>();
-			downloadUrls.put(val, ids);
+	private void addDownloadUrl(Map<Object, List<String>> downloadUrls, Object val, String identifier, String key,
+			EcarPackageType packageType) {
+		List<String> contentPackageKeys = new ArrayList<String>();
+		contentPackageKeys.add(ContentWorkflowPipelineParams.artifactUrl.name());
+		contentPackageKeys.add(ContentWorkflowPipelineParams.downloadUrl.name());
+
+		if (!contentPackageKeys.contains(key) || packageType != EcarPackageType.SPINE) {
+			List<String> ids = downloadUrls.get(val);
+			if (null == ids) {
+				ids = new ArrayList<String>();
+				downloadUrls.put(val, ids);
+			}
+			ids.add(identifier.trim());
 		}
-		ids.add(identifier.trim());
 	}
 
 	/**
@@ -420,5 +437,5 @@ public class ContentBundle {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
 	}
-	
+
 }
