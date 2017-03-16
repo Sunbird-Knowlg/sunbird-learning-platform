@@ -181,22 +181,34 @@ public class SearchManager extends SearchBaseActor {
 
 			if (null != softConstraints && !softConstraints.isEmpty()) {
 				LOGGER.info("SoftConstraints:" + softConstraints);
-				if (softConstraints.containsValue("") || softConstraints.containsValue("")) {
-					LOGGER.debug("SoftConstaints value is blank");
-				}
-				for (String key : softConstraints.keySet()) {
-					if (!filters.containsKey(key)) {
-						LOGGER.debug("Invalid soft Constraints");
-					} else {
-						if (null == filters.get(key) || isEmpty(filters.get(key))) {
-							LOGGER.debug("Invalid soft Constraints");
-						}
-						List<Object> data = new ArrayList<>();
-						data.add(softConstraints.get(key));
-						data.add(filters.get(key));
-						softConstraints.replace(key, softConstraints.get(key), data);
-						filters.remove(key);
+				try {
+					if (softConstraints.containsValue("") || softConstraints.containsValue("")) {
+						LOGGER.debug("SoftConstaints value is blank");
 					}
+
+					for (String key : softConstraints.keySet()) {
+
+						if (!filters.containsKey(key)) {
+							throw new ClientException(
+									CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
+									"Invalid soft constraints");
+						} else {
+							if (null == filters.get(key) || isEmpty(filters.get(key))) {
+								throw new ClientException(
+										CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
+										"Invalid soft constraints");
+							}
+							List<Object> data = new ArrayList<>();
+							data.add(softConstraints.get(key));
+							data.add(filters.get(key));
+							softConstraints.replace(key, softConstraints.get(key), data);
+							filters.remove(key);
+						}
+
+					}
+				} catch (Exception e) {
+					LOGGER.debug("Invalid soft Constraints");
+					softConstraints = null;
 				}
 				searchObj.setSoftConstraints(softConstraints);
 			}

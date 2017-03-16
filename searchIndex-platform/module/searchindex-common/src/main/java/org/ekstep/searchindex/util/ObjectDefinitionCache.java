@@ -131,6 +131,7 @@ public class ObjectDefinitionCache {
 		if(null == definition){
 			getDefinitionFromGraph(objectType, graphId);
 		}
+		definition = definitionMap.get(objectType);
 		return definition;
 	}
 }
