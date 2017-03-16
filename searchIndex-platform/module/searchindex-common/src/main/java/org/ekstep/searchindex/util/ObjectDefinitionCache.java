@@ -122,5 +122,15 @@ public class ObjectDefinitionCache {
 	    System.out.println("resyncDefinition : " + objectType + " -- " + graphId);
 		getDefinitionFromGraph(objectType, graphId);
 	}
-
+    
+    @SuppressWarnings("unchecked")
+	public static Map<String, Object> getDefinitionNode(String objectType) throws Exception {
+		Map<String, Object> definition = null;
+		String graphId = "domain";
+		definition = definitionMap.get(objectType);
+		if(null == definition){
+			getDefinitionFromGraph(objectType, graphId);
+		}
+		return definition;
+	}
 }

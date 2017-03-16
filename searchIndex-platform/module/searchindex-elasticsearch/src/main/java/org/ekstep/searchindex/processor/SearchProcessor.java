@@ -64,9 +64,11 @@ public class SearchProcessor {
 
 		return response;
 	}
-	
+
 	/**
-	 * Returns the list of words which are synonyms of the synsetIds passed in the request
+	 * Returns the list of words which are synonyms of the synsetIds passed in
+	 * the request
+	 * 
 	 * @param synsetIds
 	 * @return
 	 * @throws Exception
@@ -76,40 +78,38 @@ public class SearchProcessor {
 		Map<String, Object> response = new HashMap<String, Object>();
 		Map<String, Object> translations = new HashMap<String, Object>();
 		Map<String, Object> synsets = new HashMap<String, Object>();
-		if(synsetIds!=null && synsetIds.size()>0)
-		{
-			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
+		if (synsetIds != null && synsetIds.size() > 0) {
+			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
-			for(String synsetDoc: resultList)
-			{
-				Map<String, Object> wordTranslationList = new HashMap<String, Object>();				
+			for (String synsetDoc : resultList) {
+				Map<String, Object> wordTranslationList = new HashMap<String, Object>();
 				Map<String, Object> indexDocument = new HashMap<String, Object>();
 				if (synsetDoc != null && !synsetDoc.isEmpty()) {
-					indexDocument = mapper.readValue(synsetDoc, new TypeReference<Map<String, Object>>() {});
+					indexDocument = mapper.readValue(synsetDoc, new TypeReference<Map<String, Object>>() {
+					});
 					Object words = indexDocument.get("synonyms");
-					String identifier = (String)indexDocument.get("identifier");
-					String gloss = (String)indexDocument.get("gloss");
+					String identifier = (String) indexDocument.get("identifier");
+					String gloss = (String) indexDocument.get("gloss");
 					wordTranslationList.put("gloss", gloss);
-					if(words!=null)
-					{
-						List<String> wordIdList = (List<String>)words;
-						if(wordIdList!=null && wordIdList.size()>0)
-						{
-							List<String> wordResultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
+					if (words != null) {
+						List<String> wordIdList = (List<String>) words;
+						if (wordIdList != null && wordIdList.size() > 0) {
+							List<String> wordResultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 									CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, wordIdList);
-							for(String wordDoc: wordResultList)
-							{
+							for (String wordDoc : wordResultList) {
 								List<Map> synsetWordLangList = new ArrayList<Map>();
 								Map<String, Object> indexWordDocument = new HashMap<String, Object>();
-								indexWordDocument = mapper.readValue(wordDoc, new TypeReference<Map<String, Object>>() {});
-								String wordId = (String)indexWordDocument.get("identifier");
-								String graphId = (String)indexWordDocument.get("graph_id");
-								if(wordTranslationList.containsKey(graphId))
-								{
-									synsetWordLangList = (List<Map>)wordTranslationList.get(graphId);
+								indexWordDocument = mapper.readValue(wordDoc, new TypeReference<Map<String, Object>>() {
+								});
+								String wordId = (String) indexWordDocument.get("identifier");
+								String graphId = (String) indexWordDocument.get("graph_id");
+								if (wordTranslationList.containsKey(graphId)) {
+									synsetWordLangList = (List<Map>) wordTranslationList.get(graphId);
 								}
-								String lemma = (String)indexWordDocument.get("lemma");
-								Map<String,String> wordMap = new HashMap<String,String>();
+								String lemma = (String) indexWordDocument.get("lemma");
+								Map<String, String> wordMap = new HashMap<String, String>();
 								wordMap.put("id", wordId);
 								wordMap.put("lemma", lemma);
 								synsetWordLangList.add(wordMap);
@@ -118,7 +118,7 @@ public class SearchProcessor {
 
 						}
 					}
-					synsets.put(identifier,wordTranslationList);
+					synsets.put(identifier, wordTranslationList);
 				}
 
 			}
@@ -127,10 +127,10 @@ public class SearchProcessor {
 
 		return response;
 	}
-	
-	
+
 	/**
 	 * Returns list of synsetsIds which has valid documents in composite index
+	 * 
 	 * @param synsetIds
 	 * @return
 	 * @throws Exception
@@ -138,27 +138,26 @@ public class SearchProcessor {
 	public Map<String, Object> multiSynsetDocSearch(List<String> synsetIds) throws Exception {
 		Map<String, Object> synsetDocList = new HashMap<String, Object>();
 		List<String> identifierList = new ArrayList<String>();
-		if(synsetIds!=null && synsetIds.size()>0)
-		{
-			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
+		if (synsetIds != null && synsetIds.size() > 0) {
+			List<String> resultList = elasticSearchUtil.getMultiDocumentAsStringByIdList(
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, synsetIds);
-			for(String synsetDoc: resultList)
-			{			
+			for (String synsetDoc : resultList) {
 				Map<String, Object> indexDocument = new HashMap<String, Object>();
 				if (synsetDoc != null && !synsetDoc.isEmpty()) {
-					indexDocument = mapper.readValue(synsetDoc, new TypeReference<Map<String, Object>>() {});
-					String identifier = (String)indexDocument.get("identifier");
+					indexDocument = mapper.readValue(synsetDoc, new TypeReference<Map<String, Object>>() {
+					});
+					String identifier = (String) indexDocument.get("identifier");
 					identifierList.add(identifier);
 
 				}
 
 			}
 		}
-		synsetDocList.put("synsets", identifierList);	
+		synsetDocList.put("synsets", identifierList);
 
 		return synsetDocList;
 	}
-
 
 	public void destroy() {
 		if (null != elasticSearchUtil)
@@ -295,22 +294,6 @@ public class SearchProcessor {
 			}
 			conditionsMap.get(conditionSet).add(condition);
 		}
-		
-		if(null != searchDTO.getSoftConstraints() && !searchDTO.getSoftConstraints().isEmpty()){
-			String conditionShould = CompositeSearchConstants.CONDITION_SET_SHOULD;
-			
-			for(java.util.Map.Entry<String, Object> sc : searchDTO.getSoftConstraints().entrySet()){
-				Map<String, Object> constraint = new HashMap<String, Object>();
-				constraint.put("operation", "equal");
-				constraint.put("fieldName", sc.getKey());
-				List<Object> data = (List<Object>) sc.getValue();
-				constraint.put("boost", data.get(0));
-				constraint.put("value", data.get(1));
-				conditionsMap.get(conditionShould).add(constraint);
-			}
-			
-			
-		}
 
 		if (searchDTO.getFacets() != null && groupByFinalList != null) {
 			for (String facet : searchDTO.getFacets()) {
@@ -331,21 +314,37 @@ public class SearchProcessor {
 				searchDTO.setSortBy(sortBy);
 			}
 		}
+
+		if (null != searchDTO.getSoftConstraints() && !searchDTO.getSoftConstraints().isEmpty()) {
+			String conditionShould = CompositeSearchConstants.CONDITION_SET_SHOULD;
+			for (java.util.Map.Entry<String, Object> sc : searchDTO.getSoftConstraints().entrySet()) {
+				Map<String, Object> constraint = new HashMap<String, Object>();
+				constraint.put("operation", "equal");
+				constraint.put("fieldName", sc.getKey());
+				List<Object> data = (List<Object>) sc.getValue();
+				constraint.put("boost", data.get(0));
+				constraint.put("value", data.get(1));
+				conditionsMap.get(conditionShould).add(constraint);
+			}
+			searchDTO.setSortBy(null);
+		}
+
 		String query;
 		if (searchDTO.isFuzzySearch()) {
 			Map<String, Double> weightagesMap = (Map<String, Double>) searchDTO.getAdditionalProperty("weightagesMap");
 			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList,
-					searchDTO.getSortBy(), weightagesMap,searchDTO.getFields());
+					searchDTO.getSortBy(), weightagesMap, searchDTO.getFields());
 		} else {
-			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(),searchDTO.getFields());
+			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(),
+					searchDTO.getFields());
 		}
 		return query;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages, List<String> fields)
-					throws Exception {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages,
+			List<String> fields) throws Exception {
 
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
@@ -354,7 +353,7 @@ public class SearchProcessor {
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
 		List<Map> shouldConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_SHOULD);
 		Map<String, Object> baseConditions = new HashMap<String, Object>();
-		if(null!=fields){
+		if (null != fields) {
 			fields.add(GraphDACParams.objectType.name());
 			fields.add(GraphDACParams.identifier.name());
 		}
@@ -425,23 +424,23 @@ public class SearchProcessor {
 				builder.endObject().key("weight").value(weight).endObject();
 			}
 		}
-		
-		if (null != shouldConditions && !shouldConditions.isEmpty()){
+
+		if (null != shouldConditions && !shouldConditions.isEmpty()) {
 			String allOperation = "should";
 			builder.key(allOperation).array();
-			for(Map textCondition : shouldConditions){
+			for (Map textCondition : shouldConditions) {
 				builder.object();
 				String queryOperation = (String) textCondition.get("operation");
 				String fieldName = (String) textCondition.get("fieldName");
-				Object value = (Object) textCondition.get("value"); 
+				Object value = (Object) textCondition.get("value");
 				Integer boost = (Integer) textCondition.get("boost");
 				getConditionsQuery(queryOperation, fieldName, value, boost, builder);
 				builder.endObject();
 			}
 			builder.endArray();
-			
+
 		}
-		
+
 		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
 			for (Map arithmeticCondition : arithmeticConditions) {
 				builder.object().key("filter").object().key("script").object().key("script");
@@ -529,7 +528,7 @@ public class SearchProcessor {
 		}
 
 		builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
-		
+
 		if (groupByList != null && !groupByList.isEmpty()) {
 			builder.key("aggs").object();
 			for (Map<String, Object> groupByMap : groupByList) {
@@ -551,10 +550,10 @@ public class SearchProcessor {
 			}
 			builder.endObject();
 		}
-		
+
 		if (fields != null && !fields.isEmpty()) {
 			builder.key("_source").array();
-			for(String field:fields){
+			for (String field : fields) {
 				builder.value(field);
 			}
 			builder.endArray();
@@ -573,12 +572,10 @@ public class SearchProcessor {
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
 		List<Map> shouldConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_SHOULD);
-		
-		if(null!=fields){
+		if (null != fields) {
 			fields.add(GraphDACParams.objectType.name());
 			fields.add(GraphDACParams.identifier.name());
 		}
-		
 		if ((mustConditions != null && !mustConditions.isEmpty())
 				|| (null != shouldConditions && !shouldConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
@@ -586,7 +583,6 @@ public class SearchProcessor {
 			builder.key("query").object().key("filtered").object().key("query").object().key("bool").object();
 		}
 
-		
 		if (mustConditions != null && !mustConditions.isEmpty()) {
 			String allOperation = "should";
 			if (totalOperation == "AND") {
@@ -631,22 +627,23 @@ public class SearchProcessor {
 			}
 			builder.endArray();
 		}
-		
-		if (null != shouldConditions && !shouldConditions.isEmpty()){
+
+		if (null != shouldConditions && !shouldConditions.isEmpty()) {
 			String allOperation = "should";
 			builder.key(allOperation).array();
-			for(Map textCondition : shouldConditions){
+			for (Map textCondition : shouldConditions) {
 				builder.object();
 				String queryOperation = (String) textCondition.get("operation");
 				String fieldName = (String) textCondition.get("fieldName");
-				Object value = (Object) textCondition.get("value"); 
+				Object value = (Object) textCondition.get("value");
 				Integer boost = (Integer) textCondition.get("boost");
 				getConditionsQuery(queryOperation, fieldName, value, boost, builder);
 				builder.endObject();
 			}
 			builder.endArray();
-			
+
 		}
+
 		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
 			String allOperation = "||";
 			String scriptOperation = "should";
@@ -772,10 +769,10 @@ public class SearchProcessor {
 			}
 			builder.endArray();
 		}
-		
+
 		if (fields != null && !fields.isEmpty()) {
 			builder.key("_source").array();
-			for(String field:fields){
+			for (String field : fields) {
 				builder.value(field);
 			}
 			builder.endArray();
@@ -862,34 +859,51 @@ public class SearchProcessor {
 		}
 		builder.key("lenient").value(true).endObject();
 	}
-	
-	private void getConditionsQuery(String queryOperation, String fieldName, Object value, Integer boost, JSONBuilder builder) {
-		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object().key("query").value(value).key("boost").value(boost).endObject()
-		.endObject();
-	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index) throws Exception {
+	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index)
+			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
-		Map<String, Object> res_map = new HashMap<String,Object>();
+		Map<String, Object> res_map = new HashMap<String, Object>();
 		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		LOGGER.info("AuditHistory search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
 		LOGGER.info("search result from elastic search" + searchResult);
-		Map<String,Object> result_map = (Map) searchResult.getValue("hits");
-		List<Map<String,Object>> result = (List) result_map.get("hits");
-		for(Map<String,Object> map : result){
-			 for (Map.Entry<String, Object> entry : map.entrySet()) {
-				 if(entry.getKey().equals("_source")){
-					  res_map = (Map) entry.getValue();
-					  response.add(res_map);
-				 }
-				 
-			 }
+		Map<String, Object> result_map = (Map) searchResult.getValue("hits");
+		List<Map<String, Object>> result = (List) result_map.get("hits");
+		for (Map<String, Object> map : result) {
+			for (Map.Entry<String, Object> entry : map.entrySet()) {
+				if (entry.getKey().equals("_source")) {
+					res_map = (Map) entry.getValue();
+					response.add(res_map);
+				}
+
+			}
 		}
 		LOGGER.info("AuditHistory search response size: " + response.size());
 		return response;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void getConditionsQuery(String queryOperation, String fieldName, Object value, Integer boost,
+			JSONBuilder builder) {
+		List<String> object = null;
+		try {
+		if(value instanceof List){
+			object = (List<String>) value;
+		}else if(value instanceof String[]){
+			object = Arrays.asList();
+		}
+		}catch (Exception e) {
+			LOGGER.error(e);
+		}
+		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object()
+				.key("query").array();
+				for(String val : object){
+					builder.value(val);
+				}
+		builder.endArray().key("boost").value(boost).endObject().endObject();
 	}
 }

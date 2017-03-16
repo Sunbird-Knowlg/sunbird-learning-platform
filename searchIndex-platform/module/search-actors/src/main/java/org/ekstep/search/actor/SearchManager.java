@@ -103,6 +103,7 @@ public class SearchManager extends SearchBaseActor {
 				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
+
 			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
 			String objectType = null;
 			if (objectTypeFromFilter != null) {
@@ -126,6 +127,7 @@ public class SearchManager extends SearchBaseActor {
 					graphId = (String) graphIdFromFilter;
 				}
 			}
+
 			if (fuzzySearch && filters != null) {
 				Map<String, Double> weightagesMap = new HashMap<String, Double>();
 				weightagesMap.put("default_weightage", 1.0);
@@ -140,7 +142,6 @@ public class SearchManager extends SearchBaseActor {
 					}
 				}
 				searchObj.addAdditionalProperty("weightagesMap", weightagesMap);
-
 			}
 
 			List<String> exists = null;
@@ -169,7 +170,7 @@ public class SearchManager extends SearchBaseActor {
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
 			if (null != mode && mode.equals(Modes.soft.name())
 					&& (null == softConstraints || softConstraints.isEmpty())) {
-				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
+				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType);
 				if (null != definitionNode.get("softConstraints")) {
 					Map<String, Object> constraintsMap = (Map<String, Object>) definitionNode.get("softConstraints");
 					ObjectMapper mapper = new ObjectMapper();
@@ -180,18 +181,15 @@ public class SearchManager extends SearchBaseActor {
 
 			if (null != softConstraints && !softConstraints.isEmpty()) {
 				LOGGER.info("SoftConstraints:" + softConstraints);
-				if (softConstraints.containsValue("")||softConstraints.containsValue("")) {
-					throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
-							"One of the Soft Constraints is blank");
+				if (softConstraints.containsValue("") || softConstraints.containsValue("")) {
+					LOGGER.debug("SoftConstaints value is blank");
 				}
 				for (String key : softConstraints.keySet()) {
 					if (!filters.containsKey(key)) {
-						throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
-								"Invalid soft Constraints");
+						LOGGER.debug("Invalid soft Constraints");
 					} else {
-						if(null == filters.get(key)||isEmpty(filters.get(key))){
-							throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
-									"Invalid soft Constraints");
+						if (null == filters.get(key) || isEmpty(filters.get(key))) {
+							LOGGER.debug("Invalid soft Constraints");
 						}
 						List<Object> data = new ArrayList<>();
 						data.add(softConstraints.get(key));
@@ -235,19 +233,6 @@ public class SearchManager extends SearchBaseActor {
 					"Invalid Input.", e);
 		}
 		return searchObj;
-	}
-	
-	@SuppressWarnings("rawtypes")
-	private boolean isEmpty(Object o){
-		boolean result = false;
-		if(o instanceof String){
-			result = StringUtils.isBlank((String)o);
-		}else if (o instanceof List){
-			result = ((List) o).isEmpty();
-		}else if (o  instanceof String[]){
-			result = (((String[]) o).length <=0);
-		}
-		return result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -532,5 +517,18 @@ public class SearchManager extends SearchBaseActor {
 				return objectType;
 		}
 		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private boolean isEmpty(Object o) {
+		boolean result = false;
+		if (o instanceof String) {
+			result = StringUtils.isBlank((String) o);
+		} else if (o instanceof List) {
+			result = ((List) o).isEmpty();
+		} else if (o instanceof String[]) {
+			result = (((String[]) o).length <= 0);
+		}
+		return result;
 	}
 }

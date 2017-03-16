@@ -17,7 +17,6 @@ public class SearchDTO {
 	boolean fuzzySearch = false;
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 	private Map<String, Object> softConstraints = new HashMap<String, Object>();
-	private String mode;
 	
 	
 	public SearchDTO() {
@@ -101,10 +100,5 @@ public class SearchDTO {
 	public void setSoftConstraints(Map<String, Object> softConstraints) {
 		this.softConstraints = softConstraints;
 	}
-	public String getMode() {
-		return mode;
-	}
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
+
 }
