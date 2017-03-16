@@ -352,6 +352,7 @@ public class SearchProcessor {
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
+		List<Map> shouldConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_SHOULD);
 		Map<String, Object> baseConditions = new HashMap<String, Object>();
 		if(null!=fields){
 			fields.add(GraphDACParams.objectType.name());
@@ -424,7 +425,23 @@ public class SearchProcessor {
 				builder.endObject().key("weight").value(weight).endObject();
 			}
 		}
-
+		
+		if (null != shouldConditions && !shouldConditions.isEmpty()){
+			String allOperation = "should";
+			builder.key(allOperation).array();
+			for(Map textCondition : shouldConditions){
+				builder.object();
+				String queryOperation = (String) textCondition.get("operation");
+				String fieldName = (String) textCondition.get("fieldName");
+				Object value = (Object) textCondition.get("value"); 
+				Integer boost = (Integer) textCondition.get("boost");
+				getConditionsQuery(queryOperation, fieldName, value, boost, builder);
+				builder.endObject();
+			}
+			builder.endArray();
+			
+		}
+		
 		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
 			for (Map arithmeticCondition : arithmeticConditions) {
 				builder.object().key("filter").object().key("script").object().key("script");

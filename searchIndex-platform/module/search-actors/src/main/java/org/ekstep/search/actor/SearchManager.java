@@ -59,20 +59,20 @@ public class SearchManager extends SearchBaseActor {
 				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), false);
 				OK(getCompositeSearchResponse(lstResult), parent);
 
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(), operation)) {
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(),
+					operation)) {
 				Map<String, Object> searchResponse = (Map<String, Object>) request.get("searchResult");
 				OK(getCompositeSearchResponse(searchResponse), parent);
 
-			}else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_WORD_SEARCH.name(), operation)) {
 				List<String> synsetIdList = (List<String>) request.get("synset_id_list");
 				Map<String, Object> lstResult = processor.multiWordDocSearch(synsetIdList);
 				OK(lstResult, parent);
-			}else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_SYNSET_SEARCH.name(), operation)) {
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.MULTI_LANGUAGE_SYNSET_SEARCH.name(), operation)) {
 				List<String> synsetIdList = (List<String>) request.get("synset_ids");
 				Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
 				OK(lstResult, parent);
-			}
-			else {
+			} else {
 				LOGGER.info("Unsupported operation: " + operation);
 				throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
@@ -103,97 +103,115 @@ public class SearchManager extends SearchBaseActor {
 				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
-			if(fuzzySearch && filters != null){
+			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
+			String objectType = null;
+			if (objectTypeFromFilter != null) {
+				if (objectTypeFromFilter instanceof List) {
+					List objectTypeList = (List) objectTypeFromFilter;
+					if (objectTypeList.size() > 0)
+						objectType = (String) objectTypeList.get(0);
+				} else if (objectTypeFromFilter instanceof String) {
+					objectType = (String) objectTypeFromFilter;
+				}
+			}
+
+			Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
+			String graphId = null;
+			if (graphIdFromFilter != null) {
+				if (graphIdFromFilter instanceof List) {
+					List graphIdList = (List) graphIdFromFilter;
+					if (graphIdList.size() > 0)
+						graphId = (String) graphIdList.get(0);
+				} else if (graphIdFromFilter instanceof String) {
+					graphId = (String) graphIdFromFilter;
+				}
+			}
+			if (fuzzySearch && filters != null) {
 				Map<String, Double> weightagesMap = new HashMap<String, Double>();
 				weightagesMap.put("default_weightage", 1.0);
-				Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
-				String objectType = null;
-				if(objectTypeFromFilter != null){
-					if(objectTypeFromFilter instanceof List){
-						List objectTypeList = (List) objectTypeFromFilter;
-						if (objectTypeList.size() > 0)
-							objectType = (String) objectTypeList.get(0);
-					} else if (objectTypeFromFilter instanceof String){
-						objectType = (String) objectTypeFromFilter;
-					}
-				}
-				
-				Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
-				String graphId = null;
-				if(graphIdFromFilter != null){
-					if(graphIdFromFilter instanceof List){
-						List graphIdList = (List) graphIdFromFilter;
-						if (graphIdList.size() > 0)
-							graphId = (String) graphIdList.get(0);
-					} else if (graphIdFromFilter instanceof String){
-						graphId = (String) graphIdFromFilter;
-					}
-				}
-				
-				if(StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)){
+
+				if (StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)) {
 					Map<String, Object> objDefinition = ObjectDefinitionCache.getMetaData(objectType, graphId);
-					//DefinitionDTO objDefinition = DefinitionCache.getDefinitionNode(graphId, objectType);
+					// DefinitionDTO objDefinition =
+					// DefinitionCache.getDefinitionNode(graphId, objectType);
 					String weightagesString = (String) objDefinition.get("weightages");
-					if(StringUtils.isNotBlank(weightagesString)){
+					if (StringUtils.isNotBlank(weightagesString)) {
 						weightagesMap = getWeightagesMap(weightagesString);
 					}
 				}
 				searchObj.addAdditionalProperty("weightagesMap", weightagesMap);
+
 			}
-			
+
 			List<String> exists = null;
 			Object existsObject = req.get(CompositeSearchParams.exists.name());
-			if(existsObject instanceof List){
-				exists = (List<String>) existsObject; 
-			} else if (existsObject instanceof String){
-				exists =  new ArrayList<String>();
+			if (existsObject instanceof List) {
+				exists = (List<String>) existsObject;
+			} else if (existsObject instanceof String) {
+				exists = new ArrayList<String>();
 				exists.add((String) existsObject);
 			}
-			
+
 			List<String> notExists = null;
 			Object notExistsObject = req.get(CompositeSearchParams.not_exists.name());
-			if(notExistsObject instanceof List){
-				notExists = (List<String>) notExistsObject; 
-			} else if (notExistsObject instanceof String){
-				notExists =  new ArrayList<String>();
+			if (notExistsObject instanceof List) {
+				notExists = (List<String>) notExistsObject;
+			} else if (notExistsObject instanceof String) {
+				notExists = new ArrayList<String>();
 				notExists.add((String) notExistsObject);
 			}
-			
+
 			Map<String, Object> softConstraints = null;
-			if(null != req.get(CompositeSearchParams.softConstraints.name())) {
+			if (null != req.get(CompositeSearchParams.softConstraints.name())) {
 				softConstraints = (Map<String, Object>) req.get(CompositeSearchParams.softConstraints.name());
 			}
-			
+
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
-			if(null != mode && mode.equals(Modes.soft.name()) && softConstraints.isEmpty()){
-				softConstraints = new HashMap<>();//TODO:update DefinitionNode and get the definition
+			if (null != mode && mode.equals(Modes.soft.name())
+					&& (null == softConstraints || softConstraints.isEmpty())) {
+				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
+				if (null != definitionNode.get("softConstraints")) {
+					Map<String, Object> constraintsMap = (Map<String, Object>) definitionNode.get("softConstraints");
+					ObjectMapper mapper = new ObjectMapper();
+					String data = (String) constraintsMap.get("defaultValue");
+					softConstraints = mapper.readValue(data, Map.class);
+				}
 			}
-			
-			if(null!= softConstraints && !softConstraints.isEmpty()){	
-				LOGGER.info("SoftConstraints:" +  softConstraints);
-				
-				for(String key:softConstraints.keySet()){
-					if(!filters.containsKey(key)){
-						throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),"Invalid soft Constraints");
-					}else {
+
+			if (null != softConstraints && !softConstraints.isEmpty()) {
+				LOGGER.info("SoftConstraints:" + softConstraints);
+				if (softConstraints.containsValue("")||softConstraints.containsValue("")) {
+					throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
+							"One of the Soft Constraints is blank");
+				}
+				for (String key : softConstraints.keySet()) {
+					if (!filters.containsKey(key)) {
+						throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
+								"Invalid soft Constraints");
+					} else {
+						if(null == filters.get(key)||isEmpty(filters.get(key))){
+							throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
+									"Invalid soft Constraints");
+						}
 						List<Object> data = new ArrayList<>();
 						data.add(softConstraints.get(key));
 						data.add(filters.get(key));
 						softConstraints.replace(key, softConstraints.get(key), data);
 						filters.remove(key);
- 					}
+					}
 				}
 				searchObj.setSoftConstraints(softConstraints);
 			}
-			
+
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
 			LOGGER.info("Fields: " + fieldsSearch);
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
-			//Changing fields to null so that search all fields but returns only the fields specified
-			properties.addAll(getSearchQueryProperties(queryString, null)); 
+			// Changing fields to null so that search all fields but returns
+			// only the fields specified
+			properties.addAll(getSearchQueryProperties(queryString, null));
 			properties.addAll(getSearchFilterProperties(filters, wordChainsRequest));
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
@@ -201,14 +219,13 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setLimit(limit);
 			searchObj.setFields(fieldsSearch);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-			
-			
+
 			if (null != req.get(CompositeSearchParams.offset.name())) {
 				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
 				LOGGER.info("Offset: " + offset);
 				searchObj.setOffset(offset);
 			}
-			
+
 			if (fuzzySearch != null) {
 				searchObj.setFuzzySearch(fuzzySearch);
 			}
@@ -219,9 +236,23 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return searchObj;
 	}
+	
+	@SuppressWarnings("rawtypes")
+	private boolean isEmpty(Object o){
+		boolean result = false;
+		if(o instanceof String){
+			result = StringUtils.isBlank((String)o);
+		}else if (o instanceof List){
+			result = ((List) o).isEmpty();
+		}else if (o  instanceof String[]){
+			result = (((String[]) o).length <=0);
+		}
+		return result;
+	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Double> getWeightagesMap(String weightagesString) throws JsonParseException, JsonMappingException, IOException {
+	private Map<String, Double> getWeightagesMap(String weightagesString)
+			throws JsonParseException, JsonMappingException, IOException {
 		Map<String, Double> weightagesMap = new HashMap<String, Double>();
 		ObjectMapper mapper = new ObjectMapper();
 		if (weightagesString != null && !weightagesString.isEmpty()) {
@@ -280,9 +311,9 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return paramList;
 	}
-	
+
 	private Integer getLimitValue(Object limit) {
-		int i = 100; 
+		int i = 100;
 		if (null != limit) {
 			try {
 				i = (int) limit;
@@ -402,15 +433,15 @@ public class SearchManager extends SearchBaseActor {
 				}
 				if (StringUtils.equals(CompositeSearchParams.objectType.name(), entry.getKey())) {
 					String objectType = null;
-					if(filterObject instanceof List){
+					if (filterObject instanceof List) {
 						List objectTypeList = (List) filterObject;
 						if (objectTypeList.size() == 1)
 							objectType = (String) objectTypeList.get(0);
-					} else if(filterObject instanceof Object[]) {
+					} else if (filterObject instanceof Object[]) {
 						Object[] objectTypeList = (Object[]) filterObject;
 						if (objectTypeList.length == 1)
 							objectType = (String) objectTypeList[0];
-					} else if (filterObject instanceof String){
+					} else if (filterObject instanceof String) {
 						objectType = (String) filterObject;
 					}
 					if (StringUtils.equalsIgnoreCase(CompositeSearchParams.Content.name(), objectType))
@@ -422,7 +453,7 @@ public class SearchManager extends SearchBaseActor {
 					compatibilityFilter = true;
 			}
 		}
-		
+
 		if (!compatibilityFilter && isContentSearch && !traversal) {
 			Map<String, Object> property = new HashMap<String, Object>();
 			property.put(CompositeSearchParams.propertyName.name(), CompositeSearchParams.compatibilityLevel.name());

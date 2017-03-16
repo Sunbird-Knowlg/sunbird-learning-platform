@@ -111,14 +111,14 @@
           "draft": false
         },
         {
-          "propertyName": "softConstaints",
-          "title": "softConstaints",
+          "propertyName": "softConstraints",
+          "title": "softConstraints",
           "description": "",
           "category": "General",
           "dataType": "JSON",
           "required": false,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": "{\"gradeLevel\":3, \"ageGroup\":2}",
           "renderingHints": "{'inputType': 'textarea', 'order': 7 }",
           "indexed": true
         },
