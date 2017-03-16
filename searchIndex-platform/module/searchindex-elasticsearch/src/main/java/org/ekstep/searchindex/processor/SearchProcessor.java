@@ -891,7 +891,10 @@ public class SearchProcessor {
 			JSONBuilder builder) {
 		List<String> object = null;
 		try {
-		if(value instanceof List){
+		if(value instanceof String){
+			object = new ArrayList<>();
+			object.add((String) value);
+		}else if(value instanceof List){
 			object = (List<String>) value;
 		}else if(value instanceof String[]){
 			object = Arrays.asList();
