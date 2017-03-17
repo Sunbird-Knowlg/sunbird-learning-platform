@@ -12,6 +12,7 @@ node ItemImporterv3.js --help
 -m  mappings json
 -a  assets csv
 -k  api key
+-p partial update
 
 Successful record identifiers are written to success.json file
 Errors are written to output.json file
@@ -45,7 +46,8 @@ var options = cli.parse({
     file: ['f', 'Items csv file to process', 'file'],
     mapping: ['m', 'Mapping json file', 'file', 'mcq_mapping_v2.json'],
     assets: ['a', 'Assets csv', 'string'],
-    apikey: ['k', 'API Access token (not required for dry-run)', 'string']
+    apikey: ['k', 'API Access token (not required for dry-run)', 'string'],
+    partial: ['p' 'Is Partial Update.']
 });
 
 if ((!options.file) || (!options.env) || (!options.user)) {
@@ -335,7 +337,7 @@ function processItemRecord(row, item, index) {
 
     // Validate if the data is correct
     var resp = validateQuestion(item);
-    if (resp == 'OK') {
+    if (resp == 'OK' || options.partial) {
         items.push({ 'index': index, 'row': row, 'metadata': item, 'conceptIds': item.conceptIds });
     } else {
         invalidCount++;
@@ -442,10 +444,13 @@ function processAnswers(item) {
  */
 function getMWAPICallfunction(item) {
     var returnFn = function(callback) {
-        var reqBody = { "request": { "assessment_item": {} } };
+        var reqBody = { "request": { "skipValidations": false, "assessment_item": {} } };
         reqBody.request.assessment_item.identifier = item.metadata.code;
         reqBody.request.assessment_item.objectType = "AssessmentItem";
         reqBody.request.assessment_item.metadata = item.metadata;
+        if (options.partial) {
+          reqBody.request.skipValidations = true;
+        }
         var conceptIds = item.conceptIds;
         if (_.isArray(conceptIds) && conceptIds.length > 0) {
             reqBody.request.assessment_item.outRelations = [];
