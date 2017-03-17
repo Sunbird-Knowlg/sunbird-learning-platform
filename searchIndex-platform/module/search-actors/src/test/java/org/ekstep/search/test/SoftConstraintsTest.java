@@ -132,10 +132,9 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 		return map;
 	}
 	
-	//Mode is given and softConstraints not mentioned in the request body, provide in config
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearch1() {
+	public void testSearchWithModeAndSCFromConfig() {
 		Request request = getSearchRequest();
 		request.put("mode", "soft");
 		Map<String, Object> filters = new HashMap<String, Object>();
@@ -176,10 +175,10 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 		}
 		Assert.assertTrue(found);
 	}
-	//Mode and softConstraints are given in the request body
+	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearch2() {
+	public void testSearchwithModeAndSCFromRequest() {
 		Request request = getSearchRequest();
 		request.put("mode", "soft");
 		Map<String, Object> filters = new HashMap<String, Object>();
@@ -224,10 +223,10 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 		}
 		Assert.assertTrue(found);
 	}
-	//Mode is not provided, SoftConstraints are mentioned in the request
+	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearch3() {
+	public void testWithoutMode() {
 		Request request = getSearchRequest();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		List<String> objectTypes = new ArrayList<String>();
@@ -271,10 +270,10 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 		}
 		Assert.assertTrue(found);
 	}
-	//Both Mode and softConstraints are not mentioned in the request
+	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearch4() {
+	public void testWithoutSoftConstraintRequest() {
 		Request request = getSearchRequest();
 		Map<String, Object> filters = new HashMap<String, Object>();
 		List<String> objectTypes = new ArrayList<String>();
@@ -314,10 +313,10 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 		}
 		Assert.assertTrue(found);
 	}
-	//Mode is Hard and softConstraints are given in the request body
+	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearch5() {
+	public void testModeHard() {
 		Request request = getSearchRequest();
 		request.put("mode", "Hard");
 		Map<String, Object> filters = new HashMap<String, Object>();
@@ -362,10 +361,10 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 		}
 		Assert.assertTrue(found);
 	}
-	//Mode is invalid and softConstraints are given in the request
+	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearch6() {
+	public void testInvalidMode() {
 		Request request = getSearchRequest();
 		request.put("mode", "xyz");
 		Map<String, Object> filters = new HashMap<String, Object>();
@@ -410,337 +409,10 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 		}
 		Assert.assertTrue(found);
 	}
-	//Mode is soft and softConstraints in the request is blank, provided in Config
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSearch7() {
-		Request request = getSearchRequest();
-		request.put("mode", "soft");
-		Map<String, Object> filters = new HashMap<String, Object>();
-		List<String> objectTypes = new ArrayList<String>();
-		objectTypes.add("Content");
-		filters.put("objectType", objectTypes);
-		List<String> contentTypes = new ArrayList<String>();
-		contentTypes.add("Story");
-		contentTypes.add("Worksheet");
-		contentTypes.add("Collection");
-		contentTypes.add("Game");
-		filters.put("contentType", contentTypes);
-		List<String> ageGroup = new ArrayList<>();
-		ageGroup.add("5-6");
-		filters.put("ageGroup", ageGroup);
-		List<String> gradeLevel = new ArrayList<>();
-		gradeLevel.add("Grade 1");
-		filters.put("gradeLevel", gradeLevel);
-		List<String> status = new ArrayList<String>();
-		status.add("Live");
-		filters.put("status", status);
-		Map<String, Integer> softConstraints = new HashMap<>();
-		request.put("softConstraints", softConstraints);
-		request.put("filters", filters);
-		Response response = getSearchResponse(request);
-		Map<String, Object> result = response.getResult();
-		List<Object> list = (List<Object>) result.get("results");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		ResponseCode res = response.getResponseCode();
-		boolean statusCode = false;
-		if (res == ResponseCode.OK) {
-			statusCode = true;
-		}
-		Assert.assertTrue(statusCode);
-		boolean found = false;
-		Map<String, Object> content = (Map<String, Object>) list.get(0);
-		if (null != content && content.containsKey("ageGroup")){
-			found = true;
-		}
-		Assert.assertTrue(found);
-	}
-	// Mode is soft and softConstraints are given in the request and is same in config
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSearch8() {
-		Request request = getSearchRequest();
-		request.put("mode", "soft");
-		Map<String, Object> filters = new HashMap<String, Object>();
-		List<String> objectTypes = new ArrayList<String>();
-		objectTypes.add("Content");
-		filters.put("objectType", objectTypes);
-		List<String> contentTypes = new ArrayList<String>();
-		contentTypes.add("Story");
-		contentTypes.add("Worksheet");
-		contentTypes.add("Collection");
-		contentTypes.add("Game");
-		filters.put("contentType", contentTypes);
-		List<String> ageGroup = new ArrayList<>();
-		ageGroup.add("5-6");
-		filters.put("ageGroup", ageGroup);
-		List<String> gradeLevel = new ArrayList<>();
-		gradeLevel.add("Grade 1");
-		filters.put("gradeLevel", gradeLevel);
-		List<String> status = new ArrayList<String>();
-		status.add("Live");
-		filters.put("status", status);
-		Map<String, Integer> softConstraints = new HashMap<>();
-		softConstraints.put("ageGroup", 3);
-		softConstraints.put("gradeLevel", 4);
-		request.put("softConstraints", softConstraints);
-		request.put("filters", filters);
-		Response response = getSearchResponse(request);
-		Map<String, Object> result = response.getResult();
-		List<Object> list = (List<Object>) result.get("results");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		ResponseCode res = response.getResponseCode();
-		boolean statusCode = false;
-		if (res == ResponseCode.OK) {
-			statusCode = true;
-		}
-		Assert.assertTrue(statusCode);
-		boolean found = false;
-		Map<String, Object> content = (Map<String, Object>) list.get(0);
-		if (null != content && content.containsKey("ageGroup")){
-			found = true;
-		}
-		Assert.assertTrue(found);
-	}
-	// Mode is soft and softConstraints are given in the request is different from Config
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSearch9() {
-		Request request = getSearchRequest();
-		request.put("mode", "soft");
-		Map<String, Object> filters = new HashMap<String, Object>();
-		List<String> objectTypes = new ArrayList<String>();
-		objectTypes.add("Content");
-		filters.put("objectType", objectTypes);
-		List<String> contentTypes = new ArrayList<String>();
-		contentTypes.add("Story");
-		contentTypes.add("Worksheet");
-		contentTypes.add("Collection");
-		contentTypes.add("Game");
-		filters.put("contentType", contentTypes);
-		List<String> ageGroup = new ArrayList<>();
-		ageGroup.add("5-6");
-		filters.put("ageGroup", ageGroup);
-		List<String> gradeLevel = new ArrayList<>();
-		gradeLevel.add("Grade 1");
-		filters.put("gradeLevel", gradeLevel);
-		List<String> status = new ArrayList<String>();
-		status.add("Live");
-		filters.put("status", status);
-		Map<String, Integer> softConstraints = new HashMap<>();
-		softConstraints.put("gradeLevel", 4);
-		request.put("softConstraints", softConstraints);
-		request.put("filters", filters);
-		Response response = getSearchResponse(request);
-		Map<String, Object> result = response.getResult();
-		List<Object> list = (List<Object>) result.get("results");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		ResponseCode res = response.getResponseCode();
-		boolean statusCode = false;
-		if (res == ResponseCode.OK) {
-			statusCode = true;
-		}
-		Assert.assertTrue(statusCode);
-		boolean found = false;
-		Map<String, Object> content = (Map<String, Object>) list.get(0);
-		if (null != content && content.containsKey("gradeLevel")){
-			found = true;
-		}
-		Assert.assertTrue(found);
-	}
-	//Mode is soft, softConstraints are provided and config is also blank
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSearch10() {
-		Request request = getSearchRequest();
-		request.put("mode", "soft");
-		Map<String, Object> filters = new HashMap<String, Object>();
-		List<String> objectTypes = new ArrayList<String>();
-		objectTypes.add("Content");
-		filters.put("objectType", objectTypes);
-		List<String> contentTypes = new ArrayList<String>();
-		contentTypes.add("Story");
-		contentTypes.add("Worksheet");
-		contentTypes.add("Collection");
-		contentTypes.add("Game");
-		filters.put("contentType", contentTypes);
-		List<String> ageGroup = new ArrayList<>();
-		ageGroup.add("5-6");
-		filters.put("ageGroup", ageGroup);
-		List<String> gradeLevel = new ArrayList<>();
-		gradeLevel.add("Grade 1");
-		filters.put("gradeLevel", gradeLevel);
-		List<String> status = new ArrayList<String>();
-		status.add("Live");
-		filters.put("status", status);
-		Map<String, Integer> softConstraints = new HashMap<>();
-		softConstraints.put("ageGroup", 3);
-		softConstraints.put("gradeLevel", 4);
-		request.put("softConstraints", softConstraints);
-		request.put("filters", filters);
-		Response response = getSearchResponse(request);
-		Map<String, Object> result = response.getResult();
-		List<Object> list = (List<Object>) result.get("results");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		ResponseCode res = response.getResponseCode();
-		boolean statusCode = false;
-		if (res == ResponseCode.OK) {
-			statusCode = true;
-		}
-		Assert.assertTrue(statusCode);
-		boolean found = false;
-		Map<String, Object> content = (Map<String, Object>) list.get(0);
-		if (null != content && content.containsKey("ageGroup")){
-			found = true;
-		}
-		Assert.assertTrue(found);
-	}
-	//mode is soft, softConstraints is not provided and is config is also blank
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSearch11() {
-		Request request = getSearchRequest();
-		request.put("mode", "soft");
-		Map<String, Object> filters = new HashMap<String, Object>();
-		List<String> objectTypes = new ArrayList<String>();
-		objectTypes.add("Content");
-		filters.put("objectType", objectTypes);
-		List<String> contentTypes = new ArrayList<String>();
-		contentTypes.add("Story");
-		contentTypes.add("Worksheet");
-		contentTypes.add("Collection");
-		contentTypes.add("Game");
-		filters.put("contentType", contentTypes);
-		List<String> ageGroup = new ArrayList<>();
-		ageGroup.add("5-6");
-		filters.put("ageGroup", ageGroup);
-		List<String> gradeLevel = new ArrayList<>();
-		gradeLevel.add("Grade 1");
-		filters.put("gradeLevel", gradeLevel);
-		List<String> status = new ArrayList<String>();
-		status.add("Live");
-		filters.put("status", status);
-		/*Map<String, Integer> softConstraints = new HashMap<>();
-		softConstraints.put("ageGroup", 3);
-		softConstraints.put("gradeLevel", 4);
-		request.put("softConstraints", softConstraints);*/
-		request.put("filters", filters);
-		Response response = getSearchResponse(request);
-		Map<String, Object> result = response.getResult();
-		List<Object> list = (List<Object>) result.get("results");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		ResponseCode res = response.getResponseCode();
-		boolean statusCode = false;
-		if (res == ResponseCode.OK) {
-			statusCode = true;
-		}
-		Assert.assertTrue(statusCode);
-		boolean found = false;
-		Map<String, Object> content = (Map<String, Object>) list.get(0);
-		if (null != content && content.containsKey("ageGroup")){
-			found = true;
-		}
-		Assert.assertTrue(found);
-	}
 	
-	//mode is soft, softConstraints provided is blank and is config is also blank
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testSearch12() {
-		Request request = getSearchRequest();
-		request.put("mode", "soft");
-		Map<String, Object> filters = new HashMap<String, Object>();
-		List<String> objectTypes = new ArrayList<String>();
-		objectTypes.add("Content");
-		filters.put("objectType", objectTypes);
-		List<String> contentTypes = new ArrayList<String>();
-		contentTypes.add("Story");
-		contentTypes.add("Worksheet");
-		contentTypes.add("Collection");
-		contentTypes.add("Game");
-		filters.put("contentType", contentTypes);
-		List<String> ageGroup = new ArrayList<>();
-		ageGroup.add("5-6");
-		filters.put("ageGroup", ageGroup);
-		List<String> gradeLevel = new ArrayList<>();
-		gradeLevel.add("Grade 1");
-		filters.put("gradeLevel", gradeLevel);
-		List<String> status = new ArrayList<String>();
-		status.add("Live");
-		filters.put("status", status);
-		Map<String, Integer> softConstraints = new HashMap<>();
-		/*softConstraints.put("ageGroup", 3);
-		softConstraints.put("gradeLevel", 4);*/
-		request.put("softConstraints", softConstraints);
-		request.put("filters", filters);
-		Response response = getSearchResponse(request);
-		Map<String, Object> result = response.getResult();
-		List<Object> list = (List<Object>) result.get("results");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		ResponseCode res = response.getResponseCode();
-		boolean statusCode = false;
-		if (res == ResponseCode.OK) {
-			statusCode = true;
-		}
-		Assert.assertTrue(statusCode);
-		boolean found = false;
-		Map<String, Object> content = (Map<String, Object>) list.get(0);
-		if (null != content && content.containsKey("ageGroup")){
-			found = true;
-		}
-		Assert.assertTrue(found);
-	}
-	//mode is soft, softConstraints provided is partial in request and config is also blank
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSearch13() {
-		Request request = getSearchRequest();
-		request.put("mode", "soft");
-		Map<String, Object> filters = new HashMap<String, Object>();
-		List<String> objectTypes = new ArrayList<String>();
-		objectTypes.add("Content");
-		filters.put("objectType", objectTypes);
-		List<String> contentTypes = new ArrayList<String>();
-		contentTypes.add("Story");
-		contentTypes.add("Worksheet");
-		contentTypes.add("Collection");
-		contentTypes.add("Game");
-		filters.put("contentType", contentTypes);
-		List<String> ageGroup = new ArrayList<>();
-		filters.put("ageGroup", ageGroup);
-		List<String> gradeLevel = new ArrayList<>();
-		gradeLevel.add("Grade 1");
-		filters.put("gradeLevel", gradeLevel);
-		List<String> status = new ArrayList<String>();
-		status.add("Live");
-		filters.put("status", status);
-		Map<String, Integer> softConstraints = new HashMap<>();
-		softConstraints.put("ageGroup", 3);
-		softConstraints.put("gradeLevel", 4);
-		request.put("softConstraints", softConstraints);
-		request.put("filters", filters);
-		Response response = getSearchResponse(request);
-		Map<String, Object> result = response.getResult();
-		List<Object> list = (List<Object>) result.get("results");
-		Assert.assertNotNull(list);
-		Assert.assertTrue(list.size() > 0);
-		ResponseCode res = response.getResponseCode();
-		boolean statusCode = false;
-		if (res == ResponseCode.OK) {
-			statusCode = true;
-		}
-		Assert.assertTrue(statusCode);
-	}
-	//mode is blank and softConstraints is not provided in request
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSearch14() {
+	public void testModeBlank() {
 		Request request = getSearchRequest();
 		request.put("mode", "");
 		Map<String, Object> filters = new HashMap<String, Object>();
