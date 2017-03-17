@@ -170,12 +170,11 @@ public class SearchManager extends SearchBaseActor {
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
 			if (null != mode && mode.equals(Modes.soft.name())
 					&& (null == softConstraints || softConstraints.isEmpty())) {
-				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType);
-				if (null != definitionNode.get("softConstraints")) {
-					Map<String, Object> constraintsMap = (Map<String, Object>) definitionNode.get("softConstraints");
+				Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
+				if (null != metaData.get("softConstraints")) {
 					ObjectMapper mapper = new ObjectMapper();
-					String data = (String) constraintsMap.get("defaultValue");
-					softConstraints = mapper.readValue(data, Map.class);
+					String constraintString = (String) metaData.get("softConstraints");
+					softConstraints = mapper.readValue(constraintString, Map.class);
 				}
 			}
 

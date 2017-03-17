@@ -124,14 +124,14 @@ public class ObjectDefinitionCache {
 	}
     
     @SuppressWarnings("unchecked")
-	public static Map<String, Object> getDefinitionNode(String objectType) throws Exception {
-		Map<String, Object> definition = null;
+	public static Map<String, Object> getMetaData(String objectType) throws Exception {
+    	Map<String, Object> metadata = null;
 		String graphId = "domain";
-		definition = definitionMap.get(objectType);
-		if(null == definition){
+		metadata = metadataMap.get(objectType);
+		if(null == metadata){
 			getDefinitionFromGraph(objectType, graphId);
 		}
-		definition = definitionMap.get(objectType);
-		return definition;
+		metadata = metadataMap.get(objectType);
+		return metadata;
 	}
 }
