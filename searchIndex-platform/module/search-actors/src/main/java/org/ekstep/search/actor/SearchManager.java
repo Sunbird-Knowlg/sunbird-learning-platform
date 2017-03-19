@@ -170,46 +170,43 @@ public class SearchManager extends SearchBaseActor {
 			String mode = (String) req.get(CompositeSearchParams.mode.name());
 			if (null != mode && mode.equals(Modes.soft.name())
 					&& (null == softConstraints || softConstraints.isEmpty())) {
-				Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
-				if (null != metaData.get("softConstraints")) {
-					ObjectMapper mapper = new ObjectMapper();
-					String constraintString = (String) metaData.get("softConstraints");
-					softConstraints = mapper.readValue(constraintString, Map.class);
+				try {
+					Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
+					if (null != metaData.get("softConstraints")) {
+						ObjectMapper mapper = new ObjectMapper();
+						String constraintString = (String) metaData.get("softConstraints");
+						softConstraints = mapper.readValue(constraintString, Map.class);
+					}
+				} catch (Exception e) {
 				}
 			}
 
 			if (null != softConstraints && !softConstraints.isEmpty()) {
+				Map<String, Object> softConstraintMap = new HashMap<>();
 				LOGGER.info("SoftConstraints:" + softConstraints);
 				try {
-					if (softConstraints.containsValue("") || softConstraints.containsValue("")) {
-						LOGGER.debug("SoftConstaints value is blank");
-					}
-
 					for (String key : softConstraints.keySet()) {
-
-						if (!filters.containsKey(key)) {
-							throw new ClientException(
-									CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
-									"Invalid soft constraints");
-						} else {
-							if (null == filters.get(key) || isEmpty(filters.get(key))) {
-								throw new ClientException(
-										CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
-										"Invalid soft constraints");
-							}
+						if (filters.containsKey(key) && null != filters.get(key)) {
 							List<Object> data = new ArrayList<>();
-							data.add(softConstraints.get(key));
+							Integer boost = 1;
+							Object boostValue = softConstraints.get(key);
+							if (null != boostValue) {
+								try {
+									boost = Integer.parseInt(boostValue.toString());
+								} catch (Exception e) {
+									boost = 1;
+								}
+							}
+							data.add(boost);
 							data.add(filters.get(key));
-							softConstraints.replace(key, softConstraints.get(key), data);
+							softConstraintMap.put(key, data);
 							filters.remove(key);
 						}
-
 					}
 				} catch (Exception e) {
-					LOGGER.debug("Invalid soft Constraints");
-					softConstraints = null;
+					LOGGER.error("Invalid soft Constraints", e);
 				}
-				searchObj.setSoftConstraints(softConstraints);
+				searchObj.setSoftConstraints(softConstraintMap);
 			}
 
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
