@@ -117,10 +117,25 @@ public class ObjectDefinitionCache {
         }
         return definition;
     }
+	
+	public static Map<String, Map> getDefinitionMap() {
+		return definitionMap;
+	}
 
     public static void resyncDefinition(String objectType, String graphId) throws Exception {
 	    System.out.println("resyncDefinition : " + objectType + " -- " + graphId);
 		getDefinitionFromGraph(objectType, graphId);
 	}
-
+    
+    @SuppressWarnings("unchecked")
+	public static Map<String, Object> getMetaData(String objectType) throws Exception {
+    	Map<String, Object> metadata = null;
+		String graphId = "domain";
+		metadata = metadataMap.get(objectType);
+		if(null == metadata){
+			getDefinitionFromGraph(objectType, graphId);
+		}
+		metadata = metadataMap.get(objectType);
+		return metadata;
+	}
 }

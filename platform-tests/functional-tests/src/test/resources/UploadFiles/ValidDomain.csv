@@ -1,0 +1,24 @@
+identifier,rel:isParentOf,Name,objectType,Code,Description,Subject,Language,Learning Objective,Keywords,Examples,Status,Internal Validation,External Validation,Validators,References,Expected Learning Time,Applicability,Foundation,Assessment Method,No of Games,Avg. Gaming Time Spent,tags
+science,"SD1,SD2,SD3,SD4,SD5,SD6,SD7",Science,Domain,SCIENCE,Science,science,English,,,,Live,,,,,,,,,,,
+SD1,"SC1,SC2,SC3,SC4",Physics,Dimension,SD1,Physics,science,English,,,,Live,,,,,,,,,,,Dimension
+SD2,,Chemistry,Dimension,SD2,Chemistry,science,English,,,,Live,,,,,,,,,,,Dimension
+SD3,"SC8,SC9,SC10",Biology,Dimension,SD3,Biology,science,English,,,,Live,,,,,,,,,,,Dimension
+SD4,,Geology,Dimension,SD4,Geology,science,English,,,,Live,,,,,,,,,,,Dimension
+SD5,,Environment,Dimension,SD5,Environment,science,English,,,,Live,,,,,,,,,,,Dimension
+SD6,"SC5,SC6,SC7",Astronomy,Dimension,SD6,Astronomy,science,English,,,,Live,,,,,,,,,,,Dimension
+SD7,,Technology,Dimension,SD7,Technology,science,English,,,,Live,,,,,,,,,,,Dimension
+SC1,"SMC1,SMC2,SMC3",Motion,Concept,SC1,Motion,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC2,"SMC4,SMC5",Light,Concept,SC2,Light,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC3,,Energy,Concept,SC3,Energy,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC4,,Matter,Concept,SC4,Matter,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC5,,Universe,Concept,SC5,Universe,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC6,,Solar System,Concept,SC6,Solar System,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC7,,Earth,Concept,SC7,Earth,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC8,,Human Body,Concept,SC8,Human Body,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC9,,Evolution,Concept,SC9,Evolution,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SC10,,Plants,Concept,SC10,Plants,science,English,,,,Live,,,,,,,,,,,Learning Objective::Concept
+SMC1,,Introduction to Motion,Concept,SMC1,Introduction to Motion,science,English,,,,Live,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC2,,Newton’s Laws of Motion,Concept,SMC2,Newton’s Laws of Motion,science,English,,,,Live,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC3,,Pendulums,Concept,SMC3,Pendulum,science,English,,,,Live,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC4,,Properties of Light,Concept,SMC4,Properties of Light,science,English,,,,Live,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC5,,Understanding Colors,Concept,SMC5,Understanding Colors,science,English,,,,Live,,,,,,,,,,,Learning Objective::Micro-Concept

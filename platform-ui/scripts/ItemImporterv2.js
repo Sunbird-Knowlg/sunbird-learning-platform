@@ -296,6 +296,7 @@ function processItemRecord(row, item, index) {
     if (isEmpty(item['identifier'])) {
         item['identifier'] = item['code'];
     }
+    
     if (isEmpty(item['qlevel'])) {
         item['qlevel'] = default_qlevel;
     }
@@ -432,7 +433,7 @@ function processAnswers(item) {
 function getMWAPICallfunction(item) {
     var returnFn = function(callback) {
         var reqBody = { "request": { "assessment_item": {} } };
-        reqBody.request.assessment_item.identifier = item.metadata.code;
+        reqBody.request.assessment_item.identifier = item.metadata.identifier;
         reqBody.request.assessment_item.objectType = "AssessmentItem";
         reqBody.request.assessment_item.metadata = item.metadata;
         var conceptIds = item.conceptIds;

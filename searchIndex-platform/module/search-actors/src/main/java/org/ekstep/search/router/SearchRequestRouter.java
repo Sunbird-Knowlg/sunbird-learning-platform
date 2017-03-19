@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
+import org.ekstep.search.actor.DefinitionSyncScheduler;
 import org.ekstep.search.actor.HealthCheckManager;
 import org.ekstep.search.actor.SearchManager;
 
@@ -39,6 +40,7 @@ public class SearchRequestRouter extends UntypedActor{
         if (message instanceof String) {
             if (StringUtils.equalsIgnoreCase("init", message.toString())) {
                 initActorPool();
+                DefinitionSyncScheduler.init();
                 getSender().tell("initComplete", getSelf());
             } else {
                 getSender().tell(message, getSelf());

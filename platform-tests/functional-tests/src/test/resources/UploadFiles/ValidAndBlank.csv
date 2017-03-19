@@ -1,0 +1,24 @@
+identifier,rel:isParentOf,Name,objectType,Code,Description,Subject,Language,Learning Objective,Keywords,Examples,Status,Internal Validation,External Validation,Validators,References,Expected Learning Time,Applicability,Foundation,Assessment Method,No of Games,Avg. Gaming Time Spent,tags
+science,"SD1,SD2,SD3,SD4,SD5,SD6,SD7",,,SCIENCE,Science,science,,,,,,,,,,,,,,,,
+SD1,"SC1,SC2,SC3,SC4",,,SD1,Physics,science,,,,,,,,,,,,,,,,Dimension
+SD2,,,,SD2,Chemistry,science,,,,,,,,,,,,,,,,Dimension
+SD3,"SC8,SC9,SC10",,,SD3,Biology,science,,,,,,,,,,,,,,,,Dimension
+SD4,,,,SD4,Geology,science,,,,,,,,,,,,,,,,Dimension
+SD5,,,,SD5,Environment,science,,,,,,,,,,,,,,,,Dimension
+SD6,"SC5,SC6,SC7",,,SD6,Astronomy,science,,,,,,,,,,,,,,,,Dimension
+SD7,,,,SD7,Technology,science,,,,,,,,,,,,,,,,Dimension
+SC1,"SMC1,SMC2,SMC3",,,SC1,Motion,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC2,"SMC4,SMC5",,,SC2,Light,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC3,,,,SC3,Energy,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC4,,,,SC4,Matter,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC5,,,,SC5,Universe,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC6,,,,SC6,Solar System,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC7,,,,SC7,Earth,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC8,,,,SC8,Human Body,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC9,,,,SC9,Evolution,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SC10,,,,SC10,Plants,science,,,,,,,,,,,,,,,,Learning Objective::Concept
+SMC1,,,,SMC1,Introduction to Motion,science,,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC2,,,,SMC2,Newton’s Laws of Motion,science,,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC3,,,,SMC3,Pendulum,science,,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC4,,,,SMC4,Properties of Light,science,,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+SMC5,,,,SMC5,Understanding Colors,science,,,,,,,,,,,,,,,,Learning Objective::Micro-Concept

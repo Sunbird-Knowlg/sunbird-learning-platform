@@ -43,7 +43,6 @@ public class ResponseFilter implements Filter {
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
-
 			chain.doFilter(requestWrapper, responseWrapper);
 			
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
@@ -53,7 +52,6 @@ public class ResponseFilter implements Filter {
 			+ " | Params: " + request.getParameterMap());
 			chain.doFilter(request, response);
 		}
-
 	}
 
 	@Override
