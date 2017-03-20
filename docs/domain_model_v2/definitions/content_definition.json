@@ -2058,7 +2058,9 @@
         },
         "softConstraints": {
         	"ageGroup" : 3,
-        	"gradeLevel" : 3
+        	"gradeLevel" : 3,
+          "board": 3,
+          "medium": 3
         },
         "versionCheckMode": "STRICT",
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
