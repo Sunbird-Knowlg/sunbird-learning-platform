@@ -22,13 +22,15 @@ public class BulkUploadImageProcessorTest {
 	@Test
 	public void testBulkUpload() {
 		String csvfileName = "src/test/resources/Test.csv";
-		String[] zipFiles = { "src/test/resources/test.zip" };
+		String zipFiles =  "src/test/resources/test.zip" ;
+		String env = "DEV";
 		FileReader fileReader = null;
 		CSVParser csvFileParser = null;
 		try {
 			fileReader = new FileReader(csvfileName);
 			csvFileParser = new CSVParser(fileReader, CSVFormat.DEFAULT.withHeader());
 			List<CSVRecord> csvInputRecords = csvFileParser.getRecords();
+			processor.loadEnvironment(env);
 			processor.updateCSV(csvfileName, zipFiles);
 			String opfileName = csvfileName.replace(".csv", "-Output.csv");
 			file = new File(opfileName);

@@ -21,24 +21,23 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
-
-import com.ilimi.common.dto.Response;
 
 public class BulkUploadImageProcessor {
 
+	private static String PLATFORM_API_URL;
+	private static final String PLATFORM_API_URL_DEV = "https://dev.ekstep.in/api/learning";
+	private static final String PLATFORM_API_URL_QA = "https://qa.ekstep.in/api/learning";
+	private static final String PLATFORM_API_URL_PROD = "https://api.ekstep.in/api/learning";
 	private static Object[] FILE_HEADER_MAPPING_OUTPUT;
 	private static Set<String> MANDATORY_INPUT_HEADERS;
 	private static Set<String> MANDATORY_OUTPUT_HEADERS;
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	private static final String SUB_FIELD_SEPARATOR = "::";
-	private static final String output = "src/main/resources/output";
+	private static final String output = "/data/contentBundle/output";
 	private static Logger LOGGER = LogManager.getLogger(BulkUploadImageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -59,7 +58,6 @@ public class BulkUploadImageProcessor {
 		MANDATORY_OUTPUT_HEADERS.add("status");
 		MANDATORY_OUTPUT_HEADERS.add("flag");
 		MANDATORY_OUTPUT_HEADERS.add("downloadUrl");
-		PropertiesUtil.loadProperties("ContentURLs.properties");
 	}
 
 	/**
@@ -70,7 +68,7 @@ public class BulkUploadImageProcessor {
 	 * @param zipFiles
 	 */
 	@SuppressWarnings("unchecked")
-	public void updateCSV(String fileName, String[] zipFile) {
+	public void updateCSV(String fileName, String zipFile) {
 		LOGGER.info("In update CSV ");
 		String opfileName = fileName.replace(".csv", "-Output.csv");
 		FileReader fileReader = null;
@@ -166,7 +164,7 @@ public class BulkUploadImageProcessor {
 	 * @param zipFilePaths
 	 * @return folderName where extracted
 	 */
-	public String unzip(String[] zipFilePaths) {
+	private String unzip(String zipFilePath) {
 		String finalOutput = output;
 		byte[] bytesIn = new byte[4096];
 		File destDir = new File(output);
@@ -174,29 +172,27 @@ public class BulkUploadImageProcessor {
 			destDir.mkdir();
 		}
 		try {
-			for (String zipFilePath : zipFilePaths) {
-				ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
-				ZipEntry entry = zipIn.getNextEntry();
-				while (entry != null) {
-					String filePath = output + File.separator + entry.getName();
-					if (!entry.isDirectory()) {
-						if (entry.getName().contains(File.separator)) {
-							String path = entry.getName();
-							filePath = output + File.separator
-									+ path.substring((path.lastIndexOf(File.separator) + 1), path.length());
-						}
-						BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
-						int read = 0;
-						while ((read = zipIn.read(bytesIn)) != -1) {
-							bos.write(bytesIn, 0, read);
-						}
-						bos.close();
+			ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+			ZipEntry entry = zipIn.getNextEntry();
+			while (entry != null) {
+				String filePath = output + File.separator + entry.getName();
+				if (!entry.isDirectory()) {
+					if (entry.getName().contains(File.separator)) {
+						String path = entry.getName();
+						filePath = output + File.separator
+								+ path.substring((path.lastIndexOf(File.separator) + 1), path.length());
 					}
-					zipIn.closeEntry();
-					entry = zipIn.getNextEntry();
+					BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+					int read = 0;
+					while ((read = zipIn.read(bytesIn)) != -1) {
+						bos.write(bytesIn, 0, read);
+					}
+					bos.close();
 				}
-				zipIn.close();
+				zipIn.closeEntry();
+				entry = zipIn.getNextEntry();
 			}
+			zipIn.close();
 		} catch (FileNotFoundException e) {
 			LOGGER.error(e.getMessage());
 			e.printStackTrace();
@@ -207,15 +203,7 @@ public class BulkUploadImageProcessor {
 		return finalOutput;
 	}
 
-	public boolean containsIgnoreCase(List<String> l, String s) {
-		for (String d : l) {
-			if (d.trim().equalsIgnoreCase(s))
-				return true;
-		}
-		return false;
-	}
-
-	public Map<String, Object> callContentAPIs(String folderLocation, Map<String, String> data) {
+	private Map<String, Object> callContentAPIs(String folderLocation, Map<String, String> data) {
 		Map<String, Object> output = new HashMap<String, Object>();
 		try {
 			String fileName = data.get("name");
@@ -233,8 +221,9 @@ public class BulkUploadImageProcessor {
 		return output;
 	}
 
-	public String createContent(Map<String, String> data) throws Exception {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content";
+	@SuppressWarnings("unchecked")
+	private String createContent(Map<String, String> data) throws Exception {
+		String url = PLATFORM_API_URL + "/v2/content";
 		Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 		Map<String, Object> requestMap = new HashMap<String, Object>();
 		Map<String, Object> contentMap = new HashMap<String, Object>();
@@ -260,9 +249,11 @@ public class BulkUploadImageProcessor {
 		try {
 			String requestBody = mapper.writeValueAsString(requestBodyMap);
 			result = HTTPUtil.makePostRequest(url, requestBody);
-			Response response = mapper.readValue(result, Response.class);
-			if (null != response && null != response.getResult())
-				result = (String) response.getResult().get("node_id");
+			Map<String, Object> response = mapper.readValue(result, Map.class);
+			if (null != response && null != response.get("result")) {
+				Map<String, Object> content = (Map<String, Object>) response.get("result");
+				result = (String) content.get("node_id");
+			}
 		} catch (Exception e) {
 			LOGGER.error(e);
 			e.printStackTrace();
@@ -270,14 +261,17 @@ public class BulkUploadImageProcessor {
 		return result;
 	}
 
-	public String uploadContent(String identifier, File file) {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/upload/" + identifier;
+	@SuppressWarnings("unchecked")
+	private String uploadContent(String identifier, File file) {
+		String url = PLATFORM_API_URL + "/v2/content/upload/" + identifier;
 		String result = null;
 		try {
 			result = HTTPUtil.makePostRequestUploadFile(url, file);
-			Response response = mapper.readValue(result, Response.class);
-			if (null != response && null != response.getResult())
-				result = (String) response.getResult().get("content_url");
+			Map<String, Object> response = mapper.readValue(result, Map.class);
+			if (null != response && null != response.get("result")) {
+				Map<String, Object> content = (Map<String, Object>) response.get("result");
+				result = (String) content.get("content_url");
+			}
 		} catch (Exception e) {
 			LOGGER.error(e);
 			e.printStackTrace();
@@ -287,14 +281,16 @@ public class BulkUploadImageProcessor {
 
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getContent(String identifier) {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/" + identifier;
+		String url = PLATFORM_API_URL + "/v2/content/" + identifier;
 		String result = null;
 		Map<String, Object> nodeData = new HashMap<String, Object>();
 		try {
 			result = HTTPUtil.makeGetRequest(url);
-			Response response = mapper.readValue(result, Response.class);
-			if (null != response && null != response.getResult())
-				nodeData = (Map<String, Object>) response.getResult().get("content");
+			Map<String, Object> response = mapper.readValue(result, Map.class);
+			if (null != response && null != response.get("result")) {
+				Map<String, Object> content = (Map<String, Object>) response.get("result");
+				nodeData = (Map<String, Object>) content.get("content");
+			}
 		} catch (Exception e) {
 			LOGGER.error(e);
 			e.printStackTrace();
@@ -302,10 +298,29 @@ public class BulkUploadImageProcessor {
 		return nodeData;
 	}
 
+	public void loadEnvironment(String env) {
+		switch (env.toLowerCase()) {
+		case "dev": {
+			PLATFORM_API_URL = PLATFORM_API_URL_DEV;
+			break;
+		}
+		case "qa": {
+			PLATFORM_API_URL = PLATFORM_API_URL_QA;
+			break;
+		}
+		case "prod": {
+			PLATFORM_API_URL = PLATFORM_API_URL_PROD;
+			break;
+		}
+		}
+	}
+
 	public static void main(String[] args) {
 		BulkUploadImageProcessor process = new BulkUploadImageProcessor();
 		String csvFile = args[0];
-		String[] zipFile = (String[]) ArrayUtils.removeElement(args, args[0]);
+		String zipFile = args[1];
+		String env = args[2];
+		process.loadEnvironment(env);
 		process.updateCSV(csvFile, zipFile);
 	}
 }

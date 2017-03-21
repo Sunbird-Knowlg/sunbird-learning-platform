@@ -587,6 +587,19 @@
         {
           "required": false,
           "dataType": "Text",
+          "propertyName": "author",
+          "title": "Author",
+          "description": "Content Author",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
           "propertyName": "owner",
           "title": "Owner",
           "description": "Content Owner",
@@ -2053,7 +2066,7 @@
         "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice",
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads",
         "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants","flagReasons",
-        "flaggedBy","lastFlaggedOn","flags"]
+        "flaggedBy","lastFlaggedOn","flags", "author"]
       }
     }
   ]
