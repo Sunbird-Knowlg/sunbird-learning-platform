@@ -46,8 +46,8 @@ public class HTTPUtil {
 		HttpPost post = new HttpPost(url);
 		post.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
 		post.addHeader("Content-Type", "application/json");
+		post.addHeader("charset",Charsets.UTF_8.name());
 		post.setEntity(new StringEntity(body));
-
 		HttpResponse response = client.execute(post);
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "

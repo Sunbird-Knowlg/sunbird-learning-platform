@@ -16,7 +16,7 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 public class BaseProcessor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(LanguageEnrichmentMessageProcessor.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(BaseProcessor.class.getName());
 
 	/** The Controller Utility */
 	private static ControllerUtil util = new ControllerUtil();
@@ -128,12 +128,12 @@ public class BaseProcessor {
 			LOGGER.info("Iterating through outrelations");
 			for (Relation rel : outRelations) {
 
-				LOGGER.info("checking if endNodeType is objectType");
+				LOGGER.info("checking if endNodeType is objectType Content");
 				if (null != rel.getEndNodeObjectType()
 						&& StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
 
 					String status = null;
-					LOGGER.info("checking relation contains status");
+					LOGGER.info("checking for endNode metadata contains status" + rel.getEndNodeMetadata().containsKey("status"));
 					if (null != rel.getEndNodeMetadata().get("status")) {
 						LOGGER.info("getting status from node");
 						status = (String) rel.getEndNodeMetadata().get(ContentWorkflowPipelineParams.status.name());
@@ -146,7 +146,7 @@ public class BaseProcessor {
 						nodeIds.add(rel.getEndNodeId());
 					}
 
-					LOGGER.info("checking if concept contains gradeLevel");
+					LOGGER.info("checking if concept contains gradeLevel" + rel.getEndNodeMetadata().containsKey("gradeLevel"));
 					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
 						String[] grade_array =  (String[])(rel.getEndNodeMetadata().get("gradeLevel"));
 						for(String garde : grade_array){
