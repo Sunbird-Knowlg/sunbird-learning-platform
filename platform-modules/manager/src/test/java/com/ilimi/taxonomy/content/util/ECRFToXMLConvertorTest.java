@@ -3,6 +3,10 @@ package com.ilimi.taxonomy.content.util;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+
+import org.ekstep.content.entity.Plugin;
+import org.ekstep.content.util.ECRFToXMLConvertor;
+import org.ekstep.content.util.XMLContentParser;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.DefaultNodeMatcher;
@@ -10,7 +14,6 @@ import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.ElementSelectors;
 
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.content.entity.Plugin;
 
 public class ECRFToXMLConvertorTest extends BaseTest {
 	

@@ -5,10 +5,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
+import org.ekstep.content.entity.Plugin;
+import org.ekstep.content.util.ECRFToJSONConvertor;
+import org.ekstep.content.util.JSONContentParser;
 import org.junit.Test;
 
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.content.entity.Plugin;
 
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;

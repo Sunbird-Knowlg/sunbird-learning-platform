@@ -14,13 +14,17 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.content.common.ContentConfigurationConstants;
+import org.ekstep.content.dto.ContentSearchCriteria;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
+import org.ekstep.content.pipeline.initializer.InitializePipeline;
+import org.ekstep.content.util.ContentMimeTypeFactoryUtil;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -43,14 +47,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
-import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
-import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
-import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.IContentManager;
-import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
@@ -72,14 +69,13 @@ import scala.concurrent.Future;
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
-	@Autowired
-	private ContentMimeTypeFactory contentFactory;
-
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentManagerImpl.class.getName());
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
+	
+	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
 
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
@@ -143,7 +139,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 
 		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 		Response res = mimeTypeManager.upload(node, uploadedFile, false);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
@@ -198,7 +194,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 				for (Node node : nodes) {
 					String body = getContentBody(node.getIdentifier());
-					node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+					node.getMetadata().put(ContentAPIParams.body.name(), body);
 					LOGGER.debug("Body fetched from content store");
 				}
 				if (nodes.size() == 1 && StringUtils.isBlank(bundleFileName))
@@ -216,7 +212,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
 			parameterMap.put(ContentAPIParams.manifestVersion.name(),
-					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION);
+					DEFAULT_CONTENT_MANIFEST_VERSION);
 
 			LOGGER.info("Calling Content Workflow 'Bundle' Pipeline.");
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
@@ -399,7 +395,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Got Node: ", node);
 		
 		String body = getContentBody(contentId);
-		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body fetched from content store");
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
@@ -422,7 +418,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), null);
 		}
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 
 		try {
 			response = mimeTypeManager.publish(node, true);
@@ -472,7 +468,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Node: ", node);
 		
 		String body = getContentBody(contentId);
-		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), body);
+		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body Fetched From Content Store.");
 		
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
@@ -482,7 +478,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 		
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 		
 		response = mimeTypeManager.review(node, false);
 		

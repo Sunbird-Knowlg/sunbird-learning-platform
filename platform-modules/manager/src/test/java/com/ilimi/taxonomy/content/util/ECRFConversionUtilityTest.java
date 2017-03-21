@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.ekstep.content.entity.Plugin;
+import org.ekstep.content.util.ECRFConversionUtility;
 import org.junit.Test;
-
-import com.ilimi.taxonomy.content.entity.Plugin;
 
 public class ECRFConversionUtilityTest {
 

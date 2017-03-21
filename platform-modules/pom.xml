@@ -25,6 +25,7 @@
 		<module>manager</module>
 		<module>service</module>
 		<module>actors</module>
+		<module>content-manager</module>
 	</modules>
 
 	<dependencies>

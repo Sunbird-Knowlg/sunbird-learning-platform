@@ -1,0 +1,905 @@
+{
+  "theme": {
+    "manifest": {
+      "media": [
+        {
+          "assetId": "domain_38075_keyboard",
+          "id": "keyboard",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/1460550074646CustomKeyboard.js",
+          "type": "plugin"
+        },
+        {
+          "assetId": "domain_38075_keyboard_css",
+          "id": "keyboard_css",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/1460550074797keyboard.css",
+          "type": "css"
+        },
+        {
+          "id": "blue_eye",
+          "type": "image",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/ekstep-placeholder-blue-eye1_1454412631459.png",
+          "asset_id": "blue_eye"
+        },
+        {
+          "id": "l_audio",
+          "type": "audio",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/q1_1460133785285.mp3",
+          "asset_id": "l_audio"
+        },
+        {
+          "id": "next",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/icon_next_1459243164930.png",
+          "type": "image"
+        },
+        {
+          "id": "previous",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/icon_previous_1459243068991.png",
+          "type": "image"
+        },
+        {
+          "id": "submit",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/icon_submit_1459243202199.png",
+          "type": "image"
+        },
+        {
+          "id": "home",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/icon_home_1459242981364.png",
+          "type": "image"
+        },
+        {
+          "id": "reload",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/icon_reload_1459243110661.png",
+          "type": "image"
+        },
+        {
+          "id": "icon_hint",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/icon_hint_1454918891133.png",
+          "type": "image"
+        },
+        {
+          "id": "speech_bubble",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/speech_bubble_1454918945089.png",
+          "type": "image"
+        },
+        {
+          "id": "yellowbox",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/yellowbox_1458728687443.png",
+          "type": "image"
+        },
+        {
+          "id": "greenbox",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/greenbox_1458728808748.png",
+          "type": "image"
+        },
+        {
+          "id": "bg",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/background_1458729298020.png",
+          "type": "image"
+        },
+        {
+          "id": "icon_home",
+          "type": "image",
+          "src": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/1454011999244icon_home.png",
+          "asset_id": "icon_home"
+        }
+      ]
+    },
+    "template": [
+      {
+        "text": [
+          {
+            "align": "center",
+            "color": "black",
+            "font": "Verdana",
+            "fontsize": 70,
+            "model": "item.title",
+            "w": 80,
+            "x": 10,
+            "y": 6
+          },
+          {
+            "align": "center",
+            "color": "black",
+            "font": "Verdana",
+            "fontsize": 100,
+            "h": 15,
+            "id": "newText",
+            "model": "item.ans1",
+            "stroke": "black",
+            "valign": "middle",
+            "w": 35,
+            "x": 58,
+            "y": 67,
+            "z-index": 100
+          },
+          {
+            "color": "black",
+            "font": "Verdana",
+            "fontsize": 100,
+            "h": 8,
+            "model": "item.question",
+            "w": 20,
+            "x": 10,
+            "y": 90
+          }
+        ],
+        "shape": [
+          {
+            "event": {
+              "action": {
+                "asset": "bKeyboard",
+                "command": "custom",
+                "id": "newText",
+                "invoke": "switchTarget",
+                "type": "command"
+              },
+              "type": "click"
+            },
+            "fill": "white",
+            "h": 15,
+            "stroke-width": 5,
+            "w": 35,
+            "x": 58,
+            "y": 67,
+            "z-index": 99
+          },
+          {
+            "event": {
+              "action": {
+                "asset_model": "item.title_audio.asset",
+                "command": "play",
+                "type": "command"
+              },
+              "type": "click"
+            },
+            "fill": "white",
+            "h": 15,
+            "w": 80,
+            "x": 10,
+            "y": 6,
+            "z-index": 99
+          }
+        ],
+        "keyboard": {
+          "id": "bKeyboard",
+          "keys": "item.keys",
+          "limit": 10,
+          "target": "newText",
+          "type": "custom",
+          "x": 5,
+          "y": 15
+        },
+        "image": {
+          "event": {
+            "action": {
+              "asset_model": "item.question_audio",
+              "command": "play",
+              "type": "command"
+            },
+            "type": "click"
+          },
+          "h": 30,
+          "model": "item.question_image",
+          "w": 20,
+          "x": 10,
+          "y": 58
+        },
+        "id": "org.ekstep.ftb.barakhadi"
+      },
+      {
+        "text": [
+          {
+            "font": "Georgia",
+            "fontsize": 40,
+            "model": "item.title",
+            "marginY": 10,
+            "padX": 30,
+            "padY": 10,
+            "w": 70,
+            "h": 12,
+            "x": 15,
+            "y": 5,
+            "lineHeight": 1.2,
+            "align": "left"
+          },
+          {
+            "font": "Georgia",
+            "fontsize": 60,
+            "model": "item.question",
+            "marginY": 10,
+            "padX": 30,
+            "padY": 10,
+            "w": 70,
+            "h": 12,
+            "x": 15,
+            "y": 12,
+            "lineHeight": 1.2
+          }
+        ],
+        "mcq": {
+          "options": {
+            "cols": 1,
+            "h": 60,
+            "layout": "table",
+            "marginX": 5,
+            "marginY": 8,
+            "options": "options",
+            "padX": 30,
+            "padY": 10,
+            "w": 40,
+            "x": 30,
+            "y": 35,
+            "align": "left"
+          },
+          "model": "item",
+          "multi_select": false,
+          "shadow": "#FF0000"
+        },
+        "id": "mcq_template_default"
+      },
+      {
+        "text": [
+          {
+            "x": 25,
+            "y": 25,
+            "w": 50,
+            "h": 9,
+            "visible": true,
+            "editable": true,
+            "model": "word.lemma",
+            "weight": "normal",
+            "font": "helvetica",
+            "color": "rgb(0,0,0)",
+            "fontstyle": "",
+            "fontsize": 75,
+            "align": "left",
+            "z-index": 1
+          },
+          {
+            "x": 25,
+            "y": 35,
+            "w": 50,
+            "h": 40,
+            "visible": true,
+            "editable": true,
+            "model": "word.gloss",
+            "weight": "normal",
+            "font": "helvetica",
+            "color": "rgb(0,0,0)",
+            "fontstyle": "",
+            "fontsize": 43,
+            "align": "left",
+            "z-index": 2
+          }
+        ],
+        "shape": [
+          {
+            "x": 20,
+            "y": 20,
+            "w": 60,
+            "h": 60,
+            "visible": true,
+            "editable": true,
+            "type": "roundrect",
+            "radius": 10,
+            "opacity": 1,
+            "fill": "#45b3a5",
+            "stroke-width": 1,
+            "z-index": 0
+          }
+        ],
+        "id": "infoTemplate"
+      },
+      {
+        "text": {
+          "model": "item.title",
+          "x": 9,
+          "y": 7,
+          "w": 86,
+          "h": 4,
+          "font": "Georgia",
+          "fontsize": 42
+        },
+        "mcq": {
+          "options": {
+            "layout": "table",
+            "x": 20,
+            "y": 15,
+            "w": 70,
+            "h": 85,
+            "cols": 2,
+            "marginX": 10,
+            "marginY": 5,
+            "options": "options"
+          },
+          "multi_select": false,
+          "model": "item"
+        },
+        "g": {
+          "image": {
+            "event": {
+              "action": [
+                {
+                  "type": "command",
+                  "command": "stop",
+                  "asset_model": "item.hints[0].asset"
+                },
+                {
+                  "type": "command",
+                  "command": "toggleShow",
+                  "asset": "hint"
+                }
+              ],
+              "type": "click"
+            },
+            "asset": "speech_bubble",
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+          },
+          "text": [
+            {
+              "x": 10,
+              "y": 20,
+              "w": 80,
+              "h": 80,
+              "font": "Georgia",
+              "weight": "bold",
+              "fontsize": 150,
+              "__text": "Hint"
+            },
+            {
+              "x": 10,
+              "y": 40,
+              "w": 80,
+              "h": 80,
+              "font": "Georgia",
+              "fontsize": 120,
+              "model": "item.hints[1].asset"
+            }
+          ],
+          "x": 9,
+          "y": 17,
+          "w": 20,
+          "h": 20,
+          "id": "hint",
+          "visible": false
+        },
+        "image": {
+          "event": {
+            "action": [
+              {
+                "type": "command",
+                "command": "togglePlay",
+                "asset_model": "item.hints[0].asset"
+              },
+              {
+                "type": "command",
+                "command": "toggleShow",
+                "asset": "hint"
+              }
+            ],
+            "type": "click"
+          },
+          "asset": "icon_hint",
+          "x": 5,
+          "y": 35
+        },
+        "id": "mcq_template_1"
+      },
+      {
+        "shape": {
+          "event": {
+            "type": "click"
+          },
+          "type": "rect",
+          "x": -400,
+          "y": -400,
+          "w": 800,
+          "h": 800,
+          "fill": "black",
+          "opacity": 0.4
+        },
+        "text": {
+          "x": 0,
+          "y": 10,
+          "w": 100,
+          "h": 50,
+          "valign": "middle",
+          "font": "Verdana",
+          "fontsize": 150,
+          "align": "center",
+          "z-index": 100,
+          "__text": "फिर प्रयास करें !!!"
+        },
+        "image": [
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "hide",
+                "asset": "retryDialog"
+              },
+              "type": "click"
+            },
+            "asset": "yellowbox",
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100,
+            "visible": true,
+            "id": "right"
+          },
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "hide",
+                "asset": "retryDialog"
+              },
+              "type": "click"
+            },
+            "id": "reload_item",
+            "asset": "reload",
+            "x": 35,
+            "y": 55,
+            "w": 13,
+            "h": 30
+          },
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "transitionTo",
+                "asset": "theme",
+                "param": "next",
+                "effect": "fadein",
+                "direction": "left",
+                "ease": "linear",
+                "duration": 200
+              },
+              "type": "click"
+            },
+            "id": "next_item",
+            "asset": "next",
+            "x": 55,
+            "y": 55,
+            "w": 13,
+            "h": 30
+          }
+        ],
+        "id": "retry"
+      },
+      {
+        "shape": {
+          "event": {
+            "type": "click"
+          },
+          "type": "rect",
+          "x": -400,
+          "y": -400,
+          "w": 800,
+          "h": 800,
+          "fill": "black",
+          "opacity": 0.4
+        },
+        "text": {
+          "x": 0,
+          "y": 10,
+          "w": 100,
+          "h": 50,
+          "valign": "middle",
+          "font": "Verdana",
+          "fontsize": 150,
+          "align": "center",
+          "z-index": 100,
+          "__text": "सही जवाब !!!"
+        },
+        "image": [
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "transitionTo",
+                "asset": "theme",
+                "param": "next",
+                "effect": "fadein",
+                "direction": "left",
+                "ease": "linear",
+                "duration": 200
+              },
+              "type": "click"
+            },
+            "asset": "greenbox",
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100,
+            "visible": true,
+            "id": "right"
+          },
+          {
+            "id": "next_item",
+            "asset": "next",
+            "x": 45,
+            "y": 55,
+            "w": 13,
+            "h": 30
+          }
+        ],
+        "id": "goodjob"
+      }
+    ],
+    "controller": [
+      {
+        "name": "assessment_6c477bd8-6d85-4677-aca5-8344eefca949",
+        "type": "items",
+        "id": "assessment_6c477bd8-6d85-4677-aca5-8344eefca949",
+        "__cdata": {
+          "total_items": 1,
+          "subject": "domain",
+          "code": "ItemSet_2b2dda6f-69a4-40c1-b2d1-4f1c7a38303c",
+          "type": "materialised",
+          "lastUpdatedOn": "2016-04-14T10:07:02.631+0000",
+          "SET_TYPE": "MATERIALISED_SET",
+          "createdOn": "2016-04-14T10:07:02.610+0000",
+          "title": "Testing ItemSet_9f22869b-af07-47b8-bebc-1b51ebcc2bd9",
+          "items": {
+            "domain_38510": [
+              {
+                "template": "org.ekstep.ftb.barakhadi",
+                "model": {
+                  "keys": "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x",
+                  "title_audio": {
+                    "type": "audio",
+                    "asset": "l_audio"
+                  }
+                },
+                "question_audio": "",
+                "subject": "domain",
+                "answer": {
+                  "ans1": {
+                    "value": "mango",
+                    "score": 1
+                  }
+                },
+                "template_id": "domain_38075",
+                "code": "ek.d.t.q10005",
+                "lastUpdatedOn": "2016-04-14T03:06:15.236+0000",
+                "type": "ftb",
+                "feedback": "",
+                "createdOn": "2016-04-13T05:53:16.667+0000",
+                "qlevel": "MEDIUM",
+                "title": "Question text goes here",
+                "partial_scoring": true,
+                "question_image": "blue_eye",
+                "name": "Give answer",
+                "max_score": 3,
+                "gradeLevel": [
+                  "Grade 1"
+                ],
+                "question": "Mango",
+                "language": [
+                  "English"
+                ],
+                "identifier": "ek.d.t.q10005",
+                "media": "[{\"id\":\"blue_eye\",\"type\":\"image\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/ekstep-placeholder-blue-eye1_1454412631459.png\",\"asset_id\":\"blue_eye\"},{\"id\":\"l_audio\",\"type\":\"audio\",\"src\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/q1_1460133785285.mp3\",\"asset_id\":\"l_audio\"}]",
+                "question_count": "",
+                "model_sample": "{\"keys\":\"a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x\", \"title_audio\":{\"type\":\"audio\", \"asset\":\"sample_audio\"}}"
+              }
+            ]
+          },
+          "SET_OBJECT_TYPE_KEY": "AssessmentItem",
+          "shuffle": false,
+          "used_for": "assessment",
+          "owner": "Ilimi",
+          "max_score": 1,
+          "gradeLevel": [
+            "Grade 1"
+          ],
+          "item_sets": [
+            {
+              "id": "domain_38510",
+              "count": 1
+            }
+          ],
+          "language": [
+            "English"
+          ],
+          "identifier": "domain_38510"
+        }
+      },
+      {
+        "name": "dictionary",
+        "type": "data",
+        "id": "dictionary",
+        "__cdata": {}
+      }
+    ],
+    "startStage": "scene1",
+    "id": "theme",
+    "ver": 0.3,
+    "stage": [
+      {
+        "id": "baseStage1",
+        "preload": true,
+        "image": [
+          {
+            "asset": "blue_eye"
+          }
+        ],
+        "audio": [
+          {
+            "asset": "l_audio"
+          }
+        ]
+      },
+      {
+        "id": "scene1",
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 100,
+        "param": [
+          {
+            "name": "next",
+            "value": "scene6c477bd8-6d85-4677-aca5-8344eefca949"
+          }
+        ],
+        "events": {
+          "event": []
+        },
+        "image": [
+          {
+            "x": 34.02777777777778,
+            "y": 28.000000000000004,
+            "w": 21.25,
+            "h": 34,
+            "visible": true,
+            "editable": true,
+            "asset": "icon_home",
+            "z-index": 0
+          },
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "transitionTo",
+                "asset": "theme",
+                "param": "next",
+                "effect": "scroll",
+                "direction": "left",
+                "ease": "linear",
+                "duration": 500
+              },
+              "type": "click"
+            },
+            "asset": "next",
+            "x": 93,
+            "y": 3,
+            "w": 5,
+            "h": 8.3,
+            "id": "next",
+            "visible": true,
+            "editable": true,
+            "z-index": 100
+          }
+        ],
+        "text": [],
+        "shape": [],
+        "hotspot": [],
+        "embed": [],
+        "div": [],
+        "audio": []
+      },
+      {
+        "id": "scene6c477bd8-6d85-4677-aca5-8344eefca949",
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 100,
+        "param": [
+          {
+            "name": "next",
+            "value": "sceneedbeb274-787d-46f5-a40f-499318a5e1c0"
+          },
+          {
+            "name": "previous",
+            "value": "scene1"
+          }
+        ],
+        "events": {
+          "event": [
+            {
+              "action": {
+                "type": "command",
+                "command": "transitionTo",
+                "asset": "theme",
+                "param": "next",
+                "effect": "scroll",
+                "direction": "left",
+                "ease": "linear",
+                "duration": 500,
+                "reset": true
+              },
+              "type": "next_item"
+            },
+            {
+              "action": {
+                "type": "command",
+                "command": "show",
+                "asset": "goodjobDialog"
+              },
+              "type": "correct_response"
+            },
+            {
+              "action": {
+                "type": "command",
+                "command": "show",
+                "asset": "retryDialog"
+              },
+              "type": "wrong_response"
+            }
+          ]
+        },
+        "image": [
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "transitionTo",
+                "asset": "theme",
+                "param": "previous",
+                "effect": "scroll",
+                "direction": "right",
+                "ease": "linear",
+                "duration": 500
+              },
+              "type": "click"
+            },
+            "asset": "previous",
+            "x": 2,
+            "y": 3,
+            "w": 5,
+            "h": 8.3,
+            "id": "previous",
+            "visible": true,
+            "editable": true,
+            "z-index": 100
+          },
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "eval",
+                "asset": "scene6c477bd8-6d85-4677-aca5-8344eefca949",
+                "success": "correct_response",
+                "failure": "wrong_response"
+              },
+              "type": "click",
+              "disableTelemetry": true
+            },
+            "asset": "next",
+            "x": 93,
+            "y": 3,
+            "w": 5,
+            "h": 8.3,
+            "id": "next",
+            "visible": true,
+            "editable": true,
+            "z-index": 100
+          }
+        ],
+        "text": [],
+        "shape": [],
+        "hotspot": [],
+        "embed": [
+          {
+            "template": "item",
+            "var-item": "item"
+          }
+        ],
+        "div": [],
+        "audio": [],
+        "iterate": "assessment_6c477bd8-6d85-4677-aca5-8344eefca949",
+        "preload": true,
+        "var": "item",
+        "appEvents": {
+          "list": "next_item,correct_response,wrong_response"
+        },
+        "g": [
+          {
+            "embed": {
+              "template-name": "retry"
+            },
+            "x": 30,
+            "y": 40,
+            "w": 40,
+            "h": 30,
+            "id": "retryDialog",
+            "visible": false,
+            "z-index": 100
+          },
+          {
+            "embed": {
+              "template-name": "goodjob"
+            },
+            "x": 30,
+            "y": 40,
+            "w": 40,
+            "h": 30,
+            "id": "goodjobDialog",
+            "visible": false,
+            "z-index": 100
+          }
+        ]
+      },
+      {
+        "id": "sceneedbeb274-787d-46f5-a40f-499318a5e1c0",
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 100,
+        "param": [
+          {
+            "name": "previous",
+            "value": "scene6c477bd8-6d85-4677-aca5-8344eefca949"
+          }
+        ],
+        "events": {
+          "event": []
+        },
+        "image": [
+          {
+            "event": {
+              "action": {
+                "type": "command",
+                "command": "transitionTo",
+                "asset": "theme",
+                "param": "previous",
+                "effect": "scroll",
+                "direction": "right",
+                "ease": "linear",
+                "duration": 500
+              },
+              "type": "click"
+            },
+            "asset": "previous",
+            "x": 2,
+            "y": 3,
+            "w": 5,
+            "h": 8.3,
+            "id": "previous",
+            "visible": true,
+            "editable": true,
+            "z-index": 100
+          }
+        ],
+        "text": [
+          {
+            "x": 34.30555555555556,
+            "y": 43.77777777777778,
+            "w": 30.94027777777778,
+            "h": 8.155555555555557,
+            "visible": true,
+            "editable": true,
+            "__text": "After Keyboard",
+            "weight": "normal",
+            "font": "helvetica",
+            "color": "rgb(0,0,0)",
+            "fontstyle": "",
+            "fontsize": 75,
+            "align": "left",
+            "z-index": 0
+          }
+        ],
+        "shape": [],
+        "hotspot": [],
+        "embed": [],
+        "div": [],
+        "audio": []
+      }
+    ]
+  }
+}

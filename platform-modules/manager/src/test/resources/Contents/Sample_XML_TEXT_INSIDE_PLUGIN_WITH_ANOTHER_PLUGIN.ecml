@@ -1,0 +1,1712 @@
+<theme id="theme" version="1.0" startStage="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6">
+	<manifest>
+		<media src="bridge_language_inventory_2_334_1481974046_1481974058367.png" assetId="do_30107118" id="do_30107118" type="image"></media>
+		<media src="1468227649170parrot.png" assetId="do_30032431_Parrotimage" id="do_30032431_Parrotimage" type="image"></media>
+		<media src="home_icon_334_1480408565_1480408553427.png" assetId="do_30102204" id="do_30102204" type="image"></media>
+		<media ver="2.0" src="parrot_eng_587_1486030064_1486030064068.mp3" name="Parrot_Eng1" id="do_31217355828264140811398" type="audio" ts="2017-02-02T10:07:44ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="parrot_hindi_587_1486030444_1486030444564.mp3" name="Parrot_Hindi1" id="do_31217356139982028821813" type="audio" ts="2017-02-02T10:14:04ZZ" responseCode="OK"></media>
+		<media src="parrot_odia_587_1486030757_1486030757430.mp3" name="Parrot_Odia1" id="do_31217356396272025621823" type="audio"></media>
+		<media ver="2.0" src="parrot_ho_587_1486031560_1486031560751.mp3" name="Parrot_Ho1" id="do_31217357054353408011428" type="audio" ts="2017-02-02T10:32:41ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="parrot_santhali_587_1486032167_1486032167115.mp3" name="Parrot_santhali1" id="do_31217357551097446421855" type="audio" ts="2017-02-02T10:42:47ZZ" responseCode="OK"></media>
+		<media src="1465907713844sparrow.png" assetId="domain_9318_sparrow_image" id="domain_9318_sparrow_image" type="image"></media>
+		<media ver="2.0" src="sparrow_eng_587_1486030086_1486030086356.mp3" name="Sparrow_Eng1" id="do_31217355846533939211399" type="audio" ts="2017-02-02T10:08:06ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="sparrow_hindi_587_1486030476_1486030476377.mp3" name="Sparrow_Hindi1" id="do_31217356166048972821814" type="audio" ts="2017-02-02T10:14:36ZZ" responseCode="OK"></media>
+		<media src="sparrow_odia_587_1486030789_1486030789754.mp3" name="Sparrow_Odia1" id="do_31217356422728908821824" type="audio"></media>
+		<media ver="2.0" src="sparrow_ho_587_1486031590_1486031590515.mp3" name="Sparrow_Ho1" id="do_31217357078661529611430" type="audio" ts="2017-02-02T10:33:10ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="sparrow_santhali_587_1486032135_1486032135269.mp3" name="Sparrow_santhali1" id="do_31217357524946944011458" type="audio" ts="2017-02-02T10:42:15ZZ" responseCode="OK"></media>
+		<media src="bald-eagle-521492_1920_334_1480318553_1480318542371.png" assetId="do_30102102" id="do_30102102" type="image"></media>
+		<media ver="2.0" src="eagle_eng_587_1486030134_1486030134179.mp3" name="Eagle_Eng1" id="do_31217355885694156821802" type="audio" ts="2017-02-02T10:08:55ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="eagle_hindi_587_1486030509_1486030509081.mp3" name="Eagle_Hindi1" id="do_31217356192620544021817" type="audio" ts="2017-02-02T10:15:09ZZ" responseCode="OK"></media>
+		<media src="eagle_odia_587_1486030896_1486030896847.mp3" name="Eagle_Odia1" id="do_31217356510502092821826" type="audio"></media>
+		<media ver="2.0" src="eagle_ho_587_1486031618_1486031618102.mp3" name="Eagle_Ho1" id="do_31217357101275545611433" type="audio" ts="2017-02-02T10:33:38ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="eagle_santhali_587_1486032103_1486032103177.mp3" name="Eagle_santhali1" id="do_31217357498689126411455" type="audio" ts="2017-02-02T10:41:43ZZ" responseCode="OK"></media>
+		<media src="1468227642510crow.png" assetId="do_30032431_Crowimage" id="do_30032431_Crowimage" type="image"></media>
+		<media ver="2.0" src="crow_eng_587_1486030165_1486030165491.mp3" name="Crow_Eng1" id="do_31217355911365427211401" type="audio" ts="2017-02-02T10:09:25ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="crow_hindi_587_1486030537_1486030537141.mp3" name="Crow_Hindi1" id="do_31217356215781785611407" type="audio" ts="2017-02-02T10:15:37ZZ" responseCode="OK"></media>
+		<media src="crow_odia_587_1486030933_1486030933764.mp3" name="Crow_Odia1" id="do_31217356540722380811417" type="audio"></media>
+		<media ver="2.0" src="crow_ho_587_1486031649_1486031649970.mp3" name="Crow_Ho1" id="do_31217357127393280011436" type="audio" ts="2017-02-02T10:34:10ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="crow_santhali_587_1486032074_1486032074195.mp3" name="Crow_santhali1" id="do_31217357474960179211453" type="audio" ts="2017-02-02T10:41:14ZZ" responseCode="OK"></media>
+		<media src="peacock-46006_640_334_1480318389_1480318377873.png" assetId="do_30102100" id="do_30102100" type="image"></media>
+		<media ver="2.0" src="peacock_eng_587_1486030256_1486030256347.mp3" name="Peacock_Eng1" id="do_31217355985793024021805" type="audio" ts="2017-02-02T10:10:56ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="peacock_hindi_587_1486030564_1486030564348.mp3" name="Peacock_Hindi1" id="do_31217356237931315211409" type="audio" ts="2017-02-02T10:16:04ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="peacoco_odia_587_1486030965_1486030965245.mp3" name="Peacocok_Odia.mp3" id="do_31217356566488678411418" type="audio" ts="2017-02-02T10:22:45ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="pacock_ho_587_1486031691_1486031691022.mp3" name="Peacock_Ho1" id="do_31217357161069772821840" type="audio" ts="2017-02-02T10:34:51ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="peacock_santhali_587_1486032038_1486032038971.mp3" name="Peacock_santhali1" id="do_31217357445638553621851" type="audio" ts="2017-02-02T10:40:39ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="peacock_santhali_587_1486032039_1486032039651.mp3" name="Peacock_santhali1" id="do_31217357446624870421852" type="audio" ts="2017-02-02T10:40:40ZZ" responseCode="OK"></media>
+		<media src="pigeon_244_1466419536_1466419536337.png" assetId="do_30013238" id="do_30013238" type="image"></media>
+		<media ver="2.0" src="pegion_eng_587_1486030287_1486030287187.mp3" name="Pegion_Eng1" id="do_31217356010869555211403" type="audio" ts="2017-02-02T10:11:27ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="pegion_hindi_587_1486030592_1486030592119.mp3" name="Pegion_Hindi1" id="do_31217356260874649621818" type="audio" ts="2017-02-02T10:16:32ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="peagon_odia_587_1486030998_1486030998127.mp3" name="Peagon_Odia1" id="do_31217356593340416021828" type="audio" ts="2017-02-02T10:23:18ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="pegion_ho_587_1486031722_1486031722040.mp3" name="Pegion_Ho1" id="do_31217357185853030411441" type="audio" ts="2017-02-02T10:35:23ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="pegion_santhali_587_1486032005_1486032005883.mp3" name="Pegion_santhali1" id="do_31217357418996531221850" type="audio" ts="2017-02-02T10:40:06ZZ" responseCode="OK"></media>
+		<media src="1464173993715hen.png" assetId="domain_5672_p_hen" id="domain_5672_p_hen" type="image"></media>
+		<media ver="2.0" src="hen_eng_587_1486030324_1486030324680.mp3" name="Hen_Eng1" id="do_31217356041778790421807" type="audio" ts="2017-02-02T10:12:05ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="hen_hindi_587_1486030620_1486030620448.mp3" name="Hen_Hindi1" id="do_31217356284040806421820" type="audio" ts="2017-02-02T10:17:00ZZ" responseCode="OK"></media>
+		<media src="hen_odia_587_1486031032_1486031032902.mp3" name="Hen_Odia1" id="do_31217356621932953611420" type="audio"></media>
+		<media ver="2.0" src="hen_ho_587_1486031758_1486031758930.mp3" name="Hen_Ho1" id="do_31217357216674611211443" type="audio" ts="2017-02-02T10:35:59ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="hen_santhali_587_1486031979_1486031979195.mp3" name="Hen_santhali1" id="do_31217357396985446411450" type="audio" ts="2017-02-02T10:39:39ZZ" responseCode="OK"></media>
+		<media src="rooster-161546_640_334_1480318308_1480318297204.png" assetId="do_30102099" id="do_30102099" type="image"></media>
+		<media ver="2.0" src="cock_eng_587_1486030359_1486030359743.mp3" name="Cock_Eng1" id="do_31217356070494208021809" type="audio" ts="2017-02-02T10:12:40ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="cock_hindi_587_1486030648_1486030648699.mp3" name="Cock_Hindi1" id="do_31217356307184844811413" type="audio" ts="2017-02-02T10:17:29ZZ" responseCode="OK"></media>
+		<media src="cock_odia_587_1486031069_1486031069383.mp3" name="Cock_Odia1" id="do_31217356651803443221830" type="audio"></media>
+		<media ver="2.0" src="cock_ho_587_1486031820_1486031820289.mp3" name="Cock_Ho1" id="do_31217357266771968021842" type="audio" ts="2017-02-02T10:37:00ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="cock_santhali_587_1486031923_1486031923613.mp3" name="Cock_santhali1" id="do_31217357351510016011447" type="audio" ts="2017-02-02T10:38:44ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="owl_eng_587_1486030405_1486030405753.mp3" name="Owl_Eng1" id="do_31217356108196249611405" type="audio" ts="2017-02-02T10:13:26ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="owl_hindi_587_1486030693_1486030693264.mp3" name="Owl_Hindi1" id="do_31217356343700684821821" type="audio" ts="2017-02-02T10:18:13ZZ" responseCode="OK"></media>
+		<media src="owl-odia_587_1486031099_1486031099607.mp3" name="Owl-Odia1" id="do_31217356675766681621832" type="audio"></media>
+		<media ver="2.0" src="owl_ho_587_1486031855_1486031855905.mp3" name="Owl_Ho1" id="do_31217357296136192021844" type="audio" ts="2017-02-02T10:37:36ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="owl_santhali_587_1486031891_1486031891397.mp3" name="Owl_santhali1" id="do_31217357325205504021846" type="audio" ts="2017-02-02T10:38:11ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="peacoco_odia_587_1486031340_1486031340343.mp3" name="Peacocok_Odia1" id="do_31217356873698508821835" type="audio" ts="2017-02-02T10:29:00ZZ" responseCode="OK"></media>
+		<media ver="2.0" src="peagon_odia_587_1486031401_1486031401113.mp3" name="Pigeon_Odia1" id="do_31217356923561574411426" type="audio" ts="2017-02-02T10:30:01ZZ" responseCode="OK"></media>
+		<media src="1467377729469owl.png" assetId="do_30031255_p_owl" id="do_30031255_p_owl" type="image"></media>
+		<media src="1473924452audio_1473924462035.mp3" assetId="do_30085457" id="do_30085457" type="audio"></media>
+		<media src="1473924603audio_1473924613420.mp3" assetId="do_30085459" id="do_30085459" type="audio"></media>
+		<media src="1473926274audio_1473926284693.mp3" assetId="do_30085482" id="do_30085482" type="audio"></media>
+		<media src="1473924858audio_1473924868238.mp3" assetId="do_30085464" id="do_30085464" type="audio"></media>
+		<media src="1473924925audio_1473924935338.mp3" assetId="do_30085465" id="do_30085465" type="audio"></media>
+		<media src="1473924978audio_1473924988328.mp3" assetId="do_30085466" id="do_30085466" type="audio"></media>
+		<media src="1473925016audio_1473925026545.mp3" assetId="do_30085467" id="do_30085467" type="audio"></media>
+		<media src="1473925070audio_1473925080063.mp3" assetId="do_30085468" id="do_30085468" type="audio"></media>
+		<media src="1473925552audio_1473925562847.mp3" assetId="do_30085470" id="do_30085470" type="audio"></media>
+		<media src="1473925592audio_1473925602274.mp3" assetId="do_30085471" id="do_30085471" type="audio"></media>
+		<media src="1473925637audio_1473925647455.mp3" assetId="do_30085472" id="do_30085472" type="audio"></media>
+		<media src="1473925684audio_1473925694232.mp3" assetId="do_30085473" id="do_30085473" type="audio"></media>
+		<media src="1473925727audio_1473925737638.mp3" assetId="do_30085474" id="do_30085474" type="audio"></media>
+		<media src="1473925771audio_1473925781724.mp3" assetId="do_30085475" id="do_30085475" type="audio"></media>
+		<media src="1473925812audio_1473925822270.mp3" assetId="do_30085476" id="do_30085476" type="audio"></media>
+		<media src="1473925849audio_1473925859509.mp3" assetId="do_30085477" id="do_30085477" type="audio"></media>
+		<media src="1473925883audio_1473925893281.mp3" assetId="do_30085478" id="do_30085478" type="audio"></media>
+		<media src="1473925987audio_1473925997648.mp3" assetId="do_30085479" id="do_30085479" type="audio"></media>
+		<media src="1473926117audio_1473926127917.mp3" assetId="do_30085480" id="do_30085480" type="audio"></media>
+		
+		<media src="popuptint_1460636175572.png" assetId="domain_38606" id="popupTint" type="image"></media>
+	</manifest>
+	<stage w="100" x="0" h="100" y="0" id="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="next" value="scenefbd1cee6-93c6-45a6-88c1-b22a8b65077b"></param>
+		<shape z-index="0" visible="true" editable="true" h="106.77" type="roundrect" fill="rgb(11, 83, 148)" r="0" w="107.02" x="-5.65" y="-1.67" stroke-width="1" id="a815a963-dab5-40ab-becc-a160a22e72d2" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(11, 83, 148)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="1" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(255, 242, 204)" r="0" w="13.48" x="10.59" y="0.31" stroke-width="1" id="b5bb94c2-e34b-47a7-972a-2c8e6bd1120d" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 242, 204)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action pluginId="b5bb94c2-e34b-47a7-972a-2c8e6bd1120d" id="1e4ee17e-6ee8-43c5-8330-e4d29a3ba285" type="command" asset="do_31217356396272025621823" command="play"></action>
+				</event>
+				<event type="click">
+					<action pluginId="b5bb94c2-e34b-47a7-972a-2c8e6bd1120d" id="58a2d118-156e-4916-8ced-ade978130761" type="command" asset="theme" value="scenefbd1cee6-93c6-45a6-88c1-b22a8b65077b" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="2" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(217, 234, 211)" r="0" w="13.48" x="23.72" y="0.31" stroke-width="1" id="01985864-39c3-43ba-9bae-ca6c81d2634b" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(217, 234, 211)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action pluginId="01985864-39c3-43ba-9bae-ca6c81d2634b" id="b2a42377-792e-4c42-aa81-12bd9b19a916" type="command" asset="do_31217356422728908821824" command="play"></action>
+				</event>
+				<event type="click">
+					<action pluginId="01985864-39c3-43ba-9bae-ca6c81d2634b" id="2c84a295-22d0-47c9-a7a2-04018d1661e2" type="command" asset="theme" value="scene78bc7221-3b1e-4a09-b3e0-8d253a171021" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="3" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(244, 204, 204)" r="0" w="13.48" x="36.86" y="0.31" stroke-width="1" id="4016ded4-e594-4a3a-944e-570778aa97b7" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(244, 204, 204)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action pluginId="4016ded4-e594-4a3a-944e-570778aa97b7" id="8b55e11d-1eb7-4ee7-a774-e2b1e2be566e" type="command" asset="do_31217356510502092821826" command="play"></action>
+				</event>
+				<event type="click">
+					<action id="81a3ced2-6c1d-419b-91e1-846909a6a1ba" type="command" asset="theme" value="scene6b98c4ee-1728-4e93-b82e-66c6990807ca" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="4" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(207, 226, 243)" r="0" w="13.48" x="49.99" y="0.31" stroke-width="1" id="cb83ccd0-2d4b-4b2a-9655-e377831eb067" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(207, 226, 243)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action id="dde3968a-b448-4504-8125-dcac657a98eb" type="command" asset="do_31217356540722380811417" command="play"></action>
+				</event>
+				<event type="click">
+					<action id="dc525a92-d213-4897-8526-d5415452ed91" type="command" asset="theme" value="scenedad9b0f9-16be-4a72-871f-4e5186a39dbd" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="5" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(252, 229, 205)" r="0" w="13.48" x="63.13" y="0.31" stroke-width="1" id="57b92a03-c1c8-42ac-a2ec-ada8e1681798" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(252, 229, 205)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action id="50297a45-a350-473b-929c-d2b3e56c24d3" type="command" asset="do_31217356873698508821835" command="play"></action>
+				</event>
+				<event type="click">
+					<action id="d2a3ab49-2b9a-4b40-968c-d8bc7371e654" type="command" asset="theme" value="sceneba43299c-9499-41c9-97fd-b6073b646b04" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(217, 210, 233)" r="0" w="13.48" x="76.26" y="0.31" stroke-width="1" id="53338973-a2cd-4d08-83b8-612d13d0d546" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(217, 210, 233)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action pluginId="53338973-a2cd-4d08-83b8-612d13d0d546" id="99ab1e68-e20b-4e40-90a6-1d15163413e7" type="command" asset="do_31217356923561574411426" command="play"></action>
+				</event>
+				<event type="click">
+					<action id="e55db69d-ae66-44e6-a56c-249285626d9d" type="command" asset="theme" value="scenecd7b1b6e-853f-4292-a7ef-914352c03952" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(255, 242, 204)" r="0" w="13.48" x="10.59" y="20.31" stroke-width="1" id="a40b990e-dbea-454b-a1a6-957317548d39" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 242, 204)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action pluginId="a40b990e-dbea-454b-a1a6-957317548d39" id="677e6b0e-9746-421e-8dd8-8b3c9527e348" type="command" asset="do_31217356621932953611420" command="play"></action>
+				</event>
+				<event type="click">
+					<action id="316b44db-b112-4722-9e02-4ea4447d5547" type="command" asset="theme" value="scene8b4fc72b-ee75-44b2-952c-18f8852854f0" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="8" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(217, 234, 211)" r="0" w="13.48" x="23.72" y="20.31" stroke-width="1" id="88533beb-80a8-49ae-947b-5b493951cc3d" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(217, 234, 211)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action id="76241199-bd97-4b3b-b01e-730931d7b1ca" type="command" asset="do_31217356651803443221830" command="play"></action>
+				</event>
+				<event type="click">
+					<action id="0ae0c079-e039-4762-ba73-ab7117253cc5" type="command" asset="theme" value="scenee354c209-79fc-4ee0-bfcd-a587ef2b3639" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<shape z-index="9" visible="true" editable="true" h="20.55" type="roundrect" fill="rgb(244, 204, 204)" r="0" w="13.48" x="36.86" y="20.31" stroke-width="1" id="c286bae5-7402-46e8-9364-721cea35cead" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(244, 204, 204)","radius":1}]]>
+			</config>
+			<events>
+				<event type="click">
+					<action pluginId="c286bae5-7402-46e8-9364-721cea35cead" id="b1e7c4a4-5378-460c-b696-a74da5e28d5c" type="command" asset="do_31217356675766681621832" command="play"></action>
+				</event>
+				<event type="click">
+					<action pluginId="c286bae5-7402-46e8-9364-721cea35cead" id="bc439959-d7aa-4c32-a032-150c6ebb0767" type="command" asset="theme" value="scene2cabf3f7-3395-4c70-bacf-11abf796a03d" command="transitionTo"></action>
+				</event>
+			</events>
+		</shape>
+		<text z-index="10" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="11.25" y="13.14" lineHeight="1.3" id="7eca469d-63d5-4edc-80b9-ab9e21e29eca" font="NotoSansOriya">ଶୁଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="11" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="24.31" y="13.09" lineHeight="1.3" id="67a0c66b-44e2-454b-b5e8-ed9d43d8e629" font="NotoSansOriya">ଘରଚଟିଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="37.5" y="13.09" lineHeight="1.3" id="b7135d2d-bd20-41db-9205-e35515ed04a6" font="NotoSansOriya">ଚୀଲ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="13" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="50.56" y="13.09" lineHeight="1.3" id="bba89285-d09a-4b89-9add-2a2ca250be92" font="NotoSansOriya">କୁଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="63.61" y="13.33" lineHeight="1.3" id="0856a90b-8561-4746-ab3b-de176aac203b" font="NotoSansOriya">ମୟୁର
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="76.67" y="13.33" lineHeight="1.3" id="525298b6-60b2-4a3b-914e-1519c07e7c76" font="NotoSansOriya">ପାରା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="11.25" y="33.39" lineHeight="1.3" id="e0d244c6-e496-43c8-85cc-30d480990cec" font="NotoSansOriya">କୁକୁଡା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="24.31" y="33.34" lineHeight="1.3" id="bb107d1b-9376-4d3b-ba15-57e9b7355192" font="NotoSansOriya">ଗଂଜା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="6.39" weight="" fontsize="58.67" align="left" r="0" w="12.99" x="37.5" y="33.34" lineHeight="1.3" id="94a43798-1b42-4b45-ac80-cc9eb80dd2ca" font="NotoSansOriya">ପେଚା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":22,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="19" r="0" visible="true" editable="true" w="99.38" x="0.14" h="99.38" y="0" id="5ca13395-a9d5-4ba9-a2ad-8302be4715a3" asset="do_30107118">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scenefbd1cee6-93c6-45a6-88c1-b22a8b65077b">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6"></param>
+		<param name="next" value="scene78bc7221-3b1e-4a09-b3e0-8d253a171021"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="1751988b-1152-4276-8420-ab5a362a56cb" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="02843ca8-44ec-4411-be6e-b7a886925e00" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="87dee13c-491e-40e8-839b-9208edc4c69c" type="command" asset="do_31217357551097446421855" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="8a141a27-d5e3-4c23-aadd-5d48a546a79e" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="2d7cb7de-1d30-4a17-8e76-28d2d8932775" type="command" asset="do_31217357054353408011428" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="ee81db78-8da6-45d4-8685-db876d730712" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="d0153da6-1063-47c2-a0b1-e116c5d9d6ce" type="command" asset="do_31217356396272025621823" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="a46a4c22-aae2-4ae7-92de-047ab4b993c5" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="4833401c-6a24-4a1a-b6d2-09c06b276db8" type="command" asset="do_31217356139982028821813" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="cd537903-a089-4d07-8e6b-661d084b697b" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="a28107b3-a97c-47c7-8e43-c6e87802d10d" type="command" asset="do_31217355828264140811398" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="1d187c1c-80a9-494c-8eb9-7a45949b8806" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="7de048a9-1409-44a4-a211-7a4d3b32b107" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="80b57933-5b05-432c-8d8d-505a56705cea" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="36d1e245-ac06-4692-bad1-e012a00e4211" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="13ec767c-b57b-4de4-beb5-39314ec64119" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="7a107660-e2cc-429d-906a-b06217e875c4" font="Georgia">(miru)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="94824077-5b2e-42c4-85a8-0b79669aeb7b" font="Georgia">(mitu)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="51.73" lineHeight="1.3" id="c6351dd7-16a5-4669-bd44-736668cc08c8" font="Georgia">(sua)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="14.27" x="73.61" y="34.34" lineHeight="1.3" id="a000cd96-9787-4408-9a87-975c34717d48" font="Georgia">(tota)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.66" x="53.34" y="16.78" lineHeight="1.3" id="4aa08aab-62e2-4b11-a5bc-838b814a267c" font="Arial">Parrot
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="7.72" x="53.2" y="34.08" lineHeight="1.3" id="73042323-7de4-4996-aa53-776a685caaa5" font="NotoSansDevanagari">तोता
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="50.63" lineHeight="1.3" id="46db8e53-2e1b-4e44-a768-a9a9ed683b4e" font="NotoSansOriya">ଶୁଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="68.15" lineHeight="1.3" id="57b27559-dce3-468e-a735-96e4ca49a567" font="NotoSansOriya">ମିଟୁ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="84.69" lineHeight="1.3" id="61c35606-a280-46b1-a376-d98e02034019" font="NotoSansOriya">ମୀରୁ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="20" r="0" visible="true" editable="true" w="42.99" x="0.05" h="71.36" y="17.1" id="624b7ca0-41c7-4357-ae67-8c3312d67db1" asset="do_30032431_Parrotimage">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="0526310b-7404-403a-924d-2c1de4ad1b47" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action pluginId="0526310b-7404-403a-924d-2c1de4ad1b47" type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="e21988a0-6a0d-4b10-8771-604b31be7267" asset="do_31217355828264140811398">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="d520b26c-bcea-42e7-bb5d-8c0ae08b7974" asset="do_31217356139982028821813">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="d1705ce5-6b90-42c9-b6ac-757137a93a2c" asset="do_31217356396272025621823">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="b3584eae-c96d-4500-9c44-74d2ade58dc4" asset="do_31217357054353408011428">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="992aba15-85a5-4e3b-b7b2-9452002413b5" asset="do_31217357551097446421855">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scene78bc7221-3b1e-4a09-b3e0-8d253a171021">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scenefbd1cee6-93c6-45a6-88c1-b22a8b65077b"></param>
+		<param name="next" value="scene6b98c4ee-1728-4e93-b82e-66c6990807ca"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="96b80795-9a86-435a-8b78-43c2593cdd3e" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="409b276e-5e02-428e-a146-dc7da027a29b" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="66043e87-be72-45d7-96a8-454282eb67a4" type="command" asset="do_31217357524946944011458" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="75bdda0c-a355-42da-b347-dc6751a1530b" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="c801dc51-d137-4d4e-b360-a11b60032206" type="command" asset="do_31217357078661529611430" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="d83607e1-08c8-405a-9548-64c7b7e5ae69" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="23888e50-7ee2-4ce4-9935-e6e1e99a1783" type="command" asset="do_31217356422728908821824" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="aed54c81-2110-44a7-a5ec-8857dc123726" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="5c5a1762-263e-4077-a465-a14d6dc6c358" type="command" asset="do_31217356166048972821814" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="b231a7b6-0ded-44a7-922b-6d170dd100c0" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="5bd05e63-eb1b-4e80-b55e-c768a654cb71" type="command" asset="do_31217355846533939211399" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="0409033d-bee9-4031-90b0-beea35446628" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="535d573d-9b08-4e13-8049-c5b671380c42" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="7cd42802-38b1-4ba2-be1d-c25c386c04c0" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="ae95664e-0796-4e88-87c9-7746e245503e" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="29de343d-ce79-4953-a336-cd2abb689102" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.27" weight="italic" fontsize="48" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="244e56d0-9644-407c-9496-3d5dce667d2b" font="Georgia">(dedem)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":18,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.27" weight="italic" fontsize="48" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="da43b2d6-d1de-439b-93b7-acd33c3d4c8a" font="Georgia">(dedem)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":18,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="11.09" weight="italic" fontsize="48" align="left" r="0" w="15.84" x="73.82" y="48.77" lineHeight="1.3" id="93a1a98a-a272-41e0-828c-2e1655813ec0" font="Georgia">(gharah - chatia)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":18,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.27" weight="italic" fontsize="48" align="left" r="0" w="14.27" x="73.61" y="34.34" lineHeight="1.3" id="bec938ed-9014-4665-8665-83813e17b765" font="Georgia">(gauraiya)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":18,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.97" x="53.34" y="16.78" lineHeight="1.3" id="4d1741de-a600-48a1-9e34-36d9e5b39548" font="Arial">Sparrow
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="8.07" x="53.2" y="34.08" lineHeight="1.3" id="1ced8a00-bdee-44c4-9b81-7e8d0edd93d9" font="NotoSansDevanagari">गौरैया
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="14.03" x="53.2" y="50.63" lineHeight="1.3" id="84652e22-648a-4c7d-9671-209e00da6b35" font="NotoSansOriya">ଘରଚଟିଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="11.96" x="53.2" y="68.15" lineHeight="1.3" id="307a5d07-22b5-44ec-bc10-93a17be92db1" font="NotoSansOriya">ଡେଡେମ୍
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="11.96" x="53.2" y="84.69" lineHeight="1.3" id="d01c598c-a096-41c8-ad02-92b8a02a8a1d" font="NotoSansOriya">ଡେଡେମ୍
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="20" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="887213b8-c21c-4833-9b3b-2e0b8b244579" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action pluginId="887213b8-c21c-4833-9b3b-2e0b8b244579" type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="27.68" x="10.14" h="49.63" y="24.94" id="607d8169-2005-4257-8e42-19894e83c4d3" asset="domain_9318_sparrow_image">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="312e5e28-e4ee-478b-8cd2-10d3559a5e26" asset="do_31217355846533939211399">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="6d4876b0-282b-4e81-9201-62ac633d0b19" asset="do_31217356166048972821814">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="aae65855-d5c1-4412-83b0-180d8eb8648c" asset="do_31217356422728908821824">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="05ccb651-5481-4480-84bb-02e558a1659d" asset="do_31217357078661529611430">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="394732b1-bac8-48b4-87c4-ed2ca7e1b830" asset="do_31217357524946944011458">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scene6b98c4ee-1728-4e93-b82e-66c6990807ca">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scene78bc7221-3b1e-4a09-b3e0-8d253a171021"></param>
+		<param name="next" value="scenedad9b0f9-16be-4a72-871f-4e5186a39dbd"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="218bcc49-d237-4494-bd8d-931d917a00bc" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="b7a1b6cc-5327-4307-9110-407733ada933" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="74b329dd-7bcd-4d7e-b414-2367848b7517" type="command" asset="do_31217357498689126411455" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="81a0ee6d-ebbd-4924-a877-d80580c8a0d7" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="547b4c25-7c84-46c5-955c-b611a4a64128" type="command" asset="do_31217357101275545611433" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="8a5d775d-9bb6-4055-9b3b-33105b80c880" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="152cd5a2-ac84-4456-beee-8b87e69407bd" type="command" asset="do_31217356510502092821826" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="490c3c80-36b5-4da0-b903-23a62db08b2a" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="0e31d6c7-d450-4e7d-9da0-79c7a4e739c7" type="command" asset="do_31217356192620544021817" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="ac412cc2-1ccd-4156-9add-b25430d495ab" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="0d8634e5-2c97-48b1-acd0-3db248043b7a" type="command" asset="do_31217355885694156821802" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="186e34e9-c3e0-4249-bdd6-e9a4bb2630c4" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="66279ded-d48a-458b-8c87-1e004c59d430" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="07e63076-8737-4c9c-8ade-52079c78cdb4" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="23861049-6297-436a-9164-5510d1257409" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="867e121c-dd10-42d7-919e-9a0ebbda5e39" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="431c5ab9-8667-4352-bd4b-ac4076443079" font="Georgia">(chil)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="8423cd73-5203-4761-ba14-1b1ce6a574a5" font="Georgia">(didi)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="51.73" lineHeight="1.3" id="7dbbc292-4762-4205-b97b-72905a3aed8b" font="Georgia">(chilah)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="34.34" lineHeight="1.3" id="343e3bd3-3a80-4340-98ed-dc4066ad8cce" font="Georgia">(chil)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.66" x="53.34" y="16.78" lineHeight="1.3" id="823a0182-3e93-4338-8e2e-5141d375d122" font="Arial">Eagle
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="7.72" x="53.2" y="34.08" lineHeight="1.3" id="61068a77-6cb6-426c-9c86-5ee819407bdb" font="NotoSansDevanagari">चील
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="50.63" lineHeight="1.3" id="5c579418-a0c2-4ae1-9b3d-aea270c5201c" font="NotoSansOriya">ଚୀଲ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="68.15" lineHeight="1.3" id="34e632ae-96a4-4d7e-90b4-e2301dd8e93c" font="NotoSansOriya">ଦିଦି
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.89" x="53.2" y="84.69" lineHeight="1.3" id="e54becae-bbb0-4627-a892-2c2d6a5b4bb6" font="NotoSansOriya">କୁଡିଥ୍
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="20" r="0" visible="true" editable="true" w="27.82" x="10.56" h="34.6" y="31.12" id="60159bab-b922-49bc-9e87-383e8028b220" asset="do_30102102">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="b1aa352a-2b9d-40c3-a1bc-85e77600cb6d" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="ebce1ae8-1aa9-435c-9d97-a7c82bd78963" asset="do_31217355885694156821802">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="be8d2660-cdba-4b9c-83d2-bd66c05bc738" asset="do_31217356192620544021817">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="7ad58690-d093-4828-be69-721443978274" asset="do_31217356510502092821826">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="0d9c4860-ac81-4eee-93d8-944bed91a198" asset="do_31217357101275545611433">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="65137129-6b38-4d62-b71b-258911242ed9" asset="do_31217357498689126411455">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scenedad9b0f9-16be-4a72-871f-4e5186a39dbd">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scene6b98c4ee-1728-4e93-b82e-66c6990807ca"></param>
+		<param name="next" value="sceneba43299c-9499-41c9-97fd-b6073b646b04"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="a4411bda-e1c0-438a-bd07-b61ca7c2ad7e" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="da9e1db8-e97a-423b-ac39-c36dbe49a1ec" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="70a78801-2789-4441-b31c-e35521c6612e" type="command" asset="do_31217357474960179211453" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="2eb91e15-1460-4d35-a6cb-d08d48c70a43" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="59956b9a-8644-4963-b965-8a14893bac46" type="command" asset="do_31217357127393280011436" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="4892eb4b-0880-457e-b930-0b41120ad353" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="bc205be4-2c36-4972-8b70-ac333b27a730" type="command" asset="do_31217356540722380811417" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="18814dc0-e094-4a62-a224-18c59d3016a3" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="ac1dbdb9-eb6d-48bd-a140-0d873b0e92b4" type="command" asset="do_31217356215781785611407" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="e1645195-ce31-4383-aa1a-a8a5d949151e" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="e82cb93b-10b0-40aa-95c6-37080175ee21" type="command" asset="do_31217355911365427211401" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="27588901-da92-4425-bb4d-5be462055894" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="9a9cbe84-4598-445b-9447-4d8c0170d547" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="058aecc1-e846-4660-9e1e-c095344e47e3" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="ea36d206-09de-4dd5-a01a-9a91adc7b884" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="4a9062c3-26ea-465d-ad1c-c9bbe70eb615" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="0195ed5a-dc26-4bea-a503-9e52056ce27b" font="Georgia">(kahu)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="07cb2461-86ce-481a-a985-5ac566988026" font="Georgia">(kaa)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="51.73" lineHeight="1.3" id="656d751d-d6d8-4d56-bc7c-019c3a08135e" font="Georgia">(kua)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="34.34" lineHeight="1.3" id="a2a85d54-ec9e-4c56-bba8-45c0398286ee" font="Georgia">(kaua)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.66" x="53.34" y="16.78" lineHeight="1.3" id="1aedd0c0-ad30-4b99-999a-119bd5ec33c0" font="Arial">Crow
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="50.63" lineHeight="1.3" id="dd54b2e5-14c1-4a70-8e29-8820be2db3c6" font="NotoSansOriya">କୁଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="68.15" lineHeight="1.3" id="a64c7dda-5c94-40bb-9b06-ab174be84295" font="NotoSansOriya">କାଃ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="84.69" lineHeight="1.3" id="861b1085-a049-4908-ac95-b31cb00b62a0" font="NotoSansOriya">କାହୁ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="20" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="7.9" x="53.2" y="33.83" lineHeight="1.3" id="cc2e788e-7394-49c7-8793-8e1c614e5147" font="NotoSansDevanagari">कौआ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="19" r="0" visible="true" editable="true" w="26.82" x="10.97" h="51.56" y="25.43" id="8c186862-4747-4caa-932b-d703b73804c3" asset="do_30032431_Crowimage">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="a0e94199-a111-459a-9a43-2041e02e78b3" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="973649dc-4cab-43e2-8080-702b0cc58513" asset="do_31217355911365427211401">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="99b537d8-8e0d-488a-a770-58cddaa64b27" asset="do_31217356215781785611407">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="41356c02-40b6-4145-8e2a-b5b72d256c44" asset="do_31217356540722380811417">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="ba10b45d-8197-412e-9b1c-244c19306e44" asset="do_31217357127393280011436">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="24d9846a-d1b2-4348-b545-01b365983ec3" asset="do_31217357474960179211453">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="sceneba43299c-9499-41c9-97fd-b6073b646b04">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scenedad9b0f9-16be-4a72-871f-4e5186a39dbd"></param>
+		<param name="next" value="scenecd7b1b6e-853f-4292-a7ef-914352c03952"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="5031d4d9-85ec-4073-a653-23b361db5635" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="21b687e2-0932-4c15-821a-5995c17a9cd3" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="6a283e65-8ebb-45e1-bb57-35e9ad77e3ad" type="command" asset="do_31217357446624870421852" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="7860e39e-b414-4d41-bc87-502e490b0c5d" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="3c515c38-4a7d-47ae-b939-40840a872591" type="command" asset="do_31217357161069772821840" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="3e75a3e5-e409-4ded-9a4e-9b4653549ad2" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="32c66906-3304-4c99-a471-e1489aab9072" type="command" asset="do_31217356566488678411418" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="312067e7-4b4c-4c4c-b121-0b64c7a5ca2c" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="1c785a05-dc24-42e4-8edc-b49369ba1052" type="command" asset="do_31217356237931315211409" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="7b6e852a-d560-4105-89c2-d46799cee3b8" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="122e38e7-8b62-48c0-9589-6d7d09e13bd0" type="command" asset="do_31217355985793024021805" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="69a65857-5ec6-4a75-bb9a-97831eaabb5d" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="a39234b9-0102-47ea-993b-2bd8e4d5e696" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="d3c99833-a211-4ebd-ab75-63640a404e03" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="40810c29-d19a-4642-951a-45462ba6bcce" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="554e5584-bdb3-4abc-bce4-2349d260baa2" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="1de72e08-747e-425c-830c-3171caa7de3d" font="Georgia">(maara)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="8b0699e3-abd9-4247-b743-4ad5025b42d9" font="Georgia">(mara)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="14.26" x="73.61" y="51.73" lineHeight="1.3" id="98479c2b-e524-42a6-819e-627c63559e83" font="Georgia">(mayurah)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="34.34" lineHeight="1.3" id="a194ac82-ac74-4d28-a690-a88811b3e4e7" font="Georgia">(mor)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="13.34" x="53.34" y="16.78" lineHeight="1.3" id="6803b4db-daab-427e-aa89-924a072541d6" font="Arial">Peacock
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="7.72" x="53.2" y="34.08" lineHeight="1.3" id="56b22483-20e7-4397-a830-ca16588c519c" font="NotoSansDevanagari">मोर
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="8.55" x="53.2" y="50.63" lineHeight="1.3" id="d6ab2324-e892-43d0-979b-2ab8c2c738c1" font="NotoSansOriya">ମୟୁର
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="8.07" x="53.2" y="68.15" lineHeight="1.3" id="35e78969-4077-4014-9d13-01639cc2e049" font="NotoSansOriya">ମାରଃ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="8.07" x="53.2" y="84.69" lineHeight="1.3" id="6b8614dc-80d3-4a53-b366-20e7453edd82" font="NotoSansOriya">ମାରଃ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="20" r="0" visible="true" editable="true" w="26.77" x="10.84" h="68.16" y="15.56" id="7aaa2dd8-5e84-4a19-9edc-3d0c8a083456" asset="do_30102100">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="ab2d44cb-d24e-4939-b8a5-e8a34094b4ae" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="4d1631ab-555e-41b1-997c-dd74824285ba" asset="do_31217355985793024021805">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="3b02e322-454a-4e92-8067-0d212e64d899" asset="do_31217356237931315211409">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="ae89c77c-99d5-4980-aa97-5d10157da1a6" asset="do_31217356566488678411418">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="44d54089-727a-4a79-93a7-c1604a829c67" asset="do_31217357161069772821840">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="ea178bea-9297-4753-a9eb-999c3b1d5062" asset="do_31217357445638553621851">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="5c3d1821-952a-46a5-81e3-639641570b9b" asset="do_31217357446624870421852">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scenecd7b1b6e-853f-4292-a7ef-914352c03952">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="sceneba43299c-9499-41c9-97fd-b6073b646b04"></param>
+		<param name="next" value="scene8b4fc72b-ee75-44b2-952c-18f8852854f0"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="b85089a7-9e54-4dec-8b9c-948d917d785a" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="aac1d04a-d93c-4ba0-85dd-2618b5b03d6d" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="5de0ac16-23d6-456a-8193-0b97b990c07d" type="command" asset="do_31217357418996531221850" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="c4dc308c-d361-4120-9044-29eba5143335" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="3c434578-d0cb-430b-ada2-8b58ba4e9a21" type="command" asset="do_31217357185853030411441" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="63042493-eac1-4891-8455-813d5305d562" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="b2457426-d802-467b-8041-694eb69b1130" type="command" asset="do_31217356593340416021828" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="cbd049a9-658e-42a7-a12a-673d7baebd09" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="2076c67a-10ea-412b-a7b8-0482b9b51376" type="command" asset="do_31217356260874649621818" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="c2339b23-3a3a-4c0a-a1e3-2504435a4d5e" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="4a9d1dbd-9b01-47ec-8703-9b918588880b" type="command" asset="do_31217356010869555211403" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="e6d72435-b26b-442c-82cc-8a4974313686" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="977d2876-6a9c-499b-bebd-08812d6ac8ac" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="be12a6c1-8041-475a-a774-40b4751133c4" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="6860567e-8bd1-49b0-b070-bab0262821d2" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="c3834a1b-17d3-409b-9012-3da423dc77cd" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="a5ae1644-197e-407d-8e3b-3088e581d18b" font="Georgia">(parwa)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="8825b065-28c9-4333-b6da-7d50e8e1b052" font="Georgia">(dudlum)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="51.73" lineHeight="1.3" id="95252158-7494-4de0-b5ed-9e4ac79b5741" font="Georgia">(para)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="34.34" lineHeight="1.3" id="e7d16a39-eee5-4c5d-8005-b75ca7e370a8" font="Georgia">(kaubter)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.66" x="53.34" y="16.78" lineHeight="1.3" id="d634ab90-c1e4-471d-8036-2771e1eeebb3" font="Arial">Pigeon
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="9.18" x="53.2" y="34.08" lineHeight="1.3" id="c02e1cc5-25c6-412b-bb4d-add18d75d6d4" font="NotoSansDevanagari">कबूतर
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.72" x="53.2" y="50.63" lineHeight="1.3" id="2a807aa8-7390-4dab-9366-e36689d25b7a" font="NotoSansOriya">ପାରା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="10.84" x="53.2" y="68.15" lineHeight="1.3" id="19e25a06-b505-4bde-b4d0-2a9e41d4c7cb" font="NotoSansOriya">ଦୁଦୁଲୁମ୍
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="10.5" x="53.2" y="84.69" lineHeight="1.3" id="67e175d2-0e08-46c8-8e61-71e8e40147ed" font="NotoSansOriya">ପାରବଃ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="20" r="0" visible="true" editable="true" w="25.76" x="10.56" h="37.81" y="31.85" id="3db65c72-be5e-4606-ab2a-33db34cd060b" asset="do_30013238">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="3ae89118-70e6-4d33-9a3a-d0cca068cc19" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="dbd922e3-6b55-4986-9716-bca37639a571" asset="do_31217356010869555211403">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="1ca3bb73-70c5-4b0a-9154-e509cb5b4368" asset="do_31217356260874649621818">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="0abd1896-175c-4359-8a71-366a204ed473" asset="do_31217356593340416021828">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="2791b4c3-b73c-4e73-9693-716e481d4822" asset="do_31217357185853030411441">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="99a72b7a-cd9a-4aca-96ea-1708ad38cddc" asset="do_31217357418996531221850">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scene8b4fc72b-ee75-44b2-952c-18f8852854f0">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scenecd7b1b6e-853f-4292-a7ef-914352c03952"></param>
+		<param name="next" value="scenee354c209-79fc-4ee0-bfcd-a587ef2b3639"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="ed866455-6c69-41b6-a7db-65e9496222e4" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="048d9d32-ec6a-4141-ae9b-67ab5a983aa0" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="c379780e-4c0c-4717-bc1b-31564d6517dd" type="command" asset="do_31217357396985446411450" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="75d5e415-5eb4-4e13-b64c-873551d1cb7d" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="a2ea8420-73eb-45b9-be14-838118e57142" type="command" asset="do_31217357216674611211443" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="b35e0859-c14b-4d38-876d-b1b327939915" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="4b79b181-9253-4e4c-821a-58d891bd16b1" type="command" asset="do_31217356621932953611420" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="c1c997dc-6be5-4637-926c-58937298cae7" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="86421738-06b0-4613-8817-328bd886e0d6" type="command" asset="do_31217356284040806421820" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="94d253e7-186d-44a2-90e7-96eed18741dd" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="7a569b73-5aa8-4a02-a068-5505be651713" type="command" asset="do_31217356041778790421807" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="a92a6393-80c0-4a58-ae69-d53aeaae8c2c" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="0d1947eb-e063-409b-982c-e1a56899444b" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="2a72850a-be5b-43b0-b618-052c4e729443" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="d4a070bb-a0e7-4067-840e-26db9037ad49" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="1d349936-0758-4e18-9c32-c69bd04edebc" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="8e903d9c-9ac8-4a22-b0d8-e466ba9ebb7c" font="Georgia">(simenga)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="4869b556-9c03-4335-b93d-14b9d027029c" font="Georgia">(engasim)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="14.03" x="73.61" y="51.73" lineHeight="1.3" id="d929d8dd-415c-47b9-bba4-02b836769965" font="Georgia">(kukuda )
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="34.34" lineHeight="1.3" id="49700d3e-6da3-4b2d-88c0-695c5e1a7d49" font="Georgia">(murgi)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.66" x="53.34" y="16.78" lineHeight="1.3" id="ee1c5787-5c56-4534-8ab9-51415290947d" font="Arial">Hen
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="7.72" x="53.2" y="34.08" lineHeight="1.3" id="aae08d65-4ed7-4c03-b78a-5c2945219918" font="NotoSansDevanagari">मुर्गी
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="8.73" x="53.2" y="50.63" lineHeight="1.3" id="3da295c3-a785-41e6-bb6b-6a91b4600a9b" font="NotoSansOriya">କୁକୁଡା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="19.1" x="53.2" y="68.15" lineHeight="1.3" id="a339de40-7479-483b-8696-54aa626d625b" font="NotoSansOriya">ସୀମ ଐଂଗଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="18.4" x="53.2" y="84.69" lineHeight="1.3" id="ad9ec5ab-d2a8-4d01-82a9-c7c0752486bb" font="NotoSansOriya">ସୀମ ଐଂଗଆ
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="20" r="0" visible="true" editable="true" w="27.48" x="10.56" h="54.77" y="22.72" id="ba932074-8080-427b-98dc-8196c7624e41" asset="domain_5672_p_hen">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="8b15ea4b-46b8-43e0-aa3b-3168b25871ca" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="a491ac55-20bc-4678-b8a8-c15c9a7bcd37" asset="do_31217356041778790421807">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="d6078168-1c31-458c-be40-6eb1d433266e" asset="do_31217356284040806421820">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="2207dea5-109a-494c-ad54-1e44c3452d55" asset="do_31217356621932953611420">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="1db1d06d-621b-4068-a496-0ccc9c64023d" asset="do_31217357216674611211443">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="93ecabaa-5257-4841-9c15-7ad80d3eedb6" asset="do_31217357396985446411450">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scenee354c209-79fc-4ee0-bfcd-a587ef2b3639">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scene8b4fc72b-ee75-44b2-952c-18f8852854f0"></param>
+		<param name="next" value="scene2cabf3f7-3395-4c70-bacf-11abf796a03d"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="6a2b1a20-98b9-4937-a196-4db004806063" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="7c8a93ca-501a-4d95-9011-92d69acb52ca" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action pluginId="7c8a93ca-501a-4d95-9011-92d69acb52ca" id="b5298a47-ae0a-4837-a1c2-46d20bc43830" type="command" asset="do_31217357351510016011447" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="23cd59c3-db2a-4cd0-aeaa-581cb70e4162" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="dd4c3ec9-e47c-4c8a-b198-5c7a980dc30b" type="command" asset="do_31217357266771968021842" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.18" y="47.68" stroke-width="1" id="b9006869-6043-4001-8b64-75421cd64cb8" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="de482d31-4e6a-4e99-9d73-95c5a365156e" type="command" asset="do_31217356651803443221830" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="89a050bd-174d-45ee-a176-173703015de3" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="e8424a21-71a8-48da-bc04-755ee96a2146" type="command" asset="do_31217356307184844811413" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="7833c851-4335-45b2-8bbb-d24aacc15603" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="47c5cbdc-8552-4aa3-a03e-a83e9e044e24" type="command" asset="do_31217356070494208021809" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="395ceeba-a228-4db8-8885-5ab029c8eb52" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="b4071d0e-6066-4461-8196-85aee4892193" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="b01295e2-ad6e-4080-8831-5c81eeb4d5cc" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="6dc79d15-e2ab-47db-8275-1c27cde5a1e0" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="455b62a6-cd66-4063-a0de-cd0d72092713" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="52096d28-51b9-4d04-a364-7555e5d1eaab" font="Georgia">(simsadi)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.96" x="73.48" y="68.53" lineHeight="1.3" id="212c1d76-c16e-4d07-9746-603740d0e36b" font="Georgia">(sandisim)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="51.73" lineHeight="1.3" id="2632eb0d-9261-4727-83e6-a7432b386dab" font="Georgia">(ganja)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="34.34" lineHeight="1.3" id="44170813-d9de-41ea-8edc-257d8b1beb73" font="Georgia">(murga)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.66" x="53.34" y="16.78" lineHeight="1.3" id="40e4ce9a-8e8e-4671-8e41-46d82e4e2c74" font="Arial">Cock
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="7.72" x="53.2" y="34.08" lineHeight="1.3" id="a2da047e-4e99-49e2-9a57-834bb04a4812" font="NotoSansDevanagari">मुर्गा
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="7.74" x="53.2" y="50.63" lineHeight="1.3" id="3089082a-004a-461a-ba15-eecb572c008a" font="NotoSansOriya">ଗଂଜା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="17.71" x="53.2" y="68.15" lineHeight="1.3" id="7888ab78-3752-4aea-bad1-1179ed64353e" font="NotoSansOriya">ସୀମ ସାଣ୍ଡି
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="16.32" x="53.2" y="84.69" lineHeight="1.3" id="a59edb4a-8257-4968-9986-58914367e29e" font="NotoSansOriya">ସୀମ ସାଣ୍ଡି
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="20" r="0" visible="true" editable="true" w="27.27" x="10.76" h="48.08" y="27.4" id="e572bb26-c07d-4094-8062-69c05c68ea4e" asset="do_30102099">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</image>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="86eba702-4ca5-4451-837a-c5ce4e18c649" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" z-index="22" w="0" x="0" h="0" y="0" id="ea6ebd69-6425-4551-8662-cc194da364e1" asset="do_31217356070494208021809">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" z-index="22" w="0" x="0" h="0" y="0" id="0b380b30-4a00-4bbb-88a9-8013c180544a" asset="do_31217356307184844811413">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" z-index="22" w="0" x="0" h="0" y="0" id="79acd0d9-0543-4b04-952c-07de032d0955" asset="do_31217356651803443221830">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="bc94e26b-3a24-4d15-8ae1-282d99da7b25" asset="do_31217357266771968021842">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="9ecab682-6e6a-4c33-9ba5-6e8774241552" asset="do_31217357351510016011447">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<stage w="100" x="0" h="100" y="0" id="scene2cabf3f7-3395-4c70-bacf-11abf796a03d">
+		<config>
+			<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+		</config>
+		<param name="instructions"></param>
+		<param name="previous" value="scenee354c209-79fc-4ee0-bfcd-a587ef2b3639"></param>
+		<shape z-index="0" visible="true" editable="true" h="110.33" type="roundrect" fill="rgb(208, 224, 227)" r="0" w="108.06" x="-6.25" y="-3.95" stroke-width="1" id="6cd655a7-8664-4bed-947d-ec2694e4b17d" radius="1" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(208, 224, 227)","radius":1}]]>
+			</config>
+		</shape>
+		<shape z-index="6" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.22" y="82.22" stroke-width="1" id="817a52b8-26b9-434c-88c5-9a82c03e7dc0" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="95ecca8b-cd49-4828-9d7e-08569ad7e5de" type="command" asset="do_31217357325205504021846" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="7" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="65.11" stroke-width="1" id="eb8b9a09-100a-4761-a892-ed2594dbd779" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="d98d1561-2e73-44a0-8dd5-0c4053bea18c" type="command" asset="do_31217357296136192021844" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="10" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="47.93" stroke-width="1" id="99e83dba-48a1-43d8-8d40-701668707907" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="24388c6e-c2c9-4714-bcaa-936cec361c27" type="command" asset="do_31217356675766681621832" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="11" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="30.79" stroke-width="1" id="6c9d2ab3-016e-447d-a069-74d51e4a927b" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="ac5c88ec-3b01-449b-b581-40542179440c" type="command" asset="do_31217356343700684821821" command="play"></action>
+			</event>
+		</shape>
+		<shape z-index="13" visible="true" editable="true" h="13.67" type="roundrect" fill="rgb(255, 229, 153)" r="0" w="21.9" x="51.04" y="13.91" stroke-width="1" id="7d6d99a0-0083-420c-9a17-1970013e12ce" radius="10" opacity="1">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 229, 153)","radius":10}]]>
+			</config>
+			<event type="click">
+				<action id="9cc47dbd-e852-4086-a390-dceb5d9b90ca" type="command" asset="do_31217356108196249611405" command="play"></action>
+			</event>
+		</shape>
+		<text z-index="1" visible="true" color="rgb(255, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="39.17" y="86.09" lineHeight="1.3" id="9459536b-0179-40d0-83a7-e45db772db5b" font="Georgia">Santhali
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(255, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="2" visible="true" color="rgb(7, 55, 99)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="13.58" x="42.08" y="69.69" lineHeight="1.3" id="44546bb2-e745-4111-8bd6-01a8e7be8d94" font="Georgia">Ho
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(7, 55, 99)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="3" visible="true" color="rgb(152, 0, 0)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="40.69" y="34.79" lineHeight="1.3" id="2790a5a0-7524-44d8-8177-c0ac0d4939b8" font="Georgia">Hindi
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(152, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="4" visible="true" color="rgb(153, 0, 255)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="41.11" y="52.22" lineHeight="1.3" id="012d88a7-b377-47e4-beb0-cd49ad888655" font="Georgia">Odia
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(153, 0, 255)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="5" visible="true" color="rgb(56, 118, 29)" editable="true" h="5.83" weight="" fontsize="53.33" align="left" r="0" w="14.82" x="39.86" y="17.78" lineHeight="1.3" id="e46473b2-9019-4e98-b1c4-c467a49b2b9c" font="Georgia">English
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(56, 118, 29)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="8" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.89" y="85.68" lineHeight="1.3" id="4064c30e-d5ac-4ae0-a707-4171784de2e5" font="Georgia">(kokor)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="9" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.48" y="68.53" lineHeight="1.3" id="b12c4bb1-aa11-4905-a24e-588c8a4202e0" font="Georgia">(kakar)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="12" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="51.73" lineHeight="1.3" id="24012b01-40e1-492e-a245-91bd7c7b85d3" font="Georgia">(pichaa)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="14" visible="true" color="rgb(0, 0, 0)" editable="true" h="5.83" weight="italic" fontsize="53.33" align="left" r="0" w="13.58" x="73.61" y="34.34" lineHeight="1.3" id="9177e87b-b91b-4620-9c8a-6a5105d6d747" font="Georgia">(ullu)
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"rgb(0, 0, 0)","fontfamily":"Georgia","fontsize":20,"fontweight":false,"fontstyle":true}]]>
+			</config>
+		</text>
+		<text z-index="15" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="12.66" x="53.34" y="16.78" lineHeight="1.3" id="0565454a-20d5-420a-a69a-6dc23b8cada1" font="Arial">Owl
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"Arial","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="16" visible="true" color="#000000" editable="true" h="6.94" weight="" fontsize="64" align="left" r="0" w="7.72" x="53.2" y="34.08" lineHeight="1.3" id="443cbd64-210a-452e-9dcd-8aa83051aa2d" font="NotoSansDevanagari">उल्लू
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansDevanagari","fontsize":24,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="17" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="8.27" x="53.2" y="50.63" lineHeight="1.3" id="c6146160-9478-4c17-a585-a25d15b23c07" font="NotoSansOriya">ପେଚା
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="18" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="13.67" x="53.2" y="68.15" lineHeight="1.3" id="d095e305-9c15-44c7-8c31-c6c1cd973067" font="NotoSansOriya">କୋକୋର୍
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<text z-index="19" visible="true" color="#000000" editable="true" h="7.5" weight="" fontsize="69.33" align="left" r="0" w="13.67" x="53.2" y="84.69" lineHeight="1.3" id="1467b335-4c82-4aa4-90a6-bab114e6eae0" font="NotoSansOriya">କୋକୋର୍
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true,"color":"#000000","fontfamily":"NotoSansOriya","fontsize":26,"fontweight":false,"fontstyle":false}]]>
+			</config>
+		</text>
+		<image z-index="21" r="0" visible="true" editable="true" w="10.42" x="89.29" h="17.28" y="0.74" id="12e5abdd-4566-4768-b21c-9824d399e434" asset="do_30102204">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+			<event type="click">
+				<action pluginId="12e5abdd-4566-4768-b21c-9824d399e434" type="command" asset="theme" value="scenebdd8a9fe-b36e-452e-9407-f47dfc4780e6" command="transitionTo"></action>
+			</event>
+		</image>
+		<audio r="0" w="0" x="0" h="0" y="0" id="3dc4eeaa-1150-4678-a6e2-078d108a56ad" asset="do_31217356108196249611405">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="c5e603ee-26dc-4732-8024-de7b75a6610e" asset="do_31217356343700684821821">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="029237a2-ad9b-4d24-b224-d33d4146229e" asset="do_31217356675766681621832">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="82d37186-0bd5-4228-a243-bc917ec1369c" asset="do_31217357296136192021844">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+		<audio r="0" w="0" x="0" h="0" y="0" id="a15d7381-a142-469a-8aa6-e2c27684d947" asset="do_31217357325205504021846">
+			<config>
+				<![CDATA[{"opacity":100,"strokeWidth":1,"stroke":"rgba(255, 255, 255, 0)","autoplay":false,"visible":true}]]>
+			</config>
+		</audio>
+	</stage>
+	<migration-media></migration-media>
+</theme>

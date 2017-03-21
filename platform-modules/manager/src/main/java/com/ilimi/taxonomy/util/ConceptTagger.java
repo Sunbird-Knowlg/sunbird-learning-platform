@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -20,7 +21,6 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.CollectionTypes;
-import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
 /**
  * <code>ConceptTagger</code> is used to tag additional concepts for a given
@@ -33,6 +33,7 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
  * @author rayulu
  *
  */
+@Deprecated
 public class ConceptTagger extends BaseManager {
 
 	/** The logger. */
@@ -172,8 +173,8 @@ public class ConceptTagger extends BaseManager {
 						for (Relation rel : outRelations) {
 							if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())
 									&& !conceptIds.contains(rel.getEndNodeId())) {
-								String status = (String) rel.getEndNodeMetadata().get(ContentWorkflowPipelineParams.status.name());
-								if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
+								String status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
+								if (StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status))
 									conceptIds.add(rel.getEndNodeId());
 							}
 						}

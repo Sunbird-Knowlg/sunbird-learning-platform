@@ -3,10 +3,11 @@ package com.ilimi.taxonomy.content.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.ekstep.content.entity.Plugin;
+import org.ekstep.content.util.XMLContentParser;
 import org.junit.Test;
 
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.content.entity.Plugin;
 
 public class XMLContentParserTest extends BaseTest {
 	

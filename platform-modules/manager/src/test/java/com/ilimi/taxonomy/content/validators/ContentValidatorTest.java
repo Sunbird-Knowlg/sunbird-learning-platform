@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
+import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.validator.ContentValidator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,8 +16,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
-import com.ilimi.taxonomy.content.validator.ContentValidator;
 
 public class ContentValidatorTest extends BaseTest {
 	

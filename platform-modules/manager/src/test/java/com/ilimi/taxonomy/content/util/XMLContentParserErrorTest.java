@@ -1,11 +1,12 @@
 package com.ilimi.taxonomy.content.util;
 
+import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.util.XMLContentParser;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 
 public class XMLContentParserErrorTest extends BaseTest {
 	
