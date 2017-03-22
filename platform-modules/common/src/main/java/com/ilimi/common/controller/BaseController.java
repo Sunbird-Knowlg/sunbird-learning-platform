@@ -33,7 +33,11 @@ public abstract class BaseController {
     public static final String API_VERSION = "1.0";
     public static final String API_VERSION_2 = "2.0";
     public static final String API_VERSION_3 = "3.0";
-
+    private static final String ekstep = "org.ekstep";
+    private static final String ilimi = "com.ilimi";
+    private static final String java = "java.";
+    private static final String default_err_msg = "Something went wrong in server while processing the request";
+    
     protected ObjectMapper mapper = new ObjectMapper();
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
@@ -53,7 +57,8 @@ public abstract class BaseController {
     protected Response getErrorResponse(Exception e) {
         Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
-        resStatus.setErrmsg(e.getMessage());
+        String message = getMessage(e);
+        resStatus.setErrmsg(message);
         resStatus.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
@@ -67,6 +72,17 @@ public abstract class BaseController {
         return response;
     }
 
+    protected String getMessage(Exception e){
+    	Class<? extends Exception> className = e.getClass();
+        if(className.getName().startsWith(ekstep) || className.getName().startsWith(ilimi)){
+        	return e.getMessage();
+        }
+        else if(className.getName().startsWith(java)){
+        	return default_err_msg;
+        }
+        return null;
+    }
+    
     protected HttpStatus getHttpStatus(Exception e) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {
