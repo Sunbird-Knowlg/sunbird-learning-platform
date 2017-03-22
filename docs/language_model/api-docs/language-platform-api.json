@@ -508,7 +508,7 @@
         "security": []
       }
     },
-    "/v3/tools/translate?language_id=###&lemma=###&languages=###&languages=###": {
+    "/v3/tools/translate?language_id=###&lemma=###&languages=###": {
       "post": {
         "summary": "Translate API",
         "description": "This endpoint takes a lemma  with its language_id  and other languages as input and finds translation of it to other specified languages",

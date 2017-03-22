@@ -342,7 +342,7 @@ paths:
           schema:
             $ref: "#/definitions/FailedResponseHeader"
       security: []
-  /v3/tools/translate?language_id=###&lemma=###&languages=###&languages=###:
+  /v3/tools/translate?language_id=###&lemma=###&languages=###:
     post:
       tags:
       - "Tools"
