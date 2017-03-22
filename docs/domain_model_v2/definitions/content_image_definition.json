@@ -1,7 +1,7 @@
 {
   "definitionNodes": [
     {
-      "objectType": "Content",
+      "objectType": "ContentImage",
       "properties": [
         {
           "propertyName": "name",
@@ -1139,9 +1139,9 @@
         {
           "required": false,
           "dataType": "Text",
-          "propertyName": "draftImage",
-          "title": "Draft Image Copy Identifier",
-          "description": "The Identifier of the draftImage Copy which is of Object Type 'ContentImage', Technically it is Shadow Copy of Content Object to Edit without making the 'Live' Content to Draft.",
+          "propertyName": "liveImage",
+          "title": "Live Content Identifier",
+          "description": "The Identifier of the liveImage Copy which is of Object Type 'Content', Technically it is Live/Working Copy of Content Object.",
           "category": "Technical",
           "displayProperty": "Hidden",
           "defaultValue": "",
@@ -1286,12 +1286,11 @@
           "range": [
             "Draft",
             "Review",
-            "Redraft",
-            "Flagged",
-            "Live",
             "Retired",
             "Mock",
             "Processing",
+            "FlagDraft",
+            "FlagReview",
             "Failed"
           ],
           "required": false,
