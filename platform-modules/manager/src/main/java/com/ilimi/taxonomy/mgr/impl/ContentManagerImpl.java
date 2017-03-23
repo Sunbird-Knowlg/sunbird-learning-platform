@@ -74,8 +74,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
-	
+
+	/** The Default Manifest Version */
 	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
+
+	/**
+	 * The Default 'ContentImage' Object Suffix (Content_Object_Identifier +
+	 * ".img")
+	 */
+	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
@@ -115,11 +122,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Content Object Id is blank.");
-		if (null == uploadedFile) {
+		if (null == uploadedFile)
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 					"Upload file is blank.");
-		}
+		if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+			throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
+					"Invalid Content Identifier. | [Content Identifier does not Exists.]");
 
+		String contentImageId = getContentImageIdentifier(contentId);
 		LOGGER.info("Fetching the Content Node. | [Content ID: " + contentId + "]");
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), contentId);
@@ -211,8 +221,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
-			parameterMap.put(ContentAPIParams.manifestVersion.name(),
-					DEFAULT_CONTENT_MANIFEST_VERSION);
+			parameterMap.put(ContentAPIParams.manifestVersion.name(), DEFAULT_CONTENT_MANIFEST_VERSION);
 
 			LOGGER.info("Calling Content Workflow 'Bundle' Pipeline.");
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
@@ -393,7 +402,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		LOGGER.debug("Got Node: ", node);
-		
+
 		String body = getContentBody(contentId);
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body fetched from content store");
@@ -404,13 +413,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
-//		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
 			publisher = (String) requestMap.get("lastPublishedBy");
 			node.getMetadata().putAll(requestMap);
 		}
-		if(StringUtils.isNotBlank(publisher)){
+		if (StringUtils.isNotBlank(publisher)) {
 			LOGGER.debug("LastPublishedBy: " + publisher);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), publisher);
 		} else {
@@ -422,17 +430,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		try {
 			response = mimeTypeManager.publish(node, true);
-//			String contentType = (String) node.getMetadata().get("contentType");
-//			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
-//				node.getMetadata().put("prevState", prevState);
-//
-//				LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
-//				LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
-//
-//				LOGGER.info("Tagging concepts for content. | [Content ID: " + contentId + "]");
-//				ConceptTagger tagger = new ConceptTagger();
-//				tagger.tagConcepts(taxonomyId, contentId, node);
-//			}
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
@@ -444,72 +441,72 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Returning 'Response' Object.");
 		return response;
 	}
-	
+
 	@Override
 	public Response review(String taxonomyId, String contentId, Request request) {
 		LOGGER.debug("Graph Id: ", taxonomyId);
 		LOGGER.debug("Content Id: ", contentId);
 		LOGGER.debug("Request: ", request);
-		
+
 		LOGGER.info("Validating The Input Parameter.");
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
-		
+
 		Response response = new Response();
 		Response getNodeRes = getDataNode(taxonomyId, contentId);
 		response = copyResponse(getNodeRes);
 		if (checkError(response)) {
 			return response;
 		}
-		
+
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		LOGGER.debug("Node: ", node);
-		
+
 		String body = getContentBody(contentId);
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body Fetched From Content Store.");
-		
+
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (StringUtils.isBlank(mimeType)) {
 			mimeType = "assets";
 		}
 		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
-		
+
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
-		
+
 		response = mimeTypeManager.review(node, false);
-		
+
 		LOGGER.debug("Returning 'Response' Object: ", response);
 		return response;
 	}
-	
+
 	@Override
 	public Response getHierarchy(String graphId, String contentId) {
 		LOGGER.debug("Graph Id: ", graphId);
 		LOGGER.debug("Content Id: ", contentId);
 		Node node = getContentNode(graphId, contentId);
-		
+
 		LOGGER.info("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition);
-		
+
 		Response response = new Response();
-        response.put("content", map);
-        response.setParams(getSucessStatus());
-        return response;
+		response.put("content", map);
+		response.setParams(getSucessStatus());
+		return response;
 	}
-	
+
 	private ResponseParams getSucessStatus() {
-        ResponseParams params = new ResponseParams();
-        params.setErr("0");
-        params.setStatus(StatusType.successful.name());
-        params.setErrmsg("Operation successful");
-        return params;
-    }
-	
+		ResponseParams params = new ResponseParams();
+		params.setErr("0");
+		params.setStatus(StatusType.successful.name());
+		params.setErrmsg("Operation successful");
+		return params;
+	}
+
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
@@ -524,11 +521,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			contentMap.put("children", childList);
 		} else {
-			
+
 		}
 		return contentMap;
 	}
-	
+
 	private Node getContentNode(String graphId, String contentId) {
 		Response responseNode = getDataNode(graphId, contentId);
 		if (checkError(responseNode))
@@ -539,18 +536,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Got Node: ", content);
 		return content;
 	}
-	
+
 	private DefinitionDTO getDefinition(String graphId, String objectType) {
-        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-                GraphDACParams.object_type.name(), objectType);
-        Response response = getResponse(request, LOGGER);
-        if (!checkError(response)) {
-            DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
-            return definition;
-        }
-        return null;
-    }
-	
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+				GraphDACParams.object_type.name(), objectType);
+		Response response = getResponse(request, LOGGER);
+		if (!checkError(response)) {
+			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
+			return definition;
+		}
+		return null;
+	}
+
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -560,7 +557,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		String body = (String) response.get(ContentStoreParams.body.name());
 		return body;
 	}
-	
+
 	/**
 	 * Make a sync request to LearningRequestRouter
 	 * 
@@ -589,4 +586,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 	
+	private String getContentImageIdentifier(String contentId) {
+		String contentImageId = "";
+		if (StringUtils.isNotBlank(contentId)) {
+			contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+			// TODO: Put below the Logic to read contentImageId from Cache (Redis). 
+		}
+		return contentImageId;
+	}
+	
+	private Node getNodeForOperation(String contentId) {
+		Node node = new Node();
+		return node;
+	}
+
 }
