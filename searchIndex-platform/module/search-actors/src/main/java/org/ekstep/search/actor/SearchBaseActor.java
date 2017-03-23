@@ -24,7 +24,11 @@ import akka.actor.UntypedActor;
 public abstract class SearchBaseActor extends UntypedActor {
 
     private static Logger LOGGER = LogManager.getLogger(SearchBaseActor.class.getName());
-
+    private static final String ekstep = "org.ekstep.";
+    private static final String ilimi = "com.ilimi.";
+    private static final String java = "java.";
+    private static final String default_err_msg = "Something went wrong in server while processing the request";
+    
     @CoverageIgnore
     @Override
     public void onReceive(Object message) throws Exception {
@@ -81,7 +85,8 @@ public abstract class SearchBaseActor extends UntypedActor {
         } else {
             params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        params.setErrmsg(e.getClass().getName() + ": " + e.getMessage());
+        LOGGER.error("Exception occured in class :"+ e.getClass().getName() + "with message :" + e.getMessage());
+        params.setErrmsg(setErrMessage(e));
         response.setParams(params);
         setResponseCode(response, e);
         parent.tell(response, getSelf());
@@ -115,5 +120,18 @@ public abstract class SearchBaseActor extends UntypedActor {
         } else {
             res.setResponseCode(ResponseCode.SERVER_ERROR);
         }
+    }
+    
+    protected String setErrMessage(Throwable e){
+    	Class<? extends Throwable> className = e.getClass();
+        if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
+        	LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+        	return e.getMessage();
+        }
+        else if(className.getName().startsWith(java)){
+        	LOGGER.error("Setting default err msg " + className + e.getMessage());
+        	return default_err_msg;
+        }
+        return null;
     }
 }
