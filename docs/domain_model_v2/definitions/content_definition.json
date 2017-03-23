@@ -2057,10 +2057,10 @@
          "low": {"dimensions": [128, 128], "dpi": 240}
         },
         "softConstraints": {
-        	"ageGroup" : 3,
-        	"gradeLevel" : 3,
-          "board": 3,
-          "medium": 3
+        	"medium": 15,
+          "ageGroup" : 1,
+        	"gradeLevel" : 7,
+          "board": 4
         },
         "versionCheckMode": "STRICT",
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
