@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.interpreter.exception.ExecutionErrorCodes;
 
@@ -23,6 +26,11 @@ public abstract class BaseOrchestratorController {
     
     private static final String API_ID_PREFIX = "orchestrator";
     private static final String API_VERSION = "2.0";
+    private static Logger LOGGER = LogManager.getLogger(BaseGraphManager.class.getName());
+    private static final String ekstep = "org.ekstep.";
+    private static final String ilimi = "com.ilimi.";
+    private static final String java = "java.";
+    private static final String default_err_msg = "Something went wrong in server while processing the request";
     
     protected ObjectMapper mapper = new ObjectMapper();
     
@@ -54,7 +62,7 @@ public abstract class BaseOrchestratorController {
     protected Response getErrorResponse(Exception e) {
         Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
-        resStatus.setErrmsg(e.getMessage());
+        resStatus.setErrmsg(setErrMessage(e));
         resStatus.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
@@ -68,7 +76,20 @@ public abstract class BaseOrchestratorController {
         return response;
     }
 
-    protected HttpStatus getHttpStatus(Exception e) {
+    private String setErrMessage(Exception e) {
+    	Class<? extends Throwable> className = e.getClass();
+        if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
+        	LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+        	return e.getMessage();
+        }
+        else if(className.getName().startsWith(java)){
+        	LOGGER.error("Setting default err msg " + className + e.getMessage());
+        	return default_err_msg;
+        }
+		return null;
+	}
+
+	protected HttpStatus getHttpStatus(Exception e) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {
             status = HttpStatus.BAD_REQUEST;
