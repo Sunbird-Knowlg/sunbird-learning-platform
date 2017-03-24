@@ -165,7 +165,7 @@ public class ContentBundle {
 			}
 			return null;
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), e.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), "[Error! something went wrong while bundling ECAR]");
 		}
 	}
 
