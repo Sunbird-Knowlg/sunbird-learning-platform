@@ -56,7 +56,7 @@ public class UsedBySetRelation extends AbstractRelation {
                 }
             }, ec);
             futures.add(startNodeMsg);
-            Future<String> endNodeMsg = getNodeTypeFuture(endNode, new String[]{SystemNodeTypes.SET.name()}, ec);
+            Future<String> endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[]{SystemNodeTypes.SET.name()}, ec);
             futures.add(endNodeMsg);
             Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
             return getMessageMap(aggregate, ec);

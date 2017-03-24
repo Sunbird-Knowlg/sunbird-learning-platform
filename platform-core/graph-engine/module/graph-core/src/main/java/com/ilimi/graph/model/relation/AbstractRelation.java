@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -38,6 +38,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     protected String endNodeId;
     protected Map<String, Object> metadata;
 
+    private static LogHelper LOGGER = LogHelper.getInstance(AbstractRelation.class.getName());
+    
     protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId,
             Map<String, Object> metadata) {
         this(manager, graphId, startNodeId, endNodeId);
@@ -83,7 +85,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                 }
             }, manager.getContext().dispatcher());
         } catch (Exception e) {
-            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), e.getMessage(), e);
+        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_CREATE.name() + "Error occured while creating the relation", e);
+            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Error occured while creating the Relation", e);
         }
     }
 
@@ -106,7 +109,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         return manager.getErrorMessage(res);
                     }
                 } else {
-                    return "Error creating relation: " + getStartNodeId() + " - " + getRelationType() + " - "
+                    return "Error occured while creating the relation: " + getStartNodeId() + " - " + getRelationType() + " - "
                             + getEndNodeId();
                 }
                 return null;
@@ -126,7 +129,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_DELETE.name(), e.getMessage(), e);
+        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_DELETE.name() +  "Error occured while deleting the relation" + e.getMessage(), e);
+            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_DELETE.name(), "Error occured while deleting the relation", e);
         }
     }
 
@@ -149,7 +153,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         return manager.getErrorMessage(res);
                     }
                 } else {
-                    return "Error deleting relation: " + getStartNodeId() + " - " + getRelationType() + " - "
+                    return "Error occured while deleting the relation: " + getStartNodeId() + " - " + getRelationType() + " - "
                             + getEndNodeId();
                 }
                 return null;
@@ -174,7 +178,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                 }
             }, manager.getContext().dispatcher());
         } catch (Exception e) {
-            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
+        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error Validating the relation "+ e.getMessage(), e);
+            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(),"Error Validating the relation", e);
         }
     }
 
@@ -213,7 +218,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
+        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name() + "Error in fetching the relation properties" + e.getMessage(),e);
+            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), "Error in fetching the relation properties", e);
         }
     }
 
@@ -269,7 +275,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             }, manager.getContext().dispatcher());
             return node;
         } catch (Exception e) {
-            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
+        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validating the relation " + e.getMessage(), e);
+            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validating the relation", e);
         }
     }
 
@@ -309,16 +316,17 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             }, manager.getContext().dispatcher());
             return message;
         } catch (Exception e) {
-            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), e.getMessage(), e);
+        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validing the relation" + e.getMessage(), e);
+            throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validing the relation", e);
         }
     }
 
-    protected Future<String> getNodeTypeFuture(Future<Node> node, final String[] nodeTypes, final ExecutionContext ec) {
+    protected Future<String> getNodeTypeFuture(String nodeId, Future<Node> node, final String[] nodeTypes, final ExecutionContext ec) {
         Future<String> endNodeMsg = node.map(new Mapper<Node, String>() {
             @Override
             public String apply(Node node) {
                 if (null == node) {
-                    return "Node not found";
+                    return "Node '" + nodeId + "' not Found";
                 } else {
                     if (Arrays.asList(nodeTypes).contains(node.getNodeType())) {
                         return null;
@@ -384,7 +392,6 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         }, ec);
     }
 
-    @SuppressWarnings("unchecked")
     protected void validateObjectTypes(Future<String> objectType, final Future<String> endNodeObjectType,
             final Request request, final Promise<String> objectTypePromise, final ExecutionContext ec) {
         objectType.onSuccess(new OnSuccess<String>() {

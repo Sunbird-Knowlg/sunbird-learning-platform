@@ -46,9 +46,9 @@ public class PropositionRelation extends AbstractRelation {
             final ExecutionContext ec = manager.getContext().dispatcher();
             Future<Node> startNode = getNode(request, this.startNodeId);
             Future<Node> endNode = getNode(request, this.endNodeId);
-            Future<String> startNodeMsg = getNodeTypeFuture(startNode, new String[]{SystemNodeTypes.DATA_NODE.name(), SystemNodeTypes.SET.name()}, ec);
+            Future<String> startNodeMsg = getNodeTypeFuture( this.startNodeId, startNode, new String[]{SystemNodeTypes.DATA_NODE.name(), SystemNodeTypes.SET.name()}, ec);
             futures.add(startNodeMsg);
-            Future<String> endNodeMsg = getNodeTypeFuture(endNode, new String[]{SystemNodeTypes.DATA_NODE.name(), SystemNodeTypes.SET.name()}, ec);
+            Future<String> endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[]{SystemNodeTypes.DATA_NODE.name(), SystemNodeTypes.SET.name()}, ec);
             futures.add(endNodeMsg);
 
             // check if the relation is valid between object type definitions.

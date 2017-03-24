@@ -85,7 +85,7 @@ public abstract class BaseController {
         	LOGGER.error("Setting default err msg " + className + e.getMessage());
         	return default_err_msg;
         }
-        return null;
+        return "";
     }
     
     protected HttpStatus getHttpStatus(Exception e) {

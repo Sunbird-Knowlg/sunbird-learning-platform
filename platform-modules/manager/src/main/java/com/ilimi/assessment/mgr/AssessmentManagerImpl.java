@@ -126,13 +126,19 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response updateAssessmentItem(String id, String taxonomyId, Request request) {
+		Node item = null;
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(id))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM_ID.name(),
 					"AssessmentItem Id is blank");
-		Node item = (Node) request.get(AssessmentAPIParams.assessment_item.name());
+		try {
+			item = (Node) request.get(AssessmentAPIParams.assessment_item.name());
+		} catch (Exception e) {
+			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_REQUEST_FORMAT.name(),
+					"Invalid request format");
+		}
 		if (null == item)
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
 					"AssessmentItem Object is blank");
@@ -347,11 +353,16 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response createItemSet(String taxonomyId, Request request) {
+		Node node = null;
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
-
-		Node node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
+		try {
+			   node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
+		} catch (Exception e) {
+			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_REQUEST_FORMAT.name(),
+					"Invalid request format");
+		}
 		if (null == node)
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
 					"AssessmentItemSet Object is blank");
@@ -392,13 +403,19 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response updateItemSet(String id, String taxonomyId, Request request) {
+		Node node = null;
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(id))
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM_SET_ID.name(),
 					"AssessmentItemSet Id is blank");
-		Node node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
+		try{
+			node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
+		} catch (Exception e) {
+			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_REQUEST_FORMAT.name(),
+					"Invalid request format");
+		}
 		if (null == node)
 			throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
 					"AssessmentItemSet Object is blank");

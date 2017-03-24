@@ -36,9 +36,9 @@ public class SubsetRelation extends AbstractRelation {
             final ExecutionContext ec = manager.getContext().dispatcher();
             Future<Node> startNode = getNode(request, this.startNodeId);
             Future<Node> endNode = getNode(request, this.endNodeId);
-            Future<String> startNodeMsg = getNodeTypeFuture(startNode, new String[]{SystemNodeTypes.SET.name()}, ec);
+            Future<String> startNodeMsg = getNodeTypeFuture(this.startNodeId, startNode, new String[]{SystemNodeTypes.SET.name()}, ec);
             futures.add(startNodeMsg);
-            Future<String> endNodeMsg = getNodeTypeFuture(endNode, new String[]{SystemNodeTypes.SET.name()}, ec);
+            Future<String> endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[]{SystemNodeTypes.SET.name()}, ec);
             futures.add(endNodeMsg);
             Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
             return getMessageMap(aggregate, ec);
