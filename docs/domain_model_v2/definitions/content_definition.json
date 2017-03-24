@@ -2056,6 +2056,12 @@
          "medium": {"dimensions": [512, 512], "dpi": 240},
          "low": {"dimensions": [128, 128], "dpi": 240}
         },
+        "softConstraints": {
+        	"medium": 15,
+          "ageGroup" : 1,
+        	"gradeLevel" : 7,
+          "board": 4
+        },
         "versionCheckMode": "STRICT",
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",

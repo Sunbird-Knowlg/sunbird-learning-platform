@@ -38,6 +38,7 @@ public class Global extends GlobalSettings {
 				call.onRedeem((r) -> {
 					try {
 						JsonNode requestData = request.body().asJson();
+<<<<<<< HEAD
 						com.ilimi.common.dto.Request req = null;
 						if (requestData.size() > 0) {
 							req = mapper.convertValue(requestData, com.ilimi.common.dto.Request.class);
@@ -51,6 +52,14 @@ public class Global extends GlobalSettings {
 						} else {
 							return;
 						}
+=======
+						com.ilimi.common.dto.Request req = mapper.convertValue(requestData,
+								com.ilimi.common.dto.Request.class);
+
+						byte[] body = JavaResultExtractor.getBody(r, 0l);
+						Response responseObj = mapper.readValue(body, Response.class);
+
+>>>>>>> release-1.9.1.1
 						Map<String, Object> data = new HashMap<String, Object>();
 						data.put("StartTime", startTime);
 						data.put("Request", req);
@@ -65,6 +74,8 @@ public class Global extends GlobalSettings {
 						data.put("X-Device-ID", request.getHeader("X-Device-ID"));
 						data.put("X-Authenticated-Userid", request.getHeader("X-Authenticated-Userid"));
 						TelemetryAccessEventUtil.writeTelemetryEventLog(data);
+						accessLogger.info(request.remoteAddress() + " " + request.host() + " " + request.method() + " "
+								+ request.uri() + " " + r.status() + " " + body.length);
 					} catch (Exception e) {
 						accessLogger.error(e.getMessage());
 					}
