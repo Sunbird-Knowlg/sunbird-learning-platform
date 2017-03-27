@@ -9,6 +9,7 @@ import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
@@ -24,7 +25,7 @@ public class ContentMimeTypeFactoryUtil {
 	static IMimeTypeManager collectionMimeTypeMgr = new CollectionMimeTypeMgrImpl();
 	static IMimeTypeManager assetsMimeTypeMgr = new AssetsMimeTypeMgrImpl();
 	static IMimeTypeManager pluginMimeTypeMgrImpl = new PluginMimeTypeMgrImpl();
-
+    static IMimeTypeManager youtubeMimeTypeMgr = new YoutubeMimeTypeManager();
 	@CoverageIgnore
     public static IMimeTypeManager getImplForService(String mimeType) {
 		LOGGER.debug("MimeType: " + mimeType);
@@ -47,6 +48,9 @@ public class ContentMimeTypeFactoryUtil {
 				break;
 			case "application/vnd.ekstep.plugin-archive":
 				manager = pluginMimeTypeMgrImpl;
+				break;
+			case "video/youtube":
+				manager = youtubeMimeTypeMgr;
 				break;
 			default:
 				manager = assetsMimeTypeMgr;
