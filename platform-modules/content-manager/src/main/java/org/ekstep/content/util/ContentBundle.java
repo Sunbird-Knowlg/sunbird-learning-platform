@@ -85,27 +85,30 @@ public class ContentBundle {
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
+			String mimeType = (String) content.get(ContentWorkflowPipelineParams.mimeType.name());
 			if (children.contains(identifier))
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
 						ContentWorkflowPipelineParams.Parent.name());
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 			for (Map.Entry<String, Object> entry : content.entrySet()) {
-				if (urlFields.contains(entry.getKey())) {
-					Object val = entry.getValue();
-					if (null != val) {
-						if (val instanceof File) {
-							File file = (File) val;
-							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-							entry.setValue(identifier.trim() + File.separator + file.getName());
-						} else if (HttpDownloadUtility.isValidUrl(val)) {
-							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-							String file = FilenameUtils.getName(entry.getValue().toString());
-							if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
-									+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
-								entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
-							} else {
-								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
+				if (!mimeType.equals("video/youtube")) {
+					if (urlFields.contains(entry.getKey())) {
+						Object val = entry.getValue();
+						if (null != val) {
+							if (val instanceof File) {
+								File file = (File) val;
+								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType, mimeType);
+								entry.setValue(identifier.trim() + File.separator + file.getName());
+							} else if (HttpDownloadUtility.isValidUrl(val)) {
+								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType, mimeType);
+								String file = FilenameUtils.getName(entry.getValue().toString());
+								if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
+										+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
+									entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
+								} else {
+									entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
+								}
 							}
 						}
 					}
@@ -165,7 +168,8 @@ public class ContentBundle {
 			}
 			return null;
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), "[Error! something went wrong while bundling ECAR]");
+			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(),
+					"[Error! something went wrong while bundling ECAR]");
 		}
 	}
 
@@ -263,7 +267,7 @@ public class ContentBundle {
 	 *            TODO
 	 */
 	private void addDownloadUrl(Map<Object, List<String>> downloadUrls, Object val, String identifier, String key,
-			EcarPackageType packageType) {
+			EcarPackageType packageType, String mimeType) {
 		List<String> contentPackageKeys = new ArrayList<String>();
 		contentPackageKeys.add(ContentWorkflowPipelineParams.artifactUrl.name());
 		contentPackageKeys.add(ContentWorkflowPipelineParams.downloadUrl.name());

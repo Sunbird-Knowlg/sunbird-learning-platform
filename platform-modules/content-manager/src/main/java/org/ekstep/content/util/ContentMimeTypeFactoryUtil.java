@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.DocumentMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
@@ -26,6 +27,8 @@ public class ContentMimeTypeFactoryUtil {
 	static IMimeTypeManager assetsMimeTypeMgr = new AssetsMimeTypeMgrImpl();
 	static IMimeTypeManager pluginMimeTypeMgrImpl = new PluginMimeTypeMgrImpl();
     static IMimeTypeManager youtubeMimeTypeMgr = new YoutubeMimeTypeManager();
+    static IMimeTypeManager documentMimeTypeMgr = new DocumentMimeTypeManager();
+    
 	@CoverageIgnore
     public static IMimeTypeManager getImplForService(String mimeType) {
 		LOGGER.debug("MimeType: " + mimeType);
@@ -51,6 +54,12 @@ public class ContentMimeTypeFactoryUtil {
 				break;
 			case "video/youtube":
 				manager = youtubeMimeTypeMgr;
+				break;
+			case "application/pdf":
+				manager = documentMimeTypeMgr;
+				break;
+			case "application/msword":
+				manager = documentMimeTypeMgr;
 				break;
 			default:
 				manager = assetsMimeTypeMgr;

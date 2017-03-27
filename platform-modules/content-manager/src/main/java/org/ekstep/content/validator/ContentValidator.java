@@ -329,6 +329,18 @@ public class ContentValidator {
 					isValid = true;
 					break;
 
+				case "video/youtube":
+					isValid = true;
+					break;
+
+				case "application/pdf":
+					isValid = true;
+					break;
+					
+				case "application/msword":
+					isValid = true;
+					break;
+
 				case "application/vnd.ekstep.plugin-archive":
 					isValid = true;
 					break;
