@@ -16,20 +16,15 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.ParagraphMeasures;
 import org.ekstep.language.measures.WordMeasures;
 import org.ekstep.language.measures.entity.ComplexityMeasures;
-import org.ekstep.language.measures.entity.ParagraphComplexity;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.OrthographicVectors;
 import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.DefinitionDTOCache;
-import org.ekstep.language.util.LanguageUtil;
 import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.exception.GraphEngineErrorCodes;
 
 import akka.actor.ActorRef;
 
@@ -53,21 +48,8 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 				OK(LanguageParams.word_complexity.name(), wc.getMeasures(), getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.computeTextComplexity.name(), operation)) {
 				String text = (String) request.get(LanguageParams.text.name());
-				ParagraphComplexity pc = ParagraphMeasures.getTextComplexity(languageId, text);
-			    if( pc != null) {
-					Map<String,Object> props = mapper.convertValue(pc, Map.class);
-				    List<Map<String, String>> suitableGradeSummary = ParagraphMeasures.getSuitableGradeSummaryInfo(languageId, pc.getMeanComplexity()); 
-	                if(suitableGradeSummary != null)
-	                	props.put("gradeLevels", suitableGradeSummary);
-	                Map<String, Integer> themes = ParagraphMeasures.getThemes(LanguageUtil.getTokens(text), languageId);
-	                if(themes!=null && themes.size()>0)
-	                	props.put("themes",themes);			    	
-	                OK(LanguageParams.text_complexity.name(), props, getSender());
-			    } else {
-                    ERROR(LanguageErrorCodes.ERR_UNSUPPORTED_LANGUAGE.name(), "Given language is not supported or invalid text",
-                            ResponseCode.CLIENT_ERROR, GraphDACParams.message.name(), "", getSender());
-			    }
-
+				Map<String,Object> result = ParagraphMeasures.getTextcomplexityWithMetrics(languageId, text, mapper);		    	
+                OK(LanguageParams.text_complexity.name(), result, getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.analyseTexts.name(), operation)) {
 			    Map<String, String> texts = (Map<String, String>) request.get(LanguageParams.texts.name());
 			    Map<String, Object> response = ParagraphMeasures.analyseTexts(languageId, texts);
@@ -92,7 +74,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 				}
 				if (null != texts && !texts.isEmpty()) {
 					for (String text : texts) {
-						map.put(text, ParagraphMeasures.getTextComplexity(languageId, text).measures());
+						map.put(text, ParagraphMeasures.getTextComplexity(languageId, text, null).measures());
 					}
 				}
 				OK(LanguageParams.complexity_measures.name(), map, getSender());

@@ -10,10 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.language.cache.GradeComplexityCache;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -23,6 +26,7 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
+import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.esktep.search.util.CompositeSearchUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -45,8 +49,8 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
  */
 public class ParagraphMeasures {
 
-	/** The search util. */
-	private static CompositeSearchUtil searchUtil = new CompositeSearchUtil();
+	/** The word util. */
+	private static WordUtil wordUtil = new WordUtil();
 
 	static {
 		SyllableMap.loadSyllables("te");
@@ -82,7 +86,12 @@ public class ParagraphMeasures {
 			for (Entry<String, String> textEntry : texts.entrySet()) {
 				String filename = textEntry.getKey();
 				String s = textEntry.getValue();
-				ParagraphComplexity pc = getTextComplexity(languageId, s);
+				List<String> words = LanguageUtil.getTokens(s);
+				List<String> uniqueWords = words.stream().distinct().collect(Collectors.toList());
+				List<Map<String, Object>> wordList = null;
+				if (CollectionUtils.isNotEmpty(uniqueWords))
+					wordList = wordUtil.indexSearch(languageId, uniqueWords);
+				ParagraphComplexity pc = getTextComplexity(languageId, s, wordList);
 				System.out.println(filename + ": " + pc.getMeanOrthoComplexity() + ", " + pc.getMeanPhonicComplexity());
 				Map<String, Object> summary = new HashMap<String, Object>();
 				summary.put("total_orthographic_complexity", pc.getTotalOrthoComplexity());
@@ -205,7 +214,12 @@ public class ParagraphMeasures {
 			for (Entry<String, String> textEntry : texts.entrySet()) {
 				String filename = textEntry.getKey();
 				String s = textEntry.getValue();
-				ParagraphComplexity pc = getTextComplexity(languageId, s);
+				List<String> words = LanguageUtil.getTokens(s);
+				List<String> uniqueWords = words.stream().distinct().collect(Collectors.toList());
+				List<Map<String, Object>> wordList = null;
+				if (CollectionUtils.isNotEmpty(uniqueWords))
+					wordList = wordUtil.indexSearch(languageId, uniqueWords);
+				ParagraphComplexity pc = getTextComplexity(languageId, s, wordList);
 				System.out.println(filename + ": " + pc.getMeanOrthoComplexity() + ", " + pc.getMeanPhonicComplexity());
 				String[] row = new String[headerRows.length];
 				row[0] = filename;
@@ -531,9 +545,12 @@ public class ParagraphMeasures {
 	 *            the language
 	 * @param text
 	 *            the text
+	 * @param wordList
+	 *            the word list
 	 * @return the text complexity
 	 */
-	public static ParagraphComplexity getTextComplexity(String language, String text) {
+	public static ParagraphComplexity getTextComplexity(String language, String text,
+			List<Map<String, Object>> wordList) {
 		if (!SyllableMap.isLanguageEnabled(language))
 			return null;
 		if (StringUtils.isNotBlank(text)) {
@@ -542,6 +559,8 @@ public class ParagraphMeasures {
 			Map<String, Integer> wordFrequency = new HashMap<String, Integer>();
 			Map<String, WordComplexity> wordComplexities = new HashMap<String, WordComplexity>();
 			Map<String, Double> wcMap = new HashMap<String, Double>();
+			Map<String, Map<String, Object>> wordDictonary = wordList.stream()
+					.collect(Collectors.toMap(s -> (String) s.get(LanguageParams.lemma.name()), s -> s));
 			if (null != tokens && !tokens.isEmpty()) {
 				for (String word : tokens) {
 					WordComplexity wc = WordMeasures.getWordComplexity(language, word);
@@ -550,9 +569,14 @@ public class ParagraphMeasures {
 					count += 1;
 					wordFrequency.put(word, count);
 					syllableCountMap.put(word, wc.getCount());
+					if (wordDictonary != null) {
+						Map<String, Object> wordNodeMap = wordDictonary.get(word);
+						Double wordComplexity = null;
+						if (wordNodeMap != null)
+							wordComplexity = (Double) wordNodeMap.get(LanguageParams.word_complexity.name());
+						wcMap.put(word, wordComplexity);
+					}
 				}
-				// WordUtil wordUtil = new WordUtil();
-				// wcMap = wordUtil.getWordComplexity(tokens, language);
 			}
 			ParagraphComplexity pc = new ParagraphComplexity();
 			pc.setText(text);
@@ -589,44 +613,6 @@ public class ParagraphMeasures {
 			return suitableGradeSummary;
 		}
 		return null;
-	}
-
-	/**
-	 * Gets the themes.
-	 *
-	 * @param words
-	 *            the words
-	 * @param language_id
-	 *            the language id
-	 * @return the themes
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Map<String, Integer> getThemes(List<String> words, String language_id) {
-
-		Map<String, Object> searchCriteria = new HashMap<>();
-
-		Map<String, Object> filters = new HashMap<>();
-		filters.put(GraphHeaderParams.graph_id.name(), language_id);
-		filters.put(LanguageParams.lemma.name(), words);
-		filters.put(LanguageParams.status.name(), new ArrayList());
-
-		searchCriteria.put(CompositeSearchParams.filters.name(), filters);
-		searchCriteria.put(CompositeSearchParams.exists.name(), LanguageParams.tags.name());
-
-		List<Map<String, Object>> wordList = searchUtil.searchWords(searchCriteria);
-
-		Map<String, Integer> themes = new HashMap<>();
-
-		if(wordList!=null){
-			for (Map<String, Object> word : wordList) {
-				List<String> tags = (List<String>) word.get(LanguageParams.tags.name());
-				for (String tag : tags) {
-					themes.merge(tag, 1, (v, vv) -> ++v);
-				}
-			}	
-		}
-
-		return themes;
 	}
 
 	/**
@@ -667,6 +653,174 @@ public class ParagraphMeasures {
 		pc.setMeanWordComplexity(formatDoubleValue(wordComplexity / count));
 		double totalComplexity = orthoComplexity + phonicComplexity;
 		pc.setMeanComplexity(formatDoubleValue(totalComplexity / pc.getWordCount()));
+	}
+
+	/**
+	 * get text complexity with metrics .
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param text
+	 *            the text
+	 * @param mapper
+	 *            the mapper
+	 * @return the themes
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static Map<String, Object> getTextcomplexityWithMetrics(String languageId, String text,
+			ObjectMapper mapper) {
+
+		List<String> words = LanguageUtil.getTokens(text);
+		List<String> uniqueWords = words.stream().distinct().collect(Collectors.toList());
+		List<Map<String, Object>> wordList = null;
+		if (CollectionUtils.isNotEmpty(uniqueWords))
+			wordList = wordUtil.indexSearch(languageId, uniqueWords);
+
+		ParagraphComplexity pc = getTextComplexity(languageId, text, wordList);
+
+		Map<String, Object> result = new HashMap<>();
+
+		if (pc != null) {
+			result = mapper.convertValue(pc, Map.class);
+			List<Map<String, String>> suitableGradeSummary = ParagraphMeasures.getSuitableGradeSummaryInfo(languageId,
+					pc.getMeanComplexity());
+			if (suitableGradeSummary != null)
+				result.put("gradeLevels", suitableGradeSummary);
+		}
+
+		if (wordList != null) {
+			result.put("totalWordCount", words.size());
+			result.put("wordCount", uniqueWords.size());
+			List<String> nonThresholdVocWords = new ArrayList<String>();
+			Map<String, List<String>> posWordListMap = new HashMap<>();
+			updateThemes(result, wordList);
+			updatePOSMetrics(result, wordList, mapper);
+			updateThresholdVocabularyMetrics(result, wordList, nonThresholdVocWords);
+			Map<String, Long> wordCountMap = words.stream()
+					.collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+
+		}
+
+		return result;
+	}
+
+	/**
+	 * Update threshold vocabulary metrics.
+	 *
+	 * @param result
+	 *            the result
+	 * @param wordList
+	 *            the word list
+	 * @param nonThresholdVocWords
+	 *            the non threshold voc words
+	 */
+	private static void updateThresholdVocabularyMetrics(Map<String, Object> result, List<Map<String, Object>> wordList,
+			List<String> nonThresholdVocWords) {
+
+		Integer thresholdVocWordCount = 0;
+		Integer nonthresholdVocWordCount = 0;
+
+		if (wordList != null) {
+			for (Map<String, Object> word : wordList) {
+				Object thresholdLevel = word.get(LanguageParams.thresholdLevel.name());
+				Object grade = word.get(LanguageParams.grade.name());
+
+				if (grade != null || thresholdLevel != null) {
+					thresholdVocWordCount++;
+				} else {
+					nonthresholdVocWordCount++;
+					nonThresholdVocWords.add(word.get(LanguageParams.lemma.name()).toString());
+				}
+			}
+
+			result.put("thresholdVocabulary", getThresholdVocMap(thresholdVocWordCount, wordList.size()));
+			result.put("nonThresholdVocabulary", getThresholdVocMap(nonthresholdVocWordCount, wordList.size()));
+		}
+
+	}
+
+	/**
+	 * Gets the threshold voc map.
+	 *
+	 * @param count
+	 *            the count
+	 * @param wordListSize
+	 *            the word list size
+	 * @return the threshold voc map
+	 */
+	private static Map<String, Object> getThresholdVocMap(int count, int wordListSize) {
+		Double thresholdPercentage = 0.0;
+		thresholdPercentage += count;
+		thresholdPercentage = (thresholdPercentage / wordListSize) * 100;
+		Map<String, Object> thresholdVocMap = new HashMap<>();
+		thresholdVocMap.put("wordCount", count);
+		thresholdVocMap.put("%OfWords", thresholdPercentage);
+		return thresholdVocMap;
+	}
+
+	/**
+	 * Update POS metrics.
+	 *
+	 * @param result
+	 *            the result
+	 * @param wordList
+	 *            the word list
+	 * @param mapper
+	 *            the mapper
+	 */
+	private static void updatePOSMetrics(Map<String, Object> result, List<Map<String, Object>> wordList,
+			ObjectMapper mapper) {
+
+		Map<String, Integer> posMetrics = new HashMap<>();
+		Map<String, String> wordPosMap = new HashMap<>();
+
+		if (wordList != null) {
+			for (Map<String, Object> word : wordList) {
+				Object pos = word.get(LanguageParams.pos.name());
+				List<String> posList = wordUtil.getList(mapper, pos, null);
+				if (CollectionUtils.isNotEmpty(posList)) {
+					posMetrics.merge(posList.get(0), 1, (v, vv) -> ++v);
+					wordPosMap.put(word.get(LanguageParams.lemma.name()).toString(), posList.get(0));
+				}
+			}
+		}
+
+		if (posMetrics != null && posMetrics.size() > 0) {
+			Map<String, Double> actualPOSMetric = new HashMap<>();
+			for (Entry<String, Integer> posEntry : posMetrics.entrySet()) {
+				Double percentage = 0.0;
+				percentage += posEntry.getValue();
+				percentage = (percentage / wordList.size()) * 100;
+				actualPOSMetric.put(posEntry.getKey(), percentage);
+			}
+			result.put("partsOfSpeech", actualPOSMetric);
+		}
+	}
+
+	/**
+	 * update the themes.
+	 *
+	 * @param result
+	 *            result
+	 * @param wordList
+	 *            the words
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static void updateThemes(Map<String, Object> result, List<Map<String, Object>> wordList) {
+
+		Map<String, Integer> themes = new HashMap<>();
+
+		if (wordList != null) {
+			for (Map<String, Object> word : wordList) {
+				List<String> tags = (List<String>) word.get(LanguageParams.tags.name());
+				for (String tag : tags) {
+					themes.merge(tag, 1, (v, vv) -> ++v);
+				}
+			}
+		}
+
+		if (themes != null && themes.size() > 0)
+			result.put("themes", themes);
 	}
 
 	/**

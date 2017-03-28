@@ -169,19 +169,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 			
 			if(synsets!=null && synsets.size() >0){
 				word.getMetadata().put(ATTRIB_SYNSET_COUNT, synsets.size());
-				
-				Set<String> posSet = new HashSet<>();
-
-				for(Node synset:synsets) {
-					String pos = (String)synset.getMetadata().get(ATTRIB_POS);
-					if(pos!=null)
-						posSet.add(pos);
-				}
-				
-				if(posSet.size()>0){
-					List<String> posList= new ArrayList<>(posSet);
-					word.getMetadata().put(ATTRIB_POS, posList);
-				}
 			}
 			
 			String lemma = (String) wordMap.get(LanguageParams.lemma.name());
