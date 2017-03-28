@@ -18,6 +18,14 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 
+/**
+ * The Class YoutubeMimeTypeManager is a implementation of IMimeTypeManager
+ * for Mime-Type as <code>video/youtube</code> for Content creation.
+ * 
+ * @author Rashmi
+ * 
+ * @see IMimeTypeManager
+ */
 public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */
@@ -42,6 +50,13 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 		return uploadContentArtifact(node, uploadFile);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model
+	 * .Node)
+	 */
 	@Override
 	public Response publish(Node node, boolean isAsync) {
 
@@ -85,6 +100,13 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#review(com.ilimi.graph.dac.model.
+	 * Node, java.io.File, java.lang.String)
+	 */
 	@Override
 	public Response review(Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
