@@ -23,3 +23,4 @@ node registerScript.js qe/resetAssetLicense.tcl qe/json/register-resetAssetLicen
 node registerScript.js qe/getItemUsageReport.tcl qe/json/register-getItemUsageReport.json update
 node registerScript.js qe/cleanUpContentBody.tcl qe/json/register-cleanUpContentBody.json update
 node registerScript.js qe/setCompatibilityLevel.tcl qe/json/register-setCompatibilityLevel.json update
+node registerScript.js qe/updateSubject.tcl qe/json/register-updateSubject.json update
