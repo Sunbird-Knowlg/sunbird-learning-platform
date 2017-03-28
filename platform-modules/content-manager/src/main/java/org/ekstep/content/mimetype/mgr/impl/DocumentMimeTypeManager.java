@@ -24,9 +24,8 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
 
 /**
- * The Class DocumentMimeTypeManager is a implementation of IMimeTypeManager for Mime-Type as 
- * <code>application/pdf</code>,
- * <code>application/msword</code> 
+ * The Class DocumentMimeTypeManager is a implementation of IMimeTypeManager for
+ * Mime-Type as <code>application/pdf</code>, <code>application/msword</code>
  * for Content creation.
  * 
  * @author Rashmi
@@ -66,41 +65,37 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 */
 	@Override
 	public Response publish(Node node, boolean isAsync) {
-		Response resp = null;
 		Response response = new Response();
 		LOGGER.debug("Node: ", node);
 		if (null != node.getMetadata().get("artifactUrl")) {
-			resp = downloadDocument(node);
-		}
-		if (!(checkError(resp))) {
-			LOGGER.info(
-					"Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + node.getIdentifier());
-			InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
-					node.getIdentifier());
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(ContentAPIParams.node.name(), node);
-			parameterMap.put(ContentAPIParams.ecmlType.name(), false);
-
-			LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
-			parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
-
-			LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
-			response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-			LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
-
-			if (BooleanUtils.isTrue(isAsync)) {
-				AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
-				LOGGER.info(
-						"Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
-
-				response.put(ContentAPIParams.publishStatus.name(),
-						"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
-			} else {
-				LOGGER.info(
-						"Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
-
-				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+			String url = (String) node.getMetadata().get("artifactUrl");
+			if (!StringUtils.startsWith(url, "https://ekstep-public.s3-ap-southeast-1")) {
+				downloadDocument(node);
 			}
+		}
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + node.getIdentifier());
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		Map<String, Object> parameterMap = new HashMap<String, Object>();
+		parameterMap.put(ContentAPIParams.node.name(), node);
+		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
+
+		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
+
+		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
+		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
+		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+
+		if (BooleanUtils.isTrue(isAsync)) {
+			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
+			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+
+			response.put(ContentAPIParams.publishStatus.name(),
+					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+		} else {
+			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+
+			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
 	}
@@ -127,17 +122,16 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	}
 
 	/**
-	 * The method uploadArtifactsToS3 is used to download the file
-	 * from artifactUrl and upload it to s3 and set the s3 url
-	 * as artifactUrl
+	 * The method uploadArtifactsToS3 is used to download the file from
+	 * artifactUrl and upload it to s3 and set the s3 url as artifactUrl
 	 */
 	private Response downloadDocument(Node node) {
 		LOGGER.info("Getting artifactUrl from node");
 		String artifactUrl = (String) node.getMetadata().get("artifactUrl");
-		
+
 		File file = HttpDownloadUtility.downloadFile(artifactUrl, tempFileLocation);
 		LOGGER.info("Downloading artifactUrl file to local system" + file);
-		
+
 		if (null != file) {
 			LOGGER.info("Calling uploadContentArtifact method to upload file to s3");
 			Response response = uploadContentArtifact(node, file);
@@ -150,8 +144,8 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	}
 
 	/**
-	 * The method uploadContentArtifact uploads the content artifacts
-	 * to s3 and set the s3 url as artifactUrl
+	 * The method uploadContentArtifact uploads the content artifacts to s3 and
+	 * set the s3 url as artifactUrl
 	 * 
 	 * @param node
 	 * @param uploadedFile
@@ -192,7 +186,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 			throw e;
 		} catch (Exception e) {
 			throw new ServerException(ContentAPIParams.SERVER_ERROR.name(),
-					"Error! Something went Wrong While Uploading an Asset. | [Node Id: " + node.getIdentifier() + "]");
+					"Error! Something went Wrong While Uploading the file. | [Node Id: " + node.getIdentifier() + "]");
 		}
 		return null;
 	}

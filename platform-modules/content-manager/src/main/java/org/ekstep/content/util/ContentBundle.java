@@ -92,30 +92,30 @@ public class ContentBundle {
 			if (StringUtils.isNotBlank(expiresOn))
 				content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 			for (Map.Entry<String, Object> entry : content.entrySet()) {
-					if (urlFields.contains(entry.getKey())) {
-						Object val = entry.getValue();
-						if (null != val) {
-							if (val instanceof File) {
-								File file = (File) val;
-								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-								entry.setValue(identifier.trim() + File.separator + file.getName());
-							} else if (HttpDownloadUtility.isValidUrl(val)) {
-								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-								String file = FilenameUtils.getName(entry.getValue().toString());
-								if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
-										+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
-									entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
-								} else {
-									if(mimeType.equals("video/youtube")){
-										entry.setValue(entry.getValue());		
-									}else{
-										entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));	
-									}
-									
-								}
+				if (urlFields.contains(entry.getKey())) {
+					Object val = entry.getValue();
+					if (null != val) {
+						if (val instanceof File) {
+							File file = (File) val;
+							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
+							entry.setValue(identifier.trim() + File.separator + file.getName());
+						} else if (HttpDownloadUtility.isValidUrl(val)) {
+							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
+							String file = FilenameUtils.getName(entry.getValue().toString());
+							if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
+									+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
+								entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
+							} else if (mimeType.equals("video/youtube")) {
+								entry.setValue(entry.getValue());
+							} else if (mimeType.equals("application/pdf") || mimeType.equals("application/msword") && StringUtils.equalsIgnoreCase(packageType.name(), EcarPackageType.SPINE.name())) {
+									entry.setValue(entry.getValue());
+							} else {
+								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 							}
+
 						}
-					}	
+					}
+				}
 			}
 
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
