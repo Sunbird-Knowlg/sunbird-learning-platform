@@ -19,8 +19,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 
-import akka.pattern.Patterns;
-
 public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */
