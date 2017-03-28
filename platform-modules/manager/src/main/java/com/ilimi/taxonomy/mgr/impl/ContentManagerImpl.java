@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
-import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
