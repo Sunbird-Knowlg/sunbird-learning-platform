@@ -14,7 +14,6 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
-
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
@@ -24,7 +23,8 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	/* Logger */
 	private static Logger LOGGER = LogManager.getLogger(YoutubeMimeTypeManager.class.getName());
 
-	private static final String youtube_regex = "(http|https):\\/\\/(?:www\\.)?youtu(?:be\\.com\\/watch\\?v=|\\.be\\/)([\\w\\-\\]*)(&(amp;)?‌​[\\w\\?‌​=]*)?";
+	/* The youtubeUrl regex */
+	private static final String youtube_regex = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
 
 	/*
 	 * (non-Javadoc)
@@ -50,6 +50,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 		Boolean value = Pattern.matches(youtube_regex, node.getMetadata().get("artifactUrl").toString());
 		if (!value) {
 			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), " | Invalid YouTube URL |");
+
 		} else {
 			LOGGER.info(
 					"Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
@@ -79,8 +80,8 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 			}
-			return response;
 		}
+		return response;
 
 	}
 
