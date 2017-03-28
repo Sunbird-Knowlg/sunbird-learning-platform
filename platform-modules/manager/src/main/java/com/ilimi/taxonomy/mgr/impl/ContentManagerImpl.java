@@ -597,6 +597,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	
 	private Node getNodeForOperation(String contentId) {
 		Node node = new Node();
+		
 		return node;
 	}
 
