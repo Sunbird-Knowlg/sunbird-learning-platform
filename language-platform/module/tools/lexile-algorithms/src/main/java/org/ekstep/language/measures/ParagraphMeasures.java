@@ -723,10 +723,10 @@ public class ParagraphMeasures {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
 		
 		Map<String, Object> top5 = new HashMap<>();
-		top5.put("noun", wordsGroupedByPos.get("noun"));
-		top5.put("verb", wordsGroupedByPos.get("verb"));
-		top5.put("adjective", wordsGroupedByPos.get("adjective"));
-		top5.put("non-thresholdVocabulary", nonThresholdVocWords);
+		top5.put("noun", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("noun")));
+		top5.put("verb", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("verb")));
+		top5.put("adjective", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("adjective")));
+		top5.put("non-thresholdVocabulary", getTopFiveOf(wordCountSortedMap, nonThresholdVocWords));
 		
 		result.put("top5", top5);
 		result.put("wordCountSortedMap", wordCountSortedMap);
@@ -740,10 +740,12 @@ public class ParagraphMeasures {
 		List<String> words = new ArrayList<String>();
 		for(Entry<String, Long> wordEntry: wordCountSortedMap.entrySet()){
 			String word = wordEntry.getKey();
-			if(matchWords.contains(word))
+			if(matchWords.contains(word)){
 				words.add(word);
-			if(++count==5){
-				break;
+				count++;
+				if(count==5){
+					break;
+				}				
 			}
 		}
 			
