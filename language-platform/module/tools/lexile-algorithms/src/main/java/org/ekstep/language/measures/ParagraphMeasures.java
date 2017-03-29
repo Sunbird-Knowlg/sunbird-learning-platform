@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +18,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.language.cache.GradeComplexityCache;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.ComplexityMeasures;
@@ -28,13 +28,11 @@ import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
-import org.esktep.search.util.CompositeSearchUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 
-import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
@@ -559,8 +557,10 @@ public class ParagraphMeasures {
 			Map<String, Integer> wordFrequency = new HashMap<String, Integer>();
 			Map<String, WordComplexity> wordComplexities = new HashMap<String, WordComplexity>();
 			Map<String, Double> wcMap = new HashMap<String, Double>();
-			Map<String, Map<String, Object>> wordDictonary = wordList.stream()
-					.collect(Collectors.toMap(s -> (String) s.get(LanguageParams.lemma.name()), s -> s));
+			Map<String, Map<String, Object>> wordDictonary = null;
+			if(wordList !=null)
+				wordDictonary = wordList.stream()
+						.collect(Collectors.toMap(s -> (String) s.get(LanguageParams.lemma.name()), s -> s));
 			if (null != tokens && !tokens.isEmpty()) {
 				for (String word : tokens) {
 					WordComplexity wc = WordMeasures.getWordComplexity(language, word);
@@ -692,18 +692,65 @@ public class ParagraphMeasures {
 			result.put("totalWordCount", words.size());
 			result.put("wordCount", uniqueWords.size());
 			List<String> nonThresholdVocWords = new ArrayList<String>();
-			Map<String, List<String>> posWordListMap = new HashMap<>();
+			Map<String, String> wordPosMap = new HashMap<>();
 			updateThemes(result, wordList);
-			updatePOSMetrics(result, wordList, mapper);
+			updatePOSMetrics(result, wordList, mapper, wordPosMap);
 			updateThresholdVocabularyMetrics(result, wordList, nonThresholdVocWords);
-			Map<String, Long> wordCountMap = words.stream()
-					.collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+			updateTopFive(result, words, wordPosMap, nonThresholdVocWords);
 
 		}
 
 		return result;
 	}
 
+	private static void updateTopFive(Map<String, Object> result, List<String> words, Map<String, String> wordPosMap, List<String> nonThresholdVocWords){
+	
+		Map<String, List<String>> wordsGroupedByPos = wordPosMap.entrySet().stream()
+	            .collect( 
+	                    Collectors.groupingBy( 
+	                            Map.Entry::getValue, 
+	                            Collectors.mapping( 
+	                                    Map.Entry::getKey, 
+	                                    Collectors.toList() 
+	                            ) 
+	                    ) 
+	            );
+		Map<String, Long> wordCountMap = words.stream()
+				.collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+		
+		Map<String, Long> wordCountSortedMap = wordCountMap.entrySet().stream()
+                .sorted((e1,e2) -> e1.getValue().compareTo(e2.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
+		
+		Map<String, Object> top5 = new HashMap<>();
+		top5.put("noun", wordsGroupedByPos.get("noun"));
+		top5.put("verb", wordsGroupedByPos.get("verb"));
+		top5.put("adjective", wordsGroupedByPos.get("adjective"));
+		top5.put("non-thresholdVocabulary", nonThresholdVocWords);
+		
+		result.put("top5", top5);
+		result.put("wordCountSortedMap", wordCountSortedMap);
+		result.put("wordsGroupedByPos", wordsGroupedByPos);
+		result.put("nonThresholdVocWords", nonThresholdVocWords);
+		
+	}
+	
+	private static List<String> getTopFiveOf(Map<String, Long> wordCountSortedMap, List<String> matchWords){
+		int count=0;
+		List<String> words = new ArrayList<String>();
+		for(Entry<String, Long> wordEntry: wordCountSortedMap.entrySet()){
+			String word = wordEntry.getKey();
+			if(matchWords.contains(word))
+				words.add(word);
+			if(++count==5){
+				break;
+			}
+		}
+			
+		return words;
+			
+	}
+	
 	/**
 	 * Update threshold vocabulary metrics.
 	 *
@@ -769,10 +816,9 @@ public class ParagraphMeasures {
 	 *            the mapper
 	 */
 	private static void updatePOSMetrics(Map<String, Object> result, List<Map<String, Object>> wordList,
-			ObjectMapper mapper) {
+			ObjectMapper mapper, Map<String, String> wordPosMap) {
 
 		Map<String, Integer> posMetrics = new HashMap<>();
-		Map<String, String> wordPosMap = new HashMap<>();
 
 		if (wordList != null) {
 			for (Map<String, Object> word : wordList) {
@@ -794,6 +840,7 @@ public class ParagraphMeasures {
 				actualPOSMetric.put(posEntry.getKey(), percentage);
 			}
 			result.put("partsOfSpeech", actualPOSMetric);
+			result.put("wordPosMap", wordPosMap);
 		}
 	}
 
