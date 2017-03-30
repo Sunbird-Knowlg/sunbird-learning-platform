@@ -2715,6 +2715,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata.put(LEMMA_PROPERTY, lemma);
+		metadata.put(ATTRIB_STATUS, "Draft");
 		node.setMetadata(metadata);
 		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 		req.put(GraphDACParams.node.name(), node);
