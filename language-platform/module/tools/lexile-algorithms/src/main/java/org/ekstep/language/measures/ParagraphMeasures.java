@@ -558,7 +558,7 @@ public class ParagraphMeasures {
 			Map<String, WordComplexity> wordComplexities = new HashMap<String, WordComplexity>();
 			Map<String, Double> wcMap = new HashMap<String, Double>();
 			Map<String, Map<String, Object>> wordDictonary = null;
-			if(wordList !=null)
+			if (wordList != null)
 				wordDictonary = wordList.stream()
 						.collect(Collectors.toMap(s -> (String) s.get(LanguageParams.lemma.name()), s -> s));
 			if (null != tokens && !tokens.isEmpty()) {
@@ -703,57 +703,71 @@ public class ParagraphMeasures {
 		return result;
 	}
 
-	private static void updateTopFive(Map<String, Object> result, List<String> words, Map<String, String> wordPosMap, List<String> nonThresholdVocWords){
-	
-		Map<String, List<String>> wordsGroupedByPos = wordPosMap.entrySet().stream()
-	            .collect( 
-	                    Collectors.groupingBy( 
-	                            Map.Entry::getValue, 
-	                            Collectors.mapping( 
-	                                    Map.Entry::getKey, 
-	                                    Collectors.toList() 
-	                            ) 
-	                    ) 
-	            );
-		Map<String, Long> wordCountMap = words.stream()
-				.collect(Collectors.groupingBy(e -> e, Collectors.counting()));
-		
+	/**
+	 * Update top five.
+	 *
+	 * @param result
+	 *            the result
+	 * @param words
+	 *            the words
+	 * @param wordPosMap
+	 *            the word pos map
+	 * @param nonThresholdVocWords
+	 *            the non threshold voc words
+	 */
+	private static void updateTopFive(Map<String, Object> result, List<String> words, Map<String, String> wordPosMap,
+			List<String> nonThresholdVocWords) {
+
+		Map<String, List<String>> wordsGroupedByPos = wordPosMap.entrySet().stream().collect(
+				Collectors.groupingBy(Map.Entry::getValue, Collectors.mapping(Map.Entry::getKey, Collectors.toList())));
+
+		Map<String, Long> wordCountMap = words.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+
 		Map<String, Long> wordCountSortedMap = wordCountMap.entrySet().stream()
-                .sorted((e1,e2) -> e1.getValue().compareTo(e2.getValue()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1,e2) -> e1, LinkedHashMap::new));
-		
+				.sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+
 		Map<String, Object> top5 = new HashMap<>();
 		top5.put("noun", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("noun")));
 		top5.put("verb", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("verb")));
 		top5.put("adjective", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("adjective")));
 		top5.put("non-thresholdVocabulary", getTopFiveOf(wordCountSortedMap, nonThresholdVocWords));
-		
+
 		result.put("top5", top5);
 		result.put("wordCountSortedMap", wordCountSortedMap);
 		result.put("wordsGroupedByPos", wordsGroupedByPos);
 		result.put("nonThresholdVocWords", nonThresholdVocWords);
-		
+
 	}
-	
-	private static List<String> getTopFiveOf(Map<String, Long> wordCountSortedMap, List<String> matchWords){
-		int count=0;
+
+	/**
+	 * Gets the top five of.
+	 *
+	 * @param wordCountSortedMap
+	 *            the word count sorted map
+	 * @param matchWords
+	 *            the match words
+	 * @return the top five of
+	 */
+	private static List<String> getTopFiveOf(Map<String, Long> wordCountSortedMap, List<String> matchWords) {
+		int count = 0;
 		List<String> words = new ArrayList<String>();
-		if(matchWords!=null&&matchWords.size()>0)
-			for(Entry<String, Long> wordEntry: wordCountSortedMap.entrySet()){
+		if (matchWords != null && matchWords.size() > 0)
+			for (Entry<String, Long> wordEntry : wordCountSortedMap.entrySet()) {
 				String word = wordEntry.getKey();
-				if(matchWords.contains(word)){
+				if (matchWords.contains(word)) {
 					words.add(word);
 					count++;
-					if(count==5){
+					if (count == 5) {
 						break;
-					}				
+					}
 				}
 			}
-			
+
 		return words;
-			
+
 	}
-	
+
 	/**
 	 * Update threshold vocabulary metrics.
 	 *
@@ -804,7 +818,7 @@ public class ParagraphMeasures {
 		thresholdPercentage = (thresholdPercentage / wordListSize) * 100;
 		Map<String, Object> thresholdVocMap = new HashMap<>();
 		thresholdVocMap.put("wordCount", count);
-		thresholdVocMap.put("%OfWords", thresholdPercentage);
+		thresholdVocMap.put("%OfWords", formatDoubleValue(thresholdPercentage));
 		return thresholdVocMap;
 	}
 
@@ -817,6 +831,8 @@ public class ParagraphMeasures {
 	 *            the word list
 	 * @param mapper
 	 *            the mapper
+	 * @param wordPosMap
+	 *            the word pos map
 	 */
 	private static void updatePOSMetrics(Map<String, Object> result, List<Map<String, Object>> wordList,
 			ObjectMapper mapper, Map<String, String> wordPosMap) {
@@ -840,7 +856,7 @@ public class ParagraphMeasures {
 				Double percentage = 0.0;
 				percentage += posEntry.getValue();
 				percentage = (percentage / wordList.size()) * 100;
-				actualPOSMetric.put(posEntry.getKey(), percentage);
+				actualPOSMetric.put(posEntry.getKey(), formatDoubleValue(percentage));
 			}
 			result.put("partsOfSpeech", actualPOSMetric);
 			result.put("wordPosMap", wordPosMap);
