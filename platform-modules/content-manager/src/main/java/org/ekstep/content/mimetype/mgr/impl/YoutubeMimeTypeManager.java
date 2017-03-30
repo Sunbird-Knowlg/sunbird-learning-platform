@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
@@ -62,10 +63,12 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 		LOGGER.debug("Node: ", node);
 		Response response = new Response();
-		Boolean field = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get("artifactUrl").toString());
-		if (!field) {
-			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), " | Invalid YouTube URL |");
-
+		if(null == node.getMetadata().get("artifactUrl")){
+			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), ContentErrorMessageConstants.MISSING_YOUTUBE_URL, " | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
+		}
+		Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get("artifactUrl").toString());
+		if (!isValidYouTubeUrl) {
+			throw new ClientException(ContentErrorCodes.MISSING_TOUTUBE_URL.name(), ContentErrorMessageConstants.INVALID_YOUTUBE_URL, " | [Invalid or 'null' operation.] Publish Operation Failed");
 		}
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());

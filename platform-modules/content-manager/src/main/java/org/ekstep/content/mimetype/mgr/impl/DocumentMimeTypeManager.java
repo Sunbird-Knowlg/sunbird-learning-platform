@@ -38,8 +38,11 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	private static Logger LOGGER = LogManager.getLogger(DocumentMimeTypeManager.class.getName());
 
 	/** The default temp location */
-	private static final String tempFileLocation = "/data/contentBundle/";
+	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
 
+	/** The default s3 url */
+	private static final String DEF_S3_URL = "https://ekstep-public.s3-ap-south";
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -69,7 +72,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		LOGGER.debug("Node: ", node);
 		if (null != node.getMetadata().get("artifactUrl")) {
 			String url = (String) node.getMetadata().get("artifactUrl");
-			if (!StringUtils.startsWith(url, "https://ekstep-public.s3-ap-southeast-1")) {
+			if (!StringUtils.startsWith(url, DEF_S3_URL)) {
 				downloadDocument(node);
 			}
 		}
@@ -125,22 +128,17 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 * The method uploadArtifactsToS3 is used to download the file from
 	 * artifactUrl and upload it to s3 and set the s3 url as artifactUrl
 	 */
-	private Response downloadDocument(Node node) {
+	private void downloadDocument(Node node) {
 		LOGGER.info("Getting artifactUrl from node");
 		String artifactUrl = (String) node.getMetadata().get("artifactUrl");
 
-		File file = HttpDownloadUtility.downloadFile(artifactUrl, tempFileLocation);
+		File file = HttpDownloadUtility.downloadFile(artifactUrl, TEMP_FILE_LOCATION);
 		LOGGER.info("Downloading artifactUrl file to local system" + file);
 
 		if (null != file) {
 			LOGGER.info("Calling uploadContentArtifact method to upload file to s3");
-			Response response = uploadContentArtifact(node, file);
-			if (!(checkError(response))) {
-				LOGGER.info("returning response" + response);
-				return response;
-			}
+			uploadContentArtifact(node, file);
 		}
-		return null;
 	}
 
 	/**
