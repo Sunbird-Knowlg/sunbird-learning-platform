@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -44,11 +45,13 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 */
 	@Override
 	public Response upload(Node node, File uploadFile, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
-		LOGGER.debug("Uploaded File: " + uploadFile.getName());
-
-		LOGGER.info("Calling Upload Content For Node ID: " + node.getIdentifier());
-		return uploadContentArtifact(node, uploadFile);
+		if(null != node.getMetadata().get("mimeType")){
+			String mimeType = (String) node.getMetadata().get("mimeType");
+			if(StringUtils.equalsIgnoreCase(mimeType, "video/youtube")){
+				throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(), ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | Upload operation not supported");
+			}
+		}
+		return null;
 	}
 
 	/*
@@ -64,11 +67,12 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 		LOGGER.debug("Node: ", node);
 		Response response = new Response();
 		if(null == node.getMetadata().get("artifactUrl")){
-			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), ContentErrorMessageConstants.MISSING_YOUTUBE_URL, " | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
+			throw new ClientException(ContentErrorCodes.MISSING_YOUTUBE_URL.name(), ContentErrorMessageConstants.MISSING_YOUTUBE_URL, " | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
 		}
 		Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get("artifactUrl").toString());
+		LOGGER.info("Validating if the given youtube url is valid or not" + isValidYouTubeUrl);
 		if (!isValidYouTubeUrl) {
-			throw new ClientException(ContentErrorCodes.MISSING_TOUTUBE_URL.name(), ContentErrorMessageConstants.INVALID_YOUTUBE_URL, " | [Invalid or 'null' operation.] Publish Operation Failed");
+			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), ContentErrorMessageConstants.INVALID_YOUTUBE_URL, " | [Invalid or 'null' operation.] Publish Operation Failed");
 		}
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
@@ -86,12 +90,10 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
 			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
-
-			response.put(ContentAPIParams.publishStatus.name(),
-					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
-		} else {
+			response.put(ContentAPIParams.publishStatus.name(), "Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+		}
+		else {
 			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
-
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;

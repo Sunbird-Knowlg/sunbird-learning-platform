@@ -12,11 +12,13 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -42,7 +44,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 
 	/** The default s3 url */
 	private static final String DEF_S3_URL = "https://ekstep-public.s3-ap-south";
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -70,37 +72,22 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	public Response publish(Node node, boolean isAsync) {
 		Response response = new Response();
 		LOGGER.debug("Node: ", node);
-		if (null != node.getMetadata().get("artifactUrl")) {
-			String url = (String) node.getMetadata().get("artifactUrl");
-			if (!StringUtils.startsWith(url, DEF_S3_URL)) {
-				downloadDocument(node);
+		if (null == node.getMetadata().get("artifactUrl")) {
+			throw new ClientException(ContentErrorCodes.MISSING_FILE.name(),
+					ContentErrorMessageConstants.MISSING_DOC_LINK,
+					" | [Invalid or 'missing' doc/pdf.] Publish Operation Failed");
+		}
+		String url = (String) node.getMetadata().get("artifactUrl");
+		if (!StringUtils.startsWith(url, DEF_S3_URL)) {
+			Response resp = downloadDocument(node);
+			if (checkError(resp)) {
+				resp = startPublishOperation(node, isAsync);
+				return resp;
 			}
 		}
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + node.getIdentifier());
-		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
-		Map<String, Object> parameterMap = new HashMap<String, Object>();
-		parameterMap.put(ContentAPIParams.node.name(), node);
-		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
-
-		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
-		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
-
-		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
-		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
-
-		if (BooleanUtils.isTrue(isAsync)) {
-			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
-
-			response.put(ContentAPIParams.publishStatus.name(),
-					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
-		} else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
-
-			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
-		}
+		response = startPublishOperation(node, isAsync);
 		return response;
+
 	}
 
 	/*
@@ -127,18 +114,29 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	/**
 	 * The method uploadArtifactsToS3 is used to download the file from
 	 * artifactUrl and upload it to s3 and set the s3 url as artifactUrl
+	 * 
+	 * @return
+	 * 
+	 * @return
 	 */
-	private void downloadDocument(Node node) {
+	private Response downloadDocument(Node node) {
+		Response response = null;
 		LOGGER.info("Getting artifactUrl from node");
 		String artifactUrl = (String) node.getMetadata().get("artifactUrl");
 
 		File file = HttpDownloadUtility.downloadFile(artifactUrl, TEMP_FILE_LOCATION);
 		LOGGER.info("Downloading artifactUrl file to local system" + file);
 
+		if (null == file) {
+			throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+					ContentErrorMessageConstants.FILE_DOES_NOT_EXIST,
+					" | [Invalid or 'pdf/doc' file.] Publish Operation Failed");
+		}
 		if (null != file) {
 			LOGGER.info("Calling uploadContentArtifact method to upload file to s3");
-			uploadContentArtifact(node, file);
+			response = uploadContentArtifact(node, file);
 		}
+		return response;
 	}
 
 	/**
@@ -153,9 +151,11 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		try {
 			Response response = new Response();
 			LOGGER.info("Verifying the MimeTypes.");
+
 			Tika tika = new Tika(new MimeTypes());
 			String mimeType = tika.detect(uploadedFile);
 			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+
 			LOGGER.debug("Uploaded  MimeType: " + mimeType);
 			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType))
 				LOGGER.warn("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
@@ -187,5 +187,43 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 					"Error! Something went Wrong While Uploading the file. | [Node Id: " + node.getIdentifier() + "]");
 		}
 		return null;
+	}
+
+	private Response startPublishOperation(Node node, boolean isAsync) {
+		Response response = null;
+		try {
+			LOGGER.info(
+					"Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + node.getIdentifier());
+			InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
+					node.getIdentifier());
+			Map<String, Object> parameterMap = new HashMap<String, Object>();
+			parameterMap.put(ContentAPIParams.node.name(), node);
+			parameterMap.put(ContentAPIParams.ecmlType.name(), false);
+
+			LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+			parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
+
+			LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
+			response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
+			LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+
+			if (BooleanUtils.isTrue(isAsync)) {
+				AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
+				LOGGER.info(
+						"Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+
+				response.put(ContentAPIParams.publishStatus.name(),
+						"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+			} else {
+				LOGGER.info(
+						"Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+
+				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
+			}
+		} catch (Exception e) {
+			throw new ServerException(ContentAPIParams.SERVER_ERROR.name(),
+					"Error! Something went Wrong While Uploading the file. | [Node Id: " + node.getIdentifier() + "]");
+		}
+		return response;
 	}
 }
