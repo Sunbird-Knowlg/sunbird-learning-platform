@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
@@ -45,9 +46,9 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 */
 	@Override
 	public Response upload(Node node, File uploadFile, boolean isAsync) {
-		if(null != node.getMetadata().get("mimeType")){
-			String mimeType = (String) node.getMetadata().get("mimeType");
-			if(StringUtils.equalsIgnoreCase(mimeType, "video/youtube")){
+		if(null != node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())){
+			String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+			if(StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())){
 				throw new ClientException(ContentErrorCodes.UPLOAD_DENIED.name(), ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | Upload operation not supported");
 			}
 		}
@@ -66,10 +67,10 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 		LOGGER.debug("Node: ", node);
 		Response response = new Response();
-		if(null == node.getMetadata().get("artifactUrl")){
+		if(null == node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())){
 			throw new ClientException(ContentErrorCodes.MISSING_YOUTUBE_URL.name(), ContentErrorMessageConstants.MISSING_YOUTUBE_URL, " | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
 		}
-		Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get("artifactUrl").toString());
+		Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()).toString());
 		LOGGER.info("Validating if the given youtube url is valid or not" + isValidYouTubeUrl);
 		if (!isValidYouTubeUrl) {
 			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), ContentErrorMessageConstants.INVALID_YOUTUBE_URL, " | [Invalid or 'null' operation.] Publish Operation Failed");

@@ -105,7 +105,7 @@ public class ContentBundle {
 							if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 									+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
 								entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
-							} else if (mimeType.equals("video/youtube")) {
+							} else if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())) {
 								entry.setValue(entry.getValue());
 							} else {
 								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
