@@ -1365,8 +1365,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 										"Word should not contain any special characters ", ResponseCode.CLIENT_ERROR);
 							} else {
 								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
-										"Word cannot be in a different language",
-										ResponseCode.CLIENT_ERROR);
+										"Word cannot be in a different language", ResponseCode.CLIENT_ERROR);
 							}
 						}
 
@@ -1488,7 +1487,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 		}
 	}
-
 
 	/**
 	 * Gets the data node from Graph.
@@ -1629,6 +1627,61 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	}
 
 	/**
+	 * correct the synset relation synset's relation other than synonym should
+	 * be another synset, if it is word, word's primary meaning will be its
+	 * relation
+	 *
+	 * @param synset
+	 *            the synset
+	 * @param def
+	 *            the def
+	 * @return the synset map
+	 */
+	@CoverageIgnore
+	private Node correctSynset(String languageId, Node synset) throws Exception {
+
+		boolean update = false;
+		if (null != synset.getOutRelations() && !synset.getOutRelations().isEmpty()) {
+			List<Relation> relations = synset.getOutRelations();
+			for (Relation rel : relations) {
+				if (StringUtils.equalsIgnoreCase(LanguageParams.Word.name(), rel.getEndNodeObjectType())
+						&& !StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.name())) {
+					update = true;
+					String wordId = rel.getEndNodeId();
+					try {
+						Node wordNode = getDataNode(languageId, wordId, LanguageParams.Word.name());
+						String primaryMeaningId = (String) wordNode.getMetadata()
+								.get(LanguageParams.primaryMeaningId.name());
+						String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
+						if (primaryMeaningId == null) {
+							primaryMeaningId = createSynset(languageId, lemma, new ArrayList<>(), null);
+							setPrimaryMeaningId(languageId, wordId, primaryMeaningId);
+						}
+						addRelation(languageId, LanguageParams.Synset.name(), primaryMeaningId,
+								RelationTypes.SYNONYM.name(), wordId);
+
+						deleteRelation(languageId, LanguageParams.Synset.name(), synset.getIdentifier(),
+								rel.getRelationType(), wordId);
+
+						addRelation(languageId, LanguageParams.Synset.name(), synset.getIdentifier(),
+								rel.getRelationType(), primaryMeaningId);
+
+					} catch (Exception e) {
+						LOGGER.error("error while correcting synset for synset id-" + synset.getIdentifier() + " ,"
+								+ e.getMessage());
+						throw e;
+					}
+				}
+			}
+
+			if (update)
+				return getDataNode(languageId, synset.getIdentifier(), LanguageParams.Synset.name());
+		}
+
+		return synset;
+	}
+
+	/**
 	 * Gets the other meaning map from the synset metadata.
 	 *
 	 * @param synset
@@ -1668,9 +1721,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, languageId, defintion, null);
 			String wordIdentifier = (String) map.get(LanguageParams.identifier.name());
 			List<Node> synsets = wordUtil.getSynsets(node);
-			
-			String primaryMeaningId =wordUtil.updatePrimaryMeaning(languageId, map, synsets);
-			
+
+			String primaryMeaningId = wordUtil.updatePrimaryMeaning(languageId, map, synsets);
+
 			if (primaryMeaningId != null) {
 				Map<String, Object> primaryMeaningMap = getMeaningObjectMap(languageId, primaryMeaningId,
 						wordIdentifier);
@@ -2109,6 +2162,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	private Map<String, Object> getMeaningObjectMap(String languageId, String meaningId, String wordId) {
 		try {
 			Node synsetNode = getDataNode(languageId, meaningId, "Synset");
+			// Added for correcting synset relationship between from synset and
+			// words to synset and synset
+			synsetNode = correctSynset(languageId, synsetNode);
 			DefinitionDTO synsetDefintion = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
 			Map<String, Object> synsetMap = getSynsetMap(synsetNode, synsetDefintion);
 
@@ -2211,7 +2267,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (primaryMeaning.get(LanguageParams.synonyms.name()) != null) {
 					List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
 							.get(LanguageParams.synonyms.name());
-					if(!synonyms.isEmpty()){
+					if (!synonyms.isEmpty()) {
 						List<Map<String, Object>> synonymCopy = new ArrayList<>(synonyms);
 						primaryMeaningSynonym = new HashMap<>();
 						primaryMeaningSynonym.put(LanguageParams.synonyms.name(), synonymCopy);
@@ -2764,8 +2820,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				int max = Integer.parseInt(endUnicode, 16);
 				if (hexVal >= min && hexVal <= max) {
 				} else {
-					errorMessages.add("Word cannot be in a different language for word in "
-							+ relationName + " List");
+					errorMessages.add("Word cannot be in a different language for word in " + relationName + " List");
 					return false;
 				}
 			}
