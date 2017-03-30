@@ -687,17 +687,17 @@ public class ParagraphMeasures {
 			if (suitableGradeSummary != null)
 				result.put("gradeLevels", suitableGradeSummary);
 		}
-
+		
+		result.put("totalWordCount", words.size());
+		result.put("wordCount", uniqueWords.size());
+		
 		if (wordList != null) {
-			result.put("totalWordCount", words.size());
-			result.put("wordCount", uniqueWords.size());
 			List<String> nonThresholdVocWords = new ArrayList<String>();
 			Map<String, String> wordPosMap = new HashMap<>();
 			updateThemes(result, wordList);
 			updatePOSMetrics(result, wordList, mapper, wordPosMap);
 			updateThresholdVocabularyMetrics(result, wordList, nonThresholdVocWords);
 			updateTopFive(result, words, wordPosMap, nonThresholdVocWords);
-
 		}
 
 		return result;
@@ -728,16 +728,14 @@ public class ParagraphMeasures {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 
 		Map<String, Object> top5 = new HashMap<>();
-		top5.put("noun", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("noun")));
-		top5.put("verb", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("verb")));
-		top5.put("adjective", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("adjective")));
+		
+		for(Entry<String, List<String>> posEntry : wordsGroupedByPos.entrySet()){
+			//top5.put("noun", getTopFiveOf(wordCountSortedMap, wordsGroupedByPos.get("noun")));
+			top5.put(posEntry.getKey(), getTopFiveOf(wordCountSortedMap, posEntry.getValue()));
+		}
 		top5.put("non-thresholdVocabulary", getTopFiveOf(wordCountSortedMap, nonThresholdVocWords));
 
 		result.put("top5", top5);
-		result.put("wordCountSortedMap", wordCountSortedMap);
-		result.put("wordsGroupedByPos", wordsGroupedByPos);
-		result.put("nonThresholdVocWords", nonThresholdVocWords);
-
 	}
 
 	/**
@@ -859,8 +857,6 @@ public class ParagraphMeasures {
 				actualPOSMetric.put(posEntry.getKey(), formatDoubleValue(percentage));
 			}
 			result.put("partsOfSpeech", actualPOSMetric);
-			result.put("wordPosMap", wordPosMap);
-			result.put("wordList", wordList);
 		}
 	}
 

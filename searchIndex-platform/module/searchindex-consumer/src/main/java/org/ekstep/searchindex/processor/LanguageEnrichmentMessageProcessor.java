@@ -325,6 +325,72 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							node.getMetadata().put("themes", themes);
 						}
 					}
+					
+					LOGGER.info("checking if text complexity map contains partsOfSpeech");
+					if (text_complexity.containsKey("partsOfSpeech")) {
+
+						LOGGER.info("checking if complexity_map contains partsOfSpeech");
+						if (null == text_complexity.get("partsOfSpeech")) {
+							node.getMetadata().put("partsOfSpeech", null);
+						} else {
+							LOGGER.info("extracting partsOfSpeech from complexity map");
+							Object partsOfSpeech = text_complexity.get("partsOfSpeech");
+							node.getMetadata().put("partsOfSpeech", partsOfSpeech);
+						}
+					}
+					
+					LOGGER.info("checking if text complexity map contains thresholdVocabulary");
+					if (text_complexity.containsKey("thresholdVocabulary")) {
+
+						LOGGER.info("checking if complexity_map contains thresholdVocabulary");
+						if (null == text_complexity.get("thresholdVocabulary")) {
+							node.getMetadata().put("thresholdVocabulary", null);
+						} else {
+							LOGGER.info("extracting top5 from complexity thresholdVocabulary");
+							Object thresholdVocabulary = text_complexity.get("thresholdVocabulary");
+							node.getMetadata().put("thresholdVocabulary", thresholdVocabulary);
+						}
+					}
+					
+					LOGGER.info("checking if text complexity map contains nonThresholdVocabulary");
+					if (text_complexity.containsKey("nonThresholdVocabulary")) {
+
+						LOGGER.info("checking if complexity_map contains nonThresholdVocabulary");
+						if (null == text_complexity.get("nonThresholdVocabulary")) {
+							node.getMetadata().put("nonThresholdVocabulary", null);
+						} else {
+							LOGGER.info("extracting top5 from complexity nonThresholdVocabulary");
+							Object nonThresholdVocabulary = text_complexity.get("nonThresholdVocabulary");
+							node.getMetadata().put("nonThresholdVocabulary", nonThresholdVocabulary);
+						}
+					}
+					
+					LOGGER.info("checking if text complexity map contains top5");
+					if (text_complexity.containsKey("top5")) {
+
+						LOGGER.info("checking if complexity_map contains top5");
+						if (null == text_complexity.get("top5")) {
+							node.getMetadata().put("top5", null);
+						} else {
+							LOGGER.info("extracting top5 from complexity map");
+							Object top5 = text_complexity.get("top5");
+							node.getMetadata().put("top5", top5);
+						}
+					}
+					
+					LOGGER.info("checking if text complexity map contains totalWordCount");
+					if (text_complexity.containsKey("totalWordCount")) {
+
+						LOGGER.info("Checking if totalWordCount is null");
+						if (null == text_complexity.get("totalWordCount")) {
+							node.getMetadata().put("totalWordCount", null);
+						} else {
+							Object totalWordCount = text_complexity.get("totalWordCount");
+							LOGGER.info("setting node metadata with integer value" + totalWordCount);
+							node.getMetadata().put("totalWordCount", totalWordCount);
+						}
+					}
+					
 					LOGGER.info("updating node with extracted language metadata" + node);
 					node.setOutRelations(null);
 					node.setInRelations(null);
