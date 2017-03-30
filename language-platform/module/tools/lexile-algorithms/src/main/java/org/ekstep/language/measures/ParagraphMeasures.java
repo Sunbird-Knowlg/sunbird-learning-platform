@@ -738,16 +738,17 @@ public class ParagraphMeasures {
 	private static List<String> getTopFiveOf(Map<String, Long> wordCountSortedMap, List<String> matchWords){
 		int count=0;
 		List<String> words = new ArrayList<String>();
-		for(Entry<String, Long> wordEntry: wordCountSortedMap.entrySet()){
-			String word = wordEntry.getKey();
-			if(matchWords.contains(word)){
-				words.add(word);
-				count++;
-				if(count==5){
-					break;
-				}				
+		if(matchWords!=null&&matchWords.size()>0)
+			for(Entry<String, Long> wordEntry: wordCountSortedMap.entrySet()){
+				String word = wordEntry.getKey();
+				if(matchWords.contains(word)){
+					words.add(word);
+					count++;
+					if(count==5){
+						break;
+					}				
+				}
 			}
-		}
 			
 		return words;
 			
@@ -843,6 +844,7 @@ public class ParagraphMeasures {
 			}
 			result.put("partsOfSpeech", actualPOSMetric);
 			result.put("wordPosMap", wordPosMap);
+			result.put("wordList", wordList);
 		}
 	}
 
