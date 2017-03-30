@@ -388,7 +388,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
 		Response response = new Response();
-		
+
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Got Node: ", node);
 
@@ -444,7 +444,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
 		Response response = new Response();
-		
+
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Node: ", node);
 
@@ -603,17 +603,23 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
 
+			// Content Image Node is not Available so assigning the original Content Node as node
 			node = (Node) response.get(GraphDACParams.node.name());
-			if (null == node)
-				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-						"Error! Invalid Content Identifier | [Content Id: " + contentId + "]");
 
 			LOGGER.debug("Fetched Content Node: ", node);
 			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
 					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 				node = createContentImageNode(taxonomyId, contentImageId, node);
-		}
+		} else
+			// Content Image Node is Available so assigning it as node
+			node = (Node) response.get(GraphDACParams.node.name());
+
+		if (null == node)
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					"Error! Invalid Content Identifier | [Content Id: " + contentId + "]");
+		
+		LOGGER.debug("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
 	}
 
