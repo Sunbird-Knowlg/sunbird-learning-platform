@@ -19,8 +19,8 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 
 /**
- * The Class YoutubeMimeTypeManager is a implementation of IMimeTypeManager
- * for Mime-Type as <code>video/youtube</code> for Content creation.
+ * The Class YoutubeMimeTypeManager is a implementation of IMimeTypeManager for
+ * Mime-Type as <code>video/youtube</code> for Content creation.
  * 
  * @author Rashmi
  * 
@@ -62,39 +62,34 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 		LOGGER.debug("Node: ", node);
 		Response response = new Response();
-		Boolean value = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get("artifactUrl").toString());
-		if (!value) {
+		Boolean field = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get("artifactUrl").toString());
+		if (!field) {
 			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), " | Invalid YouTube URL |");
 
+		}
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		Map<String, Object> parameterMap = new HashMap<String, Object>();
+		parameterMap.put(ContentAPIParams.node.name(), node);
+		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
+
+		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
+
+		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
+		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
+		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+
+		if (BooleanUtils.isTrue(isAsync)) {
+			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
+			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+
+			response.put(ContentAPIParams.publishStatus.name(),
+					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
 		} else {
-			LOGGER.info(
-					"Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
-			InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
-					node.getIdentifier());
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(ContentAPIParams.node.name(), node);
-			parameterMap.put(ContentAPIParams.ecmlType.name(), false);
+			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
 
-			LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
-			parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
-
-			LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
-			response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-			LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
-
-			if (BooleanUtils.isTrue(isAsync)) {
-				AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
-				LOGGER.info(
-						"Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
-
-				response.put(ContentAPIParams.publishStatus.name(),
-						"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
-			} else {
-				LOGGER.info(
-						"Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
-
-				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
-			}
+			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
 
