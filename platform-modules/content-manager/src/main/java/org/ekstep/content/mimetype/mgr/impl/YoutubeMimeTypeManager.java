@@ -34,9 +34,6 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	/* Logger */
 	private static Logger LOGGER = LogManager.getLogger(YoutubeMimeTypeManager.class.getName());
 
-	/* The youtubeUrl regex */
-	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -67,14 +64,6 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 		LOGGER.debug("Node: ", node);
 		Response response = new Response();
-		if(null == node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())){
-			throw new ClientException(ContentErrorCodes.MISSING_YOUTUBE_URL.name(), ContentErrorMessageConstants.MISSING_YOUTUBE_URL, " | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
-		}
-		Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()).toString());
-		LOGGER.info("Validating if the given youtube url is valid or not" + isValidYouTubeUrl);
-		if (!isValidYouTubeUrl) {
-			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), ContentErrorMessageConstants.INVALID_YOUTUBE_URL, " | [Invalid or 'null' operation.] Publish Operation Failed");
-		}
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
 		Map<String, Object> parameterMap = new HashMap<String, Object>();

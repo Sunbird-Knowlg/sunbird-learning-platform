@@ -3,6 +3,7 @@ package org.ekstep.content.validator;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -15,6 +16,7 @@ import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.PropertiesUtil;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.exception.ClientException;
@@ -33,6 +35,9 @@ public class ContentValidator {
 	/** The Constant DEF_CONTENT_PACKAGE_MIME_TYPE. */
 	private static final String DEF_CONTENT_PACKAGE_MIME_TYPE = "application/zip";
 
+	/** The youtubeUrl regex */
+	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
+	
 	/**
 	 * validates the Uploaded ContentPackage File.
 	 *
@@ -330,15 +335,40 @@ public class ContentValidator {
 					break;
 
 				case "video/youtube":
-					isValid = true;
+					if(StringUtils.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))){
+						Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()).toString());
+						LOGGER.info("Validating if the given youtube url is valid or not" + isValidYouTubeUrl);
+						if (!isValidYouTubeUrl)
+							throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), ContentErrorMessageConstants.INVALID_YOUTUBE_URL, " | [Invalid or 'null' operation.] Publish Operation Failed");
+						else
+							isValid = true;
+					}else{
+						throw new ClientException(ContentErrorCodes.MISSING_YOUTUBE_URL.name(), ContentErrorMessageConstants.MISSING_YOUTUBE_URL, " | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
+					}
 					break;
 
 				case "application/pdf":
-					isValid = true;
+					if(StringUtils.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))){
+						isValid = true;
+					}
+					else{
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " |[Invalid or 'null' operation.] Publish Operation Failed '"
+										+ name + "']");
+					}
 					break;
 					
 				case "application/msword":
-					isValid = true;
+					if(StringUtils.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))){
+						isValid = true;
+					}
+					else{
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " |[Invalid or 'null' operation.] Publish Operation Failed '"
+										+ name + "']");
+					}
 					break;
 
 				case "application/vnd.ekstep.plugin-archive":
@@ -348,7 +378,6 @@ public class ContentValidator {
 				case "assets":
 					isValid = true;
 					break;
-
 				default:
 					LOGGER.info("Deafult Case for Mime-Type: " + mimeType);
 					if (AssetsMimeTypeMap.isAllowedMimeType(mimeType) && StringUtils.isNotBlank(

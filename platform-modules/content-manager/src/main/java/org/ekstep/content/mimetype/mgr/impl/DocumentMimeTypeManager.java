@@ -3,8 +3,11 @@ package org.ekstep.content.mimetype.mgr.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -38,6 +41,22 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(DocumentMimeTypeManager.class.getName());
+
+	private static Set<String> allowed_file_extensions = new HashSet<String>();
+
+	static {
+		allowed_file_extensions.add(".doc");
+		allowed_file_extensions.add(".docx");
+		allowed_file_extensions.add(".ppt");
+		allowed_file_extensions.add(".pptx");
+		allowed_file_extensions.add(".key");
+		allowed_file_extensions.add(".odp");
+		allowed_file_extensions.add(".pps");
+		allowed_file_extensions.add(".odt");
+		allowed_file_extensions.add(".wpd");
+		allowed_file_extensions.add(".wps");
+		allowed_file_extensions.add(".wks");
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -97,13 +116,12 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		}
 		return response;
 	}
-	
+
 	/**
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * com.ilimi.taxonomy.mgr.IMimeTypeManager#review(com.ilimi.graph.dac.model.
-	 * Node, java.io.File, java.lang.String)
+	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#review(com.ilimi.graph.dac.model.
+	 *      Node, java.io.File, java.lang.String)
 	 */
 	@Override
 	public Response review(Node node, boolean isAsync) {
@@ -137,10 +155,23 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 
 			LOGGER.debug("Uploaded  MimeType: " + mimeType);
-			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType))
-				LOGGER.warn("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
-						+ mimeType + " | Node (Object) MimeType: " + nodeMimeType + "]");
+			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType)) {
+				if (StringUtils.containsIgnoreCase(nodeMimeType, ContentWorkflowPipelineParams.pdf.name())
+						&& (!StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name()))) {
+					throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+							ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
+				}
+			}
+			LOGGER.warn("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: " + mimeType
+					+ " | Node (Object) MimeType: " + nodeMimeType + "]");
 
+			String file_extension = FilenameUtils.getExtension(uploadedFile.getName());
+			if (!allowed_file_extensions.contains(file_extension)) {
+				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
+								+ " | Uploaded file should be among the Allowed_file_extensions for mimeType pdf and doc"
+								+ allowed_file_extensions);
+			}
 			LOGGER.info("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadedFile, node.getIdentifier());
 
