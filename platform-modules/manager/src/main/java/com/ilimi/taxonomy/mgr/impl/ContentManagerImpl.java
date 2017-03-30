@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
-import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
@@ -41,12 +40,14 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -83,6 +84,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * ".img")
 	 */
 	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
+
+	/**
+	 * Content Image Object Type
+	 */
+	private static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
 
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
@@ -129,17 +135,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
 					"Invalid Content Identifier. | [Content Identifier does not Exists.]");
 
-		String contentImageId = getContentImageIdentifier(contentId);
-		LOGGER.info("Fetching the Content Node. | [Content ID: " + contentId + "]");
-		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-				GraphDACParams.node_id.name(), contentId);
-		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request, LOGGER);
-		Response response = copyResponse(getNodeRes);
-		if (checkError(response)) {
-			return response;
-		}
-		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Node: ", node);
 
 		String mimeType = (String) node.getMetadata().get("mimeType");
@@ -282,12 +278,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
-		Response responseNode = getDataNode(taxonomyId, contentId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-					"Content not found with id: " + contentId);
 
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
+		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Got Node: ", node);
 
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
@@ -313,7 +305,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					"Content optimization is in progress. Please try after the current optimization is complete");
 
 		node.getMetadata().put(ContentAPIParams.optStatus.name(), ContentAPIParams.Processing.name());
-		updateNode(node);
+		updateDataNode(node);
 		Optimizr optimizr = new Optimizr();
 		try {
 			LOGGER.info("Invoking the Optimizer For Content Id: " + contentId);
@@ -329,14 +321,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 			LOGGER.info("Updating the Optimization Status. | [Content Id: " + contentId + "]");
 			node.getMetadata().put(ContentAPIParams.optStatus.name(), "Complete");
-			updateNode(node);
+			updateDataNode(node);
 			LOGGER.info("Node Updated. | [Content Id: " + contentId + "]");
 
 			LOGGER.info("Directory Cleanup. | [Content Id: " + contentId + "]");
 			FileUtils.deleteDirectory(minEcar.getParentFile());
 		} catch (Exception e) {
 			node.getMetadata().put(ContentAPIParams.optStatus.name(), "Error");
-			updateNode(node);
+			updateDataNode(node);
 			response = ERROR(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		}
 		return response;
@@ -365,7 +357,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 *            the node
 	 * @return the response
 	 */
-	protected Response updateNode(Node node) {
+	private Response updateDataNode(Node node) {
 		LOGGER.debug("[updateNode] | Node: ", node);
 
 		LOGGER.info("Getting Update Node Request For Node ID: " + node.getIdentifier());
@@ -390,17 +382,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Graph ID: " + taxonomyId);
 		LOGGER.debug("Content ID: " + contentId);
 
-		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
-		Response responseNode = getDataNode(taxonomyId, contentId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-					"Content not found with id: " + contentId);
 
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
+		Response response = new Response();
+		
+		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Got Node: ", node);
 
 		String body = getContentBody(contentId);
@@ -455,13 +444,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
 		Response response = new Response();
-		Response getNodeRes = getDataNode(taxonomyId, contentId);
-		response = copyResponse(getNodeRes);
-		if (checkError(response)) {
-			return response;
-		}
-
-		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+		
+		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Node: ", node);
 
 		String body = getContentBody(contentId);
@@ -585,20 +569,85 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
-	
+
 	private String getContentImageIdentifier(String contentId) {
 		String contentImageId = "";
 		if (StringUtils.isNotBlank(contentId)) {
 			contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-			// TODO: Put below the Logic to read contentImageId from Cache (Redis). 
+			// TODO: Put below the Logic to read contentImageId from Cache
+			// (Redis).
 		}
 		return contentImageId;
 	}
-	
-	private Node getNodeForOperation(String contentId) {
+
+	private Node getNodeForOperation(String taxonomyId, String contentId) {
+		LOGGER.debug("Taxonomy Id: " + taxonomyId);
+		LOGGER.debug("Content Id: " + contentId);
+
+		LOGGER.info("Fetching Node for Operation for Content Id: " + contentId);
 		Node node = new Node();
-		
+
+		String contentImageId = getContentImageIdentifier(contentId);
+		LOGGER.info("Fetching the Content Node. | [Content ID: " + contentId + "]");
+
+		LOGGER.debug("Fetching the Content Image Node for Content Id: " + contentId);
+		Response response = getDataNode(taxonomyId, contentImageId);
+		if (checkError(response)) {
+			LOGGER.debug("Unable to Fetch Content Image Node for Content Id: " + contentId);
+
+			LOGGER.debug("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
+			response = getDataNode(taxonomyId, contentId);
+
+			LOGGER.debug("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			if (checkError(response))
+				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+
+			node = (Node) response.get(GraphDACParams.node.name());
+			if (null == node)
+				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+						"Error! Invalid Content Identifier | [Content Id: " + contentId + "]");
+
+			LOGGER.debug("Fetched Content Node: ", node);
+			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
+					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
+				node = createContentImageNode(taxonomyId, contentImageId, node);
+		}
 		return node;
+	}
+
+	private Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
+		LOGGER.debug("Taxonomy Id: " + taxonomyId);
+		LOGGER.debug("Content Id: " + contentImageId);
+		LOGGER.debug("Node: ", node);
+
+		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
+		imageNode.setGraphId(taxonomyId);
+		imageNode.setIdentifier(contentImageId);
+		imageNode.setMetadata(node.getMetadata());
+		imageNode.setInRelations(node.getInRelations());
+		imageNode.setOutRelations(node.getOutRelations());
+		imageNode.setTags(node.getTags());
+		Response response = createDataNode(imageNode);
+		if (checkError(response))
+			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
+					"Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
+							+ "]");
+		return imageNode;
+	}
+
+	private Response createDataNode(Node node) {
+		LOGGER.debug("Node :", node);
+		Response response = new Response();
+		if (null != node) {
+			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
+			request.put(GraphDACParams.node.name(), node);
+
+			LOGGER.info("Creating the Node ID: " + node.getIdentifier());
+			response = getResponse(request, LOGGER);
+		}
+		return response;
 	}
 
 }
