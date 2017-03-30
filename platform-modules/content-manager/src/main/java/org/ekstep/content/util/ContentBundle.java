@@ -107,8 +107,6 @@ public class ContentBundle {
 								entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
 							} else if (mimeType.equals("video/youtube")) {
 								entry.setValue(entry.getValue());
-							} else if (mimeType.equals("application/pdf") || mimeType.equals("application/msword") && StringUtils.equalsIgnoreCase(packageType.name(), EcarPackageType.SPINE.name())) {
-									entry.setValue(entry.getValue());
 							} else {
 								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 							}
