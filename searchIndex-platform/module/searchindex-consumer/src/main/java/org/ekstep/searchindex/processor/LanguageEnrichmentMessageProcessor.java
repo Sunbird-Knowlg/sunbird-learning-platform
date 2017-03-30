@@ -119,6 +119,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 				LOGGER.info("fetched object is an string array");
 				String[] textArray = (String[]) object;
 				String text = Arrays.toString(textArray);
+				text = text.replaceAll("\\[|\\]", "");
 				processData(text, languageId, node);
 
 			} else if (object instanceof String) {
@@ -391,7 +392,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 						}
 					}
 					
-					LOGGER.info("updating node with extracted language metadata" + node);
+					LOGGER.info("updating node with extracted language metadata" + node.getMetadata().toString());
 					node.setOutRelations(null);
 					node.setInRelations(null);
 					Response response = util.updateNode(node);

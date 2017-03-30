@@ -15,6 +15,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HTTP;
 
 public class HTTPUtil {
 
@@ -45,9 +46,8 @@ public class HTTPUtil {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost post = new HttpPost(url);
 		post.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
-		post.addHeader("Content-Type", "application/json");
-		post.addHeader("charset",Charsets.UTF_8.name());
-		post.setEntity(new StringEntity(body));
+		post.addHeader("Content-Type", "application/json; charset=utf-8");
+		post.setEntity(new StringEntity(body,  Charsets.UTF_8.name()));
 		HttpResponse response = client.execute(post);
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
