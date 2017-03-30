@@ -32,7 +32,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	private static Logger LOGGER = LogManager.getLogger(YoutubeMimeTypeManager.class.getName());
 
 	/* The youtubeUrl regex */
-	private static final String youtube_regex = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
+	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
 
 	/*
 	 * (non-Javadoc)
@@ -62,7 +62,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 		LOGGER.debug("Node: ", node);
 		Response response = new Response();
-		Boolean value = Pattern.matches(youtube_regex, node.getMetadata().get("artifactUrl").toString());
+		Boolean value = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get("artifactUrl").toString());
 		if (!value) {
 			throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), " | Invalid YouTube URL |");
 
