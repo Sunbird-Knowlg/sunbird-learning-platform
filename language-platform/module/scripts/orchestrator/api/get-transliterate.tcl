@@ -8,7 +8,18 @@ java::for {String language} $languages {
 
 set transliterateResponse [transliterate $language [java::new Boolean true] $lemma]
 set transliterateResultMap [$transliterateResponse getResult]
-$transliterate put $language $transliterateResultMap
+set transliterateResultMap [java::cast Map $transliterateResultMap]
+set outputText [$transliterateResultMap get "output"]
+set outputText [$outputText toString]
+set outputText [string trim $outputText]
+
+if { $outputText==$lemma } {
+	#skip if output is same as input lemma
+} else {
+	$transliterateResultMap put "output" $outputText
+	$transliterate put $language $transliterateResultMap	
+}
+
 }
 
 set result_map [java::new HashMap]
