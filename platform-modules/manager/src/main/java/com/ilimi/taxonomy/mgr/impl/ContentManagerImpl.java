@@ -635,6 +635,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		imageNode.setInRelations(node.getInRelations());
 		imageNode.setOutRelations(node.getOutRelations());
 		imageNode.setTags(node.getTags());
+		imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
 		Response response = createDataNode(imageNode);
 		if (checkError(response))
 			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),

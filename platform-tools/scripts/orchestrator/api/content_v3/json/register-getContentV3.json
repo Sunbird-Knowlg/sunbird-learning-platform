@@ -12,6 +12,11 @@
             "index": 1,
             "datatype": "java.util.ArrayList",
             "routingParam": false
+        },
+        {
+            "name": "mode",
+            "index": 1,
+            "routingParam": false
         }
     ],
     "requestPath": {
@@ -21,7 +26,8 @@
           "content_id"
         ],
         "requestParams": [
-          "fields"
+          "fields",
+          "mode"
         ]
     },
     "body": "",

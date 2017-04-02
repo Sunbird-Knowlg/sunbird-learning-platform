@@ -21,7 +21,7 @@ proc proc_getFirstElement {input_list} {
 		set arr_instance [java::instanceof $input_list {String[]}]
 		if {$arr_instance == 1} {
 			set array [java::cast {String[]} $input_list]
-			set listSize [$array length] 
+			set listSize [$array length]
 			if {$listSize > 0} {
 				set word [$array get 0]
 				return $word
@@ -70,6 +70,11 @@ proc proc_updateLanguageCode {resp_object graph_node} {
 
 set object_type "Content"
 set graph_id "domain"
+set content_image_id ${content_id}.img
+set is_mode_null [java::isnull $mode]
+if {($is_mode_null != 0) && ($mode == "edit")} {
+	// Set Content
+}
 set resp_get_node [getDataNode $graph_id $content_id]
 set check_error [check_response_error $resp_get_node]
 if {$check_error} {
@@ -105,7 +110,7 @@ if {$check_error} {
 			set is_extValues_null [java::isnull $extValues]
 			if {$is_extValues_null == 0} {
 				set extValuesMap [java::cast Map $extValues]
-				$resp_object putAll $extValuesMap	
+				$resp_object putAll $extValuesMap
 			}
 		}
 	} else {
