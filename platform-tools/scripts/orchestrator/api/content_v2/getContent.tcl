@@ -123,6 +123,7 @@ if {$check_error} {
 		set resp_object [convert_graph_node $graph_node $def_node]
 	}
 	proc_updateLanguageCode $resp_object $graph_node
+	$resp_object put "identifier" $content_id
 	set result_map [java::new HashMap]
 	$result_map put "content" $resp_object
 	set response_list [create_response $result_map]
