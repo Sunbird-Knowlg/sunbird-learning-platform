@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -89,6 +90,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * Content Image Object Type
 	 */
 	private static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
+	
+	/**
+	 * Is Content Image Object flag property key
+	 */
+	private static final String IS_IMAGE_OBJECT_FLAG_KEY = "isImageObject";
 
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
@@ -359,17 +365,27 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 */
 	private Response updateDataNode(Node node) {
 		LOGGER.debug("[updateNode] | Node: ", node);
+		Response response = new Response();
+		if (null != node) {
+			String contentId = node.getIdentifier();
+			// Checking if Content Image Object is being Updated, then return the Original Content Id
+			if (BooleanUtils.isTrue((Boolean) node.getMetadata().get(TaxonomyAPIParams.isImageObject.name()))) {
+				node.getMetadata().remove(TaxonomyAPIParams.isImageObject.name());
+				node.setIdentifier(node.getIdentifier() + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
+			}
+			
+			LOGGER.info("Getting Update Node Request For Node ID: " + node.getIdentifier());
+			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			updateReq.put(GraphDACParams.node.name(), node);
+			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-		LOGGER.info("Getting Update Node Request For Node ID: " + node.getIdentifier());
-		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-		updateReq.put(GraphDACParams.node.name(), node);
-		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			LOGGER.info("Updating the Node ID: " + node.getIdentifier());
+			response = getResponse(updateReq, LOGGER);
 
-		LOGGER.info("Updating the Node ID: " + node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
-
-		LOGGER.info("Returning Node Update Response.");
-		return updateRes;
+			response.put(TaxonomyAPIParams.node_id.name(), contentId);
+			LOGGER.info("Returning Node Update Response.");
+		}
+		return response;
 	}
 
 	/*
@@ -603,22 +619,26 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
 
-			// Content Image Node is not Available so assigning the original Content Node as node
+			// Content Image Node is not Available so assigning the original
+			// Content Node as node
 			node = (Node) response.get(GraphDACParams.node.name());
 
 			LOGGER.debug("Fetched Content Node: ", node);
 			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
-					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
+					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status))) {
 				node = createContentImageNode(taxonomyId, contentImageId, node);
-		} else
+				node.getMetadata().put(TaxonomyAPIParams.isImageObject.name(), true);
+			}
+		} else {
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
+			node.getMetadata().put(TaxonomyAPIParams.isImageObject.name(), true);
+		}
 
-		if (null == node)
-			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-					"Error! Invalid Content Identifier | [Content Id: " + contentId + "]");
-		
+		// Assigning the original 'identifier' to the Node
+		node.setIdentifier(contentId);
+
 		LOGGER.debug("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
 	}
