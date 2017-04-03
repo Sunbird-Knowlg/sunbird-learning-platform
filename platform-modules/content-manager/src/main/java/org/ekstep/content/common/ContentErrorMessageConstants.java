@@ -139,6 +139,10 @@ public class ContentErrorMessageConstants {
 	
 	public static final String INVALID_PARAMETER_MAP = "Error! Invalid Parameter Map.";
 	
+	public static final String CONTENT_IMAGE_MIGRATION_ERROR = "Error! While Migrating the Metadata.";
+	
+	public static final String CONTENT_BODY_MIGRATION_ERROR = "Error! While Migrating the Content Body.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}
