@@ -21,6 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -94,10 +95,14 @@ public class BasePipeline extends BaseManager {
 	protected Response updateContentNode(Node node, String url) {
 		Response response = new Response();
 		if (null != node) {
+			String contentId = node.getIdentifier();
+			node.setIdentifier(getContentObjectIdentifier(node));
 			response = updateNode(node);
 			if (StringUtils.isNotBlank(url))
 				response.put(ContentWorkflowPipelineParams.content_url.name(), url);
+			response.put(ContentWorkflowPipelineParams.node_id.name(), contentId);
 		}
+		
 		return response;
 	}
 
@@ -502,7 +507,7 @@ public class BasePipeline extends BaseManager {
 		}
 	}
 	
-	private String getContentBody(String contentId) {
+	protected String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
 		request.setOperation(ContentStoreOperations.getContentBody.name());
@@ -557,6 +562,16 @@ public class BasePipeline extends BaseManager {
 		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
 				ContentWorkflowPipelineParams.contents.name());
 		return response;
+	}
+	
+	protected String getContentObjectIdentifier(Node node) {
+		String identifier = "";
+		if (null != node) {
+			identifier = node.getIdentifier();
+			if (BooleanUtils.isTrue((Boolean) node.getMetadata().get(ContentWorkflowPipelineParams.isImageObject.name())))
+				identifier += ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX; 
+		}
+		return identifier;
 	}
 	
 	/**
