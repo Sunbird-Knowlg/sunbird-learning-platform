@@ -327,7 +327,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							List<String> themeList = ListUtils.EMPTY_LIST;
 							if (themes != null && themes.size() > 0)
 								themeList = new ArrayList<>(themes.keySet());
-							node.getMetadata().put("themes", themes);
+							node.getMetadata().put("themes", themeList);
 						}
 					}
 
