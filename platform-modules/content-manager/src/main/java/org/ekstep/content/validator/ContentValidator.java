@@ -387,7 +387,7 @@ public class ContentValidator {
 					} else {
 						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
-										+ " |[Invalid or 'null' operation.] Publish Operation Failed '" + name + "']");
+										+ " |Invalid or 'null' operation, Publish Operation Failed '" + name + "']");
 					}
 					break;
 
@@ -401,7 +401,7 @@ public class ContentValidator {
 					} else {
 						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
-										+ " |[Invalid or 'null' operation.] Publish Operation Failed '" + name + "']");
+										+ " |Invalid or 'null' operation, Publish Operation Failed '" + name + "']");
 					}
 					break;
 
@@ -436,8 +436,8 @@ public class ContentValidator {
 	public Boolean isValidUrl(String fileURL, String mimeType) {
 		Boolean isValid = false;
 		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
-		isValid = exceptionChecks(mimeType, file);
-		if(isValid){
+		if(exceptionChecks(mimeType, file)){
+			FileUtils.deleteFile(file);
 			return true;
 		}
 		return isValid;
@@ -446,22 +446,20 @@ public class ContentValidator {
 	public Boolean exceptionChecks(String mimeType, File file){
 		String extension = FilenameUtils.getExtension(file.getPath());
 		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())) {
-			if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.pdf.name())) {
-				FileUtils.deleteFile(file);
+			if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.pdf.name())) {	
 				return true;
 			} else {
 				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
-						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
+						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR + "Uploaded file is not a pdf file");
 			}
 		}
 		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())) {
 			if (allowed_file_extensions.contains(extension)) {
-				FileUtils.deleteFile(file);
 				return true;
 			} else {
 				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
 						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
-								+ " | Uploaded file should be among the Allowed_file_extensions for mimeType pdf and doc"
+								+ " | Uploaded file should be among the Allowed_file_extensions for mimeType doc"
 								+ allowed_file_extensions);
 			}
 		}

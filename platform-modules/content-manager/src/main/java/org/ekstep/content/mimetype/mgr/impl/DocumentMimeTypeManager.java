@@ -119,8 +119,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 			LOGGER.info("Verifying the MimeTypes.");
 			String mimeType = (String) node.getMetadata().get("mimeType");
 			ContentValidator validator = new ContentValidator();
-			Boolean isValidUrl = validator.exceptionChecks(mimeType, uploadedFile);
-			if(isValidUrl){
+			if(validator.exceptionChecks(mimeType, uploadedFile)){
 				LOGGER.info("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 				String[] urlArray = uploadArtifactToAWS(uploadedFile, node.getIdentifier());
 	
