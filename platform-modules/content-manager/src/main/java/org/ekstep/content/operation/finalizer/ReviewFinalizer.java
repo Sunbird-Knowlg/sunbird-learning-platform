@@ -94,7 +94,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		newNode.setMetadata(node.getMetadata());
 		
 		LOGGER.debug("Updating the Node: ", node);
-		Response response = updateNode(newNode);
+		Response response = updateContentNode(newNode, null);
 		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
 		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
