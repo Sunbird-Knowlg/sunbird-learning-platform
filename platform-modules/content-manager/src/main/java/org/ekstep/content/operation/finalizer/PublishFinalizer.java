@@ -29,9 +29,11 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.rits.cloning.Cloner;
 
@@ -170,8 +172,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
-			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-					ContentWorkflowPipelineParams.Live.name());
 			nodes.add(node);
 			List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 			List<String> childrenIds = new ArrayList<String>();
@@ -181,7 +181,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			publishChildren(nodes.stream().filter(n -> !n.getIdentifier().equalsIgnoreCase(node.getIdentifier()))
 					.collect(Collectors.toList()));
 
-			// TODO: Refactor this part since it is being called twice and cloned
+			// TODO: Refactor this part since it is being called twice and
+			// cloned
 			contents = new ArrayList<Map<String, Object>>();
 			childrenIds = new ArrayList<String>();
 			new ArrayList<Map<String, Object>>();
@@ -196,8 +197,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.debug("Creating Full ECAR For Content Id: " + node.getIdentifier());
 			String bundleFileName = getBundleFileName(node, EcarPackageType.FULL);
 			ContentBundle contentBundle = new ContentBundle();
-			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(contents, childrenIds, null,
-					EcarPackageType.FULL);
+			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
+					null, EcarPackageType.FULL);
 			String[] urlArray = contentBundle.createContentBundle(contents, bundleFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			downloadUrl = urlArray[IDX_S3_URL];
@@ -207,7 +208,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			LOGGER.info("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(node, EcarPackageType.SPINE);
-			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null, EcarPackageType.SPINE);
+			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
+					EcarPackageType.SPINE);
 			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
@@ -242,7 +244,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), s3Key);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), downloadUrl);
 		node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(s3Key));
-		
 
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
@@ -261,18 +262,23 @@ public class PublishFinalizer extends BaseFinalizer {
 		} catch (Exception e) {
 			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
 		}
-		
+
 		// Setting default version key for internal node update
 		String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		newNode.getMetadata().put(GraphDACParams.versionKey.name(), graphPassportKey);
-		
+
 		Response response = updateContentNode(newNode, downloadUrl);
 		if (checkError(response))
 			throw new ClientException(ContentErrorCodeConstants.PUBLISH_ERROR.name(), response.getParams().getErrmsg());
 		
-		PublishWebHookInvoker.invokePublishWebKook(newNode.getIdentifier(), ContentWorkflowPipelineParams.Live.name(), null);
+		LOGGER.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
+		migrateContentImageObjectData(contentId, newNode);
+
+		PublishWebHookInvoker.invokePublishWebKook(newNode.getIdentifier(), ContentWorkflowPipelineParams.Live.name(),
+				null);
 		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
-		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), ContentWorkflowPipelineParams.Processing.name());
+		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
+				ContentWorkflowPipelineParams.Processing.name());
 		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
 		return response;
 	}
@@ -356,6 +362,39 @@ public class PublishFinalizer extends BaseFinalizer {
 					+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + suffix + ".ecar";
 		}
 		return fileName;
+	}
+
+	private Response migrateContentImageObjectData(String contentId, Node contentImage) {
+		LOGGER.debug("Content Id: " + contentId);
+		LOGGER.debug("Content Image: ", contentImage);
+		Response response = new Response();
+		if (null != contentImage && StringUtils.isNotBlank(contentId)) {
+			String contentImageId = contentId + ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+
+			// Setting the Appropriate Metadata
+			contentImage.setIdentifier(contentId);
+			contentImage.getMetadata().put(SystemProperties.IL_UNIQUE_ID.name(), contentId);
+			contentImage.getMetadata().remove(ContentWorkflowPipelineParams.isImageObject.name());
+			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+					ContentWorkflowPipelineParams.Live.name());
+
+			LOGGER.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
+			response = updateContentBody(contentId, getContentBody(contentImageId));
+			if (checkError(response))
+				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+						ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
+								+ "]");
+
+			LOGGER.info("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
+			response = updateNode(contentImage);
+			if (checkError(response))
+				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+						ContentErrorMessageConstants.CONTENT_IMAGE_MIGRATION_ERROR + " | [Content Id: " + contentId
+								+ "]");
+		}
+
+		LOGGER.debug("Returning the Response Object After Migrating the Content Body and Metadata.", response);
+		return response;
 	}
 
 }
