@@ -436,32 +436,45 @@ public class ContentValidator {
 	public Boolean isValidUrl(String fileURL, String mimeType) {
 		Boolean isValid = false;
 		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
-		if(exceptionChecks(mimeType, file)){
+		if (exceptionChecks(mimeType, file)) {
 			FileUtils.deleteFile(file);
 			return true;
 		}
 		return isValid;
 	}
-	
-	public Boolean exceptionChecks(String mimeType, File file){
+
+	public Boolean exceptionChecks(String mimeType, File file) {
 		String extension = FilenameUtils.getExtension(file.getPath());
-		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())) {
-			if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.pdf.name())) {	
-				return true;
-			} else {
-				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
-						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR + "Uploaded file is not a pdf file");
+		try {
+			LOGGER.info("Validating File For MimeType: " + file.getName());
+			Tika tika = new Tika();
+			String file_type = tika.detect(file);
+			if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())) {
+				if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.pdf.name()) && file_type.equals("application/pdf")) {
+					return true;
+				} else {
+					throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+							ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
+									+ "Uploaded file is not a pdf file");
+				}
 			}
-		}
-		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())) {
-			if (allowed_file_extensions.contains(extension)) {
+			if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())) {
+				if(StringUtils.isNotBlank(extension)){
+					if (StringUtils.isNotBlank(extension) && allowed_file_extensions.contains(extension)) {
+						return true;
+					}
+					else {
+						throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+								ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
+										+ " | Uploaded file should be among the Allowed_file_extensions for mimeType doc"
+										+ allowed_file_extensions);
+					}
+				}
+				//proper validations needs to be done - backlog
 				return true;
-			} else {
-				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
-						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
-								+ " | Uploaded file should be among the Allowed_file_extensions for mimeType doc"
-								+ allowed_file_extensions);
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return false;
 	}
