@@ -93,6 +93,8 @@ public class ContentConfigurationConstants {
 	 * The Constant DEFAULT_ECAR_EXTENSION is the default ECAR File Extension.
 	 */
 	public static final String DEFAULT_ECAR_EXTENSION = "ecar";
+	
+	public static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	/**
 	 * The Constant AWS_UPLOAD_RESULT_URL_INDEX is value of array index where
