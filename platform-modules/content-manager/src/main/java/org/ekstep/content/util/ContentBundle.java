@@ -85,6 +85,7 @@ public class ContentBundle {
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
+			String mimeType = (String) content.get(ContentWorkflowPipelineParams.mimeType.name());
 			if (children.contains(identifier))
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
 						ContentWorkflowPipelineParams.Parent.name());
@@ -104,9 +105,12 @@ public class ContentBundle {
 							if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 									+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
 								entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
+							} else if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())) {
+								entry.setValue(entry.getValue());
 							} else {
 								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 							}
+
 						}
 					}
 				}
@@ -165,7 +169,8 @@ public class ContentBundle {
 			}
 			return null;
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), "[Error! something went wrong while bundling ECAR]");
+			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(),
+					"[Error! something went wrong while bundling ECAR]");
 		}
 	}
 

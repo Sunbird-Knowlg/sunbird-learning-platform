@@ -141,6 +141,12 @@ public class ContentErrorMessageConstants {
 	
 	public static final String INVALID_PARAMETER_MAP = "Error! Invalid Parameter Map.";
 	
+	public static final String INVALID_YOUTUBE_URL = "Error! Invalid youtube Url";
+	
+	public static final String MISSING_YOUTUBE_URL = "Error! Missing Youtube Url";
+	
+	public static final String MISSING_DOC_LINK = "Error! Missing doc/pdf Link";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

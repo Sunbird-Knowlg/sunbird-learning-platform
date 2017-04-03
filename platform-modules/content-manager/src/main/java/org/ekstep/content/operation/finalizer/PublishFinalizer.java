@@ -159,6 +159,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
+		
+		LOGGER.info("setting compatability level for textbook");
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.TextBook.name())
@@ -166,7 +168,14 @@ public class PublishFinalizer extends BaseFinalizer {
 						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 						ContentWorkflowPipelineParams.TextBookUnit.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
-
+		
+		LOGGER.info("setting compatability level for youtube, pdf and doc");
+		if(StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.youtube.name()) 
+				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.pdf.name())
+				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.msword.name()))
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 3);
+		
+		LOGGER.info("checking is the contentType is Asset");
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
