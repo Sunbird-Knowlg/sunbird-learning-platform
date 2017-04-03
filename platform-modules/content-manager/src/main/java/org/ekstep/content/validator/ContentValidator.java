@@ -3,20 +3,25 @@ package org.ekstep.content.validator;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
+import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.content.common.AssetsMimeTypeMap;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.PropertiesUtil;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+import org.neo4j.io.fs.FileUtils;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.exception.ClientException;
@@ -35,9 +40,28 @@ public class ContentValidator {
 	/** The Constant DEF_CONTENT_PACKAGE_MIME_TYPE. */
 	private static final String DEF_CONTENT_PACKAGE_MIME_TYPE = "application/zip";
 
+	/** The Constant BUNDLE_PATH. */
+	private static final String BUNDLE_PATH = "/data/contentBundle";
+
 	/** The youtubeUrl regex */
 	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
-	
+
+	private static Set<String> allowed_file_extensions = new HashSet<String>();
+
+	static {
+		allowed_file_extensions.add(".doc");
+		allowed_file_extensions.add(".docx");
+		allowed_file_extensions.add(".ppt");
+		allowed_file_extensions.add(".pptx");
+		allowed_file_extensions.add(".key");
+		allowed_file_extensions.add(".odp");
+		allowed_file_extensions.add(".pps");
+		allowed_file_extensions.add(".odt");
+		allowed_file_extensions.add(".wpd");
+		allowed_file_extensions.add(".wps");
+		allowed_file_extensions.add(".wks");
+	}
+
 	/**
 	 * validates the Uploaded ContentPackage File.
 	 *
@@ -335,39 +359,49 @@ public class ContentValidator {
 					break;
 
 				case "video/youtube":
-					if(StringUtils.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))){
-						Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX, node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()).toString());
+					if (StringUtils.isNotBlank(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
+						Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX,
+								node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()).toString());
 						LOGGER.info("Validating if the given youtube url is valid or not" + isValidYouTubeUrl);
 						if (!isValidYouTubeUrl)
-							throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(), ContentErrorMessageConstants.INVALID_YOUTUBE_URL, " | [Invalid or 'null' operation.] Publish Operation Failed");
+							throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(),
+									ContentErrorMessageConstants.INVALID_YOUTUBE_URL,
+									" | [Invalid or 'null' operation.] Publish Operation Failed");
 						else
 							isValid = true;
-					}else{
-						throw new ClientException(ContentErrorCodes.MISSING_YOUTUBE_URL.name(), ContentErrorMessageConstants.MISSING_YOUTUBE_URL, " | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
+					} else {
+						throw new ClientException(ContentErrorCodes.MISSING_YOUTUBE_URL.name(),
+								ContentErrorMessageConstants.MISSING_YOUTUBE_URL,
+								" | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
 					}
 					break;
 
 				case "application/pdf":
-					if(StringUtils.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))){
-						isValid = true;
-					}
-					else{
+					if (StringUtils.isNotBlank(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
+						String artifactUrl = (String) node.getMetadata()
+								.get(ContentWorkflowPipelineParams.artifactUrl.name());
+						if (isValidUrl(artifactUrl, mimeType))
+							isValid = true;
+					} else {
 						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
-										+ " |[Invalid or 'null' operation.] Publish Operation Failed '"
-										+ name + "']");
+										+ " |[Invalid or 'null' operation.] Publish Operation Failed '" + name + "']");
 					}
 					break;
-					
+
 				case "application/msword":
-					if(StringUtils.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))){
-						isValid = true;
-					}
-					else{
+					if (StringUtils.isNotBlank(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
+						String artifactUrl = (String) node.getMetadata().get("artifactUrl");
+						if (isValidUrl(artifactUrl, mimeType))
+							isValid = true;
+
+					} else {
 						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
-										+ " |[Invalid or 'null' operation.] Publish Operation Failed '"
-										+ name + "']");
+										+ " |[Invalid or 'null' operation.] Publish Operation Failed '" + name + "']");
 					}
 					break;
 
@@ -388,5 +422,42 @@ public class ContentValidator {
 			}
 		}
 		return isValid;
+	}
+
+	/**
+	 * This method validates if the uploaded file belongs the node allowed file
+	 * extensions for that mimeType
+	 * 
+	 * @param fileURL
+	 * @param mimeType
+	 * @return
+	 * @throws IOException
+	 */
+	private Boolean isValidUrl(String fileURL, String mimeType) {
+
+		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
+		String extension = FilenameUtils.getExtension(file.getPath());
+
+		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())) {
+			if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.pdf.name())) {
+				FileUtils.deleteFile(file);
+				return true;
+			} else {
+				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
+			}
+		}
+		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())) {
+			if (allowed_file_extensions.contains(extension)) {
+				FileUtils.deleteFile(file);
+				return true;
+			} else {
+				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
+								+ " | Uploaded file should be among the Allowed_file_extensions for mimeType pdf and doc"
+								+ allowed_file_extensions);
+			}
+		}
+		return false;
 	}
 }

@@ -42,20 +42,21 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(DocumentMimeTypeManager.class.getName());
 
+	/** The allowed file extensions map */
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
 
 	static {
-		allowed_file_extensions.add(".doc");
-		allowed_file_extensions.add(".docx");
-		allowed_file_extensions.add(".ppt");
-		allowed_file_extensions.add(".pptx");
-		allowed_file_extensions.add(".key");
-		allowed_file_extensions.add(".odp");
-		allowed_file_extensions.add(".pps");
-		allowed_file_extensions.add(".odt");
-		allowed_file_extensions.add(".wpd");
-		allowed_file_extensions.add(".wps");
-		allowed_file_extensions.add(".wks");
+		allowed_file_extensions.add("doc");
+		allowed_file_extensions.add("docx");
+		allowed_file_extensions.add("ppt");
+		allowed_file_extensions.add("pptx");
+		allowed_file_extensions.add("key");
+		allowed_file_extensions.add("odp");
+		allowed_file_extensions.add("pps");
+		allowed_file_extensions.add("odt");
+		allowed_file_extensions.add("wpd");
+		allowed_file_extensions.add("wps");
+		allowed_file_extensions.add("wks");
 	}
 
 	/*
@@ -85,11 +86,6 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	public Response publish(Node node, boolean isAsync) {
 		Response response = new Response();
 		LOGGER.debug("Node: ", node);
-		if (null == node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())) {
-			throw new ClientException(ContentErrorCodes.MISSING_FILE.name(),
-					ContentErrorMessageConstants.MISSING_DOC_LINK,
-					" | [Invalid or 'missing' doc/pdf.] Publish Operation Failed");
-		}
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
