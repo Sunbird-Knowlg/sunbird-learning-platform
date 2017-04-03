@@ -120,6 +120,7 @@ public class BaseProcessor {
 
 		List<String> nodeIds = new ArrayList<String>();
 		List<String> conceptGrades = new ArrayList<String>();
+		String domain = null;
 		Map<String, Object> result_map = new HashMap<String, Object>();
 
 		LOGGER.info("outRelations fetched from each item" + outRelations);
@@ -137,6 +138,11 @@ public class BaseProcessor {
 					if (null != rel.getEndNodeMetadata().get("status")) {
 						LOGGER.info("getting status from node");
 						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
+					}
+					
+					if (StringUtils.isBlank(domain) && null != rel.getEndNodeMetadata().get("subject")) {
+						LOGGER.info("getting subject from concept");
+						domain = (String) rel.getEndNodeMetadata().get("subject");
 					}
 
 					LOGGER.info("checking if status is LIVE and fetching nodeIds from it" + status);
@@ -164,6 +170,11 @@ public class BaseProcessor {
 			LOGGER.info("Adding conceptGrades to map" + conceptGrades);
 			if (null != conceptGrades && !conceptGrades.isEmpty()) {
 				result_map.put("conceptGrades", conceptGrades);
+			}
+			
+			LOGGER.info("Adding domain to map: " + domain);
+			if (StringUtils.isNotBlank(domain)) {
+				result_map.put("domain", domain);
 			}
 		}
 		LOGGER.info("Map of conceptGrades and nodeIds" + result_map);

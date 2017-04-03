@@ -828,7 +828,7 @@
             "Other"
           ],
           "displayProperty": "Editable",
-          "defaultValue": "5-6",
+          "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 5}",
           "indexed": true
         },
@@ -849,7 +849,7 @@
             "Grade 5",
             "Other"
           ],
-          "defaultValue": "Grade 1",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
