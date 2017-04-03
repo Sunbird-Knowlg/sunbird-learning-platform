@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -81,13 +82,13 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 
 		LOGGER.info("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
-		
+
 		LOGGER.info("checking if node is null" + node);
 		if (null != node) {
 			String languageId = null;
 			LOGGER.info("getting languageId");
 			String language = getLanguage(node);
-			
+
 			LOGGER.info("checking if language is null or not");
 			if (StringUtils.isNotBlank(language)) {
 				LOGGER.info("calling initCheck method");
@@ -190,10 +191,10 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 		request_map.put("language_id", languageId);
 		request_map.put("text", text);
 		requestObj.put("request", request_map);
-		
+
 		LOGGER.info("creating request map to make rest post call" + requestObj);
 		String request = mapper.writeValueAsString(requestObj);
-		
+
 		LOGGER.info("making a post call to get complexity measures for a given text");
 		String result = HTTPUtil.makePostRequest(api_url, request);
 
@@ -322,11 +323,14 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							node.getMetadata().put("themes", null);
 						} else {
 							LOGGER.info("extracting themes from complexity map");
-							Object themes = text_complexity.get("themes");
+							Map<String, Integer> themes = (Map<String, Integer>) text_complexity.get("themes");
+							List<String> themeList = ListUtils.EMPTY_LIST;
+							if (themes != null && themes.size() > 0)
+								themeList = new ArrayList<>(themes.keySet());
 							node.getMetadata().put("themes", themes);
 						}
 					}
-					
+
 					LOGGER.info("checking if text complexity map contains partsOfSpeech");
 					if (text_complexity.containsKey("partsOfSpeech")) {
 
@@ -339,7 +343,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							node.getMetadata().put("partsOfSpeech", partsOfSpeech);
 						}
 					}
-					
+
 					LOGGER.info("checking if text complexity map contains thresholdVocabulary");
 					if (text_complexity.containsKey("thresholdVocabulary")) {
 
@@ -352,7 +356,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							node.getMetadata().put("thresholdVocabulary", thresholdVocabulary);
 						}
 					}
-					
+
 					LOGGER.info("checking if text complexity map contains nonThresholdVocabulary");
 					if (text_complexity.containsKey("nonThresholdVocabulary")) {
 
@@ -365,7 +369,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							node.getMetadata().put("nonThresholdVocabulary", nonThresholdVocabulary);
 						}
 					}
-					
+
 					LOGGER.info("checking if text complexity map contains top5");
 					if (text_complexity.containsKey("top5")) {
 
@@ -378,7 +382,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							node.getMetadata().put("top5", top5);
 						}
 					}
-					
+
 					LOGGER.info("checking if text complexity map contains totalWordCount");
 					if (text_complexity.containsKey("totalWordCount")) {
 
@@ -391,7 +395,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							node.getMetadata().put("totalWordCount", totalWordCount);
 						}
 					}
-					
+
 					LOGGER.info("updating node with extracted language metadata" + node.getMetadata().toString());
 					node.setOutRelations(null);
 					node.setInRelations(null);
@@ -431,11 +435,12 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 					LOGGER.info("checking if map contains grade");
 					if (map.containsKey("grade")) {
 						String grade = (String) map.get("grade");
-						
+
 						LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + grade);
 						if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
 							gradeLevel.add(grade);
-							LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it" + gradeLevel);
+							LOGGER.info("Checking if grade is not there in gradeLevel from node and adding it"
+									+ gradeLevel);
 							node.getMetadata().put("gradeLevel", gradeLevel);
 						}
 					}
@@ -444,16 +449,16 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 			}
 		} else {
 			String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
-			
+
 			List<String> gradeLevel = new ArrayList<String>();
 			LOGGER.info("Checking if gradeLevel from node is empty");
 			if (null != grade_array) {
-				
+
 				LOGGER.info("adding grades from node to list" + grade_array);
-				for(String str : grade_array){
+				for (String str : grade_array) {
 					gradeLevel.add(str);
 				}
-				
+
 				LOGGER.info("Checking if grades from complexity map is empty");
 				if (!gradeList.isEmpty()) {
 

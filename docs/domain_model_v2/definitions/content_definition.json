@@ -1008,6 +1008,19 @@
         },
         {
           "required": false,
+          "propertyName": "themes",
+          "title": "Themes",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 20}",
+          "indexed": true
+        },
+        {
+          "required": false,
           "dataType": "Number",
           "propertyName": "rating",
           "title": "User Rating",
