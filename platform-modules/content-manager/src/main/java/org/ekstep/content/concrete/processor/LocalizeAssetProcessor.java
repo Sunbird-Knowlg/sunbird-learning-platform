@@ -16,6 +16,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Manifest;
 import org.ekstep.content.entity.Media;
@@ -25,6 +26,8 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.util.PropertiesUtil;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 
@@ -203,7 +206,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							if (StringUtils.isNotBlank(subFolder))
 								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
-							File downloadedFile = HttpDownloadUtility.downloadFile(media.getSrc(), downloadPath);
+							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()), downloadPath);
 							LOGGER.info("Downloaded file : " + media.getSrc() + " - " + downloadedFile
 									+ " | [Content Id '" + contentId + "']");
 							if (null == downloadedFile)
@@ -235,6 +238,20 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		}
 		LOGGER.info("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']");
 		return map;
+	}
+	
+	private String getDownloadUrl(String src) {
+		if (StringUtils.isNotBlank(src)) {
+			if (src.startsWith("/assets/public")) {
+				String env = S3PropertyReader.getProperty("s3.env");
+				String bucketName = S3PropertyReader.getProperty("s3.bucket", env);
+				String region = S3PropertyReader.getProperty("s3.region");
+				Region reg = Region.getRegion(Regions.valueOf(region));
+				String s3Prefix = "https://s3." + reg.getName() + ".amazonaws.com/" + bucketName;
+				src = src.replace("/assets/public", s3Prefix);
+			}
+		}
+		return src;
 	}
 
 }

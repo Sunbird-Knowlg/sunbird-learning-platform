@@ -7,6 +7,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String XML_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Content XML file.";
 	
+	public static final String JSON_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Content JSON file.";
+	
 	public static final String MANIFEST_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Manifest file.";
 	
 	public static final String INVALID_PLUGIN_ID_ERROR = "'id' in manifest.json is not same as the plugin identifier.";
