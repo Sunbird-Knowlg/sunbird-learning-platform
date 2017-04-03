@@ -119,7 +119,7 @@ public class UploadFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), null);
 		
 		// update content body in content store
-		response = updateContentBody(node.getIdentifier(), ecml);
+		response = updateContentBody(getContentObjectIdentifier(node), ecml);
 		if (checkError(response))
 			return response;
 		LOGGER.info("Content Body Update Status: " + response.getResponseCode());
