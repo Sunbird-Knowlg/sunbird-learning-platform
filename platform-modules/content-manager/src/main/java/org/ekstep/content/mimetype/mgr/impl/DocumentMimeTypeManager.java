@@ -1,28 +1,17 @@
 package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.tika.Tika;
-import org.apache.tika.mime.MimeTypes;
-import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
-import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
+import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
-
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -41,23 +30,6 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(DocumentMimeTypeManager.class.getName());
-
-	/** The allowed file extensions map */
-	private static Set<String> allowed_file_extensions = new HashSet<String>();
-
-	static {
-		allowed_file_extensions.add("doc");
-		allowed_file_extensions.add("docx");
-		allowed_file_extensions.add("ppt");
-		allowed_file_extensions.add("pptx");
-		allowed_file_extensions.add("key");
-		allowed_file_extensions.add("odp");
-		allowed_file_extensions.add("pps");
-		allowed_file_extensions.add("odt");
-		allowed_file_extensions.add("wpd");
-		allowed_file_extensions.add("wps");
-		allowed_file_extensions.add("wks");
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -145,46 +117,25 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		try {
 			Response response = new Response();
 			LOGGER.info("Verifying the MimeTypes.");
-
-			Tika tika = new Tika(new MimeTypes());
-			String mimeType = tika.detect(uploadedFile);
-			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-
-			LOGGER.debug("Uploaded  MimeType: " + mimeType);
-			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType)) {
-				if (StringUtils.containsIgnoreCase(nodeMimeType, ContentWorkflowPipelineParams.pdf.name())
-						&& (!StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name()))) {
-					throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
-							ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
+			String mimeType = (String) node.getMetadata().get("mimeType");
+			ContentValidator validator = new ContentValidator();
+			Boolean isValidUrl = validator.exceptionChecks(mimeType, uploadedFile);
+			if(isValidUrl){
+				LOGGER.info("Calling Upload Content Node For Node ID: " + node.getIdentifier());
+				String[] urlArray = uploadArtifactToAWS(uploadedFile, node.getIdentifier());
+	
+				LOGGER.info("Updating the Content Node for Node ID: " + node.getIdentifier());
+				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
+				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
+				node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
+				response = updateContentNode(node, urlArray[1]);
+	
+				LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
+				response = updateContentNode(node, urlArray[1]);
+				if (!checkError(response)) {
+					return response;
 				}
 			}
-			LOGGER.warn("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: " + mimeType
-					+ " | Node (Object) MimeType: " + nodeMimeType + "]");
-
-			String file_extension = FilenameUtils.getExtension(uploadedFile.getName());
-			if (!allowed_file_extensions.contains(file_extension)) {
-				throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
-						ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
-								+ " | Uploaded file should be among the Allowed_file_extensions for mimeType pdf and doc"
-								+ allowed_file_extensions);
-			}
-			LOGGER.info("Calling Upload Content Node For Node ID: " + node.getIdentifier());
-			String[] urlArray = uploadArtifactToAWS(uploadedFile, node.getIdentifier());
-
-			LOGGER.info("Updating the Content Node for Node ID: " + node.getIdentifier());
-			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
-			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
-			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-			response = updateContentNode(node, urlArray[1]);
-
-			LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
-			response = updateContentNode(node, urlArray[1]);
-			if (!checkError(response)) {
-				return response;
-			}
-		} catch (IOException e) {
-			throw new ServerException(ContentAPIParams.FILE_ERROR.name(),
-					"Error! While Reading the MimeType of Uploaded File. | [Node Id: " + node.getIdentifier() + "]");
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {

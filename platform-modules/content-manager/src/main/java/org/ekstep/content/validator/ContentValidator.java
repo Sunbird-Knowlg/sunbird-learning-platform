@@ -49,17 +49,17 @@ public class ContentValidator {
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
 
 	static {
-		allowed_file_extensions.add(".doc");
-		allowed_file_extensions.add(".docx");
-		allowed_file_extensions.add(".ppt");
-		allowed_file_extensions.add(".pptx");
-		allowed_file_extensions.add(".key");
-		allowed_file_extensions.add(".odp");
-		allowed_file_extensions.add(".pps");
-		allowed_file_extensions.add(".odt");
-		allowed_file_extensions.add(".wpd");
-		allowed_file_extensions.add(".wps");
-		allowed_file_extensions.add(".wks");
+		allowed_file_extensions.add("doc");
+		allowed_file_extensions.add("docx");
+		allowed_file_extensions.add("ppt");
+		allowed_file_extensions.add("pptx");
+		allowed_file_extensions.add("key");
+		allowed_file_extensions.add("odp");
+		allowed_file_extensions.add("pps");
+		allowed_file_extensions.add("odt");
+		allowed_file_extensions.add("wpd");
+		allowed_file_extensions.add("wps");
+		allowed_file_extensions.add("wks");
 	}
 
 	/**
@@ -433,11 +433,18 @@ public class ContentValidator {
 	 * @return
 	 * @throws IOException
 	 */
-	private Boolean isValidUrl(String fileURL, String mimeType) {
-
+	public Boolean isValidUrl(String fileURL, String mimeType) {
+		Boolean isValid = false;
 		File file = HttpDownloadUtility.downloadFile(fileURL, BUNDLE_PATH);
+		isValid = exceptionChecks(mimeType, file);
+		if(isValid){
+			return true;
+		}
+		return isValid;
+	}
+	
+	public Boolean exceptionChecks(String mimeType, File file){
 		String extension = FilenameUtils.getExtension(file.getPath());
-
 		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())) {
 			if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.pdf.name())) {
 				FileUtils.deleteFile(file);

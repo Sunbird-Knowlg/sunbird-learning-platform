@@ -3,8 +3,6 @@ package org.ekstep.content.mimetype.mgr.impl;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
