@@ -219,11 +219,11 @@ public class BaseQueryGenerationUtil {
 					&& null == node.getMetadata().get(GraphDACParams.SYS_INTERNAL_LAST_UPDATED_ON.name())) {
 				// Adding 'lastUpdatedOn' Property
 				query.append(AuditProperties.lastUpdatedOn.name() + ":  { AP_" + AuditProperties.lastUpdatedOn.name()
-						+ " }");
+						+ " }, ");
 				paramValuesMap.put("AP_" + AuditProperties.lastUpdatedOn.name(), date);
 			}
 
-			queryMap.put(GraphDACParams.query.name(), query.toString());
+			queryMap.put(GraphDACParams.query.name(), StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 		}
 
