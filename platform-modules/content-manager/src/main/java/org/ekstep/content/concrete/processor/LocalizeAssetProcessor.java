@@ -26,8 +26,6 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.util.PropertiesUtil;
 
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 
@@ -242,14 +240,16 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	
 	private String getDownloadUrl(String src) {
 		if (StringUtils.isNotBlank(src)) {
-			if (src.startsWith("/assets/public")) {
-				String env = S3PropertyReader.getProperty("s3.env");
-				String bucketName = S3PropertyReader.getProperty("s3.bucket", env);
-				String region = S3PropertyReader.getProperty("s3.region");
-				Region reg = Region.getRegion(Regions.valueOf(region));
-				String s3Prefix = "https://s3." + reg.getName() + ".amazonaws.com/" + bucketName;
-				src = src.replace("/assets/public", s3Prefix);
-			}
+			String env = S3PropertyReader.getProperty("s3.env");
+			String prefix = "";
+			if (StringUtils.equalsIgnoreCase("prod", env))
+				prefix = "https://community.ekstep.in";
+			else if (StringUtils.equalsIgnoreCase("qa", env))
+				prefix = "https://qa.ekstep.in";
+			else
+				prefix = "https://dev.ekstep.in";
+			if (!src.startsWith("http"))
+				src = prefix + src;
 		}
 		return src;
 	}
