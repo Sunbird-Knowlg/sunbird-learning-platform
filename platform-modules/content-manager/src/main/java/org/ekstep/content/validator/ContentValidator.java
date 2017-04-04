@@ -46,6 +46,13 @@ public class ContentValidator {
 	/** The youtubeUrl regex */
 	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
 
+	/** The pdf mimeType */
+	private static final String PDF_MIMETYPE = "application/pdf";
+	
+	/** The doc mimeType */
+	private static final String DOC_MIMETYPE = "application/msword";
+	
+	/** The allowed extensions */
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
 
 	static {
@@ -449,7 +456,7 @@ public class ContentValidator {
 			LOGGER.info("Validating File For MimeType: " + file.getName());
 			Tika tika = new Tika();
 			String file_type = tika.detect(file);
-			if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())) {
+			if (StringUtils.equalsIgnoreCase(mimeType, PDF_MIMETYPE)) {
 				if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.pdf.name()) && file_type.equals("application/pdf")) {
 					return true;
 				} else {
@@ -458,7 +465,7 @@ public class ContentValidator {
 									+ "Uploaded file is not a pdf file");
 				}
 			}
-			if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())) {
+			if (StringUtils.equalsIgnoreCase(mimeType, DOC_MIMETYPE)) {
 				if(StringUtils.isNotBlank(extension)){
 					if (StringUtils.isNotBlank(extension) && allowed_file_extensions.contains(extension)) {
 						return true;

@@ -61,8 +61,11 @@ public class ContentBundle {
 	/** The Constant BUNDLE_PATH. */
 	protected static final String BUNDLE_PATH = "/data/contentBundle";
 
+	/** The s3 ecar folder */
 	private static final String s3EcarFolder = "s3.ecar.folder";
 
+	/** The default youtube mimeType */
+	private static final String YOUTUBE_MIMETYPE = "video/youtube";
 	/**
 	 * Creates the content manifest data.
 	 *
@@ -95,27 +98,35 @@ public class ContentBundle {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
 					if (null != val) {
-						if (val instanceof File) {
-							File file = (File) val;
-							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-							entry.setValue(identifier.trim() + File.separator + file.getName());
-						} else if (HttpDownloadUtility.isValidUrl(val)) {
-							addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-							String file = FilenameUtils.getName(entry.getValue().toString());
-							if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
-									+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
-								entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
-							} else if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())) {
-								entry.setValue(entry.getValue());
-							} else {
-								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
-							}
+						if (!StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE)) {
+							if (val instanceof File) {
+								File file = (File) val;
+								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
+								entry.setValue(identifier.trim() + File.separator + file.getName());
+							} else if (HttpDownloadUtility.isValidUrl(val)) {
+								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
+								String file = FilenameUtils.getName(entry.getValue().toString());
+								if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
+										+ ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
+									entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
+								} else {
+									entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
+								}
 
+							}
+						} else {
+							if (entry.getKey().equals(ContentWorkflowPipelineParams.artifactUrl.name())
+									|| entry.getKey().equals(ContentWorkflowPipelineParams.downloadUrl.name())) {
+								entry.setValue(entry.getValue());
+							} else if (HttpDownloadUtility.isValidUrl(val)) {
+										addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
+										String file = FilenameUtils.getName(entry.getValue().toString());
+										entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
+							}
 						}
 					}
 				}
 			}
-
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(),
 					(String) content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
 			Object posterImage = content.get(ContentWorkflowPipelineParams.posterImage.name());
@@ -126,6 +137,7 @@ public class ContentBundle {
 				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
 		}
 		return downloadUrls;
+
 	}
 
 	/**
@@ -272,7 +284,6 @@ public class ContentBundle {
 		List<String> contentPackageKeys = new ArrayList<String>();
 		contentPackageKeys.add(ContentWorkflowPipelineParams.artifactUrl.name());
 		contentPackageKeys.add(ContentWorkflowPipelineParams.downloadUrl.name());
-
 		if (!contentPackageKeys.contains(key) || packageType != EcarPackageType.SPINE) {
 			List<String> ids = downloadUrls.get(val);
 			if (null == ids) {
