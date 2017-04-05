@@ -23,7 +23,7 @@ var args = {
         "Content-Type": "application/json",
         "user-id": "analytics"
     },
-    rejectUnauthorized: false, 
+    rejectUnauthorized: false,
     data: script
 };
 if(process.argv[3] == 'register') {

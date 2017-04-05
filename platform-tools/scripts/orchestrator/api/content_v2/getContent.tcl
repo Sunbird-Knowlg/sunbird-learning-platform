@@ -72,7 +72,7 @@ set object_type "Content"
 set graph_id "domain"
 set content_image_id ${content_id}.img
 set is_mode_null [java::isnull $mode]
-set resp_get_node null
+set resp_get_node [java::null]]
 if {($is_mode_null != 0) && ($mode == "edit")} {
 	set resp_get_node [getDataNode $graph_id $content_image_id]
 	set check_error [check_response_error $resp_get_node]
