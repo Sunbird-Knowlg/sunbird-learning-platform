@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -1750,6 +1751,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 
 	public List<Relation> getRelations(List<Relation> relations, String relationName) {
+		if(CollectionUtils.isEmpty(relations))
+				return ListUtils.EMPTY_LIST;
+		
 		Map<String, List<Relation>> groupedRelationMap = relations.stream()
 				.collect(Collectors.groupingBy(Relation::getRelationType));
 
