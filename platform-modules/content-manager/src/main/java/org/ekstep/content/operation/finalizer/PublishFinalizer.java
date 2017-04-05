@@ -172,6 +172,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
+			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+					ContentWorkflowPipelineParams.Live.name());
 			nodes.add(node);
 			List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 			List<String> childrenIds = new ArrayList<String>();
@@ -267,10 +269,15 @@ public class PublishFinalizer extends BaseFinalizer {
 		String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		newNode.getMetadata().put(GraphDACParams.versionKey.name(), graphPassportKey);
 
+		// Setting the Status of Content Image Node as 'Retired' since it's a
+		// last Node Update in Publishing
+		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+				ContentWorkflowPipelineParams.Retired.name());
+		
 		Response response = updateContentNode(newNode, downloadUrl);
 		if (checkError(response))
 			throw new ClientException(ContentErrorCodeConstants.PUBLISH_ERROR.name(), response.getParams().getErrmsg());
-		
+
 		LOGGER.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		migrateContentImageObjectData(contentId, newNode);
 
@@ -373,8 +380,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			// Setting the Appropriate Metadata
 			contentImage.setIdentifier(contentId);
-			contentImage.getMetadata().put(SystemProperties.IL_UNIQUE_ID.name(), contentId);
-			contentImage.getMetadata().remove(ContentWorkflowPipelineParams.isImageObject.name());
+			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
 
