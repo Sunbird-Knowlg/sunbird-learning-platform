@@ -118,9 +118,9 @@ public class XMLContentParser {
 	private Manifest getContentManifest(NodeList manifestNodes, boolean validateMedia) {
 		Manifest manifest = new Manifest();
 		if (null != manifestNodes && manifestNodes.getLength() > 0) {
-			if (manifestNodes.getLength() > 1)
-				throw new ClientException(ContentErrorCodeConstants.MULTIPLE_MANIFEST.name(),
-						ContentErrorMessageConstants.MORE_THAN_ONE_MANIFEST_SECTION_ERROR);
+//			if (manifestNodes.getLength() > 1)
+//				throw new ClientException(ContentErrorCodeConstants.MULTIPLE_MANIFEST.name(),
+//						ContentErrorMessageConstants.MORE_THAN_ONE_MANIFEST_SECTION_ERROR);
 			List<Media> medias = new ArrayList<Media>();
 			for (int i = 0; i < manifestNodes.getLength(); i++) {
 				if (manifestNodes.item(i).hasChildNodes()) {
