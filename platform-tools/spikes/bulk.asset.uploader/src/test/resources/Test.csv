@@ -1,6 +1,0 @@
-identifier,objectType,code,tags,status,contentType,mimeType,mediaType,language,name,artifactUrl,downloadUrl,copyright,license,owner,keywords
-,Content,cat.jpg,,,Asset,image/jpeg,image,English,cat.jpg,,,CC-BY,Creative Commons Attribution (CC BY),EkStep,Animal::Cat
-,Content,desk.jpg,,,Asset,image/jpeg,image,English,desk.jpg,,,CC-BY,Creative Commons Attribution (CC BY),EkStep,Furniture::Desk
-,Content,dog.jpeg,,,Asset,image/jpeg,image,English,dog.jpeg,,,CC-BY,Creative Commons Attribution (CC BY),EkStep,Animal::Dog
-,Content,dogs.jpg,,,Asset,image/jpeg,image,English,dogs.jpg,,,CC-BY,Creative Commons Attribution (CC BY),EkStep,Animal::Dog
-,Content,share.jpg,,,Asset,image/jpeg,image,English,share.jpg,,,CC-BY,Creative Commons Attribution (CC BY),EkStep,Animal::Lion
