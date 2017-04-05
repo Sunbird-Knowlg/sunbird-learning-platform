@@ -90,7 +90,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * Content Image Object Type
 	 */
 	private static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
-	
+
 	/**
 	 * Is Content Image Object flag property key
 	 */
@@ -368,12 +368,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Response response = new Response();
 		if (null != node) {
 			String contentId = node.getIdentifier();
-			// Checking if Content Image Object is being Updated, then return the Original Content Id
+			// Checking if Content Image Object is being Updated, then return
+			// the Original Content Id
 			if (BooleanUtils.isTrue((Boolean) node.getMetadata().get(TaxonomyAPIParams.isImageObject.name()))) {
 				node.getMetadata().remove(TaxonomyAPIParams.isImageObject.name());
 				node.setIdentifier(node.getIdentifier() + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
 			}
-			
+
 			LOGGER.info("Getting Update Node Request For Node ID: " + node.getIdentifier());
 			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 			updateReq.put(GraphDACParams.node.name(), node);
@@ -626,15 +627,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			LOGGER.debug("Fetched Content Node: ", node);
 			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
-					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status))) {
+					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 				node = createContentImageNode(taxonomyId, contentImageId, node);
-				node.getMetadata().put(TaxonomyAPIParams.isImageObject.name(), true);
-			}
-		} else {
+		} else
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
-			node.getMetadata().put(TaxonomyAPIParams.isImageObject.name(), true);
-		}
 
 		// Assigning the original 'identifier' to the Node
 		node.setIdentifier(contentId);
