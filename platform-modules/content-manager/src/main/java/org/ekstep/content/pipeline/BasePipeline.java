@@ -102,7 +102,7 @@ public class BasePipeline extends BaseManager {
 				response.put(ContentWorkflowPipelineParams.content_url.name(), url);
 			response.put(ContentWorkflowPipelineParams.node_id.name(), contentId);
 		}
-		
+
 		return response;
 	}
 
@@ -506,7 +506,7 @@ public class BasePipeline extends BaseManager {
 			}
 		}
 	}
-	
+
 	protected String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -530,7 +530,7 @@ public class BasePipeline extends BaseManager {
 		List<Filter> filters = new ArrayList<Filter>();
 		Filter filter = new Filter(ContentWorkflowPipelineParams.identifier.name(), SearchConditions.OP_IN, contentIds);
 		filters.add(filter);
-		
+
 		List<String> status = new ArrayList<String>();
 		status.add(ContentWorkflowPipelineParams.Draft.name());
 		status.add(ContentWorkflowPipelineParams.Live.name());
@@ -538,7 +538,7 @@ public class BasePipeline extends BaseManager {
 		status.add(ContentWorkflowPipelineParams.Processing.name());
 		Filter statusFilter = new Filter(ContentWorkflowPipelineParams.status.name(), SearchConditions.OP_IN, status);
 		filters.add(statusFilter);
-		
+
 		MetadataCriterion metadata = MetadataCriterion.create(filters);
 		metadata.addFilter(filter);
 		criteria.setMetadata(metadata);
@@ -549,36 +549,39 @@ public class BasePipeline extends BaseManager {
 					criteria.getSearchCriteria());
 			req.put(GraphDACParams.get_tags.name(), true);
 			requests.add(req);
-		} 
-//		else {
-//			for (String tId : TaxonomyManagerImpl.taxonomyIds) {
-//				Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER,
-//						ContentWorkflowPipelineParams.searchNodes.name(), GraphDACParams.search_criteria.name(),
-//						criteria.getSearchCriteria());
-//				req.put(GraphDACParams.get_tags.name(), true);
-//				requests.add(req);
-//			}
-//		}
+		}
+		// else {
+		// for (String tId : TaxonomyManagerImpl.taxonomyIds) {
+		// Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER,
+		// ContentWorkflowPipelineParams.searchNodes.name(),
+		// GraphDACParams.search_criteria.name(),
+		// criteria.getSearchCriteria());
+		// req.put(GraphDACParams.get_tags.name(), true);
+		// requests.add(req);
+		// }
+		// }
 		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
 				ContentWorkflowPipelineParams.contents.name());
 		return response;
 	}
-	
+
 	protected String getContentObjectIdentifier(Node node) {
 		String identifier = "";
 		if (null != node) {
 			identifier = node.getIdentifier();
-			if (BooleanUtils.isTrue((Boolean) node.getMetadata().get(ContentWorkflowPipelineParams.isImageObject.name())))
-				identifier += ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX; 
+			if (StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name()))
+				identifier += ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		}
 		return identifier;
 	}
-	
+
 	/**
 	 * Recursively deletes the give file/folder
 	 * 
-	 * @param file the file to be deleted
-	 * @throws IOException when there is a file I/O error
+	 * @param file
+	 *            the file to be deleted
+	 * @throws IOException
+	 *             when there is a file I/O error
 	 */
 	public void delete(File file) throws IOException {
 		if (file.isDirectory()) {
