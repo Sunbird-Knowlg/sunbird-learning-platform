@@ -1447,10 +1447,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	@CoverageIgnore
 	public Response updateWord(String languageId, String id, Map wordMap) throws Exception {
 		Node node = null;
-		DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
-		node = convertToGraphNode(wordMap, definition);
-		node.setIdentifier(id);
-		node.setObjectType(LanguageParams.Word.name());
+		node = new Node(id, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
+		node.setMetadata(wordMap);
 		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
