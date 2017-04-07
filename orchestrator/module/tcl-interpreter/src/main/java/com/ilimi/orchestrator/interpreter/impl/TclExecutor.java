@@ -90,7 +90,7 @@ public class TclExecutor implements Executor {
             } catch (MiddlewareException e) {
                 throw e;
             } catch (Exception e) {
-                throw new MiddlewareException(ExecutionErrorCodes.ERR_SYSTEM_ERROR.name(), e.getMessage(), e);
+                throw new MiddlewareException(ExecutionErrorCodes.ERR_SYSTEM_ERROR.name(), "Error! Time-out exception occured", e);
             }
         } else {
             throw new MiddlewareException(ExecutionErrorCodes.ERR_EXEC_ERROR.name(), "Executor actor not initialized");

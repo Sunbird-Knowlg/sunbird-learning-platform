@@ -53,7 +53,6 @@ public class ConfigV3Controller extends BaseController {
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
 					LOGGER.error("Error in fetching all ResourceBundles from s3"+ e.getMessage(), e);
-					e.printStackTrace();
 				}
 			}
 			response.put("resourcebundles", resourcebundles);
@@ -67,7 +66,6 @@ public class ConfigV3Controller extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.error("getAllResources | Exception" + e.getMessage(), e);
-			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -96,7 +94,6 @@ public class ConfigV3Controller extends BaseController {
 					LOGGER.info("getResourceBundle | successResponse" + response);
 				} catch (Exception e) {
 					LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
-					e.printStackTrace();
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -112,7 +109,6 @@ public class ConfigV3Controller extends BaseController {
 			}
 		} catch (Exception e) {
 			LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
-			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -137,7 +133,6 @@ public class ConfigV3Controller extends BaseController {
 				response.put("ordinals", map);
 			} catch (Exception e) {
 				LOGGER.error("Get Ordinals | Exception" + e.getMessage(), e);
-				e.printStackTrace();
 			}
 			LOGGER.info("Get Ordinals | Response" + response);
 			return getResponseEntity(response, apiId, null);

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.ScriptTypes;
 import com.ilimi.orchestrator.interpreter.Executor;
@@ -107,8 +108,8 @@ public class RegistrationController extends BaseOrchestratorController {
                 OrchestratorScript script = mapper.readValue(strRequest, OrchestratorScript.class);
                 return script;
             } catch (Exception e) {
-                throw new OrchestratorException(OrchestratorErrorCodes.ERR_INVALID_REGISTER_REQUEST.name(),
-                        e.getMessage(), e);
+                throw new ClientException(OrchestratorErrorCodes.ERR_INVALID_REGISTER_REQUEST.name(),
+                        "Error! Invalid Request format", e);
             }
         }
         return null;
