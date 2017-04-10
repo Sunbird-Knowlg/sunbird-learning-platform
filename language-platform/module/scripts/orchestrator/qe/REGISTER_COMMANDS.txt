@@ -21,3 +21,5 @@ node registerScript.js qe/cleanupDuplicateWords.tcl qe/json/register-cleanupDupl
 node registerScript.js qe/updateSynsetRelations.tcl qe/json/register-updateSynsetRelations.json update
 
 node registerScript.js qe/enrichAllWords.tcl qe/json/register-enrichAllWords.json update
+
+node registerScript.js qe/updateWordsStatusToLive.tcl qe/json/register-updateWordsStatusToLive.json update
