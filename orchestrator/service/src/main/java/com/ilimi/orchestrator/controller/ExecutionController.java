@@ -117,6 +117,9 @@ public class ExecutionController extends BaseOrchestratorController {
 
 	private OrchestratorScript getScript(String path, String type) {
 		Map<String, OrchestratorScript> map = OrchestratorScriptMap.scriptMap.get(type);
+		if(path.endsWith("/")){
+			path = StringUtils.stripEnd(path, "/");
+		}
 		if (null != map && !map.isEmpty()) {
 			int pathParams = -1;
 			OrchestratorScript script = null;
