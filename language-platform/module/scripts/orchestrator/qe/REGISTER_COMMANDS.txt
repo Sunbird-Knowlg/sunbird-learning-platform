@@ -23,3 +23,5 @@ node registerScript.js qe/updateSynsetRelations.tcl qe/json/register-updateSynse
 node registerScript.js qe/enrichAllWords.tcl qe/json/register-enrichAllWords.json update
 
 node registerScript.js qe/updateWordsStatusToLive.tcl qe/json/register-updateWordsStatusToLive.json update
+
+node registerScript.js qe/updateWordsStatusToDraft.tcl qe/json/register-updateWordsStatusToDraft.json update
