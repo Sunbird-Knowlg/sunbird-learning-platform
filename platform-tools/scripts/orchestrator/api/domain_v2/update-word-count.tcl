@@ -3,6 +3,23 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node
 
+proc getIntValue {obj} {
+	set isObjNull [java::isnull $obj]
+	if {$isObjNull == 0} {
+		set long_inst [java::instanceof $obj Long]
+		if {$long_inst == 1} {
+			set long_obj [java::cast Long $obj]
+			return [$long_obj intValue]
+		} 
+		set int_inst [java::instanceof $obj Integer]
+		if {$int_inst == 1} {
+			set int_obj [java::cast Integer $obj]
+			return [$int_obj intValue]
+		}
+	}
+	return 0
+}
+
 set lemma_list [java::new ArrayList]
 set object_type "Language"
 set error_status "Failed"
@@ -21,9 +38,7 @@ if {[java::isnull $wordCount] == 1} {
 }
 
 set wordCount [$wordCount intValue]
-
-set ogWords [java::new Integer [$resp_object get "words"]]
-set words [$ogWords intValue]
+set words [getIntValue [$resp_object get "words"]]
 set updatedWordsCount [expr $words + $wordCount]
 
 if {[java::isnull $liveWordCount] == 1} {
@@ -31,17 +46,10 @@ if {[java::isnull $liveWordCount] == 1} {
 }
 
 set liveWordCount [$liveWordCount intValue]
-
-set ogLiveWordsObj [$resp_object get "liveWords"]
-if {[java::isnull $ogLiveWordsObj] == 1} {
-	set ogLiveWords [java::new Integer 0]
-} else {
-	set ogLiveWords [java::new Integer [$resp_object get "liveWords"]]
-}
-
-set liveWords [$ogLiveWords intValue]
+set liveWords [getIntValue [$resp_object get "liveWords"]]
 set updatedLiveWordsCount [expr $liveWords + $liveWordCount]
 $resp_object put "words" [java::new Integer $updatedWordsCount]
+$resp_object put "liveWords" [java::new Integer $updatedLiveWordsCount]
 $resp_object put "objectType" "Language"
 set language_obj [convert_to_graph_node $resp_object $def_node]
 set create_response [updateDataNode "domain" $lang_node_id $language_obj]
