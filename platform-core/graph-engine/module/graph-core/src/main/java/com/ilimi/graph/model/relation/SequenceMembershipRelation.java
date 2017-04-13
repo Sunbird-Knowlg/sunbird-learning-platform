@@ -37,6 +37,8 @@ public class SequenceMembershipRelation extends AbstractRelation {
         	
             List<Future<Node>> nodeFutures = new ArrayList<Future<Node>>();
             final ExecutionContext ec = manager.getContext().dispatcher();
+            String startNodeId = this.startNodeId;
+            String endNodeId = this.endNodeId;
             Future<Node> startNodeFuture = getNode(request, this.startNodeId);
             Future<Node> endNodeFuture = getNode(request, this.endNodeId);
             nodeFutures.add(startNodeFuture);
@@ -55,8 +57,10 @@ public class SequenceMembershipRelation extends AbstractRelation {
                                     else
                                         endNode = node;
                                 }
-                                if (null == startNode || null == endNode)
-                                	return "Invalid nodes: could not find one or more nodes";
+                                if (null == startNode)
+                                	return "Invalid node: could not find node: " + startNodeId;
+                                if(null == endNode)
+                                	return "Invalid node: could not find node: " + endNodeId;
                             } else {
                                 return "Invalid nodes: could not find one or more nodes";
                             }

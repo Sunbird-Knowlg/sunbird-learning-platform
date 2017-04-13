@@ -56,6 +56,9 @@ public class EnrichmentConsumerTests extends BaseTest {
 	String jsonCreateValidContentWithText = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"Hindi\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"posterImage\":\"https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"gradeLevel\":[\"kindergarten\"], \"ageGroup\":[\"6-7\"], \"text\": [\"चर्चा करो मेरा गाँव चित्र चर्चा करो खमनोर बस स्टेंड चर्चा करो मेले की मौज़ चर्चा करो बिल्ली और चूहा चित्रों पर बातचीत करें और कहानी बनवाएँ। चर्चा करो रेखा चित्र अंगुली घुमाओ पेंसिल घुमाओ घुमाओ चर्चा करो अंगूठे की चाप बाले चित्र ऊपर बने चित्रों की पहचान कराएँ। इनके बनने की प्रक्रिया पर चर्चा करें। रेखाओं पर पेंसिल घुमवाएँ। कविता गाओ बालगीत आ आ लल्ला ले रसगुल्ला मचा रहा क्यों रो रो हल्ला ले यह दोना अब मत रोना जल्दी खाकर मुँह को धोना पिंकी ने एक पिल्ला पाला कुछकुछ पीला , कुछ-कुछ काला टॉमी उसका सुंदर नाम हाथ उठाओ करे सलाम। सूरज ऐसे चमक रहा है, सोना जैसे दमक रहा है। रातों में यह चिप जाता है, सुबह सवेरे दिखा जाता है। इसके बिना अन्धेरा है, अम्बर इसका डेरा है। चिड़िया के घर न्योता है देखें क्या-क्या होता है मुर्गी चावल लाएगी चिड़िया खीर पकाएगी चिड़िया तुम्हें बुलाएगी मीठी खीर खिलाएगी मुन्नी हो जाओ तैयार देखो चिड़िया का घर-बार मछली तुम हो जल की रानी, रह सकती हो ना बिन पानी। लहर-लहर कर आती हो, मचल-मचल कर जाती हो। करती हो बस तुम मनमानी, मछली रानी, मछली रानी। हुआ सवेरा चिड़ियाँ बोली बच्चों ने तब आँखें खोली अच्छे बच्चे मंजन करते मंजन करके कुल्ला करते कुल्ला करके मुँह को ढोते मुँह धोकर के रोज नहाते रोज नहाकर खाना खाते खाना खाकर पढ़ने जाते। वातावरण निर्माण के लिए बालगीतों को गाएँ । सभा, समारोह, पर्व आदि पर बच्चों से मंच पर प्रस्तुत कराएँ। जिन बालगीतों को आगे बढ़ाया जा सकता है उन्हें आगे बढ़ावाएँ। उमड़-घुमड़ के आए बादल काले, ढोले, नीले बादल बिजली के संग आए बादल आसमान में छाए बादल घड़-घड़-घड़-घड़ करते बादल ताल-तलैया भरते बादल गुड़िया मेरी रानी है, मलगती बड़ी सयानी है। गोरे-गोरे गाल है, लंबे-लंबे बाल हैं। आँखें नीली-नीली हैं, साड़ी पीली-पीली हैं। मैं तो सो रही थी मुझे मुर्ग ने जगाया बोला कुकडूँ-कूँ। मैं तो सो रही थी मुझे बिल्ली ने जगाया बोली म्याऊँ-म्याऊँ। मैं तो सो रही थी मुझे मोटर नइ जगाया बोली पों-पों-पों। मैं तो सो रही थी मुझे अम्मा ने जगाया बोली उठ-उठ-उठ। सड़क बनी है लम्बी चौड़ी जिस पर जाती मोटर दौड़ी स्कूटर भरते है फर्राटे रिक्शा तांगे आते-जाते दुर्घटना से यदि हो बचना बाँयी तरफ हमेशा चलना। \"] } } }";
 	String jsonCreateAssessmentItem = "{ \"request\": { \"assessment_item\": {\"identifier\": \"LP_FT_"+rn+"\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"code\": \"test.mtf_mixed_1\", \"name\": \"MTF Question 1\", \"type\": \"mtf\", \"template_id\": \"mtf_template_3\", \"ageGroup\":[\"5-6\"], \"gradeLevel\":[\"kindergarten\"], \"lhs_options\": [ { \"value\": {\"type\": \"image\", \"asset\": \"grey\"}, \"index\": 0 } ], \"rhs_options\": [ { \"value\": {\"type\": \"text\", \"asset\": \">\"} }, { \"value\": {\"type\": \"text\", \"asset\": \"=\"} }, { \"value\": {\"type\": \"mixed\", \"text\": \"<\", \"image\": \"image1\", \"audio\": \"audio1\"}, \"answer\": 0 } ], \"max_score\": 6, \"partial_scoring\": true, \"outRelations\":[ { \"endNodeId\":\"C310\", \"relationType\":\"associatedTo\" }] } } } }";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT\"}}";
+	String jsonCreateContentWithKannadaText = "{ \"request\": { \"content\": { \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"Kannada\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"posterImage\":\"https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"text\":[\"ಇತ್ತೀಚೆಗೆ ನಮ್ಮನ್ನಗಲಿದ ಪ್ರಸಿದ್ಧ ಸಾಹಿತಿ, ಕಲಾವಿದ ಆರ್ಯರ ನೆನಪಿನಲ್ಲಿ ಈ ಕತೆ- ಅವರದ್ದೇ ಹೈಬ್ರಿàಡ್‌ ಕತೆಗಳು ಸಂಕಲನದಿಂದ ಆಯ್ದುಕೊಂಡದ್ದು.\"] } } } ";
+	String jsonCreateContentWithEnglishText = "{ \"request\": { \"content\": { \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"Kannada\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"posterImage\":\"https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"text\":[\"Hello welcome to ekstep, this is an e-learning platform which provides a platform to explore and enhance a childs career.\"] } } } ";
+	String jsonCreateContentWithoutText = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"Hindi\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"posterImage\":\"https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"gradeLevel\":[\"kindergarten\"], \"ageGroup\":[\"6-7\"] } } }";
 	static ClassLoader classLoader = EnrichmentConsumerTests.class.getClassLoader();
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 	static String nodeId;
@@ -63,16 +66,16 @@ public class EnrichmentConsumerTests extends BaseTest {
 	static File downloadPath;
 	char ch = '"';
 	
-//	@BeforeClass
-//	public static void setup() throws URISyntaxException{
-//		downloadPath = new File(url.toURI().getPath());		
-//	}	
-//	
-//	@AfterClass
-//	public static void end() throws IOException{
-//		FileUtils.cleanDirectory(downloadPath);	
-//	}
-//	
+	@BeforeClass
+	public static void setup() throws URISyntaxException{
+		downloadPath = new File(url.toURI().getPath());		
+	}	
+	
+	@AfterClass
+	public static void end() throws IOException{
+		FileUtils.cleanDirectory(downloadPath);	
+	}
+	
 	// Content clean up	
 		public void contentCleanUp(){
 			setURI();
@@ -228,6 +231,262 @@ public class EnrichmentConsumerTests extends BaseTest {
 	 * @see <Class>LanguageEnrichmentMessageProcessor</Class>
 	 */
 	@Test
+	public void createContentwithKannadaText() {
+		if (nodeId == null) {
+			setURI();
+			Response R = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateContentWithKannadaText)
+					.with().contentType(JSON).when().post("/learning/v2/content").then().
+					// log().all()
+					spec(get200ResponseSpec()).extract().response();
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			nodeId = jp.get("result.node_id");
+			System.out.println("nodeId=" + nodeId);
+
+			// Upload Content
+			setURI();
+			given().spec(getRequestSpec(uploadContentType, validuserId))
+					.multiPart(new File(path + "/uploadContent.zip")).when()
+					.post("/learning/v2/content/upload/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec());
+
+			// Get body and validate
+			setURI();
+			Response R2 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v2/content/" + nodeId + "?fields=body").then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			JsonPath jP2 = R2.jsonPath();
+			String body = jP2.get("result.content.body");
+			Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+			if (isValidXML(body) || isValidJSON(body)) {
+				Assert.assertTrue(accessURL(nodeId));
+			}
+
+			// Publish content
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+
+			// Get content and validate
+			setURI();
+			Response R3 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v2/content/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			// Validate the response
+			JsonPath jp2 = R3.jsonPath();
+			String status = jp2.get("result.content.status");
+			asyncPublishValidationContents(nodeId, status);
+
+			for (int i = 1000; i <= 5000; i = i + 1000) {
+				try {
+					Thread.sleep(i);
+				} catch (InterruptedException e) {
+					System.out.println(e);
+				}
+			}
+			// Get body and validate
+			setURI();
+			Response R4 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v1/graph/domain/datanodes/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			JsonPath jP3 = R4.jsonPath();
+			Map<String, Object> map = jP3.get("result.node.metadata");
+			Assert.assertEquals(map.containsKey("thresholdVocabulary"), true);
+			Assert.assertEquals(map.containsKey("totalOrthoComplexity"), true);
+			Assert.assertEquals(map.containsKey("themes"), true);
+			Assert.assertEquals(map.containsKey("nonThresholdVocabulary"), true);
+			Assert.assertEquals(map.containsKey("wordCount"), true);
+			Assert.assertEquals(map.containsKey("totalWordCount"), true);
+			Assert.assertEquals(map.containsKey("syllableCount"), true);
+			Assert.assertEquals(map.containsKey("partsOfSpeech"), true);
+			Assert.assertEquals(map.containsKey("totalWordComplexity"), true);
+		}
+	}
+	
+	/**
+	 * Test method to check Language Enrichment functionality Test will execute
+	 * only if the content created has a text tag and its not a English Content
+	 * 
+	 * @see <Class>LanguageEnrichmentMessageProcessor</Class>
+	 */
+	@Test
+	public void createContentwithoutText() {
+		if (nodeId == null) {
+			setURI();
+			Response R = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateContentWithoutText)
+					.with().contentType(JSON).when().post("/learning/v2/content").then().
+//					log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			nodeId = jp.get("result.node_id");
+			System.out.println("nodeId=" + nodeId);
+
+			// Upload Content
+			setURI();
+			given().spec(getRequestSpec(uploadContentType, validuserId))
+					.multiPart(new File(path + "/uploadContent.zip")).when()
+					.post("/learning/v2/content/upload/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec());
+
+			// Get body and validate
+			setURI();
+			Response R2 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v2/content/" + nodeId + "?fields=body").then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			JsonPath jP2 = R2.jsonPath();
+			String body = jP2.get("result.content.body");
+			Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+			if (isValidXML(body) || isValidJSON(body)) {
+				Assert.assertTrue(accessURL(nodeId));
+			}
+
+			// Publish content
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+
+			// Get content and validate
+			setURI();
+			Response R3 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v2/content/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			// Validate the response
+			JsonPath jp2 = R3.jsonPath();
+			String status = jp2.get("result.content.status");
+			asyncPublishValidationContents(nodeId, status);
+
+			for (int i = 1000; i <= 5000; i = i + 1000) {
+				try {
+					Thread.sleep(i);
+				} catch (InterruptedException e) {
+					System.out.println(e);
+				}
+			}
+			// Get body and validate
+			setURI();
+			Response R4 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v1/graph/domain/datanodes/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			JsonPath jP3 = R4.jsonPath();
+			Map<String, Object> map = jP3.get("result.node.metadata");
+			Assert.assertEquals(map.containsKey("thresholdVocabulary"), false);
+			Assert.assertEquals(map.containsKey("totalOrthoComplexity"), false);
+			Assert.assertEquals(map.containsKey("themes"), false);
+		}
+	}
+
+	/**
+	 * Test method to check Language Enrichment functionality Test will execute
+	 * only if the content created has a text tag and its not a English Content
+	 * 
+	 * @see <Class>LanguageEnrichmentMessageProcessor</Class>
+	 */
+	@Test
+	public void createContentwithEnglishText() {
+		if (nodeId == null) {
+			setURI();
+			Response R = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateContentWithEnglishText)
+					.with().contentType(JSON).when().post("/learning/v2/content").then().
+					// log().all()
+					spec(get200ResponseSpec()).extract().response();
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			nodeId = jp.get("result.node_id");
+			System.out.println("nodeId=" + nodeId);
+
+			// Upload Content
+			setURI();
+			given().spec(getRequestSpec(uploadContentType, validuserId))
+					.multiPart(new File(path + "/uploadContent.zip")).when()
+					.post("/learning/v2/content/upload/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec());
+
+			// Get body and validate
+			setURI();
+			Response R2 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v2/content/" + nodeId + "?fields=body").then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			JsonPath jP2 = R2.jsonPath();
+			String body = jP2.get("result.content.body");
+			Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+			if (isValidXML(body) || isValidJSON(body)) {
+				Assert.assertTrue(accessURL(nodeId));
+			}
+
+			// Publish content
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+
+			// Get content and validate
+			setURI();
+			Response R3 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v2/content/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			// Validate the response
+			JsonPath jp2 = R3.jsonPath();
+			String status = jp2.get("result.content.status");
+			asyncPublishValidationContents(nodeId, status);
+
+			for (int i = 1000; i <= 5000; i = i + 1000) {
+				try {
+					Thread.sleep(i);
+				} catch (InterruptedException e) {
+					System.out.println(e);
+				}
+			}
+			// Get body and validate
+			setURI();
+			Response R4 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v1/graph/domain/datanodes/" + nodeId).then().
+					// log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			JsonPath jP3 = R4.jsonPath();
+			Map<String, Object> map = jP3.get("result.node.metadata");
+			Assert.assertEquals(map.containsKey("thresholdVocabulary"), false);
+			Assert.assertEquals(map.containsKey("totalOrthoComplexity"), false);
+			Assert.assertEquals(map.containsKey("themes"), false);
+			Assert.assertEquals(map.containsKey("nonThresholdVocabulary"), false);
+		}
+	}
+	
+	/**
+	 * Test method to check Language Enrichment functionality Test will execute
+	 * only if the content created has a text tag and its not a English Content
+	 * 
+	 * @see <Class>LanguageEnrichmentMessageProcessor</Class>
+	 */
+	@Test
 	public void createContentwithText() {
 		if (nodeId == null) {
 			setURI();
@@ -309,7 +568,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 			Assert.assertEquals(map.containsKey("totalWordComplexity"), true);
 		}
 	}
-
+	
 	// Async Publish validations - Collection
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId,
 			String c_identifier, String node1, String node2) {
