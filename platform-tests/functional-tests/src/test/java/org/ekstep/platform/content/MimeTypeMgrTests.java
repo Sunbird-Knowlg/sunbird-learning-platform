@@ -68,15 +68,15 @@ public class MimeTypeMgrTests extends BaseTest {
 	static URL url = classLoader.getResource("DownloadedFiles");
 	static File downloadPath;
 	
-//	 @BeforeClass
-//	 public static void setup() throws URISyntaxException{
-//	    downloadPath = new File(url.toURI().getPath());
-//	 }
-//
-//	 @AfterClass
-//	 public static void end() throws IOException{
-//		FileUtils.cleanDirectory(downloadPath);		
-//	 }
+	 @BeforeClass
+	 public static void setup() throws URISyntaxException{
+	    downloadPath = new File(url.toURI().getPath());
+	 }
+
+	 @AfterClass
+	 public static void end() throws IOException{
+		FileUtils.cleanDirectory(downloadPath);		
+	 }
 
 	// Content clean up	
 	public void contentCleanUp(){
