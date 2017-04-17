@@ -11,8 +11,8 @@ identifier,objectType,varna,unicode,type,isoSymbol,image,status
 ஒ,Varna,ஒ,0B92,Vowel,o,,Live
 ஓ,Varna,ஓ,0B93,Vowel,O,,Live
 ஔ,Varna,ஔ,0B94,Vowel,au,,Live
-அ$,Varna,அ$,0B82,Other,ṃ,,Live
-அஃ,Varna,அஃ,0B83,Other,ḥ,,Live
+ஂ,Varna,ஂ,0B82,Other,ṃ,,Live
+ஃ,Varna,ஃ,0B83,Other,ḥ,,Live
 க,Varna,க,0B95,Consonant,k,,Live
 ங,Varna,ங,0B99,Consonant,ṅ,,Live
 ச,Varna,ச,0B9A,Consonant,c,,Live
@@ -36,5 +36,3 @@ identifier,objectType,varna,unicode,type,isoSymbol,image,status
 ஷ,Varna,ஷ,0BB7,Consonant,ṣ,,Live
 ஸ,Varna,ஸ,0BB8,Consonant,s,,Live
 ஹ,Varna,ஹ,0BB9,Consonant,h,,Live
-ज़,Varna,ज़,095B,Consonant,z,,Live
-फ़,Varna,फ़,095E,Consonant,f,,Live
