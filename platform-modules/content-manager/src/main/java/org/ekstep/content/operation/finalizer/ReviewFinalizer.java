@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
-import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
