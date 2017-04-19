@@ -7,6 +7,7 @@ public class TelemetryBEEvent {
 
 	private String eid;
 	private long ets;
+	private String mid;
 	private String ver;
 	private Map<String, String> pdata;
 	private Map<String, Object> edata;
@@ -77,5 +78,11 @@ public class TelemetryBEEvent {
 		eks.put("prevstate", prevState);
 		eks.put("lemma", lemma);		
 		edata.put("eks", eks);
+	}
+	public String getMid() {
+		return mid;
+	}
+	public void setMid(String mid) {
+		this.mid = mid;
 	}
 }
