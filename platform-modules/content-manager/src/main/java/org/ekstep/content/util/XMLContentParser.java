@@ -118,25 +118,20 @@ public class XMLContentParser {
 	private Manifest getContentManifest(NodeList manifestNodes, boolean validateMedia) {
 		Manifest manifest = new Manifest();
 		if (null != manifestNodes && manifestNodes.getLength() > 0) {
-			if (manifestNodes.getLength() > 1)
-				throw new ClientException(ContentErrorCodeConstants.MULTIPLE_MANIFEST.name(),
-						ContentErrorMessageConstants.MORE_THAN_ONE_MANIFEST_SECTION_ERROR);
 			List<Media> medias = new ArrayList<Media>();
-			for (int i = 0; i < manifestNodes.getLength(); i++) {
-				if (manifestNodes.item(i).hasChildNodes()) {
-					NodeList mediaNodes = manifestNodes.item(i).getChildNodes();
-					for (int j = 0; j < mediaNodes.getLength(); j++) {
-						if (mediaNodes.item(j).getNodeType() == Node.ELEMENT_NODE && StringUtils.equalsIgnoreCase(
-								mediaNodes.item(j).getNodeName(), ContentWorkflowPipelineParams.media.name()))
-							medias.add(getContentMedia(mediaNodes.item(j), validateMedia));
-					}
+			if (null != manifestNodes.item(0) && manifestNodes.item(0).hasChildNodes()) {
+				NodeList mediaNodes = manifestNodes.item(0).getChildNodes();
+				for (int j = 0; j < mediaNodes.getLength(); j++) {
+					if (mediaNodes.item(j).getNodeType() == Node.ELEMENT_NODE && StringUtils.equalsIgnoreCase(
+							mediaNodes.item(j).getNodeName(), ContentWorkflowPipelineParams.media.name()))
+						medias.add(getContentMedia(mediaNodes.item(j), validateMedia));
 				}
-				manifest.setId(getId(manifestNodes.item(i)));
-				manifest.setData(getDataMap(manifestNodes.item(i)));
-				manifest.setInnerText(getInnerText(manifestNodes.item(i)));
-				manifest.setcData(getCData(manifestNodes.item(i)));
-				manifest.setMedias(medias);
 			}
+			manifest.setId(getId(manifestNodes.item(0)));
+			manifest.setData(getDataMap(manifestNodes.item(0)));
+			manifest.setInnerText(getInnerText(manifestNodes.item(0)));
+			manifest.setcData(getCData(manifestNodes.item(0)));
+			manifest.setMedias(medias);
 		}
 		return manifest;
 	}
