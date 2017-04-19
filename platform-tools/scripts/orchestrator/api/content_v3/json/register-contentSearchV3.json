@@ -45,8 +45,14 @@
         "routingParam": false
     },
     {
-        "name": "fields",
+        "name": "offset",
         "index": 7,
+        "datatype": "java.lang.Integer",
+        "routingParam": false
+    },
+    {
+        "name": "fields",
+        "index": 8,
         "datatype": "java.util.ArrayList",
         "routingParam": false
     }

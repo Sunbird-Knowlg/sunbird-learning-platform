@@ -19,6 +19,7 @@ $request put "not_exists" $not_exists
 $request put "sort_by" $sort_by
 $request put "facets" $facets
 $request put "limit" $limit
+$request put "offset" $offset
 $request put "fields" $fields
 
 set compositeSearchResp [compositeSearchWrapper $request]
