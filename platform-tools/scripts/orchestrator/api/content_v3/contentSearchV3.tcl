@@ -19,6 +19,19 @@ $request put "not_exists" $not_exists
 $request put "sort_by" $sort_by
 $request put "facets" $facets
 $request put "limit" $limit
+$request put "fields" $fields
 
-set compositeSearchResp [compositeSearch $request]
+set compositeSearchResp [compositeSearchWrapper $request]
+
+set check_error [check_response_error $compositeSearchResp]
+if {$check_error} {
+	return $compositeSearchResp;
+}
+
+set resultMap [java::prop $compositeSearchResp "result"]
+
+set contentResult [$resultMap get "results"]
+$resultMap put "content" $contentResult
+$resultMap remove "results"
+
 return $compositeSearchResp

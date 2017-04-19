@@ -1,0 +1,2 @@
+node registerScript.js api/compositeSearchWrapper.tcl api/json/register-compositeSearchWrapper.json update
+

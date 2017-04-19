@@ -7,7 +7,10 @@ import javax.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.consumer.ConsumerRunner;
+
+import com.ilimi.common.router.RequestRouterPool;
 
 
 public class InitServlet extends HttpServlet {
@@ -22,6 +25,7 @@ public class InitServlet extends HttpServlet {
         // Initialising Request Router Pool
         LOGGER.info("Initialising Request Router Pool");
         LearningRequestRouterPool.init();
+        SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());
         try {
 			ConsumerRunner.startConsumers();
 		} catch (Exception e) {
