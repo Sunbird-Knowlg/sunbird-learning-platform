@@ -42,7 +42,7 @@ proc proc_isNotEmpty {relations} {
 	set exist false
 	set hasRelations [java::isnull $relations]
 	if {$hasRelations == 0} {
-		set relationsSize [$relations size] 
+		set relationsSize [$relations size]
 		if {$relationsSize > 0} {
 			set exist true
 		}
@@ -95,10 +95,17 @@ if {$object_null == 1} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		} else {
-			set get_node_response [getDataNode $graph_id $content_id]
+			set content_image_id = ${content_id}.img
+			set get_node_response [getDataNode $graph_id $content_image_id]
 			set get_node_response_error [check_response_error $get_node_response]
 			if {$get_node_response_error} {
-				return $get_node_response;
+				set get_node_response [getDataNode $graph_id $content_id]
+				set get_node_response_error [check_response_error $get_node_response]
+				if {$get_node_response_error} {
+					return $get_node_response;
+				} else {
+
+				}
 			} else {
 				set externalProps [java::new HashMap]
 				set body [$content get "body"]
