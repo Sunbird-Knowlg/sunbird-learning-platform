@@ -59,7 +59,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/search"
+        "url": "/v3/content/adv/search"
     },
     "body": ""
 }

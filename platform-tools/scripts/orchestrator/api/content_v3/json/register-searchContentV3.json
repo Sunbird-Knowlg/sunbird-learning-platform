@@ -11,7 +11,7 @@
     ],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/content/search/_old"
+        "url": "/v3/content/search"
     },
     "body": "",
     "apiId": "ekstep.content.search",
