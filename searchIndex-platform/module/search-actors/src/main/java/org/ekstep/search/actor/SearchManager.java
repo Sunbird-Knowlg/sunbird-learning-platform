@@ -352,11 +352,11 @@ public class SearchManager extends SearchBaseActor {
 		if (null != filters && !filters.isEmpty()) {
 			for (Entry<String, Object> entry : filters.entrySet()) {
 				if (CompositeSearchParams.objectType.name().equals(entry.getKey())) {
-					if (CompositeSearchParams.Content.name().equals(entry.getValue()))
-						;
-					List<String> value = (List<String>) entry.getValue();
-					value.add(CompositeSearchParams.ContentImage.name());
-					entry.setValue(value);
+					if (CompositeSearchParams.Content.name().equals(entry.getValue())) {
+						List<String> value = (List<String>) entry.getValue();
+						value.add(CompositeSearchParams.ContentImage.name());
+						entry.setValue(value);
+					}
 				}
 				Object filterObject = entry.getValue();
 				if (filterObject instanceof Map) {
@@ -486,11 +486,13 @@ public class SearchManager extends SearchBaseActor {
 							Map<String, Object> map = (Map<String, Object>) obj;
 							// Needs to be tested
 							String objectType = (String) map.get(GraphDACParams.objectType.name());
-							 List<String> objectList = new ArrayList<String>(Arrays.asList(objectType.split(",")));
+							LOGGER.info("Object Type:"+ objectType);
+							List<String> objectList = new ArrayList<String>(Arrays.asList(objectType.split(",")));
 							if (objectList.contains(CompositeSearchParams.ContentImage.name())) {
-							objectList.remove(CompositeSearchParams.ContentImage.name());
+								objectList.remove(CompositeSearchParams.ContentImage.name());
 							}
 							objectType = objectList.get(0);
+							LOGGER.info("Object Type:"+ objectType);
 							if (StringUtils.isNotBlank(objectType)) {
 								String key = getResultParamKey(objectType);
 								if (StringUtils.isNotBlank(key)) {
@@ -501,18 +503,21 @@ public class SearchManager extends SearchBaseActor {
 										respResult.put(key, list);
 									}
 									String id = (String) map.get("identifier");
+									LOGGER.info("Identifier:"+ id);
 									id.replaceAll(".img", "");
 									map.replace("identifier", id);
+									LOGGER.info("Identifier:"+ map.get("identifier"));
 									list.add(map);
 								}
 							}
 						}
 					}
 				}
-			}else {
+			} else {
 				respResult.put(entry.getKey(), entry.getValue());
 			}
-		}return respResult;
+		}
+		return respResult;
 
 	}
 
