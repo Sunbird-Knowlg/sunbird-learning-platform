@@ -60,6 +60,7 @@ if {$object_null == 1} {
 	return $response_list
 } else {
 	set object_type "Content"
+	set content_image_object_type "ContentImage"
 	set graph_id "domain"
 	set resp_def_node [getDefinition $graph_id $object_type]
 	set def_node [get_resp_value $resp_def_node "definition_node"]
@@ -74,6 +75,7 @@ if {$object_null == 1} {
 		set contentTypeEmpty [proc_isEmpty $contentType]
 	}
 	if {!$contentTypeEmpty} {
+		set isImageObjectCreationNeeded = 0
 		set osId [$content get "osId"]
 		set osIdNotNull [proc_isNotNull $osId]
 		set osIdEmpty false
@@ -104,7 +106,7 @@ if {$object_null == 1} {
 				if {$get_node_response_error} {
 					return $get_node_response;
 				} else {
-
+					set isImageObjectCreationNeeded 1
 				}
 			} else {
 				set externalProps [java::new HashMap]
@@ -149,6 +151,7 @@ if {$object_null == 1} {
 				set status_val_str [java::new String [$status_val toString]]
 				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
 				set isFlaggedReviewState [$status_val_str equalsIgnoreCase "FlagReview"]
+				set isLiveState [$status_val_str equalsIgnoreCase "Live"]
 				set input_status [$content get "status"]
 				set input_status_null [java::isnull $input_status]
 				set log_event 0
@@ -164,7 +167,15 @@ if {$object_null == 1} {
 					}
 				}
 				set domain_obj [convert_to_graph_node $content $def_node $graph_node]
-				set create_response [updateDataNode $graph_id $content_id $domain_obj]
+				set create_response [java::null]
+				if ($isLiveState == 1 && $isImageObjectCreationNeeded == 1) {
+					$metadata putAll $content
+					$metadata put "identifier" $content_image_id
+					$metadata put "objectType" $content_image_object_type
+					set create_response [createDataNode $graph_id $domain_obj]
+				} else {
+					set create_response [updateDataNode $graph_id $content_id $domain_obj]
+				}
 				set check_error [check_response_error $create_response]
 				if {$check_error} {
 					return $create_response
