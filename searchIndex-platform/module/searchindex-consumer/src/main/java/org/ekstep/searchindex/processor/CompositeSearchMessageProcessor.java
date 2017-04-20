@@ -11,7 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.searchindex.util.ConsumerUtil;
+//import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
 import com.ilimi.common.logger.LogHelper;
@@ -20,7 +20,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
 	private static LogHelper LOGGER = LogHelper.getInstance(CompositeSearchMessageProcessor.class.getName());
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-	private ConsumerUtil consumerUtil = new ConsumerUtil();
+//	private ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public CompositeSearchMessageProcessor() {
@@ -131,10 +131,10 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 						else{
 							Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
 							if (propertyDefinition != null) {
-								boolean indexed = (boolean) propertyDefinition.get("indexed");
-								if (indexed || StringUtils.equalsIgnoreCase("versionKey", propertyName)) {
+//								boolean indexed = (boolean) propertyDefinition.get("indexed");
+//								if (indexed || StringUtils.equalsIgnoreCase("versionKey", propertyName)) {
 									indexDocument.put(propertyName, propertyNewValue);
-								}
+//								}
 							}
 						}
 
