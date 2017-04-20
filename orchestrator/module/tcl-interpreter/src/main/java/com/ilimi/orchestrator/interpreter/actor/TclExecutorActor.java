@@ -195,7 +195,11 @@ public class TclExecutorActor extends UntypedActor {
 			String msg = "";
 			switch (code) {
 			case TCL.ERROR:
+				LOGGER.error("tcl interpretation error" + interpreter.getResult().toString());
 				msg = interpreter.getResult().toString();
+				if(StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")){
+					msg = "| Invalid request format |";
+				}
 				break;
 			case TCL.BREAK:
 				msg = "invoked \"break\" outside of a loop";

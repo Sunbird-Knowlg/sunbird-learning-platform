@@ -7,6 +7,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String XML_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Content XML file.";
 	
+	public static final String JSON_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Content JSON file.";
+	
 	public static final String MANIFEST_PARSE_CONFIG_ERROR = "Parse configuration error while parsing Manifest file.";
 	
 	public static final String INVALID_PLUGIN_ID_ERROR = "'id' in manifest.json is not same as the plugin identifier.";
@@ -142,6 +144,13 @@ public class ContentErrorMessageConstants {
 	public static final String CONTENT_IMAGE_MIGRATION_ERROR = "Error! While Migrating the Metadata.";
 	
 	public static final String CONTENT_BODY_MIGRATION_ERROR = "Error! While Migrating the Content Body.";
+
+	public static final String INVALID_YOUTUBE_URL = "Error! Invalid youtube Url";
+	
+	public static final String MISSING_YOUTUBE_URL = "Error! Missing Youtube Url";
+	
+	public static final String MISSING_DOC_LINK = "Error! Missing doc/pdf Link";
+
 	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();

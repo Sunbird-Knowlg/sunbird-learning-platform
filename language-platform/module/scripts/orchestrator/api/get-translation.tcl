@@ -110,6 +110,13 @@ set synonym_list [getInNodeRelationIds $word_node "Synset" "synonym" "startNodeI
 set synset_list [java::new ArrayList]
 $synset_list addAll $synonym_list
 
+set not_empty_list [isNotEmpty $synset_list]
+if {$not_empty_list == false} {
+	set result_map [java::new HashMap]
+	set response_list [create_response $result_map]
+	return $response_list
+}
+
 set filters [java::new HashMap]
 $filters put "objectType" $object_type
 $filters put "graph_id" $graph_id
@@ -161,7 +168,7 @@ java::try {
 			}
 		}
 		$result_list putAll $synsetMap
-
+		
 	}
 	$result_map put "translations" $result_list
 } catch {Exception err} {

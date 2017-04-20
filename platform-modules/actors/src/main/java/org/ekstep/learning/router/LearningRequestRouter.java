@@ -39,6 +39,10 @@ public class LearningRequestRouter extends UntypedActor {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(LearningRequestRouter.class.getName());
+	private static final String ekstep = "org.ekstep.";
+	private static final String ilimi = "com.ilimi.";
+	private static final String java = "java.";
+	private static final String default_err_msg = "Something went wrong in server while processing the request";
 
 	/** The timeout. */
 	protected long timeout = 30000;
@@ -77,7 +81,7 @@ public class LearningRequestRouter extends UntypedActor {
 	private void initActorPool() {
 		ActorSystem system = RequestRouterPool.getActorSystem();
 		int poolSize = 4;
-		
+
 		Props contentStoreProps = Props.create(ContentStoreActor.class);
 		ActorRef contentStoreActor = system.actorOf(new SmallestMailboxPool(poolSize).props(contentStoreProps));
 		LearningActorPool.addActorRefToPool(LearningActorNames.CONTENT_STORE_ACTOR.name(), contentStoreActor);
@@ -150,10 +154,22 @@ public class LearningRequestRouter extends UntypedActor {
 		} else {
 			params.setErr(LearningErrorCodes.ERR_SYSTEM_EXCEPTION.name());
 		}
-		params.setErrmsg(e.getMessage());
+		params.setErrmsg(setErrMessage(e));
 		response.setParams(params);
 		setResponseCode(response, e);
 		parent.tell(response, getSelf());
+	}
+
+	private String setErrMessage(Throwable e) {
+		Class<? extends Throwable> className = e.getClass();
+		if (className.getName().contains(ekstep) || className.getName().contains(ilimi)) {
+			LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+			return e.getMessage();
+		} else if (className.getName().startsWith(java)) {
+			LOGGER.error("Setting default err msg " + className + e.getMessage());
+			return default_err_msg;
+		}
+		return "";
 	}
 
 	/**

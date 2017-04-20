@@ -25,7 +25,6 @@ import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.ekstep.language.wordchian.WordChainUtil;
 
-import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -159,6 +158,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 	private void updateWordMetadata(String languageId, List<Node> nodes){
 
 		for(Node word:nodes) {
+			LOGGER.info("updateWordMetadata | Total words: " + nodes.size());
 			
 			DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
 			Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
@@ -169,19 +169,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 			
 			if(synsets!=null && synsets.size() >0){
 				word.getMetadata().put(ATTRIB_SYNSET_COUNT, synsets.size());
-				
-				Set<String> posSet = new HashSet<>();
-
-				for(Node synset:synsets) {
-					String pos = (String)synset.getMetadata().get(ATTRIB_POS);
-					if(pos!=null)
-						posSet.add(pos);
-				}
-				
-				if(posSet.size()>0){
-					List<String> posList= new ArrayList<>(posSet);
-					word.getMetadata().put(ATTRIB_POS, posList);
-				}
 			}
 			
 			String lemma = (String) wordMap.get(LanguageParams.lemma.name());
@@ -216,6 +203,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 			}
 			
 			try {
+				LOGGER.info("updating word metadata wordId: " + word.getIdentifier() + ", word metadata :" + word.getMetadata().toString());
 				Request updateReq = controllerUtil.getRequest(languageId,
 						GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 				updateReq.put(GraphDACParams.node.name(), word);
@@ -476,9 +464,12 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 					LanguageActorNames.LEXILE_MEASURES_ACTOR.name(), LanguageOperations.getWordFeatures.name());
 			langReq.put(LanguageParams.words.name(), words);
 			Response langRes = controllerUtil.getLanguageResponse(langReq, LOGGER);
-			if (checkError(langRes))
-				throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), langRes.getParams().getErrmsg());
-			else {
+			if (checkError(langRes)) {
+				// throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), langRes.getParams().getErrmsg());
+				LOGGER.error("errror in updateLexileMeasures, languageId =" + languageId + ", error message"
+						+ langRes.getParams().getErrmsg());
+				return;
+			}			else {
 				Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
 						.get(LanguageParams.word_features.name());
 				if (null != featureMap && !featureMap.isEmpty()) {

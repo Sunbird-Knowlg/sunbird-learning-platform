@@ -11,3 +11,5 @@ node registerScript.js api/content_v2/retireContent.tcl api/content_v3/json/regi
 node registerScript.js api/content_v2/listContent.tcl api/content_v3/json/register-listContentV3.json update
 
 node registerScript.js api/content_v2/flagContent.tcl api/content_v3/json/register-flagContentV3.json update
+
+node registerScript.js api/content_v3/contentSearchV3.tcl api/content_v3/json/register-contentSearchV3.json update

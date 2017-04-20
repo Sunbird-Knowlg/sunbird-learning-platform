@@ -168,7 +168,7 @@ public class BasePipeline extends BaseManager {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something went wrong while processing the request", e);
 		}
 	}
 

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +28,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.language.cache.VarnaCache;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -35,6 +37,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.esktep.search.util.CompositeSearchUtil;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.CoverageIgnore;
@@ -48,6 +51,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -82,6 +86,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
+	
+	/** The search util. */
+	private static CompositeSearchUtil searchUtil = new CompositeSearchUtil();
 
 	/** The synset relations. */
 	private static List<String> synsetRelations = null;
@@ -1440,10 +1447,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	@CoverageIgnore
 	public Response updateWord(String languageId, String id, Map wordMap) throws Exception {
 		Node node = null;
-		DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
-		node = convertToGraphNode(wordMap, definition);
-		node.setIdentifier(id);
-		node.setObjectType(LanguageParams.Word.name());
+		node = new Node(id, SystemNodeTypes.DATA_NODE.name(), LanguageParams.Word.name());
+		node.setMetadata(wordMap);
 		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
@@ -1744,6 +1749,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 
 	public List<Relation> getRelations(List<Relation> relations, String relationName) {
+		if(CollectionUtils.isEmpty(relations))
+				return ListUtils.EMPTY_LIST;
+		
 		Map<String, List<Relation>> groupedRelationMap = relations.stream()
 				.collect(Collectors.groupingBy(Relation::getRelationType));
 
@@ -2725,5 +2733,30 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				return true;
 		}
 		return true;
+	}
+
+	/**
+	 * Index search.
+	 *
+	 * @param language_id
+	 *            the language id
+	 * @param words
+	 *            the words
+	 * @return the list
+	 */
+	public List<Map<String, Object>> indexSearch(String language_id, List<String> words){
+		Map<String, Object> searchCriteria = new HashMap<>();
+
+		Map<String, Object> filters = new HashMap<>();
+		filters.put(GraphHeaderParams.graph_id.name(), language_id);
+		filters.put(LanguageParams.lemma.name(), words);
+		filters.put(LanguageParams.status.name(), new ArrayList());
+
+		searchCriteria.put(CompositeSearchParams.filters.name(), filters);
+		searchCriteria.put(CompositeSearchParams.exists.name(), LanguageParams.tags.name());
+
+		List<Map<String, Object>> wordList = searchUtil.searchWords(searchCriteria);
+
+		return wordList;
 	}
 }

@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -31,24 +32,17 @@ public class BulkUploadImageProcessor {
 	private static String PLATFORM_API_URL;
 	private static final String PLATFORM_API_URL_DEV = "https://dev.ekstep.in/api/learning";
 	private static final String PLATFORM_API_URL_QA = "https://qa.ekstep.in/api/learning";
-	private static final String PLATFORM_API_URL_PROD = "https://api.ekstep.in/api/learning";
+	private static final String PLATFORM_API_URL_PROD = "https://api.ekstep.in/learning";
 	private static Object[] FILE_HEADER_MAPPING_OUTPUT;
-	private static Set<String> MANDATORY_INPUT_HEADERS;
 	private static Set<String> MANDATORY_OUTPUT_HEADERS;
+	private static Map<String, Object> MANDATORY_FIELD_VALUES;
 	private static final String NEW_LINE_SEPARATOR = "\n";
-	private static final String SUB_FIELD_SEPARATOR = "::";
+	private static final String SUB_FIELD_SEPARATOR = ",";
 	private static final String output = "/data/contentBundle/output";
 	private static Logger LOGGER = LogManager.getLogger(BulkUploadImageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
 
 	static {
-		MANDATORY_INPUT_HEADERS = new HashSet<String>();
-		MANDATORY_INPUT_HEADERS.add("name");
-		MANDATORY_INPUT_HEADERS.add("code");
-		MANDATORY_INPUT_HEADERS.add("contentType");
-		MANDATORY_INPUT_HEADERS.add("mimeType");
-		MANDATORY_INPUT_HEADERS.add("mediaType");
-		MANDATORY_INPUT_HEADERS.add("objectType");
 
 		MANDATORY_OUTPUT_HEADERS = new HashSet<String>();
 		MANDATORY_OUTPUT_HEADERS.add("identifier");
@@ -58,6 +52,13 @@ public class BulkUploadImageProcessor {
 		MANDATORY_OUTPUT_HEADERS.add("status");
 		MANDATORY_OUTPUT_HEADERS.add("flag");
 		MANDATORY_OUTPUT_HEADERS.add("downloadUrl");
+		MANDATORY_OUTPUT_HEADERS.add("error");
+
+		MANDATORY_FIELD_VALUES = new HashMap<>();
+		MANDATORY_FIELD_VALUES.put("contentType", "Asset");
+		MANDATORY_FIELD_VALUES.put("mimeType", "image/png");
+		MANDATORY_FIELD_VALUES.put("mediaType", "image");
+		MANDATORY_FIELD_VALUES.put("objectType", "Content");
 	}
 
 	/**
@@ -83,6 +84,12 @@ public class BulkUploadImageProcessor {
 			Set<String> headerSet = csvFileParser.getHeaderMap().keySet();
 			Set<String> headerList = new HashSet<String>(headerSet);
 			headerList.addAll(MANDATORY_OUTPUT_HEADERS);
+			if (headerList.contains("link")) {
+				headerList.remove("link");
+			}
+			if (headerList.contains("Tags")) {
+				headerList.remove("Tags");
+			}
 			fileWriter = new FileWriter(opfileName);
 			csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 			csvFilePrinter = new CSVPrinter(fileWriter, csvFileFormat);
@@ -208,9 +215,14 @@ public class BulkUploadImageProcessor {
 		try {
 			String fileName = data.get("name");
 			File file = new File(folderLocation + File.separator + fileName);
-			String identifier = createContent(data);
-			uploadContent(identifier, file);
-			output = getContent(identifier);
+			if (file.exists()) {
+				String identifier = createContent(data);
+				uploadContent(identifier, file);
+				output = getContent(identifier);
+			} else {
+				output.putAll(data);
+				output.put("error", "File does not exists");
+			}
 		} catch (NullPointerException e) {
 			LOGGER.error(e.getMessage());
 			e.printStackTrace();
@@ -227,22 +239,54 @@ public class BulkUploadImageProcessor {
 		Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 		Map<String, Object> requestMap = new HashMap<String, Object>();
 		Map<String, Object> contentMap = new HashMap<String, Object>();
-		for (String field : MANDATORY_INPUT_HEADERS) {
-			if (null != data.get(field) && !StringUtils.isBlank(data.get(field))) {
-				contentMap.put(field, data.get(field));
+
+		if (data.containsKey("link")) {
+			data.remove("link");
+		}
+		if (data.containsKey("Category")) {
+			data.remove("Category");
+		}
+
+		if (data.containsKey("code")) {
+			contentMap.put("code", data.get("code"));
+			data.remove("code");
+		} else {
+			contentMap.put("code", data.get("name"));
+		}
+
+		if (data.containsKey("owner")) {
+			contentMap.put("owner", data.get("owner"));
+			data.remove("owner");
+		} else if (data.containsKey("copyright")) {
+			contentMap.put("owner", data.get("copyright"));
+		}
+
+		for (String required : MANDATORY_FIELD_VALUES.keySet()) {
+			if (null != data.get(required) && !StringUtils.isBlank(data.get(required))) {
+				contentMap.put(required, data.get(required));
+				data.remove(required);
 			} else {
-				throw new Exception("Please provide " + field);
+				contentMap.put(required, MANDATORY_FIELD_VALUES.get(required));
 			}
 		}
-		contentMap.put("description", data.get("description"));
-		contentMap.put("owner", data.get("owner"));
-		contentMap.put("identifier", StringUtils.isBlank(data.get("identifier")) ? null : data.get("identifier"));
-		contentMap.put("subject", data.get("subject"));
-		String[] language = StringUtils.split(data.get("language"), SUB_FIELD_SEPARATOR);
-		contentMap.put("language", language);
-		String[] keywords = StringUtils.split(data.get("keywords"), SUB_FIELD_SEPARATOR);
-		contentMap.put("keywords", keywords);
 
+		List<String> keywords = new ArrayList<String>();
+		for (String field : data.keySet()) {
+			if (field.equalsIgnoreCase("language")) {
+				String[] language = StringUtils.split(data.get("language"), SUB_FIELD_SEPARATOR);
+				contentMap.put("language", language);
+			} else if (field.equalsIgnoreCase("tags") || field.equalsIgnoreCase("keywords")) {
+				String[] keywordsArray = StringUtils.split(data.get(field), SUB_FIELD_SEPARATOR);
+				keywords.addAll(Arrays.asList(keywordsArray));
+				keywords.add("ImportedAsset");
+				keywords.replaceAll(String::trim);
+				contentMap.put("keywords", keywords);
+			} else if (field.toLowerCase().contains("illustrator")) {
+				contentMap.put("illustrator", data.get(field));
+			} else if (null != data.get(field) && !StringUtils.isBlank(data.get(field))) {
+				contentMap.put(field, data.get(field));
+			}
+		}
 		requestMap.put("content", contentMap);
 		requestBodyMap.put("request", requestMap);
 		String result = null;

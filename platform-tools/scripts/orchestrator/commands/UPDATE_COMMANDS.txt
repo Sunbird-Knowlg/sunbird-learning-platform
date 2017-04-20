@@ -9,3 +9,5 @@ node registerCommand.js commands/register-updateContentBody.json update
 node registerCommand.js commands/register-getContentProperties.json update
 
 node registerCommand.js commands/register-updateContentProperties.json update
+
+node registerCommand.js commands/register-compositeSearchIndex.json update

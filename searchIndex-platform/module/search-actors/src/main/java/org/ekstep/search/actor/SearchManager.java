@@ -17,6 +17,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
+import org.ekstep.compositesearch.enums.Modes;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
@@ -102,9 +103,10 @@ public class SearchManager extends SearchBaseActor {
 				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
-			if (fuzzySearch && filters != null) {
+			/*if (fuzzySearch && filters != null) {
 				Map<String, Double> weightagesMap = new HashMap<String, Double>();
 				weightagesMap.put("default_weightage", 1.0);
+				*/
 				Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
 				String objectType = null;
 				if (objectTypeFromFilter != null) {
@@ -128,6 +130,9 @@ public class SearchManager extends SearchBaseActor {
 						graphId = (String) graphIdFromFilter;
 					}
 				}
+			if (fuzzySearch && filters != null) {
+				Map<String, Double> weightagesMap = new HashMap<String, Double>();
+				weightagesMap.put("default_weightage", 1.0);
 
 				if (StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)) {
 					Map<String, Object> objDefinition = ObjectDefinitionCache.getMetaData(objectType, graphId);
@@ -157,6 +162,53 @@ public class SearchManager extends SearchBaseActor {
 			} else if (notExistsObject instanceof String) {
 				notExists = new ArrayList<String>();
 				notExists.add((String) notExistsObject);
+			}
+
+			Map<String, Object> softConstraints = null;
+			if (null != req.get(CompositeSearchParams.softConstraints.name())) {
+				softConstraints = (Map<String, Object>) req.get(CompositeSearchParams.softConstraints.name());
+			}
+
+			String mode = (String) req.get(CompositeSearchParams.mode.name());
+			if (null != mode && mode.equals(Modes.soft.name())
+					&& (null == softConstraints || softConstraints.isEmpty())) {
+				try {
+					Map<String, Object> metaData = ObjectDefinitionCache.getMetaData(objectType);
+					if (null != metaData.get("softConstraints")) {
+						ObjectMapper mapper = new ObjectMapper();
+						String constraintString = (String) metaData.get("softConstraints");
+						softConstraints = mapper.readValue(constraintString, Map.class);
+					}
+				} catch (Exception e) {
+				}
+			}
+
+			if (null != softConstraints && !softConstraints.isEmpty()) {
+				Map<String, Object> softConstraintMap = new HashMap<>();
+				LOGGER.info("SoftConstraints:" + softConstraints);
+				try {
+					for (String key : softConstraints.keySet()) {
+						if (filters.containsKey(key) && null != filters.get(key)) {
+							List<Object> data = new ArrayList<>();
+							Integer boost = 1;
+							Object boostValue = softConstraints.get(key);
+							if (null != boostValue) {
+								try {
+									boost = Integer.parseInt(boostValue.toString());
+								} catch (Exception e) {
+									boost = 1;
+								}
+							}
+							data.add(boost);
+							data.add(filters.get(key));
+							softConstraintMap.put(key, data);
+							filters.remove(key);
+						}
+					}
+				} catch (Exception e) {
+					LOGGER.error("Invalid soft Constraints", e);
+				}
+				searchObj.setSoftConstraints(softConstraintMap);
 			}
 
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
@@ -493,5 +545,18 @@ public class SearchManager extends SearchBaseActor {
 				return objectType;
 		}
 		return null;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private boolean isEmpty(Object o) {
+		boolean result = false;
+		if (o instanceof String) {
+			result = StringUtils.isBlank((String) o);
+		} else if (o instanceof List) {
+			result = ((List) o).isEmpty();
+		} else if (o instanceof String[]) {
+			result = (((String[]) o).length <= 0);
+		}
+		return result;
 	}
 }

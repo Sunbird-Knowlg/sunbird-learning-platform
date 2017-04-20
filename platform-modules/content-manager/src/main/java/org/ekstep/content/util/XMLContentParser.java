@@ -98,7 +98,7 @@ public class XMLContentParser {
 			plugin.setData(getDataMap(root));
 			plugin.setcData(getCData(root));
 			plugin.setManifest(
-					getContentManifest(root.getElementsByTagName(ContentWorkflowPipelineParams.manifest.name())));
+					getContentManifest(root.getElementsByTagName(ContentWorkflowPipelineParams.manifest.name()), true));
 			plugin.setControllers(
 					getControllers(root.getElementsByTagName(ContentWorkflowPipelineParams.controller.name())));
 			plugin.setChildrenPlugin(getChildrenPlugins(root));
@@ -115,28 +115,23 @@ public class XMLContentParser {
 	 * sets all manifestProperties
 	 * @return Manifest
 	 */
-	private Manifest getContentManifest(NodeList manifestNodes) {
+	private Manifest getContentManifest(NodeList manifestNodes, boolean validateMedia) {
 		Manifest manifest = new Manifest();
 		if (null != manifestNodes && manifestNodes.getLength() > 0) {
-			if (manifestNodes.getLength() > 1)
-				throw new ClientException(ContentErrorCodeConstants.MULTIPLE_MANIFEST.name(),
-						ContentErrorMessageConstants.MORE_THAN_ONE_MANIFEST_SECTION_ERROR);
 			List<Media> medias = new ArrayList<Media>();
-			for (int i = 0; i < manifestNodes.getLength(); i++) {
-				if (manifestNodes.item(i).hasChildNodes()) {
-					NodeList mediaNodes = manifestNodes.item(i).getChildNodes();
-					for (int j = 0; j < mediaNodes.getLength(); j++) {
-						if (mediaNodes.item(j).getNodeType() == Node.ELEMENT_NODE && StringUtils.equalsIgnoreCase(
-								mediaNodes.item(j).getNodeName(), ContentWorkflowPipelineParams.media.name()))
-							medias.add(getContentMedia(mediaNodes.item(j)));
-					}
+			if (null != manifestNodes.item(0) && manifestNodes.item(0).hasChildNodes()) {
+				NodeList mediaNodes = manifestNodes.item(0).getChildNodes();
+				for (int j = 0; j < mediaNodes.getLength(); j++) {
+					if (mediaNodes.item(j).getNodeType() == Node.ELEMENT_NODE && StringUtils.equalsIgnoreCase(
+							mediaNodes.item(j).getNodeName(), ContentWorkflowPipelineParams.media.name()))
+						medias.add(getContentMedia(mediaNodes.item(j), validateMedia));
 				}
-				manifest.setId(getId(manifestNodes.item(i)));
-				manifest.setData(getDataMap(manifestNodes.item(i)));
-				manifest.setInnerText(getInnerText(manifestNodes.item(i)));
-				manifest.setcData(getCData(manifestNodes.item(i)));
-				manifest.setMedias(medias);
 			}
+			manifest.setId(getId(manifestNodes.item(0)));
+			manifest.setData(getDataMap(manifestNodes.item(0)));
+			manifest.setInnerText(getInnerText(manifestNodes.item(0)));
+			manifest.setcData(getCData(manifestNodes.item(0)));
+			manifest.setMedias(medias);
 		}
 		return manifest;
 	}
@@ -149,21 +144,23 @@ public class XMLContentParser {
 	 * else throw ClientException
 	 * @return media
 	 */
-	private Media getContentMedia(Node mediaNode) {
+	private Media getContentMedia(Node mediaNode, boolean validateMedia) {
 		Media media = new Media();
 		if (null != mediaNode) {
 			String id = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.id.name());
 			String type = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.type.name());
 			String src = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.src.name());
-			if (StringUtils.isBlank(id) && isMediaIdRequiredForMediaType(type))
-				throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
-						"Error! Invalid Media ('id' is required.) in '" + getNodeString(mediaNode) + "' ...");
-			if (StringUtils.isBlank(type))
-				throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
-						"Error! Invalid Media ('src' is required.) in '" + getNodeString(mediaNode) + "' ...");
-			if (StringUtils.isBlank(src))
-				throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
-						"Error! Invalid Media ('type' is required.) in '" + getNodeString(mediaNode) + "' ...");
+			if (validateMedia) {
+				if (StringUtils.isBlank(id) && isMediaIdRequiredForMediaType(type))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
+							"Error! Invalid Media ('id' is required.) in '" + getNodeString(mediaNode) + "' ...");
+				if (StringUtils.isBlank(type))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
+							"Error! Invalid Media ('src' is required.) in '" + getNodeString(mediaNode) + "' ...");
+				if (StringUtils.isBlank(src))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(),
+							"Error! Invalid Media ('type' is required.) in '" + getNodeString(mediaNode) + "' ...");
+			}
 			media.setId(id);
 			media.setSrc(src);
 			media.setType(type);
@@ -275,7 +272,7 @@ public class XMLContentParser {
 			plugin.setControllers(getControllers(
 					((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.controller.name())));
 			plugin.setManifest(getContentManifest(
-					((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name())));
+					((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name()), false));
 			plugin.setEvents(getEvents(node));
 		}
 		return plugin;

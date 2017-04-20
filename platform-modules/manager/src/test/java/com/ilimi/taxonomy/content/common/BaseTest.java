@@ -230,7 +230,7 @@ public class BaseTest {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
 

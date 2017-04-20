@@ -18,6 +18,8 @@ proc getDefinitionFromCache {defMap language_id object_type} {
 	return $definition
 }
 
+
+
 proc getWordsByProp {exist} {
 	set filters [java::new HashMap]
 	$filters put "objectType" "Word"
@@ -25,17 +27,18 @@ proc getWordsByProp {exist} {
 	$status add "Draft"
 	$filters put "status" $status
 	set limit [java::new Integer 10000]
-	set exists [java::new ArrayList]
-	$exists add $exist
+	#set exists [java::new ArrayList]
+	#$exists add $exist
+	set exists $exist
 	#$exists add "thresholdLevel"
 	#$exists add "grade"
 
+	set searchCriteria [java::new HashMap]
+	$searchCriteria put "filters" $filters
+	$searchCriteria put "exists" $exist
+	$searchCriteria put "limit" $limit
 
-	set null_var [java::null]
-	set empty_list [java::new ArrayList]
-	set empty_map [java::new HashMap]
-
-	set searchResponse [indexSearch $null_var $null_var $filters $exists $empty_list $empty_map $empty_list $null_var $limit]
+	set searchResponse [compositeSearch $searchCriteria]
 	set searchResultsMap [$searchResponse getResult]
 	set wordsList [java::cast List [$searchResultsMap get "results"]]
 
@@ -73,7 +76,9 @@ proc makeAliveWordsHaving { existProperty } {
 }
 
 
-set result [makeAliveWordsHaving "thresholdLevel"]
+set exists [java::new ArrayList]
+$exists add "thresholdLevel"
+set result [makeAliveWordsHaving $exists]
 set resultNull [java::isnull $result]
 
 if {$resultNull == 0} {
@@ -81,15 +86,16 @@ if {$resultNull == 0} {
 	return $result
 }
 
-
-set result [makeAliveWordsHaving "grade"]
+set exists [java::new ArrayList]
+$exists add "grade"
+set result [makeAliveWordsHaving $exists]
 set resultNull [java::isnull $result]
+
 
 if {$resultNull == 0} {
 	#return error response
 	return $result
 }
-
 
 set result_map [java::new HashMap]
 $result_map put "status" "OK"

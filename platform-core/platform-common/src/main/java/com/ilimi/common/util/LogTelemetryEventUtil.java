@@ -1,5 +1,4 @@
 package com.ilimi.common.util;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,13 +9,14 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
+import java.util.UUID;
 
 public class LogTelemetryEventUtil {
 
 	private static Logger LOGGER = LogManager.getLogger(LogTelemetryEventUtil.class.getName());
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
-
+	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
 	public static String logContentLifecycleEvent(String contentId, Map<String, Object> metadata) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();
@@ -24,6 +24,7 @@ public class LogTelemetryEventUtil {
 		te.setEid("BE_CONTENT_LIFECYCLE");
 		te.setEts(unixTime);
 		te.setVer("2.0");
+		te.setMid(mid);
 		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
 		data.put("cid", contentId);
 		data.put("size", metadata.get("size"));
@@ -53,6 +54,7 @@ public class LogTelemetryEventUtil {
 		long unixTime = System.currentTimeMillis();
 		te.setEid("BE_CONTENT_SEARCH");
 		te.setEts(unixTime);
+		te.setMid(mid);
 		te.setVer("2.0");
 		te.setPdata("org.ekstep.search.platform", "", "1.0", "");
 		te.setEdata(query, filters, sort, correlationId, size);
@@ -73,6 +75,7 @@ public class LogTelemetryEventUtil {
 		long unixTime = System.currentTimeMillis();
 		te.setEid("BE_ACCESS");
 		te.setEts(unixTime);
+		te.setMid(mid);
 		te.setVer("2.0");
 		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
 		String jsonMessage = null;

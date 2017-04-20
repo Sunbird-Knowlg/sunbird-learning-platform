@@ -25,6 +25,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.MiddlewareException;
 
 /**
  * The Class JSONContentParser is a utility 
@@ -47,9 +48,11 @@ public class JSONContentParser {
 			Gson gson = new Gson();
 			JsonObject root = gson.fromJson(json, JsonObject.class);
 			content = processContentDocument(root);
+		} catch (MiddlewareException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_JSON_PARSE_ERROR.name(),
-					ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR, e);
+					ContentErrorMessageConstants.JSON_PARSE_CONFIG_ERROR, e);
 		}
 		return content;
 	}
@@ -70,7 +73,7 @@ public class JSONContentParser {
 				plugin.setData(getData(root, ContentWorkflowPipelineParams.theme.name()));
 				plugin.setInnerText(getInnerText(root));
 				plugin.setcData(getCData(root, ContentWorkflowPipelineParams.__cdata.name()));
-				plugin.setManifest(getContentManifest(root));
+				plugin.setManifest(getContentManifest(root, true));
 				plugin.setControllers(getControllers(root));
 				plugin.setChildrenPlugin(getChildrenPlugins(root));
 				plugin.setEvents(getEvents(root));
@@ -86,7 +89,7 @@ public class JSONContentParser {
 	 * if JsonObject is not null sets all ManifestMetadata
 	 * @return Manifest
 	 */
-	private Manifest getContentManifest(JsonObject object) {
+	private Manifest getContentManifest(JsonObject object, boolean validateMedia) {
 		Manifest manifest = new Manifest();
 		if (null != object) {
 			if (object.has(ContentWorkflowPipelineParams.manifest.name())) {
@@ -102,7 +105,7 @@ public class JSONContentParser {
 						manifest.setData(getData(manifestObj, ContentWorkflowPipelineParams.manifest.name()));
 						manifest.setInnerText(getInnerText(manifestObj));
 						manifest.setcData(getCData(manifestObj, ContentWorkflowPipelineParams.__cdata.name()));
-						manifest.setMedias(getMediaFromObject(manifestObj.get(ContentWorkflowPipelineParams.media.name())));
+						manifest.setMedias(getMediaFromObject(manifestObj.get(ContentWorkflowPipelineParams.media.name()), validateMedia));
 					}
 				}
 			}
@@ -117,7 +120,7 @@ public class JSONContentParser {
 	 * if JsonObject is not null sets all MediaMetadata
 	 * @return ListOfMedias
 	 */
-	private List<Media> getMediaFromObject(JsonElement object) {
+	private List<Media> getMediaFromObject(JsonElement object, boolean validateMedia) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != object) {
 			if (object.isJsonArray()) {
@@ -125,11 +128,11 @@ public class JSONContentParser {
 				for (int i = 0; i < mediaObjs.size(); i++) {
 					JsonElement element = mediaObjs.get(i);
 					if (null != element && element.isJsonObject())
-						medias.add(getContentMedia(element.getAsJsonObject()));
+						medias.add(getContentMedia(element.getAsJsonObject(), validateMedia));
 				}
 			} else if (object.isJsonObject()) {
 				JsonObject mediaObj = object.getAsJsonObject();
-				medias.add(getContentMedia(mediaObj));
+				medias.add(getContentMedia(mediaObj, validateMedia));
 			}
 		}
 		return medias;
@@ -143,30 +146,37 @@ public class JSONContentParser {
 	 * else throw ClientException
 	 * @return media
 	 */
-	private Media getContentMedia(JsonObject mediaObj) {
+	private Media getContentMedia(JsonObject mediaObj, boolean validateMedia) {
 		Media media = new Media();
 		try {
 			if (null != mediaObj) {
 				JsonElement id = mediaObj.get(ContentWorkflowPipelineParams.id.name());
 				JsonElement src = mediaObj.get(ContentWorkflowPipelineParams.src.name());
 				JsonElement type = mediaObj.get(ContentWorkflowPipelineParams.type.name());
-				if (!id.isJsonPrimitive() || (StringUtils.isBlank(id.toString()) && isMediaIdRequiredForMediaType(type)))
-					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
-							"Error! Invalid Media ('id' is required.)");
-				if (null == src || !src.isJsonPrimitive() || StringUtils.isBlank(src.toString()))
-					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
-							"Error! Invalid Media ('src' is required.)");
-				if (null == type || !type.isJsonPrimitive() || StringUtils.isBlank(type.toString()))
-					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
-							"Error! Invalid Media ('type' is required.)");
-				media.setId(id.getAsString());
-				media.setSrc(src.getAsString());
-				media.setType(type.getAsString());
+				if (validateMedia) {
+					if (null == id || !id.isJsonPrimitive() || (StringUtils.isBlank(id.toString()) && isMediaIdRequiredForMediaType(type)))
+						throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
+								"Error! Invalid Media ('id' is required.)");
+					if (null == src || !src.isJsonPrimitive() || StringUtils.isBlank(src.toString()))
+						throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
+								"Error! Invalid Media ('src' is required.)");
+					if (null == type || !type.isJsonPrimitive() || StringUtils.isBlank(type.toString()))
+						throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
+								"Error! Invalid Media ('type' is required.)");
+				}
+				if (null != id)
+					media.setId(id.getAsString());
+				if (null != src)
+					media.setSrc(src.getAsString());
+				if (null != type)
+					media.setType(type.getAsString());
 				media.setData(getData(mediaObj, ContentWorkflowPipelineParams.media.name()));
 				media.setInnerText(getInnerText(mediaObj));
 				media.setcData(getCData(mediaObj, ContentWorkflowPipelineParams.__cdata.name()));
 				media.setChildrenPlugin(getChildrenPlugins(mediaObj));
 			}
+		} catch(MiddlewareException e) {
+			throw e;
 		} catch(Exception e) {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
 					ContentErrorMessageConstants.INVALID_MEDIA);
@@ -256,7 +266,7 @@ public class JSONContentParser {
 			plugin.setInnerText(getInnerText(object));
 			plugin.setcData(getCData(object, ContentWorkflowPipelineParams.__cdata.name()));
 			plugin.setChildrenPlugin(getChildrenPlugins(object));
-			plugin.setManifest(getContentManifest(object));
+			plugin.setManifest(getContentManifest(object, false));
 			plugin.setControllers(getControllers(object));
 			plugin.setEvents(getEvents(object));
 		}

@@ -49,4 +49,6 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_RANGE = "range";
 	public static final String SEARCH_OPERATION_RANGE_GTE="gte";
 	public static final String SEARCH_OPERATION_RANGE_LTE="lte";
+	public static final String CONDITION_SET_SHOULD = "should";
+	public static final String SEARCH_OPERATION_SOFT = "soft";
 }

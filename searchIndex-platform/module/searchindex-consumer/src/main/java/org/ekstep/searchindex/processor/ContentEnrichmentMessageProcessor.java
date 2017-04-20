@@ -128,6 +128,32 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			if (null != list && !list.isEmpty())
 				conceptGrades.addAll(list);
 		}
+		
+		String language = null;
+		if (null != node.getMetadata().get("language")) {
+			String[] languageArr = (String[]) node.getMetadata().get("language");
+			if (null != languageArr && languageArr.length > 0)
+				language = languageArr[0];
+		}
+		String medium = (String) node.getMetadata().get("medium");
+		// setting language as medium if medium is not already set
+		if (StringUtils.isBlank(medium) && StringUtils.isNotBlank(language))
+			node.getMetadata().put("medium", language);
+		
+		String subject = (String) node.getMetadata().get("subject");
+		if (StringUtils.isBlank(subject)) {
+			// if subject is not set for the content, set the subject using the associated domain
+			String domain = (String) result.get("domain");
+			if (StringUtils.isNotBlank(domain)) {
+				if (StringUtils.equalsIgnoreCase("numeracy", domain))
+					subject = "MATHS";
+				else if (StringUtils.equalsIgnoreCase("science", domain))
+					subject = "Science";
+				else if (StringUtils.equalsIgnoreCase("literacy", domain))
+					subject = language;
+				node.getMetadata().put("subject", subject);
+			}
+		}
 
 		LOGGER.info("calling getItemsMap method to get items from item sets");
 		List<String> items = getItemsMap(node, graphId, contentId);

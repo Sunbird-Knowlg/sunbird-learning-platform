@@ -1,0 +1,10 @@
+{
+  "name": "updateWordsStatusToDraft",
+  "parameters": [
+  ],
+  "requestPath": {
+    "type":"POST",
+    "url":"/v2/language/tools/updateWordsStatusToDraft/"
+  },
+  "body": ""
+}

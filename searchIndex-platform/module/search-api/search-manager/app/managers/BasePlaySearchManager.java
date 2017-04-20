@@ -1,11 +1,9 @@
 package managers;
 
 import static akka.pattern.Patterns.ask;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +12,6 @@ import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.search.router.SearchRequestRouterPool;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
@@ -24,7 +21,6 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-
 import akka.actor.ActorRef;
 import play.libs.F;
 import play.libs.F.Function;
@@ -33,10 +29,13 @@ import play.mvc.Result;
 import play.mvc.Results;
 
 public class BasePlaySearchManager extends Results {
-
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 	private static Logger LOGGER = LogManager.getLogger(BasePlaySearchManager.class.getName());
+	private static final String ekstep = "org.ekstep";
+	private static final String ilimi = "com.ilimi";
+	private static final String java = "java.";
+	private static final String default_err_msg = "Something went wrong in server while processing the request";
 
 	protected Promise<Result> getSearchResponse(Request request, Logger logger) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
@@ -55,7 +54,7 @@ public class BasePlaySearchManager extends Results {
 								Response response = (Response) result;
 								if (checkError(response)) {
 									String errMsg = (response.getParams() == null ? "System Error"
-											: response.getParams().getErrmsg());
+											: getMessage(response));
 									return notFound(getErrorMsg(errMsg)).as("application/json");
 								} else if (request.getOperation()
 										.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name())) {
@@ -80,7 +79,8 @@ public class BasePlaySearchManager extends Results {
 					long endTime = System.currentTimeMillis();
 					long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
 					perfLogger.info(request.getManagerName() + "," + request.getOperation() + ",ENDTIME," + endTime);
-					perfLogger.info(request.getManagerName() + "," + request.getOperation() + "," + result.status() + "," + exeTime);
+					perfLogger.info(request.getManagerName() + "," + request.getOperation() + "," + result.status()
+							+ "," + exeTime);
 				}
 			});
 		} catch (Exception e) {
@@ -88,12 +88,12 @@ public class BasePlaySearchManager extends Results {
 		}
 		return res;
 	}
-	
+
 	private String getUUID() {
-        UUID uid = UUID.randomUUID();
-        return uid.toString();
-    }
-	
+		UUID uid = UUID.randomUUID();
+		return uid.toString();
+	}
+
 	protected Request setSearchContext(Request request, String manager, String operation) {
 		request.setManagerName(manager);
 		request.setOperation(operation);
@@ -113,7 +113,7 @@ public class BasePlaySearchManager extends Results {
 			error.setParams(params);
 			response = error;
 		}
-		return getResult(response, req.getId(), req.getVer(), msgId ,resMsgId);
+		return getResult(response, req.getId(), req.getVer(), msgId, resMsgId);
 	}
 
 	public String getResult(Response response, String apiId, String version, String msgId, String resMsgId) {
@@ -131,12 +131,12 @@ public class BasePlaySearchManager extends Results {
 			ResponseParams params = response.getParams();
 			if (null == params)
 				params = new ResponseParams();
-			 if (StringUtils.isNotBlank(msgId))
-	                params.setMsgid(msgId);
-	         if (StringUtils.isNotBlank(resMsgId))
-	            	params.setResmsgid(resMsgId);
-	         else
-	            	params.setResmsgid(getUUID());
+			if (StringUtils.isNotBlank(msgId))
+				params.setMsgid(msgId);
+			if (StringUtils.isNotBlank(resMsgId))
+				params.setResmsgid(resMsgId);
+			else
+				params.setResmsgid(getUUID());
 			if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name(), params.getStatus())) {
 				params.setErr(null);
 				params.setErrmsg(null);
@@ -194,5 +194,15 @@ public class BasePlaySearchManager extends Results {
 		request.setVer(req.getVer());
 		Promise<Result> getRes = getSearchResponse(request, LOGGER);
 		return getRes;
+	}
+
+	protected String getMessage(Response e) {
+		Class<? extends Response> className = e.getClass();
+		if (className.getName().startsWith(ekstep) || className.getName().startsWith(ilimi)) {
+			return e.getParams().getErrmsg();
+		} else if (className.getName().startsWith(java)) {
+			return default_err_msg;
+		}
+		return null;
 	}
 }

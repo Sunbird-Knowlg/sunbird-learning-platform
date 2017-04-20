@@ -118,7 +118,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			};
 			saxParser.parse(filePath, handler);
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), "Error while extracting the zipFile");
 		}
 		return mediaIdMap;
 	}
@@ -171,7 +171,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 					logoFile.renameTo(newName);
 				}
 			} catch (Exception ex) {
-				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), ex.getMessage());
+				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), "Error while publish the content");
 			}
 		}
 	}
@@ -187,10 +187,9 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 					directory.mkdirs();
 				}
 			} catch (IOException e) {
-				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), "Error while publishing the content");
 			}
 		}
-
 	}
 
 	@Deprecated
@@ -212,7 +211,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			downloadAppIcon(node, tempFolder);
 			response = addDataToContentNode(node);
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), "Error while publishing the content");
 		} finally {
 			deleteTemp(tempFolder);
 		}
@@ -430,7 +429,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			urlArray = AWSUploader.uploadFile(folder, uploadedFile);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
-					"Error wihile uploading the File.", e);
+					"Error while uploading the File.", e);
 		}
 		return urlArray;
 	}

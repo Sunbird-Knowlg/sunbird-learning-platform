@@ -55,7 +55,7 @@ public class HasValueRelation extends AbstractRelation {
                 }
             }, ec);
             futures.add(startNodeMsg);
-            Future<String> endNodeMsg = getNodeTypeFuture(endNode, new String[]{SystemNodeTypes.VALUE_NODE.name()}, ec);
+            Future<String> endNodeMsg = getNodeTypeFuture(this.endNodeId, endNode, new String[]{SystemNodeTypes.VALUE_NODE.name()}, ec);
             futures.add(endNodeMsg);
             Future<Iterable<String>> aggregate = Futures.sequence(futures, manager.getContext().dispatcher());
             return getMessageMap(aggregate, ec);

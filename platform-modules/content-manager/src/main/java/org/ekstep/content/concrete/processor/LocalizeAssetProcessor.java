@@ -16,6 +16,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Manifest;
 import org.ekstep.content.entity.Media;
@@ -203,7 +204,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							if (StringUtils.isNotBlank(subFolder))
 								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
-							File downloadedFile = HttpDownloadUtility.downloadFile(media.getSrc(), downloadPath);
+							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()), downloadPath);
 							LOGGER.info("Downloaded file : " + media.getSrc() + " - " + downloadedFile
 									+ " | [Content Id '" + contentId + "']");
 							if (null == downloadedFile)
@@ -235,6 +236,22 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		}
 		LOGGER.info("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']");
 		return map;
+	}
+	
+	private String getDownloadUrl(String src) {
+		if (StringUtils.isNotBlank(src)) {
+			String env = S3PropertyReader.getProperty("s3.env");
+			String prefix = "";
+			if (StringUtils.equalsIgnoreCase("prod", env))
+				prefix = "https://community.ekstep.in";
+			else if (StringUtils.equalsIgnoreCase("qa", env))
+				prefix = "https://qa.ekstep.in";
+			else
+				prefix = "https://dev.ekstep.in";
+			if (!src.startsWith("http"))
+				src = prefix + src;
+		}
+		return src;
 	}
 
 }

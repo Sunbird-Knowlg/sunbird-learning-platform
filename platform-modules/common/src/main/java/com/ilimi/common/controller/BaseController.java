@@ -12,6 +12,8 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +35,13 @@ public abstract class BaseController {
     public static final String API_VERSION = "1.0";
     public static final String API_VERSION_2 = "2.0";
     public static final String API_VERSION_3 = "3.0";
-
+    private static final String ekstep = "org.ekstep.";
+    private static final String ilimi = "com.ilimi.";
+    private static final String java = "java.";
+    private static final String default_err_msg = "Something went wrong in server while processing the request";
+    
     protected ObjectMapper mapper = new ObjectMapper();
+    private static Logger LOGGER = LogManager.getLogger(BaseController.class.getName());
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();
@@ -53,7 +60,8 @@ public abstract class BaseController {
     protected Response getErrorResponse(Exception e) {
         Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
-        resStatus.setErrmsg(e.getMessage());
+        String message = setMessage(e);
+        resStatus.setErrmsg(message);
         resStatus.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
@@ -67,6 +75,19 @@ public abstract class BaseController {
         return response;
     }
 
+    protected String setMessage(Exception e){
+    	Class<? extends Exception> className = e.getClass();
+        if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
+        	LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+        	return e.getMessage();
+        }
+        else if(className.getName().startsWith(java)){
+        	LOGGER.error("Setting default err msg " + className + e.getMessage());
+        	return default_err_msg;
+        }
+        return "";
+    }
+    
     protected HttpStatus getHttpStatus(Exception e) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         if (e instanceof ClientException) {

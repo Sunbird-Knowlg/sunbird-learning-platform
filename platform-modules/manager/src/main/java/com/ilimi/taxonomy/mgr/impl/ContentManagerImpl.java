@@ -441,7 +441,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		} catch (ServerException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), "Error occured during content publish");
 		}
 
 		LOGGER.info("Returning 'Response' Object.");
@@ -583,7 +583,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
-			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
 

@@ -118,5 +118,4 @@ public class ReviewInitializer extends BaseInitializer {
 		}
 		return response;
 	}
-
 }
