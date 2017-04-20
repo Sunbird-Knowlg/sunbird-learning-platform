@@ -107,8 +107,14 @@ if {$check_error} {
 		set isProcessingState [$status_val_str equalsIgnoreCase "Processing"]
 		set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isLiveState == 1 || $isFlaggedState == 1 || $isProcessingState == 1} {
-			set request [java::new HashMap]
-			$request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
+			set request [java::new HashMap]              
+                        set flaggedList [addFlaggedBy $flaggedBy $node_metadata]
+                        set flaggedList [java::cast ArrayList $flaggedList]
+                        set arraySize [$flaggedList size]
+                        if($arraySize > 0){
+                            $request put "lastUpdatedBy" $flaggedList get 0
+			}
+                        $request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
 			set isFlagsNull [java::isnull $flags]
 			if {$isFlagsNull == 0} {
 				set flags [java::cast ArrayList $flags]
