@@ -496,6 +496,7 @@ public class SearchManager extends SearchBaseActor {
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
+			LOGGER.info(searchResponse);
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
 				if (null != lstResult && !lstResult.isEmpty()) {
@@ -513,7 +514,6 @@ public class SearchManager extends SearchBaseActor {
 								}
 							}
 							objectType = objectList.get(0);
-							LOGGER.info("Object Type:" + objectType);
 							if (StringUtils.isNotBlank(objectType)) {
 								String key = getResultParamKey(objectType);
 								if (StringUtils.isNotBlank(key)) {
@@ -527,7 +527,6 @@ public class SearchManager extends SearchBaseActor {
 									LOGGER.info("Identifier:" + id);
 									id.replaceAll(".img", "");
 									map.replace("identifier", id);
-									LOGGER.info("Identifier:" + map.get("identifier"));
 									list.add(map);
 								}
 							}
