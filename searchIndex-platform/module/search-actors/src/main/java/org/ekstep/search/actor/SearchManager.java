@@ -537,6 +537,7 @@ public class SearchManager extends SearchBaseActor {
 				respResult.put(entry.getKey(), entry.getValue());
 			}
 		}
+		LOGGER.info(respResult);
 		return respResult;
 
 	}
