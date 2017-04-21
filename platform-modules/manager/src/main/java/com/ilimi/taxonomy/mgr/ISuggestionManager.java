@@ -6,6 +6,6 @@ import com.ilimi.common.dto.Response;
 
 public interface ISuggestionManager {
 
-	Response createSuggestion(Map<String,Object> request);
+	String createSuggestion(Map<String,Object> request);
 
 }
