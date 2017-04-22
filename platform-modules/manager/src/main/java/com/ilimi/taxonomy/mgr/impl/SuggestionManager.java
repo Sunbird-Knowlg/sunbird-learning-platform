@@ -10,8 +10,10 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.SuggestionConstants;
@@ -19,7 +21,7 @@ import com.ilimi.taxonomy.enums.SuggestionErrorCodeConstants;
 import com.ilimi.taxonomy.mgr.ISuggestionManager;
 
 @Component
-public class SuggestionManager implements ISuggestionManager {
+public class SuggestionManager extends BaseManager implements ISuggestionManager {
 
 	/** The ElasticSearchUtil */
 	private ElasticSearchUtil es = new ElasticSearchUtil();
@@ -32,14 +34,17 @@ public class SuggestionManager implements ISuggestionManager {
 
 	private ObjectMapper mapper = new ObjectMapper();
 
+	Response response = new Response();
+	
 	@Override
-	public String createSuggestion(Map<String, Object> request) {
+	public Response createSuggestion(Map<String, Object> request) {
 		String suggestionId = null;
 		try {
 			String identifier = (String) request.get("identifier");
 			Node node = util.getNode(SuggestionConstants.GRAPH_ID, identifier);
 			if (StringUtils.equalsIgnoreCase(identifier, node.getIdentifier())) {
 				suggestionId = saveSuggestion(request);
+				response = setResponse(suggestionId);
 			} else {
 				throw new ClientException(SuggestionErrorCodeConstants.invalid_content_id.name(),
 						"Content_Id doesnt exists | Invalid Content_id");
@@ -47,8 +52,15 @@ public class SuggestionManager implements ISuggestionManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return suggestionId;
+		return response;
 
+	}
+
+	private Response setResponse(String suggestionId) {
+		response.setParams(response.getParams());
+		response.getResult().put("suggestion_id", suggestionId);
+		response.setResponseCode(response.getResponseCode());
+		return response;
 	}
 
 	public String saveSuggestion(Map<String, Object> entity_map) throws IOException {

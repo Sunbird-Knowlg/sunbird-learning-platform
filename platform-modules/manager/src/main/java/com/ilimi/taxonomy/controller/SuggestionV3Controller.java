@@ -35,10 +35,7 @@ public class SuggestionV3Controller extends BaseController {
 		Map<String,Object>  request = getSuggestionRequest(map);
 		LOGGER.info("Create | Suggestions: " + " | Request: " + request);
 		try {
-			String suggestionId = suggestionManager.createSuggestion(request);
-			Response response = new Response();
-			response.setId(suggestionId);
-			System.out.println(response.get(suggestionId));
+			Response response = suggestionManager.createSuggestion(request);
 			LOGGER.info("Create | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
