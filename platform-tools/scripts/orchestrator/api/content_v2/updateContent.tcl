@@ -75,7 +75,7 @@ if {$object_null == 1} {
 		set contentTypeEmpty [proc_isEmpty $contentType]
 	}
 	if {!$contentTypeEmpty} {
-		set isImageObjectCreationNeeded = 0
+		set isImageObjectCreationNeeded 0
 		set osId [$content get "osId"]
 		set osIdNotNull [proc_isNotNull $osId]
 		set osIdEmpty false
@@ -97,7 +97,7 @@ if {$object_null == 1} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		} else {
-			set content_image_id = ${content_id}.img
+			set content_image_id ${content_id}.img
 			set get_node_response [getDataNode $graph_id $content_image_id]
 			set get_node_response_error [check_response_error $get_node_response]
 			if {$get_node_response_error} {
