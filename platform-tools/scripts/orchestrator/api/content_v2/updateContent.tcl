@@ -76,6 +76,7 @@ if {$object_null == 1} {
 	}
 	if {!$contentTypeEmpty} {
 		set isImageObjectCreationNeeded 0
+		set imageObjectExists 0
 		set osId [$content get "osId"]
 		set osIdNotNull [proc_isNotNull $osId]
 		set osIdEmpty false
@@ -101,13 +102,14 @@ if {$object_null == 1} {
 			set get_node_response [getDataNode $graph_id $content_image_id]
 			set get_node_response_error [check_response_error $get_node_response]
 			if {$get_node_response_error} {
+				set isImageObjectCreationNeeded 1
 				set get_node_response [getDataNode $graph_id $content_id]
 				set get_node_response_error [check_response_error $get_node_response]
-				if {$get_node_response_error} {
-					return $get_node_response;
-				} else {
-					set isImageObjectCreationNeeded 1
-				}
+			} else {
+				set imageObjectExists 1
+			}
+			if {$get_node_response_error} {
+				return $get_node_response;
 			} else {
 				set externalProps [java::new HashMap]
 				set body [$content get "body"]
@@ -147,6 +149,7 @@ if {$object_null == 1} {
 						}
 					}
 				}
+
 				set status_val [$metadata get "status"]
 				set status_val_str [java::new String [$status_val toString]]
 				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
@@ -166,35 +169,49 @@ if {$object_null == 1} {
 						set log_event 1
 					}
 				}
-				set domain_obj [convert_to_graph_node $content $def_node $graph_node]
+				set check_error false
 				set create_response [java::null]
-				if ($isLiveState == 1 && $isImageObjectCreationNeeded == 1) {
-					$metadata putAll $content
-					$metadata put "identifier" $content_image_id
-					$metadata put "objectType" $content_image_object_type
-					set create_response [createDataNode $graph_id $domain_obj]
-				} else {
-					set create_response [updateDataNode $graph_id $content_id $domain_obj]
+				if {$isLiveState == 1} {
+					set content_id $content_image_id
+					if {$isImageObjectCreationNeeded == 1} {
+						java::prop $graph_node "identifier" $content_image_id
+						java::prop $graph_node "objectType" $content_image_object_type
+						$metadata put "status" "Draft"
+						set create_response [createDataNode $graph_id $graph_node]
+						set check_error [check_response_error $create_response]
+						if {!$check_error} {
+							$content put "versionKey" [get_resp_value $create_response "versionKey"]
+						}
+					}
+				} elseif {$imageObjectExists == 1} {
+					set content_id $content_image_id
+					$content put "status" "Draft"
 				}
-				set check_error [check_response_error $create_response]
 				if {$check_error} {
 					return $create_response
 				} else {
-					if {$log_event == 1} {
-						$metadata putAll $content
-						$metadata put "prevState" $status_val_str
-						set log_response [log_content_lifecycle_event $content_id $metadata]
-					}
-					if {!$bodyEmpty || !$oldBodyEmpty} {
-						set bodyResponse [updateContentProperties $content_id $externalProps]
-						set check_error [check_response_error $bodyResponse]
-						if {$check_error} {
-							return $bodyResponse
+					set domain_obj [convert_to_graph_node $content $def_node $graph_node]
+					set create_response [updateDataNode $graph_id $content_id $domain_obj]
+					set check_error [check_response_error $create_response]
+					if {$check_error} {
+						return $create_response
+					} else {
+						if {$log_event == 1} {
+							$metadata putAll $content
+							$metadata put "prevState" $status_val_str
+							set log_response [log_content_lifecycle_event $content_id $metadata]
+						}
+						if {!$bodyEmpty || !$oldBodyEmpty} {
+							set bodyResponse [updateContentProperties $content_id $externalProps]
+							set check_error [check_response_error $bodyResponse]
+							if {$check_error} {
+								return $bodyResponse
+							} else {
+								return $create_response
+							}
 						} else {
 							return $create_response
 						}
-					} else {
-						return $create_response
 					}
 				}
 			}
