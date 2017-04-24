@@ -504,7 +504,8 @@ public class SearchManager extends SearchBaseActor {
 							Map<String, Object> map = (Map<String, Object>) obj;
 							String objectType = (String) map.get(GraphDACParams.objectType.name());
 							if (objectType.endsWith("Image")) {
-								objectType.replace("Image", "");
+								objectType = objectType.replace("Image", "");
+								map.replace(GraphDACParams.objectType.name(), objectType);
 							}
 							if (StringUtils.isNotBlank(objectType)) {
 								String key = getResultParamKey(objectType);
@@ -517,7 +518,7 @@ public class SearchManager extends SearchBaseActor {
 									}
 									String id = (String) map.get("identifier");
 									if (id.endsWith(".img")) {
-										id.replace(".img", "");
+										id = id.replace(".img", "");
 										map.replace("identifier", id);
 									}
 									list.add(map);
