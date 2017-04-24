@@ -374,7 +374,6 @@ public class SearchManager extends SearchBaseActor {
 					for (Object val : value) {
 						objectTypes.add(val + "Image");
 					}
-					// value.add(CompositeSearchParams.ContentImage.name());
 					entry.setValue(objectTypes);
 				}
 				Object filterObject = entry.getValue();
@@ -496,7 +495,6 @@ public class SearchManager extends SearchBaseActor {
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
-			LOGGER.info(searchResponse);
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
 				if (null != lstResult && !lstResult.isEmpty()) {
@@ -504,16 +502,10 @@ public class SearchManager extends SearchBaseActor {
 					for (Object obj : lstResult) {
 						if (obj instanceof Map) {
 							Map<String, Object> map = (Map<String, Object>) obj;
-							// Needs to be tested
 							String objectType = (String) map.get(GraphDACParams.objectType.name());
-							LOGGER.info("Object Type:" + objectType);
-							List<String> objectList = new ArrayList<String>(Arrays.asList(objectType.split(",")));
-							for (String object : objectList) {
-								if (object.endsWith("Image")) {
-									objectList.remove(object);
-								}
+							if (objectType.endsWith("Image")) {
+								objectType.replace("Image", "");
 							}
-							objectType = objectList.get(0);
 							if (StringUtils.isNotBlank(objectType)) {
 								String key = getResultParamKey(objectType);
 								if (StringUtils.isNotBlank(key)) {
@@ -524,9 +516,10 @@ public class SearchManager extends SearchBaseActor {
 										respResult.put(key, list);
 									}
 									String id = (String) map.get("identifier");
-									LOGGER.info("Identifier:" + id);
-									id.replaceAll(".img", "");
-									map.replace("identifier", id);
+									if (id.endsWith(".img")) {
+										id.replace(".img", "");
+										map.replace("identifier", id);
+									}
 									list.add(map);
 								}
 							}
@@ -539,7 +532,6 @@ public class SearchManager extends SearchBaseActor {
 		}
 		LOGGER.info(respResult);
 		return respResult;
-
 	}
 
 	@CoverageIgnore
