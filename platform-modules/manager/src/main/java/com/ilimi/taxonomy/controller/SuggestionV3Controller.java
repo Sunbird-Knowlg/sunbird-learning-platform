@@ -5,9 +5,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
@@ -35,7 +38,7 @@ public class SuggestionV3Controller extends BaseController {
 		Map<String,Object>  request = getSuggestionRequest(map);
 		LOGGER.info("Create | Suggestions: " + " | Request: " + request);
 		try {
-			Response response = suggestionManager.createSuggestion(request);
+			Response response = suggestionManager.saveSuggestion(request);
 			LOGGER.info("Create | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -44,13 +47,30 @@ public class SuggestionV3Controller extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> read(@PathVariable(value = "id") String object_id,
+			@RequestParam(name = "start", required = false) String startTime,
+			@RequestParam(name = "end", required = false) String endTime,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.suggestions.read";
+		LOGGER.info("Get | Suggestions: " + " | Request: " + object_id);
+		try {
+			Response response = suggestionManager.readSuggestion(object_id, startTime, endTime);
+			LOGGER.info("Create | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Map<String, Object> getSuggestionRequest(Map<String, Object> requestMap) {
 		Request request = getRequest(requestMap);
 		Map<String, Object> request_map = request.getRequest();
 		if (null != request_map && !request_map.isEmpty()) {
 			Map<String,Object> map = (Map)request_map.get("content");
-			if (null == map.get("identifier")) {
+			if (null == map.get("objectId")) {
 				throw new ClientException(SuggestionErrorCodeConstants.Missing_contentId.name(),
 						"Invalid Request | Missing Content_ID parameter");
 			}
