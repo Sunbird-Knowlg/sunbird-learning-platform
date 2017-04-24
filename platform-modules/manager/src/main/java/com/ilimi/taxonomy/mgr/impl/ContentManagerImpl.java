@@ -658,7 +658,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
 					"Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
 							+ "]");
-		return imageNode;
+		Response resp = getDataNode(taxonomyId, contentImageId);
+		node = (Node) resp.get(GraphDACParams.node.name());
+		return node;
 	}
 
 	private Response createDataNode(Node node) {
