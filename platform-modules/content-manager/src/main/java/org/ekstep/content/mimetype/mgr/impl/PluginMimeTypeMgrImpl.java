@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
@@ -56,7 +57,11 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 				LOGGER.info("Reading ECML File.");
 				if (jsonFile.exists()) {
 					String manifest = FileUtils.readFileToString(jsonFile);
-					String version = getVersion(node.getIdentifier(), manifest);
+					String pluginId = node.getIdentifier();
+					if(StringUtils.endsWith(node.getIdentifier(), ".img") && StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name())){
+						pluginId.replace(".img", "");
+					}
+					String version = getVersion(pluginId, manifest);
 					node.getMetadata().put(ContentAPIParams.semanticVersion.name(), version);
 				}
 			} catch (IOException e) {
@@ -88,10 +93,6 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
 		}
 		LOGGER.info("pluginId:" + pluginId + "ManifestId:" + id);
-		if(StringUtils.endsWith(pluginId, ".img")){
-			StringUtils.stripEnd(pluginId, ".img");
-		}
-		LOGGER.info("new pluginId:" + pluginId + "ManifestId:" + id);
 		if (!StringUtils.equals(pluginId, id))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);
