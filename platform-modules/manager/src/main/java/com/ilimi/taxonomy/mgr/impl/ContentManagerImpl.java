@@ -660,6 +660,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							+ "]");
 		Response resp = getDataNode(taxonomyId, contentImageId);
 		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
+		LOGGER.info("Returning Content Iamge Node Identifier"+ nodeData.getIdentifier());
 		return nodeData;
 	}
 
