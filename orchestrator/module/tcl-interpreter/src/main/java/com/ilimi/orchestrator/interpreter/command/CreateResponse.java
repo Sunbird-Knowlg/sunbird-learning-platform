@@ -2,6 +2,8 @@ package com.ilimi.orchestrator.interpreter.command;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
@@ -31,12 +33,12 @@ public class CreateResponse extends BaseSystemCommand implements ICommand, Comma
                     Response response = OK();
                     Object obj = ReflectObject.get(interp, tclObject);
                     Map<String, Object> map = (Map<String, Object>) obj;
-                    if(map.containsKey("node_id")){
-                     String identifier = (String)map.get("node_id");
-           			 String new_identifier = identifier.replace(".img", "");
-                     map.replace("node_id", identifier, new_identifier);
-                    }
                     if (null != map && !map.isEmpty())
+                    	if(StringUtils.endsWith(map.get("node_id").toString(), ".img")){
+                             String identifier = (String)map.get("node_id");
+                  			 String new_identifier = identifier.replace(".img", "");
+                             map.replace("node_id", identifier, new_identifier);
+                         }
                         response.getResult().putAll(map);
                     TclObject tclResp = ReflectObject.newInstance(interp, response.getClass(), response);
                     interp.setResult(tclResp);
