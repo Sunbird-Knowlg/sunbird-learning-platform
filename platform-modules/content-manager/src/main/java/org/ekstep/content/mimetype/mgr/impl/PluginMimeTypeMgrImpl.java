@@ -60,7 +60,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 					String pluginId = node.getIdentifier();
 					LOGGER.info("replacing image identifier with node identifier for plugin id");
 					if(StringUtils.endsWith(node.getIdentifier(), ".img") && StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name())){
-						pluginId.replace(".img", "");
+						pluginId = pluginId.replace(".img", "");
 					}
 					LOGGER.info("stripped pluginId" + pluginId);
 					String version = getVersion(pluginId, manifest);
