@@ -58,9 +58,11 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 				if (jsonFile.exists()) {
 					String manifest = FileUtils.readFileToString(jsonFile);
 					String pluginId = node.getIdentifier();
+					LOGGER.info("replacing image identifier with node identifier for plugin id");
 					if(StringUtils.endsWith(node.getIdentifier(), ".img") && StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name())){
 						pluginId.replace(".img", "");
 					}
+					LOGGER.info("stripped pluginId" + pluginId);
 					String version = getVersion(pluginId, manifest);
 					node.getMetadata().put(ContentAPIParams.semanticVersion.name(), version);
 				}
