@@ -68,6 +68,7 @@ proc proc_updateLanguageCode {resp_object graph_node} {
 	}
 }
 
+set isEditMode 0
 set object_type "Content"
 set graph_id "domain"
 set content_image_id ${content_id}.img
@@ -79,6 +80,7 @@ if {($is_mode_null == 0) && ([$mode toString] == "edit")} {
 	if {$check_error} {
 		set resp_get_node [getDataNode $graph_id $content_id]
 	}
+	set isEditMode 1
 } else {
 	set resp_get_node [getDataNode $graph_id $content_id]
 }
@@ -124,6 +126,9 @@ if {$check_error} {
 	}
 	proc_updateLanguageCode $resp_object $graph_node
 	$resp_object put "identifier" $content_id
+	if {$isEditMode == 1} {
+		$resp_object put "status" "Draft"
+	}
 	set result_map [java::new HashMap]
 	$result_map put "content" $resp_object
 	set response_list [create_response $result_map]

@@ -103,33 +103,30 @@ public class SearchManager extends SearchBaseActor {
 				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
-			/*if (fuzzySearch && filters != null) {
-				Map<String, Double> weightagesMap = new HashMap<String, Double>();
-				weightagesMap.put("default_weightage", 1.0);
-				*/
-				Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
-				String objectType = null;
-				if (objectTypeFromFilter != null) {
-					if (objectTypeFromFilter instanceof List) {
-						List objectTypeList = (List) objectTypeFromFilter;
-						if (objectTypeList.size() > 0)
-							objectType = (String) objectTypeList.get(0);
-					} else if (objectTypeFromFilter instanceof String) {
-						objectType = (String) objectTypeFromFilter;
-					}
-				}
 
-				Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
-				String graphId = null;
-				if (graphIdFromFilter != null) {
-					if (graphIdFromFilter instanceof List) {
-						List graphIdList = (List) graphIdFromFilter;
-						if (graphIdList.size() > 0)
-							graphId = (String) graphIdList.get(0);
-					} else if (graphIdFromFilter instanceof String) {
-						graphId = (String) graphIdFromFilter;
-					}
+			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
+			String objectType = null;
+			if (objectTypeFromFilter != null) {
+				if (objectTypeFromFilter instanceof List) {
+					List objectTypeList = (List) objectTypeFromFilter;
+					if (objectTypeList.size() > 0)
+						objectType = (String) objectTypeList.get(0);
+				} else if (objectTypeFromFilter instanceof String) {
+					objectType = (String) objectTypeFromFilter;
 				}
+			}
+
+			Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
+			String graphId = null;
+			if (graphIdFromFilter != null) {
+				if (graphIdFromFilter instanceof List) {
+					List graphIdList = (List) graphIdFromFilter;
+					if (graphIdList.size() > 0)
+						graphId = (String) graphIdList.get(0);
+				} else if (graphIdFromFilter instanceof String) {
+					graphId = (String) graphIdFromFilter;
+				}
+			}
 			if (fuzzySearch && filters != null) {
 				Map<String, Double> weightagesMap = new HashMap<String, Double>();
 				weightagesMap.put("default_weightage", 1.0);
@@ -351,12 +348,33 @@ public class SearchManager extends SearchBaseActor {
 		boolean statusFilter = false;
 		if (null != filters && !filters.isEmpty()) {
 			for (Entry<String, Object> entry : filters.entrySet()) {
+				if ("identifier".equalsIgnoreCase(entry.getKey())) {
+					List ids = new ArrayList<>();
+					if (entry.getValue() instanceof String) {
+						ids.add(entry.getValue());
+					} else {
+						ids = (ArrayList<String>) entry.getValue();
+					}
+					List<String> identifiers = new ArrayList<>();
+					identifiers.addAll((List<String>) (List<?>) ids);
+					for (Object id : ids) {
+						identifiers.add(id + ".img");
+					}
+					entry.setValue(identifiers);
+				}
 				if (CompositeSearchParams.objectType.name().equals(entry.getKey())) {
-					if (CompositeSearchParams.Content.name().equals(entry.getValue()))
-						;
-					List<String> value = (List<String>) entry.getValue();
-					value.add(CompositeSearchParams.ContentImage.name());
-					entry.setValue(value);
+					List value = new ArrayList<>();
+					if (entry.getValue() instanceof String) {
+						value.add(entry.getValue());
+					} else {
+						value = (ArrayList<String>) entry.getValue();
+					}
+					List<String> objectTypes = new ArrayList<>();
+					objectTypes.addAll((List<String>) (List<?>) value);
+					for (Object val : value) {
+						objectTypes.add(val + "Image");
+					}
+					entry.setValue(objectTypes);
 				}
 				Object filterObject = entry.getValue();
 				if (filterObject instanceof Map) {
@@ -484,13 +502,11 @@ public class SearchManager extends SearchBaseActor {
 					for (Object obj : lstResult) {
 						if (obj instanceof Map) {
 							Map<String, Object> map = (Map<String, Object>) obj;
-							// Needs to be tested
 							String objectType = (String) map.get(GraphDACParams.objectType.name());
-							 List<String> objectList = new ArrayList<String>(Arrays.asList(objectType.split(",")));
-							if (objectList.contains(CompositeSearchParams.ContentImage.name())) {
-							objectList.remove(CompositeSearchParams.ContentImage.name());
+							if (objectType.endsWith("Image")) {
+								objectType = objectType.replace("Image", "");
+								map.replace(GraphDACParams.objectType.name(), objectType);
 							}
-							objectType = objectList.get(0);
 							if (StringUtils.isNotBlank(objectType)) {
 								String key = getResultParamKey(objectType);
 								if (StringUtils.isNotBlank(key)) {
@@ -501,19 +517,27 @@ public class SearchManager extends SearchBaseActor {
 										respResult.put(key, list);
 									}
 									String id = (String) map.get("identifier");
-									id.replaceAll(".img", "");
-									map.replace("identifier", id);
+									if (id.endsWith(".img")) {
+										id = id.replace(".img", "");
+										map.replace("identifier", id);
+									}
+									String es_id = (String) map.get("es_metadata_id");
+									if (es_id.endsWith(".img")) {
+										es_id = es_id.replace(".img", "");
+										map.replace("es_metadata_id", es_id);
+									}
 									list.add(map);
 								}
 							}
 						}
 					}
 				}
-			}else {
+			} else {
 				respResult.put(entry.getKey(), entry.getValue());
 			}
-		}return respResult;
-
+		}
+		LOGGER.info(respResult);
+		return respResult;
 	}
 
 	@CoverageIgnore
@@ -539,8 +563,6 @@ public class SearchManager extends SearchBaseActor {
 				return "words";
 			else if (StringUtils.equalsIgnoreCase("Synset", objectType))
 				return "synsets";
-			else if (StringUtils.equalsIgnoreCase("ContentImage", objectType))
-				return "content";
 			else
 				return objectType;
 		}

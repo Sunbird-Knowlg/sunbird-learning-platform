@@ -13,12 +13,14 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.ilimi.common.dto.Response;
@@ -55,7 +57,13 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 				LOGGER.info("Reading ECML File.");
 				if (jsonFile.exists()) {
 					String manifest = FileUtils.readFileToString(jsonFile);
-					String version = getVersion(node.getIdentifier(), manifest);
+					String pluginId = node.getIdentifier();
+					LOGGER.info("replacing image identifier with node identifier for plugin id");
+					if(StringUtils.endsWith(node.getIdentifier(), ".img") && StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name())){
+						pluginId = pluginId.replace(".img", "");
+					}
+					LOGGER.info("stripped pluginId" + pluginId);
+					String version = getVersion(pluginId, manifest);
 					node.getMetadata().put(ContentAPIParams.semanticVersion.name(), version);
 				}
 			} catch (IOException e) {
@@ -86,6 +94,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
 		}
+		LOGGER.info("pluginId:" + pluginId + "ManifestId:" + id);
 		if (!StringUtils.equals(pluginId, id))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);
