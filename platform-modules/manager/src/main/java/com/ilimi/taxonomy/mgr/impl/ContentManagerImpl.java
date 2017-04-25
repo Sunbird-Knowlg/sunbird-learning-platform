@@ -610,9 +610,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Fetching the Content Image Node for Content Id: " + contentId);
 		Response response = getDataNode(taxonomyId, contentImageId);
 		if (checkError(response)) {
-			LOGGER.info("Unable to Fetch Content Image Node for Content Id: " + contentId);
+			LOGGER.debug("Unable to Fetch Content Image Node for Content Id: " + contentId);
 
-			LOGGER.info("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
+			LOGGER.debug("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
 			response = getDataNode(taxonomyId, contentId);
 
 			LOGGER.info("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
@@ -632,6 +632,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		} else{
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
+			LOGGER.info("Getting Content Image Node and assigning it as node" + node.getIdentifier());
 		}
 		// Assigning the original 'identifier' to the Node
 		node.setIdentifier(contentId);
