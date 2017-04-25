@@ -20,11 +20,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
-import com.ilimi.dac.enums.AuditHistoryConstants;
 import com.ilimi.dac.enums.CommonDACParams;
-import com.ilimi.dac.enums.SuggestionConstants;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.taxonomy.enums.SuggestionConstants;
 
 public class BaseSuggestionManager {
 	
@@ -70,7 +69,7 @@ public class BaseSuggestionManager {
 			if (!request.isEmpty()) {
 				request.put("createdOn",df.format(new Date()));
 				document = mapper.writeValueAsString(request);
-				LOGGER.info("converting request map tp string : " + document);
+				LOGGER.info("converting request map to string : " + document);
 			}
 			if (StringUtils.isNotBlank(document)) {
 				es.addDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
@@ -97,8 +96,8 @@ public class BaseSuggestionManager {
 		search.setProperties(setSearchFilters( objectId, start_date, end_date));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
-//		sortBy.put(GraphDACParams.createdOn.name(), "asc");
-//		sortBy.put("operation", "asc");
+		sortBy.put(GraphDACParams.createdOn.name(), "desc");
+		//sortBy.put("operation", "desc");
 		search.setSortBy(sortBy);
 		LOGGER.info("setting search criteria to fetch audit records from ES" + search);
 		List<Object> suggestionResult = search(search);
@@ -140,12 +139,13 @@ public class BaseSuggestionManager {
 	}
 	public List<String> setSearchCriteria() {
 		List<String> fields = new ArrayList<String>();
-		fields.add("identifier");
+		fields.add("objectId");
 		fields.add("objectType");
 		fields.add("command");
 		fields.add("suggestedBy");
 		fields.add("params");
 		fields.add("suggestionId");
+		fields.add("createdOn");
 		LOGGER.info("returning the search criteria fields" + fields);
 		return fields;
 	}

@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.controller;
 
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -64,6 +65,64 @@ public class SuggestionV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
+	
+	@RequestMapping(value = "/approve/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> approve(@RequestBody Map<String, Object> map,
+			@PathVariable(value = "id") String suggestion_id,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.suggestions.approve";
+		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
+		try {
+			if(StringUtils.isBlank(suggestion_id)){
+				throw new ClientException(SuggestionErrorCodeConstants.Missing_object_id.name(), "Error! Invalid or Missing Object_Id");
+			}
+			Response response = suggestionManager.approveSuggestion(suggestion_id, map);
+			LOGGER.info("Create | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}	
+	
+	@RequestMapping(value = "/reject/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> reject(@RequestBody Map<String, Object> map,
+			@PathVariable(value = "id") String suggestion_id,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.suggestions.reject";
+		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
+		try {
+			if(StringUtils.isBlank(suggestion_id)){
+				throw new ClientException(SuggestionErrorCodeConstants.Missing_object_id.name(), "Error! Invalid or Missing Object_Id");
+			}
+			Response response = suggestionManager.rejectSuggestion(suggestion_id, map);
+			LOGGER.info("Create | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}	
+	
+	@RequestMapping(value = "/list", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.suggestions.reject";
+		LOGGER.info("Get | Suggestions: " + " | Request: " + map);
+		try {
+			Response response = suggestionManager.listSuggestion(map);
+			LOGGER.info("Create | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}	
+	
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Map<String, Object> getSuggestionRequest(Map<String, Object> requestMap) {
 		Request request = getRequest(requestMap);
@@ -71,7 +130,7 @@ public class SuggestionV3Controller extends BaseController {
 		if (null != request_map && !request_map.isEmpty()) {
 			Map<String,Object> map = (Map)request_map.get("content");
 			if (null == map.get("objectId")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_contentId.name(),
+				throw new ClientException(SuggestionErrorCodeConstants.Missing_object_id.name(),
 						"Invalid Request | Missing Content_ID parameter");
 			}
 			if (null == map.get("objectType")) {
