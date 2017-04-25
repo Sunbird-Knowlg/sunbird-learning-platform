@@ -34,11 +34,11 @@ public class CreateResponse extends BaseSystemCommand implements ICommand, Comma
                     Object obj = ReflectObject.get(interp, tclObject);
                     Map<String, Object> map = (Map<String, Object>) obj;
                     if (null != map && !map.isEmpty())
-                    	if(StringUtils.endsWith(map.get("node_id").toString(), ".img")){
-                             String identifier = (String)map.get("node_id");
-                  			 String new_identifier = identifier.replace(".img", "");
-                             map.replace("node_id", identifier, new_identifier);
-                         }
+//                    	if(StringUtils.endsWith(map.get("node_id").toString(), ".img")){
+//                             String identifier = (String)map.get("node_id");
+//                  			 String new_identifier = identifier.replace(".img", "");
+//                             map.replace("node_id", identifier, new_identifier);
+//                         }
                         response.getResult().putAll(map);
                     TclObject tclResp = ReflectObject.newInstance(interp, response.getClass(), response);
                     interp.setResult(tclResp);
