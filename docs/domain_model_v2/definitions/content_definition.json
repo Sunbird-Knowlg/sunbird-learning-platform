@@ -458,6 +458,30 @@
           "indexed": true
         },
         {
+          "propertyName": "organization",
+          "title": "Array of org names (partner names)",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 7}",
+          "indexed": true
+        },
+        {
+          "propertyName": "createdFor",
+          "title": "Array of partner IDs",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 7}",
+          "indexed": true
+        },
+        {
           "required": false,
           "dataType": "Text",
           "propertyName": "developer",
@@ -847,7 +871,7 @@
             "Grade 3",
             "Grade 4",
             "Grade 5",
-            "Grade 12"
+            "Grade 12",
             "Other"
           ],
           "defaultValue": "",
@@ -1471,6 +1495,42 @@
           "dataType": "Text",
           "required": false,
           "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": true
+        },
+        {
+          "propertyName": "creator",
+          "title": "Name of the user who created Content",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": true
+        },
+        {
+          "propertyName": "udpdater",
+          "title": "Name of the user who updated Content last",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": true
+        },
+        {
+          "propertyName": "reviewer",
+          "title": "Name of the user who did the final review and published the content",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'order': 21}",
           "indexed": true

@@ -1,0 +1,22 @@
+identifier,Code,concepts ,Title,description,Question,Question Image,Question Audio,Image Count,Domain,Language,Grade Level,Difficulty Level,Keywords,Template Name,Template ID,Param 1,Param 2,LHS option 1 Index,LHS Option 1 Text,LHS Option 1 Image,LHS option 1 resValue,LHS option 2 index,LHS Option 2 Text,LHS Option 2 Image,LHS Option 2 resValue,LHS option 3 index,LHS Option 3 Text,LHS Option 3 Image,LHS Option 3 resValue,LHS option 4 index,LHS Option 4 Text,LHS Option 4 Image,LHS Option 4 resValue,RHS Option 1 Text,RHS Option 1 Image,RHS Option 1 Answer,RHS Option 1 resValue,RHS Option 2 Text,RHS Option 2 Image,RHS Option 2 Answer,RHS Option 2 resValue,RHS Option 3 Text,RHS Option 3 Image,RHS Option 3 Answer,RHS Option 3 resValue,RHS Option 4 Text,RHS Option 4 Image,RHS Option 4 Answer,RHS Option 4 resValue,Response 1 for rhs option 1 index,Response 1 for rhs option 2 index,Response 1 for rhs option 3 index,Response 1 for rhs option 4 index,score,mmc,Response 2 for rhs option 1 index,Response 2 for rhs option 2 index,Response 2 for rhs option 3 index,Response 2 for rhs option 4 index,score,mmc,Response 3 for rhs option 1 index,Response 3 for rhs option 2 index,Response 1 for rhs option 3 index,Response 3 for rhs option 4 index,score,mmc
+,Unique code for the question,,Title for the assessment item,description of the question,Question Body,Image used in the question body (if any),Audio asset used in the question body (if any),"For numeracy questions, repeat the body image how many times?",Literacy or Numeracy,"Language for the item (Hindi, English, Kannada, Telugu)",Grade level,"How difficult is the question? 
+(EASY, MEDIUM, DIFFICULT, RARE)",Search keywords for this question,Name of the template to use with this question,ID of the template to use with this question,Parameter 1 for templates to use,Parameter 2 for templates to use,Index of the Lhs option(optional),"LHS Options
+Text - Text of the option
+Image - Image to use in option",,"Lhs option 1 resValue,
+it can be text/image/audio or all,
+specified in option,(optional)",,,,,,,,,,,,,"RHS Options
+Text - Text of the option
+Image - Image to use in option
+Answer - index of the LHS option to map to",,,"Rhs option 1 resValue,
+it can be text/image/audio or all,
+specified in option,(optional)",,,,,,,,,,,,,"
+user should specify
+the index of the Lhs option","user should specify
+the index of the Lhs option","user should specify
+the index of the Lhs option","user should specify
+the index of the Lhs option","score to be alloted for
+specified response
+","missing micro-concepts/
+misconceptions associated with
+specified response",,,,,,,,,,,,
+mtf.test.90,mtf.test.89,C245,Match and answer,Match and answer,Match LHS to RHS,,,1,Numeracy,english,Grade 1,EASY,"addition, add, sum",org.ekstep.mcq.t.ta,domain_3490,7,1,0,L1,,,1,L2,,L2,2,L3,,L3,3,L4,,,R1,,1,R1,R2,,2,R2,R3,,3,R3,R4,,4,R4,0,1,2,3,0,C3,2,3,1,0,0,c3,2,0,1,3,2,"c1, c4"

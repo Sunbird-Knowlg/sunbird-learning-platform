@@ -678,11 +678,8 @@
           "range":
           [
             "any",
-            "f",
             "female",
-            "m",
             "male",
-            "n",
             "neutral"          
           ],
           "required": false,
