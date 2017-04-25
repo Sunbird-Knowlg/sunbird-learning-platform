@@ -610,12 +610,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Fetching the Content Image Node for Content Id: " + contentId);
 		Response response = getDataNode(taxonomyId, contentImageId);
 		if (checkError(response)) {
-			LOGGER.debug("Unable to Fetch Content Image Node for Content Id: " + contentId);
+			LOGGER.info("Unable to Fetch Content Image Node for Content Id: " + contentId);
 
-			LOGGER.debug("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
+			LOGGER.info("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
 			response = getDataNode(taxonomyId, contentId);
 
-			LOGGER.debug("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			LOGGER.info("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
 			if (checkError(response))
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
@@ -624,19 +624,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			// Content Node as node
 			node = (Node) response.get(GraphDACParams.node.name());
 
-			LOGGER.debug("Fetched Content Node: ", node);
+			LOGGER.info("Fetched Content Node: ", node);
 			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
 					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 				node = createContentImageNode(taxonomyId, contentImageId, node);
-		} else
+		} else{
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
-
+		}
 		// Assigning the original 'identifier' to the Node
 		node.setIdentifier(contentId);
 
-		LOGGER.debug("Returning the Node for Operation with Identifier: " + node.getIdentifier());
+		LOGGER.info("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
 	}
 
@@ -660,7 +660,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							+ "]");
 		Response resp = getDataNode(taxonomyId, contentImageId);
 		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
-		LOGGER.info("Returning Content Iamge Node Identifier"+ nodeData.getIdentifier());
+		LOGGER.info("Returning Content Image Node Identifier"+ nodeData.getIdentifier());
 		return nodeData;
 	}
 
