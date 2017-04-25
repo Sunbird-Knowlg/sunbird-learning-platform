@@ -635,7 +635,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			LOGGER.info("Getting Content Image Node and assigning it as node" + node.getIdentifier());
 		}
 		// Assigning the original 'identifier' to the Node
-		node.setIdentifier(contentId);
+		//node.setIdentifier(contentId);
 
 		LOGGER.info("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
