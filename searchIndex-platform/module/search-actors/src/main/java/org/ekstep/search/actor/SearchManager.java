@@ -521,6 +521,11 @@ public class SearchManager extends SearchBaseActor {
 										id = id.replace(".img", "");
 										map.replace("identifier", id);
 									}
+									String es_id = (String) map.get("es_metadata_id");
+									if (es_id.endsWith(".img")) {
+										es_id = es_id.replace(".img", "");
+										map.replace("es_metadata_id", es_id);
+									}
 									list.add(map);
 								}
 							}
