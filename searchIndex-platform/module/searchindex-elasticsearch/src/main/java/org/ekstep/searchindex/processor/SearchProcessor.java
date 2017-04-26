@@ -861,7 +861,7 @@ public class SearchProcessor {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index)
+	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index, Boolean isRequired)
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
@@ -875,6 +875,8 @@ public class SearchProcessor {
 		List<Map<String, Object>> result = (List) result_map.get("hits");
 		for (Map<String, Object> map : result) {
 			for (Map.Entry<String, Object> entry : map.entrySet()) {
+				if(entry.getKey().equals("_id") && isRequired == true)
+					response.add(entry);
 				if (entry.getKey().equals("_source")) {
 					res_map = (Map) entry.getValue();
 					response.add(res_map);

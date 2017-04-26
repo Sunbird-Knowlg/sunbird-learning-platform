@@ -19,11 +19,13 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.taxonomy.enums.SuggestionConstants;
+import com.ilimi.taxonomy.enums.SuggestionErrorCodeConstants;
 
 public class BaseSuggestionManager {
 	
@@ -38,15 +40,24 @@ public class BaseSuggestionManager {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 	
-	public String saveSuggestionToEs(Map<String, Object> entity_map) throws IOException {
+	private static List<String> statusList = new ArrayList<String>();
+	
+	public Response saveSuggestionToEs(Map<String, Object> entity_map) throws IOException {
+		Response response = null;
 		createIndex();
 		String identifier = addDocument(entity_map);
 		if(StringUtils.isNotBlank(identifier)){
-			return identifier;
+			response = setResponse(response, identifier);
+			return response;
 		}
 		return null;
 	}
 
+	static {
+		statusList.add("approve");
+		statusList.add("reject");
+	}
+	
 	public static void createIndex() throws IOException {
 		String settings = "{ \"settings\": {   \"index\": {     \"index\": \"" + SuggestionConstants.SUGGESTION_INDEX
 				+ "\",     \"type\": \"" + SuggestionConstants.SUGGESTION_INDEX_TYPE
@@ -92,9 +103,9 @@ public class BaseSuggestionManager {
 		String objectId = (String) request.get(CommonDACParams.object_id.name());
 		String start_date = (String) request.get(CommonDACParams.start_date.name());
 		String end_date = (String) request.get(CommonDACParams.end_date.name());
+		String suggestionId = (String) request.get(CommonDACParams.suggestionId.name());
 		SearchDTO search = new SearchDTO();
-		search.setFields(setSearchCriteria());
-		search.setProperties(setSearchFilters( objectId, start_date, end_date));
+		search.setProperties(setSearchFilters(objectId, start_date, end_date, suggestionId));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
@@ -107,7 +118,7 @@ public class BaseSuggestionManager {
 	}
 	
 	@SuppressWarnings("rawtypes")
-	public List<Map> setSearchFilters(String objectId, String start_date, String end_date) {
+	public List<Map> setSearchFilters(String objectId, String start_date, String end_date, String suggestionId) {
 		List<Map> properties = new ArrayList<Map>();
 
 		if (StringUtils.isNotBlank(start_date)) {
@@ -135,32 +146,45 @@ public class BaseSuggestionManager {
 			property.put("values", Arrays.asList(objectId));
 			properties.add(property);
 		}
+		if (StringUtils.isNotBlank(suggestionId)) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "suggestionId");
+			property.put("values", Arrays.asList(suggestionId));
+			properties.add(property);
+		}
 		LOGGER.info("returning the search filters" + properties);
 		return properties;
-	}
-	public List<String> setSearchCriteria() {
-		List<String> fields = new ArrayList<String>();
-		fields.add("objectId");
-		fields.add("objectType");
-		fields.add("command");
-		fields.add("suggestedBy");
-		fields.add("params");
-		fields.add("suggestionId");
-		fields.add("createdOn");
-		LOGGER.info("returning the search criteria fields" + fields);
-		return fields;
 	}
 	
 	public List<Object> search(SearchDTO search) {
 		List<Object>  result= new ArrayList<Object>();
 			try {
 				LOGGER.info("sending search request to search processor" + search);
-				result = (List<Object>) processor.processSearchAuditHistory(search, false, SuggestionConstants.SUGGESTION_INDEX);
+				result = (List<Object>) processor.processSearchAuditHistory(search, false, SuggestionConstants.SUGGESTION_INDEX, true);
 				LOGGER.info("result from search processor" + result);
 			} catch (Exception e) {
 				LOGGER.error("error while processing the search request", e);
 				e.printStackTrace();
 			}
 		return result;
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected Map validateRequest(Map<String, Object> map) {
+		Map<String, Object> content = new HashMap<String,Object>();
+		try {
+			if (null != map && !map.isEmpty()) {
+				Map<String, Object> requestObj = (Map) map.get("request");
+				content = (Map) requestObj.get("content");
+				String status = (String) content.get("status");
+				if (StringUtils.isNotBlank(status) && statusList.contains(status)) {
+					return content;
+				}
+			}
+		} catch (Exception e) {
+			throw new ClientException(SuggestionErrorCodeConstants.Invalid_request.name(), "Error! Invalid Request");
+		}
+		return null;
 	}
 }
