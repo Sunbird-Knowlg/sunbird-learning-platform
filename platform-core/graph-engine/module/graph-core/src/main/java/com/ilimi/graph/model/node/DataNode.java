@@ -26,6 +26,7 @@ import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
@@ -490,21 +491,21 @@ public class DataNode extends AbstractNode {
 		}
 	}
 
-	public Future<String> createNode(final Request req) {
+	public Future<Response> createNode(final Request req) {
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
         request.setOperation("addNode");
         request.put(GraphDACParams.node.name(), toNode());
         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-        Future<String> message = response.map(new Mapper<Object, String>() {
+        Future<Response> message = response.map(new Mapper<Object, Response>() {
             @Override
-            public String apply(Object parameter) {
+            public Response apply(Object parameter) {
             	try {
 	                if (parameter instanceof Response) {
 	                    Response res = (Response) parameter;
 	                    if (manager.checkError(res)) {
-	                        return manager.getErrorMessage(res);
+	                        return res;
 	                    } else {
 	                        String identifier = (String) res.get(GraphDACParams.node_id.name());
 	                        String versionKey = (String) res.get(GraphDACParams.versionKey.name());
@@ -512,11 +513,13 @@ public class DataNode extends AbstractNode {
 	                            setNodeId(identifier);
 	                            setVersionKey(versionKey);
 	                        } else {
-	                            return "Error creating node in the graph";
+	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
+	                        			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
 	                        }
 	                    }
 	                } else {
-	                    return "Error creating node in the graph";
+	                	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
+                    			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
 	                }
             	} catch (Exception ex) {
 					throw new ServerException(DACErrorCodeConstants.SERVER_ERROR.name(),
@@ -528,7 +531,7 @@ public class DataNode extends AbstractNode {
         return message;
     }
 
-	public Future<String> updateNode(Request req) {
+	public Future<Response> updateNode(Request req) {
 		try {
 			checkMetadata(metadata);
 			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -537,13 +540,13 @@ public class DataNode extends AbstractNode {
 			request.setOperation("updateNode");
 			request.put(GraphDACParams.node.name(), toNode());
 			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-			Future<String> message = response.map(new Mapper<Object, String>() {
+			Future<Response> message = response.map(new Mapper<Object, Response>() {
 				@Override
-				public String apply(Object parameter) {
+				public Response apply(Object parameter) {
 					if (parameter instanceof Response) {
 						Response res = (Response) parameter;
 						if (manager.checkError(res)) {
-							return manager.getErrorMessage(res);
+							return res;
 						} else {
 							String identifier = (String) res.get(GraphDACParams.node_id.name());
 	                        String versionKey = (String) res.get(GraphDACParams.versionKey.name());
@@ -551,18 +554,21 @@ public class DataNode extends AbstractNode {
 	                            setNodeId(identifier);
 	                            setVersionKey(versionKey);
 	                        } else {
-	                            return "Error updating node in the graph";
+	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
+	                        			"Error updating node in the graph", ResponseCode.SERVER_ERROR);
 	                        }
 						}
 					} else {
-						return "Error updating node";
+						return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
+                    			"Error updating node in the graph", ResponseCode.SERVER_ERROR);
 					}
 					return null;
 				}
 			}, manager.getContext().dispatcher());
 			return message;
 		} catch (Exception e) {
-			return Futures.successful(e.getMessage());
+			return Futures.successful(manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
+        			e.getMessage(), ResponseCode.SERVER_ERROR));
 		}
 	}
 

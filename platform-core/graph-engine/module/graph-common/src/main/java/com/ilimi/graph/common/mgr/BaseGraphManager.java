@@ -73,6 +73,10 @@ public abstract class BaseGraphManager extends UntypedActor {
         response.setParams(getSucessStatus());
         parent.tell(response, getSelf());
     }
+    
+    public void sendResponse(Response response, ActorRef parent) {
+    	parent.tell(response, getSelf());
+    }
 
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
         LOGGER.error(errorCode + ", " + errorMessage);
@@ -104,14 +108,17 @@ public abstract class BaseGraphManager extends UntypedActor {
          setResponseCode(response, e);
          parent.tell(response, getSelf());
     }
-
+    
+    public Response getErrorResponse(String errorCode, String errorMessage, ResponseCode code) {
+    	Response response = new Response();
+        response.setParams(getErrorStatus(errorCode, errorMessage));
+        response.setResponseCode(code);
+        return response;
+    }
 
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, ActorRef parent) {
         LOGGER.error(errorCode + ", " + errorMessage);
-        Response response = new Response();
-        response.setParams(getErrorStatus(errorCode, errorMessage));
-        response.setResponseCode(code);
-        parent.tell(response, getSelf());
+        parent.tell(getErrorResponse(errorCode, errorMessage, code), getSelf());
     }
 
     public boolean checkError(Response response) {

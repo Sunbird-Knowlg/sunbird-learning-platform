@@ -30,7 +30,8 @@ public enum DACErrorCodeConstants {
 	NOT_FOUND(25, "Object Not Found."),
 	CONNECTION_PROBLEM(26, "BOLT driver connection problem"),
 	INVALID_PASSPORT(27, "Invalid Passport Key."), 
-	INVALID_TIMESTAMP(28, "Invalid TimeStamp.");
+	INVALID_TIMESTAMP(28, "Invalid TimeStamp."),
+	ERR_STALE_VERSION_KEY(29, "Stale Version Key");
 	
 	private final int code;
 	private final String description;
