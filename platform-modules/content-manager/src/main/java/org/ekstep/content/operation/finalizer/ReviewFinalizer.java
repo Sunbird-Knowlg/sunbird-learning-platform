@@ -92,7 +92,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
 		
-		LOGGER.debug("Updating the Node: ", node);
+		LOGGER.info("Updating the Node: ", node.getIdentifier());
 		Response response = updateContentNode(newNode, null);
 		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
