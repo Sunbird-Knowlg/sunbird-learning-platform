@@ -43,11 +43,16 @@ public class BaseSuggestionManager {
 	private static List<String> statusList = new ArrayList<String>();
 	
 	public Response saveSuggestionToEs(Map<String, Object> entity_map) throws IOException {
-		Response response = null;
+		Response response = new Response();
+		LOGGER.info("creating suggestion index in elastic search" + SuggestionConstants.SUGGESTION_INDEX);
 		createIndex();
+		LOGGER.info("Adding dowcument to suggestion index" + entity_map);
 		String identifier = addDocument(entity_map);
+		
+		LOGGER.info("Checking if suggestion_if is returned from response" + identifier);
 		if(StringUtils.isNotBlank(identifier)){
 			response = setResponse(response, identifier);
+			LOGGER.info("returning response from save suggestion" + response);
 			return response;
 		}
 		return null;
@@ -84,8 +89,8 @@ public class BaseSuggestionManager {
 				LOGGER.info("converting request map to string : " + document);
 			}
 			if (StringUtils.isNotBlank(document)) {
-				es.addDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
-						document);
+				es.addDocumentWithId(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
+						suggestionId,document);
 				LOGGER.info("Adding document to Suggetion Index : " + document);
 			}
 		}
@@ -93,6 +98,7 @@ public class BaseSuggestionManager {
 	}
 	
 	public Response setResponse(Response response, String suggestionId) {
+		LOGGER.info("Setting response" + suggestionId);
 		response.setParams(response.getParams());
 		response.getResult().put("suggestion_id", suggestionId);
 		response.setResponseCode(response.getResponseCode());

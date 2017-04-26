@@ -3,7 +3,6 @@ package com.ilimi.taxonomy.mgr.impl;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
@@ -21,8 +20,6 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.SuggestionConstants;
 import com.ilimi.taxonomy.enums.SuggestionErrorCodeConstants;
 import com.ilimi.taxonomy.mgr.ISuggestionManager;
-
-import akka.dispatch.Mapper;
 
 @Component
 public class SuggestionManager extends BaseSuggestionManager implements ISuggestionManager {
@@ -48,13 +45,15 @@ public class SuggestionManager extends BaseSuggestionManager implements ISuggest
 			String identifier = (String) request.get("objectId");
 			Node node = util.getNode(SuggestionConstants.GRAPH_ID, identifier);
 			if (StringUtils.equalsIgnoreCase(identifier, node.getIdentifier())) {
+				LOGGER.info("saving the suggestions to elsatic search index" + identifier);
 				response = saveSuggestionToEs(request);
 			} else {
 				throw new ClientException(SuggestionErrorCodeConstants.Invalid_object_id.name(),
 						"Content_Id doesnt exists | Invalid Content_id");
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.info("Error occured while processing request | Not a valid request");
+			throw new ClientException(SuggestionErrorCodeConstants.Invalid_request.name(), "Error occured while processing request | Not a valid request");
 		}
 		return response;
 	}
@@ -75,7 +74,8 @@ public class SuggestionManager extends BaseSuggestionManager implements ISuggest
 			List<Object> result = getSuggestionByObjectId(request);
 			response.put("suggestions", result);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Exception occured while fetching suggestions for contentId", e);
+			throw e;
 		}
 		LOGGER.info("Response received from the auditHistoryEsService as a result" + response);
 		return response;
@@ -88,8 +88,8 @@ public class SuggestionManager extends BaseSuggestionManager implements ISuggest
 					"Error! Invalid | Missing suggestion_id");
 		}
 		try {
-//			Boolean isValid = validateRequest(map);
-			
+			Node node = (Node)map.get("request");
+			util.updateNode(node);		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -99,23 +99,18 @@ public class SuggestionManager extends BaseSuggestionManager implements ISuggest
 	@SuppressWarnings({ "unchecked",  "unused" })
 	@Override
 	public Response rejectSuggestion(String suggestion_id, Map<String, Object> map) {
-		Response response = null;
+		Response response = new Response();
 		Request request = new Request();
 		if (StringUtils.isBlank(suggestion_id)) {
 			throw new ClientException(SuggestionErrorCodeConstants.Missing_suggestion_id.name(),
 					"Error! Invalid | Missing suggestion_id");
 		}
 		try {
-			request.put("suggestionId", suggestion_id);
-			List<Object> result = getSuggestionByObjectId(request);
-			Map<String,Object> contentMap = validateRequest(map);
-			for(Object obj: result){
-				 Map<String,Object> resultMap = (Map)obj;
-				 String results = mapper.writeValueAsString(contentMap);
-				 es.updateDocument(SuggestionConstants.SUGGESTION_INDEX,
-				 SuggestionConstants.SUGGESTION_INDEX_TYPE, results,
-				 resultMap.get("_id").toString());
-			}
+			Map<String,Object> requestMap = validateRequest(map);
+			String results = mapper.writeValueAsString(requestMap);
+			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX,SuggestionConstants.SUGGESTION_INDEX_TYPE, results,
+			suggestion_id);
+			response.put("message", "suggestion rejected successfully" );
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

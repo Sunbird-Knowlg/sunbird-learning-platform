@@ -107,7 +107,7 @@ public class SuggestionV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.suggestions.reject";
+		String apiId = "content.suggestions.list";
 		LOGGER.info("Get | Suggestions: " + " | Request: " + map);
 		try {
 			Response response = suggestionManager.listSuggestion(map);
