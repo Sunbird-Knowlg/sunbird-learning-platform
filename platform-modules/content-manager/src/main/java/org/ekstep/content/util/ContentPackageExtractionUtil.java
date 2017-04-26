@@ -70,7 +70,7 @@ public class ContentPackageExtractionUtil {
 		extractableMimeTypes.put("application/vnd.ekstep.plugin-archive", "Plugin Type Content");
 	}
 
-	public void copyExtractedContentPackage(Node node, ExtractionType extractionType) {
+	public void copyExtractedContentPackage(String contentId, Node node, ExtractionType extractionType) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Extraction Type: ", extractionType);
 
@@ -102,11 +102,11 @@ public class ContentPackageExtractionUtil {
 			LOGGER.info("Current Storage Space Bucket Name: " + s3Bucket);
 			
 			// Fetching Source Prefix For Copy Objects in S3 
-			String sourcePrefix = getExtractionPath(node, ExtractionType.snapshot);
+			String sourcePrefix = getExtractionPath(contentId, node, ExtractionType.snapshot);
 			LOGGER.info("Source Prefix: " + sourcePrefix);
 
 			// Fetching Destination Prefix For Copy Objects in S3
-			String destinationPrefix = getExtractionPath(node, extractionType);
+			String destinationPrefix = getExtractionPath(contentId, node, extractionType);
 			LOGGER.info("Source Prefix: " + destinationPrefix);
 			
 			// Copying Objects
@@ -138,7 +138,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	public void extractContentPackage(Node node, ExtractionType extractionType) {
+	public void extractContentPackage(String contentId, Node node, ExtractionType extractionType) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Extraction Type: ", extractionType);
 
@@ -163,8 +163,8 @@ public class ContentPackageExtractionUtil {
 
 		if (extractableMimeTypes.containsKey(mimeType)) {
 			LOGGER.info("Given Content Belongs to Extractable Category of MimeTypes.");
-			String extractionBasePath = getBasePath(node.getIdentifier());
-			String contentPackageDownloadPath = getBasePath(node.getIdentifier());
+			String extractionBasePath = getBasePath(contentId);
+			String contentPackageDownloadPath = getBasePath(contentId);
 			try {
 				// Download Content Package
 				File contentPackageFile = HttpDownloadUtility.downloadFile(artifactUrl, contentPackageDownloadPath);
@@ -177,7 +177,7 @@ public class ContentPackageExtractionUtil {
 				unzipUtility.unzip(contentPackageFile.getAbsolutePath(), extractionBasePath);
 
 				// Extract Content Package
-				extractPackage(node, extractionBasePath, extractionType);
+				extractPackage(contentId, node, extractionBasePath, extractionType);
 			} catch (IOException e) {
 				LOGGER.error("Error! While Unzipping the Content Package [Content Package Extraction to Storage Space]",
 						e);
@@ -208,7 +208,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	public void extractContentPackage(Node node, File uploadedFile, ExtractionType extractionType) {
+	public void extractContentPackage(String contentId, Node node, File uploadedFile, ExtractionType extractionType) {
 		uploadedFile = Slug.createSlugFile(uploadedFile);
 		LOGGER.info("Node: " + node);
 		LOGGER.info("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - " + uploadedFile.getAbsolutePath());
@@ -235,14 +235,14 @@ public class ContentPackageExtractionUtil {
 
 		if (extractableMimeTypes.containsKey(mimeType)) {
 			LOGGER.info("Given Content Belongs to Extractable MimeType Category.");
-			String extractionBasePath = getBasePath(node.getIdentifier());
+			String extractionBasePath = getBasePath(contentId);
 			try {
 				// UnZip the Content Package
 				UnzipUtility unzipUtility = new UnzipUtility();
 				unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
 
 				// Extract Content Package
-				extractPackage(node, extractionBasePath, extractionType);
+				extractPackage(contentId, node, extractionBasePath, extractionType);
 			} catch (IOException e) {
 				LOGGER.error("Error! While Unzipping the Content Package File.", e);
 			} catch (Exception e) {
@@ -261,7 +261,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	private void extractPackage(Node node, String basePath, ExtractionType extractionType) {
+	private void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String awsFolderPath = "";
 		try {
@@ -271,7 +271,7 @@ public class ContentPackageExtractionUtil {
 					TrueFileFilter.INSTANCE);
 
 			// Upload All the File to S3 Recursively and Concurrently
-			awsFolderPath = getExtractionPath(node, extractionType);
+			awsFolderPath = getExtractionPath(contentId, node, extractionType);
 			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, awsFolderPath, basePath);
 		} catch (InterruptedException e) {
 			cleanUpAWSFolder(awsFolderPath);
@@ -392,7 +392,7 @@ public class ContentPackageExtractionUtil {
 	 *            the extraction type
 	 * @return the extraction path
 	 */
-	private String getExtractionPath(Node node, ExtractionType extractionType) {
+	private String getExtractionPath(String contentId, Node node, ExtractionType extractionType) {
 		String path = "";
 		String contentFolder = S3PropertyReader.getProperty(S3_CONTENT);
 		String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
@@ -412,16 +412,16 @@ public class ContentPackageExtractionUtil {
 		LOGGER.info("Path Suffix: " + pathSuffix);
 		switch (mimeType) {
 		case "application/vnd.ekstep.ecml-archive":
-			path += contentFolder + File.separator + ContentAPIParams.ecml.name() + File.separator + node.getIdentifier() + DASH
+			path += contentFolder + File.separator + ContentAPIParams.ecml.name() + File.separator + contentId + DASH
 					+ pathSuffix;
 			break;
 		case "application/vnd.ekstep.html-archive":
-			path += contentFolder + File.separator + ContentAPIParams.html.name() + File.separator + node.getIdentifier() + DASH
+			path += contentFolder + File.separator + ContentAPIParams.html.name() + File.separator + contentId + DASH
 					+ pathSuffix;
 			break;
 		case "application/vnd.ekstep.plugin-archive":
 			path += S3_CONTENT_PLUGIN_DIRECTORY + File.separator
-					+ node.getIdentifier() + DASH + pathSuffix;
+					+ contentId + DASH + pathSuffix;
 			break;
 
 		default:

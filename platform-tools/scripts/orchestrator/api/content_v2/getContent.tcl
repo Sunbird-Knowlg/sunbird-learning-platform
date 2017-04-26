@@ -78,9 +78,9 @@ if {($is_mode_null == 0) && ([$mode toString] == "edit")} {
 	set resp_get_node [getDataNode $graph_id $content_image_id]
 	set check_error [check_response_error $resp_get_node]
 	if {$check_error} {
+		set isEditMode 1
 		set resp_get_node [getDataNode $graph_id $content_id]
 	}
-	set isEditMode 1
 } else {
 	set resp_get_node [getDataNode $graph_id $content_id]
 }

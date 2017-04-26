@@ -415,7 +415,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Got Node: ", node);
 
-		String body = getContentBody(contentId);
+		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body fetched from content store");
 
@@ -477,7 +477,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Node: ", node);
 
-		String body = getContentBody(contentId);
+		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body Fetched From Content Store.");
 

@@ -47,7 +47,7 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 		LOGGER.debug("Uploaded File: " + uploadFile.getName());
 
 		LOGGER.info("Calling Upload Content For Node ID: " + node.getIdentifier());
-		return uploadContentArtifact(node, uploadFile);
+		return uploadContentArtifact(contentId, node, uploadFile);
 	}
 
 	/*
@@ -62,8 +62,8 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 		LOGGER.debug("Node: ", node);
 
 		Response response = new Response();
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
-		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
@@ -71,18 +71,18 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
+		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+		LOGGER.info("Review Operation Finished Successfully for Node ID: " + contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
-			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
+			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
@@ -94,13 +94,13 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 	public Response review(String contentId, Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
-		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + node.getIdentifier());
+		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

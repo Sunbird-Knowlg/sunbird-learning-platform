@@ -34,9 +34,7 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.rits.cloning.Cloner;
 
@@ -265,9 +263,9 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.version);
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.version);
 
-			contentPackageExtractionUtil.copyExtractedContentPackage(newNode, ExtractionType.latest);
+			contentPackageExtractionUtil.copyExtractedContentPackage(contentId, newNode, ExtractionType.latest);
 		}
 
 		try {
@@ -286,23 +284,20 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				ContentWorkflowPipelineParams.Retired.name());
 		
-		//Response response = updateContentNode(newNode, downloadUrl);
-//		if (checkError(response))
-//			throw new ClientException(ContentErrorCodeConstants.PUBLISH_ERROR.name(), response.getParams().getErrmsg());
-
 		LOGGER.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		Response response = migrateContentImageObjectData(contentId, newNode);
 		
-		// TODO: call delete image..
+		// delete image..
 		Request request = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
 		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId+".img");
-		response = getResponse(request, LOGGER);
-		PublishWebHookInvoker.invokePublishWebKook(newNode.getIdentifier(), ContentWorkflowPipelineParams.Live.name(),
+		getResponse(request, LOGGER);
+		
+		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(),
 				null);
 		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
-		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
+		LogTelemetryEventUtil.logContentLifecycleEvent(contentId, newNode.getMetadata());
 		return response;
 	}
 
