@@ -200,7 +200,15 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							else
 								downloadPath += File.separator + ContentWorkflowPipelineParams.assets.name();
 							
-							String subFolder = getSubFolderPath(media);
+							String subFolder = "";
+							if(!media.getSrc().startsWith("http")) {
+								File f = new File(media.getSrc());
+								subFolder = f.getParent();
+								if(f.exists()){
+									f.delete();
+								}
+								subFolder = StringUtils.stripStart(subFolder, File.separator);
+							}
 							if (StringUtils.isNotBlank(subFolder))
 								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
