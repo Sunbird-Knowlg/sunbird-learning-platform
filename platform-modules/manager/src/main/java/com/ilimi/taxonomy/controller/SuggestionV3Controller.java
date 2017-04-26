@@ -94,9 +94,6 @@ public class SuggestionV3Controller extends BaseController {
 		String apiId = "content.suggestions.reject";
 		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
-			if(StringUtils.isBlank(suggestion_id)){
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_object_id.name(), "Error! Invalid or Missing Object_Id");
-			}
 			Response response = suggestionManager.rejectSuggestion(suggestion_id, map);
 			LOGGER.info("Create | Response: " + response);
 			return getResponseEntity(response, apiId, null);

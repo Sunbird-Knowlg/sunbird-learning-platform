@@ -68,6 +68,7 @@ public class BaseSuggestionManager {
 			
 			if (!request.isEmpty()) {
 				request.put("createdOn",df.format(new Date()));
+				request.put("status", "new");
 				document = mapper.writeValueAsString(request);
 				LOGGER.info("converting request map to string : " + document);
 			}

@@ -29,18 +29,19 @@ public class SuggestionManager extends BaseSuggestionManager implements ISuggest
 	/** The Class Logger. */
 	private static LogHelper LOGGER = LogHelper.getInstance(SuggestionManager.class.getName());
 
-	Response response = new Response();
-
 	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	
 	private static List<String> statusList = new ArrayList<String>();
 	
 	static{
 		statusList.add("approve");
 		statusList.add("reject");
 	}
+	
 	@Override
 	public Response saveSuggestion(Map<String, Object> request) {
 		String suggestionId = null;
+		Response response = null;
 		try {
 			String identifier = (String) request.get("objectId");
 			Node node = util.getNode(SuggestionConstants.GRAPH_ID, identifier);
@@ -48,7 +49,7 @@ public class SuggestionManager extends BaseSuggestionManager implements ISuggest
 				suggestionId = saveSuggestionToEs(request);
 				response = setResponse(response, suggestionId);
 			} else {
-				throw new ClientException(SuggestionErrorCodeConstants.invalid_object_id.name(),
+				throw new ClientException(SuggestionErrorCodeConstants.Invalid_object_id.name(),
 						"Content_Id doesnt exists | Invalid Content_id");
 			}
 		} catch (IOException e) {
@@ -83,18 +84,32 @@ public class SuggestionManager extends BaseSuggestionManager implements ISuggest
 
 	@Override
 	public Response approveSuggestion(String suggestion_id, Map<String, Object> map) {
-		if(StringUtils.isBlank((String)map.get("status")) || !statusList.contains(map.get("status"))){
-			throw new ClientException(SuggestionErrorCodeConstants.missing_status.name(), "Error! Invalid | Missing status for Approval");
+		if(StringUtils.isBlank(suggestion_id)){
+			throw new ClientException(SuggestionErrorCodeConstants.Missing_suggestion_id.name(), "Error! Invalid | Missing suggestion_id");
 		}
 		
 		return null;
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response rejectSuggestion(String suggestion_id, Map<String, Object> map) {
-		// TODO Auto-generated method stub
-		return null;
+		Response response = null;
+		try{
+			if(StringUtils.isBlank(suggestion_id))
+				throw new ClientException(SuggestionErrorCodeConstants.Missing_suggestion_id.name(), "Error! Invalid or Missing suggestion_id");
+			if(null == map.get("content"))
+				throw new ClientException(SuggestionErrorCodeConstants.Invalid_request.name(), "Error! Invalid | Missing request");
+		    Map<String,Object> contentObj = (Map) map.get("content");
+//		    if(StringUtils.isNotBlank((((String)contentObj.get("status")) && (statusList.contains(contentObj.get("status")))){
+//		    	throw new ClientException(SuggestionErrorCodeConstants.Missing_status.name(), "Error! Invalid|Missing status param");
+//		    }
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return response;
+		
 	}
 
 
