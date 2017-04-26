@@ -451,6 +451,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 
 		LOGGER.info("Returning 'Response' Object.");
+		if(StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")){
+			 String identifier = (String)response.getResult().get("node_id");
+			 String new_identifier = identifier.replace(".img", "");
+			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+			 response.getResult().replace("node_id", identifier, new_identifier);
+		}
 		return response;
 	}
 
