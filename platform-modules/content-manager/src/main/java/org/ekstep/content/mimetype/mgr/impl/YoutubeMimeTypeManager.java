@@ -40,7 +40,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(Node node, File uploadFile, boolean isAsync) {
+	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
 		if(null != node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())){
 			String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
 			if(StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())){
@@ -58,7 +58,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 * .Node)
 	 */
 	@Override
-	public Response publish(Node node, boolean isAsync) {
+	public Response publish(String contentId, Node node, boolean isAsync) {
 
 		LOGGER.debug("Node: ", node);
 		Response response = new Response();
@@ -78,7 +78,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
 			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
-			response.put(ContentAPIParams.publishStatus.name(), "Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+			response.put(ContentAPIParams.publishStatus.name(), "Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		}
 		else {
 			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
@@ -96,7 +96,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response review(Node node, boolean isAsync) {
+	public Response review(String contentId, Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());

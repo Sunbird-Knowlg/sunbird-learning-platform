@@ -40,7 +40,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)
 	 */
 	@Override
-	public Response upload(Node node, File uploadFile, boolean isAsync) {
+	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadFile.getName());
 
@@ -110,7 +110,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model.Node)
 	 */
 	@Override
-	public Response publish(Node node, boolean isAsync) {
+	public Response publish(String contentId, Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		Response response = new Response();
@@ -132,7 +132,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
 
 			response.put(ContentAPIParams.publishStatus.name(),
-					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
 			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
 
@@ -143,7 +143,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	}
 	
 	@Override
-	public Response review(Node node, boolean isAsync) {
+	public Response review(String contentId, Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());

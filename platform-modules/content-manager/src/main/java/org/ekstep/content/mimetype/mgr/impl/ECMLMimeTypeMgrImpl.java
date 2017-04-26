@@ -105,7 +105,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * .Node)
 	 */
 	@Override
-	public Response publish(Node node, boolean isAsync) {
+	public Response publish(String contentId, Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		Response response = new Response();
@@ -128,9 +128,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 				LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
 
 				response.put(ContentAPIParams.publishStatus.name(),
-						"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+						"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 			} else {
-				LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+				LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 
 				response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 			}
@@ -147,7 +147,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(Node node, File uploadedFile, boolean isAsync) {
+	public Response upload(String contentId, Node node, File uploadedFile, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadedFile.getName());
 
@@ -169,7 +169,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response review(Node node, boolean isAsync) {
+	public Response review(String contentId,Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
 		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());

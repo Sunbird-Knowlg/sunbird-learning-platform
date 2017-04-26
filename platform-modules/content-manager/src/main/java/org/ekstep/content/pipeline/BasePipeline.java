@@ -96,7 +96,7 @@ public class BasePipeline extends BaseManager {
 		Response response = new Response();
 		if (null != node) {
 			String contentId = node.getIdentifier();
-			node.setIdentifier(getContentObjectIdentifier(node));
+			//node.setIdentifier(getContentObjectIdentifier(node));
 			response = updateNode(node);
 			if (StringUtils.isNotBlank(url))
 				response.put(ContentWorkflowPipelineParams.content_url.name(), url);

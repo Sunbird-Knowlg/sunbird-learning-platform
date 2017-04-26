@@ -27,6 +27,7 @@ import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -35,6 +36,8 @@ import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.rits.cloning.Cloner;
 
 /**
@@ -175,7 +178,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		if(StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.youtube.name()) 
 				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.pdf.name())
 				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.msword.name()))
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 3);
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		
 		LOGGER.info("checking is the contentType is Asset");
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
@@ -283,13 +286,17 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				ContentWorkflowPipelineParams.Retired.name());
 		
-		Response response = updateContentNode(newNode, downloadUrl);
-		if (checkError(response))
-			throw new ClientException(ContentErrorCodeConstants.PUBLISH_ERROR.name(), response.getParams().getErrmsg());
+		//Response response = updateContentNode(newNode, downloadUrl);
+//		if (checkError(response))
+//			throw new ClientException(ContentErrorCodeConstants.PUBLISH_ERROR.name(), response.getParams().getErrmsg());
 
 		LOGGER.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
-		migrateContentImageObjectData(contentId, newNode);
-
+		Response response = migrateContentImageObjectData(contentId, newNode);
+		
+		// TODO: call delete image..
+		Request request = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
+		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId+".img");
+		response = getResponse(request, LOGGER);
 		PublishWebHookInvoker.invokePublishWebKook(newNode.getIdentifier(), ContentWorkflowPipelineParams.Live.name(),
 				null);
 		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
@@ -348,7 +355,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				LOGGER.info("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
 
 				LOGGER.info("Publishing Content Id: " + node.getIdentifier());
-				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(node, false);
+				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(contentId, node, false);
 			}
 		}
 	}
