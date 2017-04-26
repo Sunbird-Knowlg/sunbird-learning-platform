@@ -945,7 +945,8 @@
             "game",
             "mcq",
             "mtf",
-            "ftb"
+            "ftb",
+            "library"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
@@ -1041,7 +1042,6 @@
           "description": "",
           "category": "General",
           "dataType": "List",
-          "required": false,
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'table', 'order': 20}",
