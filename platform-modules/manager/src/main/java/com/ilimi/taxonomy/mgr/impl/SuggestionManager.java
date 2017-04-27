@@ -32,8 +32,8 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.taxonomy.enums.SuggestionCodeConstants;
 import com.ilimi.taxonomy.enums.SuggestionConstants;
-import com.ilimi.taxonomy.enums.SuggestionErrorCodeConstants;
 import com.ilimi.taxonomy.mgr.ISuggestionManager;
 
 @Component
@@ -77,12 +77,12 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 					return response;
 				}
 			} else {
-				throw new ClientException(SuggestionErrorCodeConstants.Invalid_object_id.name(),
+				throw new ClientException(SuggestionCodeConstants.Invalid_object_id.name(),
 						"Content_Id doesnt exists | Invalid Content_id");
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error occured while processing request | Not a valid request", e);
-			throw new ClientException(SuggestionErrorCodeConstants.Invalid_request.name(),
+			throw new ClientException(SuggestionCodeConstants.Invalid_request.name(),
 					"Error occured while processing request | Not a valid request");
 		}
 		return response;
@@ -111,19 +111,21 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 	@Override
 	public Response approveSuggestion(String suggestion_id, Map<String, Object> map) {
 		Response response = new Response();
+		Map<String, Object> data = new HashMap<String, Object>();
+		Request request = new Request();
 		if (StringUtils.isBlank(suggestion_id)) {
-			throw new ClientException(SuggestionErrorCodeConstants.Missing_suggestion_id.name(),
+			throw new ClientException(SuggestionCodeConstants.Missing_suggestion_id.name(),
 					"Error! Invalid | Missing suggestion_id");
 		}
 		try {
 			Map<String, Object> requestMap = validateRequest(map);
 			if (!requestMap.get("status").equals("approve")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Invalid_request.name(),
+				throw new ClientException(SuggestionCodeConstants.Invalid_request.name(),
 						"Error! metadata status should be 'approve' to approve any suggestion");
 			} else {
-				String results = mapper.writeValueAsString(requestMap);
+				String requestString = mapper.writeValueAsString(requestMap);
 				es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
-						results, suggestion_id);
+						requestString, suggestion_id);
 				response.put("suggestion_id", suggestion_id);
 				response.put("message", "suggestion accepted successfully! Content Update started successfully");
 				if (checkError(response)) {
@@ -135,23 +137,31 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 				Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
 				Map<String, Object> paramsMap = (Map) suggestionObject.get("params");
 				String contentId = (String) suggestionObject.get("objectId");
-				String api_url = PropertiesUtil.getProperty("ekstepPlatformURI") + "/v2/content/" + contentId;
-				Node node = util.getNode(SuggestionConstants.GRAPH_ID, contentId);
-				Request request = new Request();
-				Map<String, Object> data = new HashMap<String, Object>();
-				paramsMap.put("versionKey", node.getMetadata().get("versionKey"));
+				
+				// making rest call to get content API
+				String api_url = PropertiesUtil.getProperty("ekstepPlatformURI") + "/v2/content/" + contentId + "?mode=edit";
+				String result = HTTPUtil.makeGetRequest(api_url);
+				System.out.println(result);
+				Map<String,Object> resultMap = mapper.readValue(result, Map.class);
+				Map<String,Object> responseMap = (Map)resultMap.get("result");
+				Map<String,Object> contentMap = (Map)responseMap.get("content");
+				String versionKey = (String) contentMap.get("versionKey");			
+				System.out.println("versionKey" + versionKey);
+				
+				// making rest call to content Update
+				paramsMap.put("versionKey", versionKey);
 				data.put("content", paramsMap);
 				request.setRequest(data);
-				String s = mapper.writeValueAsString(request);
-				String result = HTTPUtil.makePatchRequest(api_url, s);
-				System.out.println(result);
+				String requestData = mapper.writeValueAsString(request);
+				String responseData = HTTPUtil.makePatchRequest(api_url, requestData);
+				System.out.println("responseData" + responseData);
 				if (checkError(response)) {
 					LOGGER.info("Erroneous Response.");
 					return response;
 				}
 			}
 		} catch (Exception e) {
-			throw new ServerException(SuggestionErrorCodeConstants.server_error.name(),
+			throw new ServerException(SuggestionCodeConstants.server_error.name(),
 					"Error! Something went wrong while processing", e);
 		}
 		return response;
@@ -161,13 +171,13 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 	public Response rejectSuggestion(String suggestion_id, Map<String, Object> map) {
 		Response response = new Response();
 		if (StringUtils.isBlank(suggestion_id)) {
-			throw new ClientException(SuggestionErrorCodeConstants.Missing_suggestion_id.name(),
+			throw new ClientException(SuggestionCodeConstants.Missing_suggestion_id.name(),
 					"Error! Invalid | Missing suggestion_id");
 		}
 		try {
 			Map<String, Object> requestMap = validateRequest(map);
 			if (!requestMap.get("status").equals("reject")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Invalid_request.name(),
+				throw new ClientException(SuggestionCodeConstants.Invalid_request.name(),
 						"Error! metadata status should be 'reject' to reject any suggestion");
 			} else {
 				String results = mapper.writeValueAsString(requestMap);
@@ -181,20 +191,37 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 				}
 			}
 		} catch (Exception e) {
-			throw new ServerException(SuggestionErrorCodeConstants.server_error.name(),
+			throw new ServerException(SuggestionCodeConstants.server_error.name(),
 					"Error! Something went wrong while processing", e);
 		}
 		return response;
 
 	}
 
+
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	@Override
 	public Response listSuggestion(Map<String, Object> map) {
 		Response response = new Response();
-		Request request = new Request();
 		try {
-			request.put("request", map);
-			// response = util.getSearchDto(request);
+			String status = null;
+			String suggestedBy = null;
+			String suggestionId = null;
+			Map<String,Object> requestMap = (Map)map.get(SuggestionCodeConstants.request.name());
+			Map<String,Object> contentReq = (Map)requestMap.get(SuggestionCodeConstants.content.name());
+			if(contentReq.containsKey(SuggestionCodeConstants.status.name()))
+				status = (String)contentReq.get(SuggestionCodeConstants.status.name());
+			if(contentReq.containsKey(SuggestionCodeConstants.suggestedBy.name()))
+				suggestedBy = (String)contentReq.get(SuggestionCodeConstants.suggestedBy.name());
+			if(contentReq.containsKey(SuggestionCodeConstants.suggested_id.name()))
+				suggestionId = (String)contentReq.get(SuggestionCodeConstants.suggested_id.name());
+			List<Object> list = getSuggestions(status, suggestedBy, suggestionId);
+			response.put("suggestions", list);
+			if (checkError(response)) {
+				LOGGER.info("Erroneous Response.");
+				return response;
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -261,19 +288,31 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 
 	protected List<Object> getSuggestionByObjectId(String objectId, String start_date, String end_date) {
 		SearchDTO search = new SearchDTO();
-		search.setProperties(setSearchFilters(objectId, start_date, end_date));
+		search.setProperties(setSearchFilters(objectId, start_date, end_date, null, null, null));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		search.setSortBy(sortBy);
-		LOGGER.info("setting search criteria to fetch audit records from ES" + search);
+		LOGGER.info("setting search criteria to fetch records from ES" + search);
+		List<Object> suggestionResult = search(search);
+		LOGGER.info("list of fields returned from ES based on search query" + suggestionResult);
+		return suggestionResult;
+	}
+	
+	protected List<Object> getSuggestions(String status, String suggestedBy, String suggestionId) {
+		SearchDTO search = new SearchDTO();
+		search.setProperties(setSearchFilters(null, null, null, status, suggestedBy, suggestionId));
+		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_OR);
+		Map<String, String> sortBy = new HashMap<String, String>();
+		search.setSortBy(sortBy);
+		LOGGER.info("setting search criteria to fetch records from ES" + search);
 		List<Object> suggestionResult = search(search);
 		LOGGER.info("list of fields returned from ES based on search query" + suggestionResult);
 		return suggestionResult;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public List<Map> setSearchFilters(String objectId, String start_date, String end_date) {
+	public List<Map> setSearchFilters(String objectId, String start_date, String end_date, String status, String suggestedBy, String suggestion_id) {
 		List<Map> properties = new ArrayList<Map>();
 
 		if (StringUtils.isNotBlank(start_date)) {
@@ -299,6 +338,27 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 			property.put("propertyName", "objectId");
 			property.put("values", Arrays.asList(objectId));
+			properties.add(property);
+		}
+		if (StringUtils.isNotBlank(status)) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "status");
+			property.put("values", Arrays.asList(status));
+			properties.add(property);
+		}
+		if (StringUtils.isNotBlank(suggestedBy)) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "suggestedBy");
+			property.put("values", Arrays.asList(suggestedBy));
+			properties.add(property);
+		}
+		if (StringUtils.isNotBlank(suggestion_id)) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put("propertyName", "suggestion_id");
+			property.put("values", Arrays.asList(suggestion_id));
 			properties.add(property);
 		}
 		LOGGER.info("returning the search filters" + properties);
@@ -332,7 +392,7 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 				}
 			}
 		} catch (Exception e) {
-			throw new ClientException(SuggestionErrorCodeConstants.Invalid_request.name(), "Error! Invalid Request");
+			throw new ClientException(SuggestionCodeConstants.Invalid_request.name(), "Error! Invalid Request");
 		}
 		return null;
 	}

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.dto.SearchDTO;
@@ -868,6 +869,11 @@ public class SearchProcessor {
 		Map<String, Object> res_map = new HashMap<String, Object>();
 		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		if(StringUtils.equalsIgnoreCase(index, "test")){
+			Map<String,Object> request = mapper.readValue(query, Map.class);
+			request.remove("sort");
+			query = mapper.writeValueAsString(request);
+		}
 		LOGGER.info("AuditHistory search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
 		LOGGER.info("search result from elastic search" + searchResult);

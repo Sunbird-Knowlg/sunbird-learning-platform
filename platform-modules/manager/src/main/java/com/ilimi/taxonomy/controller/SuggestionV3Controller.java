@@ -19,7 +19,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LogHelper;
-import com.ilimi.taxonomy.enums.SuggestionErrorCodeConstants;
+import com.ilimi.taxonomy.enums.SuggestionCodeConstants;
 import com.ilimi.taxonomy.mgr.ISuggestionManager;
 
 @Controller
@@ -75,7 +75,7 @@ public class SuggestionV3Controller extends BaseController {
 		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
 			if(StringUtils.isBlank(suggestion_id)){
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_object_id.name(), "Error! Invalid or Missing Object_Id");
+				throw new ClientException(SuggestionCodeConstants.Missing_object_id.name(), "Error! Invalid or Missing Object_Id");
 			}
 			Response response = suggestionManager.approveSuggestion(suggestion_id, map);
 			LOGGER.info("Create | Response: " + response);
@@ -127,23 +127,23 @@ public class SuggestionV3Controller extends BaseController {
 		if (null != request_map && !request_map.isEmpty()) {
 			Map<String,Object> map = (Map)request_map.get("content");
 			if (null == map.get("objectId")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_object_id.name(),
+				throw new ClientException(SuggestionCodeConstants.Missing_object_id.name(),
 						"Invalid Request | Missing Content_ID parameter");
 			}
 			if (null == map.get("objectType")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_objectType.name(),
+				throw new ClientException(SuggestionCodeConstants.Missing_objectType.name(),
 						"Invalid Request | Missing ObjectType parameter");
 			}
 			if (null == map.get("command")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_command.name(),
+				throw new ClientException(SuggestionCodeConstants.Missing_command.name(),
 						"Invalid Request | Missing Command parameter");
 			}
 			if (null == map.get("params")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_params.name(),
+				throw new ClientException(SuggestionCodeConstants.Missing_params.name(),
 						"Invalid Request | Missing params parameter");
 			}
 			if (null == map.get("suggestedBy")) {
-				throw new ClientException(SuggestionErrorCodeConstants.Missing_suggestedBy.name(),
+				throw new ClientException(SuggestionCodeConstants.Missing_suggestedBy.name(),
 						"Invalid Request | Missing SuggestedBy parameter");
 			} else {
 				return map;
