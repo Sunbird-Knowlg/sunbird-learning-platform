@@ -344,6 +344,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	protected boolean isWidgetTypeAsset(String assetType) {
 		return StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.js.name())
 				|| StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.css.name())
+				|| StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.json.name())
 				|| StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.plugin.name());
 	}
 
