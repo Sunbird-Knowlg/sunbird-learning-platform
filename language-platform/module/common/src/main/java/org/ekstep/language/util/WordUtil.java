@@ -1,7 +1,12 @@
 
 package org.ekstep.language.util;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
@@ -2758,5 +2763,121 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		List<Map<String, Object>> wordList = searchUtil.searchWords(searchCriteria);
 
 		return wordList;
+	}
+	
+	private Map<String, Map<String, String>> parseExSentencesFile(InputStream stream) {
+		BufferedReader br = null;
+		String line = "";
+		String csvSplitBy = "\t";
+		int IDX_WORD_LEMMA = 0;
+		int IDX_WORD_EX_SENTENCE = 0;
+		int IDX_SYNSET_ID = 0;
+		String wordDetails[];
+		Map<String, Map<String, String>> wordDetailMap = new HashMap<>();
+		int count = 0;
+		try {
+			Reader reader = new InputStreamReader(stream, "UTF8");
+			br = new BufferedReader(reader);
+			boolean header = true;
+			while ((line = br.readLine()) != null) {
+				count++;
+				if(header){
+					wordDetails = line.split(csvSplitBy);
+					header = false;
+					List<String> headerRecord = Arrays.asList(wordDetails);
+					List<String> allHeaders = new ArrayList<String>();
+					for (int i = 0; i < headerRecord.size(); i++) {
+						allHeaders.add(headerRecord.get(i));
+					}
+					IDX_WORD_LEMMA = allHeaders.indexOf("lemma");
+					IDX_WORD_EX_SENTENCE = allHeaders.indexOf("exampleSentences");
+					IDX_SYNSET_ID = allHeaders.indexOf("synsetId");
+					if((line = br.readLine()) == null)
+						break;
+				}
+				try {
+					wordDetails = line.split(csvSplitBy);
+					String word = wordDetails[IDX_WORD_LEMMA].trim();
+					String ex_sentence = wordDetails[IDX_WORD_EX_SENTENCE];
+					String synsetId = wordDetails[IDX_SYNSET_ID];
+					
+					Map<String, String> synsetExSentencesMap = wordDetailMap.get(word);
+					if(synsetExSentencesMap==null)
+						synsetExSentencesMap = new HashMap<>();
+					synsetExSentencesMap.put(synsetId, ex_sentence);
+					wordDetailMap.put(word, synsetExSentencesMap);
+					
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+					continue;
+				}
+			}
+			LOGGER.info("importExampleSentences |"+
+					count + " words found in input file, " + wordDetailMap.size() + " words loaded into map");
+			LOGGER.info("importExampleSentences |  words found in file are "+wordDetailMap.toString());
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return wordDetailMap;
+	}
+	
+	public List<String> importExampleSentencesfor(String languageId, InputStream stream) {
+
+		Map<String, Map<String, String>> wordDetailsMap = parseExSentencesFile(stream);
+		List<String> lemmas = new ArrayList<String>(wordDetailsMap.keySet());
+		List<Map<String, Object>> wordList = new ArrayList<>();
+		if(CollectionUtils.isNotEmpty(lemmas)){
+			List<Map<String, Object>> searchResult = indexSearch(languageId, lemmas);
+			if(CollectionUtils.isNotEmpty(searchResult))
+				wordList = searchResult;
+		}
+		List<String> wordIds = new ArrayList<>();
+		
+		for(Map<String, Object>  word: wordList){
+			List<String> synonyms = (List<String>) word.get(LanguageParams.synonyms.name());
+			String lemma = (String) word.get(LanguageParams.lemma.name());
+			String wordId = (String) word.get(LanguageParams.identifier.name());
+			//String exampleSentences = wordDetailsMap.get(lemma);
+			Map<String, String> synsetExSentencesMap = wordDetailsMap.get(lemma);
+			
+			for(Entry<String, String> entry : synsetExSentencesMap.entrySet()){
+				String synsetId = entry.getKey();
+				String exSentence = entry.getValue();
+				
+				if(synonyms.contains(synsetId)){
+					List<String> exSentences = Arrays.asList(exSentence.trim().split("\\s*,\\s*"));
+					Map<String, Object> meaningMap = new HashMap<>();
+					meaningMap.put(LanguageParams.exampleSentences.name(), exSentences);
+					Node synset = new Node(synsetId, SystemNodeTypes.DATA_NODE.name(), "Synset");
+					// set synset metadata
+					synset.setMetadata(meaningMap);
+					
+					Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+					updateReq.put(GraphDACParams.node.name(), synset);
+					updateReq.put(GraphDACParams.node_id.name(), synset.getIdentifier());
+					Response updateRes = getResponse(updateReq, LOGGER);
+					if (checkError(updateRes)) {
+						LOGGER.error("error while uploading example sentences for synset:"+synsetId+" word:"+wordId+", error message:"+updateRes.getResult().toString());
+					}
+				}
+				
+			}
+
+			wordIds.add(wordId);
+			lemmas.remove(lemma);
+			wordDetailsMap.remove(lemma);
+		}
+		LOGGER.info("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
+		return wordIds;
 	}
 }
