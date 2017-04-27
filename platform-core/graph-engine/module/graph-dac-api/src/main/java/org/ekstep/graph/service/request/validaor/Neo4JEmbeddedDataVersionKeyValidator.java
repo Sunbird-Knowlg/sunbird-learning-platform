@@ -59,7 +59,7 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 				// Checking for Strict Mode
 				LOGGER.debug("Checking for Node Update Operation Mode is 'STRICT' for Node Id: " + node.getIdentifier());
 				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
-					throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
+					throw new ClientException(DACErrorCodeConstants.ERR_STALE_VERSION_KEY.name(),
 							DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
 
 				// Checking for Lenient Mode
@@ -108,7 +108,7 @@ public class Neo4JEmbeddedDataVersionKeyValidator {
 				// Checking for Strict Mode
 				LOGGER.debug("Checking for Node Update Operation Mode is 'STRICT' for Node Id: " + node.getIdentifier());
 				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
-					throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
+					throw new ClientException(DACErrorCodeConstants.ERR_STALE_VERSION_KEY.name(),
 							DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
 
 				// Checking for Lenient Mode

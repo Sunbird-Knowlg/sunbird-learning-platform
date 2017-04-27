@@ -148,6 +148,9 @@ public class ExecutionController extends BaseOrchestratorController {
 						}
 					}
 				}
+				if(url.endsWith("/")){
+					url = StringUtils.stripEnd(url, "/");
+				}
 				if (StringUtils.equals(url, path)) {
 					int paramsCount = null == params ? 0 : params.size();
 					if (pathParams == -1 || paramsCount < pathParams)

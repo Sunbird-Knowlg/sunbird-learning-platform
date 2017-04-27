@@ -153,7 +153,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(node, uploadedFile, false);
+		Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
 				LOGGER.info("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]");
@@ -165,6 +165,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 
 		LOGGER.info("Returning Response.");
+		if(StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")){
+			 String identifier = (String)res.getResult().get("node_id");
+			 String new_identifier = identifier.replace(".img", "");
+			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+			 res.getResult().replace("node_id", identifier, new_identifier);
+		}
 		return res;
 	}
 
@@ -410,7 +416,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Got Node: ", node);
 
-		String body = getContentBody(contentId);
+		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body fetched from content store");
 
@@ -436,7 +442,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 
 		try {
-			response = mimeTypeManager.publish(node, true);
+			response = mimeTypeManager.publish(contentId, node, true);
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
@@ -446,6 +452,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 
 		LOGGER.info("Returning 'Response' Object.");
+		if(StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")){
+			 String identifier = (String)response.getResult().get("node_id");
+			 String new_identifier = identifier.replace(".img", "");
+			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+			 response.getResult().replace("node_id", identifier, new_identifier);
+		}
 		return response;
 	}
 
@@ -466,7 +478,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Node: ", node);
 
-		String body = getContentBody(contentId);
+		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body Fetched From Content Store.");
 
@@ -479,7 +491,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 
-		response = mimeTypeManager.review(node, false);
+		response = mimeTypeManager.review(contentId, node, false);
 
 		LOGGER.debug("Returning 'Response' Object: ", response);
 		return response;
@@ -616,7 +628,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			LOGGER.debug("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
 			response = getDataNode(taxonomyId, contentId);
 
-			LOGGER.debug("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			LOGGER.info("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
 			if (checkError(response))
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
@@ -625,19 +637,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			// Content Node as node
 			node = (Node) response.get(GraphDACParams.node.name());
 
-			LOGGER.debug("Fetched Content Node: ", node);
+			LOGGER.info("Fetched Content Node: ", node);
 			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
 					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 				node = createContentImageNode(taxonomyId, contentImageId, node);
-		} else
+		} else{
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
-
+			LOGGER.info("Getting Content Image Node and assigning it as node" + node.getIdentifier());
+		}
 		// Assigning the original 'identifier' to the Node
-		node.setIdentifier(contentId);
+		//node.setIdentifier(contentId);
 
-		LOGGER.debug("Returning the Node for Operation with Identifier: " + node.getIdentifier());
+		LOGGER.info("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
 	}
 
@@ -659,7 +672,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
 					"Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
 							+ "]");
-		return imageNode;
+		Response resp = getDataNode(taxonomyId, contentImageId);
+		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
+		LOGGER.info("Returning Content Image Node Identifier"+ nodeData.getIdentifier());
+		return nodeData;
 	}
 
 	private Response createDataNode(Node node) {

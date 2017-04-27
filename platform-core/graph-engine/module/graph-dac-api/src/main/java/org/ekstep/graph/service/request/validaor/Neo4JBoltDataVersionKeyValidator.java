@@ -40,7 +40,7 @@ public class Neo4JBoltDataVersionKeyValidator {
 		// New node... not found in the graph
 		if (null == neo4jNode)
 			return true;
-		LOGGER.debug("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name()) + " | [Node Id: '"
+		LOGGER.info("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name()) + " | [Node Id: '"
 				+ node.getIdentifier() + "']");
 
 		boolean isValidUpdateOperation = false;
@@ -52,7 +52,7 @@ public class Neo4JBoltDataVersionKeyValidator {
 		if (StringUtils.isNotBlank(objectType))
 			versionCheckMode = DefinitionNodeUtil.getMetadataValue(graphId, objectType,
 					GraphDACParams.versionCheckMode.name());
-		LOGGER.debug("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
+		LOGGER.info("Version Check Mode in Definition Node: " + versionCheckMode + " for Object Type: "
 				+ node.getObjectType());
 
 		// Checking if the 'versionCheckMode' Property is not specified,
@@ -65,16 +65,17 @@ public class Neo4JBoltDataVersionKeyValidator {
 		// or 'LENIENT'.
 		// If Number of Modes are increasing then the Condition should
 		// be checked for 'OFF' Mode Only.
+		LOGGER.info(versionCheckMode);
 		if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
 				|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
 			boolean isValidVersionKey = isValidVersionKey(graphId, node, neo4jNode);
-			LOGGER.debug("Is Valid Version Key ? " + isValidVersionKey);
+			LOGGER.info("Is Valid Version Key ? " + isValidVersionKey);
 
 			if (!isValidVersionKey) {
 				// Checking for Strict Mode
 				LOGGER.debug("Checking for Node Update Operation Mode is 'STRICT' for Node Id: " + node.getIdentifier());
 				if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode))
-					throw new ClientException(DACErrorCodeConstants.INVALID_VERSION.name(),
+					throw new ClientException(DACErrorCodeConstants.ERR_STALE_VERSION_KEY.name(),
 							DACErrorMessageConstants.INVALID_VERSION_KEY_ERROR + " | [Unable to Update the Data.]");
 
 				// Checking for Lenient Mode

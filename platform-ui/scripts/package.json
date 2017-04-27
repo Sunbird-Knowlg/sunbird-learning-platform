@@ -1,0 +1,16 @@
+{
+  "name": "Item-Importer-v2",
+  "version": "1.0.0",
+  "description": "Bulk Item Creator",
+  "dependencies": {
+    "underscore": "*",
+    "csv": "*",
+    "async": "*",
+    "node-rest-client": "*",
+    "cli" : "*",
+    "fs" : "*"
+  },
+  "main": "ItemImporterv2.js",
+  "keywords": [],
+  "author": ""
+}

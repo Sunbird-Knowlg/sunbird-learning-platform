@@ -16,6 +16,7 @@ import org.ekstep.content.util.ContentPackageExtractionUtil;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -104,12 +105,12 @@ public class UploadFinalizer extends BaseFinalizer {
 
 		// Upload Package
 		String folderName = S3PropertyReader.getProperty(s3Artifact);
-		String[] urlArray = uploadToAWS(file, getUploadFolderName(node.getIdentifier(), folderName));
+		String[] urlArray = uploadToAWS(file, getUploadFolderName(contentId, folderName));
 		LOGGER.info("Package Uploaded to S3.");
 		
 		// Extract Content Uploaded Package to S3
 		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-		contentPackageExtractionUtil.extractContentPackage(node, file, ExtractionType.snapshot);
+		contentPackageExtractionUtil.extractContentPackage(contentId, node, file, ExtractionType.snapshot);
 
 		// Update Body, Reset Editor State and Update Content Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);
@@ -119,14 +120,17 @@ public class UploadFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), null);
 		
 		// update content body in content store
-		response = updateContentBody(getContentObjectIdentifier(node), ecml);
+		response = updateContentBody(node.getIdentifier(), ecml);
 		if (checkError(response))
 			return response;
 		LOGGER.info("Content Body Update Status: " + response.getResponseCode());
 
 		// Update Node
-		response = updateContentNode(node, urlArray[IDX_S3_URL]);
+		response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 		LOGGER.info("Content Node Update Status: " + response.getResponseCode());
+		
+		if (!checkError(response))
+			response.put(GraphDACParams.node_id.name(), contentId);
 		
 		try {
 			LOGGER.info("Deleting the temporary folder: " + basePath);

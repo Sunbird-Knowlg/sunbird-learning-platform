@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -21,6 +22,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IImportManager;
 import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.ControllerUtil;
+import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -52,6 +54,9 @@ public class ImportController extends BaseLanguageController {
 	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();
 
+	/** The word util. */
+	private WordUtil wordUtil = new WordUtil();
+	
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
 
@@ -412,6 +417,34 @@ public class ImportController extends BaseLanguageController {
 		}
 	}
 
+	@RequestMapping(value = "/{id:.+}/importExampleSentencesCSV", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> importExampleSentecesCSV(@PathVariable(value = "id") String id,
+			@RequestParam("file") MultipartFile file, HttpServletResponse resp) {
+		String apiId = "language.importExampleSentencesCSV";
+		LOGGER.info("Create | Id: " + id + " | File: " + file);
+		InputStream stream = null;
+		try {
+			if (null != file)
+				stream = file.getInputStream();
+			List<String> wordIds = wordUtil.importExampleSentencesfor(id, stream);
+			enrichWords(wordIds, id);
+			Response response = new Response();
+			LOGGER.info("importExampleSentecesCSV | wordList: " + wordIds.toString());
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		} finally {
+			try {
+				if (null != stream)
+					stream.close();
+			} catch (IOException e) {
+				LOGGER.error("Error! While Closing the Input Stream.", e);
+			}
+		}
+	}
+	
 	/**
 	 * Enrich words.
 	 *
@@ -420,7 +453,7 @@ public class ImportController extends BaseLanguageController {
 	 * @param languageId
 	 *            the language id
 	 */
-	private void enrichWords(ArrayList<String> node_ids, String languageId) {
+	private void enrichWords(List<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map = new HashMap<String, Object>();
 		map.put(LanguageParams.node_ids.name(), node_ids);

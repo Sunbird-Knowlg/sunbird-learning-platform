@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -164,17 +165,15 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         if (messages.isEmpty()) {
                         	datanode.removeExternalFields();
                             // create the node object
-                            Future<String> createFuture = datanode.createNode(request);
-                            createFuture.onComplete(new OnComplete<String>() {
+                            Future<Response> createFuture = datanode.createNode(request);
+                            createFuture.onComplete(new OnComplete<Response>() {
                                 @Override
-                                public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                                public void onComplete(Throwable arg0, Response arg1) throws Throwable {
                                     if (null != arg0) {
                                         ERROR(arg0, getSender());
                                     } else {
-                                        if (StringUtils.isNotBlank(arg1)) {
-                                            messages.add(arg1);
-                                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
-                                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                                        if (null != arg1 && checkError(arg1)) {
+                                            sendResponse(arg1, parent);
                                         } else {
                                             // if node is created successfully,
                                             // create relations and tags
@@ -401,23 +400,20 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                     }
                                 }
                                 if (messages.isEmpty()) {
-                                    Future<String> updateFuture = null;
+                                    Future<Response> updateFuture = null;
                                     datanode.removeExternalFields();
                                     if (null == dbNodes || dbNodes.isEmpty())
                                         updateFuture = datanode.createNode(request);
                                     else
                                         updateFuture = datanode.updateNode(request);
-                                    updateFuture.onComplete(new OnComplete<String>() {
+                                    updateFuture.onComplete(new OnComplete<Response>() {
                                         @Override
-                                        public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                                        public void onComplete(Throwable arg0, Response arg1) throws Throwable {
                                             if (null != arg0) {
                                                 ERROR(arg0, getSender());
                                             } else {
-                                                if (StringUtils.isNotBlank(arg1)) {
-                                                    messages.add(arg1);
-                                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_UNKNOWN_ERROR.name(),
-                                                            "Metadata Creation Error", ResponseCode.CLIENT_ERROR,
-                                                            GraphDACParams.messages.name(), messages, parent);
+                                                if (null != arg1 && checkError(arg1)) {
+                                                    sendResponse(arg1, parent);
                                                 } else {
                                                     // if node metadata is
                                                     // updated

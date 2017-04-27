@@ -39,12 +39,12 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 * Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(Node node, File uploadedFile, boolean isAsync) {
+	public Response upload(String contentId, Node node, File uploadedFile, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 		LOGGER.debug("Uploaded File: " + uploadedFile.getName());
 
 		LOGGER.info("Calling Upload Content For Node ID: " + node.getIdentifier());
-		return uploadContentArtifact(node, uploadedFile);
+		return uploadContentArtifact(contentId, node, uploadedFile);
 	}
 
 	/*
@@ -55,11 +55,11 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 * .Node)
 	 */
 	@Override
-	public Response publish(Node node, boolean isAsync) {
+	public Response publish(String contentId, Node node, boolean isAsync) {
 		Response response = new Response();
 		LOGGER.debug("Node: ", node);
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + node.getIdentifier());
-		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + contentId);
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
@@ -67,18 +67,18 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + node.getIdentifier());
+		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + node.getIdentifier());
+		LOGGER.info("Review Operation Finished Successfully for Node ID: " + contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
-			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + node.getIdentifier());
+			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
+			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
-					"Publish Operation for Content Id '" + node.getIdentifier() + "' Started Successfully!");
+					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
 
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
@@ -92,16 +92,16 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 *      Node, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response review(Node node, boolean isAsync) {
+	public Response review(String contentId, Node node, boolean isAsync) {
 		LOGGER.debug("Node: ", node);
 
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + node.getIdentifier());
-		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + node.getIdentifier());
+		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 
@@ -113,24 +113,24 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 * @param uploadedFile
 	 * @return
 	 */
-	public Response uploadContentArtifact(Node node, File uploadedFile) {
+	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile) {
 		try {
 			Response response = new Response();
 			LOGGER.info("Verifying the MimeTypes.");
 			String mimeType = (String) node.getMetadata().get("mimeType");
 			ContentValidator validator = new ContentValidator();
 			if(validator.exceptionChecks(mimeType, uploadedFile)){
-				LOGGER.info("Calling Upload Content Node For Node ID: " + node.getIdentifier());
-				String[] urlArray = uploadArtifactToAWS(uploadedFile, node.getIdentifier());
+				LOGGER.info("Calling Upload Content Node For Node ID: " + contentId);
+				String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 	
-				LOGGER.info("Updating the Content Node for Node ID: " + node.getIdentifier());
+				LOGGER.info("Updating the Content Node for Node ID: " + contentId);
 				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 				node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-				response = updateContentNode(node, urlArray[1]);
+				response = updateContentNode(contentId, node, urlArray[1]);
 	
-				LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
-				response = updateContentNode(node, urlArray[1]);
+				LOGGER.info("Calling 'updateContentNode' for Node ID: " + contentId);
+				response = updateContentNode(contentId, node, urlArray[1]);
 				if (!checkError(response)) {
 					return response;
 				}

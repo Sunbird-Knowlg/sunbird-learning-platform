@@ -22,7 +22,7 @@ public class AsyncContentOperationUtil {
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(AsyncContentOperationUtil.class.getName());
 
-	public static void makeAsyncOperation(ContentOperations operation, Map<String, Object> parameterMap) {
+	public static void makeAsyncOperation(ContentOperations operation, String contentId, Map<String, Object> parameterMap) {
 		LOGGER.debug("Content Operation: ", operation);
 		LOGGER.debug("Parameter Map: ", parameterMap);
 
@@ -74,19 +74,19 @@ public class AsyncContentOperationUtil {
 									ContentErrorMessageConstants.INVALID_CONTENT
 											+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
 						try {
-							InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
-									node.getIdentifier());
+							InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId),
+									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.publish.name(), parameterMap);
 						} catch (Exception e) {
 							LOGGER.error(
 									"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
-											+ node.getIdentifier() + "]", e);
+											+ contentId + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 							node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 									ContentWorkflowPipelineParams.Failed.name());
 							UpdateDataNodeUtil updateDataNodeUtil = new UpdateDataNodeUtil();
 							updateDataNodeUtil.updateDataNode(node);
-							PublishWebHookInvoker.invokePublishWebKook(node.getIdentifier(), ContentWorkflowPipelineParams.Failed.name(), e.getMessage());
+							PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(), e.getMessage());
 						}
 					}
 						break;

@@ -186,6 +186,7 @@ if {$object_null == 1} {
 					}
 				} elseif {$imageObjectExists == 1} {
 					set content_id $content_image_id
+					$content put "status" "Draft"
 				}
 				if {$check_error} {
 					return $create_response
@@ -200,7 +201,7 @@ if {$object_null == 1} {
 						if {$log_event == 1} {
 							$metadata putAll $content
 							$metadata put "prevState" $status_val_str
-							set log_response [log_content_lifecycle_event $original_content_id $metadata]
+							set log_response [log_content_lifecycle_event $content_id $metadata]
 						}
 						if {!$bodyEmpty || !$oldBodyEmpty} {
 							set bodyResponse [updateContentProperties $content_id $externalProps]

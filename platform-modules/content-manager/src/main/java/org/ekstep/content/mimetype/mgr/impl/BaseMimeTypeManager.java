@@ -247,7 +247,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
-		return updateContentNode(newNode, urlArray[1]);
+		return updateContentNode(newNode.getIdentifier(), newNode, urlArray[1]);
 	}
 
 	protected Double getS3FileSize(String key) {
@@ -276,10 +276,13 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return null;
 	}
 
-	protected Response updateContentNode(Node node, String url) {
+	protected Response updateContentNode(String contentId, Node node, String url) {
 		Response updateRes = updateNode(node);
-		if (StringUtils.isNotBlank(url))
-			updateRes.put(ContentAPIParams.content_url.name(), url);
+		if (!checkError(updateRes)) {
+			if (StringUtils.isNotBlank(url))
+				updateRes.put(ContentAPIParams.content_url.name(), url);
+			updateRes.put(ContentAPIParams.node_id.name(), contentId);
+		}
 		return updateRes;
 	}
 
@@ -434,15 +437,15 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return urlArray;
 	}
 
-	public Response uploadContentArtifact(Node node, File uploadedFile) {
-		String[] urlArray = uploadArtifactToAWS(uploadedFile, node.getIdentifier());
+	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile) {
+		String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 		node.getMetadata().put("s3Key", urlArray[0]);
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 		
 		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-		contentPackageExtractionUtil.extractContentPackage(node, uploadedFile, ExtractionType.snapshot);
+		contentPackageExtractionUtil.extractContentPackage(contentId, node, uploadedFile, ExtractionType.snapshot);
 		
-		return updateContentNode(node, urlArray[1]);
+		return updateContentNode(contentId, node, urlArray[1]);
 	}
 
 	public String getKeyName(String url) {

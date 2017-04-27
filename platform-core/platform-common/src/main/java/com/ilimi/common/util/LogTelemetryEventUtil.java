@@ -28,6 +28,11 @@ public class LogTelemetryEventUtil {
 		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
 		data.put("cid", contentId);
 		data.put("size", metadata.get("size"));
+		data.put("organization", metadata.get("organization"));
+		data.put("createdFor", metadata.get("createdFor"));
+		data.put("creator", metadata.get("creator"));
+		data.put("udpdater", metadata.get("udpdater"));
+		data.put("reviewer", metadata.get("reviewer"));
 		data.put("pkgVersion", metadata.get("pkgVersion"));
 		data.put("concepts", metadata.get("concepts"));
 		data.put("state", metadata.get("status"));
