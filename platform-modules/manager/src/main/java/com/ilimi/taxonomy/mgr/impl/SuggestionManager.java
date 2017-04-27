@@ -138,21 +138,13 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 				String api_url = PropertiesUtil.getProperty("ekstepPlatformURI") + "/v2/content/" + contentId;
 				Node node = util.getNode(SuggestionConstants.GRAPH_ID, contentId);
 				Request request = new Request();
-				Map<String,Object> data = new HashMap<String,Object>();
+				Map<String, Object> data = new HashMap<String, Object>();
 				paramsMap.put("versionKey", node.getMetadata().get("versionKey"));
 				data.put("content", paramsMap);
 				request.setRequest(data);
 				String s = mapper.writeValueAsString(request);
 				String result = HTTPUtil.makePatchRequest(api_url, s);
 				System.out.println(result);
-//				Node node = util.getNode(SuggestionConstants.GRAPH_ID, contentId);
-//				node.setGraphId(GraphDACParams.graph_id.name());
-//				node.setIdentifier(contentId);
-//				for(Map.Entry<String, Object> entry : paramsMap.entrySet()){
-//					
-//				}
-//				node.setMetadata(paramsMap);
-//				response = util.updateNode(node);
 				if (checkError(response)) {
 					LOGGER.info("Erroneous Response.");
 					return response;
@@ -202,7 +194,7 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 		Request request = new Request();
 		try {
 			request.put("request", map);
-//			response = util.getSearchDto(request);
+			// response = util.getSearchDto(request);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -344,4 +336,19 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 		}
 		return null;
 	}
-}
+
+//	protected Map<String,Object> setSearchFilter(List<Object> ){
+//		List<String> list = new ArrayList();
+//		list.add("status");
+//		list.add("suggestedBy");
+//		list.add("suggestion_id");
+//		for(String str:list){
+//			Map<String, Object> property = new HashMap<String, Object>();
+//			property.put("operation", CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+//			property.put("propertyName", "str");
+//			property.put("values", Arrays.asList(objectId));
+//			properties.add(property);
+//		}
+//		return null;
+//	}
+	}
