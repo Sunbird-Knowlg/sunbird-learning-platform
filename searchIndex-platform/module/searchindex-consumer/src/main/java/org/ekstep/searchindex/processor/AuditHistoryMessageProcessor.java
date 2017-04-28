@@ -101,6 +101,11 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
         try {
 			record.setUserId((String) transactionDataMap.get("userId"));
 			record.setRequestId((String) transactionDataMap.get("requestId"));
+			String nodeUniqueId = (String) transactionDataMap.get("nodeUniqueId");
+			if(StringUtils.endsWith(nodeUniqueId, ".img")){
+				nodeUniqueId = StringUtils.replace(nodeUniqueId, ".img", "");
+				record.setObjectId(nodeUniqueId);
+			}
 			record.setObjectId((String) transactionDataMap.get("nodeUniqueId"));
 			record.setObjectType((String) transactionDataMap.get("objectType"));
 			record.setGraphId((String) transactionDataMap.get("graphId"));
