@@ -2,6 +2,6 @@ package com.ilimi.taxonomy.enums;
 
 public enum SuggestionCodeConstants {
 
-	 Missing_object_id, Missing_objectType, Missing_suggestedBy, Missing_command, Missing_params, Invalid_object_id, Missing_status, 
-	 Missing_suggestion_id, Invalid_request, server_error, suggested_id, status, suggestedBy, content, request;
+	 MISSING_OBJECT_ID, MISSING_OBJECT_TYPE, MISSING_SUGGESTED_BY, MISSING_COMMAND, MISSING_PARAMS, INVALID_OBEJCT_ID, MISSING_STATUS, 
+	 MISSING_SUGGESTION_ID, INVALID_REQUEST, createdOn,filters, suggestions, SERVER_ERROR, message, result, versionKey, suggestion_id, status, objectId, suggestedBy, content, request, object_id, objectType, command, params;;
 }
