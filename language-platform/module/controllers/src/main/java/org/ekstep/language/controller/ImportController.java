@@ -433,7 +433,7 @@ public class ImportController extends BaseLanguageController {
 			LOGGER.info("importExampleSentecesCSV | wordList: " + wordIds.toString());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			LOGGER.error("importExampleSentecesCSV | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {

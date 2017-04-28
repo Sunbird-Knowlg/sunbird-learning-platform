@@ -2849,12 +2849,13 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			String wordId = (String) word.get(LanguageParams.identifier.name());
 			//String exampleSentences = wordDetailsMap.get(lemma);
 			Map<String, String> synsetExSentencesMap = wordDetailsMap.get(lemma);
-			
+			boolean corrected = false;
 			for(Entry<String, String> entry : synsetExSentencesMap.entrySet()){
 				String synsetId = entry.getKey();
 				String exSentence = entry.getValue();
 				
-				if(synonyms.contains(synsetId)){
+				if(synonyms != null && synonyms.contains(synsetId)) {
+					corrected = true;
 					List<String> exSentences = Arrays.asList(exSentence.trim().split("\\s*,\\s*"));
 					Map<String, Object> meaningMap = new HashMap<>();
 					meaningMap.put(LanguageParams.exampleSentences.name(), exSentences);
@@ -2872,10 +2873,11 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 				
 			}
-
-			wordIds.add(wordId);
-			lemmas.remove(lemma);
-			wordDetailsMap.remove(lemma);
+			if(corrected){
+				wordIds.add(wordId);
+				lemmas.remove(lemma);
+				wordDetailsMap.remove(lemma);
+			}
 		}
 		LOGGER.info("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
 		return wordIds;
