@@ -1,6 +1,8 @@
 package org.ekstep.language.actor;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -45,7 +48,10 @@ public class IndexesActor extends LanguageBaseActor {
 
 	/** The default limit. */
 	private int DEFAULT_LIMIT = 10000;
-	
+
+	/** The Constant tempFileLocation. */
+	private static final String tempFileLocation = "/data/temp/";
+
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -64,14 +70,39 @@ public class IndexesActor extends LanguageBaseActor {
 		String operation = request.getOperation();
 		try {
 			if (StringUtils.equalsIgnoreCase(LanguageOperations.loadCitations.name(), operation)) {
-				String filePathOnServer = (String) request.get(LanguageParams.file_path.name());
-				String sourceType = (String) request.get(LanguageParams.source_type.name());
-				String grade = (String) request.get(LanguageParams.grade.name());
-				String source = (String) request.get(LanguageParams.source.name());
-				boolean skipCitations = request.get(LanguageParams.skipCitations.name()) != null
-						? (boolean) request.get(LanguageParams.skipCitations.name()) : false;
-				SSFParser.parseSsfFiles(filePathOnServer, sourceType, source, grade, skipCitations, languageId);
-				OK(getSender());
+				InputStream zipStream = (InputStream) request.get(LanguageParams.input_stream.name());
+				if (null == zipStream)
+					throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(),
+							"Input Zip object is emtpy");
+
+				UnzipUtility unzipper = new UnzipUtility();
+				String filePathOnServer = tempFileLocation + System.currentTimeMillis() + "_temp";
+				try {
+					unzipper.unzip(zipStream, filePathOnServer);
+					String sourceType = (String) request.get(LanguageParams.source_type.name());
+					String grade = (String) request.get(LanguageParams.grade.name());
+					String source = (String) request.get(LanguageParams.source.name());
+					boolean skipCitations = request.get(LanguageParams.skipCitations.name()) != null
+							? (boolean) request.get(LanguageParams.skipCitations.name()) : false;
+					dropIndex(languageId);
+					SSFParser.parseSsfFiles(filePathOnServer, sourceType, source, grade, skipCitations, languageId);
+					OK(getSender());
+				} catch (Exception ex) {
+					throw ex;
+				} finally {
+					File zipFileDirectory = new File(filePathOnServer);
+					if (!zipFileDirectory.exists()) {
+						System.out.println("Directory does not exist.");
+					} else {
+						try {
+							delete(zipFileDirectory);
+						} catch (IOException e) {
+							LOGGER.error(e.getMessage(), e);
+							e.printStackTrace();
+						}
+					}
+				}
+
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.citationsCount.name(), operation)) {
 				List<String> words = (List<String>) request.get(LanguageParams.words.name());
 				List<String> groupByList = (List<String>) request.get(LanguageParams.groupBy.name());
@@ -167,7 +198,33 @@ public class IndexesActor extends LanguageBaseActor {
 	}
 
 	/**
-	 * Gets the root words of the given words and Gets the morphological variants of a given words
+	 * Drop index.
+	 *
+	 * @param languageId
+	 *            the language id
+	 */
+	private void dropIndex(String languageId) {
+		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;
+		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
+		String wordInfoIndexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
+
+		try {
+			ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+			if (elasticSearchUtil.isIndexExists(citationIndexName))
+				elasticSearchUtil.deleteIndex(citationIndexName);
+			if (elasticSearchUtil.isIndexExists(wordIndexName))
+				elasticSearchUtil.deleteIndex(wordIndexName);
+			if (elasticSearchUtil.isIndexExists(wordInfoIndexName))
+				elasticSearchUtil.deleteIndex(wordInfoIndexName);
+		} catch (Exception e) {
+			LOGGER.error("IndexesActor, dropIndex | Exception: " + e.getMessage(), e);
+		}
+
+	}
+
+	/**
+	 * Gets the root words of the given words and Gets the morphological
+	 * variants of a given words.
 	 *
 	 * @param words
 	 *            the words
@@ -194,7 +251,7 @@ public class IndexesActor extends LanguageBaseActor {
 	}
 
 	/**
-	 * Gets the morphological variants of words from its root words
+	 * Gets the morphological variants of words from its root words.
 	 *
 	 * @param rootWords
 	 *            the root words
@@ -295,23 +352,23 @@ public class IndexesActor extends LanguageBaseActor {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + languageId;
 		String distinctKey = "rootWord";
-		
+
 		List<Map<String, Object>> groupByList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> sourceType = new HashMap<String, Object>();
 		sourceType.put("groupBy", "sourceType");
 		sourceType.put("distinctKey", distinctKey);
 		groupByList.add(sourceType);
-		
+
 		Map<String, Object> source = new HashMap<String, Object>();
 		source.put("groupBy", "source");
 		source.put("distinctKey", distinctKey);
 		groupByList.add(source);
-		
+
 		Map<String, Object> pos = new HashMap<String, Object>();
 		pos.put("groupBy", "pos");
 		pos.put("distinctKey", distinctKey);
 		groupByList.add(pos);
-		
+
 		Map<String, Object> grade = new HashMap<String, Object>();
 		grade.put("groupBy", "grade");
 		grade.put("distinctKey", distinctKey);
@@ -473,7 +530,8 @@ public class IndexesActor extends LanguageBaseActor {
 			Map<String, Object> infoMap = mapper.convertValue(wordIndexTemp, Map.class);
 			wordsMap.put(infoMap.get("word").toString(), infoMap);
 		}
-		OK(LanguageParams.word_info.name(), wordsMap, getSender());
+
+		OK(LanguageParams.word_info.name(), writeMapToCSV(wordsMap), getSender());
 
 	}
 
@@ -645,6 +703,66 @@ public class IndexesActor extends LanguageBaseActor {
 		}
 
 		OK(LanguageParams.citations.name(), citationsList, getSender());
+	}
+
+	/**
+	 * Deletes the file.
+	 *
+	 * @param file
+	 *            the file
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
+	public void delete(File file) throws IOException {
+		if (file.isDirectory()) {
+			// directory is empty, then delete it
+			if (file.list().length == 0) {
+				file.delete();
+			} else {
+				// list all the directory contents
+				String files[] = file.list();
+				for (String temp : files) {
+					// construct the file structure
+					File fileDelete = new File(file, temp);
+					// recursive delete
+					delete(fileDelete);
+				}
+				// check the directory again, if empty then delete it
+				if (file.list().length == 0) {
+					file.delete();
+				}
+			}
+
+		} else {
+			// if file, then delete it
+			file.delete();
+		}
+	}
+
+	/**
+	 * Write map to CSV.
+	 *
+	 * @param wordsMap
+	 *            the words map
+	 * @return the string
+	 */
+	private String writeMapToCSV(Map<String, Object> wordsMap) {
+
+		String NEW_LINE = "\n";
+		StringBuffer oneLine = new StringBuffer();
+
+		boolean header = true;
+		for (Object wordInfo : wordsMap.values()) {
+			Map<String, Object> wordInfoMap = (Map<String, Object>) wordInfo;
+			if (header) {
+				oneLine.append(StringUtils.join(wordInfoMap.keySet(), ','));
+				oneLine.append(NEW_LINE);
+				header = false;
+			}
+			oneLine.append(StringUtils.join(wordInfoMap.values(), ','));
+			oneLine.append(NEW_LINE);
+		}
+		return oneLine.toString();
 	}
 
 	/*

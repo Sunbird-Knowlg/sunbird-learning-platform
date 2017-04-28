@@ -1,7 +1,13 @@
 package org.ekstep.language.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
@@ -14,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -48,15 +56,33 @@ public class IndexesController extends BaseLanguageController {
 	@RequestMapping(value = "/loadCitations/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> loadCitations(@PathVariable(value = "languageId") String languageId,
-			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+			@RequestParam("zipFile") MultipartFile zipFile,
+			@RequestParam(name = "source_type", required = false) String source_type,
+			@RequestParam(name = "grade", required = false) String grade,
+			@RequestParam(name = "source", required = false) String source,
+			@RequestParam(name = "skipCitations", required = false, defaultValue = "true") Boolean skipCitations,
+			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "citations.load";
-		Request request = getRequestObject(map);
-
-		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
-		request.setOperation(LanguageOperations.loadCitations.name());
-		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		LOGGER.info("List | Request: " + request);
+		
+		InputStream zipStream = null;
+		Request request = new Request();
 		try {
+
+			if (null != zipFile) {
+				zipStream = zipFile.getInputStream();
+			}
+			request.put(LanguageParams.input_stream.name(), zipStream);
+			request.put(LanguageParams.source_type.name(), source_type);
+			request.put(LanguageParams.grade.name(), grade);
+			request.put(LanguageParams.source.name(), source);
+			request.put(LanguageParams.skipCitations.name(), skipCitations);
+			
+			request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
+			request.setOperation(LanguageOperations.loadCitations.name());
+			request.getContext().put(LanguageParams.language_id.name(), languageId);
+			LOGGER.info("List | Request: " + request);
+
+
 			Response response = getBulkOperationResponse(request, LOGGER);
 			LOGGER.info("List | Response: " + response);
 			return getResponseEntity(response, apiId,
@@ -65,6 +91,13 @@ public class IndexesController extends BaseLanguageController {
 			LOGGER.error("List | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+		} finally {
+			try {
+				if (null != zipStream)
+					zipStream.close();
+			} catch (IOException e) {
+				LOGGER.error("Error! While Closing the Input Stream.", e);
+			}
 		}
 	}
 
@@ -451,8 +484,8 @@ public class IndexesController extends BaseLanguageController {
 	 */
 	@RequestMapping(value = "/wordInfo/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> getWordInfo(@PathVariable(value = "languageId") String languageId,
-			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+	public void getWordInfo(@PathVariable(value = "languageId") String languageId,
+			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "wordInfo.get";
 		Request request = getRequestObject(map);
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
@@ -462,12 +495,17 @@ public class IndexesController extends BaseLanguageController {
 		try {
 			Response response = getResponse(request, LOGGER);
 			LOGGER.info("List | Response: " + response);
-			return getResponseEntity(response, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+			String csv = (String) response.getResult().get(LanguageParams.word_info.name());
+			if (StringUtils.isNotBlank(csv)) {
+				resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
+				resp.setContentType("text/csv;charset=utf-8");
+				resp.setHeader("Content-Disposition", "attachment; filename=WordInfo.csv");
+				resp.getOutputStream().write(csv.getBytes(StandardCharsets.UTF_8));
+				resp.getOutputStream().close();
+			}
 		} catch (Exception e) {
 			LOGGER.error("List | Exception: " + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId,
-					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
 	}
+
 }
