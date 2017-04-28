@@ -94,6 +94,11 @@ if {$check_error} {
 		set returnFields true
 	}
 	set graph_node [get_resp_value $resp_get_node "node"]
+	set metadata [java::prop $graph_node "metadata"]
+        set status_val [$metadata get "status"]
+        set status_val_str [java::new String [$status_val toString]]
+        set isLiveState [$status_val_str equalsIgnoreCase "Live"]
+	set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 	set resp_def_node [getDefinition $graph_id $object_type]
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	if {$returnFields} {
@@ -126,9 +131,13 @@ if {$check_error} {
 	}
 	proc_updateLanguageCode $resp_object $graph_node
 	$resp_object put "identifier" $content_id
-	if {$isEditMode == 1} {
+
+	if {$isEditMode == 1 && $isLiveState == 1} {
 		$resp_object put "status" "Draft"
 	}
+        if {$isEditMode == 1 && $isFlaggedState == 1} {
+		$resp_object put "status" "Draft"
+        }
 	set result_map [java::new HashMap]
 	$result_map put "content" $resp_object
 	set response_list [create_response $result_map]
