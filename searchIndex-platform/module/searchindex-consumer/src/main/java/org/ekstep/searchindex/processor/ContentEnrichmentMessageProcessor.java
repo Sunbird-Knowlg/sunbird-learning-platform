@@ -1,6 +1,8 @@
 package org.ekstep.searchindex.processor;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.learning.util.ControllerUtil;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -86,8 +89,14 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		Node node = filterMessage(message);
 
 		if (null != node) {
-			LOGGER.info("calling processData to fetch node metadata" + node);
-			processData(node);
+			if (node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name())
+					.equals(ContentWorkflowPipelineParams.Collection.name())) {
+				LOGGER.info("Processing Collection :" + node.getIdentifier());
+				processCollection(node);
+			} else {
+				LOGGER.info("calling processData to fetch node metadata" + node);
+				processData(node);
+			}
 		}
 	}
 
@@ -128,7 +137,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			if (null != list && !list.isEmpty())
 				conceptGrades.addAll(list);
 		}
-		
+
 		String language = null;
 		if (null != node.getMetadata().get("language")) {
 			String[] languageArr = (String[]) node.getMetadata().get("language");
@@ -139,10 +148,11 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		// setting language as medium if medium is not already set
 		if (StringUtils.isBlank(medium) && StringUtils.isNotBlank(language))
 			node.getMetadata().put("medium", language);
-		
+
 		String subject = (String) node.getMetadata().get("subject");
 		if (StringUtils.isBlank(subject)) {
-			// if subject is not set for the content, set the subject using the associated domain
+			// if subject is not set for the content, set the subject using the
+			// associated domain
 			String domain = (String) result.get("domain");
 			if (StringUtils.isNotBlank(domain)) {
 				if (StringUtils.equalsIgnoreCase("numeracy", domain))
@@ -174,6 +184,160 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			LOGGER.info("updating node with extracted features" + contentNode);
 			util.updateNode(contentNode);
 		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void processCollection(Node node) {
+		String graphId = node.getGraphId();
+		String contentId = node.getIdentifier();
+		try {
+			Map<String, Object> dataMap = new HashMap<>();
+			dataMap = processChildren(node, graphId, dataMap);
+			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
+					continue;
+				} else if ("subject".equalsIgnoreCase(entry.getKey())) {
+					Set<Object> subject = (HashSet<Object>) entry.getValue();
+					if (null != subject.iterator().next()) {
+						node.getMetadata().put(entry.getKey(), subject.iterator().next());
+					}
+				} else if ("medium".equalsIgnoreCase(entry.getKey())) {
+					Set<Object> medium = (HashSet<Object>) entry.getValue();
+					if (null != medium.iterator().next()) {
+						node.getMetadata().put(entry.getKey(), medium.iterator().next());
+					}
+				} else {
+					Set<String> valueSet = (HashSet<String>) entry.getValue();
+					String[] value = valueSet.toArray(new String[valueSet.size()]);
+					node.getMetadata().put(entry.getKey(), value);
+				}
+			}
+			List<String> keywords = (List<String>) dataMap.get("keywords");
+			if (null!= keywords && !keywords.isEmpty()){
+				if (null != node.getMetadata().get("keywords")) {
+					Object object = node.getMetadata().get("keywords");
+					if (object instanceof String[]) {
+						String[] stringArray = (String[]) node.getMetadata().get("keywords");
+						keywords.addAll(Arrays.asList(stringArray));
+					}else if (object instanceof String) {
+						String keyword = (String) node.getMetadata().get("keywords");
+						keywords.add(keyword);
+					}
+				}
+				node.getMetadata().put("keywords", keywords);
+			}
+			util.updateNode(node);
+			List<String> concepts = (List<String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name());
+			if (null != concepts && !concepts.isEmpty()) {
+				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+		}
+	}
+
+	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) {
+		List<String> children;
+		children = getChildren(node);
+		for (String child : children) {
+			Node childNode = util.getNode(graphId, child);
+			dataMap = mergeMap(dataMap, processChild(childNode));
+			processChildren(childNode, graphId, dataMap);
+		}
+		return dataMap;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap) {
+		if (dataMap.isEmpty()) {
+			dataMap.putAll(childDataMap);
+		} else {
+			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+				Set<Object> value = new HashSet<Object>();
+				value.addAll((Collection<? extends Object>) childDataMap.get(entry.getKey()));
+				value.addAll((Collection<? extends Object>) entry.getValue());
+				dataMap.replace(entry.getKey(), value);
+			}
+		}
+		return dataMap;
+	}
+
+	private List<String> getChildren(Node node) {
+		List<String> children = new ArrayList<>();
+		for (Relation rel : node.getOutRelations()) {
+			if (ContentWorkflowPipelineParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+				children.add(rel.getEndNodeId());
+			}
+		}
+		return children;
+	}
+
+	private Map<String, Object> processChild(Node node) {
+		Map<String, Object> result = new HashMap<>();
+		Set<Object> language = new HashSet<Object>();
+		Set<Object> concepts = new HashSet<Object>();
+		Set<Object> domain = new HashSet<Object>();
+		Set<Object> grade = new HashSet<Object>();
+		Set<Object> age = new HashSet<Object>();
+		Set<Object> medium = new HashSet<Object>();
+		Set<Object> subject = new HashSet<Object>();
+		Set<Object> genre = new HashSet<Object>();
+		Set<Object> theme = new HashSet<Object>();
+		Set<Object> keywords = new HashSet<Object>();
+		if (null != node.getMetadata().get("language")) {
+			String[] langData = (String[]) node.getMetadata().get("language");
+			language = new HashSet<Object>(Arrays.asList(langData));
+			result.put("language", language);
+		}
+		if (null != node.getMetadata().get("domain")) {
+			String[] domainData = (String[]) node.getMetadata().get("domain");
+			domain = new HashSet<Object>(Arrays.asList(domainData));
+			result.put("domain", domain);
+		}
+		if (null != node.getMetadata().get("gradeLevel")) {
+			String[] gradeData = (String[]) node.getMetadata().get("gradeLevel");
+			grade = new HashSet<Object>(Arrays.asList(gradeData));
+			result.put("gradeLevel", grade);
+		}
+		if (null != node.getMetadata().get("ageGroup")) {
+			String[] ageData = (String[]) node.getMetadata().get("ageGroup");
+			age = new HashSet<Object>(Arrays.asList(ageData));
+			result.put("ageGroup", age);
+		}
+		if (null != node.getMetadata().get("medium")) {
+			String mediumData = (String) node.getMetadata().get("medium");
+			medium = new HashSet<Object>(Arrays.asList(mediumData));
+			result.put("medium", medium);
+		}
+		if (null != node.getMetadata().get("subject")) {
+			String subjectData = (String) node.getMetadata().get("subject");
+			subject = new HashSet<Object>(Arrays.asList(subjectData));
+			result.put("subject", subject);
+		}
+		if (null != node.getMetadata().get("genre")) {
+			String[] genreData = (String[]) node.getMetadata().get("genre");
+			genre = new HashSet<Object>(Arrays.asList(genreData));
+			result.put("genre", genre);
+		}
+		if (null != node.getMetadata().get("theme")) {
+			String[] themeData = (String[]) node.getMetadata().get("theme");
+			theme = new HashSet<Object>(Arrays.asList(themeData));
+			result.put("theme", theme);
+		}
+		if (null != node.getMetadata().get("keywords")) {
+			String[] keyData = (String[]) node.getMetadata().get("keywords");
+			keywords = new HashSet<Object>(Arrays.asList(keyData));
+			result.put("keywords", keywords);
+		}
+		for (Relation rel : node.getOutRelations()) {
+			if (ContentWorkflowPipelineParams.concepts.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+				concepts.add(rel.getEndNodeId());
+			}
+		}
+		if (null != concepts && !concepts.isEmpty()) {
+			result.put("concepts", concepts);
+		}
+		return result;
 	}
 
 	/**
