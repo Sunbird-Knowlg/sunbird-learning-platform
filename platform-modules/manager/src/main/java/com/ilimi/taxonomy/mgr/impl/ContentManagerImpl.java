@@ -204,6 +204,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		} else {
 			List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
 			List<Node> nodes = new ArrayList<Node>();
+			List<Node> imageNodes = new ArrayList<Node>();
 			if (null != list && !list.isEmpty()) {
 				LOGGER.info("Iterating Over the List.");
 				for (Object obj : list) {
@@ -212,13 +213,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						nodes.addAll(nodelist);
 				}
 				for (Node node : nodes) {
+					String contentImageId = getContentImageIdentifier(node.getIdentifier());
+					Response getNodeResponse = getDataNode(taxonomyId, contentImageId);
+					if (!checkError(getNodeResponse)) {
+						node = (Node) response.get(GraphDACParams.node.name());
+					}
 					String body = getContentBody(node.getIdentifier());
 					node.getMetadata().put(ContentAPIParams.body.name(), body);
+					imageNodes.add(node);
 					LOGGER.debug("Body fetched from content store");
 				}
-				if (nodes.size() == 1 && StringUtils.isBlank(bundleFileName))
-					bundleFileName = (String) nodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
-							+ System.currentTimeMillis() + "_" + (String) nodes.get(0).getIdentifier();
+				if (imageNodes.size() == 1 && StringUtils.isBlank(bundleFileName))
+					bundleFileName = (String) imageNodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
+							+ System.currentTimeMillis() + "_" + (String) imageNodes.get(0).getIdentifier();
 			}
 			bundleFileName = Slug.makeSlug(bundleFileName, true);
 			String fileName = bundleFileName + ".ecar";
@@ -227,7 +234,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			LOGGER.info("Preparing the Parameter Map for 'Bundle' Pipeline.");
 			InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
+			parameterMap.put(ContentAPIParams.nodes.name(), imageNodes);
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
 			parameterMap.put(ContentAPIParams.manifestVersion.name(), DEFAULT_CONTENT_MANIFEST_VERSION);

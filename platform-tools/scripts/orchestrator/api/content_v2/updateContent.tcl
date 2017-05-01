@@ -181,6 +181,20 @@ if {$object_null == 1} {
 						set create_response [createDataNode $graph_id $graph_node]
 						set check_error [check_response_error $create_response]
 						if {!$check_error} {
+							set externalPropFields [java::new ArrayList]
+							$externalPropFields add "body"
+							$externalPropFields add "oldBody"
+							$externalPropFields add "stageIcons"
+							set bodyResponse [getContentProperties $content_id $externalPropFields]
+							set check_error [check_response_error $bodyResponse]
+							if {!$check_error} {
+								set extValues [get_resp_value $bodyResponse "values"]
+								set is_extValues_null [java::isnull $extValues]
+								if {$is_extValues_null == 0} {
+									set extValuesMap [java::cast Map $extValues]
+									set bodyResponse [updateContentProperties $content_image_id $extValuesMap]
+								}
+							}
 							$content put "versionKey" [get_resp_value $create_response "versionKey"]
 						}
 					}

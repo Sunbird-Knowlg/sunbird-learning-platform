@@ -397,11 +397,14 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentWorkflowPipelineParams.Live.name());
 
 			LOGGER.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
-			response = updateContentBody(contentId, getContentBody(contentImageId));
-			if (checkError(response))
-				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
-						ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
-								+ "]");
+			String imageBody = getContentBody(contentImageId);
+			if (StringUtils.isNotBlank(imageBody)) {
+				response = updateContentBody(contentId, getContentBody(contentImageId));
+				if (checkError(response))
+					throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
+							ContentErrorMessageConstants.CONTENT_BODY_MIGRATION_ERROR + " | [Content Id: " + contentId
+									+ "]");
+			}
 
 			LOGGER.info("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
 			response = updateNode(contentImage);

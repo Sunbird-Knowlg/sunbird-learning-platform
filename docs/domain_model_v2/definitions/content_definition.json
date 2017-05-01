@@ -1333,6 +1333,8 @@
             "Retired",
             "Mock",
             "Processing",
+            "FlagDraft",
+            "FlagReview",
             "Failed"
           ],
           "required": false,

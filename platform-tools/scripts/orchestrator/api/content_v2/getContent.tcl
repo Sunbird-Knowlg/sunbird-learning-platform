@@ -69,6 +69,7 @@ proc proc_updateLanguageCode {resp_object graph_node} {
 }
 
 set isEditMode 0
+set imageMode 0
 set object_type "Content"
 set graph_id "domain"
 set content_image_id ${content_id}.img
@@ -80,6 +81,8 @@ if {($is_mode_null == 0) && ([$mode toString] == "edit")} {
 	if {$check_error} {
 		set isEditMode 1
 		set resp_get_node [getDataNode $graph_id $content_id]
+	} else {
+		set imageMode 1
 	}
 } else {
 	set resp_get_node [getDataNode $graph_id $content_id]
@@ -116,7 +119,11 @@ if {$check_error} {
 		if {$returnStageIcons == 1} {
 			$externalProps add "stageIcons"
 		}
-		set bodyResponse [getContentProperties $content_id $externalProps]
+		set externalPropId $content_id
+		if {$imageMode == 1} {
+			set externalPropId $content_image_id
+		}
+		set bodyResponse [getContentProperties $externalPropId $externalProps]
 		set check_error [check_response_error $bodyResponse]
 		if {!$check_error} {
 			set extValues [get_resp_value $bodyResponse "values"]
@@ -135,9 +142,9 @@ if {$check_error} {
 	if {$isEditMode == 1 && $isLiveState == 1} {
 		$resp_object put "status" "Draft"
 	}
-        if {$isEditMode == 1 && $isFlaggedState == 1} {
-		$resp_object put "status" "Draft"
-        }
+    if {$isEditMode == 1 && $isFlaggedState == 1} {
+		$resp_object put "status" "FlagDraft"
+    }
 	set result_map [java::new HashMap]
 	$result_map put "content" $resp_object
 	set response_list [create_response $result_map]
