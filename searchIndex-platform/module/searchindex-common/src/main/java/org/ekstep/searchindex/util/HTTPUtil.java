@@ -64,7 +64,7 @@ public class HTTPUtil {
 		return result.toString();
 	}
 
-	public static void makePatchRequest(String url, String body) throws Exception {
+	public static String makePatchRequest(String url, String body) throws Exception {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPatch patch = new HttpPatch(url);
 		patch.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
@@ -76,7 +76,15 @@ public class HTTPUtil {
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
 					+ response.getStatusLine().getReasonPhrase());
 		}
+		BufferedReader rd = new BufferedReader(
+				new InputStreamReader(response.getEntity().getContent(), Charsets.UTF_8));
 
+		StringBuffer result = new StringBuffer();
+		String line = "";
+		while ((line = rd.readLine()) != null) {
+			result.append(line);
+		}
+		return result.toString();
 	}
 
 	public static String makePostRequestUploadFile(String url, File file) throws Exception {

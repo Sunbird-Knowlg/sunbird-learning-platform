@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.dto.SearchDTO;
@@ -882,7 +881,7 @@ public class SearchProcessor {
 
 			}
 		}
-		LOGGER.info("AuditHistory search response size: " + response.size());
+		LOGGER.info("search response size: " + response.size());
 		return response;
 	}
 

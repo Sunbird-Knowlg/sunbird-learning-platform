@@ -94,6 +94,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	/**
 	 * Is Content Image Object flag property key
 	 */
+	@SuppressWarnings("unused")
 	private static final String IS_IMAGE_OBJECT_FLAG_KEY = "isImageObject";
 
 	/** Default name of URL field */
