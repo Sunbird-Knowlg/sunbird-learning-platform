@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.dto.SearchDTO;
@@ -250,7 +251,7 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 
 			LOGGER.info("calling getSuggestion method to get suggestions based on search criteria" + status
 					+ suggestedBy + suggestionId);
-			List<Object> list = getSuggestions(status, suggestedBy, suggestionId);
+			List<Object> list = getSuggestionsList(status, suggestedBy, suggestionId);
 
 			LOGGER.info("Result from suggestion list API" + list);
 			response.put("suggestions", list);
@@ -407,11 +408,12 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 	 * 
 	 * @return List of suggestions
 	 */
-	private List<Object> getSuggestions(String status, String suggestedBy, String suggestionId) {
+	private List<Object> getSuggestionsList(String status, String suggestedBy, String suggestionId) {
 		SearchDTO search = new SearchDTO();
 		search.setProperties(setSearchFilters(null, null, null, status, suggestedBy, suggestionId));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
+		sortBy.put(GraphDACParams.createdOn.name(), "desc");
 		search.setSortBy(sortBy);
 		LOGGER.info("setting search criteria to fetch records from ES" + search);
 		List<Object> suggestionResult = search(search);
