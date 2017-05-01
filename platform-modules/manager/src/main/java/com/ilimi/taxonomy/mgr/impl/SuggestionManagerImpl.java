@@ -43,13 +43,13 @@ import com.ilimi.taxonomy.mgr.ISuggestionManager;
  * @see ISuggestionManager
  */
 @Component
-public class SuggestionManager extends BaseManager implements ISuggestionManager {
+public class SuggestionManagerImpl extends BaseManager implements ISuggestionManager {
 
 	/** The ControllerUtil */
 	private ControllerUtil util = new ControllerUtil();
 
 	/** The Class Logger. */
-	private static LogHelper LOGGER = LogHelper.getInstance(SuggestionManager.class.getName());
+	private static LogHelper LOGGER = LogHelper.getInstance(SuggestionManagerImpl.class.getName());
 
 	/** The ElasticSearchUtil */
 	private static ElasticSearchUtil es = new ElasticSearchUtil();
@@ -541,15 +541,15 @@ public class SuggestionManager extends BaseManager implements ISuggestionManager
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected Map<String, Object> validateRequest(Map<String, Object> requestMap, String expectedStatus) {
-		Map<String, Object> content = new HashMap<String, Object>();
+		Map<String, Object> contentMap = new HashMap<String, Object>();
 		try {
 			if (null != requestMap && !requestMap.isEmpty()) {
 				Map<String, Object> requestObj = (Map) requestMap.get(SuggestionCodeConstants.request.name());
-				content = (Map) requestObj.get(SuggestionCodeConstants.content.name());
-				String status = (String) content.get(SuggestionCodeConstants.status.name());
+				contentMap = (Map) requestObj.get(SuggestionCodeConstants.content.name());
+				String status = (String) contentMap.get(SuggestionCodeConstants.status.name());
 				LOGGER.info("Status check for validations" + status + expectedStatus);
 				if (StringUtils.isNotBlank(status) && StringUtils.equalsIgnoreCase(status, expectedStatus)) {
-					return requestMap;
+					return contentMap;
 				} else {
 					throw new ClientException(SuggestionCodeConstants.MISSING_STATUS.name(), "Error! Invalid status");
 				}
