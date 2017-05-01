@@ -153,29 +153,32 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
 			Map<String, Object> paramsMap = (Map) suggestionObject.get(SuggestionCodeConstants.params.name());
 			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
-            System.out.println(contentId);
+            LOGGER.info("Content Identifier :" + contentId);
 			// making rest call to get content API
 			String api_url = PropertiesUtil.getProperty("ekstepPlatformURI") + "/v2/content/" + contentId
 					+ "?mode=edit";
+			
+			LOGGER.info("Making HTTP GET call to fetch Content" + api_url);
 			String result = HTTPUtil.makeGetRequest(api_url);
 			LOGGER.info("result from get HTTP call to get content" + result);
-			System.out.println(result);
+			
 			Map<String, Object> resultMap = mapper.readValue(result, Map.class);
 			Map<String, Object> responseMap = (Map) resultMap.get(SuggestionCodeConstants.result.name());
 			Map<String, Object> contentMap = (Map) responseMap.get(SuggestionCodeConstants.content.name());
 			String versionKey = (String) contentMap.get(SuggestionCodeConstants.versionKey.name());
 			LOGGER.info("versionKey of content Id" + versionKey);
-			System.out.println(SuggestionCodeConstants.versionKey.name() + versionKey);
 
 			// making rest call to content Update
 			paramsMap.put(SuggestionCodeConstants.versionKey.name(), versionKey);
 			data.put(SuggestionCodeConstants.content.name(), paramsMap);
 			request.setRequest(data);
 			String url = PropertiesUtil.getProperty("ekstepPlatformURI") + "/v2/content/" + contentId;
+			
+			LOGGER.info("Making HTTP POST call to update content" + url);
 			String requestData = mapper.writeValueAsString(request);
 			String responseData = HTTPUtil.makePatchRequest(url, requestData);
 			LOGGER.info("result from update Content API after updating suggestion metadata" + responseData);
-			System.out.println("responseData" + responseData);
+			
 			if (checkError(response)) {
 				LOGGER.info("Erroneous Response.");
 				return response;
