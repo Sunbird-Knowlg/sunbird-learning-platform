@@ -233,8 +233,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			LOGGER.info("Keywords ->" + node.getMetadata().get("keywords"));
 			List<String> concepts = new ArrayList<>();
 			LOGGER.info("Concepts DataMap "+dataMap.get("concepts"));
-			LOGGER.info("Concepts from Map:" + dataMap.get(ContentWorkflowPipelineParams.concepts.name()));
-			concepts.addAll((Collection<? extends String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name()));
+			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
 			LOGGER.info("Updating concepts ->" + concepts);
 			if (null != concepts && !concepts.isEmpty()) {
 				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
@@ -340,7 +339,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			result.put("keywords", keywords);
 		}
 		for (Relation rel : node.getOutRelations()) {
-			if (ContentWorkflowPipelineParams.concepts.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+			if ("Concept".equalsIgnoreCase(rel.getEndNodeObjectType())) {
 				LOGGER.info("EndNodeId as Concept ->"+rel.getEndNodeId());
 				concepts.add(rel.getEndNodeId());
 			}
