@@ -210,6 +210,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					Set<String> valueSet = (HashSet<String>) entry.getValue();
 					String[] value = valueSet.toArray(new String[valueSet.size()]);
 					node.getMetadata().put(entry.getKey(), value);
+					LOGGER.info("Updating"+entry.getKey()+":"+value);
 				}
 			}
 			List<String> keywords = (List<String>) dataMap.get("keywords");
@@ -227,10 +228,12 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				node.getMetadata().put("keywords", keywords);
 			}
 			util.updateNode(node);
+			LOGGER.info(node.getMetadata().get("keywords"));
 			List<String> concepts = (List<String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name());
 			if (null != concepts && !concepts.isEmpty()) {
 				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
 			}
+			LOGGER.info(node.getMetadata());
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}

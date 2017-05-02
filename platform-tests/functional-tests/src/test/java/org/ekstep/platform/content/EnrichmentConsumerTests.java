@@ -59,6 +59,9 @@ public class EnrichmentConsumerTests extends BaseTest {
 	String jsonCreateContentWithKannadaText = "{ \"request\": { \"content\": { \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"Kannada\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"posterImage\":\"https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"text\":[\"ಇತ್ತೀಚೆಗೆ ನಮ್ಮನ್ನಗಲಿದ ಪ್ರಸಿದ್ಧ ಸಾಹಿತಿ, ಕಲಾವಿದ ಆರ್ಯರ ನೆನಪಿನಲ್ಲಿ ಈ ಕತೆ- ಅವರದ್ದೇ ಹೈಬ್ರಿàಡ್‌ ಕತೆಗಳು ಸಂಕಲನದಿಂದ ಆಯ್ದುಕೊಂಡದ್ದು.\"] } } } ";
 	String jsonCreateContentWithEnglishText = "{ \"request\": { \"content\": { \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"Kannada\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"posterImage\":\"https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"text\":[\"Hello welcome to ekstep, this is an e-learning platform which provides a platform to explore and enhance a childs career.\"] } } } ";
 	String jsonCreateContentWithoutText = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"Hindi\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"posterImage\":\"https://www.youtube.com/yts/img/yt_1200-vfl4C3T0K.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"gradeLevel\":[\"kindergarten\"], \"ageGroup\":[\"6-7\"] } } }";
+	String jsonCreateContent1 = "{ \"request\": { \"content\": { \"body\": \"<theme></theme>\", \"description\": \"शेर का साथी हाथी\",  \"subject\": \"literacy\", \"name\": \"शेर का साथी हाथी\",    \"owner\": \"EkStep\", \"code\": \"org.ekstep.test01.story\", \"mimeType\": \"application/vnd.ekstep.ecml-archive\", \"identifier\": \"org.ekstep.test"+rn+".story\", \"contentType\": \"Story\", \"gradeLevel\": [\"Grade 1\"], \"ageGroup\" : [\"5-6\"], \"language\": [\"English\"], \"keywords\" : [\"Test Collection-1\"], \"osId\": \"org.ekstep.quiz.app\", \"concepts\": [{ \"identifier\" : \"LO17\", \"relation\" : \"associatedTo\" }]}}}";
+	String jsonCreateContent2 = "{ \"request\": { \"content\": { \"body\": \"<theme></theme>\", \"description\": \"शेर का साथी हाथी\",  \"subject\": \"literacy\", \"name\": \"शेर का साथी हाथी\",    \"owner\": \"EkStep\", \"code\": \"org.ekstep.test02.story\", \"mimeType\": \"application/vnd.ekstep.ecml-archive\", \"identifier\": \"org.ekstep.test"+(rn+1)+".story\", \"contentType\": \"Story\", \"gradeLevel\": [\"Grade 2\"], \"ageGroup\" : [\"6-7\"], \"language\": [\"Hindi\"], \"keywords\" : [\"Test Collection-2\"], \"osId\": \"org.ekstep.quiz.app\", \"concepts\": [{ \"identifier\" : \"LO1\", \"relation\" : \"associatedTo\" }]}}}";
+	String jsonCreateContent3 = "{ \"request\": { \"content\": { \"body\": \"<theme></theme>\", \"description\": \"शेर का साथी हाथी\",  \"subject\": \"literacy\", \"name\": \"शेर का साथी हाथी\",    \"owner\": \"EkStep\", \"code\": \"org.ekstep.test03.story\", \"mimeType\": \"application/vnd.ekstep.ecml-archive\", \"identifier\": \"org.ekstep.test"+(rn+2)+".story\", \"contentType\": \"Story\", \"gradeLevel\": [\"Grade 3\"], \"ageGroup\" : [\"7-8\"], \"language\": [\"Kannada\"], \"keywords\" : [\"Test Collection-3\"], \"osId\": \"org.ekstep.quiz.app\", \"concepts\": [{ \"identifier\" : \"LO43\", \"relation\" : \"associatedTo\" }]}}}";
 	static ClassLoader classLoader = EnrichmentConsumerTests.class.getClassLoader();
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 	static String nodeId;
@@ -864,5 +867,175 @@ public class EnrichmentConsumerTests extends BaseTest {
 				break;
 			}
 		}
+	}
+	
+	@Test
+	public void testCollection() {
+		
+			//Create content 1
+			setURI();
+			Response R = given().
+					spec(getRequestSpec(contentType, validuserId)).
+					body(jsonCreateContent1).
+					with().
+					contentType(JSON).
+					when().
+					post("/learning/v2/content").
+					then().
+					// log().all().
+					spec(get200ResponseSpec()).
+					extract().
+					response();
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			String nodeId1 = jp.get("result.node_id");
+			System.out.println("nodeId1=" + nodeId1);
+			
+			//upload content 1
+			setURI();
+			given().spec(getRequestSpec(uploadContentType, validuserId))
+					.multiPart(new File(path + "/uploadContent.zip")).when()
+					.post("/learning/v2/content/upload/" + nodeId1).then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			
+			//publish content 1
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId1)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			//create content 2
+			setURI();
+			Response R1 = given().
+					spec(getRequestSpec(contentType, validuserId)).
+					body(jsonCreateContent2).
+					with().
+					contentType(JSON).
+					when().
+					post("/learning/v2/content").
+					then().
+					// log().all().
+					spec(get200ResponseSpec()).
+					extract().
+					response();
+
+			// Extracting the JSON path
+			JsonPath jp1 = R1.jsonPath();
+			String nodeId2 = jp1.get("result.node_id");
+			System.out.println("nodeId2=" + nodeId2);
+			
+			//upload content 2
+			setURI();
+			given().spec(getRequestSpec(uploadContentType, validuserId))
+					.multiPart(new File(path + "/uploadContent.zip")).when()
+					.post("/learning/v2/content/upload/" + nodeId2).then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			
+			//publish content 2
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId2)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			//create content 3
+			setURI();
+			Response R2 = given().
+					spec(getRequestSpec(contentType, validuserId)).
+					body(jsonCreateContent3).
+					with().
+					contentType(JSON).
+					when().
+					post("/learning/v2/content").
+					then().
+					// log().all().
+					spec(get200ResponseSpec()).
+					extract().
+					response();
+
+			// Extracting the JSON path
+			JsonPath jp2 = R2.jsonPath();
+			String nodeId3 = jp2.get("result.node_id");
+			System.out.println("nodeId3=" + nodeId3);
+			
+			//upload content 3
+			setURI();
+			given().spec(getRequestSpec(uploadContentType, validuserId))
+					.multiPart(new File(path + "/uploadContent.zip")).when()
+					.post("/learning/v2/content/upload/" + nodeId3).then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			
+			//publish content 3
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId3)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			String jsonCreateValidCollection1 = "{\"request\": {\"content\": {\"description\": \"शेर का साथी हाथी\", \"subject\": \"literacy\", \"name\": \"शेर का साथी हाथी\", \"owner\": \"EkStep\", \"code\": \"org.ekstep.col.collection\", \"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\": \"org.ekstep.subCol"+rn+".collection\", \"contentType\": \"Collection\", \"osId\": \"org.ekstep.quiz.app\",\"children\":[{\"identifier\":\""+nodeId1+"\"},{\"identifier\":\""+nodeId2+"\"}]}}}";
+			setURI();
+			Response R3 = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateValidCollection1).with()
+					.contentType(JSON).when().post("/learning/v2/content").then().
+					log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			// Extracting the JSON path
+			JsonPath jp3 = R3.jsonPath();
+			String nodeId4 = jp3.get("result.node_id");
+			System.out.println("nodeId4=" + nodeId4);
+			
+			//publish sub collection 
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId4)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			String jsonCreateValidCollection = "{\"request\": {\"content\": {\"description\": \"शेर का साथी हाथी\", \"subject\": \"literacy\", \"name\": \"शेर का साथी हाथी\", \"owner\": \"EkStep\", \"code\": \"org.ekstep.col.collection\", \"mimeType\": \"application/vnd.ekstep.content-collection\",\"identifier\": \"org.ekstep.col"+rn+".collection\", \"contentType\": \"Collection\", \"osId\": \"org.ekstep.quiz.app\",\"children\":[{\"identifier\":\""+nodeId3+"\"},{\"identifier\":\""+nodeId4+"\"}]}}}";
+			setURI();
+			Response R4 = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateValidCollection).with()
+					.contentType(JSON).when().post("/learning/v2/content").then().
+					log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			// Extracting the JSON path
+			JsonPath jp4 = R4.jsonPath();
+			String nodeId5 = jp4.get("result.node_id");
+			System.out.println("nodeId5=" + nodeId5);
+			
+			//publish collection 
+			setURI();
+			given().spec(getRequestSpec(contentType, validuserId)).when().get("/learning/v2/content/publish/" + nodeId5)
+					.then().
+					// log().all().
+					spec(get200ResponseSpec());
+			
+			for (int i = 1000; i <= 5000; i = i + 1000) {
+				try {
+					Thread.sleep(i);
+				} catch (InterruptedException e) {
+					System.out.println(e);
+				}
+			}
+
+			// Get collection and validate
+			setURI();
+			Response R5 = given().spec(getRequestSpec(contentType, validuserId)).when()
+					.get("/learning/v1/graph/domain/datanodes/" + nodeId5).then().
+					log().all().
+					spec(get200ResponseSpec()).extract().response();
+
+			JsonPath jp5 = R5.jsonPath();
+			Map<String, Object> map = jp5.get("result.node.metadata");
+			Assert.assertEquals(map.containsKey("gradeLevel"), true);
+			Assert.assertEquals(map.containsKey("ageGroup"), true);
 	}
 }
