@@ -216,7 +216,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					String contentImageId = getContentImageIdentifier(node.getIdentifier());
 					Response getNodeResponse = getDataNode(taxonomyId, contentImageId);
 					if (!checkError(getNodeResponse)) {
-						node = (Node) response.get(GraphDACParams.node.name());
+						node = (Node) getNodeResponse.get(GraphDACParams.node.name());
 					}
 					String body = getContentBody(node.getIdentifier());
 					node.getMetadata().put(ContentAPIParams.body.name(), body);
