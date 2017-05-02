@@ -210,17 +210,17 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					Set<String> valueSet = (HashSet<String>) entry.getValue();
 					String[] value = valueSet.toArray(new String[valueSet.size()]);
 					node.getMetadata().put(entry.getKey(), value);
-					LOGGER.info("Updating property"+entry.getKey()+":"+value);
+					LOGGER.info("Updating property" + entry.getKey() + ":" + value);
 				}
 			}
 			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
-			if (null!= keywords && !keywords.isEmpty()){
+			if (null != keywords && !keywords.isEmpty()) {
 				if (null != node.getMetadata().get("keywords")) {
 					Object object = node.getMetadata().get("keywords");
 					if (object instanceof String[]) {
 						String[] stringArray = (String[]) node.getMetadata().get("keywords");
 						keywords.addAll(Arrays.asList(stringArray));
-					}else if (object instanceof String) {
+					} else if (object instanceof String) {
 						String keyword = (String) node.getMetadata().get("keywords");
 						keywords.add(keyword);
 					}
@@ -230,13 +230,15 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				node.getMetadata().put("keywords", keywordsList);
 			}
 			util.updateNode(node);
-			LOGGER.info("Keywords ->"+node.getMetadata().get("keywords"));
+			LOGGER.info("Keywords ->" + node.getMetadata().get("keywords"));
 			List<String> concepts = new ArrayList<>();
+			LOGGER.info("Concepts from Map:" + dataMap.get(ContentWorkflowPipelineParams.concepts.name()));
 			concepts.addAll((Collection<? extends String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name()));
+			LOGGER.info("Updating concepts ->" + concepts);
 			if (null != concepts && !concepts.isEmpty()) {
 				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
 			}
-			LOGGER.info("Updating Concepts ->" + concepts);
+			LOGGER.info("Updated Concepts ->" + concepts);
 			LOGGER.info(node.getMetadata());
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
