@@ -520,7 +520,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
-	private ResponseParams getSucessStatus() {
+	protected ResponseParams getSucessStatus() {
 		ResponseParams params = new ResponseParams();
 		params.setErr("0");
 		params.setStatus(StatusType.successful.name());

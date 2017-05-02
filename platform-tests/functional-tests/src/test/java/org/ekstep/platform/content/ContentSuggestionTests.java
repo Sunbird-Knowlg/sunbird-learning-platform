@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -73,16 +74,16 @@ public class ContentSuggestionTests extends BaseTest {
 	static File downloadPath;
 	char ch = '"';
 	
-//	@BeforeClass
-//	public static void setup() throws URISyntaxException{
-//		downloadPath = new File(url.toURI().getPath());		
-//	}	
-//	
-//	@AfterClass
-//	public static void end() throws IOException{
-//		FileUtils.cleanDirectory(downloadPath);	
-//	}
-//	
+	@BeforeClass
+	public static void setup() throws URISyntaxException{
+		downloadPath = new File(url.toURI().getPath());		
+	}	
+	
+	@AfterClass
+	public static void end() throws IOException{
+		FileUtils.cleanDirectory(downloadPath);	
+	}
+	
 	// Content clean up	
 		public void contentCleanUp(){
 			setURI();
@@ -619,7 +620,7 @@ public class ContentSuggestionTests extends BaseTest {
 	@Test
 	public void listSuggestionWithInvalidUrl(){
 		setURI();
-		Response R = given().
+		given().
 				spec(getRequestSpec(contentType, validuserId)).
 				body(jsonListSuggestionWithValidRequest).
 				with().
