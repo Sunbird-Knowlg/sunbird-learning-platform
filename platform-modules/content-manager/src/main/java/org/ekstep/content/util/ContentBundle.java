@@ -416,6 +416,7 @@ public class ContentBundle {
 			}
 			IOUtils.closeQuietly(bufferedOutputStream);
 			IOUtils.closeQuietly(byteArrayOutputStream);
+			LOGGER.info("Printing Byte Array for Content Bundle" + byteArrayOutputStream.toByteArray());
 			return byteArrayOutputStream.toByteArray();
 		}
 	}
