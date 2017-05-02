@@ -232,6 +232,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			util.updateNode(node);
 			LOGGER.info("Keywords ->" + node.getMetadata().get("keywords"));
 			List<String> concepts = new ArrayList<>();
+			LOGGER.info("Concepts DataMap "+dataMap.get("concepts"));
 			LOGGER.info("Concepts from Map:" + dataMap.get(ContentWorkflowPipelineParams.concepts.name()));
 			concepts.addAll((Collection<? extends String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name()));
 			LOGGER.info("Updating concepts ->" + concepts);
@@ -340,12 +341,14 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		}
 		for (Relation rel : node.getOutRelations()) {
 			if (ContentWorkflowPipelineParams.concepts.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+				LOGGER.info("EndNodeId as Concept ->"+rel.getEndNodeId());
 				concepts.add(rel.getEndNodeId());
 			}
 		}
 		if (null != concepts && !concepts.isEmpty()) {
 			result.put("concepts", concepts);
 		}
+		LOGGER.info("Concept in resultMap->"+result.get("concepts"));
 		return result;
 	}
 
