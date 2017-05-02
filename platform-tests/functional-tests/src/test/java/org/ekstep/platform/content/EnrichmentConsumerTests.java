@@ -984,7 +984,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 			setURI();
 			Response R3 = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateValidCollection1).with()
 					.contentType(JSON).when().post("/learning/v2/content").then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -1003,7 +1003,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 			setURI();
 			Response R4 = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateValidCollection).with()
 					.contentType(JSON).when().post("/learning/v2/content").then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			// Extracting the JSON path
@@ -1030,7 +1030,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 			setURI();
 			Response R5 = given().spec(getRequestSpec(contentType, validuserId)).when()
 					.get("/learning/v1/graph/domain/datanodes/" + nodeId5).then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).extract().response();
 
 			JsonPath jp5 = R5.jsonPath();

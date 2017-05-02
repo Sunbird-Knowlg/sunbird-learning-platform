@@ -210,10 +210,10 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					Set<String> valueSet = (HashSet<String>) entry.getValue();
 					String[] value = valueSet.toArray(new String[valueSet.size()]);
 					node.getMetadata().put(entry.getKey(), value);
-					LOGGER.info("Updating"+entry.getKey()+":"+value);
+					LOGGER.info("Updating property"+entry.getKey()+":"+value);
 				}
 			}
-			List<String> keywords = (List<String>) dataMap.get("keywords");
+			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
 			if (null!= keywords && !keywords.isEmpty()){
 				if (null != node.getMetadata().get("keywords")) {
 					Object object = node.getMetadata().get("keywords");
@@ -225,14 +225,18 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 						keywords.add(keyword);
 					}
 				}
-				node.getMetadata().put("keywords", keywords);
+				List<String> keywordsList = new ArrayList<>();
+				keywordsList.addAll(keywords);
+				node.getMetadata().put("keywords", keywordsList);
 			}
 			util.updateNode(node);
-			LOGGER.info(node.getMetadata().get("keywords"));
-			List<String> concepts = (List<String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name());
+			LOGGER.info("Keywords ->"+node.getMetadata().get("keywords"));
+			List<String> concepts = new ArrayList<>();
+			concepts.addAll((Collection<? extends String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name()));
 			if (null != concepts && !concepts.isEmpty()) {
 				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
 			}
+			LOGGER.info("Updating Concepts ->" + concepts);
 			LOGGER.info(node.getMetadata());
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
