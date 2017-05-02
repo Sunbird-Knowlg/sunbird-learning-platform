@@ -155,7 +155,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
             LOGGER.info("Content Identifier :" + contentId);
 			// making rest call to get content API
-			String api_url = PropertiesUtil.getProperty("ekstepPlatformURI") + "/v2/content/" + contentId
+			String api_url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/" + contentId
 					+ "?mode=edit";
 			
 			LOGGER.info("Making HTTP GET call to fetch Content" + api_url);
@@ -172,7 +172,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			paramsMap.put(SuggestionCodeConstants.versionKey.name(), versionKey);
 			data.put(SuggestionCodeConstants.content.name(), paramsMap);
 			request.setRequest(data);
-			String url = PropertiesUtil.getProperty("ekstepPlatformURI") + "/v2/content/" + contentId;
+			String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/" + contentId;
 			
 			LOGGER.info("Making HTTP POST call to update content" + url);
 			String requestData = mapper.writeValueAsString(request);
