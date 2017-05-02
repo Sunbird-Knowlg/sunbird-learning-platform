@@ -178,6 +178,7 @@ if {$object_null == 1} {
 						java::prop $graph_node "identifier" $content_image_id
 						java::prop $graph_node "objectType" $content_image_object_type
 						$metadata put "status" "Draft"
+						$metadata put "lastUpdatedBy" $content get "lastUpdatedBy"		
 						set create_response [createDataNode $graph_id $graph_node]
 						set check_error [check_response_error $create_response]
 						if {!$check_error} {
