@@ -208,7 +208,7 @@ public abstract class BaseManager {
         return to;
     }
 
-    private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
+    protected ResponseParams getErrorStatus(String errorCode, String errorMessage) {
         ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
         params.setStatus(StatusType.failed.name());
@@ -216,7 +216,7 @@ public abstract class BaseManager {
         return params;
     }
 
-    private ResponseParams getSucessStatus() {
+    protected ResponseParams getSucessStatus() {
         ResponseParams params = new ResponseParams();
         params.setErr("0");
         params.setStatus(StatusType.successful.name());

@@ -81,7 +81,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 					return response;
 				}
 			} else {
-				throw new ClientException(SuggestionCodeConstants.INVALID_OBEJCT_ID.name(),
+				throw new ClientException(SuggestionCodeConstants.INVALID_OBJECT_ID.name(),
 						"Content_Id doesnt exists | Invalid Content_id");
 			}
 		} catch (ClientException e) {
@@ -106,6 +106,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		try {
 			LOGGER.debug("Checking if received parameters are empty or not" + objectId);
 			List<Object> result = getSuggestionByObjectId(objectId, startTime, endTime);
+			response.setParams(getSucessStatus());
 			response.put(SuggestionCodeConstants.suggestions.name(), result);
 			LOGGER.info("Fetching response from elastic search" + result.size());
 			if (checkError(response)) {
@@ -140,6 +141,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			LOGGER.info("request for suggestion approval" + requestString);
 			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
 					requestString, suggestion_id);
+			response.setParams(getSucessStatus());
 			response.put(SuggestionCodeConstants.suggestion_id.name(), suggestion_id);
 			response.put(SuggestionCodeConstants.message.name(),
 					"suggestion accepted successfully! Content Update started successfully");
@@ -179,10 +181,6 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			String responseData = HTTPUtil.makePatchRequest(url, requestData);
 			LOGGER.info("result from update Content API after updating suggestion metadata" + responseData);
 			
-			if (checkError(response)) {
-				LOGGER.info("Erroneous Response.");
-				return response;
-			}
 		} catch (ClientException e) {
 			LOGGER.error("throwing exception received" + e.getMessage(), e);
 			throw e;
@@ -209,6 +207,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			String results = mapper.writeValueAsString(requestMap);
 			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE, results,
 					suggestion_id);
+			response.setParams(getSucessStatus());
 			response.put("suggestion_id", suggestion_id);
 			response.put("message", "suggestion rejected successfully");
 			if (checkError(response)) {
@@ -257,6 +256,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			List<Object> list = getSuggestionsList(status, suggestedBy, suggestionId);
 
 			LOGGER.info("Result from suggestion list API" + list);
+			response.setParams(getSucessStatus());
 			response.put("suggestions", list);
 			if (checkError(response)) {
 				LOGGER.info("Erroneous Response.");
@@ -363,7 +363,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	 */
 	private Response setResponse(Response response, String suggestionId) {
 		LOGGER.info("Setting response" + suggestionId);
-		response.setParams(response.getParams());
+		response.setParams(getSucessStatus());
 		response.getResult().put("suggestion_id", suggestionId);
 		response.setResponseCode(response.getResponseCode());
 		return response;
