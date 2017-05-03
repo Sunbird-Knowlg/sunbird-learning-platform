@@ -19,6 +19,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
@@ -98,6 +100,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	/** The synset relations. */
 	private static List<String> synsetRelations = null;
 
+	/** The Constant special. */
+	// inside regex all special character mentioned!, by default inside string
+	// black slash and double quote should be escaped using black slash, in
+	// addition to that here open bracket([) and close bracket(]) has been
+	// escaped and dash(-) were mentioned at last special character for regex
+	// constraints to work
+	private static final Pattern special = Pattern.compile(".*[`~!@#$%^&*()_=+\\[\\]{}|\\;:'\",<.>/?-].*");
+	
 	/**
 	 * Returns akka request for a given request map
 	 * 
@@ -1680,8 +1690,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			if (synsetId != null) {
 				try {
 					Node existingSynset = getDataNode(languageId, synsetId, "Synset");
+					//if synset is exist, merge relations for update and do no data update in metadata
 					outRelations = getMergedRelations(outRelations, existingSynset.getOutRelations(),
 							ListUtils.EMPTY_LIST);
+					synset.setMetadata(new HashMap<>());
 				} catch (Exception e) {
 				}
 			}
@@ -1848,6 +1860,11 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			List<String> words = (List<String>) item.get(LanguageParams.words.name());
 			for (String lemma : words) {
 				lemma = lemma.trim();
+				Matcher hasSpecial = special.matcher(lemma);
+				if (hasSpecial.matches()) {
+					//skip the word creation if it has special character
+					continue;
+				}
 				boolean createFlag = true;
 				String wordIdentifier = wordLemmaMap.get(lemma);
 				if (wordIdentifier != null) {
