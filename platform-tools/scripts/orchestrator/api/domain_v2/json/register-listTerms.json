@@ -3,6 +3,7 @@
     "parameters": [
      {
           "name": "languageId",
+	  "datatype": "java.lang.String",
           "index": 0,
           "routingParam": false
         }
@@ -12,7 +13,7 @@
         "url": "/v2/terms/list",
         "requestParams": [
           "languageId"
-    ]
+        ]
     },
     "body": "",
     "apiId": "ekstep.domain.terms.list",
