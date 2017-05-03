@@ -869,6 +869,7 @@ public class EnrichmentConsumerTests extends BaseTest {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testCollection() {
 		
@@ -1036,6 +1037,11 @@ public class EnrichmentConsumerTests extends BaseTest {
 			JsonPath jp5 = R5.jsonPath();
 			Map<String, Object> map = jp5.get("result.node.metadata");
 			Assert.assertEquals(map.containsKey("gradeLevel"), true);
+			List<String> grades = (List<String>) map.get("gradeLevel");
+			Assert.assertEquals(grades.contains("Grade 1"), true);
 			Assert.assertEquals(map.containsKey("ageGroup"), true);
+			List<String> ageGroup = (List<String>) map.get("ageGroup");
+			Assert.assertEquals(ageGroup.contains("5-6"), true);
+			
 	}
 }
