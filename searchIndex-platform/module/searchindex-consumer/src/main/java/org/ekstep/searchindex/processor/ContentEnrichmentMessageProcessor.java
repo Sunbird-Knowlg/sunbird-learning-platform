@@ -246,6 +246,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap)
 			throws Exception {
+		LOGGER.info("In processChildren");
 		List<String> children;
 		children = getChildren(node);
 		for (String child : children) {
@@ -257,7 +258,8 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap) {
+	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap)throws Exception {
+		LOGGER.info("In mergeMap");
 		if (dataMap.isEmpty()) {
 			dataMap.putAll(childDataMap);
 		} else {
@@ -271,7 +273,8 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		return dataMap;
 	}
 
-	private List<String> getChildren(Node node) {
+	private List<String> getChildren(Node node) throws Exception {
+		LOGGER.info("In getChildren");
 		List<String> children = new ArrayList<>();
 		for (Relation rel : node.getOutRelations()) {
 			if (ContentWorkflowPipelineParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
@@ -282,6 +285,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	}
 
 	private Map<String, Object> processChild(Node node) throws Exception {
+		LOGGER.info("In processChild");
 		Map<String, Object> result = new HashMap<>();
 		Set<Object> language = new HashSet<Object>();
 		Set<Object> concepts = new HashSet<Object>();
