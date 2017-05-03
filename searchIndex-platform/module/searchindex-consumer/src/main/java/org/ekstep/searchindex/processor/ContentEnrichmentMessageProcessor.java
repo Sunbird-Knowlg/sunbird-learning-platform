@@ -265,9 +265,18 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		} else {
 			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
 				Set<Object> value = new HashSet<Object>();
-				value.addAll((Collection<? extends Object>) childDataMap.get(entry.getKey()));
+				if(childDataMap.containsKey(entry.getKey())){
+					value.addAll((Collection<? extends Object>) childDataMap.get(entry.getKey()));
+				}
 				value.addAll((Collection<? extends Object>) entry.getValue());
 				dataMap.replace(entry.getKey(), value);
+			}
+			if(!dataMap.keySet().containsAll(childDataMap.keySet())){
+				for(Map.Entry<String, Object> entry : childDataMap.entrySet()){
+					if(!dataMap.containsKey(entry.getKey())){
+						dataMap.put(entry.getKey(), entry.getValue());
+					}
+				}
 			}
 		}
 		return dataMap;
