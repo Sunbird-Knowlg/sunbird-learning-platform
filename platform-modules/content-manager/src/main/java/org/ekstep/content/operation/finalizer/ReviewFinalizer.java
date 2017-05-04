@@ -78,11 +78,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 		
 		Boolean isPublishOperation = (Boolean) parameterMap
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
-		
-		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.flagDraft.name()) || (StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.flagged.name()))){
-			LOGGER.info("Setting status to flagReview from previous state : " + prevState);
-			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.flagReview.name());
-		}
+	
 		if (BooleanUtils.isTrue(isPublishOperation)) {
 			LOGGER.info("Changing the Content Status to 'Processing'.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
@@ -91,6 +87,10 @@ public class ReviewFinalizer extends BaseFinalizer {
 			LOGGER.info("Changing the Content Status to 'Review'.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Review.name());
+		}
+		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.flagDraft.name()) || (StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.flagged.name()))){
+			LOGGER.info("Setting status to flagReview from previous state : " + prevState);
+			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.flagReview.name());
 		}
 		// Clean-Up
 		node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), null);
