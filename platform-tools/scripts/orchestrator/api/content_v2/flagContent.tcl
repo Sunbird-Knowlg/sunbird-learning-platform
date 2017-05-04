@@ -147,6 +147,7 @@ if {$check_error} {
 			} else {
 				set content_image_id ${content_id}.img
 				set resp_get_node [getDataNode $graph_id $content_image_id]
+				set check_error [check_response_error $resp_get_node]
 				if {$check_error} {
 				} else {
 					set image_node [get_resp_value $resp_get_node "node"]
