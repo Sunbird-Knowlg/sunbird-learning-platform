@@ -2,8 +2,8 @@
     "name": "listTerms",
     "parameters": [
      {
-          "name": "languageId",
-	  "datatype": "java.lang.String",
+          "name": "language",
+	        "datatype": "java.lang.String",
           "index": 0,
           "routingParam": false
         }
@@ -12,7 +12,7 @@
         "type": "GET",
         "url": "/v2/terms/list",
         "requestParams": [
-          "languageId"
+          "language"
         ]
     },
     "body": "",
