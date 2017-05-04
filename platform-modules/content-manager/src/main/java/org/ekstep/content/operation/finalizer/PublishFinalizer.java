@@ -114,7 +114,8 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == ecrf)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
-		//node.setIdentifier(contentId);
+		node.setIdentifier(contentId);
+		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
 		LOGGER.info("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
