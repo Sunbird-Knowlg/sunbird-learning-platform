@@ -108,14 +108,13 @@ if {$check_error} {
 		set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isLiveState == 1 || $isFlaggedState == 1 || $isProcessingState == 1} {
 			set request [java::new HashMap]              
-                        set flaggedList [addFlaggedBy $flaggedBy $node_metadata]
-                        set flaggedList [java::cast ArrayList $flaggedList]
-                        set arraySize [$flaggedList size]
-			puts "flaggedList [$flaggedList toString]"
-                        if {($arraySize > 0)} {
-                            $request put "lastUpdatedBy" [$flaggedList get 0]
+			set flaggedList [addFlaggedBy $flaggedBy $node_metadata]
+            set flaggedList [java::cast ArrayList $flaggedList]
+            set arraySize [$flaggedList size]
+            if {($arraySize > 0)} {
+            	$request put "lastUpdatedBy" [$flaggedList get 0]
 			}
-                        $request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
+            $request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
 			set isFlagsNull [java::isnull $flags]
 			if {$isFlagsNull == 0} {
 				set flags [java::cast ArrayList $flags]
@@ -146,6 +145,15 @@ if {$check_error} {
 			set check_error [check_response_error $create_response]
 			if {$check_error} {
 			} else {
+				set content_image_id ${content_id}.img
+				set resp_get_node [getDataNode $graph_id $content_image_id]
+				if {$check_error} {
+				} else {
+					set image_node [get_resp_value $resp_get_node "node"]
+					set image_metadata [java::prop $image_node "metadata"]
+					$image_metadata put "status" "FlagDraft"
+					set create_response [updateDataNode $graph_id $content_image_id $image_node]
+				}
 				$node_metadata putAll $request
 				$node_metadata put "prevState" $status_val_str
 				set log_response [log_content_lifecycle_event $content_id $node_metadata]
