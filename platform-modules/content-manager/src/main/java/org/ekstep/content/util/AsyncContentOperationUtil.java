@@ -50,8 +50,8 @@ public class AsyncContentOperationUtil {
 									ContentErrorMessageConstants.INVALID_CONTENT
 											+ " | ['null' or Invalid Content Node (Object). Async Upload Operation Failed.]");
 						try {
-							InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
-									node.getIdentifier());
+							InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId),
+									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.upload.name(), parameterMap);
 						} catch (Exception e) {
 							LOGGER.error(
@@ -111,8 +111,8 @@ public class AsyncContentOperationUtil {
 									ContentErrorMessageConstants.INVALID_CONTENT
 											+ " | ['null' or Invalid Content Node (Object). Async Review Operation Failed.]");
 						try {
-							InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()),
-									node.getIdentifier());
+							InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId),
+									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.review.name(), parameterMap);
 						} catch (Exception e) {
 							LOGGER.error(
