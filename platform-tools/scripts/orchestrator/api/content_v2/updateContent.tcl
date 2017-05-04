@@ -173,7 +173,6 @@ if {$object_null == 1} {
 				set check_error false
 				set create_response [java::null]
 				if {$isLiveState == 1} {
-					set content_id $content_image_id
 					if {$isImageObjectCreationNeeded == 1} {
 						java::prop $graph_node "identifier" $content_image_id
 						java::prop $graph_node "objectType" $content_image_object_type
@@ -203,6 +202,7 @@ if {$object_null == 1} {
 							$content put "versionKey" [get_resp_value $create_response "versionKey"]
 						}
 					}
+					set content_id $content_image_id
 				} elseif {$imageObjectExists == 1} {
 					set content_id $content_image_id
 				}
