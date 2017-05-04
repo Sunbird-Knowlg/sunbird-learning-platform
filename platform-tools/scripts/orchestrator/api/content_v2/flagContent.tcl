@@ -152,7 +152,7 @@ if {$check_error} {
 					set image_node [get_resp_value $resp_get_node "node"]
 					set image_metadata [java::prop $image_node "metadata"]
 					$image_metadata put "status" "FlagDraft"
-					set create_response [updateDataNode $graph_id $content_image_id $image_node]
+					set update_image_response [updateDataNode $graph_id $content_image_id $image_node]
 				}
 				$node_metadata putAll $request
 				$node_metadata put "prevState" $status_val_str

@@ -114,7 +114,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null == ecrf)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
-		node.setIdentifier(contentId);
+		//node.setIdentifier(contentId);
 		LOGGER.info("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
@@ -198,7 +198,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			// cloned
 			contents = new ArrayList<Map<String, Object>>();
 			childrenIds = new ArrayList<String>();
-			new ArrayList<Map<String, Object>>();
 			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
 			// Cloning contents to spineContent
 			Cloner cloner = new Cloner();
