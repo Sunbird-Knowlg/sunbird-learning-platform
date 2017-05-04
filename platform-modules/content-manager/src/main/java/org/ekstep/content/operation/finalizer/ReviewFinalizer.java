@@ -75,8 +75,14 @@ public class ReviewFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 
 		String prevState = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
+		
 		Boolean isPublishOperation = (Boolean) parameterMap
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
+		
+		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.flagDraft.name()) || (StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.flagged.name()))){
+			LOGGER.info("Setting status to flagReview from previous state : " + prevState);
+			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.flagReview.name());
+		}
 		if (BooleanUtils.isTrue(isPublishOperation)) {
 			LOGGER.info("Changing the Content Status to 'Processing'.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),

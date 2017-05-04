@@ -111,8 +111,9 @@ if {$check_error} {
                         set flaggedList [addFlaggedBy $flaggedBy $node_metadata]
                         set flaggedList [java::cast ArrayList $flaggedList]
                         set arraySize [$flaggedList size]
-                        if($arraySize > 0){
-                            $request put "lastUpdatedBy" $flaggedList get 0
+			puts "flaggedList [$flaggedList toString]"
+                        if {($arraySize > 0)} {
+                            $request put "lastUpdatedBy" [$flaggedList get 0]
 			}
                         $request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
 			set isFlagsNull [java::isnull $flags]

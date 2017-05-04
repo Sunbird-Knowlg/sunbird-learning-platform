@@ -494,6 +494,7 @@ public class SearchManager extends SearchBaseActor {
 
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
+		LOGGER.info("Logging search Response :" + searchResponse.entrySet());
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
