@@ -115,6 +115,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
 		node.setIdentifier(contentId);
+		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
 		LOGGER.info("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
@@ -198,7 +199,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			// cloned
 			contents = new ArrayList<Map<String, Object>>();
 			childrenIds = new ArrayList<String>();
-			new ArrayList<Map<String, Object>>();
 			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
 			// Cloning contents to spineContent
 			Cloner cloner = new Cloner();
@@ -208,7 +208,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			Map<String, Object> variants = new HashMap<String, Object>();
 
 			LOGGER.debug("Creating Full ECAR For Content Id: " + node.getIdentifier());
-			String bundleFileName = getBundleFileName(node, EcarPackageType.FULL);
+			String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
 			ContentBundle contentBundle = new ContentBundle();
 			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
 					null, EcarPackageType.FULL);
@@ -220,7 +220,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 			LOGGER.info("Creating Spine ECAR For Content Id: " + node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
-			String spineEcarFileName = getBundleFileName(node, EcarPackageType.SPINE);
+			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
 			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
 					EcarPackageType.SPINE);
 			urlArray = contentBundle.createContentBundle(spineContents, spineEcarFileName,
@@ -284,6 +284,10 @@ public class PublishFinalizer extends BaseFinalizer {
 		// last Node Update in Publishing
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				ContentWorkflowPipelineParams.Retired.name());
+		
+		newNode.setInRelations(node.getInRelations());
+		newNode.setOutRelations(node.getOutRelations());
+		newNode.setTags(node.getTags());
 		
 		LOGGER.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		Response response = migrateContentImageObjectData(contentId, newNode);
@@ -369,7 +373,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		return s3Key;
 	}
 
-	private String getBundleFileName(Node node, EcarPackageType packageType) {
+	private String getBundleFileName(String contentId, Node node, EcarPackageType packageType) {
 		LOGGER.debug("Generating Bundle File Name For ECAR Package Type: " + packageType.name());
 		String fileName = "";
 		if (null != node && null != node.getMetadata() && null != packageType) {
@@ -377,7 +381,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			if (packageType != EcarPackageType.FULL)
 				suffix = "_" + packageType.name();
 			fileName = Slug.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true)
-					+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + "_"
+					+ "_" + System.currentTimeMillis() + "_" + contentId + "_"
 					+ node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()) + suffix + ".ecar";
 		}
 		return fileName;

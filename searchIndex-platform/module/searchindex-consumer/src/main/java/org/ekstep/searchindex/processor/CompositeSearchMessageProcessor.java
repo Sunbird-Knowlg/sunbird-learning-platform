@@ -129,13 +129,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 						if(propertyNewValue==null) //New value from transaction data is null, then remove the property from document
 							indexDocument.remove(propertyName);
 						else{
-							Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
-							if (propertyDefinition != null) {
-//								boolean indexed = (boolean) propertyDefinition.get("indexed");
-//								if (indexed || StringUtils.equalsIgnoreCase("versionKey", propertyName)) {
-									indexDocument.put(propertyName, propertyNewValue);
-//								}
-							}
+							indexDocument.put(propertyName, propertyNewValue);
 						}
 
 					}

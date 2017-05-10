@@ -155,6 +155,7 @@ if {$object_null == 1} {
 				set status_val_str [java::new String [$status_val toString]]
 				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
 				set isFlaggedReviewState [$status_val_str equalsIgnoreCase "FlagReview"]
+				set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 				set isLiveState [$status_val_str equalsIgnoreCase "Live"]
 				set input_status [$content get "status"]
 				set input_status_null [java::isnull $input_status]
@@ -172,12 +173,20 @@ if {$object_null == 1} {
 				}
 				set check_error false
 				set create_response [java::null]
-				if {$isLiveState == 1} {
-					set content_id $content_image_id
+				if {$isLiveState == 1 || $isFlaggedState == 1} {
 					if {$isImageObjectCreationNeeded == 1} {
-						java::prop $graph_node "identifier" $content_image_id
+						java::prop $graph_node "identifier" $content_image_id	
 						java::prop $graph_node "objectType" $content_image_object_type
-						$metadata put "status" "Draft"
+						if {$isFlaggedState == 1} {
+							$metadata put "status" "FlagDraft"	
+						} else {
+							$metadata put "status" "Draft"
+						}
+						set lastUpdatedBy [$content get "lastUpdatedBy"]
+						set isLastUpdateNotNull [proc_isNotNull $lastUpdatedBy]
+                        if {$isLastUpdateNotNull} {
+							$metadata put "lastUpdatedBy" $lastUpdatedBy
+						}
 						set create_response [createDataNode $graph_id $graph_node]
 						set check_error [check_response_error $create_response]
 						if {!$check_error} {
@@ -198,6 +207,7 @@ if {$object_null == 1} {
 							$content put "versionKey" [get_resp_value $create_response "versionKey"]
 						}
 					}
+					set content_id $content_image_id
 				} elseif {$imageObjectExists == 1} {
 					set content_id $content_image_id
 				}

@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,12 +67,10 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "file", required = true) MultipartFile file,
-			@RequestHeader(value = "user-id") String userId) {
+			@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "content.upload";
 		LOGGER.debug("Upload Content | Content Id: " + contentId);
 		LOGGER.info("Uploaded File Name: " + file.getName());
-		LOGGER.info("User Id: " + userId);
 		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
@@ -105,10 +102,9 @@ public class ContentV3Controller extends BaseController {
 	 */
 	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map,
-			@RequestHeader(value = "user-id") String userId) {
+	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map) {
 		String apiId = "content.archive";
-		LOGGER.info("Create Content Bundle | user-id: " + userId);
+		LOGGER.info("Create Content Bundle");
 		try {
 			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
 			request.put(ContentAPIParams.version.name(), "v2");
@@ -138,7 +134,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+			@RequestBody Map<String, Object> map) {
 		String apiId = "content.publish";
 		Response response;
 		LOGGER.info("Publish content | Content Id : " + contentId);
@@ -172,7 +168,7 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> review(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+			@RequestBody Map<String, Object> map) {
 		String apiId = "content.review";
 		Response response;
 		LOGGER.info("Review content | Content Id : " + contentId);

@@ -1,10 +1,19 @@
 {
     "name": "listTerms",
     "parameters": [
+     {
+          "name": "language",
+	        "datatype": "java.lang.String",
+          "index": 0,
+          "routingParam": false
+        }
     ],
     "requestPath": {
         "type": "GET",
-        "url": "/v2/terms/list"
+        "url": "/v2/terms/list",
+        "requestParams": [
+          "language"
+        ]
     },
     "body": "",
     "apiId": "ekstep.domain.terms.list",

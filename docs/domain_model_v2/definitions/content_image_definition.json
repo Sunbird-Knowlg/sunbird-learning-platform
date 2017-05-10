@@ -169,6 +169,9 @@
             "application/vnd.ekstep.content-collection",
             "application/vnd.ekstep.plugin-archive",
             "application/octet-stream",
+            "application/msword",
+            "application/pdf",
+            "video/youtube",
             "image/jpeg",
             "image/jpg",
             "image/png",
@@ -445,6 +448,30 @@
         {
           "propertyName": "objects",
           "title": "Objects Used in the Content",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 7}",
+          "indexed": true
+        },
+        {
+          "propertyName": "organization",
+          "title": "Array of org names (partner names)",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 7}",
+          "indexed": true
+        },
+        {
+          "propertyName": "createdFor",
+          "title": "Array of partner IDs",
           "description": "",
           "category": "General",
           "dataType": "List",
@@ -825,7 +852,7 @@
             "Other"
           ],
           "displayProperty": "Editable",
-          "defaultValue": "5-6",
+          "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 5}",
           "indexed": true
         },
@@ -844,9 +871,10 @@
             "Grade 3",
             "Grade 4",
             "Grade 5",
+            "Grade 12",
             "Other"
           ],
-          "defaultValue": "Grade 1",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -917,7 +945,8 @@
             "game",
             "mcq",
             "mtf",
-            "ftb"
+            "ftb",
+            "library"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
@@ -1005,6 +1034,18 @@
           "renderingHints": "{ 'inputType': 'multiselect',  'order': 14 }",
           "indexed": true,
           "draft": false
+        },
+        {
+          "required": false,
+          "propertyName": "themes",
+          "title": "Themes",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 20}",
+          "indexed": true
         },
         {
           "required": false,
@@ -1139,9 +1180,9 @@
         {
           "required": false,
           "dataType": "Text",
-          "propertyName": "liveImage",
-          "title": "Live Content Identifier",
-          "description": "The Identifier of the liveImage Copy which is of Object Type 'Content', Technically it is Live/Working Copy of Content Object.",
+          "propertyName": "draftImage",
+          "title": "Draft Image Copy Identifier",
+          "description": "The Identifier of the draftImage Copy which is of Object Type 'ContentImage', Technically it is Shadow Copy of Content Object to Edit without making the 'Live' Content to Draft.",
           "category": "Technical",
           "displayProperty": "Hidden",
           "defaultValue": "",
@@ -1286,6 +1327,9 @@
           "range": [
             "Draft",
             "Review",
+            "Redraft",
+            "Flagged",
+            "Live",
             "Retired",
             "Mock",
             "Processing",
@@ -1453,6 +1497,42 @@
           "dataType": "Text",
           "required": false,
           "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": true
+        },
+        {
+          "propertyName": "creator",
+          "title": "Name of the user who created Content",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": true
+        },
+        {
+          "propertyName": "udpdater",
+          "title": "Name of the user who updated Content last",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": true
+        },
+        {
+          "propertyName": "reviewer",
+          "title": "Name of the user who did the final review and published the content",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'order': 21}",
           "indexed": true
@@ -2065,6 +2145,12 @@
          "high": {"dimensions": [1024, 1024], "dpi": 240},
          "medium": {"dimensions": [512, 512], "dpi": 240},
          "low": {"dimensions": [128, 128], "dpi": 240}
+        },
+        "softConstraints": {
+        	"medium": 15,
+          "ageGroup" : 1,
+        	"gradeLevel" : 7,
+          "board": 4
         },
         "versionCheckMode": "STRICT",
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",

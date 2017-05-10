@@ -193,50 +193,60 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		try {
 			Map<String, Object> dataMap = new HashMap<>();
 			dataMap = processChildren(node, graphId, dataMap);
+			LOGGER.info("Processed Child nodes");
 			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
 				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
 					continue;
 				} else if ("subject".equalsIgnoreCase(entry.getKey())) {
 					Set<Object> subject = (HashSet<Object>) entry.getValue();
 					if (null != subject.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), subject.iterator().next());
+						node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
 					}
 				} else if ("medium".equalsIgnoreCase(entry.getKey())) {
 					Set<Object> medium = (HashSet<Object>) entry.getValue();
 					if (null != medium.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), medium.iterator().next());
+						node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
 					}
 				} else {
 					Set<String> valueSet = (HashSet<String>) entry.getValue();
 					String[] value = valueSet.toArray(new String[valueSet.size()]);
 					node.getMetadata().put(entry.getKey(), value);
+					LOGGER.info("Updating property" + entry.getKey() + ":" + value);
 				}
 			}
-			List<String> keywords = (List<String>) dataMap.get("keywords");
-			if (null!= keywords && !keywords.isEmpty()){
+			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
+			if (null != keywords && !keywords.isEmpty()) {
 				if (null != node.getMetadata().get("keywords")) {
 					Object object = node.getMetadata().get("keywords");
 					if (object instanceof String[]) {
 						String[] stringArray = (String[]) node.getMetadata().get("keywords");
 						keywords.addAll(Arrays.asList(stringArray));
-					}else if (object instanceof String) {
+					} else if (object instanceof String) {
 						String keyword = (String) node.getMetadata().get("keywords");
 						keywords.add(keyword);
 					}
 				}
-				node.getMetadata().put("keywords", keywords);
+				List<String> keywordsList = new ArrayList<>();
+				keywordsList.addAll(keywords);
+				node.getMetadata().put("keywords", keywordsList);
 			}
 			util.updateNode(node);
-			List<String> concepts = (List<String>) dataMap.get(ContentWorkflowPipelineParams.concepts.name());
+			LOGGER.info("Keywords ->" + node.getMetadata().get("keywords"));
+			List<String> concepts = new ArrayList<>();
+			LOGGER.info("Concepts DataMap " + dataMap.get("concepts"));
+			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
 			if (null != concepts && !concepts.isEmpty()) {
 				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
 			}
+			LOGGER.info("Updated Concepts ->" + concepts);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
 		}
 	}
 
-	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) {
+	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap)
+			throws Exception {
+		LOGGER.info("In processChildren");
 		List<String> children;
 		children = getChildren(node);
 		for (String child : children) {
@@ -248,21 +258,32 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap) {
+	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap)throws Exception {
+		LOGGER.info("In mergeMap");
 		if (dataMap.isEmpty()) {
 			dataMap.putAll(childDataMap);
 		} else {
 			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
 				Set<Object> value = new HashSet<Object>();
-				value.addAll((Collection<? extends Object>) childDataMap.get(entry.getKey()));
+				if(childDataMap.containsKey(entry.getKey())){
+					value.addAll((Collection<? extends Object>) childDataMap.get(entry.getKey()));
+				}
 				value.addAll((Collection<? extends Object>) entry.getValue());
 				dataMap.replace(entry.getKey(), value);
+			}
+			if(!dataMap.keySet().containsAll(childDataMap.keySet())){
+				for(Map.Entry<String, Object> entry : childDataMap.entrySet()){
+					if(!dataMap.containsKey(entry.getKey())){
+						dataMap.put(entry.getKey(), entry.getValue());
+					}
+				}
 			}
 		}
 		return dataMap;
 	}
 
-	private List<String> getChildren(Node node) {
+	private List<String> getChildren(Node node) throws Exception {
+		LOGGER.info("In getChildren");
 		List<String> children = new ArrayList<>();
 		for (Relation rel : node.getOutRelations()) {
 			if (ContentWorkflowPipelineParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
@@ -272,7 +293,8 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		return children;
 	}
 
-	private Map<String, Object> processChild(Node node) {
+	private Map<String, Object> processChild(Node node) throws Exception {
+		LOGGER.info("In processChild");
 		Map<String, Object> result = new HashMap<>();
 		Set<Object> language = new HashSet<Object>();
 		Set<Object> concepts = new HashSet<Object>();
@@ -330,13 +352,15 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			result.put("keywords", keywords);
 		}
 		for (Relation rel : node.getOutRelations()) {
-			if (ContentWorkflowPipelineParams.concepts.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+			if ("Concept".equalsIgnoreCase(rel.getEndNodeObjectType())) {
+				LOGGER.info("EndNodeId as Concept ->" + rel.getEndNodeId());
 				concepts.add(rel.getEndNodeId());
 			}
 		}
 		if (null != concepts && !concepts.isEmpty()) {
 			result.put("concepts", concepts);
 		}
+		LOGGER.info("Concept in resultMap->" + result.get("concepts"));
 		return result;
 	}
 

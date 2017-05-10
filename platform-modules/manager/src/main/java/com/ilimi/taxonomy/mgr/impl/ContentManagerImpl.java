@@ -216,7 +216,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					String contentImageId = getContentImageIdentifier(node.getIdentifier());
 					Response getNodeResponse = getDataNode(taxonomyId, contentImageId);
 					if (!checkError(getNodeResponse)) {
-						node = (Node) response.get(GraphDACParams.node.name());
+						node = (Node) getNodeResponse.get(GraphDACParams.node.name());
 					}
 					String body = getContentBody(node.getIdentifier());
 					node.getMetadata().put(ContentAPIParams.body.name(), body);
@@ -520,7 +520,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
-	private ResponseParams getSucessStatus() {
+	protected ResponseParams getSucessStatus() {
 		ResponseParams params = new ResponseParams();
 		params.setErr("0");
 		params.setStatus(StatusType.successful.name());
@@ -666,6 +666,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Content Id: " + contentImageId);
 		LOGGER.debug("Node: ", node);
 
+		String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
 		imageNode.setGraphId(taxonomyId);
 		imageNode.setIdentifier(contentImageId);
@@ -673,7 +675,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		imageNode.setInRelations(node.getInRelations());
 		imageNode.setOutRelations(node.getOutRelations());
 		imageNode.setTags(node.getTags());
-		imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
+		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)) {
+			imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.FlagDraft.name());
+		} else {
+			imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
+		}
 		Response response = createDataNode(imageNode);
 		if (checkError(response))
 			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
