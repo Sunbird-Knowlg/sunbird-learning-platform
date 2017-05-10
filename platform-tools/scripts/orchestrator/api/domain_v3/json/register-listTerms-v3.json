@@ -10,7 +10,7 @@
     ],
     "requestPath": {
         "type": "GET",
-        "url": "/v2/terms/list",
+        "url": "/v3/terms/list",
         "requestParams": [
           "language"
         ]
