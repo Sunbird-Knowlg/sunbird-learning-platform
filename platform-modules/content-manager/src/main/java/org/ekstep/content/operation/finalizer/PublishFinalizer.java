@@ -163,7 +163,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
-		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
+//		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
 		
 		LOGGER.info("setting compatability level for textbook");
 		if (StringUtils.equalsIgnoreCase(
