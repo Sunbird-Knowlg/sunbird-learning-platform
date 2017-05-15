@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -13,6 +14,7 @@ import org.codehaus.jackson.type.TypeReference;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 import com.ilimi.util.ApplicationContextUtils;
 
@@ -111,7 +113,8 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			record.setGraphId((String) transactionDataMap.get("graphId"));
 			record.setOperation((String) transactionDataMap.get("operationType"));
 			record.setLabel((String) transactionDataMap.get("label"));
-			String transactionDataStr = mapper.writeValueAsString(transactionDataMap.get("transactionData"));
+			Map<String,Object> transactionData = setLogRecordData(transactionDataMap);
+			String transactionDataStr = mapper.writeValueAsString(transactionData);
 			record.setLogRecord(transactionDataStr);
 			String summary = setSummaryData(transactionDataMap);
 			record.setSummary(summary);
@@ -124,6 +127,23 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			e.printStackTrace();
 		}
 		return record;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String,Object> setLogRecordData(Map<String, Object> transactionDataMap) {
+		Map<String,Object> newPropertiesMap = new HashMap<String,Object>();
+		Map<String,Object> transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
+		LOGGER.info("Fetching transactionData from transactionMap");
+		Map<String,Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
+		for(Entry <String, Object> entry: propertiesMap.entrySet()){
+			LOGGER.info("Checking if entry is a systemProperty :" + entry.getKey());
+			if(!SystemProperties.isSystemProperty(entry.getKey())){
+				newPropertiesMap.put(entry.getKey(), entry.getValue());
+			}
+		}
+		transactionMap.replace("properties", newPropertiesMap);
+		transactionDataMap.replace("transactionData", transactionMap);
+		return transactionDataMap;
 	}
 
 	/** 
