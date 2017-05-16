@@ -142,6 +142,23 @@
         },
         {
           "required": false,
+          "dataType": "Select",
+          "propertyName": "audience",
+          "title": "Audience",
+          "description": "The target audience of the Content",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "Learner",
+            "Instructor"
+          ],
+          "defaultValue": "Learner",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "URL",
           "propertyName": "posterImage",
           "title": "Poster Image",
