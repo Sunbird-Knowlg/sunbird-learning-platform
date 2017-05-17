@@ -96,7 +96,7 @@ public class LogTelemetryEventUtil {
 		return jsonMessage;
 	}
 	
-	public static String logObjectLifecycleEvent(String contentId, Map<String, Object> metadata){
+	public static String logObjectLifecycleEvent(String objectId, Map<String, Object> metadata){
 			TelemetryBEEvent te = new TelemetryBEEvent();
 			long unixTime = System.currentTimeMillis();
 			Map<String,Object> data = new HashMap<String,Object>();
@@ -105,15 +105,14 @@ public class LogTelemetryEventUtil {
 			te.setVer("2.0");
 			te.setMid(mid);
 			te.setPdata("org.ekstep.platform", "", "1.0", "");
-			data.put("id", contentId);
+			data.put("id", objectId);
 			data.put("parentid", metadata.get("parentid"));
 			data.put("type", metadata.get("objectType"));
 			data.put("subtype", metadata.get("subtype"));
-			data.put("parentid", metadata.get("parentid"));
 			data.put("code", metadata.get("code"));
 			data.put("name", metadata.get("name"));
 			data.put("state", metadata.get("state"));
-			data.put("prevstate", metadata.get("prevState"));
+			data.put("prevstate", metadata.get("prevstate"));
 			te.setEdata(data);
 			
 			String jsonMessage = null;
