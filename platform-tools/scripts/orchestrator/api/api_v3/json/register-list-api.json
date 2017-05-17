@@ -1,5 +1,5 @@
 {
-    "name": "listAllApis",
+    "name": "listApis_v3",
     "type": "SCRIPT",
     "parameters": [
         {
@@ -14,5 +14,6 @@
         "url": "/v3/api/list"
     },
     "body": "",
-    "apiId": "ekstep.api.list"
+    "apiId": "ekstep.api.list",
+    "version": "3.0"
 }

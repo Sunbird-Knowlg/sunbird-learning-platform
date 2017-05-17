@@ -3,7 +3,7 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node
 
-set object_type "api"
+set object_type "Api"
 set graph_id "domain"
 
 set get_node_response [getObject $graph_id $object_type $api_id]
