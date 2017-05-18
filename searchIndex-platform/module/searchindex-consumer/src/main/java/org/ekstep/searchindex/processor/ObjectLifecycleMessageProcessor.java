@@ -130,18 +130,82 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								}
 							}
 							LOGGER.info("Getting relations from node");
-							if (null != node.getInRelations()) {
-								List<Relation> relations = node.getInRelations();
-								for (Relation rel : relations) {
-									if (rel.getEndNodeObjectType().equals("Content"))
-										if (rel.getRelationType().equals("hasSequenceMember")) {
-											objectMap.put("parentid", rel.getEndNodeId());
-										} else if (rel.getEndNodeObjectType().equals("hasMember")) {
+							if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Content")) {
+								LOGGER.info("Checking if objectType content has inRelations" + node.getInRelations());
+								if (null != node.getInRelations()) {
+									List<Relation> relations = node.getInRelations();
+									for (Relation rel : relations) {
+										if (rel.getEndNodeObjectType().equals("Content")
+												&& rel.getRelationType().equals("hasSequenceMember")) {
+											LOGGER.info("Setting parentid for Content with inRelations"
+													+ rel.getEndNodeId());
 											objectMap.put("parentid", rel.getEndNodeId());
 										}
+									}
+								} else if (null != node.getOutRelations()) {
+									List<Relation> relations = node.getOutRelations();
+									for (Relation rel : relations) {
+										if (rel.getEndNodeObjectType().equals("Content")
+												&& rel.getRelationType().equals("hasSequenceMember")) {
+											LOGGER.info("Setting parentid for Content with outRelations"
+													+ rel.getEndNodeId());
+											objectMap.put("parentid", rel.getEndNodeId());
+										}
+									}
+								}
+							} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "AssessmentItem")) {
+								LOGGER.info("Getting relations from AssessmentItem");
+								if (null != node.getInRelations()) {
+									List<Relation> relations = node.getInRelations();
+									for (Relation rel : relations) {
+										if (rel.getEndNodeObjectType().equals("ItemSet")
+												&& rel.getRelationType().equals("hasMember")) {
+											LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
+											objectMap.put("parentid", rel.getEndNodeId());
+										}
+									}
+								}
+							} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "concept")) {
+								if (null != node.getInRelations()) {
+									List<Relation> relations = node.getInRelations();
+									for (Relation rel : relations) {
+										if (rel.getEndNodeObjectType().equals("concept")
+												&& rel.getRelationType().equals("isParentOf")) {
+											LOGGER.info("Setting parentid for concept" + rel.getEndNodeId());
+											objectMap.put("parentid", rel.getEndNodeId());
+										} else if (rel.getEndNodeObjectType().equals("dimension")
+												&& rel.getRelationType().equals("isParentof")) {
+											LOGGER.info("Setting parentid for relEndNodeType : dimension"
+													+ rel.getEndNodeObjectType() + rel.getEndNodeId());
+											objectMap.put("parentid", rel.getEndNodeId());
+										}
+									}
+								} else if (null != node.getOutRelations()) {
+									List<Relation> relations = node.getOutRelations();
+									for (Relation rel : relations) {
+										if (rel.getEndNodeObjectType().equals("concept")
+												&& rel.getRelationType().equals("isParentOf")) {
+											LOGGER.info("Setting parentid for concept - outRelations of type concepts"
+													+ rel.getEndNodeObjectType() + rel.getEndNodeId());
+											objectMap.put("parentid", rel.getEndNodeId());
+										}
+									}
+								}
+							} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "dimension")) {
+								if (null != node.getInRelations()) {
+									List<Relation> relations = node.getInRelations();
+									for (Relation rel : relations) {
+										if (rel.getEndNodeObjectType().equals("domain")
+												&& rel.getRelationType().equals("isParentOf")) {
+											LOGGER.info("Setting parentid for dimension" + rel.getEndNodeObjectType()
+													+ rel.getEndNodeId());
+											objectMap.put("parentid", rel.getEndNodeId());
+										}
+									}
 								}
 							}
 						}
+
 						LOGGER.info("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id);
 						LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 					}
