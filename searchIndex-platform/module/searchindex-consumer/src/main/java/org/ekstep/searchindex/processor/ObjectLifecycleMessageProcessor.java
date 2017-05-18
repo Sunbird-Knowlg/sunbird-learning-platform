@@ -99,10 +99,12 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							if (StringUtils.equalsIgnoreCase(objectType, "ContentImage")
 									&& StringUtils.equalsIgnoreCase(prevstate, "null")
 									&& StringUtils.equalsIgnoreCase(state, "draft")) {
-								String node_status = (String) node.getMetadata().get("status");
+								String imageId = node_id.replace(".img", "");
+								Node imageNode = util.getNode("domain", imageId);
+								String node_status = (String)imageNode.getMetadata().get("status");
 								if (StringUtils.equalsIgnoreCase(node_status, "Flagged")) {
 									objectMap.put("prevstate", "Flagged");
-									objectMap.put("state", "draft");
+									objectMap.put("state", "FlagDraft");
 								} else {
 									objectMap.put("prevstate", "Live");
 									objectMap.put("state", "draft");
