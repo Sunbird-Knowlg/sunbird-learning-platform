@@ -1987,6 +1987,19 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{}"
+        },
+        {
+          "propertyName": "copyType",
+          "title": "Type of Copy i.e. the purpose of Copy from the original Content e.g. Copied for Translation, Improvisation, etc",
+          "description": "",
+          "category": "Authoring",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{}"
         }
       ],
       "inRelations": [
