@@ -86,19 +86,37 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 						String prevstate = (String) statusMap.get("ov");
 						String state = (String) statusMap.get("nv");
 
-						LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
-						objectMap.put("prevstate", prevstate);
-						objectMap.put("state", state);
-						String node_id = (String) message.get("nodeUniqueId");
+						LOGGER.info("Checking if node_id is blank" + message.get("nodeUniqueId"));
+						if (StringUtils.isNotBlank((String) message.get("nodeUniqueId"))) {
 
-						LOGGER.info("Checking if node_id is blank" + node_id);
-						if (StringUtils.isNotBlank(node_id)) {
-
-							LOGGER.info("Fetching Node metadata from graph" + node_id);
+							LOGGER.info("Fetching Node metadata from graph" + message.get("nodeUniqueId"));
 							Node node = util.getNode("domain", (String) message.get("nodeUniqueId"));
-							objectMap.put("identifier", node.getIdentifier());
-							objectMap.put("objectType", node.getObjectType());
+
+							String node_id = node.getIdentifier();
 							String objectType = node.getObjectType();
+
+							LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
+							if (StringUtils.equalsIgnoreCase(objectType, "ContentImage")
+									&& StringUtils.equalsIgnoreCase(prevstate, "null")
+									&& StringUtils.equalsIgnoreCase(state, "draft")) {
+								String node_status = (String) node.getMetadata().get("status");
+								if (StringUtils.equalsIgnoreCase(node_status, "Flagged")) {
+									objectMap.put("prevstate", "Flagged");
+									objectMap.put("state", "draft");
+								} else {
+									objectMap.put("prevstate", "Live");
+									objectMap.put("state", "draft");
+								}
+							}
+							objectMap.put("prevstate", prevstate);
+							objectMap.put("state", state);
+							if (StringUtils.endsWithIgnoreCase(node_id, ".img")
+									&& StringUtils.endsWithIgnoreCase(objectType, "Image")) {
+								StringUtils.replace(node_id, ".img", "");
+								StringUtils.replace(objectType, "Image", "");
+							}
+							objectMap.put("identifier", node_id);
+							objectMap.put("objectType", objectType);
 							LOGGER.info("Checking if node metadata is null");
 							if (null != node.getMetadata()) {
 								Map<String, Object> nodeMap = new HashMap<String, Object>();
@@ -140,8 +158,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * This method holds logic to set metadata data to generate 
-	 * object lifecycle events for objectType concept
+	 * This method holds logic to set metadata data to generate object lifecycle
+	 * events for objectType concept
+	 * 
 	 * @param node
 	 * @param objectMap
 	 */
@@ -172,8 +191,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * This method holds logic to set metadata data to generate 
-	 * object lifecycle events for objectType dimensions
+	 * This method holds logic to set metadata data to generate object lifecycle
+	 * events for objectType dimensions
+	 * 
 	 * @param node
 	 * @param objectMap
 	 */
@@ -190,8 +210,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * This method holds logic to set metadata data to generate 
-	 * object lifecycle events for objectType others
+	 * This method holds logic to set metadata data to generate object lifecycle
+	 * events for objectType others
+	 * 
 	 * @param node
 	 * @param objectMap
 	 */
@@ -201,8 +222,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * This method holds logic to set metadata data to generate 
-	 * object lifecycle events for objectType content
+	 * This method holds logic to set metadata data to generate object lifecycle
+	 * events for objectType content
+	 * 
 	 * @param node
 	 * @param objectMap
 	 */
@@ -244,8 +266,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
-	 * This method holds logic to set metadata data to generate 
-	 * object lifecycle events for objectType item or assessmentitem
+	 * This method holds logic to set metadata data to generate object lifecycle
+	 * events for objectType item or assessmentitem
+	 * 
 	 * @param node
 	 * @param objectMap
 	 */
