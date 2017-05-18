@@ -58,11 +58,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		}
 	}
 
-	public static void main(String[] args){
-		String id = "do_1234566.img";
-		String node_id = id.replace(".img", "");
-		System.out.println(id + node_id);
-	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -102,7 +97,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 							LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
 							if (StringUtils.equalsIgnoreCase(objectType, "ContentImage")
-									&& StringUtils.equalsIgnoreCase(prevstate, "null")
+									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, "Draft")) {
 								LOGGER.info("Cropping img part from node_id" + node_id);
 								String imageId = node_id.replace(".img", "");
@@ -122,8 +117,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							if (StringUtils.endsWithIgnoreCase(node_id, ".img")
 									&& StringUtils.endsWithIgnoreCase(objectType, "Image")) {
 								LOGGER.info("Setting nodeId and objectType" + node_id + objectType);
-								StringUtils.replace(node_id, ".img", "");
-								StringUtils.replace(objectType, "Image", "");
+								node_id = StringUtils.replace(node_id, ".img", "");
+								objectType = StringUtils.replace(objectType, "Image", "");
 							}
 							objectMap.put("identifier", node_id);
 							objectMap.put("objectType", objectType);
