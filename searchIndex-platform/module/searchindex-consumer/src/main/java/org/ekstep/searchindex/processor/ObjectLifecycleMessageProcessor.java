@@ -75,144 +75,203 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 				LOGGER.info(
 						"Checking tarnsactionData contains propertiesMap" + transactionMap.containsKey("properties"));
-				Map<String, Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
+				if (transactionMap.containsKey("properties")) {
+					Map<String, Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
 
-				LOGGER.info("Checking if propertiesMap contains status" + propertiesMap.containsKey("status"));
-				if (propertiesMap.containsKey("status")) {
-					Map<String, Object> statusMap = (Map) propertiesMap.get("status");
+					LOGGER.info("Checking if propertiesMap contains status" + propertiesMap.containsKey("status"));
+					if (propertiesMap.containsKey("status")) {
+						Map<String, Object> statusMap = (Map) propertiesMap.get("status");
 
-					LOGGER.info("Setting prevState and current state for event generation");
-					String prevstate = (String) statusMap.get("ov");
-					String state = (String) statusMap.get("nv");
+						LOGGER.info("Setting prevState and current state for event generation");
+						String prevstate = (String) statusMap.get("ov");
+						String state = (String) statusMap.get("nv");
 
-					LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
-					objectMap.put("prevstate", prevstate);
-					objectMap.put("state", state);
-					String node_id = (String) message.get("nodeUniqueId");
+						LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
+						objectMap.put("prevstate", prevstate);
+						objectMap.put("state", state);
+						String node_id = (String) message.get("nodeUniqueId");
 
-					LOGGER.info("Checking if node_id is blank" + node_id);
-					if (StringUtils.isNotBlank(node_id)) {
+						LOGGER.info("Checking if node_id is blank" + node_id);
+						if (StringUtils.isNotBlank(node_id)) {
 
-						LOGGER.info("Fetching Node metadata from graph" + node_id);
-						Node node = util.getNode("domain", (String) message.get("nodeUniqueId"));
-						objectMap.put("identifier", node.getIdentifier());
-						objectMap.put("objectType", node.getObjectType());
-
-						LOGGER.info("Checking if node metadata is null");
-						if (null != node.getMetadata()) {
-							Map<String, Object> nodeMap = new HashMap<String, Object>();
-							nodeMap = (Map) node.getMetadata();
-
-							LOGGER.info("Iterating over node metadata");
-							for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-								if (entry.getKey().equals("name")) {
-									LOGGER.info("Setting name field from node" + entry.getKey() + entry.getValue());
-									objectMap.put("name", entry.getValue());
-								}
-								if (entry.getKey().equals("code")) {
-									LOGGER.info("Setting code field from node" + entry.getKey() + entry.getValue());
-									objectMap.put("code", entry.getValue());
-								}
-								if (entry.getKey().equals("contentType")) {
-									if (entry.getValue().equals("Asset")) {
-										LOGGER.info("Setting subtype field from mediaType" + entry.getKey()
-												+ entry.getValue());
-										objectMap.put("subtype", nodeMap.get("mediaType"));
-									} else {
-										LOGGER.info("Setting subType field form contentType" + entry.getKey()
-												+ entry.getValue());
-										objectMap.put("subtype", entry.getValue());
-									}
-								} else if (entry.getKey().equals("type")) {
-									LOGGER.info("Setting subType field for type from node" + entry.getKey()
-											+ entry.getValue());
-									objectMap.put("subtype", entry.getValue());
-								}
+							LOGGER.info("Fetching Node metadata from graph" + node_id);
+							Node node = util.getNode("domain", (String) message.get("nodeUniqueId"));
+							objectMap.put("identifier", node.getIdentifier());
+							objectMap.put("objectType", node.getObjectType());
+							String objectType = node.getObjectType();
+							LOGGER.info("Checking if node metadata is null");
+							if (null != node.getMetadata()) {
+								Map<String, Object> nodeMap = new HashMap<String, Object>();
+								nodeMap = (Map) node.getMetadata();
+								if (nodeMap.containsKey("name"))
+									objectMap.put("name", nodeMap.get("name"));
+								if (nodeMap.containsKey("code"))
+									objectMap.put("code", nodeMap.get("code"));
 							}
-							LOGGER.info("Getting relations from node");
-							if (StringUtils.equalsIgnoreCase(node.getObjectType(), "Content")) {
-								LOGGER.info("Checking if objectType content has inRelations" + node.getInRelations());
-								if (null != node.getInRelations()) {
-									List<Relation> relations = node.getInRelations();
-									for (Relation rel : relations) {
-										if (rel.getEndNodeObjectType().equals("Content")
-												&& rel.getRelationType().equals("hasSequenceMember")) {
-											LOGGER.info("Setting parentid for Content with inRelations"
-													+ rel.getEndNodeId());
-											objectMap.put("parentid", rel.getEndNodeId());
-										}
-									}
-								} else if (null != node.getOutRelations()) {
-									List<Relation> relations = node.getOutRelations();
-									for (Relation rel : relations) {
-										if (rel.getEndNodeObjectType().equals("Content")
-												&& rel.getRelationType().equals("hasSequenceMember")) {
-											LOGGER.info("Setting parentid for Content with outRelations"
-													+ rel.getEndNodeId());
-											objectMap.put("parentid", rel.getEndNodeId());
-										}
-									}
-								}
-							} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "AssessmentItem")) {
-								LOGGER.info("Getting relations from AssessmentItem");
-								if (null != node.getInRelations()) {
-									List<Relation> relations = node.getInRelations();
-									for (Relation rel : relations) {
-										if (rel.getEndNodeObjectType().equals("ItemSet")
-												&& rel.getRelationType().equals("hasMember")) {
-											LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
-											objectMap.put("parentid", rel.getEndNodeId());
-										}
-									}
-								}
-							} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "concept")) {
-								if (null != node.getInRelations()) {
-									List<Relation> relations = node.getInRelations();
-									for (Relation rel : relations) {
-										if (rel.getEndNodeObjectType().equals("concept")
-												&& rel.getRelationType().equals("isParentOf")) {
-											LOGGER.info("Setting parentid for concept" + rel.getEndNodeId());
-											objectMap.put("parentid", rel.getEndNodeId());
-										} else if (rel.getEndNodeObjectType().equals("dimension")
-												&& rel.getRelationType().equals("isParentof")) {
-											LOGGER.info("Setting parentid for relEndNodeType : dimension"
-													+ rel.getEndNodeObjectType() + rel.getEndNodeId());
-											objectMap.put("parentid", rel.getEndNodeId());
-										}
-									}
-								} else if (null != node.getOutRelations()) {
-									List<Relation> relations = node.getOutRelations();
-									for (Relation rel : relations) {
-										if (rel.getEndNodeObjectType().equals("concept")
-												&& rel.getRelationType().equals("isParentOf")) {
-											LOGGER.info("Setting parentid for concept - outRelations of type concepts"
-													+ rel.getEndNodeObjectType() + rel.getEndNodeId());
-											objectMap.put("parentid", rel.getEndNodeId());
-										}
-									}
-								}
-							} else if (StringUtils.equalsIgnoreCase(node.getObjectType(), "dimension")) {
-								if (null != node.getInRelations()) {
-									List<Relation> relations = node.getInRelations();
-									for (Relation rel : relations) {
-										if (rel.getEndNodeObjectType().equals("domain")
-												&& rel.getRelationType().equals("isParentOf")) {
-											LOGGER.info("Setting parentid for dimension" + rel.getEndNodeObjectType()
-													+ rel.getEndNodeId());
-											objectMap.put("parentid", rel.getEndNodeId());
-										}
-									}
-								}
+							switch (objectType) {
+							case "Content":
+								setContentMetadata(node, objectMap);
+								break;
+							case "AssessmentItem":
+								setItemMetadata(node, objectMap);
+								break;
+							case "ItemSet":
+								setItemMetadata(node, objectMap);
+								break;
+							case "Concept":
+								setConceptMetadata(node, objectMap);
+								break;
+							case "Dimension":
+								setDimensionMetadata(node, objectMap);
+								break;
+							default:
+								setDefaultMetadata(node, objectMap);
+								break;
 							}
+							LOGGER.info("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id);
+							LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 						}
-
-						LOGGER.info("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id);
-						LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 					}
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Something went wrong while processing the request", e);
+			LOGGER.error("Something occured while processing request to generate lifecycle event", e);
+		}
+	}
+
+	/**
+	 * This method holds logic to set metadata data to generate 
+	 * object lifecycle events for objectType concept
+	 * @param node
+	 * @param objectMap
+	 */
+	private void setConceptMetadata(Node node, Map<String, Object> objectMap) {
+		if (null != node.getInRelations()) {
+			List<Relation> relations = node.getInRelations();
+			for (Relation rel : relations) {
+				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
+					LOGGER.info("Setting parentid for concept" + rel.getEndNodeId());
+					objectMap.put("parentid", rel.getEndNodeId());
+				} else if (rel.getEndNodeObjectType().equals("Dimension")
+						&& rel.getRelationType().equals("isParentof")) {
+					LOGGER.info("Setting parentid for relEndNodeType : Dimension" + rel.getEndNodeObjectType()
+							+ rel.getEndNodeId());
+					objectMap.put("parentid", rel.getEndNodeId());
+				}
+			}
+		} else if (null != node.getOutRelations()) {
+			List<Relation> relations = node.getOutRelations();
+			for (Relation rel : relations) {
+				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
+					LOGGER.info("Setting parentid for concept - outRelations of type concepts"
+							+ rel.getEndNodeObjectType() + rel.getEndNodeId());
+					objectMap.put("parentid", rel.getEndNodeId());
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method holds logic to set metadata data to generate 
+	 * object lifecycle events for objectType dimensions
+	 * @param node
+	 * @param objectMap
+	 */
+	private void setDimensionMetadata(Node node, Map<String, Object> objectMap) {
+		if (null != node.getInRelations()) {
+			List<Relation> relations = node.getInRelations();
+			for (Relation rel : relations) {
+				if (rel.getEndNodeObjectType().equals("Domain") && rel.getRelationType().equals("isParentOf")) {
+					LOGGER.info("Setting parentid for dimension" + rel.getEndNodeObjectType() + rel.getEndNodeId());
+					objectMap.put("parentid", rel.getEndNodeId());
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method holds logic to set metadata data to generate 
+	 * object lifecycle events for objectType others
+	 * @param node
+	 * @param objectMap
+	 */
+	private void setDefaultMetadata(Node node, Map<String, Object> objectMap) {
+		objectMap.put("subtype", null);
+		objectMap.put("parentid", null);
+	}
+
+	/**
+	 * This method holds logic to set metadata data to generate 
+	 * object lifecycle events for objectType content
+	 * @param node
+	 * @param objectMap
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void setContentMetadata(Node node, Map<String, Object> objectMap) {
+		if (null != node.getMetadata()) {
+			Map<String, Object> nodeMap = new HashMap<String, Object>();
+			nodeMap = (Map) node.getMetadata();
+			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
+				if (entry.getKey().equals("contentType")) {
+					if (entry.getValue().equals("Asset")) {
+						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
+						objectMap.put("subtype", nodeMap.get("mediaType"));
+					} else {
+						LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
+						objectMap.put("subtype", entry.getValue());
+					}
+				}
+			}
+		}
+		LOGGER.info("Checking if objectType content has inRelations" + node.getInRelations());
+		if (null != node.getInRelations()) {
+			List<Relation> relations = node.getInRelations();
+			for (Relation rel : relations) {
+				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
+					LOGGER.info("Setting parentid for Content with inRelations" + rel.getEndNodeId());
+					objectMap.put("parentid", rel.getEndNodeId());
+				}
+			}
+		} else if (null != node.getOutRelations()) {
+			List<Relation> relations = node.getOutRelations();
+			for (Relation rel : relations) {
+				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
+					LOGGER.info("Setting parentid for Content with outRelations" + rel.getEndNodeId());
+					objectMap.put("parentid", rel.getEndNodeId());
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method holds logic to set metadata data to generate 
+	 * object lifecycle events for objectType item or assessmentitem
+	 * @param node
+	 * @param objectMap
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void setItemMetadata(Node node, Map<String, Object> objectMap) {
+		if (null != node.getMetadata()) {
+			Map<String, Object> nodeMap = new HashMap<String, Object>();
+			nodeMap = (Map) node.getMetadata();
+			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
+				if (entry.getKey().equals("type")) {
+					LOGGER.info("Setting subType field for type from node" + entry.getKey() + entry.getValue());
+					objectMap.put("type", entry.getValue());
+				}
+			}
+		}
+		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "AssessmentItem")) {
+			LOGGER.info("Getting relations from AssessmentItem");
+			if (null != node.getInRelations()) {
+				List<Relation> relations = node.getInRelations();
+				for (Relation rel : relations) {
+					if (rel.getEndNodeObjectType().equals("ItemSet") && rel.getRelationType().equals("hasMember")) {
+						LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
+						objectMap.put("parentid", rel.getEndNodeId());
+					}
+				}
+			}
 		}
 	}
 }
