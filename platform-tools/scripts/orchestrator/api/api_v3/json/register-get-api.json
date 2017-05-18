@@ -16,7 +16,7 @@
           "api_id"
         ],
         "requestParams": [
-          "fields",
+          "fields"
         ]
     },
     "body": "",

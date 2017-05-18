@@ -353,7 +353,7 @@ public class SearchManager extends SearchBaseActor {
 					if (entry.getValue() instanceof String) {
 						ids.add(entry.getValue());
 					} else {
-						ids = (ArrayList<String>) entry.getValue();
+						ids = (List<String>) entry.getValue();
 					}
 					List<String> identifiers = new ArrayList<>();
 					identifiers.addAll((List<String>) (List<?>) ids);
@@ -367,7 +367,7 @@ public class SearchManager extends SearchBaseActor {
 					if (entry.getValue() instanceof String) {
 						value.add(entry.getValue());
 					} else {
-						value = (ArrayList<String>) entry.getValue();
+						value = (List<String>) entry.getValue();
 					}
 					List<String> objectTypes = new ArrayList<>();
 					objectTypes.addAll((List<String>) (List<?>) value);
