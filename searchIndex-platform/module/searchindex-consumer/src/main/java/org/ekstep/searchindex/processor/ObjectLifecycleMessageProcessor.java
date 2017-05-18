@@ -58,6 +58,11 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		}
 	}
 
+	public static void main(String[] args){
+		String id = "do_1234566.img";
+		String node_id = id.replace(".img", "");
+		System.out.println(id + node_id);
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -98,27 +103,31 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
 							if (StringUtils.equalsIgnoreCase(objectType, "ContentImage")
 									&& StringUtils.equalsIgnoreCase(prevstate, "null")
-									&& StringUtils.equalsIgnoreCase(state, "draft")) {
+									&& StringUtils.equalsIgnoreCase(state, "Draft")) {
+								LOGGER.info("Cropping img part from node_id" + node_id);
 								String imageId = node_id.replace(".img", "");
 								Node imageNode = util.getNode("domain", imageId);
 								String node_status = (String)imageNode.getMetadata().get("status");
+								LOGGER.info("Checking if node_status is flagged" + node_status);
 								if (StringUtils.equalsIgnoreCase(node_status, "Flagged")) {
 									objectMap.put("prevstate", "Flagged");
 									objectMap.put("state", "FlagDraft");
 								} else {
 									objectMap.put("prevstate", "Live");
-									objectMap.put("state", "draft");
+									objectMap.put("state", "Draft");
 								}
 							}
 							objectMap.put("prevstate", prevstate);
 							objectMap.put("state", state);
 							if (StringUtils.endsWithIgnoreCase(node_id, ".img")
 									&& StringUtils.endsWithIgnoreCase(objectType, "Image")) {
+								LOGGER.info("Setting nodeId and objectType" + node_id + objectType);
 								StringUtils.replace(node_id, ".img", "");
 								StringUtils.replace(objectType, "Image", "");
 							}
 							objectMap.put("identifier", node_id);
 							objectMap.put("objectType", objectType);
+							LOGGER.info("Object Map" + objectMap);
 							LOGGER.info("Checking if node metadata is null");
 							if (null != node.getMetadata()) {
 								Map<String, Object> nodeMap = new HashMap<String, Object>();
