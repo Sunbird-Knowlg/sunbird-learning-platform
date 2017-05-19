@@ -93,3 +93,5 @@ node registerCommand.js commands/register-getWordFeatures.json register
 node registerCommand.js commands/register-transliteratev3.json update
 
 node registerCommand.js commands/register-enrichWords.json update
+
+node registerCommand.js commands/register-enrichAllWords.json update

@@ -1,0 +1,21 @@
+{
+  "name": "v1_enrichAllWords",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    }
+  ],
+  "actorPath": {
+    "manager": "ENRICH_ACTOR",
+    "operation": "enrichAllWords",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "requestPath": {
+    "pathParams":["language_id"],
+    "type":"POST",
+    "url":"/v1/language/*/enrichAllWords/"
+  }
+}

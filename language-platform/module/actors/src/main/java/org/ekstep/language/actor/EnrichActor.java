@@ -41,11 +41,11 @@ import akka.actor.ActorRef;
 /**
  * The Class EnrichActor is an AKKA actor that processes all requests to provide
  * operations on update posList, update lexileMeasures, update wordComplexity ,
- * update SyllablesList and enrich word
+ * update SyllablesList and enrich word.
  *
  * @author rayulu, amarnath and karthik
  */
-public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
+public class EnrichActor extends LanguageBaseActor implements IWordnetConstants {
 
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(EnrichActor.class.getName());
@@ -92,7 +92,10 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 				List<String> nodeIds = (List<String>) request.get(LanguageParams.node_ids.name());
 				enrichWords(nodeIds, languageId);
 				OK(getSender());
-			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.importDataAsync.name(), operation)) {
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichAllWords.name(), operation)) {
+				enrichAllWords(languageId);
+				OK(getSender());
+			}else if (StringUtils.equalsIgnoreCase(LanguageOperations.importDataAsync.name(), operation)) {
 				try (InputStream stream = (InputStream) request.get(LanguageParams.input_stream.name())) {
 					String prevTaskId = (request.get(LanguageParams.prev_task_id.name()) == null) ? null
 							: (String) request.get(LanguageParams.prev_task_id.name());
@@ -118,6 +121,28 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 	}
 
 	/**
+	 * Enrich all words.
+	 *
+	 * @param languageId
+	 *            the language id
+	 */
+	private void enrichAllWords(String languageId) {
+		int startPosition = 0;
+		int resultSize = 1000;
+
+		boolean enrich = true;
+		while (enrich) {
+			List<Node> nodes = wordUtil.getWords(languageId, startPosition, resultSize);
+			if (nodes.size() > 0 && !nodes.isEmpty()) {
+				enrichWords(languageId, nodes);
+			} else {
+				enrich = false;
+			}
+			startPosition += resultSize;
+		}
+	}
+
+	/**
 	 * Enrich words.
 	 *
 	 * @param node_ids
@@ -136,76 +161,100 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 				batch_node_ids.add(nodeId);
 				if (batch_node_ids.size() % BATCH_SIZE == 0 || (nodeIds.size() % BATCH_SIZE == batch_node_ids.size()
 						&& (nodeIds.size() - count) < BATCH_SIZE)) {
-					long startTime = System.currentTimeMillis();
+
 					List<Node> nodeList = getNodesList(batch_node_ids, languageId);
-					
-					updateWordMetadata(languageId, nodeList);
-					if (languageId.equalsIgnoreCase("en")) {
-						updateSyllablesList(nodeList);
-					}
-					updateLexileMeasures(languageId, nodeList);
-					updateFrequencyCount(languageId, nodeList);
-					updatePosList(languageId, nodeList);
-					updateWordComplexity(languageId, nodeList);
+					enrichWords(languageId, nodeList);
 					batch_node_ids = new ArrayList<String>();
-					long diff = System.currentTimeMillis() - startTime;
-					LOGGER.info("Time taken for enriching " + BATCH_SIZE + " words: " + diff / 1000 + "s");
 				}
 			}
 		}
 	}
 
-	private void updateWordMetadata(String languageId, List<Node> nodes){
+	/**
+	 * Enrich words.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodeList
+	 *            the node list
+	 */
+	private void enrichWords(String languageId, List<Node> nodeList) {
+		long startTime = System.currentTimeMillis();
 
-		for(Node word:nodes) {
+		updateWordMetadata(languageId, nodeList);
+		if (languageId.equalsIgnoreCase("en")) {
+			updateSyllablesList(nodeList);
+		}
+		updateLexileMeasures(languageId, nodeList);
+		updateFrequencyCount(languageId, nodeList);
+		updatePosList(languageId, nodeList);
+		updateWordComplexity(languageId, nodeList);
+
+		long diff = System.currentTimeMillis() - startTime;
+		LOGGER.info("Time taken for enriching " + nodeList.size() + " words: " + diff / 1000 + "s");
+	}
+
+	/**
+	 * Update word metadata.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodes
+	 *            the nodes
+	 */
+	private void updateWordMetadata(String languageId, List<Node> nodes) {
+
+		for (Node word : nodes) {
 			LOGGER.info("updateWordMetadata | Total words: " + nodes.size());
-			
+
 			DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
 			Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
 			List<Node> synsets = wordUtil.getSynsets(word);
-			
+
 			String primaryMeaningId = wordUtil.updatePrimaryMeaning(languageId, wordMap, synsets);
 			word.getMetadata().put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
-			
-			if(synsets!=null && synsets.size() >0){
+
+			if (synsets != null && synsets.size() > 0) {
 				word.getMetadata().put(ATTRIB_SYNSET_COUNT, synsets.size());
 			}
-			
+
 			String lemma = (String) wordMap.get(LanguageParams.lemma.name());
 			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
-				 	word.getMetadata().put(ATTRIB_IS_PHRASE, true);
+				word.getMetadata().put(ATTRIB_IS_PHRASE, true);
 			}
-			
-			if(primaryMeaningId!=null){
+
+			if (primaryMeaningId != null) {
 				Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
-				if(wordUtil.getSynonymRelations(synset.getOutRelations())!=null)
+				if (wordUtil.getSynonymRelations(synset.getOutRelations()) != null)
 					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
 				else
 					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
 
-				if(wordUtil.getAntonymRelations(synset.getOutRelations())!=null)
+				if (wordUtil.getAntonymRelations(synset.getOutRelations()) != null)
 					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
 				else
 					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
 
-				if(synset.getMetadata().get(ATTRIB_CATEGORY)!=null)
+				if (synset.getMetadata().get(ATTRIB_CATEGORY) != null)
 					word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
-				if(synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES)!=null)
-					word.getMetadata().put(ATTRIB_EXAMPLE_SENTENCES, synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES));
-				if(synset.getMetadata().get(ATTRIB_PICTURES)!=null)
+				if (synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES) != null)
+					word.getMetadata().put(ATTRIB_EXAMPLE_SENTENCES,
+							synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES));
+				if (synset.getMetadata().get(ATTRIB_PICTURES) != null)
 					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
-				if(synset.getMetadata().get(ATTRIB_GLOSS)!=null)
+				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
 					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
 				List<String> tags = synset.getTags();
-				if(tags!=null&&tags.size()>0)
-					 word.setTags(tags);
-				 
+				if (tags != null && tags.size() > 0)
+					word.setTags(tags);
+
 			}
-			
+
 			try {
-				LOGGER.info("updating word metadata wordId: " + word.getIdentifier() + ", word metadata :" + word.getMetadata().toString());
-				Request updateReq = controllerUtil.getRequest(languageId,
-						GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+				LOGGER.info("updating word metadata wordId: " + word.getIdentifier() + ", word metadata :"
+						+ word.getMetadata().toString());
+				Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+						"updateDataNode");
 				updateReq.put(GraphDACParams.node.name(), word);
 				updateReq.put(GraphDACParams.node_id.name(), word.getIdentifier());
 				Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
@@ -218,6 +267,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 			}
 		}
 	}
+
 	/**
 	 * Gets the nodes list.
 	 *
@@ -247,6 +297,15 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 		return nodeList;
 	}
 
+	/**
+	 * Gets the definition DTO.
+	 *
+	 * @param definitionName
+	 *            the definition name
+	 * @param graphId
+	 *            the graph id
+	 * @return the definition DTO
+	 */
 	public DefinitionDTO getDefinitionDTO(String definitionName, String graphId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(GraphDACParams.object_type.name(), definitionName);
@@ -266,7 +325,18 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 			return definition;
 		}
 	}
-	
+
+	/**
+	 * Gets the data node.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodeId
+	 *            the node id
+	 * @param objectType
+	 *            the object type
+	 * @return the data node
+	 */
 	public Node getDataNode(String languageId, String nodeId, String objectType) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(LanguageParams.node_id.name(), nodeId);
@@ -284,6 +354,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 		}
 		return (Node) getNodeRes.get(GraphDACParams.node.name());
 	}
+
 	/**
 	 * Update frequency count.
 	 *
@@ -465,11 +536,13 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants{
 			langReq.put(LanguageParams.words.name(), words);
 			Response langRes = controllerUtil.getLanguageResponse(langReq, LOGGER);
 			if (checkError(langRes)) {
-				// throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), langRes.getParams().getErrmsg());
+				// throw new
+				// ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+				// langRes.getParams().getErrmsg());
 				LOGGER.error("errror in updateLexileMeasures, languageId =" + languageId + ", error message"
 						+ langRes.getParams().getErrmsg());
 				return;
-			}			else {
+			} else {
 				Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
 						.get(LanguageParams.word_features.name());
 				if (null != featureMap && !featureMap.isEmpty()) {
