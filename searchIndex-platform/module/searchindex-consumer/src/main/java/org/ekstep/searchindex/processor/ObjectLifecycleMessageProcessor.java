@@ -152,6 +152,11 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								setDefaultMetadata(node, objectMap);
 								break;
 							}
+							for(Map.Entry<String, Object> entry : objectMap.entrySet()){
+								if(null == entry.getValue()){
+									entry.setValue("");
+								}
+							} 
 							LOGGER.info("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id);
 							LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 						}
