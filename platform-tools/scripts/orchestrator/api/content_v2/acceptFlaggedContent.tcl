@@ -11,6 +11,7 @@ set check_error [check_response_error $resp_get_node]
 if {$check_error} {
 	return $resp_get_node;
 } else {
+	set original_content_id $content_id
 	set graph_node [get_resp_value $resp_get_node "node"]
 	set node_object_type [java::prop $graph_node "objectType"]
 	if {$node_object_type == $object_type} {
@@ -19,38 +20,33 @@ if {$check_error} {
 		set status_val_str [java::new String [$status_val toString]]
 		set isFlaggedstate [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isFlaggedstate == 1} {
-			set request [java::new HashMap]
-			$request put "flagReasons" [java::null]
-			$request put "versionKey" [$node_metadata get "versionKey"]
-			$request put "status" "Live"
-			$request put "objectType" $object_type
-			$request put "identifier" $content_id
-			set resp_def_node [getDefinition $graph_id $object_type]
-			set def_node [get_resp_value $resp_def_node "definition_node"]
-			set domain_obj [convert_to_graph_node $request $def_node]
-			set create_response [updateDataNode $graph_id $content_id $domain_obj]
-                        
-                        set content_image_id ${content_id}.img
+			set content_image_id ${content_id}.img
  			set resp_get_node [getDataNode $graph_id $content_image_id]
  			if {$check_error} {
+				return $resp_get_node
  			} else {
  				set image_node [get_resp_value $resp_get_node "node"]
  				set image_metadata [java::prop $image_node "metadata"]
 				set check_error [check_response_error $resp_get_node]
- 				$image_metadata put "status" "Draft"
- 				set create_image_response [updateDataNode $graph_id $content_image_id $image_node]
-			}
-			return $create_response
-
-		} else {
+ 				$image_metadata put "status" "FlagDraft"
+ 				set create_response [updateDataNode $graph_id $content_image_id $image_node]
+				set check_error [check_response_error $create_response]
+				if {$check_error} {
+					return $create_response
+				} else {
+					$create_response put "node_id" $original_content_id
+				}
+                                return $create_response	
+ 			}
+	        } else {
 			set result_map [java::new HashMap]
 			$result_map put "code" "ERR_CONTENT_NOT_FLAGGED"
-			$result_map put "message" "Content $content_id is not flagged to reject"
+			$result_map put "message" "Content $content_id is not flagged to accept"
 			$result_map put "responseCode" [java::new Integer 400]
 			set response_list [create_error_response $result_map]
 			return $response_list
 		}
-	} else {
+        } else {
 		set result_map [java::new HashMap]
 		$result_map put "code" "ERR_NODE_NOT_FOUND"
 		$result_map put "message" "$object_type $content_id not found"
@@ -58,4 +54,5 @@ if {$check_error} {
 		set response_list [create_error_response $result_map]
 		return $response_list
 	}
+	
 }
