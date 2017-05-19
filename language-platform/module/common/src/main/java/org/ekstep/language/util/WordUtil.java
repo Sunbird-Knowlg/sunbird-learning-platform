@@ -1884,18 +1884,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				if (createFlag) {
 					createRes = createWord(node, languageId);
 				} else {
-					String status = (String) node.getMetadata().get(LanguageParams.status.name());
-					if (!StringUtils.equalsIgnoreCase(languageId, "en")
-							|| (StringUtils.equalsIgnoreCase(languageId, "en")
-									&& StringUtils.equalsIgnoreCase(status, LanguageParams.Draft.name()))) {
+					if(!StringUtils.equalsIgnoreCase(languageId, "en")){
 						createRes = updateWord(node, languageId, wordIdentifier);
-					} /*
-						 * else if(StringUtils.equalsIgnoreCase(languageId,
-						 * "en") &&
-						 * StringUtils.equalsIgnoreCase(status,LanguageParams.
-						 * live.name())){ createRes = updateWord(node,
-						 * languageId, wordIdentifier); }
-						 */
+					} else {
+						Node wordNode = getWord(wordIdentifier, languageId, errorMessages);
+						if(wordNode!=null){
+							String status = (String) wordNode.getMetadata().get(LanguageParams.status.name());
+							if(StringUtils.equalsIgnoreCase(status, LanguageParams.Draft.name()))
+									createRes = updateWord(node, languageId, wordIdentifier);
+							else if(StringUtils.equalsIgnoreCase(status,LanguageParams.Live.name()))
+								addSynonymRelation(languageId, wordIdentifier, primaryMeaningId, errorMessages);
+						}
+					}
 				}
 				if (!checkError(createRes)) {
 					String wordId = (String) createRes.get("node_id");
@@ -2898,5 +2898,22 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		LOGGER.info("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
 		return wordIds;
+	}
+	
+	public List<Node> getWords(String languageId, int offset, int limit){
+		List<Node> nodes = null;
+		SearchCriteria sc = new SearchCriteria();
+		sc.setObjectType(LanguageParams.Word.name());
+		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		sc.setStartPosition(offset);
+		sc.setResultSize(limit);
+		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+		req.put(GraphDACParams.search_criteria.name(), sc);
+		Response searchRes = getResponse(req, LOGGER);
+		if (!checkError(searchRes)) {
+			nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+		}
+		
+		return nodes;
 	}
 }
