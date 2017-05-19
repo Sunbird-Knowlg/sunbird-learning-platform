@@ -107,6 +107,7 @@ public class LogTelemetryEventUtil {
 			te.setPdata("org.ekstep.platform", "", "1.0", "");
 			data.put("id", objectId);
 			data.put("parentid", metadata.get("parentid"));
+			data.put("parenttype", metadata.get("parentype"));
 			data.put("type", metadata.get("objectType"));
 			data.put("subtype", metadata.get("subtype"));
 			data.put("code", metadata.get("code"));
