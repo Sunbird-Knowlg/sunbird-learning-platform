@@ -15,7 +15,8 @@
         },
         {
             "name": "mode",
-            "index": 1,
+            "index": 2,
+            "datatype": "java.lang.String",
             "routingParam": false
         }
     ],

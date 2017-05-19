@@ -36,7 +36,7 @@ public class LogTelemetryEventUtil {
 		data.put("pkgVersion", metadata.get("pkgVersion"));
 		data.put("concepts", metadata.get("concepts"));
 		data.put("state", metadata.get("status"));
-		data.put("prevState", metadata.get("prevState"));
+		data.put("prevstate", metadata.get("prevState"));
 		data.put("downloadUrl", metadata.get("downloadUrl"));
 		data.put("contentType", metadata.get("contentType"));
 		data.put("mediaType", metadata.get("mediaType"));
@@ -94,5 +94,36 @@ public class LogTelemetryEventUtil {
 			LOGGER.error("Error logging BE_ACCESS event", e);
 		}
 		return jsonMessage;
+	}
+	
+	public static String logObjectLifecycleEvent(String objectId, Map<String, Object> metadata){
+			TelemetryBEEvent te = new TelemetryBEEvent();
+			long unixTime = System.currentTimeMillis();
+			Map<String,Object> data = new HashMap<String,Object>();
+			te.setEid("BE_OBJECT_LIFECYCLE");
+			te.setEts(unixTime);
+			te.setVer("2.0");
+			te.setMid(mid);
+			te.setPdata("org.ekstep.platform", "", "1.0", "");
+			data.put("id", objectId);
+			data.put("parentid", metadata.get("parentid"));
+			data.put("parenttype", metadata.get("parentype"));
+			data.put("type", metadata.get("objectType"));
+			data.put("subtype", metadata.get("subtype"));
+			data.put("code", metadata.get("code"));
+			data.put("name", metadata.get("name"));
+			data.put("state", metadata.get("state"));
+			data.put("prevstate", metadata.get("prevstate"));
+			te.setEdata(data);
+			
+			String jsonMessage = null;
+			try {
+				jsonMessage = mapper.writeValueAsString(te);
+				if (StringUtils.isNotBlank(jsonMessage))
+					telemetryEventLogger.info(jsonMessage);
+			} catch (Exception e) {
+				LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+			}
+			return jsonMessage;
 	}
 }

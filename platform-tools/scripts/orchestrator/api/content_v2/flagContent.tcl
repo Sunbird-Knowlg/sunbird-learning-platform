@@ -145,16 +145,7 @@ if {$check_error} {
 			set check_error [check_response_error $create_response]
 			if {$check_error} {
 			} else {
-				set content_image_id ${content_id}.img
-				set resp_get_node [getDataNode $graph_id $content_image_id]
-				set check_error [check_response_error $resp_get_node]
-				if {$check_error} {
-				} else {
-					set image_node [get_resp_value $resp_get_node "node"]
-					set image_metadata [java::prop $image_node "metadata"]
-					$image_metadata put "status" "FlagDraft"
-					set update_image_response [updateDataNode $graph_id $content_image_id $image_node]
-				}
+				
 				$node_metadata putAll $request
 				$node_metadata put "prevState" $status_val_str
 				set log_response [log_content_lifecycle_event $content_id $node_metadata]
