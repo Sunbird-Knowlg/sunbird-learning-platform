@@ -170,7 +170,7 @@ public class ContentV2Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method fetches the hierarchy of a given content
 	 *
@@ -180,13 +180,14 @@ public class ContentV2Controller extends BaseController {
 	 */
 	@RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId) {
+	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
+			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "content.hierarchy";
 		Response response;
 		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
 		try {
 			LOGGER.info("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
-			response = contentManager.getHierarchy(graphId, contentId);
+			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

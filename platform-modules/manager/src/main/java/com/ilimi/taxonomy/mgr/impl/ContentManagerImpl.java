@@ -505,14 +505,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@Override
-	public Response getHierarchy(String graphId, String contentId) {
+	public Response getHierarchy(String graphId, String contentId, String mode) {
 		LOGGER.debug("Graph Id: ", graphId);
 		LOGGER.debug("Content Id: ", contentId);
-		Node node = getContentNode(graphId, contentId);
+		Node node = getContentNode(graphId, contentId, mode);
 
 		LOGGER.info("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
-		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition);
+		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition, mode);
 
 		Response response = new Response();
 		response.put("content", map);
@@ -529,14 +529,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition) {
+	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition, String mode) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 		if (null != children && !children.isEmpty()) {
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
 			for (NodeDTO dto : children) {
-				Node childNode = getContentNode(graphId, dto.getIdentifier());
-				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition);
+				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
+				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
 				childMap.put("index", dto.getIndex());
 				childList.add(childMap);
 			}
@@ -547,7 +547,17 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return contentMap;
 	}
 
-	private Node getContentNode(String graphId, String contentId) {
+	private Node getContentNode(String graphId, String contentId, String mode) {
+		
+		if (StringUtils.equalsIgnoreCase("edit", mode)) {
+			String contentImageId = getContentImageIdentifier(contentId);
+			Response responseNode = getDataNode(graphId, contentImageId);
+			if (!checkError(responseNode)) {
+				Node content = (Node) responseNode.get(GraphDACParams.node.name());
+				LOGGER.debug("Got draft version of node: ", content);
+				return content;
+			}
+		}
 		Response responseNode = getDataNode(graphId, contentId);
 		if (checkError(responseNode))
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),

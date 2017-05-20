@@ -92,7 +92,7 @@ public interface IContentManager {
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be publish.
 	 * @param requestMap
-	 * 			  the map of request params
+	 *            the map of request params
 	 * @return the response contains the ECAR <code>URL</code> in its Result Set
 	 */
 	Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap);
@@ -129,10 +129,10 @@ public interface IContentManager {
 	 *         <code>node_id</code> in its Result Set
 	 */
 	Response bundle(Request request, String taxonomyId, String version);
-	
+
 	/**
-	 * Review is High level Content Operation mainly deals with the tasks
-	 * needed for making any content in <code>Review</code> state. It includes the
+	 * Review is High level Content Operation mainly deals with the tasks needed
+	 * for making any content in <code>Review</code> state. It includes the
 	 * validation of Content based on its type.
 	 * 
 	 * <p>
@@ -147,23 +147,31 @@ public interface IContentManager {
 	 * @param contentId
 	 *            the content <code>identifier</code> which needs to be review.
 	 * @param requestMap
-	 * 			  the map of request params
-	 * @return the response contains the Node <code>identifier</code> in its Result Set.
+	 *            the map of request params
+	 * @return the response contains the Node <code>identifier</code> in its
+	 *         Result Set.
 	 */
 	Response review(String taxonomyId, String contentId, Request request);
-	
+
 	/**
-	 * This method returns the full hierarchy of a content. The "Sequence Membership" relation 
-	 * is traversed to compute the hierarchy of the content.
+	 * This method returns the full hierarchy of a content. The
+	 * "Sequence Membership" relation is traversed to compute the hierarchy of
+	 * the content.
 	 * 
 	 * A subclass must provide an implementation of this method.
 	 *
 	 * @param taxonomyId
 	 *            the <code>graph id</code> of the content.
 	 * @param contentId
-	 *            the content <code>identifier</code> whose hierarchy needs to be returned
-	 * @return the response contains the hierarchy of the <code>content</code> in its Result Set.
+	 *            the content <code>identifier</code> whose hierarchy needs to
+	 *            be returned
+	 * @param mode
+	 *            if edit, returns the hierarchy of the Draft version, else
+	 *            returns the hierarchy of the Live version. If Live version
+	 *            does not exist, Draft version is returned
+	 * @return the response contains the hierarchy of the <code>content</code>
+	 *         in its Result Set.
 	 */
-	Response getHierarchy(String graphId, String contentId);
+	Response getHierarchy(String graphId, String contentId, String mode);
 
 }
