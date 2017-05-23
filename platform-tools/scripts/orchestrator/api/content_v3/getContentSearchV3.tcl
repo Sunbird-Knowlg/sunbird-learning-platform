@@ -35,11 +35,11 @@ set check_error [check_response_error $compositeSearchResp]
 if {$check_error} {
 	return $compositeSearchResp;
 }
-
 set resultMap [java::prop $compositeSearchResp "result"]
-
 set contentResult [$resultMap get "results"]
-$resultMap put "content" $contentResult
+set contentResult [java::cast List $contentResult]
+set content [$contentResult get 0]
+$resultMap put "content" $content
 $resultMap remove "results"
 
 return $compositeSearchResp
