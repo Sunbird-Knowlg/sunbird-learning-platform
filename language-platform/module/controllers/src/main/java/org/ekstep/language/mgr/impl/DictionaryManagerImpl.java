@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,7 +17,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -1603,7 +1606,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							if (StringUtils.isNotBlank(title)) {
 								List<NodeDTO> list = relMap.get(title);
 								String lemma = (String) rel.getEndNodeMetadata().get(LanguageParams.lemma.name());
-								list.add(new NodeDTO(rel.getEndNodeId(), lemma, rel.getEndNodeObjectType()));
+								String status = (String) rel.getEndNodeMetadata().get(LanguageParams.status.name());
+								if (status != LanguageParams.Retired.name())
+									list.add(new NodeDTO(rel.getEndNodeId(), lemma, rel.getEndNodeObjectType()));
 							}
 						} else if (StringUtils.equalsIgnoreCase(LanguageParams.Synset.name(),
 								rel.getEndNodeObjectType())) {
@@ -2193,11 +2198,27 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							String synsetIdentifier = relatedSynset.getIdentifier();
 							if (synsetIdentifier != null) {
 								Node relatedSynsetNode = getDataNode(languageId, synsetIdentifier, "Synset");
+								List<String> relatedWordIds = getRelatedWordIds(relatedSynsetNode, meaningId,
+										wordUtil.getRelationName(entry.getKey()));
 								Map<String, Object> relatedSynsetMap = getSynsetMap(relatedSynsetNode, synsetDefintion);
 								List<NodeDTO> relatedSynsetWordList = (List<NodeDTO>) relatedSynsetMap
 										.get(LanguageParams.synonyms.name());
 								if (relatedSynsetWordList != null) {
-									wordList.addAll(relatedSynsetWordList);
+									// if relatedWordIds is available in
+									// relation, then only put those word nodes
+									// alone otherwise put all valid word nodes
+									List<NodeDTO> filteredWordNodes;
+									if (relatedWordIds != null)
+										filteredWordNodes = relatedSynsetWordList.stream()
+												.filter(relatedSynsetWord -> relatedWordIds
+														.contains(relatedSynsetWord.getIdentifier()))
+												.collect(Collectors.toList());
+									else
+										filteredWordNodes = relatedSynsetWordList.stream()
+												.filter(relatedSynsetWord -> isValidWord(relatedSynsetWord.getName(),
+														languageId))
+												.collect(Collectors.toList());
+									wordList.addAll(filteredWordNodes);
 								}
 							}
 						}
@@ -2333,9 +2354,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				String existingPrimaryMeaningId = (String) existingWordNode.getMetadata()
 						.get(LanguageParams.primaryMeaningId.name());
 
-				if(StringUtils.isNotEmpty(existingPrimaryMeaningId)){
+				if (StringUtils.isNotEmpty(existingPrimaryMeaningId)) {
 					// merge relations from existing if either primaryMeaning or
-					// otherMeaning is exist while other one is not exist for update
+					// otherMeaning is exist while other one is not exist for
+					// update
 					if ((primaryMeaning != null && otherMeanings == null)
 							|| (primaryMeaning == null && otherMeanings != null)) {
 						if (primaryMeaning != null) {
@@ -2348,12 +2370,12 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							}
 						} else {
 							// existing primary meaning should be persisted
-							Relation relation = new Relation(existingPrimaryMeaningId, RelationTypes.SYNONYM.relationName(),
-									wordIdentifier);
+							Relation relation = new Relation(existingPrimaryMeaningId,
+									RelationTypes.SYNONYM.relationName(), wordIdentifier);
 							wordInRelations.add(relation);
 						}
 
-					}					
+					}
 				}
 			}
 
@@ -2513,6 +2535,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		List<Relation> outRelations = new ArrayList<Relation>();
 		List<String> emptyRelations = new ArrayList<String>();
+		Map<String, Relation> relationsMap = new HashMap<>();
 		for (Entry<String, Object> entry : meaningMap.entrySet()) {
 			if (wordUtil.getRelations().contains(entry.getKey())
 					&& !entry.getKey().equalsIgnoreCase(LanguageParams.synonyms.name())) {
@@ -2529,9 +2552,32 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							String primaryMeaningId = getPrimaryMeaningId(languageId, lemma, lemmaWordMap, wordIds,
 									errorMessages, entry.getKey());
 							if (primaryMeaningId != null) {
-								Relation relation = new Relation(synsetId, wordUtil.getRelationName(entry.getKey()),
-										primaryMeaningId);
-								outRelations.add(relation);
+								// create relation between related word's
+								// meaning/synset and primaryMeaning of main
+								// word along with related wordIds as metadata
+								// property
+								Node wordNode = (Node) lemmaWordMap.get(lemma);
+								String wordId = wordNode.getIdentifier();
+								String relationKey = synsetId + ":" + wordUtil.getRelationName(entry.getKey()) + ":"
+										+ primaryMeaningId;
+								if (relationsMap.get(relationKey) != null) {
+									Relation relation = relationsMap.get(relationKey);
+									List<String> relatedWordIds = (List<String>) relation.getMetadata()
+											.get(LanguageParams.relatedWordIds.name());
+									if (!relatedWordIds.contains(wordId))
+										relatedWordIds.add(wordId);
+								} else {
+									Relation relation = new Relation(synsetId, wordUtil.getRelationName(entry.getKey()),
+											primaryMeaningId);
+									Map<String, Object> relationMeta = new HashMap<>();
+									List<String> relatedWordIds = new ArrayList<>();
+									relatedWordIds.add(wordId);
+									relationMeta.put(LanguageParams.relatedWordIds.name(), relatedWordIds);
+									relation.setMetadata(relationMeta);
+
+									outRelations.add(relation);
+									relationsMap.put(relationKey, relation);
+								}
 							}
 						}
 					}
@@ -2833,4 +2879,27 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		return true;
 	}
 
+	private List<String> getRelatedWordIds(Node synsetNode, String meaningId, String relationName) {
+
+		List<String> relatedWordIds = null;
+
+		List<Relation> synsetInRelation = synsetNode.getInRelations();
+
+		if (!CollectionUtils.isEmpty(synsetInRelation)) {
+			for (Relation rel : synsetInRelation)
+				if (rel.getStartNodeId().equalsIgnoreCase(meaningId)
+						&& rel.getRelationType().equalsIgnoreCase(relationName)) {
+					Object wordIds = rel.getMetadata().get(LanguageParams.relatedWordIds.name());
+					if (wordIds != null) {
+						if (wordIds instanceof String[])
+							relatedWordIds = Arrays.asList((String[]) wordIds);
+						else
+							relatedWordIds = (List<String>) wordIds;
+					}
+					break;
+				}
+		}
+
+		return relatedWordIds;
+	}
 }

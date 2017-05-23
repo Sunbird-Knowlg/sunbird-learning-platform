@@ -35,7 +35,7 @@ public class RelationHandler {
             } else if (StringUtils.equals(RelationTypes.SUPERSEDED.relationName(), relationType)) {
                 return new SupersededRelation(manager, graphId, startNodeId, endNodeId);
             } else {
-                return new PropositionRelation(manager, graphId, startNodeId, relationType, endNodeId);
+                return new PropositionRelation(manager, graphId, startNodeId, relationType, endNodeId, metadata);
             }
         }
         throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(),

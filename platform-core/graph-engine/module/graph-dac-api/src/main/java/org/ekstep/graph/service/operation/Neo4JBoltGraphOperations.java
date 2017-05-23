@@ -216,9 +216,19 @@ public class Neo4JBoltGraphOperations {
 			parameterMap.put(GraphDACParams.relationType.name(), relationType);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.CREATE_RELATION, parameterMap));
-			for (Record record : result.list()) {
-				LOGGER.debug("'Create Relation' Operation Finished.", record);
+			QueryUtil.getQuery(Neo4JOperation.CREATE_RELATION, parameterMap);
+			String query = (String) parameterMap.get(GraphDACParams.query.name());
+			Map<String, Object> paramValuesMap = (Map<String, Object>) parameterMap
+					.get(GraphDACParams.paramValueMap.name());
+
+			if (StringUtils.isNotBlank(query)) {
+				StatementResult result;
+				if (null != paramValuesMap && !paramValuesMap.isEmpty())
+					result = session.run(query, paramValuesMap);
+				else
+					result = session.run(query);
+				for (Record record : result.list())
+					LOGGER.debug("'Create Relation' Operation Finished.", record);
 			}
 		}
 	}
@@ -277,9 +287,17 @@ public class Neo4JBoltGraphOperations {
 				parameterMap.put(GraphDACParams.relationType.name(), relationType);
 				parameterMap.put(GraphDACParams.request.name(), request);
 
-				String query = QueryUtil.getQuery(Neo4JOperation.UPDATE_RELATION, parameterMap);
+				QueryUtil.getQuery(Neo4JOperation.UPDATE_RELATION, parameterMap);
+				String query = (String) parameterMap.get(GraphDACParams.query.name());
+				Map<String, Object> paramValuesMap = (Map<String, Object>) parameterMap
+						.get(GraphDACParams.paramValueMap.name());
+
 				if (StringUtils.isNotBlank(query)) {
-					StatementResult result = session.run(query);
+					StatementResult result;
+					if (null != paramValuesMap && !paramValuesMap.isEmpty())
+						result = session.run(query, paramValuesMap);
+					else
+						result = session.run(query);
 					for (Record record : result.list()) {
 						LOGGER.debug("'Update Relation' Operation Finished.", record);
 					}

@@ -111,6 +111,35 @@ public class BaseQueryGenerationUtil {
 		return queryMap;
 	}
 
+	protected static Map<String, Object> getMetadataCypherQueryMap(String objectVariableName,
+			Map<String, Object> metadata) {
+		LOGGER.debug("Graph Engine metadata: ", metadata);
+
+		Map<String, Object> queryMap = new HashMap<String, Object>();
+		StringBuilder query = new StringBuilder();
+		if (null != metadata && !metadata.isEmpty()) {
+			// Sample: name: "Emil", from: "Sweden", klout:99
+			Map<String, Object> paramValuesMap = new HashMap<String, Object>();
+			for (Entry<String, Object> entry : metadata.entrySet()) {
+				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
+						+ entry.getKey() + " }, ");
+
+				LOGGER.debug("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+
+				// Populating Param Map
+				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
+				LOGGER.debug("Populating ParamMap:", paramValuesMap);
+			}
+
+			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
+			queryMap.put(GraphDACParams.query.name(),
+					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
+		}
+
+		LOGGER.debug("Returning Property Object Attribute String: " + query.toString());
+		return queryMap;
+	}
+	
 	protected static String getSystemPropertyString(Node node, String date) {
 		LOGGER.debug("Graph Engine Node: ", node);
 
