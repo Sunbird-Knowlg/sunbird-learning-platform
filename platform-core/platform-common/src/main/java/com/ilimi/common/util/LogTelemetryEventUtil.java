@@ -15,6 +15,7 @@ public class LogTelemetryEventUtil {
 
 	private static Logger LOGGER = LogManager.getLogger(LogTelemetryEventUtil.class.getName());
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
+	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
 	public static String logContentLifecycleEvent(String contentId, Map<String, Object> metadata) {
@@ -120,9 +121,9 @@ public class LogTelemetryEventUtil {
 			try {
 				jsonMessage = mapper.writeValueAsString(te);
 				if (StringUtils.isNotBlank(jsonMessage))
-					telemetryEventLogger.info(jsonMessage);
+					objectLifecycleEventLogger.info(jsonMessage);
 			} catch (Exception e) {
-				LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+				LOGGER.error("Error logging OBJECT_LIFECYCLE event", e);
 			}
 			return jsonMessage;
 	}

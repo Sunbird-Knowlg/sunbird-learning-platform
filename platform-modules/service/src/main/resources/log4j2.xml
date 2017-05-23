@@ -51,6 +51,15 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingRandomAccessFile>
+		<RollingRandomAccessFile name="ObjectLifecycleEventAppender" fileName="/data/logs/object_lifecycle_event.log"
+			filePattern="/data/logs/object_lifecycle_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+		</RollingRandomAccessFile>
 
 	</Appenders>
 	<Loggers>
@@ -62,6 +71,9 @@
 		</Logger>
 		<Logger name="AuditTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="AuditLogAppender" />
+		</Logger>
+		<Logger name="ObjectLifecycleLogger" level="INFO" additivity="false">
+			<AppenderRef ref="ObjectLifecycleEventAppender" />
 		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
