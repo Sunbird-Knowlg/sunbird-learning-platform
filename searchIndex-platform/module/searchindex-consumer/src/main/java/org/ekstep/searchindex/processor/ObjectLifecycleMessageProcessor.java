@@ -153,7 +153,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								break;
 							}
 							for(Map.Entry<String, Object> entry : objectMap.entrySet()){
-								if(null == entry.getValue()){
+								if(null == entry.getValue() || entry.getValue().equals("null")){
 									entry.setValue("");
 								}
 							} 
