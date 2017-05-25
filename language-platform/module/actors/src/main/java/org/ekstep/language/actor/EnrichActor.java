@@ -237,9 +237,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 
 				if (synset.getMetadata().get(ATTRIB_CATEGORY) != null)
 					word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
-				if (synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES) != null)
-					word.getMetadata().put(ATTRIB_EXAMPLE_SENTENCES,
-							synset.getMetadata().get(ATTRIB_EXAMPLE_SENTENCES));
 				if (synset.getMetadata().get(ATTRIB_PICTURES) != null)
 					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
 				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
