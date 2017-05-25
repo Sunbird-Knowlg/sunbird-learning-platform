@@ -111,13 +111,13 @@
           "renderingHints": "{ 'order': 13 }"
         },
         {
-          "propertyName": "contentFilters",
+          "propertyName": "contentFilter",
           "title": "search",
           "description": "",
           "category": "technical",
           "dataType": "json",
           "range": [],
-          "required": false,
+          "required": true,
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
