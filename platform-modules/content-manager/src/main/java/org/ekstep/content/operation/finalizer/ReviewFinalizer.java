@@ -88,7 +88,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Review.name());
 		}
-		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name()) || (StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.Flagged.name()))){
+		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name())){
 			LOGGER.info("Setting status to flagReview from previous state : " + prevState);
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.FlagReview.name());
 		}
