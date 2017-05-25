@@ -676,8 +676,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.debug("Content Id: " + contentImageId);
 		LOGGER.debug("Node: ", node);
 
-		String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
-
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
 		imageNode.setGraphId(taxonomyId);
 		imageNode.setIdentifier(contentImageId);
@@ -685,11 +683,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		imageNode.setInRelations(node.getInRelations());
 		imageNode.setOutRelations(node.getOutRelations());
 		imageNode.setTags(node.getTags());
-		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)) {
-			imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.FlagDraft.name());
-		} else {
-			imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
-		}
+		imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
 		Response response = createDataNode(imageNode);
 		if (checkError(response))
 			throw new ServerException(TaxonomyErrorCodes.ERR_NODE_CREATION.name(),
