@@ -21,6 +21,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.RequestPath;
@@ -80,16 +81,29 @@ public class ExecutionController extends BaseOrchestratorController {
 			try {
 				Map<String, Object> params = getParams(request, script, path, map);
 				LOGGER.info(script.getName() + "," + params);
+				if ("getStageIconsList_v3".equalsIgnoreCase(script.getName()) && null != params) {
+					LOGGER.info("URL: " + request.getRequestURL());
+					params.put("server_env", request.getRequestURL());
+				}
 				Response resp = executor.execute(script, params);
-				String format = request.getParameter("format");
-				if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
-					String csv = (String) resp.getResult().get("result");
-					if (StringUtils.isNotBlank(csv)) {
-						byte[] bytes = csv.getBytes();
-						response.setContentType("text/csv");
-						response.setHeader("Content-Disposition", "attachment; filename=graph.csv");
-						response.getOutputStream().write(bytes);
-						response.getOutputStream().close();
+				if (ResponseCode.OK.equals(resp.getResponseCode())) {
+					String format = request.getParameter("format");
+					if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
+						String csv = (String) resp.getResult().get("result");
+						if (StringUtils.isNotBlank(csv)) {
+							byte[] bytes = csv.getBytes();
+							response.setContentType("text/csv");
+							response.setHeader("Content-Disposition", "attachment; filename=graph.csv");
+							response.getOutputStream().write(bytes);
+							response.getOutputStream().close();
+						}
+					} else if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("base64", format)) {
+						String result = (String) resp.getResult().get("result");
+						if (StringUtils.isNotBlank(result)) {
+							byte[] bytes = result.getBytes();
+							response.getOutputStream().write(bytes);
+							response.getOutputStream().close();
+						}
 					}
 				}
 				return getResponseEntity(resp, script);
