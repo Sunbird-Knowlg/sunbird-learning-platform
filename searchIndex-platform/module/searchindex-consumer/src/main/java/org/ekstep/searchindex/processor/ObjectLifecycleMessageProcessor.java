@@ -181,7 +181,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
 					LOGGER.info("Setting parentid for concept" + rel.getEndNodeId());
 					objectMap.put("parentid", rel.getEndNodeId());
-				} else if (rel.getEndNodeObjectType().equals("Dimension")
+				}
+				else if (rel.getEndNodeObjectType().equals("Dimension")
 						&& rel.getRelationType().equals("isParentof")) {
 					LOGGER.info("Setting parentid for relEndNodeType : Dimension" + rel.getEndNodeObjectType()
 							+ rel.getEndNodeId());
@@ -189,7 +190,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		} else if (null != node.getOutRelations()) {
+		}
+		else if (null != node.getOutRelations()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
@@ -199,7 +201,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		} else {
+		} 
+		else {
 			objectMap.put("parentid", "");
 			objectMap.put("parenttype", "");
 		}
@@ -222,7 +225,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		} else {
+		} 
+		else {
 			objectMap.put("parentid", "");
 			objectMap.put("parenttype", "");
 		}
@@ -259,7 +263,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
 						objectMap.put("objectType", entry.getValue());
 						objectMap.put("subtype", nodeMap.get("mediaType"));
-					} else if (entry.getValue().equals("Plugin")) {
+					}
+					else if (entry.getValue().equals("Plugin")) {
 						LOGGER.info("Checking if node contains category in it" + nodeMap.containsKey("category"));
 						if (nodeMap.containsKey("category")) {
 							String[] category = (String[]) nodeMap.get("category");
@@ -269,11 +274,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								subtype = str;
 							}
 							objectMap.put("subtype", subtype);
-						} else {
+						}
+						else {
 							LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
 							objectMap.put("subtype", "");
 						}
-					} else {
+					}
+					else {
 						LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
 						objectMap.put("subtype", entry.getValue());
 					}
@@ -290,7 +297,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		} else if (null != node.getOutRelations()) {
+		} 
+		else if (null != node.getOutRelations()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
@@ -299,7 +307,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		} else {
+		} 
+		else {
 			objectMap.put("parentid", "");
 			objectMap.put("parenttype", "");
 		}
@@ -335,7 +344,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 				}
 			}
-		} else {
+		}
+		else {
 			objectMap.put("parentid", "");
 			objectMap.put("parenttype", "");
 		}
