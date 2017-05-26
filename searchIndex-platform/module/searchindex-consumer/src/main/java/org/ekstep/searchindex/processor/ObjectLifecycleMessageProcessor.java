@@ -251,6 +251,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				if (entry.getKey().equals("contentType")) {
 					if (entry.getValue().equals("Asset")) {
 						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
+						objectMap.put("type", "Asset");
 						objectMap.put("subtype", nodeMap.get("mediaType"));
 					} 
 					else if(entry.getValue().equals("Plugin")){
