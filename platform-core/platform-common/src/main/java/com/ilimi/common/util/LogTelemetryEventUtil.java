@@ -115,8 +115,12 @@ public class LogTelemetryEventUtil {
 			data.put("name", metadata.get("name"));
 			data.put("state", metadata.get("state"));
 			data.put("prevstate", metadata.get("prevstate"));
-			te.setEdata(data);
-			
+			for(Map.Entry<String, Object> entry : data.entrySet()){
+				if(null == entry.getValue() &&  entry.getValue().equals("null")){
+					entry.setValue("");
+				}
+			} 
+			te.setEdata(data);		
 			String jsonMessage = null;
 			try {
 				jsonMessage = mapper.writeValueAsString(te);
