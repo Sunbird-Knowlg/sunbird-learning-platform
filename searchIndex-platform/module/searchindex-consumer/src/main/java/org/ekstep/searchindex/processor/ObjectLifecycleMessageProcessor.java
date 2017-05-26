@@ -262,6 +262,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							}
 							objectMap.put("subtype", subtype);
 						}
+						else{
+							LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
+							objectMap.put("subtype", "");
+						}
 					} else {
 						LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
 						objectMap.put("subtype", "");
