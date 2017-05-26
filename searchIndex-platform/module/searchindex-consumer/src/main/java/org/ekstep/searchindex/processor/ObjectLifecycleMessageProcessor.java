@@ -113,7 +113,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								}
 							}
 							if(null == prevstate){
-								objectMap.put("prevstate", " ");
+								objectMap.put("prevstate", "");
 							}
 							else{
 								objectMap.put("prevstate", prevstate);
@@ -202,8 +202,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			}
 		}
 		else{
-			objectMap.put("parentid", " ");
-			objectMap.put("parenttype", " ");
+			objectMap.put("parentid", "");
+			objectMap.put("parenttype", "");
 		}
 	}
 
@@ -226,8 +226,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			}
 		}
 		else{
-			objectMap.put("parentid", " ");
-			objectMap.put("parenttype", " ");
+			objectMap.put("parentid", "");
+			objectMap.put("parenttype", "");
 		}
 	}
 
@@ -239,9 +239,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	 * @param objectMap
 	 */
 	private void setDefaultMetadata(Node node, Map<String, Object> objectMap) {
-		objectMap.put("subtype", " ");
-		objectMap.put("parentid", " ");
-		objectMap.put("parenttype", " ");
+		objectMap.put("subtype", "");
+		objectMap.put("parentid", "");
+		objectMap.put("parenttype", "");
 	}
 
 	/**
@@ -292,8 +292,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with inRelations" + rel.getEndNodeId());
 					if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
-						objectMap.put("parentid", " ");
-						objectMap.put("parenttype", " ");
+						objectMap.put("parentid", "");
+						objectMap.put("parenttype", "");
 					}
 					else{
 						objectMap.put("parentid", rel.getEndNodeId());
@@ -307,8 +307,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with outRelations" + rel.getEndNodeId());
 					if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
-						objectMap.put("parentid", " ");
-						objectMap.put("parenttype", " ");
+						objectMap.put("parentid", "");
+						objectMap.put("parenttype", "");
 					}
 					else{
 						objectMap.put("parentid", rel.getEndNodeId());
@@ -318,8 +318,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			}
 		}
 		else{
-			objectMap.put("parentid", " ");
-			objectMap.put("parenttype", " ");
+			objectMap.put("parentid", "");
+			objectMap.put("parenttype", "");
 		}
 	}
 
@@ -356,8 +356,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				}
 			}
 			else{
-				objectMap.put("parentid", " ");
-				objectMap.put("parenttype", " ");
+				objectMap.put("parentid", "");
+				objectMap.put("parenttype", "");
 			}
 		}
 	}
