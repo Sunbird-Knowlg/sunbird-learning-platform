@@ -189,6 +189,11 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parentid", rel.getEndNodeId());
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
+				else {
+					objectMap.put("parentid", "");
+					objectMap.put("parenttype", "");
+				}
+				
 			}
 		}
 		else if (null != node.getOutRelations()) {
@@ -199,6 +204,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							+ rel.getEndNodeObjectType() + rel.getEndNodeId());
 					objectMap.put("parentid", rel.getEndNodeId());
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
+				}
+				else {
+					objectMap.put("parentid", "");
+					objectMap.put("parenttype", "");
 				}
 			}
 		} 
@@ -223,6 +232,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					LOGGER.info("Setting parentid for dimension" + rel.getEndNodeObjectType() + rel.getEndNodeId());
 					objectMap.put("parentid", rel.getEndNodeId());
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
+				}
+				else {
+					objectMap.put("parentid", "");
+					objectMap.put("parenttype", "");
 				}
 			}
 		} 
@@ -296,6 +309,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parentid", rel.getEndNodeId());
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
+				else {
+					objectMap.put("parentid", "");
+					objectMap.put("parenttype", "");
+				}
 			}
 		} 
 		else if (null != node.getOutRelations()) {
@@ -305,6 +322,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					LOGGER.info("Setting parentid for Content with outRelations" + rel.getEndNodeId());
 					objectMap.put("parentid", rel.getEndNodeId());
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
+				}
+				else {
+					objectMap.put("parentid", "");
+					objectMap.put("parenttype", "");
 				}
 			}
 		} 
@@ -341,7 +362,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
 					objectMap.put("parentid", rel.getEndNodeId());
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
-
+				}
+				else {
+					objectMap.put("parentid", "");
+					objectMap.put("parenttype", "");
 				}
 			}
 		}
