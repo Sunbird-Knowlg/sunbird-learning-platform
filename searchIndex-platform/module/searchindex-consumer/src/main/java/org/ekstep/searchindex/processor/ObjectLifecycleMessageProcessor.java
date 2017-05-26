@@ -338,7 +338,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
 				if (entry.getKey().equals("type")) {
 					LOGGER.info("Setting subType field for type from node" + entry.getKey() + entry.getValue());
-					objectMap.put("type", entry.getValue());
+					objectMap.put("subtype", entry.getValue());
 				}
 			}
 		}

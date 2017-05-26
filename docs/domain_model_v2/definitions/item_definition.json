@@ -23,7 +23,8 @@
             "defaultValue": "",
             "renderingHints": "{'inputType': 'text', 'order': 2}",
             "indexed": true
-        }, {
+        }, 
+        {
             "propertyName": "language",
             "title": "Language",
             "description": "",
@@ -104,7 +105,7 @@
             "category": "lifeCycle",
             "displayProperty": "Editable",
             "range": ["Draft", "Review", "Live", "Retired", "Mock"],
-            "defaultValue": "",
+            "defaultValue": "Live",
             "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
             "indexed": true,
             "draft": false
