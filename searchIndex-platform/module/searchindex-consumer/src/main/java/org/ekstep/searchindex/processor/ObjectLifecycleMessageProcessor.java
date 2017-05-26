@@ -112,7 +112,12 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 									objectMap.put("state", "Draft");
 								}
 							}
-							objectMap.put("prevstate", prevstate);
+							if(null == prevstate){
+								objectMap.put("prevstate", " ");
+							}
+							else{
+								objectMap.put("prevstate", prevstate);
+							}
 							objectMap.put("state", state);
 							if (StringUtils.endsWithIgnoreCase(node_id, ".img")
 									&& StringUtils.endsWithIgnoreCase(objectType, "Image")) {
@@ -152,11 +157,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								setDefaultMetadata(node, objectMap);
 								break;
 							}
-							for(Map.Entry<String, Object> entry : objectMap.entrySet()){
-								if(null == entry.getValue() &&  entry.getValue().equals("null")){
-									entry.setValue("");
-								}
-							} 
 							LOGGER.info("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id + objectMap);
 							LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 						}
@@ -201,6 +201,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				}
 			}
 		}
+		else{
+			objectMap.put("parentid", " ");
+			objectMap.put("parenttype", " ");
+		}
 	}
 
 	/**
@@ -217,8 +221,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				if (rel.getEndNodeObjectType().equals("Domain") && rel.getRelationType().equals("isParentOf")) {
 					LOGGER.info("Setting parentid for dimension" + rel.getEndNodeObjectType() + rel.getEndNodeId());
 					objectMap.put("parentid", rel.getEndNodeId());
+					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
+		}
+		else{
+			objectMap.put("parentid", " ");
+			objectMap.put("parenttype", " ");
 		}
 	}
 
@@ -251,7 +260,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				if (entry.getKey().equals("contentType")) {
 					if (entry.getValue().equals("Asset")) {
 						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
-						objectMap.put("objectType", "Asset");
+						objectMap.put("objectType", entry.getValue());
 						objectMap.put("subtype", nodeMap.get("mediaType"));
 					} 
 					else if(entry.getValue().equals("Plugin")){
@@ -308,6 +317,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				}
 			}
 		}
+		else{
+			objectMap.put("parentid", " ");
+			objectMap.put("parenttype", " ");
+		}
 	}
 
 	/**
@@ -336,16 +349,15 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				for (Relation rel : relations) {
 					if (rel.getEndNodeObjectType().equals("ItemSet") && rel.getRelationType().equals("hasMember")) {
 						LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
-						if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
-							objectMap.put("parentid", " ");
-							objectMap.put("parenttype", " ");
-						}
-						else{
-							objectMap.put("parentid", rel.getEndNodeId());
-							objectMap.put("parenttype", rel.getEndNodeObjectType());
-						}
+						objectMap.put("parentid", rel.getEndNodeId());
+						objectMap.put("parenttype", rel.getEndNodeObjectType());
+						
 					}
 				}
+			}
+			else{
+				objectMap.put("parentid", " ");
+				objectMap.put("parenttype", " ");
 			}
 		}
 	}
