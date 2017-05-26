@@ -279,8 +279,14 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with inRelations" + rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
-					objectMap.put("parenttype", rel.getEndNodeObjectType());
+					if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
+						objectMap.put("parentid", "");
+						objectMap.put("parenttype", "");
+					}
+					else{
+						objectMap.put("parentid", rel.getEndNodeId());
+						objectMap.put("parenttype", rel.getEndNodeObjectType());
+					}
 				}
 			}
 		} else if (null != node.getOutRelations()) {
@@ -288,8 +294,14 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with outRelations" + rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
-					objectMap.put("parenttype", rel.getEndNodeObjectType());
+					if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
+						objectMap.put("parentid", "");
+						objectMap.put("parenttype", "");
+					}
+					else{
+						objectMap.put("parentid", rel.getEndNodeId());
+						objectMap.put("parenttype", rel.getEndNodeObjectType());
+					}
 				}
 			}
 		}
@@ -321,8 +333,14 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				for (Relation rel : relations) {
 					if (rel.getEndNodeObjectType().equals("ItemSet") && rel.getRelationType().equals("hasMember")) {
 						LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
-						objectMap.put("parentid", rel.getEndNodeId());
-						objectMap.put("parenttype", rel.getEndNodeObjectType());
+						if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
+							objectMap.put("parentid", "");
+							objectMap.put("parenttype", "");
+						}
+						else{
+							objectMap.put("parentid", rel.getEndNodeId());
+							objectMap.put("parenttype", rel.getEndNodeObjectType());
+						}
 					}
 				}
 			}
