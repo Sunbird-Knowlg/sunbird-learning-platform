@@ -102,7 +102,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								LOGGER.info("Cropping img part from node_id" + node_id);
 								String imageId = node_id.replace(".img", "");
 								Node imageNode = util.getNode("domain", imageId);
-								String node_status = (String)imageNode.getMetadata().get("status");
+								String node_status = (String) imageNode.getMetadata().get("status");
 								LOGGER.info("Checking if node_status is flagged" + node_status);
 								if (StringUtils.equalsIgnoreCase(node_status, "Flagged")) {
 									objectMap.put("prevstate", "Flagged");
@@ -112,10 +112,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 									objectMap.put("state", "Draft");
 								}
 							}
-							if(null == prevstate){
+							if (null == prevstate) {
 								objectMap.put("prevstate", "");
-							}
-							else{
+							} else {
 								objectMap.put("prevstate", prevstate);
 							}
 							objectMap.put("state", state);
@@ -200,8 +199,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		}
-		else{
+		} else {
 			objectMap.put("parentid", "");
 			objectMap.put("parenttype", "");
 		}
@@ -224,8 +222,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		}
-		else{
+		} else {
 			objectMap.put("parentid", "");
 			objectMap.put("parenttype", "");
 		}
@@ -262,19 +259,17 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
 						objectMap.put("objectType", entry.getValue());
 						objectMap.put("subtype", nodeMap.get("mediaType"));
-					} 
-					else if(entry.getValue().equals("Plugin")){
+					} else if (entry.getValue().equals("Plugin")) {
 						LOGGER.info("Checking if node contains category in it" + nodeMap.containsKey("category"));
-						if(nodeMap.containsKey("category")){
-							String[] category = (String[])nodeMap.get("category");
+						if (nodeMap.containsKey("category")) {
+							String[] category = (String[]) nodeMap.get("category");
 							LOGGER.info("Setting Category as subtype for object_lifecycle_events" + category);
 							String subtype = "";
-							for(String str:category){
+							for (String str : category) {
 								subtype = str;
 							}
 							objectMap.put("subtype", subtype);
-						}
-						else{
+						} else {
 							LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
 							objectMap.put("subtype", "");
 						}
@@ -291,14 +286,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with inRelations" + rel.getEndNodeId());
-					if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
-						objectMap.put("parentid", "");
-						objectMap.put("parenttype", "");
-					}
-					else{
-						objectMap.put("parentid", rel.getEndNodeId());
-						objectMap.put("parenttype", rel.getEndNodeObjectType());
-					}
+					objectMap.put("parentid", rel.getEndNodeId());
+					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
 		} else if (null != node.getOutRelations()) {
@@ -306,18 +295,11 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with outRelations" + rel.getEndNodeId());
-					if(null == rel.getEndNodeObjectType() && null == rel.getEndNodeId()){
-						objectMap.put("parentid", "");
-						objectMap.put("parenttype", "");
-					}
-					else{
-						objectMap.put("parentid", rel.getEndNodeId());
-						objectMap.put("parenttype", rel.getEndNodeObjectType());
-					}
+					objectMap.put("parentid", rel.getEndNodeId());
+					objectMap.put("parenttype", rel.getEndNodeObjectType());
 				}
 			}
-		}
-		else{
+		} else {
 			objectMap.put("parentid", "");
 			objectMap.put("parenttype", "");
 		}
@@ -342,23 +324,20 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				}
 			}
 		}
-		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "AssessmentItem")) {
-			LOGGER.info("Getting relations from AssessmentItem");
-			if (null != node.getInRelations()) {
-				List<Relation> relations = node.getInRelations();
-				for (Relation rel : relations) {
-					if (rel.getEndNodeObjectType().equals("ItemSet") && rel.getRelationType().equals("hasMember")) {
-						LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
-						objectMap.put("parentid", rel.getEndNodeId());
-						objectMap.put("parenttype", rel.getEndNodeObjectType());
-						
-					}
+		LOGGER.info("Getting relations from AssessmentItem");
+		if (null != node.getInRelations()) {
+			List<Relation> relations = node.getInRelations();
+			for (Relation rel : relations) {
+				if (rel.getEndNodeObjectType().equals("ItemSet") && rel.getRelationType().equals("hasMember")) {
+					LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
+					objectMap.put("parentid", rel.getEndNodeId());
+					objectMap.put("parenttype", rel.getEndNodeObjectType());
+
 				}
 			}
-			else{
-				objectMap.put("parentid", "");
-				objectMap.put("parenttype", "");
-			}
+		} else {
+			objectMap.put("parentid", "");
+			objectMap.put("parenttype", "");
 		}
 	}
 }
