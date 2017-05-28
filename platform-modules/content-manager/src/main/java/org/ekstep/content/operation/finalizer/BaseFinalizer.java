@@ -103,16 +103,17 @@ public class BaseFinalizer extends BasePipeline {
 						}
 					}
 				}
-
+				
+				LOGGER.info("Processing Stage Icons");
 				List<String> stageIcons = (List<String>) node.getMetadata()
-						.get(ContentWorkflowPipelineParams.stageIcons.name());
+						.get(ContentWorkflowPipelineParams.thumbnail.name());
 				String path = basePath + File.separator + "thumbnails";
 				if (null != stageIcons && !stageIcons.isEmpty()) {
 					List<String> stageIconsS3Url = new ArrayList<>();
 					for (String stageIcon : stageIcons) {
 						stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
 					}
-					node.getMetadata().put(ContentWorkflowPipelineParams.stageIcons.name(), stageIconsS3Url);
+					node.getMetadata().put(ContentWorkflowPipelineParams.thumbnail.name(), stageIconsS3Url);
 				}
 
 			}
@@ -128,6 +129,7 @@ public class BaseFinalizer extends BasePipeline {
 	private File downloadStageIconFiles(String basePath, String stageIconFile, String stageIconId) {
 		File file = null;
 		try {
+			LOGGER.info("Downloading stageIcons");
 			String base64Image = stageIconFile.split(",")[1];
 			byte[] imageBytes = Base64.decodeBase64(base64Image);
 			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));

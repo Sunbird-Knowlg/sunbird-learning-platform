@@ -82,8 +82,8 @@ public class ExecutionController extends BaseOrchestratorController {
 				Map<String, Object> params = getParams(request, script, path, map);
 				LOGGER.info(script.getName() + "," + params);
 				if ("getStageIconsList_v3".equalsIgnoreCase(script.getName()) && null != params) {
-					LOGGER.info("URL: " + request.getRequestURL());
-					params.put("server_env", request.getRequestURL());
+					LOGGER.info("URL: " + request.getServerName());
+					params.put("server_env", request.getServerName());
 				}
 				Response resp = executor.execute(script, params);
 				if (ResponseCode.OK.equals(resp.getResponseCode())) {
@@ -101,6 +101,7 @@ public class ExecutionController extends BaseOrchestratorController {
 						String result = (String) resp.getResult().get("result");
 						if (StringUtils.isNotBlank(result)) {
 							byte[] bytes = result.getBytes();
+							response.setHeader("Content-Transfer-Encoding", "base64");
 							response.getOutputStream().write(bytes);
 							response.getOutputStream().close();
 						}
