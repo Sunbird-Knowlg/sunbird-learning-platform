@@ -1,8 +1,15 @@
 package org.ekstep.content.operation.finalizer;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -50,6 +57,7 @@ public class BaseFinalizer extends BasePipeline {
 	 * checks if thumbline isNotEmpty and creates thumbFile
 	 * uploads thumbFile to s3
 	 */
+	@SuppressWarnings("unchecked")
 	protected void createThumbnail(String basePath, Node node) {
 		try {
 			if (null != node) {
@@ -95,13 +103,64 @@ public class BaseFinalizer extends BasePipeline {
 						}
 					}
 				}
+
+				List<String> stageIcons = (List<String>) node.getMetadata()
+						.get(ContentWorkflowPipelineParams.stageIcons.name());
+				String path = basePath + File.separator + "thumbnails";
+				if (null != stageIcons && !stageIcons.isEmpty()) {
+					List<String> stageIconsS3Url = new ArrayList<>();
+					for (String stageIcon : stageIcons) {
+						stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
+					}
+					node.getMetadata().put(ContentWorkflowPipelineParams.stageIcons.name(), stageIconsS3Url);
+				}
+
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.APP_ICON_DOWNLOAD_ERROR
 							+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]",
 					e);
 		}
+	}
+
+	private File downloadStageIconFiles(String basePath, String stageIconFile, String stageIconId) {
+		File file = null;
+		try {
+			String base64Image = stageIconFile.split(",")[1];
+			byte[] imageBytes = Base64.decodeBase64(base64Image);
+			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+			file = new File(basePath + File.separator + stageIconId);
+			ImageIO.write(bufferedImage, "png", file);
+		} catch (Exception e) {
+			LOGGER.error("Something went wrong when downloading base64 image" + e.getMessage());
+			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
+					ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR + " | [Unable to Upload File.]");
+		}
+		return file;
+	}
+
+	private String getThumbnailFiles(String basePath, Node node, String stageIconFile) {
+		String thumbUrl = "";
+		try {
+			File stageIcon = downloadStageIconFiles(basePath, stageIconFile, "");
+			if (stageIcon.exists()) {
+				LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
+				String folderName = S3PropertyReader.getProperty(s3Artifact) + "/" + "thumbnails";
+				String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
+				if (null != urlArray && urlArray.length >= 2) {
+					thumbUrl = urlArray[IDX_S3_URL];
+				}
+				stageIcon.delete();
+				LOGGER.info("Deleted local Thumbnail file");
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error! While deleting the Thumbnail File.", e);
+			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
+					ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | [Unable to Upload File.]");
+		}
+		return thumbUrl;
 	}
 	
 	/**
