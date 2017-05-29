@@ -131,10 +131,18 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							if (null != node.getMetadata()) {
 								Map<String, Object> nodeMap = new HashMap<String, Object>();
 								nodeMap = (Map) node.getMetadata();
-								if (nodeMap.containsKey("name"))
+								if (nodeMap.containsKey("name")){
 									objectMap.put("name", nodeMap.get("name"));
-								if (nodeMap.containsKey("code"))
+								}
+								else{
+									objectMap.put("name", "");
+								}
+								if (nodeMap.containsKey("code")){
 									objectMap.put("code", nodeMap.get("code"));
+								}
+								else{
+									objectMap.put("code", "");
+								}
 							}
 							switch (objectType) {
 							case "Content":
