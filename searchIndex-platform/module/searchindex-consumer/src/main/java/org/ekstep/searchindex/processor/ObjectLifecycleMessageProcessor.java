@@ -175,7 +175,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	 * @param objectMap
 	 */
 	private void setConceptMetadata(Node node, Map<String, Object> objectMap) {
-		if (null != node.getInRelations()) {
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
@@ -196,7 +196,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				
 			}
 		}
-		else if (null != node.getOutRelations()) {
+		else if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
@@ -225,7 +225,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	 * @param objectMap
 	 */
 	private void setDimensionMetadata(Node node, Map<String, Object> objectMap) {
-		if (null != node.getInRelations()) {
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Domain") && rel.getRelationType().equals("isParentOf")) {
@@ -301,7 +301,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			}
 		}
 		LOGGER.info("Checking if objectType content has inRelations" + node.getInRelations());
-		if (null != node.getInRelations()) {
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
@@ -315,7 +315,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				}
 			}
 		} 
-		else if (null != node.getOutRelations()) {
+		else if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
@@ -355,7 +355,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			}
 		}
 		LOGGER.info("Getting relations from AssessmentItem");
-		if (null != node.getInRelations()) {
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("ItemSet") && rel.getRelationType().equals("hasMember")) {
