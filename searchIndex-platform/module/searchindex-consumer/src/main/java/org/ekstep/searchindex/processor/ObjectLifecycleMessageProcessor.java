@@ -8,7 +8,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.searchindex.util.HTTPUtil;
+import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
@@ -88,10 +91,18 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 						LOGGER.info("Checking if node_id is blank" + message.get("nodeUniqueId"));
 						if (StringUtils.isNotBlank((String) message.get("nodeUniqueId"))) {
-
-							LOGGER.info("Fetching Node metadata from graph" + message.get("nodeUniqueId"));
-							Node node = util.getNode("domain", (String) message.get("nodeUniqueId"));
-
+							Node node = new Node();
+							if(message.get("nodeType").equals("SET") && message.get("objectType").equals("ItemSet")){
+								if(null != message.get("nodeUniqueId")){
+									String node_id = (String)message.get("nodeUniqueId");
+									LOGGER.info("Getting Itemset from graph via rest call" + node_id);
+									node = getItemSetNode(node_id);
+								}
+							}
+							else{
+								LOGGER.info("Fetching Node metadata from graph" + message.get("nodeUniqueId"));
+								node = util.getNode("domain", (String) message.get("nodeUniqueId"));
+							}
 							String node_id = node.getIdentifier();
 							String objectType = node.getObjectType();
 
@@ -173,6 +184,21 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		} catch (Exception e) {
 			LOGGER.error("Something occured while processing request to generate lifecycle event", e);
 		}
+	}
+
+	public static void main(String args[]){
+		
+	}
+	@SuppressWarnings({"unchecked" , "rawtypes"})
+	private Node getItemSetNode(String identifier) throws Exception {
+		ControllerUtil util = new ControllerUtil();
+		Response resp = util.getSet("domain", identifier);
+		Map<String,Object> map = (Map) resp.getResult();
+		Node node = (Node) map.get("node");
+		if(null != node){
+			return node;
+		}
+		return null;
 	}
 
 	/**

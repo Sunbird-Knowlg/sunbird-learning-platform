@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
@@ -125,6 +126,17 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers",
 				GraphDACParams.collection_id.name(), collectionId);
 		request.put(GraphDACParams.collection_type.name(), collectionType);
+		Response response = getResponse(request, LOGGER);
+		if (!checkError(response)){
+			return response;
+		}
+		return null;
+	}
+	
+	public Response getSet(String taxonomyId, String collectionId){
+		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getSet",
+				GraphDACParams.collection_id.name(), collectionId);
+		request.put(GraphDACParams.collection_type.name(), taxonomyId);
 		Response response = getResponse(request, LOGGER);
 		if (!checkError(response)){
 			return response;
