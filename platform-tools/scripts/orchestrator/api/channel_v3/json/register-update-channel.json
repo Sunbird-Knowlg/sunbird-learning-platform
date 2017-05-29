@@ -18,7 +18,7 @@
         "type": "PATCH",
         "url": "/v3/channel/update/*",
         "pathParams": [
-          "api_id"
+          "channel_id"
         ]
     },
     "body": "",
