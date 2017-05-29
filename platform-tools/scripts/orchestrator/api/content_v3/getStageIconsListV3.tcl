@@ -8,7 +8,11 @@ set externalProps [java::new ArrayList]
 $externalProps add "stageIcons"
 set env_String [java::cast String $server_env]
 set env_text [$env_String toString]
-set env_text [regsub -all "/v3/content/stageIcons/list/" $env_text "/v3/content/"]
+if {[string match "api" $env_text]} {
+	set env_text "https://"${env_text}"/learning/v3/content/"
+} else {
+	set env_text "https://"${env_text}"/api/learning/v3/content/"
+}
 set is_env_null [java::isnull $server_env]
 if { $is_env_null == 1} {
 	set result_map [java::new HashMap]

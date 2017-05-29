@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,9 +106,10 @@ public class BaseFinalizer extends BasePipeline {
 					}
 				}
 				
-				LOGGER.info("Processing Stage Icons");
+				
 				List<String> stageIcons = (List<String>) node.getMetadata()
 						.get(ContentWorkflowPipelineParams.thumbnail.name());
+				LOGGER.info("Processing Stage Icons"+ stageIcons.toString());
 				String path = basePath + File.separator + "thumbnails";
 				if (null != stageIcons && !stageIcons.isEmpty()) {
 					List<String> stageIconsS3Url = new ArrayList<>();
@@ -133,8 +136,12 @@ public class BaseFinalizer extends BasePipeline {
 			String base64Image = stageIconFile.split(",")[1];
 			byte[] imageBytes = Base64.decodeBase64(base64Image);
 			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+			if(null != stageIconId){
+				stageIconId = "stage";
+			}
 			file = new File(basePath + File.separator + stageIconId);
 			ImageIO.write(bufferedImage, "png", file);
+			LOGGER.info("StageIcon Downloaded File " + stageIconId);
 		} catch (Exception e) {
 			LOGGER.error("Something went wrong when downloading base64 image" + e.getMessage());
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
@@ -145,17 +152,35 @@ public class BaseFinalizer extends BasePipeline {
 
 	private String getThumbnailFiles(String basePath, Node node, String stageIconFile) {
 		String thumbUrl = "";
+		String stageIconId = null;
 		try {
-			File stageIcon = downloadStageIconFiles(basePath, stageIconFile, "");
-			if (stageIcon.exists()) {
-				LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
-				String folderName = S3PropertyReader.getProperty(s3Artifact) + "/" + "thumbnails";
-				String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
-				if (null != urlArray && urlArray.length >= 2) {
-					thumbUrl = urlArray[IDX_S3_URL];
+			if (stageIconFile.contains("http")) {
+				stageIconId = stageIconFile.substring((stageIconFile.indexOf("/stage") + 7), stageIconFile.length());
+			}
+			HttpURLConnection httpConn = null;
+			LOGGER.info("Start Downloading for File: " + stageIconFile);
+
+			URL url = new URL(stageIconFile);
+			httpConn = (HttpURLConnection) url.openConnection();
+			int responseCode = httpConn.getResponseCode();
+			LOGGER.info("Response Code: " + responseCode);
+
+			// always check HTTP response code first
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				LOGGER.info("Response is OK.");
+				String base64Data = httpConn.getResponseMessage();
+
+				File stageIcon = downloadStageIconFiles(basePath, base64Data, stageIconId);
+				if (stageIcon.exists()) {
+					LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
+					String folderName = S3PropertyReader.getProperty(s3Artifact) + "/" + "thumbnails";
+					String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
+					if (null != urlArray && urlArray.length >= 2) {
+						thumbUrl = urlArray[IDX_S3_URL];
+					}
+					stageIcon.delete();
+					LOGGER.info("Deleted local Thumbnail file");
 				}
-				stageIcon.delete();
-				LOGGER.info("Deleted local Thumbnail file");
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error! While deleting the Thumbnail File.", e);

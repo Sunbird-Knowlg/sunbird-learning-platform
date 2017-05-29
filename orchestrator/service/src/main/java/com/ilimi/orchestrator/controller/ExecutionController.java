@@ -100,10 +100,9 @@ public class ExecutionController extends BaseOrchestratorController {
 					} else if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("base64", format)) {
 						String result = (String) resp.getResult().get("result");
 						if (StringUtils.isNotBlank(result)) {
-							byte[] bytes = result.getBytes();
-							response.setHeader("Content-Transfer-Encoding", "base64");
-							response.getOutputStream().write(bytes);
-							response.getOutputStream().close();
+							response.getWriter().print(result);
+							response.getWriter().flush();
+							response.getWriter().close();
 						}
 					}
 				}
