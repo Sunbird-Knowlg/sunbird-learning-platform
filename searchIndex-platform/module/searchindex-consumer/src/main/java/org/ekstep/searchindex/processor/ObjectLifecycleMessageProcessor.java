@@ -101,13 +101,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							}
 							else{
 								LOGGER.info("Fetching Node metadata from graph" + message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
-								node = util.getNode(ConsumerWorkflowEnums.nodeUniqueId.name(), (String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
+								node = util.getNode(ConsumerWorkflowEnums.domain.name(), (String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
 							}
 							String node_id = node.getIdentifier();
 							String objectType = node.getObjectType();
 
 							LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
-							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.contentImage.name())
+							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
 								
