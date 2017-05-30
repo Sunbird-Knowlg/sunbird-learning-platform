@@ -319,16 +319,17 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							for (String str : category) {
 								subtype = str;
 							}
+							LOGGER.info("Setting contentType and objectType for as plugin and category" + subtype);
 							objectMap.put(ConsumerWorkflowEnums.objectType.name(), ConsumerWorkflowEnums.Plugin.name());
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), subtype);
 						}
 						else {
-							LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
+							LOGGER.info("Setting empty subType for plugins without category " + entry.getKey() + entry.getValue());
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 						}
 					}
 					else {
-						LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
+						LOGGER.info("Setting subType field form contentType " + entry.getKey() + entry.getValue());
 						objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
 					}
 				}
