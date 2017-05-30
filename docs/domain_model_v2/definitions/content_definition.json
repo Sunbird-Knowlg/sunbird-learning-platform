@@ -1699,6 +1699,32 @@
           "indexed": true,
           "draft": false
         },
+		{
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_creationSessions",
+          "title": "Creation Sessions",
+          "description": "Creation sessions count of this content by learners",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_creationTimespent",
+          "title": "Creation Timespent",
+          "description": "Creation timespent of this content by learners",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
         {
           "required": false,
           "dataType": "Number",
@@ -2189,7 +2215,7 @@
         "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
         "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable",
         "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount",
-        "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice",
+        "me_totalTimespent", "me_totalInteractions","me_creationSessions","me_creationTimespent","me_averageInteractionsPerMin", "me_averageSessionsPerDevice",
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads",
         "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants","flagReasons",
         "flaggedBy","lastFlaggedOn","flags", "author"]
