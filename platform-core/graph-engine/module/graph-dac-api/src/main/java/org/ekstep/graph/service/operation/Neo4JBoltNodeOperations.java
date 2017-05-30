@@ -12,7 +12,8 @@ import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.Neo4JOperation;
-import org.ekstep.graph.service.request.validaor.Neo4JBoltDataVersionKeyValidator;
+import org.ekstep.graph.service.request.validator.Neo4JBoltAuthorizationValidator;
+import org.ekstep.graph.service.request.validator.Neo4JBoltDataVersionKeyValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.QueryUtil;
 import org.neo4j.driver.v1.Driver;
@@ -40,6 +41,7 @@ public class Neo4JBoltNodeOperations {
 
 	private final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
 	private Neo4JBoltDataVersionKeyValidator versionValidator = new Neo4JBoltDataVersionKeyValidator();
+	private Neo4JBoltAuthorizationValidator authorizationValidator = new Neo4JBoltAuthorizationValidator();
 
 	@SuppressWarnings("unchecked")
 	public com.ilimi.graph.dac.model.Node upsertNode(String graphId, com.ilimi.graph.dac.model.Node node,
@@ -55,6 +57,10 @@ public class Neo4JBoltNodeOperations {
 		if (null == node)
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 					DACErrorMessageConstants.INVALID_NODE + " | [Upsert Node Operation Failed.]");
+		
+		LOGGER.debug("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
+		authorizationValidator.validateAuthorization(graphId, node, request);
+		LOGGER.debug("Consumer is Authorized for Node Id: " + node.getIdentifier());
 		
 		LOGGER.debug("Validating the Update Operation for Node Id: " + node.getIdentifier());
 		versionValidator.validateUpdateOperation(graphId, node);

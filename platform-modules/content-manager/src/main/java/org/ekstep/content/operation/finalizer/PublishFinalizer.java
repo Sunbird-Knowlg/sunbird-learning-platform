@@ -163,23 +163,35 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.body.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), null);
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
-//		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
-		
-		LOGGER.info("setting compatability level for textbook");
-		if (StringUtils.equalsIgnoreCase(
-				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-				ContentWorkflowPipelineParams.TextBook.name())
-				|| StringUtils.equalsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-						ContentWorkflowPipelineParams.TextBookUnit.name()))
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
-		
-		LOGGER.info("setting compatability level for youtube, pdf and doc");
-		if(StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.youtube.name()) 
-				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.pdf.name())
-				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.msword.name()))
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
-		
+
+		// If user doesn't send 'compatibilityLevel' Then platform will set
+		if (StringUtils
+				.isBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.compatibilityLevel.name()))) {
+			LOGGER.info("setting compatability level default values as 1.");
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
+
+			LOGGER.info("setting compatability level for textbook");
+			if (StringUtils.equalsIgnoreCase(
+					(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+					ContentWorkflowPipelineParams.TextBook.name())
+					|| StringUtils.equalsIgnoreCase(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+							ContentWorkflowPipelineParams.TextBookUnit.name()))
+				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
+
+			LOGGER.info("setting compatability level for youtube, pdf and doc");
+			if (StringUtils
+					.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
+							ContentWorkflowPipelineParams.youtube.name())
+					|| StringUtils.containsIgnoreCase(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
+							ContentWorkflowPipelineParams.pdf.name())
+					|| StringUtils.containsIgnoreCase(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
+							ContentWorkflowPipelineParams.msword.name()))
+				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
+		}
+
 		LOGGER.info("checking is the contentType is Asset");
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
@@ -284,21 +296,21 @@ public class PublishFinalizer extends BaseFinalizer {
 		// last Node Update in Publishing
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				ContentWorkflowPipelineParams.Retired.name());
-		
+
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
 		newNode.setTags(node.getTags());
-		
+
 		LOGGER.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		Response response = migrateContentImageObjectData(contentId, newNode);
-		
+
 		// delete image..
-		Request request = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
-		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId+".img");
+		Request request = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
+				"deleteDataNode");
+		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
 		getResponse(request, LOGGER);
-		
-		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(),
-				null);
+
+		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
 		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());

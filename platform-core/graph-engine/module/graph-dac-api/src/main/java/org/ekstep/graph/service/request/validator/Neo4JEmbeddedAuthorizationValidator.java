@@ -1,4 +1,4 @@
-package org.ekstep.graph.service.request.validaor;
+package org.ekstep.graph.service.request.validator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

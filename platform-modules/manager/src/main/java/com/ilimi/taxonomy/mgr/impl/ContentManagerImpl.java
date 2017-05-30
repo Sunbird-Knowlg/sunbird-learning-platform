@@ -16,6 +16,7 @@ import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.content.dto.ContentSearchCriteria;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.ContentMimeTypeFactoryUtil;
@@ -50,6 +51,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
+
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
@@ -145,6 +147,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Node: ", node);
 
+		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
+			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
+					"Operation Denied! | [Cannot Apply 'Upload' Operation on the Content in 'Processing' Status.] ");
+
+		LOGGER.debug("Given Content is not in Processing Status.");
+
 		String mimeType = (String) node.getMetadata().get("mimeType");
 		if (StringUtils.isBlank(mimeType)) {
 			mimeType = "assets";
@@ -165,11 +174,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 
 		LOGGER.info("Returning Response.");
-		if(StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")){
-			 String identifier = (String)res.getResult().get("node_id");
-			 String new_identifier = identifier.replace(".img", "");
-			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
-			 res.getResult().replace("node_id", identifier, new_identifier);
+		if (StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")) {
+			String identifier = (String) res.getResult().get("node_id");
+			String new_identifier = identifier.replace(".img", "");
+			LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+			res.getResult().replace("node_id", identifier, new_identifier);
 		}
 		return res;
 	}
@@ -212,6 +221,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
 				}
+				
+				LOGGER.info("Validating the Input Nodes.");
+				validateInputNodesForBundling(nodes);
+				
 				for (Node node : nodes) {
 					String contentImageId = getContentImageIdentifier(node.getIdentifier());
 					Response getNodeResponse = getDataNode(taxonomyId, contentImageId);
@@ -301,6 +314,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Got Node: ", node);
+
+		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
+			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
+					"Operation Denied! | [Cannot Apply 'Optimize' Operation on the Content in 'Processing' Status.] ");
+
+		LOGGER.debug("Given Content is not in Processing Status.");
 
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		LOGGER.info("Content Status: " + status);
@@ -423,6 +443,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Got Node: ", node);
 
+		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
+			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
+					"Operation Denied! | [Cannot Apply 'Publish' Operation on the Content in 'Processing' Status.] ");
+
+		LOGGER.debug("Given Content is not in Processing Status.");
+
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		LOGGER.debug("Body fetched from content store");
@@ -455,15 +482,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		} catch (ServerException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), "Error occured during content publish");
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+					"Error occured during content publish");
 		}
 
 		LOGGER.info("Returning 'Response' Object.");
-		if(StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")){
-			 String identifier = (String)response.getResult().get("node_id");
-			 String new_identifier = identifier.replace(".img", "");
-			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
-			 response.getResult().replace("node_id", identifier, new_identifier);
+		if (StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")) {
+			String identifier = (String) response.getResult().get("node_id");
+			String new_identifier = identifier.replace(".img", "");
+			LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+			response.getResult().replace("node_id", identifier, new_identifier);
 		}
 		return response;
 	}
@@ -484,6 +512,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		LOGGER.debug("Node: ", node);
+
+		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
+			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
+					"Operation Denied! | [Cannot Apply 'Review' Operation on the Content in 'Processing' Status.] ");
+
+		LOGGER.debug("Given Content is not in Processing Status.");
 
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
@@ -529,7 +564,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition, String mode) {
+	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
+			String mode) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 		if (null != children && !children.isEmpty()) {
@@ -548,7 +584,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	private Node getContentNode(String graphId, String contentId, String mode) {
-		
+
 		if (StringUtils.equalsIgnoreCase("edit", mode)) {
 			String contentImageId = getContentImageIdentifier(contentId);
 			Response responseNode = getDataNode(graphId, contentImageId);
@@ -653,19 +689,26 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			// Content Image Node is not Available so assigning the original
 			// Content Node as node
 			node = (Node) response.get(GraphDACParams.node.name());
+			
+			// Checking if given Content Id is Image Node
+			if (null != node && isContentImageObject(node))
+				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+						"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
+								+ "' does not Exist.]");
+				
 
 			LOGGER.info("Fetched Content Node: ", node);
 			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
 					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 				node = createContentImageNode(taxonomyId, contentImageId, node);
-		} else{
+		} else {
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
 			LOGGER.info("Getting Content Image Node and assigning it as node" + node.getIdentifier());
 		}
 		// Assigning the original 'identifier' to the Node
-		//node.setIdentifier(contentId);
+		// node.setIdentifier(contentId);
 
 		LOGGER.info("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
@@ -691,7 +734,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							+ "]");
 		Response resp = getDataNode(taxonomyId, contentImageId);
 		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
-		LOGGER.info("Returning Content Image Node Identifier"+ nodeData.getIdentifier());
+		LOGGER.info("Returning Content Image Node Identifier" + nodeData.getIdentifier());
 		return nodeData;
 	}
 
@@ -706,6 +749,39 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			response = getResponse(request, LOGGER);
 		}
 		return response;
+	}
+
+	private boolean isNodeUnderProcessing(Node node) {
+		boolean isUnderProcess = false;
+		try {
+			if (null != node && null != node.getMetadata()
+					&& StringUtils.equalsIgnoreCase((String) node.getMetadata().get(TaxonomyAPIParams.status.name()),
+							TaxonomyAPIParams.Processing.name()))
+				isUnderProcess = true;
+		} catch (Exception e) {
+			LOGGER.error("Something Went Wrong While Checking the is Under Processing Status.", e);
+		}
+		return isUnderProcess;
+	}
+
+	private void validateInputNodesForBundling(List<Node> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			for (Node node : nodes) {
+				// Validating for Content Image Node
+				if (null != node && isContentImageObject(node))
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
+									+ "' does not Exist.]");
+			}
+		}
+	}
+
+	private boolean isContentImageObject(Node node) {
+		boolean isContentImage = false;
+		if (null != node && StringUtils.equalsIgnoreCase(node.getObjectType(),
+				ContentWorkflowPipelineParams.ContentImage.name()))
+			isContentImage = true;
+		return isContentImage;
 	}
 
 }

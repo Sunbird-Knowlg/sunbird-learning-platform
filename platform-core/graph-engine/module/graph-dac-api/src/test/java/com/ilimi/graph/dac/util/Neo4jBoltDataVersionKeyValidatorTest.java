@@ -3,7 +3,7 @@ package com.ilimi.graph.dac.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ekstep.graph.service.request.validaor.Neo4JBoltDataVersionKeyValidator;
+import org.ekstep.graph.service.request.validator.Neo4JBoltDataVersionKeyValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.junit.Assert;
 import org.junit.Test;

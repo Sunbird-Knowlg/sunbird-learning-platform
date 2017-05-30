@@ -1,4 +1,4 @@
-package org.ekstep.graph.service.request.validaor;
+package org.ekstep.graph.service.request.validator;
 
 import static com.ilimi.graph.dac.util.Neo4jGraphUtil.getNodeByUniqueId;
 

@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.graph.service.request.validaor.Neo4JEmbeddedDataVersionKeyValidator;
+import org.ekstep.graph.service.request.validator.Neo4JEmbeddedDataVersionKeyValidator;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;

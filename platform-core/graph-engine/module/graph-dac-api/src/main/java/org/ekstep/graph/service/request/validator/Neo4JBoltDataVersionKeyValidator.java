@@ -1,4 +1,4 @@
-package org.ekstep.graph.service.request.validaor;
+package org.ekstep.graph.service.request.validator;
 
 import java.util.Map;
 
@@ -28,7 +28,7 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 
-public class Neo4JBoltDataVersionKeyValidator {
+public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 
 	private static Logger LOGGER = LogManager.getLogger(Neo4JBoltDataVersionKeyValidator.class.getName());
 
@@ -140,30 +140,6 @@ public class Neo4JBoltDataVersionKeyValidator {
 		}
 
 		return isValidVersionKey;
-	}
-
-	private Map<String, Object> getNeo4jNodeProperty(String graphId, String identifier) {
-		Map<String, Object> prop = null;
-		Driver driver = DriverUtil.getDriver(graphId);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
-		try (Session session = driver.session()) {
-			try (Transaction tx = session.beginTransaction()) {
-				String query = "match (n:" + graphId + "{IL_UNIQUE_ID:'" + identifier + "'}) return (n) as result";
-				StatementResult result = tx.run(query);
-				if (result.hasNext()) {
-					Record record = result.next();
-					InternalNode node = (InternalNode) record.values().get(0).asObject();
-					prop = node.asMap();
-				}
-				tx.success();
-				tx.close();
-			} catch (Exception e) {
-				throw new ServerException(DACErrorCodeConstants.CONNECTION_PROBLEM.name(),
-						DACErrorMessageConstants.CONNECTION_PROBLEM + " | " + e.getMessage());
-			}
-		}
-		return prop;
-
 	}
 
 }
