@@ -1741,6 +1741,32 @@
         {
           "required": false,
           "dataType": "Number",
+          "propertyName": "me_creationSessions",
+          "title": "Creation Sessions",
+          "description": "Creation sessions count of this content by learners",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_creationTimespent",
+          "title": "Creation Timespent",
+          "description": "Creation timespent of this content by learners",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
           "propertyName": "me_averageSessionsPerDevice",
           "title": "Average Sessions/device",
           "description": "Average Number of sessions per device",
