@@ -122,6 +122,8 @@ public class BaseFinalizer extends BasePipeline {
 					for (String stageIcon : stageIcons) {
 						if(!isS3Url(stageIcon)){
 							stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
+						} else {
+							stageIconsS3Url.add(stageIcon);
 						}
 					}
 					node.getMetadata().put(ContentWorkflowPipelineParams.screenshots.name(), stageIconsS3Url);
