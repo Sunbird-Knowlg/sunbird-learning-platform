@@ -203,6 +203,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 	/**
 	 * This method holds logic to getItemSet NOde from graph
+	 * 
 	 * @param identifier
 	 * @return
 	 * @throws Exception
@@ -422,9 +423,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
 	}
-	
+
 	/**
 	 * This Method holds logic to set metadata for ItemSets
+	 * 
 	 * @param node
 	 * @param objectMap
 	 */
@@ -437,8 +439,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
 					LOGGER.info("Setting subType field for type from node" + entry.getKey() + entry.getValue());
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
-				}
-				else{
+				} else {
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 				}
 			}
