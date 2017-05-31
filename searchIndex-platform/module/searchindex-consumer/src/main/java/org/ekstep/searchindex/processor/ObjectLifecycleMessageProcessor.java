@@ -178,7 +178,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								setItemMetadata(node, objectMap);
 								break;
 							case "ItemSet":
-								setItemMetadata(node, objectMap);
+								setItemSetMetadata(node, objectMap);
 								break;
 							case "Concept":
 								setConceptMetadata(node, objectMap);
@@ -201,6 +201,12 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		}
 	}
 
+	/**
+	 * This method holds logic to getItemSet NOde from graph
+	 * @param identifier
+	 * @return
+	 * @throws Exception
+	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node getItemSetNode(String identifier) throws Exception {
 		ControllerUtil util = new ControllerUtil();
@@ -258,6 +264,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
 			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
+		objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 	}
 
 	/**
@@ -285,6 +292,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
 			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
+		objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 	}
 
 	/**
@@ -410,6 +418,30 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				}
 			}
 		} else {
+			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
+		}
+	}
+	
+	/**
+	 * This Method holds logic to set metadata for ItemSets
+	 * @param node
+	 * @param objectMap
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void setItemSetMetadata(Node node, Map<String, Object> objectMap) {
+		if (null != node.getMetadata()) {
+			Map<String, Object> nodeMap = new HashMap<String, Object>();
+			nodeMap = (Map) node.getMetadata();
+			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
+				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
+					LOGGER.info("Setting subType field for type from node" + entry.getKey() + entry.getValue());
+					objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
+				}
+				else{
+					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
+				}
+			}
 			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
 			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
