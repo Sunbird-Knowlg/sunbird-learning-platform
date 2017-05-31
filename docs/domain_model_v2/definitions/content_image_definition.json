@@ -272,6 +272,19 @@
         },
         {
           "required": false,
+          "dataType": "List",
+          "propertyName": "screenshots",
+          "title": "Screenshots",
+          "description": "",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 7 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "Text",
           "propertyName": "format",
           "title": "Format",
@@ -2186,7 +2199,7 @@
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
-        "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
+        "status", "contentType", "filter", "visibility", "thumbnail", "screenshots" , "language", "owner", "collaborators",
         "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable",
         "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount",
         "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice",

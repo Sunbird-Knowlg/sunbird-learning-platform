@@ -1,7 +1,10 @@
 package com.ilimi.orchestrator.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -152,5 +155,23 @@ public abstract class BaseOrchestratorController {
     protected String getUUID() {
         UUID uid = UUID.randomUUID();
         return uid.toString();
+    }
+    
+    protected String getEnvBaseUrl(){
+    	Properties prop = new Properties();
+    	InputStream input = null;
+    	String envURL = null;
+    	String filename = "OrchestratorEnv.properties";
+		try {
+			input = BaseOrchestratorController.class.getClassLoader().getResourceAsStream(filename);
+			if (input == null) {
+				LOGGER.error("Unable to find " + filename);
+			}
+			prop.load(input);
+			envURL = prop.getProperty("env");
+		} catch (IOException e) {
+			LOGGER.error(e.getMessage(), e);
+		}
+    	return envURL;
     }
 }

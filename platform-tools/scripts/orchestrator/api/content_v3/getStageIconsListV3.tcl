@@ -3,16 +3,11 @@ java::import -package java.util HashMap Map
 java::import -package java.util ArrayList LinkedList List
 java::import -package org.apache.commons.lang3 StringEscapeUtils
 
-
 set externalProps [java::new ArrayList]
 $externalProps add "stageIcons"
 set env_String [java::cast String $server_env]
 set env_text [$env_String toString]
-if {[string match "api" $env_text]} {
-	set env_text "https://"${env_text}"/learning/v3/content/"
-} else {
-	set env_text "https://"${env_text}"/api/learning/v3/content/"
-}
+set env_text "${env_text}/v3/content/${content_id}"
 set is_env_null [java::isnull $server_env]
 if { $is_env_null == 1} {
 	set result_map [java::new HashMap]
@@ -49,7 +44,7 @@ if {!$check_error} {
 		$stage addAll [$stage_map keySet]
 		set stage_list [java::new LinkedList]
 		java::for {String elem} $stage {
-   			$stage_list add "${env_text}/stage/${elem}"
+   			$stage_list add "${env_text}/stage/${elem}?format=base64"
 		}
 	} else {
 		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"

@@ -1,14 +1,18 @@
 package com.ilimi.orchestrator.controller;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -82,8 +86,8 @@ public class ExecutionController extends BaseOrchestratorController {
 				Map<String, Object> params = getParams(request, script, path, map);
 				LOGGER.info(script.getName() + "," + params);
 				if ("getStageIconsList_v3".equalsIgnoreCase(script.getName()) && null != params) {
-					LOGGER.info("URL: " + request.getServerName());
-					params.put("server_env", request.getServerName());
+					LOGGER.info("URL: " + getEnvBaseUrl());
+					params.put("server_env", getEnvBaseUrl());
 				}
 				Response resp = executor.execute(script, params);
 				if (ResponseCode.OK.equals(resp.getResponseCode())) {
@@ -100,9 +104,16 @@ public class ExecutionController extends BaseOrchestratorController {
 					} else if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("base64", format)) {
 						String result = (String) resp.getResult().get("result");
 						if (StringUtils.isNotBlank(result)) {
-							response.getWriter().print(result);
-							response.getWriter().flush();
-							response.getWriter().close();
+							String data = result.split(",")[1];
+							byte[] buffer = Base64.decodeBase64(data);
+							String contype = result.split(";")[0];
+							contype = contype.split(":")[1];
+							response.setContentType(contype);
+							response.setHeader("Content-Transfer-Encoding", "base64");
+							BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(buffer));
+							ImageIO.write(bufferedImage, "png", response.getOutputStream());
+							response.getOutputStream().close();
+							return null;
 						}
 					}
 				}

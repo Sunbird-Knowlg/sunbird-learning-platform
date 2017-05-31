@@ -14,7 +14,7 @@
         }
     ],
     "requestPath": {
-        "type": "POST",
+        "type": "GET",
         "url": "/v3/content/*/stage/*",
         "pathParams": [
           "content_id",
