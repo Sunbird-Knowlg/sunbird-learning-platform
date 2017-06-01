@@ -1989,6 +1989,19 @@
           "renderingHints": "{}"
         },
         {
+          "propertyName": "screenshots",
+          "title": "Property to store screenShots",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}"
+        },
+         {
           "propertyName": "tempData",
           "title": "Property to store temporary values",
           "description": "",

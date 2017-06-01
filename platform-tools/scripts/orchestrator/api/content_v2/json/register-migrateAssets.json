@@ -1,0 +1,20 @@
+{
+    "name": "migrateScreenshots_v2",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "content_id",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/content/migrate/*",
+        "pathParams": [
+          "content_id"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.content.migrate"
+}

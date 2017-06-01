@@ -1182,6 +1182,19 @@
           "draft": false
         },
         {
+          "propertyName": "screenshots",
+          "title": "Property to store screenShots",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}"
+        },
+        {
           "required": false,
           "dataType": "Text",
           "propertyName": "draftImage",
