@@ -24,6 +24,7 @@ public class S3URLUpdater {
 	private static final String dotOper = ".";
 	private static final String hyphen = "-";
 	private static final String forwardSlash = "/";
+	private static final String[] envs = new String[]{"dev", "qa", "sandbox", "prod"};
 
 	/**
 	 * @param args
@@ -197,8 +198,37 @@ public class S3URLUpdater {
 		String oldConfigStringV2 = s3 + hyphen + oldRegion + dotOper + aws + forwardSlash + oldConfigBucketName;
 		String newPublicString = oldPublicBucketName + hyphen + env + dotOper + s3 + hyphen + newRegion + dotOper + aws;
 		String newConfigString = oldConfigBucketName + hyphen + env + dotOper + s3 + hyphen + newRegion + dotOper + aws;
+		
+		List<String> oldPublicUrls = new ArrayList<String>();
+		List<String> oldConfigUrls = new ArrayList<String>();
+		for (String e : envs) {
+			if (!StringUtils.equalsIgnoreCase(e, env)) {
+				String publicV1 = oldPublicBucketName + hyphen + e + dotOper + s3 + hyphen + oldRegion + dotOper + aws;
+				oldPublicUrls.add(publicV1);
+				String publicV2 = s3 + hyphen + oldRegion + dotOper + aws + forwardSlash + oldPublicBucketName + hyphen + e;
+				oldPublicUrls.add(publicV2);
+				String configV1 = oldConfigBucketName + hyphen + e + dotOper + s3 + hyphen + oldRegion + dotOper + aws;
+				oldConfigUrls.add(configV1);
+				String configV2 = s3 + hyphen + oldRegion + dotOper + aws + forwardSlash + oldConfigBucketName + hyphen + e;
+				oldConfigUrls.add(configV2);
+			}
+		}
+		
 		if (null != propertyVal && propertyVal instanceof String) {
+			boolean updated = false;
 			String url = propertyVal.toString();
+			for (String oldPublicUrl : oldPublicUrls) {
+				if (url.contains(oldPublicUrl)) {
+					url = url.replaceAll(oldPublicUrl, newPublicString);
+					updated = true;
+				}	
+			}
+			for (String oldConfigUrl : oldConfigUrls) {
+				if (url.contains(oldConfigUrl)) {
+					url = url.replaceAll(oldConfigUrl, newConfigString);
+					updated = true;
+				}
+			}
 			if (url.contains(oldPublicStringV1) || url.contains(oldPublicStringV2) || url.contains(oldConfigStringV1)
 					|| url.contains(oldConfigStringV2)) {
 				url = url.replaceAll(oldPublicStringV1, newPublicString);
@@ -207,6 +237,8 @@ public class S3URLUpdater {
 				url = url.replaceAll(oldConfigStringV2, newConfigString);
 				return url;
 			}
+			if (updated)
+				return url;
 		}
 		return null;
 	}
