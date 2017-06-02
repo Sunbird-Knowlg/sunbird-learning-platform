@@ -15,6 +15,7 @@ public class OrchestratorRequest implements Serializable {
 	{   
         //set request id
         requestId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
+        consumerId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CONSUMER_ID.getParamName());
     }
 
 	private String action;
@@ -22,6 +23,7 @@ public class OrchestratorRequest implements Serializable {
 	private OrchestratorScript script;
 	private Map<String, Object> params;
 	private String requestId;
+	private String consumerId;
 
 	public String getAction() {
 		return action;
@@ -66,5 +68,13 @@ public class OrchestratorRequest implements Serializable {
     public void setRequestId(String requestId) {
         this.requestId = requestId;
     }
+
+	public String getConsumerId() {
+		return consumerId;
+	}
+
+	public void setConsumerId(String consumerId) {
+		this.consumerId = consumerId;
+	}
 
 }
