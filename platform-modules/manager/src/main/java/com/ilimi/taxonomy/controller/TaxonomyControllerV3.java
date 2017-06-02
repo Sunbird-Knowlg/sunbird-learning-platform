@@ -54,7 +54,7 @@ public class TaxonomyControllerV3 {
 		return taxonomyController.findDefinition(id, objectType, userId);
 	}
 
-	@RequestMapping(value = "/definitions/list/", method = RequestMethod.GET)
+	@RequestMapping(value = "/definitions/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAllDefinitions(@RequestParam(name = "graph_id", required = true)  String id,
 			@RequestHeader(value = "user-id") String userId) {
