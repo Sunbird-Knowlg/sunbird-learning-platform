@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.dto.Response;
 
 @Controller
-@RequestMapping("/v3/")
+@RequestMapping("/v3")
 public class TaxonomyControllerV3 {
 
 	@Autowired
