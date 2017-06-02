@@ -203,13 +203,13 @@ public class S3URLUpdater {
 		List<String> oldConfigUrls = new ArrayList<String>();
 		for (String e : envs) {
 			if (!StringUtils.equalsIgnoreCase(e, env)) {
-				String publicV1 = oldPublicBucketName + hyphen + e + dotOper + s3 + hyphen + oldRegion + dotOper + aws;
+				String publicV1 = oldPublicBucketName + hyphen + e + dotOper + s3 + hyphen + newRegion + dotOper + aws;
 				oldPublicUrls.add(publicV1);
-				String publicV2 = s3 + hyphen + oldRegion + dotOper + aws + forwardSlash + oldPublicBucketName + hyphen + e;
+				String publicV2 = s3 + hyphen + newRegion + dotOper + aws + forwardSlash + oldPublicBucketName + hyphen + e;
 				oldPublicUrls.add(publicV2);
-				String configV1 = oldConfigBucketName + hyphen + e + dotOper + s3 + hyphen + oldRegion + dotOper + aws;
+				String configV1 = oldConfigBucketName + hyphen + e + dotOper + s3 + hyphen + newRegion + dotOper + aws;
 				oldConfigUrls.add(configV1);
-				String configV2 = s3 + hyphen + oldRegion + dotOper + aws + forwardSlash + oldConfigBucketName + hyphen + e;
+				String configV2 = s3 + hyphen + newRegion + dotOper + aws + forwardSlash + oldConfigBucketName + hyphen + e;
 				oldConfigUrls.add(configV2);
 			}
 		}
