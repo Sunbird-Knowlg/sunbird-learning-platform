@@ -99,6 +99,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String APP_ICON_DOWNLOAD_ERROR = "Error! While downloading App Icon.";
 	
+	public static final String STAGE_ICON_DOWNLOAD_ERROR = "Error! While downloading Stage Icon.";
+	
 	public static final String ASSET_CONCURRENT_DOWNLOAD_ERROR = "Error! While downloading assets concurrently.";
 	
 	public static final String INVALID_CONTENT_BODY = "Error! Invalid Content Body.";

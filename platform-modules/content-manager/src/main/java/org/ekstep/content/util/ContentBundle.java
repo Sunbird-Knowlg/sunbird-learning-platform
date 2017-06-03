@@ -77,6 +77,7 @@ public class ContentBundle {
 	 *            the expires on
 	 * @return the map
 	 */
+	@SuppressWarnings("unchecked")
 	public Map<Object, List<String>> createContentManifestData(List<Map<String, Object>> contents,
 			List<String> children, String expiresOn, EcarPackageType packageType) {
 		List<String> urlFields = new ArrayList<String>();
@@ -84,6 +85,7 @@ public class ContentBundle {
 		urlFields.add("grayScaleAppIcon");
 		urlFields.add("posterImage");
 		urlFields.add("artifactUrl");
+		urlFields.add("screenshots");
 
 		Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
 		for (Map<String, Object> content : contents) {
@@ -113,6 +115,19 @@ public class ContentBundle {
 									entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 								}
 
+							} else if(val instanceof List) {
+								List<String> data = (List<String>) val;
+								List<String> id = new ArrayList<>();
+								id.add(identifier.trim() + File.separator + entry.getKey());
+								List<String> screeshot = new ArrayList<>();
+								for(String value : data){
+									if(HttpDownloadUtility.isValidUrl(value)){
+										downloadUrls.put(value, id);
+										String file = FilenameUtils.getName(value);
+										screeshot.add(identifier.trim() + File.separator + ContentWorkflowPipelineParams.screenshots.name() + File.separator + Slug.makeSlug(file, true));
+									}
+								}
+								entry.setValue(screeshot);
 							}
 						} else {
 							if (entry.getKey().equals(ContentWorkflowPipelineParams.artifactUrl.name())
@@ -395,7 +410,10 @@ public class ContentBundle {
 					String fileName = null;
 					if (file.getName().toLowerCase().endsWith("manifest.json")) {
 						fileName = file.getName();
-					} else {
+					} else if (file.getParentFile().getName().toLowerCase().endsWith("screenshots")) {
+						fileName = file.getParent().substring(file.getParentFile().getParent().lastIndexOf(File.separator) + 1)
+								+ File.separator + file.getName();
+					}else {
 						fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
 								+ File.separator + file.getName();
 					}
