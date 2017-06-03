@@ -669,19 +669,6 @@
         },
         {
           "required": false,
-          "dataType": "Text",
-          "propertyName": "portalOwner",
-          "title": "Portal Owner",
-          "description": "Portal Owner",
-          "category": "Ownership",
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
-        },
-        {
-          "required": false,
           "dataType": "List",
           "propertyName": "attributions",
           "title": "Owner",
@@ -1712,6 +1699,32 @@
           "indexed": true,
           "draft": false
         },
+		{
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_creationSessions",
+          "title": "Creation Sessions",
+          "description": "Creation sessions count of this content by learners",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "me_creationTimespent",
+          "title": "Creation Timespent",
+          "description": "Creation timespent of this content by learners",
+          "category": "Measured",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}",
+          "indexed": true,
+          "draft": false
+        },
         {
           "required": false,
           "dataType": "Number",
@@ -1989,6 +2002,19 @@
           "renderingHints": "{}"
         },
         {
+          "propertyName": "screenshots",
+          "title": "Property to store screenShots",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{}"
+        },
+         {
           "propertyName": "tempData",
           "title": "Property to store temporary values",
           "description": "",
@@ -2199,13 +2225,13 @@
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
-        "status", "contentType", "filter", "visibility", "thumbnail", "screenshots" , "language", "owner", "collaborators",
-        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable",
+        "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
+        "imageCredits", "audioCredits", "voiceCredits", "developer", "attributions", "forkable",
         "translatable", "mediaType", "soundCredits", "optStatus", "domain", "lastPublishedOn", "me_totalSessionsCount",
-        "me_totalTimespent", "me_totalInteractions", "me_averageInteractionsPerMin", "me_averageSessionsPerDevice",
+        "me_totalTimespent", "me_totalInteractions","me_creationSessions","me_creationTimespent","me_averageInteractionsPerMin", "me_averageSessionsPerDevice",
         "me_totalDevices", "me_averageTimespentPerSession", "me_averageRating", "me_totalDownloads",
         "me_totalSideloads", "me_totalRatings", "me_totalComments", "popularity", "versionKey", "variants","flagReasons",
-        "flaggedBy","lastFlaggedOn","flags", "author"]
+        "flaggedBy","lastFlaggedOn","flags", "author", "createdBy"]
       }
     }
   ]

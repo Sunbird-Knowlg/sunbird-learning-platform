@@ -666,20 +666,23 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Create Collection' Operation Failed.]");
 
-		if (null == collection)
-			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
-					DACErrorMessageConstants.INVALID_COLLECTION_NODE + " | ['Create Collection' Operation Failed.]");
+//		if (null == collection)
+//			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
+//					DACErrorMessageConstants.INVALID_COLLECTION_NODE + " | ['Create Collection' Operation Failed.]");
 
 		if (StringUtils.isBlank(relationType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
 					DACErrorMessageConstants.INVALID_RELATION_TYPE + " | ['Create Collection' Operation Failed.]");
 
-		Neo4JBoltNodeOperations nodeOperations = new Neo4JBoltNodeOperations();
-		if (StringUtils.isBlank(collection.getIdentifier()))
-			collection.setIdentifier(collectionId);
-		nodeOperations.upsertNode(graphId, collection, request);
+		if (null != collection) {
+			Neo4JBoltNodeOperations nodeOperations = new Neo4JBoltNodeOperations();
+			if (StringUtils.isBlank(collection.getIdentifier()))
+				collection.setIdentifier(collectionId);
+			nodeOperations.upsertNode(graphId, collection, request);
+		}
+		
 		if (null != members && !members.isEmpty())
-			createOutgoingRelations(graphId, collection.getIdentifier(), members, relationType, request);
+			createOutgoingRelations(graphId, collectionId, members, relationType, request);
 	}
 
 	/**

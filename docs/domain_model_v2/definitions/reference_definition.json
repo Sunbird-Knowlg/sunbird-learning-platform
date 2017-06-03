@@ -17,6 +17,18 @@
           "renderingHints": "{ 'order': 1 }"
         },
         {
+          "propertyName": "code",
+          "title": "Code",
+          "description": "Unique code for the content",
+          "category": "General",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 2}",
+          "indexed": true
+        },
+        {
           "propertyName": "description",
           "title": "Description",
           "description": "",

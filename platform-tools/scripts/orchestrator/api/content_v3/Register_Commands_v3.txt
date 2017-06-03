@@ -20,3 +20,6 @@ node registerScript.js api/content_v3/getStageIconsV3.tcl api/content_v3/json/re
 
 node registerScript.js api/content_v3/getStageIconsListV3.tcl api/content_v3/json/register-getStageIconsListV3.json update
 
+node registerScript.js api/content_v2/rejectContent.tcl api/content_v3/json/register-rejectContentV3.json update
+
+

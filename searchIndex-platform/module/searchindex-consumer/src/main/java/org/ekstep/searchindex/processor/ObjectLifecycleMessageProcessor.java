@@ -8,7 +8,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.util.ControllerUtil;
+import org.ekstep.searchindex.enums.ConsumerWorkflowEnums;
 
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
@@ -69,68 +71,104 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> objectMap = new HashMap<String, Object>();
 		try {
-			LOGGER.info("Checking if kafka message contains transactionData" + message.containsKey("transactionData"));
-			if (message.containsKey("transactionData")) {
-				Map<String, Object> transactionMap = (Map<String, Object>) message.get("transactionData");
+			LOGGER.info("Checking if kafka message contains transactionData"
+					+ message.containsKey(ConsumerWorkflowEnums.transactionData.name()));
+			if (message.containsKey(ConsumerWorkflowEnums.transactionData.name())) {
+				Map<String, Object> transactionMap = (Map<String, Object>) message
+						.get(ConsumerWorkflowEnums.transactionData.name());
 
-				LOGGER.info(
-						"Checking tarnsactionData contains propertiesMap" + transactionMap.containsKey("properties"));
-				if (transactionMap.containsKey("properties")) {
-					Map<String, Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
+				LOGGER.info("Checking tarnsactionData contains propertiesMap"
+						+ transactionMap.containsKey(ConsumerWorkflowEnums.properties.name()));
+				if (transactionMap.containsKey(ConsumerWorkflowEnums.properties.name())) {
+					Map<String, Object> propertiesMap = (Map<String, Object>) transactionMap
+							.get(ConsumerWorkflowEnums.properties.name());
 
-					LOGGER.info("Checking if propertiesMap contains status" + propertiesMap.containsKey("status"));
-					if (propertiesMap.containsKey("status")) {
-						Map<String, Object> statusMap = (Map) propertiesMap.get("status");
+					LOGGER.info("Checking if propertiesMap contains status"
+							+ propertiesMap.containsKey(ConsumerWorkflowEnums.status.name()));
+					if (propertiesMap.containsKey(ConsumerWorkflowEnums.status.name())) {
+						Map<String, Object> statusMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.status.name());
 
 						LOGGER.info("Setting prevState and current state for event generation");
 						String prevstate = (String) statusMap.get("ov");
 						String state = (String) statusMap.get("nv");
 
-						LOGGER.info("Checking if node_id is blank" + message.get("nodeUniqueId"));
-						if (StringUtils.isNotBlank((String) message.get("nodeUniqueId"))) {
-
-							LOGGER.info("Fetching Node metadata from graph" + message.get("nodeUniqueId"));
-							Node node = util.getNode("domain", (String) message.get("nodeUniqueId"));
-
+						LOGGER.info("Checking if node_id is blank"
+								+ message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
+						if (StringUtils.isNotBlank((String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()))) {
+							Node node = new Node();
+							if (message.get(ConsumerWorkflowEnums.nodeType.name())
+									.equals(ConsumerWorkflowEnums.SET.name())
+									&& message.get(ConsumerWorkflowEnums.objectType.name())
+											.equals(ConsumerWorkflowEnums.ItemSet.name())) {
+								if (null != message.get(ConsumerWorkflowEnums.nodeUniqueId.name())) {
+									String node_id = (String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name());
+									LOGGER.info("Getting Itemset from graph via rest call" + node_id);
+									node = getItemSetNode(node_id);
+								}
+							} else {
+								LOGGER.info("Fetching Node metadata from graph"
+										+ message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
+								node = util.getNode(ConsumerWorkflowEnums.domain.name(),
+										(String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
+							}
 							String node_id = node.getIdentifier();
 							String objectType = node.getObjectType();
 
 							LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
-							if (StringUtils.equalsIgnoreCase(objectType, "ContentImage")
+							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
-									&& StringUtils.equalsIgnoreCase(state, "Draft")) {
+									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
+
 								LOGGER.info("Cropping img part from node_id" + node_id);
 								String imageId = node_id.replace(".img", "");
-								Node imageNode = util.getNode("domain", imageId);
-								String node_status = (String)imageNode.getMetadata().get("status");
+								Node imageNode = util.getNode(ConsumerWorkflowEnums.domain.name(), imageId);
+								String node_status = (String) imageNode.getMetadata()
+										.get(ConsumerWorkflowEnums.status.name());
+
 								LOGGER.info("Checking if node_status is flagged" + node_status);
-								if (StringUtils.equalsIgnoreCase(node_status, "Flagged")) {
-									objectMap.put("prevstate", "Flagged");
-									objectMap.put("state", "FlagDraft");
+								if (StringUtils.equalsIgnoreCase(node_status, ConsumerWorkflowEnums.Flagged.name())) {
+									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
+											ConsumerWorkflowEnums.Flagged.name());
+									objectMap.put(ConsumerWorkflowEnums.state.name(),
+											ConsumerWorkflowEnums.FlagDraft.name());
 								} else {
-									objectMap.put("prevstate", "Live");
-									objectMap.put("state", "Draft");
+									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
+											ConsumerWorkflowEnums.Live.name());
+									objectMap.put(ConsumerWorkflowEnums.state.name(),
+											ConsumerWorkflowEnums.Draft.name());
 								}
 							}
-							objectMap.put("prevstate", prevstate);
-							objectMap.put("state", state);
+							if (null == prevstate) {
+								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), "");
+							} else {
+								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), prevstate);
+							}
+							objectMap.put(ConsumerWorkflowEnums.state.name(), state);
 							if (StringUtils.endsWithIgnoreCase(node_id, ".img")
-									&& StringUtils.endsWithIgnoreCase(objectType, "Image")) {
+									&& StringUtils.endsWithIgnoreCase(objectType, ConsumerWorkflowEnums.Image.name())) {
 								LOGGER.info("Setting nodeId and objectType" + node_id + objectType);
 								node_id = StringUtils.replace(node_id, ".img", "");
-								objectType = StringUtils.replace(objectType, "Image", "");
+								objectType = StringUtils.replace(objectType, ConsumerWorkflowEnums.Image.name(), "");
 							}
-							objectMap.put("identifier", node_id);
-							objectMap.put("objectType", objectType);
+							objectMap.put(ConsumerWorkflowEnums.identifier.name(), node_id);
+							objectMap.put(ConsumerWorkflowEnums.objectType.name(), objectType);
 							LOGGER.info("Object Map" + objectMap);
 							LOGGER.info("Checking if node metadata is null");
 							if (null != node.getMetadata()) {
 								Map<String, Object> nodeMap = new HashMap<String, Object>();
 								nodeMap = (Map) node.getMetadata();
-								if (nodeMap.containsKey("name"))
-									objectMap.put("name", nodeMap.get("name"));
-								if (nodeMap.containsKey("code"))
-									objectMap.put("code", nodeMap.get("code"));
+								if (nodeMap.containsKey(ConsumerWorkflowEnums.name.name())) {
+									objectMap.put(ConsumerWorkflowEnums.name.name(),
+											nodeMap.get(ConsumerWorkflowEnums.name.name()));
+								} else {
+									objectMap.put(ConsumerWorkflowEnums.name.name(), "");
+								}
+								if (nodeMap.containsKey(ConsumerWorkflowEnums.code.name())) {
+									objectMap.put(ConsumerWorkflowEnums.code.name(),
+											nodeMap.get(ConsumerWorkflowEnums.code.name()));
+								} else {
+									objectMap.put(ConsumerWorkflowEnums.code.name(), "");
+								}
 							}
 							switch (objectType) {
 							case "Content":
@@ -140,7 +178,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								setItemMetadata(node, objectMap);
 								break;
 							case "ItemSet":
-								setItemMetadata(node, objectMap);
+								setItemSetMetadata(node, objectMap);
 								break;
 							case "Concept":
 								setConceptMetadata(node, objectMap);
@@ -152,12 +190,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								setDefaultMetadata(node, objectMap);
 								break;
 							}
-							for(Map.Entry<String, Object> entry : objectMap.entrySet()){
-								if(null == entry.getValue() || entry.getValue().equals("null")){
-									entry.setValue("");
-								}
-							} 
-							LOGGER.info("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id);
+							LOGGER.info("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id + objectMap);
 							LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 						}
 					}
@@ -169,6 +202,25 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	}
 
 	/**
+	 * This method holds logic to getItemSet NOde from graph
+	 * 
+	 * @param identifier
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Node getItemSetNode(String identifier) throws Exception {
+		ControllerUtil util = new ControllerUtil();
+		Response resp = util.getSet(ConsumerWorkflowEnums.domain.name(), identifier);
+		Map<String, Object> map = (Map) resp.getResult();
+		Node node = (Node) map.get(ConsumerWorkflowEnums.node.name());
+		if (null != node) {
+			return node;
+		}
+		return null;
+	}
+
+	/**
 	 * This method holds logic to set metadata data to generate object lifecycle
 	 * events for objectType concept
 	 * 
@@ -176,31 +228,44 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	 * @param objectMap
 	 */
 	private void setConceptMetadata(Node node, Map<String, Object> objectMap) {
-		if (null != node.getInRelations()) {
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
+				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Concept.name())
+						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
 					LOGGER.info("Setting parentid for concept" + rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
-				} else if (rel.getEndNodeObjectType().equals("Dimension")
-						&& rel.getRelationType().equals("isParentof")) {
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
+				} else if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Dimension.name())
+						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
 					LOGGER.info("Setting parentid for relEndNodeType : Dimension" + rel.getEndNodeObjectType()
 							+ rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
-					objectMap.put("parenttype", rel.getEndNodeObjectType());
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
+				} else {
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 				}
+
 			}
-		} else if (null != node.getOutRelations()) {
+		} else if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals("Concept") && rel.getRelationType().equals("isParentOf")) {
+				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Concept.name())
+						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
 					LOGGER.info("Setting parentid for concept - outRelations of type concepts"
 							+ rel.getEndNodeObjectType() + rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
-					objectMap.put("parenttype", rel.getEndNodeObjectType());
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
+				} else {
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 				}
 			}
+		} else {
+			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
+		objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 	}
 
 	/**
@@ -211,15 +276,24 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	 * @param objectMap
 	 */
 	private void setDimensionMetadata(Node node, Map<String, Object> objectMap) {
-		if (null != node.getInRelations()) {
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals("Domain") && rel.getRelationType().equals("isParentOf")) {
+				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Domain.name())
+						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
 					LOGGER.info("Setting parentid for dimension" + rel.getEndNodeObjectType() + rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
+				} else {
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 				}
 			}
+		} else {
+			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
+		objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 	}
 
 	/**
@@ -230,9 +304,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	 * @param objectMap
 	 */
 	private void setDefaultMetadata(Node node, Map<String, Object> objectMap) {
-		objectMap.put("subtype", "");
-		objectMap.put("parentid", "");
-		objectMap.put("parenttype", "");
+		objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
+		objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+		objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 	}
 
 	/**
@@ -248,36 +322,66 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			Map<String, Object> nodeMap = new HashMap<String, Object>();
 			nodeMap = (Map) node.getMetadata();
 			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-				if (entry.getKey().equals("contentType")) {
-					if (entry.getValue().equals("Asset")) {
+				if (entry.getKey().equals(ConsumerWorkflowEnums.contentType.name())) {
+					if (entry.getValue().equals(ConsumerWorkflowEnums.Asset.name())) {
 						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
-						objectMap.put("subtype", nodeMap.get("mediaType"));
+						objectMap.put(ConsumerWorkflowEnums.objectType.name(), entry.getValue());
+						objectMap.put(ConsumerWorkflowEnums.subtype.name(),
+								nodeMap.get(ConsumerWorkflowEnums.mediaType.name()));
+					} else if (entry.getValue().equals(ConsumerWorkflowEnums.Plugin.name())) {
+						LOGGER.info("Checking if node contains category in it"
+								+ nodeMap.containsKey(ConsumerWorkflowEnums.category.name()));
+						if (nodeMap.containsKey(ConsumerWorkflowEnums.category.name())) {
+							String[] category = (String[]) nodeMap.get(ConsumerWorkflowEnums.category.name());
+							LOGGER.info("Setting Category as subtype for object_lifecycle_events" + category);
+							String subtype = "";
+							for (String str : category) {
+								subtype = str;
+							}
+							LOGGER.info("Setting contentType and objectType for as plugin and category" + subtype);
+							objectMap.put(ConsumerWorkflowEnums.objectType.name(), ConsumerWorkflowEnums.Plugin.name());
+							objectMap.put(ConsumerWorkflowEnums.subtype.name(), subtype);
+						} else {
+							LOGGER.info("Setting empty subType for plugins without category " + entry.getKey()
+									+ entry.getValue());
+							objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
+						}
 					} else {
-						LOGGER.info("Setting subType field form contentType" + entry.getKey() + entry.getValue());
-						objectMap.put("subtype", entry.getValue());
+						LOGGER.info("Setting subType field form contentType " + entry.getKey() + entry.getValue());
+						objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
 					}
 				}
 			}
 		}
 		LOGGER.info("Checking if objectType content has inRelations" + node.getInRelations());
-		if (null != node.getInRelations()) {
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with inRelations" + rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
-					objectMap.put("parenttype", rel.getEndNodeObjectType());
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
+				} else {
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 				}
 			}
-		} else if (null != node.getOutRelations()) {
+		} else if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
+				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Content.name())
+						&& rel.getRelationType().equals("hasSequenceMember")) {
 					LOGGER.info("Setting parentid for Content with outRelations" + rel.getEndNodeId());
-					objectMap.put("parentid", rel.getEndNodeId());
-					objectMap.put("parenttype", rel.getEndNodeObjectType());
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
+				} else {
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 				}
 			}
+		} else {
+			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
 	}
 
@@ -294,24 +398,53 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			Map<String, Object> nodeMap = new HashMap<String, Object>();
 			nodeMap = (Map) node.getMetadata();
 			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-				if (entry.getKey().equals("type")) {
+				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
 					LOGGER.info("Setting subType field for type from node" + entry.getKey() + entry.getValue());
-					objectMap.put("type", entry.getValue());
+					objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
 				}
 			}
 		}
-		if (StringUtils.equalsIgnoreCase(node.getObjectType(), "AssessmentItem")) {
-			LOGGER.info("Getting relations from AssessmentItem");
-			if (null != node.getInRelations()) {
-				List<Relation> relations = node.getInRelations();
-				for (Relation rel : relations) {
-					if (rel.getEndNodeObjectType().equals("ItemSet") && rel.getRelationType().equals("hasMember")) {
-						LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
-						objectMap.put("parentid", rel.getEndNodeId());
-						objectMap.put("parenttype", rel.getEndNodeObjectType());
-					}
+		LOGGER.info("Getting relations from AssessmentItem");
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
+			List<Relation> relations = node.getInRelations();
+			for (Relation rel : relations) {
+				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.ItemSet.name())
+						&& rel.getRelationType().equals(ConsumerWorkflowEnums.hasMember.name())) {
+					LOGGER.info("Setting parentid for assessmentitem" + rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
+				} else {
+					objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 				}
 			}
+		} else {
+			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
+		}
+	}
+
+	/**
+	 * This Method holds logic to set metadata for ItemSets
+	 * 
+	 * @param node
+	 * @param objectMap
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private void setItemSetMetadata(Node node, Map<String, Object> objectMap) {
+		if (null != node.getMetadata()) {
+			Map<String, Object> nodeMap = new HashMap<String, Object>();
+			nodeMap = (Map) node.getMetadata();
+			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
+				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
+					LOGGER.info("Setting subType field for type from node" + entry.getKey() + entry.getValue());
+					objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
+				} else {
+					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
+				}
+			}
+			objectMap.put(ConsumerWorkflowEnums.parentid.name(), "");
+			objectMap.put(ConsumerWorkflowEnums.parenttype.name(), "");
 		}
 	}
 }

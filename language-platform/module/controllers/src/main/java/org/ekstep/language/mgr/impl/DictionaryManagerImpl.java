@@ -2295,6 +2295,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					}
 				}
 
+				//copy exampleSenteces from primary meaning to word
+				if(primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES)!=null)
+					wordRequestMap.put(ATTRIB_EXAMPLE_SENTENCES, primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES));
+				
 				Node primaryMeaningSynset = createNodeObjectForSynset(languageId, primaryMeaning, lemmaWordMap, wordIds,
 						errorMessages);
 				Response synsetResponse = createOrUpdateNode(languageId, primaryMeaningSynset);

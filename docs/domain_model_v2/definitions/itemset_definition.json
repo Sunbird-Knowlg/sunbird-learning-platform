@@ -178,7 +178,7 @@
             "Retired",
             "Mock"
           ],
-          "defaultValue": "",
+          "defaultValue": "Live",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
           "indexed": true,
           "draft": false
