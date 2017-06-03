@@ -85,7 +85,7 @@ public class ExecutionController extends BaseOrchestratorController {
 			try {
 				Map<String, Object> params = getParams(request, script, path, map);
 				LOGGER.info(script.getName() + "," + params);
-				if ("getStageIconsList_v3".equalsIgnoreCase(script.getName()) && null != params) {
+				if (null != params) {
 					LOGGER.info("URL: " + getEnvBaseUrl());
 					params.put("server_env", getEnvBaseUrl());
 				}
