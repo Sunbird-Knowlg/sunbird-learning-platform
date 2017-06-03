@@ -6,5 +6,5 @@ java::import -package com.ilimi.graph.dac.model Node
 set object_type "Channel"
 set graph_id "domain"
 
-set create_response [createObject $graph_id $api $object_type]
+set create_response [createObject $graph_id $channel $object_type]
 return $create_response

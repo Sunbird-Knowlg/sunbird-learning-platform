@@ -57,6 +57,9 @@ public class TclExecutorActor extends UntypedActor {
 				if (null != request && StringUtils.isNotBlank(request.getRequestId()))
 					ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.REQUEST_ID.getParamName(),
 							request.getRequestId());
+				if (null != request && StringUtils.isNotBlank(request.getConsumerId()))
+					ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.getParamName(),
+							request.getConsumerId());
 				if (StringUtils.equalsIgnoreCase(OrchestratorRequest.ACTION_TYPES.INIT.name(), request.getAction())) {
 					init(request.getScripts());
 					response = OK();

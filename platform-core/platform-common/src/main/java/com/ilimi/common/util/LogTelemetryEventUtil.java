@@ -108,15 +108,14 @@ public class LogTelemetryEventUtil {
 			te.setPdata("org.ekstep.platform", "", "1.0", "");
 			data.put("id", objectId);
 			data.put("parentid", metadata.get("parentid"));
-			data.put("parenttype", metadata.get("parentype"));
+			data.put("parenttype", metadata.get("parenttype"));
 			data.put("type", metadata.get("objectType"));
 			data.put("subtype", metadata.get("subtype"));
 			data.put("code", metadata.get("code"));
 			data.put("name", metadata.get("name"));
 			data.put("state", metadata.get("state"));
 			data.put("prevstate", metadata.get("prevstate"));
-			te.setEdata(data);
-			
+			te.setEdata(data);		
 			String jsonMessage = null;
 			try {
 				jsonMessage = mapper.writeValueAsString(te);

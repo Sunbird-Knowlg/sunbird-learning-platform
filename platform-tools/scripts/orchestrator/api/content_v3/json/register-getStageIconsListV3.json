@@ -1,27 +1,27 @@
 {
-    "name": "updateChannel_v3",
+    "name": "getStageIconsList_v3",
     "type": "SCRIPT",
     "parameters": [
         {
-          "name": "channel_id",
+          "name": "content_id",
           "index": 0,
           "routingParam": false
-        },
+        }, 
         {
-          "name": "channel",
-          "datatype": "java.util.Map",
+          "name": "server_env",
           "index": 1,
+	  "datatype": "java.lang.String",
           "routingParam": false
         }
     ],
     "requestPath": {
-        "type": "PATCH",
-        "url": "/v3/channel/update/*",
+        "type": "POST",
+        "url": "/v3/content/stageIcons/list/*",
         "pathParams": [
-          "api_id"
+          "content_id"
         ]
     },
     "body": "",
-    "apiId": "ekstep.channel.update",
+    "apiId": "ekstep.stageIcons.list",
     "version": "3.0"
 }

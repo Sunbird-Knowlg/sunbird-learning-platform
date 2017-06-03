@@ -1,8 +1,22 @@
 package org.ekstep.content.operation.finalizer;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +35,7 @@ import org.ekstep.content.pipeline.BasePipeline;
 import org.ekstep.content.util.ECRFToJSONConvertor;
 import org.ekstep.content.util.ECRFToXMLConvertor;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.model.Node;
@@ -95,13 +110,132 @@ public class BaseFinalizer extends BasePipeline {
 						}
 					}
 				}
+				
+				
+				String[] stageIconsStr = (String[]) node.getMetadata()
+						.get(ContentWorkflowPipelineParams.screenshots.name());
+				List<String> stageIcons = Arrays.asList(stageIconsStr);
+				LOGGER.info("Processing Stage Icons"+ stageIcons);
+				String path = basePath + File.separator + ContentWorkflowPipelineParams.screenshots.name();
+				if (null != stageIcons && !stageIcons.isEmpty()) {
+					List<String> stageIconsS3Url = new ArrayList<>();
+					for (String stageIcon : stageIcons) {
+						if(!isS3Url(stageIcon)){
+							stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
+						} else {
+							stageIconsS3Url.add(stageIcon);
+						}
+					}
+					node.getMetadata().put(ContentWorkflowPipelineParams.screenshots.name(), stageIconsS3Url);
+				}
+
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.APP_ICON_DOWNLOAD_ERROR
 							+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]",
 					e);
 		}
+	}
+	
+	private boolean isS3Url(String url){
+		if (null != url) {
+			try {
+				new URL(url.toString());
+				if(StringUtils.containsIgnoreCase(url, "s3") && StringUtils.containsIgnoreCase(url, "ekstep-public")){
+					return true;
+				}
+			} catch (MalformedURLException e) {
+				return false;
+			}
+			return false;
+		} else {
+			return false;
+		}
+	}
+	
+	private File downloadStageIconFiles(String basePath, String stageIconFile, String stageIconId) {
+		File file = null;
+		try {
+			LOGGER.info("Downloading stageIcons");
+			String base64Image = stageIconFile.split(",")[1];
+			String mimeType = stageIconFile.split(";")[0];
+			mimeType = mimeType.split(":")[1]; 
+			mimeType = mimeType.split("/")[1];
+			byte[] imageBytes = Base64.decodeBase64(base64Image);
+			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+			if(null == stageIconId){
+				stageIconId = "stage.png";
+				mimeType = ".png";
+			} else {
+				stageIconId = stageIconId + "." + mimeType;
+			}
+			File saveFile = new File(basePath);
+			if (!saveFile.exists()) {
+				saveFile.mkdirs();
+			}
+			file = new File(basePath + File.separator + stageIconId);
+			
+			ImageIO.write(bufferedImage, mimeType , file);
+			LOGGER.info("StageIcon Downloaded File " + stageIconId);
+		} catch (Exception e) {
+			LOGGER.error("Something went wrong when downloading base64 image" + e.getMessage());
+			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
+					ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR + " | [Unable to Upload File.]");
+		}
+		return file;
+	}
+
+	@SuppressWarnings("unchecked")
+	private String getThumbnailFiles(String basePath, Node node, String stageIconFile) {
+		String thumbUrl = "";
+		String stageIconId = null;
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			if (stageIconFile.contains("http")) {
+				stageIconFile = StringUtils.removeEnd(stageIconFile, "?format=base64");
+				stageIconId = stageIconFile.substring((stageIconFile.indexOf("/stage") + 7), stageIconFile.length());
+			}
+			HttpURLConnection httpConn = null;
+			LOGGER.info("Start Downloading for File: " + stageIconId);
+
+			URL url = new URL(stageIconFile);
+			httpConn = (HttpURLConnection) url.openConnection();
+			int responseCode = httpConn.getResponseCode();
+			LOGGER.info("Response Code: " + responseCode);
+
+			// always check HTTP response code first
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				LOGGER.info("Response is OK.");
+				BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
+				StringBuilder sb = new StringBuilder();
+				String output;
+				while ((output = br.readLine()) != null) {
+					sb.append(output);
+				}
+				String result = sb.toString();
+				Map<String,Object> dataMap = mapper.readValue(result, Map.class);
+				dataMap = (Map<String, Object>) dataMap.get("result");
+				String base64Data = (String) dataMap.get("result");
+				File stageIcon = downloadStageIconFiles(basePath, base64Data, stageIconId);
+				if (stageIcon.exists()) {
+					LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
+					String folderName = S3PropertyReader.getProperty(s3Artifact) + "/" + ContentWorkflowPipelineParams.screenshots.name();
+					String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
+					if (null != urlArray && urlArray.length >= 2) {
+						thumbUrl = urlArray[IDX_S3_URL];
+					}
+					stageIcon.delete();
+					LOGGER.info("Deleted local Thumbnail file");
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error! While Processing the StageIcon File.", e);
+			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
+					ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | [Unable to Upload File.]");
+		}
+		return thumbUrl;
 	}
 	
 	/**
