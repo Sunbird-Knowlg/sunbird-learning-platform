@@ -59,6 +59,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_NODE + " | [Upsert Node Operation Failed.]");
 		
 		LOGGER.debug("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
+		node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
 		authorizationValidator.validateAuthorization(graphId, node, request);
 		LOGGER.debug("Consumer is Authorized for Node Id: " + node.getIdentifier());
 		
@@ -127,6 +128,9 @@ public class Neo4JBoltNodeOperations {
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
 			node.setGraphId(graphId);
+			
+			LOGGER.info("Adding Consumer Identifer.");
+			node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
 
 			LOGGER.debug("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -183,6 +187,11 @@ public class Neo4JBoltNodeOperations {
 		if (null == node)
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 					DACErrorMessageConstants.INVALID_NODE + " | [Update Node Operation Failed.]");
+		
+		LOGGER.debug("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
+		authorizationValidator.validateAuthorization(graphId, node, request);
+		node.getMetadata().remove(GraphDACParams.consumerId.name());
+		LOGGER.debug("Consumer is Authorized for Node Id: " + node.getIdentifier());
 		
 		LOGGER.debug("Validating the Update Operation for Node Id: " + node.getIdentifier());
 		versionValidator.validateUpdateOperation(graphId, node);
@@ -481,6 +490,18 @@ public class Neo4JBoltNodeOperations {
 			return value.asRelationship();
 		}
 		return value.asObject();
+	}
+	
+	private String getConsumerId(Request request) {
+		String consumerId = "";
+		try {
+		if (null != request && null != request.getContext()) {
+			consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
+		}
+		} catch (Exception e) {
+			LOGGER.error("Error! While Fetching the Consumer Id From Request.", e);
+		}
+		return consumerId;
 	}
 
 }

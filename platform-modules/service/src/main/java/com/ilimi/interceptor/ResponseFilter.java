@@ -17,6 +17,7 @@ import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
 
 import com.ilimi.common.dto.ExecutionContext;
+import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.logger.LogHelper;
 
 public class ResponseFilter implements Filter {
@@ -37,7 +38,7 @@ public class ResponseFilter implements Filter {
 		boolean isMultipart = (httpRequest.getHeader("content-type") != null
 				&& httpRequest.getHeader("content-type").indexOf("multipart/form-data") != -1);
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
-		ExecutionContext.getCurrent().getGlobalContext().put("CONSUMER_ID", consumerId);
+		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()

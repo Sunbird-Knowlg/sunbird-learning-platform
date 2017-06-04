@@ -59,6 +59,10 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 				
 				if (!StringUtils.equals(consumerId, neo4jNodeConsumerId))
 					isAuthorized = false;
+			} else {
+				// Setting the 'consumerId' for node since node doesn't exist in Neo4J
+				LOGGER.info("Setting the 'consumerId' Property Since it's a node creation operation.");
+				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
 			}
 
 		}
