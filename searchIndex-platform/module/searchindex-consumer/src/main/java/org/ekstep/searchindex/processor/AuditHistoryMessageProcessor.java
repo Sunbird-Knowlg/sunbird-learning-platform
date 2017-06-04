@@ -113,8 +113,9 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			record.setGraphId((String) transactionDataMap.get("graphId"));
 			record.setOperation((String) transactionDataMap.get("operationType"));
 			record.setLabel((String) transactionDataMap.get("label"));
-			Map<String,Object> transactionData = setLogRecordData(transactionDataMap);
-			String transactionDataStr = mapper.writeValueAsString(transactionData);
+			String transactionDataStr = mapper.writeValueAsString(transactionDataMap.get("transactionData"));
+//			Map<String,Object> transactionData = setLogRecordData(transactionDataMap);
+//			String transactionDataStr = mapper.writeValueAsString(transactionData);
 			record.setLogRecord(transactionDataStr);
 			String summary = setSummaryData(transactionDataMap);
 			record.setSummary(summary);
@@ -129,22 +130,22 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		return record;
 	}
 
-	@SuppressWarnings("unchecked")
-	private Map<String,Object> setLogRecordData(Map<String, Object> transactionDataMap) {
-		Map<String,Object> newPropertiesMap = new HashMap<String,Object>();
-		Map<String,Object> transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
-		LOGGER.info("Fetching transactionData from transactionMap");
-		Map<String,Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
-		for(Entry <String, Object> entry: propertiesMap.entrySet()){
-			LOGGER.info("Checking if entry is a systemProperty :" + entry.getKey());
-			if(!SystemProperties.isSystemProperty(entry.getKey())){
-				newPropertiesMap.put(entry.getKey(), entry.getValue());
-			}
-		}
-		transactionMap.replace("properties", newPropertiesMap);
-		transactionDataMap.replace("transactionData", transactionMap);
-		return transactionDataMap;
-	}
+//	@SuppressWarnings("unchecked")
+//	private Map<String,Object> setLogRecordData(Map<String, Object> transactionDataMap) {
+//		Map<String,Object> newPropertiesMap = new HashMap<String,Object>();
+//		Map<String,Object> transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
+//		LOGGER.info("Fetching transactionData from transactionMap");
+//		Map<String,Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
+//		for(Entry <String, Object> entry: propertiesMap.entrySet()){
+//			LOGGER.info("Checking if entry is a systemProperty :" + entry.getKey());
+//			if(!SystemProperties.isSystemProperty(entry.getKey())){
+//				newPropertiesMap.put(entry.getKey(), entry.getValue());
+//			}
+//		}
+//		transactionMap.replace("properties", newPropertiesMap);
+//		transactionDataMap.replace("transactionData", transactionMap);
+//		return transactionDataMap;
+//	}
 
 	/** 
 	 * This method setSummaryData sets the required summaryData from the transaction message 
