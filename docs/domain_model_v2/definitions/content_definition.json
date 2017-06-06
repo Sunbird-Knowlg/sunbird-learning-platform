@@ -142,7 +142,7 @@
         },
         {
           "required": false,
-          "dataType": "Select",
+          "dataType": "List",
           "propertyName": "audience",
           "title": "Audience",
           "description": "The target audience of the Content",
@@ -1994,19 +1994,6 @@
           "description": "",
           "category": "Flagging",
           "dataType": "Date",
-          "range": [],
-          "required": false,
-          "indexed": true,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{}"
-        },
-        {
-          "propertyName": "screenshots",
-          "title": "Property to store screenShots",
-          "description": "",
-          "category": "General",
-          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": true,

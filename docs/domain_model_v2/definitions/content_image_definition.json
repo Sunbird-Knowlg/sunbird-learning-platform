@@ -142,7 +142,7 @@
         },
         {
           "required": false,
-          "dataType": "Select",
+          "dataType": "List",
           "propertyName": "audience",
           "title": "Audience",
           "description": "The target audience of the Content",
@@ -1193,19 +1193,6 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
-        },
-        {
-          "propertyName": "screenshots",
-          "title": "Property to store screenShots",
-          "description": "",
-          "category": "General",
-          "dataType": "List",
-          "range": [],
-          "required": false,
-          "indexed": true,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{}"
         },
         {
           "required": false,
