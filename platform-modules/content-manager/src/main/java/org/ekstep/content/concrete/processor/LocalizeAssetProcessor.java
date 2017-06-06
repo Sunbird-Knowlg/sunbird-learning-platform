@@ -250,15 +250,13 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		if (StringUtils.isNotBlank(src)) {
 			String env = S3PropertyReader.getProperty("s3.env");
 			String prefix = "";
-			if (StringUtils.equalsIgnoreCase("prod", env))
-				prefix = "https://community.ekstep.in";
-			else if (StringUtils.equalsIgnoreCase("qa", env))
-				prefix = "https://qa.ekstep.in";
-			else
-				prefix = "https://dev.ekstep.in";
+			LOGGER.info("Fetching s3 url from properties file fro environment:" + env);
+			prefix = S3PropertyReader.getProperty("s3.url."+env);
+			LOGGER.info("Fetching envioronment URL from properties file" + prefix);
 			if (!src.startsWith("http"))
 				src = prefix + src;
 		}
+		LOGGER.info("Returning src url" + src);
 		return src;
 	}
 
