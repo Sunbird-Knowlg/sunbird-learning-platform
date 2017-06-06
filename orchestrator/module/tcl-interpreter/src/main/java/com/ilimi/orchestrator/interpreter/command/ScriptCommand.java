@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.ScriptParams;
@@ -67,14 +69,25 @@ public class ScriptCommand extends BaseSystemCommand implements Command {
             request.setAction(OrchestratorRequest.ACTION_TYPES.EXECUTE.name());
             request.setScript(this.self);
             request.setParams(params);
-            Future<Object> future = Patterns.ask(actorRef, request, AkkaRequestRouter.timeout);
-            Object result = Await.result(future, AkkaRequestRouter.WAIT_TIMEOUT.duration());
-            Response res = (Response) result;
-            Response response = new Response();
-            response.setParams(res.getParams());
-            response.setResponseCode(res.getResponseCode());
-            response.setId(res.getId());
-            response.getResult().putAll(res.getResult());
+            Response response;
+			if (null != this.self.getAsync() && this.self.getAsync().booleanValue()){
+				actorRef.tell(request, actorRef);
+				response = new Response();
+	            ResponseParams param = new ResponseParams();
+	            param.setErr("0");
+	            param.setStatus(StatusType.successful.name());
+	            response.setParams(param);
+			}else {
+	            Future<Object> future = Patterns.ask(actorRef, request, AkkaRequestRouter.timeout);
+	            Object result = Await.result(future, AkkaRequestRouter.WAIT_TIMEOUT.duration());
+	            Response res = (Response) result;
+	            response = new Response();
+	            response.setParams(res.getParams());
+	            response.setResponseCode(res.getResponseCode());
+	            response.setId(res.getId());
+	            response.getResult().putAll(res.getResult());
+			}
+
             TclObject tclResp = ReflectObject.newInstance(interp, response.getClass(), response);
             interp.setResult(tclResp);
         } catch (Exception e) {
