@@ -111,24 +111,32 @@ public class BaseFinalizer extends BasePipeline {
 					}
 				}
 				
-				
-				String[] stageIconsStr = (String[]) node.getMetadata()
-						.get(ContentWorkflowPipelineParams.screenshots.name());
-				List<String> stageIcons = Arrays.asList(stageIconsStr);
-				LOGGER.info("Processing Stage Icons"+ stageIcons);
-				String path = basePath + File.separator + ContentWorkflowPipelineParams.screenshots.name();
-				if (null != stageIcons && !stageIcons.isEmpty()) {
-					List<String> stageIconsS3Url = new ArrayList<>();
-					for (String stageIcon : stageIcons) {
-						if(!isS3Url(stageIcon)){
-							stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
-						} else {
-							stageIconsS3Url.add(stageIcon);
+				try {
+					String[] stageIconsStr = (String[]) node.getMetadata()
+							.get(ContentWorkflowPipelineParams.screenshots.name());
+					if (null != stageIconsStr) {
+						List<String> stageIcons = Arrays.asList(stageIconsStr);
+						LOGGER.info("Processing Stage Icons" + stageIcons);
+						String path = basePath + File.separator + ContentWorkflowPipelineParams.screenshots.name();
+						if (null != stageIcons && !stageIcons.isEmpty()) {
+							List<String> stageIconsS3Url = new ArrayList<>();
+							for (String stageIcon : stageIcons) {
+								if (!isS3Url(stageIcon)) {
+									stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
+								} else {
+									stageIconsS3Url.add(stageIcon);
+								}
+							}
+							node.getMetadata().put(ContentWorkflowPipelineParams.screenshots.name(), stageIconsS3Url);
 						}
 					}
-					node.getMetadata().put(ContentWorkflowPipelineParams.screenshots.name(), stageIconsS3Url);
+				} catch (Exception e) {
+					LOGGER.error(e.getMessage());
+					throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
+							ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR
+									+ " | [Unable to Stage Icon for Content Id: '" + node.getIdentifier() + "' ]",
+							e);
 				}
-
 			}
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage());
