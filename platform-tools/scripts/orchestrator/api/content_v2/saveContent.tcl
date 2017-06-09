@@ -13,7 +13,7 @@ proc proc_isEmpty {value} {
 			set exist true
 		} else {
 			set strValue [$value toString]
-			set newStrValue [java::new String $strValue] 
+			set newStrValue [java::new String $strValue]
 			set strLength [$newStrValue length]
 			if {$strLength == 0} {
 				set exist true
@@ -52,17 +52,19 @@ if {$object_null == 1} {
 	set osId_Error false
 	set contentType [$content get "contentType"]
 	set contentTypeEmpty [proc_isEmpty $contentType]
-	if {!$contentTypeEmpty} {
+	if {!$mimeTypeEmpty} {
 		set osId [$content get "osId"]
 		set osIdEmpty [proc_isEmpty $osId]
-		set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Game"]
+		set osIdCheck [[java::new String [$mimeType toString]] equalsIgnoreCase "application/vnd.android.package-archive"]
 		if {$osIdCheck == 1 && $osIdEmpty} {
 			set osId_Error false
 		}
 
-		set textbookUnitCheck [[java::new String [$contentType toString]] equalsIgnoreCase "TextBookUnit"]
-		if {$textbookUnitCheck == 1} {
-			$content put "visibility" "Parent"
+		if {!$contentTypeEmpty} {
+			set textbookUnitCheck [[java::new String [$contentType toString]] equalsIgnoreCase "TextBookUnit"]
+			if {$textbookUnitCheck == 1} {
+				$content put "visibility" "Parent"
+			}
 		}
 
 		if {$osId_Error} {
@@ -92,7 +94,7 @@ if {$object_null == 1} {
 				$content put "stageIcons" [java::null]
 				$externalProps put "stageIcons" $stageIcons
 			}
-			
+
 			set codeValidationFailed 0
 			if {!$mimeTypeEmpty} {
 				set isPluginMimeType [[java::new String [$mimeType toString]] equalsIgnoreCase "application/vnd.ekstep.plugin-archive"]
@@ -137,8 +139,8 @@ if {$object_null == 1} {
 		}
 	} else {
 		set result_map [java::new HashMap]
-		$result_map put "code" "ERR_CONTENT_INVALID_CONTENT_TYPE"
-		$result_map put "message" "Content Type cannot be empty"
+		$result_map put "code" "ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE"
+		$result_map put "message" "Mime Type cannot be empty"
 		$result_map put "responseCode" [java::new Integer 400]
 		set response_list [create_error_response $result_map]
 		return $response_list
