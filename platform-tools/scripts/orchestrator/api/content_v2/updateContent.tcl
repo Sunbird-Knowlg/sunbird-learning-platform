@@ -192,11 +192,11 @@ if {$object_null == 1} {
 					if {$isImageObjectCreationNeeded == 1} {
 						java::prop $graph_node "identifier" $content_image_id	
 						java::prop $graph_node "objectType" $content_image_object_type
-						if {$isFlaggedState == 1} {
-							$metadata put "status" "FlagDraft"	
-						} else {
+						#if {$isFlaggedState == 1} {
+							#$metadata put "status" "FlagDraft"	
+						#} else {
 							$metadata put "status" "Draft"
-						}
+						#}
 						set lastUpdatedBy [$content get "lastUpdatedBy"]
 						set isLastUpdateNotNull [proc_isNotNull $lastUpdatedBy]
                         if {$isLastUpdateNotNull} {

@@ -9,7 +9,7 @@ set object_type "Content"
 set resp_get_node [getDataNode $graph_id $content_id]
 set check_error [check_response_error $resp_get_node]
 if {$check_error} {
-	return $resp_get_node;
+	return $resp_get_node
 } else {
 	set graph_node [get_resp_value $resp_get_node "node"]
 	set node_object_type [java::prop $graph_node "objectType"]
@@ -29,19 +29,7 @@ if {$check_error} {
 			set def_node [get_resp_value $resp_def_node "definition_node"]
 			set domain_obj [convert_to_graph_node $request $def_node]
 			set create_response [updateDataNode $graph_id $content_id $domain_obj]
-                        
-                        set content_image_id ${content_id}.img
- 			set resp_get_node [getDataNode $graph_id $content_image_id]
- 			if {$check_error} {
- 			} else {
- 				set image_node [get_resp_value $resp_get_node "node"]
- 				set image_metadata [java::prop $image_node "metadata"]
-				set check_error [check_response_error $resp_get_node]
- 				$image_metadata put "status" "Draft"
- 				set create_image_response [updateDataNode $graph_id $content_image_id $image_node]
-			}
-			return $create_response
-
+                        return $create_response
 		} else {
 			set result_map [java::new HashMap]
 			$result_map put "code" "ERR_CONTENT_NOT_FLAGGED"

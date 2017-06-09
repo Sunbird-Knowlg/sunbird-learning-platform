@@ -118,25 +118,18 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
-
-								LOGGER.info("Cropping img part from node_id" + node_id);
-								String imageId = node_id.replace(".img", "");
-								Node imageNode = util.getNode(ConsumerWorkflowEnums.domain.name(), imageId);
-								String node_status = (String) imageNode.getMetadata()
-										.get(ConsumerWorkflowEnums.status.name());
-
-								LOGGER.info("Checking if node_status is flagged" + node_status);
-								if (StringUtils.equalsIgnoreCase(node_status, ConsumerWorkflowEnums.Flagged.name())) {
+								objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
+										ConsumerWorkflowEnums.Live.name());
+								objectMap.put(ConsumerWorkflowEnums.state.name(),
+										ConsumerWorkflowEnums.Draft.name());
+							} else if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
+									&& StringUtils.equalsIgnoreCase(prevstate, null)
+									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.FlagDraft.name())){
+								
 									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
 											ConsumerWorkflowEnums.Flagged.name());
 									objectMap.put(ConsumerWorkflowEnums.state.name(),
 											ConsumerWorkflowEnums.FlagDraft.name());
-								} else {
-									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
-											ConsumerWorkflowEnums.Live.name());
-									objectMap.put(ConsumerWorkflowEnums.state.name(),
-											ConsumerWorkflowEnums.Draft.name());
-								}
 							}
 							if (null == prevstate) {
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), "");
@@ -350,6 +343,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 						LOGGER.info("Setting subType field form contentType " + entry.getKey() + entry.getValue());
 						objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
 					}
+				}else {
+					LOGGER.info("Setting subType as empty as contentType is null");
+					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 				}
 			}
 		}
