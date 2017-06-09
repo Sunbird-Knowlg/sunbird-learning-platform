@@ -118,6 +118,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
+								LOGGER.info("Setting status for content Image created" + prevstate + state);
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
 										ConsumerWorkflowEnums.Live.name());
 								objectMap.put(ConsumerWorkflowEnums.state.name(),
@@ -125,12 +126,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							} else if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.FlagDraft.name())){
-								
+								LOGGER.info("Setting status for content Flag Image created" + prevstate + state);
 									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
 											ConsumerWorkflowEnums.Flagged.name());
 									objectMap.put(ConsumerWorkflowEnums.state.name(),
 											ConsumerWorkflowEnums.FlagDraft.name());
 							}
+							LOGGER.info("Checking if prevState is null "+ prevstate);
 							if (null == prevstate) {
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), "");
 							} else {
