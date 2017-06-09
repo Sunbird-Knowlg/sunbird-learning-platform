@@ -123,7 +123,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 										ConsumerWorkflowEnums.Live.name());
 								objectMap.put(ConsumerWorkflowEnums.state.name(),
 										ConsumerWorkflowEnums.Draft.name());
-							} else if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name() + objectType)
+							} else if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.FlagDraft.name())){
 								LOGGER.info("Setting status for content Flag Image created" + prevstate + state);
