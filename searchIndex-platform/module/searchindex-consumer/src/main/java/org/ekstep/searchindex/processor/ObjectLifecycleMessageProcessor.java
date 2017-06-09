@@ -316,14 +316,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		if (null != node.getMetadata()) {
 			Map<String, Object> nodeMap = new HashMap<String, Object>();
 			nodeMap = (Map) node.getMetadata();
-			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-				if (entry.getKey().equals(ConsumerWorkflowEnums.contentType.name())) {
-					if (entry.getValue().equals(ConsumerWorkflowEnums.Asset.name())) {
-						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
-						objectMap.put(ConsumerWorkflowEnums.objectType.name(), entry.getValue());
+			if(null != nodeMap && nodeMap.containsKey("contentType")){
+					if (nodeMap.containsValue("Asset")) {
+						LOGGER.info("Setting subtype field from mediaType" + nodeMap.get("contentType"));
+						objectMap.put(ConsumerWorkflowEnums.objectType.name(),nodeMap.get("contentType"));
 						objectMap.put(ConsumerWorkflowEnums.subtype.name(),
 								nodeMap.get(ConsumerWorkflowEnums.mediaType.name()));
-					} else if (entry.getValue().equals(ConsumerWorkflowEnums.Plugin.name())) {
+					} else if (nodeMap.containsValue("Plugin")) {
 						LOGGER.info("Checking if node contains category in it"
 								+ nodeMap.containsKey(ConsumerWorkflowEnums.category.name()));
 						if (nodeMap.containsKey(ConsumerWorkflowEnums.category.name())) {
@@ -337,19 +336,17 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							objectMap.put(ConsumerWorkflowEnums.objectType.name(), ConsumerWorkflowEnums.Plugin.name());
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), subtype);
 						} else {
-							LOGGER.info("Setting empty subType for plugins without category " + entry.getKey()
-									+ entry.getValue());
+							LOGGER.info("Setting empty subType for plugins without category " + nodeMap.get("contentType"));
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 						}
 					} else {
-						LOGGER.info("Setting subType field form contentType " + entry.getKey() + entry.getValue());
-						objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
+						LOGGER.info("Setting subType field form contentType " + nodeMap.get("contentType"));
+						objectMap.put(ConsumerWorkflowEnums.subtype.name(), nodeMap.get("contentType"));
 					}
-				}else {
+				} else {
 					LOGGER.info("Setting subType as empty as contentType is null");
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 				}
-			}
 		}
 		LOGGER.info("Checking if objectType content has inRelations" + node.getInRelations());
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
