@@ -86,7 +86,7 @@ set specialChar {.*\[`~!@#$%^&*()_=+\\\[\\\]\{\}|\\\\;:'\",<.>/?-\].*}
 set specialCharEsc [subst -nocommands -novariables $specialChar ]
 
 set specialCharPattern [java::call Pattern compile $specialCharEsc]
-puts "specialCharPattern [$specialCharPattern toString]"
+#puts "specialCharPattern [$specialCharPattern toString]"
 
 while {$continue} {
 	

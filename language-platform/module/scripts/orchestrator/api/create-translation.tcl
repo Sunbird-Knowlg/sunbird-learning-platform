@@ -103,7 +103,6 @@ java::for {String translationKey} [$translations keySet] {
 		$graph_synset_list add $proxy_id
 	}
 	}
-	
 	java::for {String synset_id} $synset_list {
 		if {![$graph_synset_list contains $synset_id]} {
 			set resp_def_node [getDefinition $graph_id $proxyType]
@@ -195,14 +194,6 @@ java::for {String translationKey} [$translations keySet] {
 	}
 }
 
-set get_node_response [getDataNode $language_id $node_id]
-set get_node_response_error [check_response_error $get_node_response]
-if {$get_node_response_error} {
-	return $get_node_response
-}
-
-set word_node [get_resp_value $get_node_response "node"]
-set eventResp [log_translation_lifecycle_event $word_id $word_node]
 set resultSize [$result_map size] 
 set setListSize [$set_list size] 
 
@@ -213,6 +204,3 @@ if {$setListSize > 0} {
 } else {
 	return $searchResponse
 }
-
-
-
