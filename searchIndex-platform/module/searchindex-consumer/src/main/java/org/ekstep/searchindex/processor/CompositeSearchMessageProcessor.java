@@ -34,6 +34,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			});
 			Object index = message.get("index");
 			Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
+			LOGGER.info("Checking condition if the message should be indexed or not" + message.containsKey("index"));
 			if(!BooleanUtils.isFalse(shouldindex)){
 				processMessage(message);
 			}
