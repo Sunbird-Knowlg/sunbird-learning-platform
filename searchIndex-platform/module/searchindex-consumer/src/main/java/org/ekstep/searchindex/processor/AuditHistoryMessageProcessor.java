@@ -83,7 +83,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 				+ message.get("nodeUniqueId") + " | Graph: " + message.get("graphId") + " | Operation: "
 				+ message.get("operationType"));
 		Object audit = message.get("audit");
-		Boolean shouldAudit = BooleanUtils.toBoolean(null == audit ? "false" : audit.toString());
+		Boolean shouldAudit = BooleanUtils.toBoolean(null == audit ? "true" : audit.toString());
 		if (message != null && message.get("operationType") != null && null == message.get("syncMessage") && !BooleanUtils.isFalse(shouldAudit)) {
 				AuditHistoryRecord record = getAuditHistory(message);
 				LOGGER.info("Sending AuditHistoryRecord to audit History manager" + record);

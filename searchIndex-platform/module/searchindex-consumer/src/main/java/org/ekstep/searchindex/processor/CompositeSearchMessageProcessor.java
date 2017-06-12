@@ -33,7 +33,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			Object index = message.get("index");
-			Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "false" : index.toString());
+			Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
 			if(!BooleanUtils.isFalse(shouldindex)){
 				processMessage(message);
 			}
