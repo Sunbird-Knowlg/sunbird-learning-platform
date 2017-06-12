@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -81,10 +82,12 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		LOGGER.info("Processing audit history message: Object Type: " + message.get("objectType") + " | Identifier: "
 				+ message.get("nodeUniqueId") + " | Graph: " + message.get("graphId") + " | Operation: "
 				+ message.get("operationType"));
-		if (message != null && message.get("operationType") != null && null == message.get("syncMessage")) {
-			AuditHistoryRecord record = getAuditHistory(message);
-			LOGGER.info("Sending AuditHistoryRecord to audit History manager" + record);
-			manager.saveAuditHistory(record);
+		Object audit = message.get("audit");
+		Boolean shouldAudit = BooleanUtils.toBoolean(null == audit ? "false" : audit.toString());
+		if (message != null && message.get("operationType") != null && null == message.get("syncMessage") && !BooleanUtils.isFalse(shouldAudit)) {
+				AuditHistoryRecord record = getAuditHistory(message);
+				LOGGER.info("Sending AuditHistoryRecord to audit History manager" + record);
+				manager.saveAuditHistory(record);
 		}
 	}
 
