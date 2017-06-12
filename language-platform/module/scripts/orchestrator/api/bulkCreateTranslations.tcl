@@ -179,7 +179,7 @@ proc addPrimaryMeaning {language_id wordId synsetId update} {
 	}
 
 	set words [java::new ArrayList]
-	$words add #wordId
+	$words add $wordId
 	set enrich [enrichWords $language_id $words]
 
 	return [java::null]
