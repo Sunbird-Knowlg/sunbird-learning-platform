@@ -21,7 +21,7 @@ public class LogAsyncGraphEvent {
 		for (Map<String, Object> message : messages) {
 			try{
 				String jsonMessage = mapper.writeValueAsString(message);
-				LOGGER.info("Logging kafka message to graph_event.log"+ message);
+				LOGGER.info("Logging kafka message to graph_event.log"+ jsonMessage);
 				if (StringUtils.isNotBlank(jsonMessage))
 					graphEventLogger.info(jsonMessage);
 			}catch(Exception e){
