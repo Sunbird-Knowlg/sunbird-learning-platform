@@ -113,37 +113,35 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							}
 							String node_id = node.getIdentifier();
 							String objectType = node.getObjectType();
-
-							LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state);
-							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
-									&& StringUtils.equalsIgnoreCase(prevstate, null)
-									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
-
-								LOGGER.info("Cropping img part from node_id" + node_id);
-								String imageId = node_id.replace(".img", "");
-								Node imageNode = util.getNode(ConsumerWorkflowEnums.domain.name(), imageId);
-								String node_status = (String) imageNode.getMetadata()
-										.get(ConsumerWorkflowEnums.status.name());
-
-								LOGGER.info("Checking if node_status is flagged" + node_status);
-								if (StringUtils.equalsIgnoreCase(node_status, ConsumerWorkflowEnums.Flagged.name())) {
-									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
-											ConsumerWorkflowEnums.Flagged.name());
-									objectMap.put(ConsumerWorkflowEnums.state.name(),
-											ConsumerWorkflowEnums.FlagDraft.name());
-								} else {
-									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
-											ConsumerWorkflowEnums.Live.name());
-									objectMap.put(ConsumerWorkflowEnums.state.name(),
-											ConsumerWorkflowEnums.Draft.name());
-								}
-							}
+							
+							LOGGER.info("Checking if prevState is null "+ prevstate);
 							if (null == prevstate) {
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), "");
 							} else {
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), prevstate);
 							}
 							objectMap.put(ConsumerWorkflowEnums.state.name(), state);
+							
+							
+							LOGGER.info("prevstate of object:" + prevstate + "currentstate of object:" + state + objectType);
+							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
+									&& StringUtils.equalsIgnoreCase(prevstate, null)
+									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
+								LOGGER.info("Setting status for content Image created" + prevstate + state);
+								objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
+										ConsumerWorkflowEnums.Live.name());
+								objectMap.put(ConsumerWorkflowEnums.state.name(),
+										ConsumerWorkflowEnums.Draft.name());
+							} else if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
+									&& StringUtils.equalsIgnoreCase(prevstate, null)
+									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.FlagDraft.name())){
+								LOGGER.info("Setting status for content Flag Image created" + prevstate + state);
+									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
+											ConsumerWorkflowEnums.Flagged.name());
+									objectMap.put(ConsumerWorkflowEnums.state.name(),
+											ConsumerWorkflowEnums.FlagDraft.name());
+							}
+							
 							if (StringUtils.endsWithIgnoreCase(node_id, ".img")
 									&& StringUtils.endsWithIgnoreCase(objectType, ConsumerWorkflowEnums.Image.name())) {
 								LOGGER.info("Setting nodeId and objectType" + node_id + objectType);
@@ -321,14 +319,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		if (null != node.getMetadata()) {
 			Map<String, Object> nodeMap = new HashMap<String, Object>();
 			nodeMap = (Map) node.getMetadata();
-			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-				if (entry.getKey().equals(ConsumerWorkflowEnums.contentType.name())) {
-					if (entry.getValue().equals(ConsumerWorkflowEnums.Asset.name())) {
-						LOGGER.info("Setting subtype field from mediaType" + entry.getKey() + entry.getValue());
-						objectMap.put(ConsumerWorkflowEnums.objectType.name(), entry.getValue());
+			if(null != nodeMap && nodeMap.containsKey("contentType")){
+					if (nodeMap.containsValue("Asset")) {
+						LOGGER.info("Setting subtype field from mediaType" + nodeMap.get("contentType"));
+						objectMap.put(ConsumerWorkflowEnums.objectType.name(),nodeMap.get("contentType"));
 						objectMap.put(ConsumerWorkflowEnums.subtype.name(),
 								nodeMap.get(ConsumerWorkflowEnums.mediaType.name()));
-					} else if (entry.getValue().equals(ConsumerWorkflowEnums.Plugin.name())) {
+					} else if (nodeMap.containsValue("Plugin")) {
 						LOGGER.info("Checking if node contains category in it"
 								+ nodeMap.containsKey(ConsumerWorkflowEnums.category.name()));
 						if (nodeMap.containsKey(ConsumerWorkflowEnums.category.name())) {
@@ -342,16 +339,17 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							objectMap.put(ConsumerWorkflowEnums.objectType.name(), ConsumerWorkflowEnums.Plugin.name());
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), subtype);
 						} else {
-							LOGGER.info("Setting empty subType for plugins without category " + entry.getKey()
-									+ entry.getValue());
+							LOGGER.info("Setting empty subType for plugins without category " + nodeMap.get("contentType"));
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 						}
 					} else {
-						LOGGER.info("Setting subType field form contentType " + entry.getKey() + entry.getValue());
-						objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
+						LOGGER.info("Setting subType field form contentType " + nodeMap.get("contentType"));
+						objectMap.put(ConsumerWorkflowEnums.subtype.name(), nodeMap.get("contentType"));
 					}
+				} else {
+					LOGGER.info("Setting subType as empty as contentType is null");
+					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 				}
-			}
 		}
 		LOGGER.info("Checking if objectType content has inRelations" + node.getInRelations());
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {

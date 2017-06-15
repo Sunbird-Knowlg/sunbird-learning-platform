@@ -1,5 +1,9 @@
 package org.ekstep.contentstore.util;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,12 +11,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.LogHelper;
@@ -20,6 +27,10 @@ import com.ilimi.common.logger.LogHelper;
 public class ContentStoreUtil {
 
 	private static final String PROPERTY_SUFFIX = "__txt";
+	
+	static ObjectMapper mapper = new ObjectMapper();
+	static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	
 	
 	/** The Logger object. */
 	private static LogHelper LOGGER = LogHelper.getInstance(ContentStoreUtil.class.getName());
@@ -102,13 +113,18 @@ public class ContentStoreUtil {
 		BoundStatement bound = ps.bind(value, contentId);
 		try {
 			session.execute(bound);
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put(property, value);
+			List<Map<String, Object>> nodeMessage = createKafkaMessage(contentId, map);
+			LOGGER.info("Logging event to kafka on body changes" + nodeMessage);
+			LogAsyncGraphEvent.pushMessageToLogger(nodeMessage);
 		} catch (Exception e) {
 			LOGGER.error("Error! Executing Update Content Property.", e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
 					"Error updating property in Content Store.");
 		}
 	}
-	
+
 	public static void updateContentProperties(String contentId, Map<String, Object> map) {
 		LOGGER.info("UpdateContentProperties | Content: " + contentId + " | Properties: " + map);
 		Session session = CassandraConnector.getSession();
@@ -132,6 +148,9 @@ public class ContentStoreUtil {
 		BoundStatement bound = ps.bind(values);
 		try {
 			session.execute(bound);
+			List<Map<String, Object>> nodeMessage = createKafkaMessage(contentId, map);
+			LOGGER.info("Logging event to kafka on body change" + nodeMessage);
+			LogAsyncGraphEvent.pushMessageToLogger(nodeMessage);
 		} catch (Exception e) {
 			LOGGER.error("Error! Executing Update Content Property.", e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
@@ -192,5 +211,42 @@ public class ContentStoreUtil {
 			sb.append(" where content_id = ?");
 		}
 		return sb.toString();
+	}
+	
+	private static List<Map<String, Object>> createKafkaMessage(String contentId, Map<String,Object> map) {
+		if(null == map){
+			LOGGER.info("Returning null as the map is is null" + map);
+			return null;
+		}
+		else{	
+			Map<String,Object> dataMap = new HashMap<String,Object>();
+			Map<String,Object> transactionMap = new HashMap<String,Object>();
+			Map<String,Object> propertiesMap = new HashMap<String, Object>();
+			List<Map<String,Object>> listMap = new ArrayList<Map<String,Object>>();
+			for(Map.Entry<String,Object> entry : map.entrySet()){
+					Map<String,Object> valueMap = new HashMap<String,Object>();
+					valueMap.put("ov", null);
+					valueMap.put("nv", entry.getValue());
+					LOGGER.info("Adding propertiesMap to log kafka message" + valueMap);
+					propertiesMap.put(entry.getKey(), valueMap);
+			}
+			transactionMap.put(CompositeSearchParams.properties.name(), propertiesMap);
+			dataMap.put(CompositeSearchParams.transactionData.name(), transactionMap);
+			dataMap.put(CompositeSearchParams.nodeUniqueId.name(), contentId);
+			dataMap.put(CompositeSearchParams.requestId.name(), null);
+			dataMap.put(CompositeSearchParams.operationType.name(), "UPDATE");
+			dataMap.put(CompositeSearchParams.label.name(), "");
+			dataMap.put(CompositeSearchParams.graphId.name(), "domain");
+			dataMap.put(CompositeSearchParams.nodeType.name(), "DATA_NODE");
+			dataMap.put(CompositeSearchParams.userId.name(), "ANONYMOUS");
+			dataMap.put(CompositeSearchParams.objectType.name(), "Content");
+			dataMap.put(CompositeSearchParams.index.name(), false);
+			dataMap.put(CompositeSearchParams.audit.name(), false);
+			dataMap.put(CompositeSearchParams.ets.name(), System.currentTimeMillis());
+			dataMap.put(CompositeSearchParams.createdOn.name(), df.format(new Date()));
+			LOGGER.info("Adding dataMap to list" + dataMap);
+			listMap.add(dataMap);
+			return listMap;
+		}
 	}
 }

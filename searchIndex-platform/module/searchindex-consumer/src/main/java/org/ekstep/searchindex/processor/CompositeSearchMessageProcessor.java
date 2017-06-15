@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -31,7 +32,12 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
-			processMessage(message);
+			Object index = message.get("index");
+			Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
+			LOGGER.info("Checking condition if the message should be indexed or not" + message.containsKey("index"));
+			if(!BooleanUtils.isFalse(shouldindex)){
+				processMessage(message);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			LOGGER.error(e.getMessage(), e);

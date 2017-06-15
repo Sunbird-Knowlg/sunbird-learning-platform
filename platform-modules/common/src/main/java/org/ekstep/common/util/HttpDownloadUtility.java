@@ -150,6 +150,7 @@ public class HttpDownloadUtility {
 		URL data;
 		StringBuffer sb = new StringBuffer();
 		try {
+			LOGGER.info("The url to be read: " + url);
 			data = new URL(url);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(data.openStream()))) {
 				String inputLine;
@@ -161,6 +162,7 @@ public class HttpDownloadUtility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		LOGGER.info("Data read from url" + sb.toString());
 		return sb.toString();
 	}
 

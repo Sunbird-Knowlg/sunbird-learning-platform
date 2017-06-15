@@ -1,0 +1,20 @@
+{
+    "name": "createTranslationAsync",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"word_id",
+    	"index": 1,
+    	"routingParam": true
+    },{
+        "name": "translations",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "body": "",
+    "apiId": "ekstep.translations.async.save",
+    "async" : true 
+}

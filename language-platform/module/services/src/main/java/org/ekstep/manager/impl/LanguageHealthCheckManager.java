@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.HealthCheckManager;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 
 @Component
@@ -36,20 +35,14 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 		boolean overallHealthy = true;
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREAD_NUM);
 		List<FutureTask<Map<String, Object>>> taskList = new ArrayList<FutureTask<Map<String, Object>>>();
-		FutureTask<Map<String, Object>> futureTask_graphs;
-		List<String> graphIds = Configuration.graphIds;
-		if (null != graphIds && graphIds.size() > 0) {
-			for (final String id : graphIds) {
-				futureTask_graphs = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
-					@Override
-					public Map<String, Object> call() {
-						return checkGraphHealth(id, LOGGER);
-					}
-				});
-				taskList.add(futureTask_graphs);
-				executor.execute(futureTask_graphs);
+		FutureTask<Map<String, Object>> futureTask_graph = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
+			@Override
+			public Map<String, Object> call() {
+				return checkGraphHealth("en", LOGGER);
 			}
-		}
+		});
+		taskList.add(futureTask_graph);
+		executor.execute(futureTask_graph);
 
 		FutureTask<Map<String, Object>> futureTask_Redis = new FutureTask<Map<String, Object>>(
 				new Callable<Map<String, Object>>() {
