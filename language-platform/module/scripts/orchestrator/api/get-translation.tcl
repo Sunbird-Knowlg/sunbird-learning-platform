@@ -88,7 +88,6 @@ set indexSearchCriteria [java::new HashMap]
 $indexSearchCriteria put "filters" $filters
 $indexSearchCriteria put "limit" $limit
 
-puts "indexSearchCriteria [$indexSearchCriteria toString]"
 set searchResponse [compositeSearch $indexSearchCriteria]
 set searchResultsMap [$searchResponse getResult]
 set wordsList [java::cast List [$searchResultsMap get "results"]]
@@ -134,7 +133,6 @@ $filters put "status" [java::new ArrayList]
 
 set indexSearchCriteria [java::new HashMap]
 $indexSearchCriteria put "filters" $filters
-puts "indexSearchCriteria [$indexSearchCriteria toString]"
 set searchResponse [compositeSearch $indexSearchCriteria]
 set searchResultsMap [$searchResponse getResult]
 set translations [java::cast List [$searchResultsMap get "results"]]
@@ -144,7 +142,7 @@ if {$translationsNull == 1 || [$translations size] == 0} {
 	set response_list [create_response $result_map]
 	return $response_list
 }
-puts "translations [$translations toString]"
+
 set result_map [java::new HashMap]
 set result_list [java::new HashMap]
 
@@ -158,8 +156,6 @@ java::try {
 		set current_synset_id [filterSynset $synsets $current_language]
 		set synsetObjectResponse [multiLanguageWordSearch $current_synset_id]
 		set synsetMap [java::cast Map [$synsetObjectResponse get "translations"]]
-		puts "current_synset_id [$current_synset_id toString]"
-		puts "synsetMap [$synsetMap toString]"
 		set synsetId [[[$synsetMap keySet] iterator] next]
 		set synsetObjectMap [java::cast Map [$synsetMap get $synsetId]]
 		$synsetObjectMap remove $language_id
