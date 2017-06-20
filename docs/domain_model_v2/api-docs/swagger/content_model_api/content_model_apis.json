@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "version": "2.0.0",
+        "version": "3.0",
         "title": "Content Model API",
         "description": "The Content Model API deals with all the operations related to the Content in EkStep Platform, including the basic CRUD (Create, Update, Read and Delete) operations and also the high level operations as well such as upload, publish the Content in EkStep Platform.",
         "license": {
@@ -10,7 +10,7 @@
         }
     },
     "host": "api.ekstep.in",
-    "basePath": "/v3",
+    "basePath": "/content/v3",
     "schemes": [
         "https"
     ],
@@ -476,7 +476,7 @@
               "security": []
           }
       },
-     "/flag/{contentId}": {
+       "/flag/{contentId}": {
           "get": {
               "tags": [
                 "Flag"
@@ -519,6 +519,7 @@
           }
         }
     },
+    
     "parameters": {
         "ContentRequestObject": {
             "name": "Request",

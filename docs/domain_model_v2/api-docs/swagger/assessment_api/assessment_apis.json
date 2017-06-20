@@ -1,15 +1,15 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "2.0",
+    "version": "3.0",
     "title": "Assessment - Service",
-    "description": "Assessment Service of EkStep Learning Platform provides resources to create, manage and search Assessment Items and ItemSets. AssessmentItem API provides resources to work with questions in the platform and ItemSet API provides resources to create and manage ItemSets.",
+    "description": "Assessment Service of EkStep Learning Platform provides resources to create, manage and search Assessment Items and itemsets. AssessmentItem API provides resources to work with questions in the platform and itemset API provides resources to create and manage itemsets.",
     "license": {
       "name": "EkStep License",
       "url": "http:www.EkStep.in"
     }
   },
-  "basePath": "/v3",
+  "basePath": "/assessment/v3",
   "host": "api.ekstep.in",
   "securityDefinitions": {},
   "schemes": [
@@ -27,8 +27,8 @@
       "description": "Everything related to CRUD Operations of the AssessmentItem"
     },
     {
-      "name": "ItemSet",
-      "description": "Everything related to CRUD Operations of the ItemSet"
+      "name": "itemset",
+      "description": "Everything related to CRUD Operations of the itemset"
     }
   ],
   "paths": {
@@ -304,22 +304,22 @@
     },
     "/itemsets/create": {
       "post": {
-        "summary": "Creates an ItemSet",
-        "description": "This API is used to create an ItemSet into the _EkStep Platform_ based on the request body provided. This endpoint returns the response Object with SetId created",
+        "summary": "Creates an itemset",
+        "description": "This API is used to create an itemset into the _EkStep Platform_ based on the request body provided. This endpoint returns the response Object with SetId created",
         "tags": [
-          "ItemSet"
+          "itemset"
         ],
-        "operationId": "itemSet.create",
+        "operationId": "itemset.create",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "ItemSet create Request",
+            "name": "itemset create Request",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/creatItemSetRequest"
+              "$ref": "#/definitions/creatitemsetRequest"
             }
           }
         ],
@@ -327,7 +327,7 @@
           "200": {
             "description": "Item Created Successfully",
             "schema": {
-              "$ref": "#/definitions/ItemSetCreateResponse"
+              "$ref": "#/definitions/itemsetCreateResponse"
             }
           },
           "400": {
@@ -346,41 +346,41 @@
         "security": []
       }
     },
-    "/itemsets/read/{ItemSetId}": {
+    "/itemsets/read/{itemsetId}": {
       "get": {
-        "summary": "Gets an ItemSet",
-        "description": "This API is used to fetch an ItemSet from Item Repository of EkStep Platform. This endpoint returns the entire ItemSet Object with default fields.",
+        "summary": "Gets an itemset",
+        "description": "This API is used to fetch an itemset from Item Repository of EkStep Platform. This endpoint returns the entire itemset Object with default fields.",
         "tags": [
-          "ItemSet"
+          "itemset"
         ],
-        "operationId": "itemSet.find",
+        "operationId": "itemset.find",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "ItemSetId",
+            "name": "itemsetId",
             "in": "path",
             "required": true,
-            "description": "itemSetId",
+            "description": "itemsetId",
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "ItemSet fetched Successfully",
+            "description": "itemset fetched Successfully",
             "schema": {
-              "$ref": "#/definitions/ItemSetgetResponse"
+              "$ref": "#/definitions/itemsetgetResponse"
             }
           },
           "400": {
-            "description": "Error While fetching the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "description": "Error While fetching the itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While fetching the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "description": "Error While fetching the itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -389,20 +389,20 @@
         "security": []
       }
     },
-    "/itemsets/retire//{ItemSetId}": {
+    "/itemsets/retire/{itemsetId}": {
       "delete": {
-        "summary": "Deletes an ItemSet",
-        "description": "This API is used to delete an Item set from the ItemSet repository of EkStep Platform.",
+        "summary": "Deletes an itemset",
+        "description": "This API is used to delete an Item set from the itemset repository of EkStep Platform.",
         "tags": [
-          "ItemSet"
+          "itemset"
         ],
-        "operationId": "itemSet.delete",
+        "operationId": "itemset.delete",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "ItemSetId",
+            "name": "itemsetId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -410,19 +410,19 @@
         ],
         "responses": {
           "200": {
-            "description": "ItemSet deleted Successfully",
+            "description": "itemset deleted Successfully",
             "schema": {
-              "$ref": "#/definitions/ItemSetDeleteResponse"
+              "$ref": "#/definitions/itemsetDeleteResponse"
             }
           },
           "400": {
-            "description": "Error While deleting the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "description": "Error While deleting the itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While deleting the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "description": "Error While deleting the itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -431,38 +431,38 @@
         "security": []
       }
     },
-    "/itemsets/update/{ItemSetId}": {
+    "/itemsets/update/{itemsetId}": {
       "patch": {
-        "summary": "Updates an ItemSet",
-        "description": "This API is used to update an existing ItemSet in the Item repository  based on the request body provided from the _EkStep Platform_. This endpoint returns responseObject with SetId on updation",
+        "summary": "Updates an itemset",
+        "description": "This API is used to update an existing itemset in the Item repository  based on the request body provided from the _EkStep Platform_. This endpoint returns responseObject with SetId on updation",
         "tags": [
-          "ItemSet"
+          "itemset"
         ],
-        "operationId": "itemSet.patch",
+        "operationId": "itemset.patch",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "ItemSetId",
+            "name": "itemsetId",
             "in": "path",
             "required": true,
             "type": "string"
           },
           {
-            "name": "ItemSetUpdateRequest",
+            "name": "itemsetUpdateRequest",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/updateItemSetRequest"
+              "$ref": "#/definitions/updateitemsetRequest"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Itemset Updated Successfully",
+            "description": "itemset Updated Successfully",
             "schema": {
-              "$ref": "#/definitions/ItemSetUpdateResponse"
+              "$ref": "#/definitions/itemsetUpdateResponse"
             }
           },
           "400": {
@@ -483,12 +483,12 @@
     },
     "/itemsets/search": {
       "post": {
-        "summary": "Search an ItemSet",
-        "description": "This API is used to search and retrieve all ItemSets from the Item repository based on the given search creteria in the request body",
+        "summary": "Search an itemset",
+        "description": "This API is used to search and retrieve all itemsets from the Item repository based on the given search creteria in the request body",
         "tags": [
-          "ItemSet"
+          "itemset"
         ],
-        "operationId": "itemSet.search",
+        "operationId": "itemset.search",
         "produces": [
           "application/json"
         ],
@@ -498,25 +498,25 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/searchItemSetRequest"
+              "$ref": "#/definitions/searchitemsetRequest"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "ItemSets searched Successfully",
+            "description": "itemsets searched Successfully",
             "schema": {
-              "$ref": "#/definitions/ItemSetSearchResponse"
+              "$ref": "#/definitions/itemsetSearchResponse"
             }
           },
           "400": {
-            "description": "Error While searching for an ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "description": "Error While searching for an itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While searching for an ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "description": "Error While searching for an itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -527,12 +527,12 @@
     },
      "/itemsets/list": {
       "post": {
-        "summary": "Lists an ItemSet",
-        "description": "This API is used to list and retrieve all ItemSets from the Item repository based on the given search creteria in the request body",
+        "summary": "Lists an itemset",
+        "description": "This API is used to list and retrieve all itemsets from the Item repository based on the given search creteria in the request body",
         "tags": [
-          "ItemSet"
+          "itemset"
         ],
-        "operationId": "itemSet.list",
+        "operationId": "itemset.list",
         "produces": [
           "application/json"
         ],
@@ -542,25 +542,25 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/listItemSetRequest"
+              "$ref": "#/definitions/listitemsetRequest"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "ItemSets listed Successfully",
+            "description": "itemsets listed Successfully",
             "schema": {
-              "$ref": "#/definitions/ItemSetlistResponse"
+              "$ref": "#/definitions/itemsetlistResponse"
             }
           },
           "400": {
-            "description": "Error While fetching all ItemSet lists! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "description": "Error While fetching all itemset lists! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While fetching all ItemSet lists! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "description": "Error While fetching all itemset lists! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -569,41 +569,41 @@
         "security": []
       }
     },
-    "/itemsets/generate/{ItemSetId}": {
+    "/itemsets/generate/{itemsetId}": {
       "get": {
-        "summary": " Generates an ItemSet",
-        "description": "This API is used to generate an ItemSet from ItemSet Repository of EkStep Platform. This endpoint returns the entire ItemSet Object with default fields. ",
+        "summary": " Generates an itemset",
+        "description": "This API is used to generate an itemset from itemset Repository of EkStep Platform. This endpoint returns the entire itemset Object with default fields. ",
         "tags": [
-          "ItemSet"
+          "itemset"
         ],
-        "operationId": "itemSet.generate",
+        "operationId": "itemset.generate",
         "produces": [
           "application/json"
         ],
         "parameters": [
           {
-            "name": "ItemSetId",
+            "name": "itemsetId",
             "in": "path",
             "required": true,
-            "description": "itemSetId",
+            "description": "itemsetId",
             "type": "string"
           }
         ],
         "responses": {
           "200": {
-            "description": "ItemSet generated Successfully",
+            "description": "itemset generated Successfully",
             "schema": {
-              "$ref": "#/definitions/generateItemSetResponse"
+              "$ref": "#/definitions/generateitemsetResponse"
             }
           },
           "400": {
-            "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+            "description": "Error While generating the itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "description": "Error While generating the itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -695,7 +695,7 @@
         }
       }
     },
-    "creatItemSetRequest": {
+    "creatitemsetRequest": {
       "type": "object",
       "required": [
         "id",
@@ -722,7 +722,7 @@
         }
       }
     },
-    "updateItemSetRequest": {
+    "updateitemsetRequest": {
       "type": "object",
       "required": [
         "id",
@@ -745,11 +745,11 @@
           "$ref": "#/definitions/RequestParams"
         },
         "request": {
-          "$ref": "#/definitions/updateItemSetWithMembers"
+          "$ref": "#/definitions/updateitemsetWithMembers"
         }
       }
     },
-    "searchItemSetRequest": {
+    "searchitemsetRequest": {
       "type": "object",
       "required": [
         "id",
@@ -772,11 +772,11 @@
           "$ref": "#/definitions/RequestParams"
         },
         "request": {
-          "$ref": "#/definitions/searchItemSetObject"
+          "$ref": "#/definitions/searchitemsetObject"
         }
       }
     },
-     "listItemSetRequest": {
+     "listitemsetRequest": {
       "type": "object",
       "required": [
         "id",
@@ -799,7 +799,7 @@
           "$ref": "#/definitions/RequestParams"
         },
         "request": {
-          "$ref": "#/definitions/searchItemSetObject"
+          "$ref": "#/definitions/searchitemsetObject"
         }
       }
     },
@@ -1112,7 +1112,7 @@
         }
       }
     },
-    "ItemSetDeleteResponse": {
+    "itemsetDeleteResponse": {
       "title": "Delete Response",
       "properties": {
         "id": {
@@ -1139,7 +1139,7 @@
         }
       }
     },
-    "ItemSetCreateResponse": {
+    "itemsetCreateResponse": {
       "title": "Create Response",
       "properties": {
         "id": {
@@ -1166,7 +1166,7 @@
         }
       }
     },
-    "ItemSetUpdateResponse": {
+    "itemsetUpdateResponse": {
       "title": "Update Response",
       "properties": {
         "id": {
@@ -1193,7 +1193,7 @@
         }
       }
     },
-    "ItemSetgetResponse": {
+    "itemsetgetResponse": {
       "title": "Get Response",
       "properties": {
         "id": {
@@ -1220,7 +1220,7 @@
         }
       }
     },
-    "ItemSetSearchResponse": {
+    "itemsetSearchResponse": {
       "title": "Get Response",
       "properties": {
         "id": {
@@ -1250,7 +1250,7 @@
         }
       }
     },
-    "ItemSetlistResponse": {
+    "itemsetlistResponse": {
       "title": "Get Response",
       "properties": {
         "id": {
@@ -1297,7 +1297,7 @@
     },
     "createItemObject": {
       "type": "object",
-      "title": "creates ItemSet",
+      "title": "creates itemset",
       "allOf": [
         {
           "$ref": "#/definitions/assessment_item_set"
@@ -1317,7 +1317,7 @@
         }
       ]
     },
-    "updateItemSetWithMembers": {
+    "updateitemsetWithMembers": {
       "properties": {
         "identifier": {
           "type": "string",
@@ -1328,11 +1328,11 @@
           "description": "objectType"
         },
         "metadata": {
-          "$ref": "#/definitions/updateItemSetObject"
+          "$ref": "#/definitions/updateitemsetObject"
         }
       }
     },
-    "updateItemSetObject": {
+    "updateitemsetObject": {
       "type": "object",
       "allOf": [
         {
@@ -1354,7 +1354,7 @@
         }
       }
     },
-    "searchItemSetObject": {
+    "searchitemsetObject": {
       "properties": {
         "metadata": {
           "type": "array",
@@ -1364,7 +1364,7 @@
         }
       }
     },
-    "generateItemSetResponse": {
+    "generateitemsetResponse": {
       "title": "Generate Response",
       "properties": {
         "id": {
@@ -1488,7 +1488,7 @@
         },
         "usedFor": {
           "type": "string",
-          "description": "where the ItemSET is used For"
+          "description": "where the itemset is used For"
         },
         "SET_TYPE": {
           "type": "string",
@@ -1586,7 +1586,7 @@
         },
         "usedFor": {
           "type": "string",
-          "description": "where the ItemSET is used For"
+          "description": "where the itemset is used For"
         },
         "max_score": {
           "type": "number",
