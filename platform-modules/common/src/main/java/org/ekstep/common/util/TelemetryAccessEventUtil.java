@@ -37,20 +37,32 @@ public class TelemetryAccessEventUtil {
 				} else if (null != request && null != request.getParams()) {
 					sid = request.getParams().getSid();
 				}
+				else{
+					sid="";
+				}
 				if (null != data.get("X-Consumer-ID")) {
 					cid = (String) data.get("X-Consumer-ID");
 				} else if (null != request && null != request.getParams()) {
 					cid = request.getParams().getCid();
+				}
+				else{
+					cid="";
 				}
 				if (null != data.get("X-Device-ID")) {
 					did = (String) data.get("X-Device-ID");
 				} else if (null != request && null != request.getParams()) {
 					did = request.getParams().getDid();
 				}
+				else{
+					did="";
+				}
 				if (null != data.get("X-Authenticated-Userid")) {
 					uid = (String) data.get("X-Authenticated-Userid");
 				} else if (null != request && null != request.getParams()) {
 					uid = request.getParams().getUid();
+				}
+				else {
+					uid="";
 				}
 				Map<String, String> context = new HashMap<String, String>();
 				context.put("did", did);
