@@ -31,38 +31,34 @@ public class TelemetryAccessEventUtil {
 				accessData.setStatus((int) data.get("Status"));
 				accessData.setProtocol((String) data.get("Protocol"));
 				accessData.setMethod((String) data.get("Method"));
-				String did = null, cid = null, uid = null, sid = null;
+				String did = "", cid = "", uid = "", sid = "";
 				if (null != data.get("X-Session-ID")) {
 					sid = (String) data.get("X-Session-ID");
 				} else if (null != request && null != request.getParams()) {
-					sid = request.getParams().getSid();
-				}
-				else{
-					sid="";
+					if(null != request.getParams().getSid()){
+						sid = request.getParams().getSid();
+					}
 				}
 				if (null != data.get("X-Consumer-ID")) {
 					cid = (String) data.get("X-Consumer-ID");
 				} else if (null != request && null != request.getParams()) {
-					cid = request.getParams().getCid();
-				}
-				else{
-					cid="";
+					if(null != request.getParams().getCid()){
+						cid = request.getParams().getCid();
+					}
 				}
 				if (null != data.get("X-Device-ID")) {
 					did = (String) data.get("X-Device-ID");
 				} else if (null != request && null != request.getParams()) {
-					did = request.getParams().getDid();
-				}
-				else{
-					did="";
+					if(null != request.getParams().getDid()){
+						did = request.getParams().getDid();
+					}
 				}
 				if (null != data.get("X-Authenticated-Userid")) {
 					uid = (String) data.get("X-Authenticated-Userid");
 				} else if (null != request && null != request.getParams()) {
-					uid = request.getParams().getUid();
-				}
-				else {
-					uid="";
+					if(null != request.getParams().getUid()){
+						uid = request.getParams().getUid();
+					}
 				}
 				Map<String, String> context = new HashMap<String, String>();
 				context.put("did", did);
