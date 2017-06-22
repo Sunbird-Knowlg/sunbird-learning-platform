@@ -116,7 +116,7 @@ public class TelemetryAccessEventUtil {
 			data.put("ContentLength", responseContent.length);
 			data.put("Status", responseWrapper.getStatus());
 			data.put("Protocol", requestWrapper.getProtocol());
-			data.put("path", requestWrapper.getRequestURL().toString());
+			data.put("path", requestWrapper.getRequestURI().toString());
 			data.put("Method", requestWrapper.getMethod());
 			data.put("X-Session-ID", requestWrapper.getHeader("X-Session-ID"));
 			data.put("X-Consumer-ID", requestWrapper.getHeader("X-Consumer-ID"));
