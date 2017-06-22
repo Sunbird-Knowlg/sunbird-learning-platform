@@ -36,7 +36,7 @@ public class ResponseFilter implements Filter {
 		ExecutionContext.setRequestId(requestId);
 		boolean isMultipart = (httpRequest.getHeader("content-type") != null
 				&& httpRequest.getHeader("content-type").indexOf("multipart/form-data") != -1);
-		if (isMultipart) {
+		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
 			+ " | Params: " + request.getParameterMap());
