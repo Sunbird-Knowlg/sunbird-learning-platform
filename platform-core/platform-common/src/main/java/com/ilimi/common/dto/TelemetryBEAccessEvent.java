@@ -8,6 +8,7 @@ public class TelemetryBEAccessEvent {
 	private String rid;
 	private String uip;
 	private String type;
+	private String path;
 	private String title;
 	private String category;
 	private int size;
@@ -184,6 +185,20 @@ public class TelemetryBEAccessEvent {
 			params=new HashMap<String,Object>();
 		}
 		this.params = parameterMap;
+	}
+
+	public String getPath() {
+		if(null == path){
+			path="";
+		}
+		return path;
+	}
+
+	public void setPath(String path) {
+		if(null == path){
+			path="";
+		}
+		this.path = path;
 	}
 
 }

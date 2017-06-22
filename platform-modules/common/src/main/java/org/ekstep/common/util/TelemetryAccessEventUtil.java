@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.logger.LogHelper;
@@ -26,6 +29,7 @@ public class TelemetryAccessEventUtil {
 				accessData.setRid(response.getId());
 				accessData.setUip((String) data.get("RemoteAddress"));
 				accessData.setType("api");
+				accessData.setPath((String)data.get("path"));
 				accessData.setSize((int) data.get("ContentLength"));
 				accessData.setDuration(timeDuration);
 				accessData.setStatus((int) data.get("Status"));
@@ -86,8 +90,18 @@ public class TelemetryAccessEventUtil {
 		try {
 			data.put("StartTime", requestWrapper.getAttribute("startTime"));
 			String body = requestWrapper.getBody();
-			if (body.contains("request") && body.length() > 0) {
+			if (body.contains("request") && body.length() > 0 && !body.contains("SCRIPT")) {
 				request = mapper.readValue(body, Request.class);
+			}else if (null != body) {
+					int index = body.indexOf("filename=");
+					String fileName = "";
+					if (index > 0) {
+						fileName = body.substring(index + 10, body.indexOf("\"", index+10));
+					}
+					request = new Request();
+					Map<String, Object> req = new HashMap<String,Object>();
+					req.put("fileName", fileName);
+					request.setRequest(req);
 			}
 			Response response = null;
 			byte responseContent[] = responseWrapper.getData();
@@ -102,6 +116,7 @@ public class TelemetryAccessEventUtil {
 			data.put("ContentLength", responseContent.length);
 			data.put("Status", responseWrapper.getStatus());
 			data.put("Protocol", requestWrapper.getProtocol());
+			data.put("path", requestWrapper.getRequestURL().toString());
 			data.put("Method", requestWrapper.getMethod());
 			data.put("X-Session-ID", requestWrapper.getHeader("X-Session-ID"));
 			data.put("X-Consumer-ID", requestWrapper.getHeader("X-Consumer-ID"));
@@ -110,7 +125,7 @@ public class TelemetryAccessEventUtil {
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
 			LOGGER.error(e);
-			e.printStackTrace();
+		
 		}
 
 	}
