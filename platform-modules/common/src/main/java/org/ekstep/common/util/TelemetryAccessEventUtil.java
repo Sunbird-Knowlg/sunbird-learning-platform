@@ -97,11 +97,12 @@ public class TelemetryAccessEventUtil {
 					String fileName = "";
 					if (index > 0) {
 						fileName = body.substring(index + 10, body.indexOf("\"", index+10));
+						request = new Request();
+						Map<String, Object> req = new HashMap<String,Object>();
+						req.put("fileName", fileName);
+						request.setRequest(req);
 					}
-					request = new Request();
-					Map<String, Object> req = new HashMap<String,Object>();
-					req.put("fileName", fileName);
-					request.setRequest(req);
+					
 			}
 			Response response = null;
 			byte responseContent[] = responseWrapper.getData();
