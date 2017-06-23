@@ -15,5 +15,7 @@
         "url": "/v2/reference/*",
         "pathParams": ["reference_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.learning.reference.update",
+    "version":"2.0"
 }

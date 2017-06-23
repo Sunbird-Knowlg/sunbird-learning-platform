@@ -20,5 +20,7 @@
         "url": "/v1/language/dictionary/updateWordCount/*",
         "pathParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.wordCount.update",
+    "version":"1.0"
 }

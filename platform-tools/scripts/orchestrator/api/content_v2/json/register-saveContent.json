@@ -14,5 +14,6 @@
         "url": "/v2/content"
     },
     "body": "",
-    "apiId": "ekstep.content.save"
+    "apiId": "ekstep.learning.content.save",
+    "version": "2.0"
 }

@@ -19,5 +19,7 @@
         "url": "/v2/object/search/*/*",
         "pathParams": ["graph_id", "object_type"]
     },
-    "body": ""
+    "body": "", 
+    "apiId":"ekstep.learning.object.search",
+    "version":"2.0"
 }

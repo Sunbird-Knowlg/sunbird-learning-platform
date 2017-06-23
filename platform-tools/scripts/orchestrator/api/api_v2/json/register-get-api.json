@@ -20,6 +20,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.api.read",
+    "apiId": "ekstep.learning.api.info",
     "version": "2.0"
 }

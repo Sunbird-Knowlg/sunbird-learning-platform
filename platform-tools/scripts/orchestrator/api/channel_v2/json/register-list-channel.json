@@ -14,6 +14,6 @@
         "url": "/v2/channel/list"
     },
     "body": "",
-    "apiId": "ekstep.channel.list",
+    "apiId": "ekstep.learning.channel.list",
     "version": "2.0"
 }

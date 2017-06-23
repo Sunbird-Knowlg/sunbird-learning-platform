@@ -16,5 +16,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.domain.metrics"
+    "apiId": "ekstep.learning.domain.metrics.info",
+
 }

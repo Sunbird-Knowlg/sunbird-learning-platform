@@ -13,6 +13,6 @@
         "url": "/v3/api/create"
     },
     "body": "",
-    "apiId": "ekstep.api.create",
+    "apiId": "ekstep.learning.api.create",
     "version": "3.0"
 }

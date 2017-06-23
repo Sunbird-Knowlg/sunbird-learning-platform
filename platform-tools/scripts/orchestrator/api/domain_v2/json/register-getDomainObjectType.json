@@ -10,5 +10,7 @@
         "type": "POST",
         "url": "/v1/exec/getDomainObjectType"
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.learning.domain.objectType.info",
+    "version":"1.0"
 }

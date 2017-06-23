@@ -22,6 +22,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.stageIcons.read",
+    "apiId": "ekstep.learning.content.stageIcons.read",
     "version": "2.0"
 }

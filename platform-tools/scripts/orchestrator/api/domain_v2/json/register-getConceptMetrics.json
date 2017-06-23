@@ -16,5 +16,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.concept.metrics"
+    "apiId": "ekstep.learning.concept.metrics.info",
+    "version":"2.0"
 }

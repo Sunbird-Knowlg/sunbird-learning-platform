@@ -1,5 +1,5 @@
 {
-    "name": "rejectReviewContentV3",
+    "name": "rejectReviewContent_v3",
     "type": "SCRIPT",
     "parameters": [
         {
@@ -16,5 +16,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.content.reject"
+    "apiId": "ekstep.learning.content.reject",
+    "version":"3.0"
 }
