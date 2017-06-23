@@ -61,7 +61,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            the user id
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/list/", method = RequestMethod.GET)
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAll(@RequestParam(value = "language_id", required = true) String languageId,
 			@RequestParam(value = "fields", required = false) String[] fields,
@@ -84,7 +84,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 * @return the response entity
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/create/", method = RequestMethod.POST)
+	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestParam(value = "language_id", required = true) String languageId,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
