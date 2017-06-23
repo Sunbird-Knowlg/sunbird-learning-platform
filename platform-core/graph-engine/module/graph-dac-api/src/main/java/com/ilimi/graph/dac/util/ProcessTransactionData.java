@@ -549,6 +549,8 @@ public class ProcessTransactionData {
 					map.put(GraphDACParams.userId.name(), userId);
 					map.put(GraphDACParams.operationType.name(), operationType);
 					map.put(GraphDACParams.label.name(), getLabel(endNode));
+					map.put(GraphDACParams.createdOn.name(), DateUtils.format(new Date()));
+					map.put(GraphDACParams.ets.name(), System.currentTimeMillis());
 					map.put(GraphDACParams.graphId.name(), getGraphId(endNode));
 					map.put(GraphDACParams.nodeGraphId.name(), endNode.getId());
 					map.put(GraphDACParams.nodeUniqueId.name(),
