@@ -11,9 +11,16 @@
 				</Pattern>
 			</PatternLayout>
 			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
 				<TimeBasedTriggeringPolicy interval="24"
 					modulate="true" />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="language-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/language-perf.log"
 			filePattern="/data/logs/language-perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -21,8 +28,15 @@
 				<Pattern>%d [%t] - %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="language-perf-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender"
 			fileName="/data/logs/lang_graph_event.log" filePattern="/data/logs/lang_graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -32,6 +46,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="lang_graph_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
 		<RollingRandomAccessFile name="WordEventAppender"
@@ -42,6 +62,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="word_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
 		<RollingRandomAccessFile name="TelemetryEventAppender"
@@ -53,6 +79,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="language_telemetry_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 	</Appenders>
 	<Loggers>
