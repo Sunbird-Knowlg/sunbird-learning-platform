@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" packages="">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
@@ -14,6 +14,12 @@
 				<TimeBasedTriggeringPolicy interval="24"
 					modulate="true" />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="graph-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/perf.log"
 			filePattern="/data/logs/perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -23,6 +29,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="perf-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="AuditLogAppender" fileName="/data/logs/audit.log"
 			filePattern="/data/logs/audit-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -32,6 +44,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="audit-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
 			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -41,6 +59,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="graph_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/telemetry_event.log"
 			filePattern="/data/logs/telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -50,6 +74,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="telemetry_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 		<RollingRandomAccessFile name="ObjectLifecycleEventAppender" fileName="/data/logs/object_lifecycle_event.log"
 			filePattern="/data/logs/object_lifecycle_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -59,6 +89,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="object_lifecycle_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
 	</Appenders>
