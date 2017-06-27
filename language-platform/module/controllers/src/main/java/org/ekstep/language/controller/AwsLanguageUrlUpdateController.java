@@ -55,7 +55,7 @@ public class AwsLanguageUrlUpdateController extends BaseController {
 	public ResponseEntity<Response> urlUpdateWithObjectType(@PathVariable(value = "graphId") String graphId, 
 			@PathVariable(value = "objectType") String objectType,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "aws.urls";
+		String apiId = "ekstep.language.aws.urls.update";
 		LOGGER.info("API to update AWS urls");
 		LOGGER.info(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
 		try {
@@ -86,7 +86,7 @@ public class AwsLanguageUrlUpdateController extends BaseController {
 	public ResponseEntity<Response> urlUpdateWithIdentifiers(@PathVariable(value = "graphId") String graphId, 
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "aws.urls";
+		String apiId = "ekstep.language.aws.urls.update";
 		LOGGER.info(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
 		try {
 			LOGGER.info("Invoking API to update AWS urls of existing nodes:"+apiId);

@@ -47,7 +47,7 @@ public class ToolsV3Controller extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> parseContent(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "parser";
+		String apiId = "ekstep.language.parser";
 		Request request = getRequest(map);
 		try {
 			String languageId = (String) request.get(LanguageParams.language_id.name());
@@ -83,7 +83,7 @@ public class ToolsV3Controller extends BaseLanguageController {
 	@RequestMapping(value = "/complexity", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> getComplexity(@RequestBody Map<String, Object> map) {
-		String apiId = "language.complexity";
+		String apiId = "ekstep.language.complexity.info";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		// TODO: return error response if language value is blank
@@ -113,7 +113,7 @@ public class ToolsV3Controller extends BaseLanguageController {
 	@RequestMapping(value = "/text/analysis", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> computeTextComplexity(@RequestBody Map<String, Object> map) {
-		String apiId = "text.complexity";
+		String apiId = "ekstep.language.text.complexity.info";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());

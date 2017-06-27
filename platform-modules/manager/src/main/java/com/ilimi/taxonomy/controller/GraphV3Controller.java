@@ -106,7 +106,7 @@ public class GraphV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> updateDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "ekstep.learning.definition.update";
+		String apiId = "ekstep.definition.update";
 		LOGGER.info("update Definition | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.updateDefinition(id, json);
@@ -124,7 +124,7 @@ public class GraphV3Controller extends BaseController {
 	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String objectType,
 			 @RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
 			 @RequestHeader(value = "user-id") String userId) {
-		String apiId = "ekstep.learning.definition.read";
+		String apiId = "ekstep.definition.read";
 		LOGGER.info("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findDefinition(graphId, objectType);
@@ -141,7 +141,7 @@ public class GraphV3Controller extends BaseController {
 	public ResponseEntity<Response> findAllDefinitions(
 			@RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "ekstep.learning.definition.list";
+		String apiId = "ekstep.definition.list";
 		LOGGER.info("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findAllDefinitions(graphId);

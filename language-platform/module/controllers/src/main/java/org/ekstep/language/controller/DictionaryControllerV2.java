@@ -244,7 +244,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			@RequestHeader(value = "user-id") String userId,
 			@RequestParam(value = "version", required = false, defaultValue = API_VERSION_2) String version) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".list";
+		String apiId = "ekstep.language." +objectType.toLowerCase() + ".list";
 		try {
 			Response response = dictionaryManager.findAll(languageId, objectType, fields, limit, version);
 			LOGGER.info("Find All | Response: " + response);
@@ -273,7 +273,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse response) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".findWordsCSV";
+		String apiId = "ekstep.language."+objectType.toLowerCase() + ".findWordsCSV";
 		try {
 			response.setContentType("text/csv");
 			response.setHeader("Content-Disposition", "attachment; filename=words.csv");
@@ -308,7 +308,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			@PathVariable(value = "objectId1") String objectId1, @PathVariable(value = "relation") String relation,
 			@PathVariable(value = "objectId2") String objectId2, @RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".relation.delete";
+		String apiId = "ekstep.language."+objectType.toLowerCase() + ".relation.delete";
 		try {
 			Response response = dictionaryManager.deleteRelation(languageId, objectType, objectId1, relation,
 					objectId2);
@@ -341,7 +341,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			@PathVariable(value = "objectId1") String objectId1, @PathVariable(value = "relation") String relation,
 			@PathVariable(value = "objectId2") String objectId2, @RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".relation.add";
+		String apiId = "ekstep.language."+objectType.toLowerCase() + ".relation.add";
 		try {
 			Response response = dictionaryManager.addRelation(languageId, objectType, objectId1, relation, objectId2);
 			List<String> messages = (List<String>) response.get("messages");

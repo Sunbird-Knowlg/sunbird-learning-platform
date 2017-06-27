@@ -41,7 +41,7 @@ public class ToolsController extends BaseLanguageController {
 	@RequestMapping(value = "/complexityMeasures", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> getComplexity(@RequestBody Map<String, Object> map) {
-		String apiId = "language.complexity";
+		String apiId = "ekstep.language.complexityMeasures.list";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		// TODO: return error response if language value is blank
@@ -71,7 +71,7 @@ public class ToolsController extends BaseLanguageController {
 	@RequestMapping(value = "/complexityMeasures/text", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> computeTextComplexity(@RequestBody Map<String, Object> map) {
-		String apiId = "text.complexity";
+		String apiId = "ekstep.language.text.complexity.info";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
@@ -101,7 +101,7 @@ public class ToolsController extends BaseLanguageController {
 	@RequestMapping(value = "/text/analysis", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> analyseTextsCSV(@RequestBody Map<String, Object> map) {
-		String apiId = "text.analysis.csv";
+		String apiId = "ekstep.language.text.analysis.csv";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
@@ -130,7 +130,7 @@ public class ToolsController extends BaseLanguageController {
 	@RequestMapping(value = "/textAnalysis", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> analyseTexts(@RequestBody Map<String, Object> map) {
-		String apiId = "text.analysis";
+		String apiId = "ekstep.language.text.analysis";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
@@ -162,7 +162,7 @@ public class ToolsController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> computeWordComplexityV2(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map) {
-		String apiId = "word.complexity";
+		String apiId = "ekstep.language.word.complexity.info";
 		Request request = getRequest(map);
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.getWordComplexities.name());
@@ -193,7 +193,7 @@ public class ToolsController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> syncDefinition(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "definitionName") String definitionName) {
-		String apiId = "word.complexity";
+		String apiId = "ekstep.language.sync.definition";
 		Request request = new Request();
 		request.put(LanguageParams.definitionName.name(), definitionName);
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
