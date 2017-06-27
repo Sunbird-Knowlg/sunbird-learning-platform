@@ -11,5 +11,6 @@
         "requestParams": ["language_id"]
     },
     "body": "",
-    "apiId": "ekstep.wordlist.list"
+    "apiId": "ekstep.language.wordlist.list",
+    "version":"3.0"
 }

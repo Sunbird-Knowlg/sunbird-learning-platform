@@ -15,5 +15,7 @@
         "url": "/v3/public/dictionary/synset/search/*",
         "pathParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.synset.search",
+    "version":"3.0"
 }

@@ -10,5 +10,7 @@
         "url": "/v3/varnas/list",
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.varnas.list",
+    "version":"3.0"
 }

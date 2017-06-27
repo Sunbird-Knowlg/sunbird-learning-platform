@@ -21,5 +21,6 @@
         "requestParams": ["language_id"]
     },
     "body": "",
-    "apiId": "ekstep.wordlist.save"
+    "apiId": "ekstep.language.wordlist.create",
+    "version":"3.0"
 }
