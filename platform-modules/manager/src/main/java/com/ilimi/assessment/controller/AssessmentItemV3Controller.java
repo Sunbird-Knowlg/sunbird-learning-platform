@@ -47,7 +47,7 @@ public class AssessmentItemV3Controller extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> create(@RequestBody Map<String, Object> map) {
     	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item.create";
+        String apiId = "ekstep.learning.item.create";
         Request request = getRequestObject(map);
         LOGGER.info("Create Item | TaxonomyId: " + taxonomyId + " | Request: " + request);
         try {
@@ -68,7 +68,7 @@ public class AssessmentItemV3Controller extends BaseController {
     		@RequestParam(value = "limit", required = false, defaultValue = "200") Integer limit,
     		@RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset) {
     	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item.list";
+        String apiId = "ekstep.learning.item.list";
         Request request = getRequest(map);
         LOGGER.info("List all Items | TaxonomyId: " + taxonomyId + " | Request: " + request);
         try {
@@ -92,7 +92,7 @@ public class AssessmentItemV3Controller extends BaseController {
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
             @RequestBody Map<String, Object> map) {
     	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item.update";
+        String apiId = "ekstep.learning.item.update";
         Request request = getRequestObject(map);
         LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request);
         try {
@@ -112,7 +112,7 @@ public class AssessmentItemV3Controller extends BaseController {
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "ifields", required = false) String[] ifields) {
     	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item.find";
+        String apiId = "ekstep.learning.item.read";
         LOGGER.info("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + ifields);
         try {
             Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields);
@@ -128,7 +128,7 @@ public class AssessmentItemV3Controller extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> search(@RequestBody Map<String, Object> map) {
     	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item.search";
+        String apiId = "ekstep.learning.item.search";
         LOGGER.info("Search | TaxonomyId: " + taxonomyId);
         try {
             Request reqeust = getSearchRequest(map);
@@ -145,7 +145,7 @@ public class AssessmentItemV3Controller extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id) {
     	String taxonomyId = V2_GRAPH_ID;
-        String apiId = "assessment_item.delete";
+        String apiId = "ekstep.learning.item.delete";
         LOGGER.info("Delete Item | TaxonomyId: " + taxonomyId + " | Id: " + id);
         try {
             Response response = assessmentManager.deleteAssessmentItem(id, taxonomyId);

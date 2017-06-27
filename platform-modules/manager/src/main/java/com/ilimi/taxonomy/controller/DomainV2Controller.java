@@ -33,7 +33,7 @@ public class DomainV2Controller extends BaseController {
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "depth", required = false, defaultValue = "5") Integer depth,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "domain.graph";
+        String apiId = "ekstep.domain.graph";
         LOGGER.info("domain.graph | Id: " + id + " | user-id: " + userId);
         try {
             List<String> relations = new ArrayList<String>();

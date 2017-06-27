@@ -64,7 +64,7 @@ public class AuditHistoryV3Controller extends BaseController {
 			@RequestParam(name = "start", required = false) String startTime,
 			@RequestParam(name = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getById";
+		String apiId = "ekstep.learning.audit_history.read";
 
 		LOGGER.info("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);

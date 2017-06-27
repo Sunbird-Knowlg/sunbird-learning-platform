@@ -45,7 +45,7 @@ public class TaxonomyController extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> findAllByObjectType(@PathVariable(value = "graphId") String graphId,
 			@PathVariable(value = "objectType") String objectType, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "taxonomy.objecttype.list";
+		String apiId = "ekstep.taxonomy.objecttype.list";
 		try {
 			Response response = taxonomyManager.findAllByObjectType(graphId, objectType);
 			LOGGER.info("FindAll | Response: " + response);
@@ -61,7 +61,7 @@ public class TaxonomyController extends BaseController {
 	public ResponseEntity<Response> create(@PathVariable(value = "id") String id,
 			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse resp) {
-		String apiId = "taxonomy.import";
+		String apiId = "ekstep.taxonomy.import";
 		LOGGER.info("Create | Id: " + id + " | File: " + file + " | user-id: " + userId);
 		InputStream stream = null;
 		try {
@@ -88,6 +88,7 @@ public class TaxonomyController extends BaseController {
 	public void export(@PathVariable(value = "id") String id, @RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String format = ImportType.CSV.name();
+		String apiId = "ekstep.taxonomy.export";
 		LOGGER.info("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
 		try {
 			Request req = getRequest(map);
@@ -122,7 +123,7 @@ public class TaxonomyController extends BaseController {
 	public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
 			@RequestHeader(value = "user-id") String userId) {
 		LOGGER.info("Delete | Id: " + id + " | user-id: " + userId);
-		String apiId = "taxonomy.delete";
+		String apiId = "ekstep.taxonomy.delete";
 		try {
 			Response response = taxonomyManager.delete(id);
 			LOGGER.info("Delete | Response: " + response);
@@ -138,7 +139,7 @@ public class TaxonomyController extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> createDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.create";
+		String apiId = "ekstep.definition.create";
 		LOGGER.info("Create Definition | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.updateDefinition(id, json);
@@ -154,7 +155,7 @@ public class TaxonomyController extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
 			@PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.find";
+		String apiId = "ekstep.definition.find";
 		LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findDefinition(id, objectType);
@@ -170,7 +171,7 @@ public class TaxonomyController extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.list";
+		String apiId = "ekstep.definition.list";
 		LOGGER.info("Find All Definitions | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findAllDefinitions(id);
@@ -186,7 +187,7 @@ public class TaxonomyController extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> deleteDefinition(@PathVariable(value = "id") String id,
 			@PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.delete";
+		String apiId = "ekstep.definition.delete";
 		LOGGER.info("Delete Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.deleteDefinition(id, objectType);
@@ -203,7 +204,7 @@ public class TaxonomyController extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> createIndex(@PathVariable(value = "id") String id,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "index.create";
+		String apiId = "ekstep.index.create";
 		Request request = getRequest(map);
 		LOGGER.info("Create Index | Id: " + id + " | Request: " + request + " | user-id: " + userId);
 		try {

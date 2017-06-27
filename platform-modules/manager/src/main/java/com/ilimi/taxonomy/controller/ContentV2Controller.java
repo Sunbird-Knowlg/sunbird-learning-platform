@@ -67,7 +67,7 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = true) MultipartFile file) {
-		String apiId = "content.upload";
+		String apiId = "ekstep.learning.content.upload";
 		LOGGER.debug("Upload Content | Content Id: " + contentId);
 		LOGGER.info("Uploaded File Name: " + file.getName());
 		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
@@ -100,7 +100,7 @@ public class ContentV2Controller extends BaseController {
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId) {
-		String apiId = "content.publish";
+		String apiId = "ekstep.learning.content.publish";
 		LOGGER.info("Publish content | Content Id : " + contentId);
 		try {
 			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
@@ -126,7 +126,7 @@ public class ContentV2Controller extends BaseController {
 	@RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId) {
-		String apiId = "content.optimize";
+		String apiId = "ekstep.learning.content.optimize";
 		LOGGER.info("Optimize content | Content Id : " + contentId);
 		try {
 			LOGGER.info("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
@@ -155,7 +155,7 @@ public class ContentV2Controller extends BaseController {
 	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map) {
-		String apiId = "content.archive";
+		String apiId = "ekstep.learning.content.archive";
 		LOGGER.info("Create Content Bundle");
 		try {
 			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
@@ -182,7 +182,7 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> hierarchy(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "mode", required = false) String mode) {
-		String apiId = "content.hierarchy";
+		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
 		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
 		try {
