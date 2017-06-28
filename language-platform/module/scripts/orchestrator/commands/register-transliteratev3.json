@@ -27,6 +27,6 @@
   "requestPath": {
     "requestParams": ["language_id","addClosingVirama"],
     "type":"POST",
-    "url":"/v3/tools/transliterate/"
+    "url":"/v3/tools/transliterate/_dep"
   }
 }

@@ -137,7 +137,7 @@ proc createWordNode {language_id lemma} {
 	set check_error [check_response_error $create_response]
 	if {$check_error} {
 		#puts "error while creating word $language_id [$metadata toString]"
-		return $wordResponse
+		return $create_response
 	}
 
 	set wordId [get_resp_value $create_response "node_id"]

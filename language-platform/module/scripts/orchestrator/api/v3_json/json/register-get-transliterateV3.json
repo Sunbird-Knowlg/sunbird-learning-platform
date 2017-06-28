@@ -1,0 +1,26 @@
+{
+  "name": "getTransliterationV3",
+  "parameters": [
+    {
+      "name":"lemma",
+      "index": 0,
+      "routingParam": false
+    },
+    {
+        "name": "languages",
+        "index": 1,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    }
+  ],
+  "requestPath": {
+    "type":"POST",
+    "url":"/v3/tools/transliterate",
+    "requestParams": [
+          "languages","lemma"
+    ]
+  },
+    "body": "",
+    "apiId": "ekstep.language.transliterations.read",
+    "version":"3.0"
+}
