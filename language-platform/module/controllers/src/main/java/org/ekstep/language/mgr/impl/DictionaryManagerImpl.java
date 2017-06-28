@@ -2237,7 +2237,20 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	}
 
 	/**
-	 * Creates the or update word.
+	 * Creates or updates the word.
+	 *
+	 *
+	 *1) search words {all related words in all meanings} and store it in LemmaWordMap
+	 *2) get Node {main word} if it is already exist
+	 *3) create Synset Node Object for primary meaning
+	 *4) update/create Synset Object(from step 3) into graph
+	 *5) add synonym relation between node created/updated in step 4 and main word
+	 *6) update PrimaryMeaningId in main word object and check/update primary meaning of all synonym words in primary meaning
+	 *7) do step 3,4 and 5 for each other meaning
+	 *8) update main word metadata into main word object
+	 *9) merge relations(PrimaryMeaning/OtherMeaning) for main word if it is already exist
+	 *10) create/update main word object into graph
+	 *
 	 *
 	 * @param languageId
 	 *            the language id
@@ -2255,6 +2268,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		List<String> errorMessages = new ArrayList<String>();
 		Response wordResponse = new Response();
 		try {
+			//search words{ all related words in all meaning } and store it in map for future reference 
 			Map<String, Object> lemmaWordMap = getLemmaWordMap(languageId, wordRequestMap);
 			String wordIdentifier = (String) wordRequestMap.get(LanguageParams.identifier.name());
 			List<Relation> wordInRelations = new ArrayList<>();
@@ -2265,6 +2279,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				wordRequestMap.put(LanguageParams.lemma.name(), lemma);
 			}
 
+			//get Word node if it is already exist
 			Node existingWordNode = null;
 			if (wordIdentifier == null) {
 				existingWordNode = wordUtil.searchWord(languageId, lemma);
@@ -2285,6 +2300,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 			if (primaryMeaning != null) {
 
+				//copy primary meaning's synonym words into map(primaryMeaningSynonym)
 				if (primaryMeaning.get(LanguageParams.synonyms.name()) != null) {
 					List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
 							.get(LanguageParams.synonyms.name());
@@ -2299,8 +2315,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if(primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES)!=null)
 					wordRequestMap.put(ATTRIB_EXAMPLE_SENTENCES, primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES));
 				
+				//get synset node object for primary meaning
 				Node primaryMeaningSynset = createNodeObjectForSynset(languageId, primaryMeaning, lemmaWordMap, wordIds,
 						errorMessages);
+				//create/update node for primary meaning
 				Response synsetResponse = createOrUpdateNode(languageId, primaryMeaningSynset);
 				if (checkError(synsetResponse)) {
 					return synsetResponse;
@@ -2308,10 +2326,12 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				primaryMeaningId = (String) synsetResponse.get(GraphDACParams.node_id.name());
 				wordRequestMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
 
+				//add synonym relation between primary meaning and main word
 				Relation relation = new Relation(primaryMeaningId, RelationTypes.SYNONYM.relationName(),
 						wordIdentifier);
 				wordInRelations.add(relation);
 
+				//check/update primary meaning of all synonym words in primary meaning
 				if (primaryMeaningSynonym != null) {
 					List<String> synonms = getRelatedWordLemmaFrom(primaryMeaningSynonym);
 					List<Node> synonmNodes = searchWords(languageId, synonms);
@@ -2335,6 +2355,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 			}
 
+			//create/update synset object for all other meanings and add synonym relation between other meaning and main word 
 			List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) wordRequestMap
 					.get(LanguageParams.otherMeanings.name());
 			if (otherMeanings != null) {
@@ -2351,6 +2372,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					wordInRelations.add(relation);
 				}
 			}
+			//remove othermeaning and tags from main word request object
 			wordRequestMap.remove(LanguageParams.otherMeanings.name());
 			wordRequestMap.remove(LanguageParams.tags.name());
 
@@ -2389,6 +2411,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (wordInRelations.size() > 0)
 				word.setInRelations(wordInRelations);
 
+			//create/update word object node into graph
 			wordResponse = createOrUpdateNode(languageId, word);
 			if (checkError(wordResponse)) {
 				errorMessages.add(wordUtil.getErrorMessage(wordResponse));
@@ -2519,6 +2542,18 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	/**
 	 * Creates the node object for synset.
 	 *
+	 *creation of main word's synset/meaning node object as follows
+		1. for each relation of synset other than synonyms
+			1.a for each word entry in relation 
+				a. get primary meaning(PM) of related word (create a word with primary meaning if it is not exist)
+				b. add corresponding relation between related Word's PM and main word's meaning/synset along with relatedWordIds metadata
+		2. for each word in synonym of given meaning/synset map
+			a. create synonym word if it not exist
+			b. add synonym relation between word and main word's meaning/synset
+		3. get synset node and Merge relations if synset node is already exist
+		4. update tags into synset object
+		5. update metadata into synset object
+	 *
 	 * @param languageId
 	 *            the language id
 	 * @param meaningMap
@@ -2557,8 +2592,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 									errorMessages, entry.getKey());
 							if (primaryMeaningId != null) {
 								// create relation between related word's
-								// meaning/synset and primaryMeaning of main
-								// word along with related wordIds as metadata
+								// primary meaning and main
+								// word's given synset/meaning along with related wordIds as metadata
 								// property
 								Node wordNode = (Node) lemmaWordMap.get(lemma);
 								String wordId = wordNode.getIdentifier();
@@ -2647,8 +2682,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		// set synset metadata
 		synset.setMetadata(meaningMap);
 
+		
 		if (outRelations.size() > 0 || emptyRelations.size() > 0) {
 
+			//merge relations with exist one if it is already exist
 			if (synsetId != null) {
 				try {
 					Node existingSynset = getDataNode(languageId, synsetId, "Synset");
