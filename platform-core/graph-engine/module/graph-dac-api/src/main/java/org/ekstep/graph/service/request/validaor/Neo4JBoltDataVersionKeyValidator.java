@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.NodeUpdateMode;
 import org.ekstep.graph.service.util.DefinitionNodeUtil;
 import org.ekstep.graph.service.util.DriverUtil;
@@ -144,7 +145,7 @@ public class Neo4JBoltDataVersionKeyValidator {
 
 	private Map<String, Object> getNeo4jNodeProperty(String graphId, String identifier) {
 		Map<String, Object> prop = null;
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			try (Transaction tx = session.beginTransaction()) {

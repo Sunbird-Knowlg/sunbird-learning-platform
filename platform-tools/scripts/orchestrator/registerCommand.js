@@ -6,11 +6,11 @@ var client = new Client();
 //var host = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
 //Old Prod
 //var host = "http://52.221.228.121:8080/learning-service";
-//var host = "http://localhost:8080/learning-service";
+var host = "http://localhost:8080/learning-service";
 // PROD
 //var host = "https://api.ekstep.in/learning";
 // DEV
-var host = "https://dev.ekstep.in/api/learning";
+// var host = "https://dev.ekstep.in/api/learning";
 // QA
 //var host = "https://qa.ekstep.in/api/learning";
 

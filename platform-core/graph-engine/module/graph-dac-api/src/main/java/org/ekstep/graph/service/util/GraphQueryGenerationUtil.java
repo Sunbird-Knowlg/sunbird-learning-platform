@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.RelationshipDirection;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -859,7 +860,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			RelationshipDirection direction) {
 		List<Relationship> relationships = new ArrayList<Relationship>();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId)) {
-			Driver driver = DriverUtil.getDriver(graphId);
+			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 			LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
 				LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");

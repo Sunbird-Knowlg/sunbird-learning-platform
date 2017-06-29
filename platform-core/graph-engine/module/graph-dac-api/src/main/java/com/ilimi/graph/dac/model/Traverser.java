@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.neo4j.driver.v1.Driver;
@@ -90,7 +91,7 @@ public class Traverser implements Serializable {
     
     public SubGraph traverse() {
         SubGraph subGraph = new SubGraph();
-        Driver driver = DriverUtil.getDriver(graphId);
+        Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
         try (Session session = driver.session()) {
         	String query = "CALL ekstep.procs.traverse";
         	Map<String, Object> params = getTraverserParams();
@@ -106,7 +107,7 @@ public class Traverser implements Serializable {
     
     public Graph getSubGraph() {
         Graph subGraph = new Graph();
-        Driver driver = DriverUtil.getDriver(graphId);
+        Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
         try (Session session = driver.session()) {
         	String query = "CALL ekstep.procs.traverse";
         	List<Node> nodes = new ArrayList<Node>();

@@ -17,6 +17,7 @@ public class GraphServiceFactory {
 
 	static IGraphDatabaseService bolt = new Neo4JBoltImpl();
 	static IGraphDatabaseService embedded = new Neo4JEmbeddedImpl();
+	static IGraphDatabaseService cachedWithJournaling = new Neo4JEmbeddedImpl();
 
 	public static IGraphDatabaseService getDatabaseService(String databasePolicy) {
 		if (StringUtils.isBlank(databasePolicy))
@@ -33,6 +34,10 @@ public class GraphServiceFactory {
 
 		case "BOLT":
 			service = bolt;
+			break;
+			
+		case "CACHED_WITH_JOURNALING":
+			service = cachedWithJournaling;
 			break;
 
 		default:
