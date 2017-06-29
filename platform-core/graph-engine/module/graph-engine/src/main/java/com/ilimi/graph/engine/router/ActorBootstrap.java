@@ -1,6 +1,8 @@
 package com.ilimi.graph.engine.router;
 
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,6 +47,7 @@ public class ActorBootstrap {
     private static Document document;
     private static ActorSystem system;
     private static final String DEFAULT_SYSTEM_NAME = "ActorSystem";
+    private static Map<String, Integer> actorMap = new HashMap<String, Integer>();
 
     static {
         try (InputStream inputStream = ActorBootstrap.class.getClassLoader().getResourceAsStream("actor-config.xml")) {
@@ -60,6 +63,10 @@ public class ActorBootstrap {
 
     public static ActorSystem getActorSystem() {
         return system;
+    }
+    
+    public static Map<String, Integer> getActorCountMap() {
+        return actorMap;
     }
 
     public static void loadConfiguration() {
@@ -166,20 +173,24 @@ public class ActorBootstrap {
                         String className = eElement.getAttribute("class");
                         String name = eElement.getAttribute("name");
                         String strCount = eElement.getAttribute("count");
-                        int count = 1;
+                        int count = 8;
                         try {
                             count = Integer.parseInt(strCount);
                         } catch (Exception e) {
                         }
-                        Class<?> cls = Class.forName(className);
-                        Props actorProps = Props.create(cls);
-                        ActorRef actor = system.actorOf(new SmallestMailboxPool(count).props(actorProps));
-                        if (StringUtils.equalsIgnoreCase("RequestRouter", name))
-                            GraphEngineActorPoolMgr.setRequestRouter(actor);
-                        else if (StringUtils.equalsIgnoreCase("DACRouter", name))
-                            GraphDACActorPoolMgr.setDacRouter(actor);
-                        else if (StringUtils.equalsIgnoreCase("CacheRouter", name))
-                            GraphCacheActorPoolMgr.setCacheRouter(actor);
+                        actorMap.put(name, count);
+                        if (StringUtils.equalsIgnoreCase("RequestRouter", name) || StringUtils.equalsIgnoreCase("DACRouter", name)
+                        		|| StringUtils.equalsIgnoreCase("CacheRouter", name)) {
+                        	Class<?> cls = Class.forName(className);
+                            Props actorProps = Props.create(cls);
+                            ActorRef actor = system.actorOf(new SmallestMailboxPool(count).props(actorProps));
+                            if (StringUtils.equalsIgnoreCase("RequestRouter", name))
+                                GraphEngineActorPoolMgr.setRequestRouter(actor);
+                            else if (StringUtils.equalsIgnoreCase("DACRouter", name))
+                                GraphDACActorPoolMgr.setDacRouter(actor);
+                            else if (StringUtils.equalsIgnoreCase("CacheRouter", name))
+                                GraphCacheActorPoolMgr.setCacheRouter(actor);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
