@@ -792,6 +792,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+				node.setObjectType(CONTENT_OBJECT_TYPE);
 				node.setGraphId(GRAPH_ID);
 				Response response = createDataNode(node);
 				if (checkError(response)) 
@@ -820,6 +821,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String originalId = contentId;
+		String objectType = CONTENT_OBJECT_TYPE;
 		map.put("objectType", CONTENT_OBJECT_TYPE);
 		map.put("identifier", contentId);
 		
@@ -832,6 +834,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			LOGGER.info("Content image not found: " + contentImageId);
 			isImageObjectCreationNeeded = true;
 			getNodeResponse = getDataNode(GRAPH_ID, contentId);
+			LOGGER.info("Content node response: " + getNodeResponse);
 		} else
 			imageObjectExists = true;
 		
@@ -850,7 +853,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 		}
 		
-		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node_id.name());
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		LOGGER.info("Graph node found: " + graphNode.getIdentifier());
 		Map<String, Object> metadata = graphNode.getMetadata();
 		String status = (String) metadata.get("status");
@@ -896,8 +899,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					map.put("versionKey", createResponse.get("versionKey"));
 				}
 			}
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
 			contentId = contentImageId;
 		} else if (imageObjectExists) {
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
 			contentId = contentImageId;
 		}
 		
@@ -907,6 +912,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(GRAPH_ID);
 		domainObj.setIdentifier(contentId);
+		domainObj.setObjectType(objectType);
 		createResponse = updateDataNode(domainObj);
 		checkError = checkError(createResponse);
 		if (checkError)
