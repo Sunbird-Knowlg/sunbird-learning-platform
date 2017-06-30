@@ -187,14 +187,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 		long startTime = System.currentTimeMillis();
 
 		updateWordMetadata(languageId, nodeList);
-		if (languageId.equalsIgnoreCase("en")) {
-			updateSyllablesList(nodeList);
-		}
-		updateLexileMeasures(languageId, nodeList);
-		//updateFrequencyCount(languageId, nodeList);
-		updatePosList(languageId, nodeList);
-		updateWordComplexity(languageId, nodeList);
-
 		long diff = System.currentTimeMillis() - startTime;
 		LOGGER.info("Time taken for enriching " + nodeList.size() + " words: " + diff / 1000 + "s");
 	}
@@ -204,8 +196,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 *
 	 * @param languageId
 	 *            the language id
-	 * @param nodeList
-	 *            the node list
+	 * @param node
+	 *            the node 
 	 */
 	private void enrichWord(String languageId, Node word) {
 		long startTime = System.currentTimeMillis();
@@ -221,7 +213,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 		updateWordComplexity(languageId, nodeList);
 
 		long diff = System.currentTimeMillis() - startTime;
-		LOGGER.info("Time taken for enriching word - " +word.getIdentifier()+ " : " + diff / 1000 + "s");
+		LOGGER.info("Time taken for enriching a word , id - " +word.getIdentifier()+ " : " + diff / 1000 + "s");
 	}
 	/**
 	 * Update word metadata.

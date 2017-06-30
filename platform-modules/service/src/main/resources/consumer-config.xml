@@ -20,6 +20,12 @@
 				<Consumer partitions="8" />
 			</Consumers>
 		</ConsumerGroup>
+				<ConsumerGroup id="word-enrichment-group" messageProcessor="org.ekstep.searchindex.processor.WordEnrichMessageProcessor">
+			<Consumers>
+				<Consumer partitions="0,1,2,3,4,5" />
+				<Consumer partitions="6,7,8,9,10" />
+			</Consumers>
+		</ConsumerGroup>
 		<ConsumerGroup id="lp-object-lifecycle-group" messageProcessor="org.ekstep.searchindex.processor.ObjectLifecycleMessageProcessor">
 			<Consumers>
 				<Consumer partitions="0,1,2,3,4,5" />
