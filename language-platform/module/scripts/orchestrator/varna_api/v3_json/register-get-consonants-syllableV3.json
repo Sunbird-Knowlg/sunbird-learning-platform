@@ -11,5 +11,7 @@
         "url": "/v3/public/dictionary/varna/syllable/consonants/*",
         "pathParams": ["syllable"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.consonants.read",
+    "version":"3.0"
 }

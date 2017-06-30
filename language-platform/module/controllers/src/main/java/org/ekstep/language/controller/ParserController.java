@@ -50,7 +50,7 @@ public class ParserController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> parseContent(@RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "parser";
+        String apiId = "ekstep.language.parser";
         Request request = getRequest(map);
         try {
             String languageId = (String) request.get(LanguageParams.language_id.name());

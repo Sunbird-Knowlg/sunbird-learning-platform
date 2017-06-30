@@ -62,7 +62,7 @@ public class IndexesController extends BaseLanguageController {
 			@RequestParam(name = "source", required = false) String source,
 			@RequestParam(name = "skipCitations", required = false, defaultValue = "true") Boolean skipCitations,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "citations.load";
+		String apiId = "ekstep.language.citations.load";
 		
 		InputStream zipStream = null;
 		Request request = new Request();
@@ -117,7 +117,7 @@ public class IndexesController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> getCitationsCount(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "citations.count";
+		String apiId = "ekstep.language.citations.count";
 		Request request = getRequestObject(map);
 
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
@@ -151,7 +151,7 @@ public class IndexesController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> getCitations(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "citations.count";
+		String apiId = "ekstep.language.citations.count";
 		Request request = getRequestObject(map);
 
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
@@ -185,7 +185,7 @@ public class IndexesController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> getRootWords(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "rootWords.get";
+		String apiId = "ekstep.language.rootWords.info";
 		Request request = getRequestObject(map);
 
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
@@ -219,7 +219,7 @@ public class IndexesController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> getWordId(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "wordIds.get";
+		String apiId = "ekstep.language.words.info";
 		Request request = getRequestObject(map);
 
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());

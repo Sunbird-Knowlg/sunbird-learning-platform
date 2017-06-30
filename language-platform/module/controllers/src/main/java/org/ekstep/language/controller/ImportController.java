@@ -78,7 +78,7 @@ public class ImportController extends BaseLanguageController {
 	public ResponseEntity<Response> importJSON(@PathVariable(value = "languageId") String languageId,
 			@RequestParam("zipFile") MultipartFile zipFile, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse resp) {
-		String apiId = "language.fixAssociation";
+		String apiId = "ekstep.language.fixAssociation";
 		LOGGER.info("Import | Language Id: " + languageId + " Synset File: " + zipFile + "| user-id: " + userId);
 		InputStream synsetsStreamInZIP = null;
 		try {
@@ -121,7 +121,7 @@ public class ImportController extends BaseLanguageController {
 	public ResponseEntity<Response> transformData(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "sourceId") String sourceId, @RequestParam("file") MultipartFile file,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
-		String apiId = "language.transform";
+		String apiId = "ekstep.language.transform";
 		LOGGER.info("Import | Language Id: " + languageId + " Source Id: " + sourceId + " | File: " + file
 				+ " | user-id: " + userId);
 		InputStream stream = null;
@@ -164,7 +164,7 @@ public class ImportController extends BaseLanguageController {
 	public ResponseEntity<Response> importData(@PathVariable(value = "languageId") String languageId,
 			@RequestParam("synsetFile") MultipartFile synsetFile, @RequestParam("wordFile") MultipartFile wordFile,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
-		String apiId = "language.fixAssociation";
+		String apiId = "ekstep.language.fixAssociation";
 		LOGGER.info("Import | Language Id: " + " | Synset File: " + synsetFile + " Synset File: " + wordFile
 				+ "| user-id: " + userId);
 		InputStream synsetStream = null;
@@ -215,7 +215,7 @@ public class ImportController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> importwordnet(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-		String apiId = "wordnet.import";
+		String apiId = "ekstep.language.wordnet.import";
 		Request request = getRequestObject(map);
 
 		request.setManagerName(LanguageActorNames.INDOWORDNET_ACTOR.name());

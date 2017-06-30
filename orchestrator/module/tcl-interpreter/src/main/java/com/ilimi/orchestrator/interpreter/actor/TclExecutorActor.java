@@ -18,6 +18,7 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.ScriptParams;
 import com.ilimi.orchestrator.dac.model.ScriptTypes;
@@ -40,6 +41,7 @@ public class TclExecutorActor extends UntypedActor {
 	private Interp interpreter;
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(TclExecutorActor.class.getName());
+	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 
 	public TclExecutorActor(List<OrchestratorScript> commands) {
 		init(commands);
@@ -65,7 +67,19 @@ public class TclExecutorActor extends UntypedActor {
 					response = OK();
 				} else if (StringUtils.equalsIgnoreCase(OrchestratorRequest.ACTION_TYPES.EXECUTE.name(),
 						request.getAction())) {
+					long startTime = System.currentTimeMillis();
+					perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+			                + request.getRequestId() + ",TclExecutorActor,"
+			                + request.getScript().getName() + ",STARTTIME," + startTime);
 					Object result = execute(request.getScript(), request.getParams());
+					long endTime = System.currentTimeMillis();
+	                long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
+	                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+	                        + request.getRequestId() + ",TclExecutor,"
+	                        + request.getScript().getName() + ",ENDTIME," + endTime);
+	                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+                            + request.getRequestId() + ",TclExecutor,"
+                            + request.getScript().getName() + ",successful," + exeTime);
 					if (result instanceof Response)
 						response = (Response) result;
 					else
@@ -142,7 +156,7 @@ public class TclExecutorActor extends UntypedActor {
 		}
 		return false;
 	}
-
+	
 	private Object execute(OrchestratorScript script, Map<String, Object> params) {
 		try {
 			if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), script.getType())) {

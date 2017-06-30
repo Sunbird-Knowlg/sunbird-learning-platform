@@ -54,7 +54,7 @@ public class SearchControllerV2 extends BaseController {
 	public ResponseEntity<Response> search(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId,
 			@RequestParam(value = "version", required = false, defaultValue = API_VERSION_2) String version) {
-		String apiId = "word.search";
+		String apiId = "ekstep.language.word.search";
 		Request request = getRequest(map);
 		try {
 			Response response = dictionaryManager.list(languageId, LanguageObjectTypes.Word.name(), request, version);

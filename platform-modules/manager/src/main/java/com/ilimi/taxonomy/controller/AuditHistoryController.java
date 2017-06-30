@@ -57,7 +57,7 @@ public class AuditHistoryController extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getAll";
+		String apiId = "ekstep.learning.audit_history.list";
 
 		LOGGER.info("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
 				+ endTime);
@@ -96,7 +96,7 @@ public class AuditHistoryController extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getById";
+		String apiId = "ekstep.learning.audit_history.info";
 
 		LOGGER.info("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
@@ -134,7 +134,7 @@ public class AuditHistoryController extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getByType";
+		String apiId = "ekstep.learning.audit_history.info";
 
 		LOGGER.info("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);

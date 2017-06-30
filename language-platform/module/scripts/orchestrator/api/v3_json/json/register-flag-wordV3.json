@@ -28,5 +28,7 @@
         "pathParams": ["word_id"],
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.flag.word",
+    "version":"3.0"
 }

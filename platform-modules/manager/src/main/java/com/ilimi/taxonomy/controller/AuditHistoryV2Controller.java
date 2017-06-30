@@ -58,7 +58,7 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getAll";
+		String apiId = "ekstep.audit_history.list";
 
 		LOGGER.info("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
 				+ endTime);
@@ -97,7 +97,7 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getById";
+		String apiId = "ekstep.audit_history.info";
 
 		LOGGER.info("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
@@ -135,7 +135,7 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getByType";
+		String apiId = "ekstep.audit_history.info";
 
 		LOGGER.info("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
@@ -171,7 +171,7 @@ public class AuditHistoryV2Controller extends BaseController {
 	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "objectId") String objectId,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getLogRecordById";
+		String apiId = "ekstep.audit_history.info";
 
 		LOGGER.info("get AuditHistory By objectId | TimeStamp1: " + timeStamp
 				+ " | objectId: " + objectId);
@@ -190,7 +190,7 @@ public class AuditHistoryV2Controller extends BaseController {
 	public ResponseEntity<Response> deleteAuditHistory(
 			@RequestParam(value = "start", required = false) String start,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.delete";
+		String apiId = "ekstep.audit_history.delete";
 
 		LOGGER.info("delete AuditHistory By date| date: " + start
 				+ " | objectId: " + start);

@@ -14,6 +14,12 @@
 				<TimeBasedTriggeringPolicy interval="24"
 					modulate="true" />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="config-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/config_event.log"
 			filePattern="/data/logs/config_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -23,6 +29,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="config_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 	</Appenders>
 	<Loggers>

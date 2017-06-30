@@ -15,5 +15,7 @@
         "url": "/v3/traversals/create",
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.traversals.create",
+    "version":"3.0"
 }

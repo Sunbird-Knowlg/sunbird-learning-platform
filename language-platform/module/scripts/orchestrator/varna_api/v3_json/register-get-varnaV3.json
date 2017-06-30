@@ -16,5 +16,6 @@
         "pathParams": ["varna_id"],
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.varnas.read"
 }

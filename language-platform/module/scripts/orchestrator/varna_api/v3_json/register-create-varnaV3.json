@@ -15,5 +15,7 @@
         "url": "/v3/varnas/create",
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.varnas.create",
+    "version":"3.0"
 }

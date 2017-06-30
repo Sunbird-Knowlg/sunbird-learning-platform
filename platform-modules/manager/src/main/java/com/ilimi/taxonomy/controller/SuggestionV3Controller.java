@@ -53,7 +53,7 @@ public class SuggestionV3Controller extends BaseController {
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> map) {
-		String apiId = "content.suggestions.create";
+		String apiId = "ekstep.learning.content.suggestions.create";
 		try {
 			Map<String,Object>  request = validateSuggestionRequest(map);
 			LOGGER.info("Create | Suggestions: " + " | Request: " + request);
@@ -88,7 +88,7 @@ public class SuggestionV3Controller extends BaseController {
 			@RequestParam(name = "start", required = false) String startTime,
 			@RequestParam(name = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.suggestions.read";
+		String apiId = "ekstep.learning.content.suggestions.read";
 		LOGGER.info("Get | Suggestions: " + " | Request: " + object_id);
 		try {
 			Response response = suggestionManager.readSuggestion(object_id, startTime, endTime);
@@ -115,7 +115,7 @@ public class SuggestionV3Controller extends BaseController {
 	public ResponseEntity<Response> approve(@RequestBody Map<String, Object> map,
 			@PathVariable(value = "id") String suggestion_id,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.suggestions.approve";
+		String apiId = "ekstep.learning.content.suggestions.approve";
 		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
 			if(StringUtils.isBlank(suggestion_id)){
@@ -145,7 +145,7 @@ public class SuggestionV3Controller extends BaseController {
 	public ResponseEntity<Response> reject(@RequestBody Map<String, Object> map,
 			@PathVariable(value = "id") String suggestion_id,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.suggestions.reject";
+		String apiId = "ekstep.learning.content.suggestions.reject";
 		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
 			Response response = suggestionManager.rejectSuggestion(suggestion_id, map);
@@ -166,7 +166,7 @@ public class SuggestionV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.suggestions.list";
+		String apiId = "ekstep.learning.content.suggestions.list";
 		LOGGER.info("Get | Suggestions: " + " | Request: " + map);
 		try {
 			Response response = suggestionManager.listSuggestion(map);

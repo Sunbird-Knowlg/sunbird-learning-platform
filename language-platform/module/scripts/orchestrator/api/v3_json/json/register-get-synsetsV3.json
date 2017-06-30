@@ -14,5 +14,7 @@
         "url": "/v3/synsets/list",
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "version":"3.0",
+    "apiId":"ekstep.language.synsets.list"
 }

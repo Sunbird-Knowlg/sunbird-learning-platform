@@ -78,7 +78,7 @@ public class ConfigController extends BaseController {
 	@RequestMapping(value = "/resourcebundles/{languageId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundle(@PathVariable(value = "languageId") String languageId) {
-		String apiId = "ekstep.config.resourebundles.find";
+		String apiId = "ekstep.config.resourebundles.info";
 
 		try {
 			LOGGER.info("ResourceBundle | GET | languageId" + languageId);
