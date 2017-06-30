@@ -519,6 +519,23 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		response.setParams(getSucessStatus());
 		return response;
 	}
+	
+	@Override
+	public Response getById(String graphId, String contentId, String mode) {
+		LOGGER.debug("Graph Id: ", graphId);
+		LOGGER.debug("Content Id: ", contentId);
+		Response response = new Response();
+		
+		Node node = getContentNode(graphId, contentId, mode);
+		
+		LOGGER.info("Fetching the Data For Content Id: " + node.getIdentifier());
+		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+		
+		response.put("content", contentMap);
+		response.setParams(getSucessStatus());
+		return response;
+	}
 
 	protected ResponseParams getSucessStatus() {
 		ResponseParams params = new ResponseParams();

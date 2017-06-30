@@ -22,6 +22,8 @@ public class DriverUtil {
 	public static Driver getDriver(String graphId, GraphOperation graphOperation) {
 		LOGGER.debug("Get Driver for Graph Id: ", graphId);
 		String driverKey = graphId + DACConfigurationConstants.DEFAULT_GRAPH_ID_AND_GRAPH_OPERATION_SEPARATOR + StringUtils.lowerCase(graphOperation.name());
+		LOGGER.info("Driver Configuration Key: " + driverKey);
+		
 		Driver driver = driverMap.get(driverKey);
 		if (null == driver) {
 			driver = loadDriver(graphId, graphOperation);
