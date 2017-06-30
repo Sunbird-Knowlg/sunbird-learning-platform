@@ -2,6 +2,9 @@ package org.ekstep.language.controller;
 
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,13 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	@Autowired
 	private WordControllerV2 wordController;
 
+	/** The dictionary manager. */
+	@Autowired
+	private IDictionaryManager dictionaryManager;
+	
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(DictionaryControllerV3.class.getName());
+	
 	/**
 	 * Finds and returns the word.
 	 *
@@ -45,7 +55,16 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 			@PathVariable(value = "objectId") String objectId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestHeader(value = "user-id") String userId) {
-		return wordController.find(languageId, objectId, fields, userId, API_VERSION_3);
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".info";
+		try {
+			Response response = dictionaryManager.getWordV3(languageId, objectId);
+			LOGGER.info("Find | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Find | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**

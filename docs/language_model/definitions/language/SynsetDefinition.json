@@ -225,6 +225,19 @@
           "displayProperty": "Hidden",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 15 }"
+        },
+        {
+            "required": false,
+            "dataType": "JSON",
+            "propertyName": "words",
+            "title": "Words",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 16 }",
+            "indexed": true,
+            "draft": false
         }
       ],
       "inRelations": [

@@ -211,4 +211,26 @@ public class ToolsController extends BaseLanguageController {
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
 	}
+	
+	@RequestMapping(value = "/enrich/{languageId}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> enrichWord(@PathVariable(value = "languageId") String languageId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "ekstep.language.word.complexity.info";
+		Request request = getRequest(map);
+		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+		request.setOperation(LanguageOperations.enrichWord.name());
+		request.getContext().put(LanguageParams.language_id.name(), languageId);
+		LOGGER.info("List | Request: " + request);
+		try {
+			Response response = getResponse(request, LOGGER);
+			LOGGER.info("List | Response: " + response);
+			return getResponseEntity(response, apiId,
+					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+		} catch (Exception e) {
+			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId,
+					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+		}
+	}
 }
