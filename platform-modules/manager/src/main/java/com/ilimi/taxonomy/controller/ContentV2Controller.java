@@ -244,6 +244,7 @@ public class ContentV2Controller extends BaseController {
 			Response response = contentManager.updateContent(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			LOGGER.error(e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

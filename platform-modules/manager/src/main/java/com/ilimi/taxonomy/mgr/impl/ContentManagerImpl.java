@@ -792,6 +792,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+				node.setGraphId(GRAPH_ID);
 				Response response = createDataNode(node);
 				if (checkError(response)) 
 					return response;
@@ -828,13 +829,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		Response getNodeResponse = getDataNode(GRAPH_ID, contentImageId);
 		if (checkError(getNodeResponse)) {
+			LOGGER.info("Content image not found: " + contentImageId);
 			isImageObjectCreationNeeded = true;
 			getNodeResponse = getDataNode(GRAPH_ID, contentId);
 		} else
 			imageObjectExists = true;
 		
-		if (checkError(getNodeResponse))
+		if (checkError(getNodeResponse)) {
+			LOGGER.info("Content not found: " + contentId);
 			return getNodeResponse;
+		}
 		
 		Map<String, Object> externalProps = new HashMap<String, Object>();
 		List<String> externalPropsList = getExternalPropsList(definition);
@@ -847,6 +851,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node_id.name());
+		LOGGER.info("Graph node found: " + graphNode.getIdentifier());
 		Map<String, Object> metadata = graphNode.getMetadata();
 		String status = (String) metadata.get("status");
 		boolean isReviewState = StringUtils.equalsIgnoreCase("Review", status);
@@ -875,9 +880,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				if (null != lastUpdatedBy)
 					metadata.put("lastUpdatedBy", lastUpdatedBy);
 				graphNode.setGraphId(GRAPH_ID);
+				LOGGER.info("Creating content image: " + graphNode.getIdentifier());
 				createResponse = createDataNode(graphNode);
 				checkError = checkError(createResponse);
 				if (!checkError) {
+					LOGGER.info("Updating external props for: " + contentImageId);
 					Response bodyResponse = getContentProperties(contentId, externalPropsList);
 					checkError = checkError(bodyResponse);
 					if (!checkError) {
@@ -896,6 +903,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		
 		if (checkError)
 			return createResponse;
+		LOGGER.info("Updating content node: " + contentId);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(GRAPH_ID);
 		domainObj.setIdentifier(contentId);
