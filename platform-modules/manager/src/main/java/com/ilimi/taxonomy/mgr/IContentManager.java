@@ -192,5 +192,9 @@ public interface IContentManager {
 	 *         in its Result Set.
 	 */
 	Response getById(String graphId, String contentId, String mode);
+	
+	Response createContent(Map<String, Object> map);
+	
+	Response updateContent(String contentId, Map<String, Object> map) throws Exception;
 
 }
