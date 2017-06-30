@@ -88,6 +88,11 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				List<Node> nodeList = (List<Node>) request.get(LanguageParams.node_list.name());
 				updatePosList(languageId, nodeList);
 				OK(getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWord.name(), operation)) {
+				String nodeId = (String) request.get(LanguageParams.word_id.name());
+				Node word = getDataNode(languageId, nodeId, "Word");
+				enrichWord( languageId, word);
+				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWords.name(), operation)) {
 				List<String> nodeIds = (List<String>) request.get(LanguageParams.node_ids.name());
 				enrichWords(nodeIds, languageId);
@@ -186,7 +191,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 			updateSyllablesList(nodeList);
 		}
 		updateLexileMeasures(languageId, nodeList);
-		updateFrequencyCount(languageId, nodeList);
+		//updateFrequencyCount(languageId, nodeList);
 		updatePosList(languageId, nodeList);
 		updateWordComplexity(languageId, nodeList);
 
@@ -194,6 +199,30 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 		LOGGER.info("Time taken for enriching " + nodeList.size() + " words: " + diff / 1000 + "s");
 	}
 
+	/**
+	 * Enrich word.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodeList
+	 *            the node list
+	 */
+	private void enrichWord(String languageId, Node word) {
+		long startTime = System.currentTimeMillis();
+		List<Node> nodeList = new ArrayList<>();
+		nodeList.add(word);
+		//updateWordMetadata(languageId, nodeList);
+		if (languageId.equalsIgnoreCase("en")) {
+			updateSyllablesList(nodeList);
+		}
+		updateLexileMeasures(languageId, nodeList);
+		//updateFrequencyCount(languageId, nodeList);
+		updatePosList(languageId, nodeList);
+		updateWordComplexity(languageId, nodeList);
+
+		long diff = System.currentTimeMillis() - startTime;
+		LOGGER.info("Time taken for enriching word - " +word.getIdentifier()+ " : " + diff / 1000 + "s");
+	}
 	/**
 	 * Update word metadata.
 	 *
