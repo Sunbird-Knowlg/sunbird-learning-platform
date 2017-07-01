@@ -76,11 +76,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
-			if (StringUtils.equalsIgnoreCase(LanguageOperations.updateLexileMeasures.name(), operation)) {
-				List<Node> nodeList = (List<Node>) request.get(LanguageParams.node_list.name());
-				updateLexileMeasures(languageId, nodeList);
-				OK(getSender());
-			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.updateFrequencyCount.name(), operation)) {
+			if (StringUtils.equalsIgnoreCase(LanguageOperations.updateFrequencyCount.name(), operation)) {
 				List<Node> nodeList = (List<Node>) request.get(LanguageParams.node_list.name());
 				updateFrequencyCount(languageId, nodeList);
 				OK(getSender());
@@ -201,17 +197,27 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 */
 	private void enrichWord(String languageId, Node word) {
 		long startTime = System.currentTimeMillis();
-		List<Node> nodeList = new ArrayList<>();
-		nodeList.add(word);
-		//updateWordMetadata(languageId, nodeList);
 		if (languageId.equalsIgnoreCase("en")) {
-			updateSyllablesList(nodeList);
+			updateSyllablesList(word);
 		}
-		updateLexileMeasures(languageId, nodeList);
-		//updateFrequencyCount(languageId, nodeList);
-		updatePosList(languageId, nodeList);
-		updateWordComplexity(languageId, nodeList);
+		updateLexileMeasures(languageId, word);
+		updatePosList(languageId, word);
+		updateWordComplexity(languageId, word);
 
+		try{
+			Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+					"updateDataNode");
+			updateReq.put(GraphDACParams.node.name(), word);
+			updateReq.put(GraphDACParams.node_id.name(), word.getIdentifier());
+			Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
+			if (checkError(updateResponse)) {
+				throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+						updateResponse.getParams().getErrmsg());
+			}
+		} catch (Exception e) {
+			LOGGER.error("Error updating syllable list for " + word.getIdentifier(), e);
+		}
+		
 		long diff = System.currentTimeMillis() - startTime;
 		LOGGER.info("Time taken for enriching a word , id - " +word.getIdentifier()+ " : " + diff / 1000 + "s");
 	}
@@ -248,8 +254,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
 				if (wordUtil.getSynonymRelations(synset.getOutRelations()) != null)
 					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
-				else
-					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
 
 				if (wordUtil.getAntonymRelations(synset.getOutRelations()) != null)
 					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
@@ -266,6 +270,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				if (tags != null && tags.size() > 0)
 					word.setTags(tags);
 
+			} else {
+				word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
 			}
 
 			try {
@@ -462,25 +468,10 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 * @param nodes
 	 *            the nodes
 	 */
-	private void updateSyllablesList(List<Node> nodes) {
-		if (null != nodes && !nodes.isEmpty()) {
-			LOGGER.info("updateSyllablesList | Total words: " + nodes.size());
-			for (Node node : nodes) {
-				try {
-					WordnetUtil.updateSyllables(node);
-					Request updateReq = controllerUtil.getRequest("en", GraphEngineManagers.NODE_MANAGER,
-							"updateDataNode");
-					updateReq.put(GraphDACParams.node.name(), node);
-					updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-					Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
-					if (checkError(updateResponse)) {
-						throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-								updateResponse.getParams().getErrmsg());
-					}
-				} catch (Exception e) {
-					LOGGER.error("Error updating syllable list for " + node.getIdentifier(), e);
-				}
-			}
+	private void updateSyllablesList(Node node) {
+		if (null != node) {
+			LOGGER.info("updateSyllablesList | word identifier: " + node.getIdentifier());
+			WordnetUtil.updateSyllables(node);
 		}
 	}
 
@@ -515,25 +506,38 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	}
 
 	/**
-	 * Update word complexity.
+	 * Update pos list.
 	 *
 	 * @param languageId
 	 *            the language id
 	 * @param nodes
 	 *            the nodes
 	 */
-	private void updateWordComplexity(String languageId, List<Node> nodes) {
-		if (null != nodes && !nodes.isEmpty()) {
-			for (Node node : nodes) {
-				try {
-					wordUtil.getWordComplexity(node, languageId);
-				} catch (Exception e) {
-					LOGGER.error("Error updating word complexity for " + node.getIdentifier(), e);
-				}
+	private void updatePosList(String languageId, Node node) {
+		if (null != node ) {
+			LOGGER.info("updatePosList | word identifier: " + node.getIdentifier());
+			WordnetUtil.updatePOS(node);
+		}
+	}
+	
+	/**
+	 * Update word complexity.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param node
+	 *            the node
+	 */
+	private void updateWordComplexity(String languageId, Node node) {
+		if (null != node) {
+			try {
+				wordUtil.computeWordComplexity(node, languageId);
+			} catch (Exception e) {
+				LOGGER.error("Error updating word complexity for " + node.getIdentifier(), e);
 			}
 		}
 	}
-
+	
 	/**
 	 * Update lexile measures.
 	 *
@@ -543,20 +547,17 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 *            the nodes
 	 */
 	@SuppressWarnings("unchecked")
-	private void updateLexileMeasures(String languageId, List<Node> nodes) {
-		if (null != nodes && !nodes.isEmpty()) {
-			LOGGER.info("updateLexileMeasures | Total words: " + nodes.size());
-			List<String> words = new ArrayList<String>();
-			Map<String, Node> nodeMap = new HashMap<String, Node>();
-			controllerUtil.getNodeMap(nodes, nodeMap, words);
+	private void updateLexileMeasures(String languageId, Node node) {
+		if (null != node) {
+			LOGGER.info("updateLexileMeasures word identifier: " + node.getIdentifier());
+			String lemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+			if(StringUtils.isBlank(lemma))
+				return;
 			Request langReq = controllerUtil.getLanguageRequest(languageId,
 					LanguageActorNames.LEXILE_MEASURES_ACTOR.name(), LanguageOperations.getWordFeatures.name());
-			langReq.put(LanguageParams.words.name(), words);
+			langReq.put(LanguageParams.word.name(), lemma);
 			Response langRes = controllerUtil.getLanguageResponse(langReq, LOGGER);
 			if (checkError(langRes)) {
-				// throw new
-				// ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-				// langRes.getParams().getErrmsg());
 				LOGGER.error("errror in updateLexileMeasures, languageId =" + languageId + ", error message"
 						+ langRes.getParams().getErrmsg());
 				return;
@@ -564,35 +565,19 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
 						.get(LanguageParams.word_features.name());
 				if (null != featureMap && !featureMap.isEmpty()) {
-					LOGGER.info("Word features returned for " + featureMap.size() + " words");
-					for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
-						Node node = nodeMap.get(entry.getKey());
-						WordComplexity wc = entry.getValue();
-						if (null != node && null != wc) {
-							node.getMetadata().put("syllableCount", wc.getCount());
-							node.getMetadata().put("syllableNotation", wc.getNotation());
-							node.getMetadata().put("unicodeNotation", wc.getUnicode());
-							node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
-							node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
-							try {
-								Request updateReq = controllerUtil.getRequest(languageId,
-										GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-								updateReq.put(GraphDACParams.node.name(), node);
-								updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-								Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
-								if (checkError(updateResponse)) {
-									throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-											updateResponse.getParams().getErrmsg());
-								}
-							} catch (Exception e) {
-								LOGGER.error("Update error : " + node.getIdentifier() + " : " + e.getMessage(), e);
-							}
-						}
-						try {
-							wordChainUtil.updateWordSet(languageId, node, wc);
-						} catch (Exception e) {
-							LOGGER.error("Update error : " + node.getIdentifier() + " : " + e.getMessage(), e);
-						}
+					LOGGER.info("Word features returned for " + featureMap.size() + " word");
+					WordComplexity wc = featureMap.get(lemma);
+					if (null != node && null != wc) {
+						node.getMetadata().put("syllableCount", wc.getCount());
+						node.getMetadata().put("syllableNotation", wc.getNotation());
+						node.getMetadata().put("unicodeNotation", wc.getUnicode());
+						node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
+						node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
+					}
+					try {
+						wordChainUtil.updateWordSet(languageId, node, wc);
+					} catch (Exception e) {
+						LOGGER.error("Update error : " + node.getIdentifier() + " : " + e.getMessage(), e);
 					}
 				}
 			}
