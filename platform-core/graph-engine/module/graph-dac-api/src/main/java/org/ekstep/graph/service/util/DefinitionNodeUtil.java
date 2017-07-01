@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.graph.service.common.GraphOperation;
 import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -159,7 +160,7 @@ public class DefinitionNodeUtil {
 	private static Map<String, Object> getDefinitionNodeMetadata(String graphId, String objectType) {
 		LOGGER.debug("Fetching Definition Node for Object Id: " + objectType + "of Graph Id: " + graphId + ".");
 		Map<String, Object> metadataMap = null;
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			try {

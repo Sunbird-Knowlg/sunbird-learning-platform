@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.Neo4JOperation;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.QueryUtil;
@@ -68,7 +69,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_NODE_ID + " | ['Get Node By Id' Operation Failed.]");
 
 		Node node = new Node();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -139,7 +140,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_IDENTIFIER + " | ['Get Node By Unique Id' Operation Failed.]");
 
 		Node node = new Node();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -210,7 +211,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_PROPERTY + " | ['Get Nodes By Property' Operation Failed.]");
 
 		List<Node> nodes = new ArrayList<Node>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -279,7 +280,7 @@ public class Neo4JBoltSearchOperations {
 							+ " | ['Get Nodes By Search Criteria' Operation Failed.]");
 
 		List<Node> nodes = new ArrayList<Node>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -353,7 +354,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_PROPERTY_KEY + " | ['Get Node Property' Operation Failed.]");
 
 		Property property = new Property();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -398,7 +399,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Get All Nodes' Operation Failed.]");
 
 		List<Node> nodes = new ArrayList<Node>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -455,7 +456,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Get All Relations' Operation Failed.]");
 
 		List<Relation> relations = new ArrayList<Relation>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -539,7 +540,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_PROPERTY_KEY + " | ['Get Relation Property' Operation Failed.]");
 
 		Property property = new Property();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -583,7 +584,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_IDENTIFIER + " | ['Get Relation' Operation Failed.]");
 		
 		Relation relation = new Relation();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -659,7 +660,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_END_NODE_ID + " | ['Get Relation' Operation Failed.]");
 
 		Relation relation = new Relation();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -741,7 +742,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_END_NODE_ID + " | ['Check Cyclic Loop' Operation Failed.]");
 
 		Map<String, Object> cyclicLoopMap = new HashMap<String, Object>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -801,7 +802,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_PARAM_MAP + " | ['Execute Query' Operation Failed.]");
 
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -859,7 +860,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_SEARCH_CRITERIA + " | ['Search Nodes' Operation Failed.]");
 
 		List<Node> nodes = new ArrayList<Node>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -940,7 +941,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_SEARCH_CRITERIA + " | ['Get Nodes Count' Operation Failed.]");
 
 		Long count = (long) 0;
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");

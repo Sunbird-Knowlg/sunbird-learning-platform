@@ -173,5 +173,28 @@ public interface IContentManager {
 	 *         in its Result Set.
 	 */
 	Response getHierarchy(String graphId, String contentId, String mode);
+	
+	/**
+	 * This method returns the content.
+	 * 
+	 * A subclass must provide an implementation of this method.
+	 *
+	 * @param taxonomyId
+	 *            the <code>graph id</code> of the content.
+	 * @param contentId
+	 *            the content <code>identifier</code> whose hierarchy needs to
+	 *            be returned
+	 * @param mode
+	 *            if edit, returns the content's Draft version, else
+	 *            returns the content's Live version. If Live version
+	 *            does not exist, Draft version is returned
+	 * @return the response contains the <code>content</code>
+	 *         in its Result Set.
+	 */
+	Response getById(String graphId, String contentId, String mode);
+	
+	Response createContent(Map<String, Object> map);
+	
+	Response updateContent(String contentId, Map<String, Object> map) throws Exception;
 
 }

@@ -3,6 +3,7 @@ package com.ilimi.graph.dac.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.request.validaor.Neo4JBoltDataVersionKeyValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.junit.Assert;
@@ -47,7 +48,7 @@ public class Neo4jBoltDataVersionKeyValidatorTest {
 	
 	private Map<String, Object> getNeo4jNodeProperty(String graphId, String identifier) {
 		Map<String, Object> prop = null;
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
 		try (Session session = driver.session()) {
 			try (Transaction tx = session.beginTransaction()) {
 				String query = "match (n:" + graphId + "{IL_UNIQUE_ID:'" + identifier + "'}) return (n) as result";

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.Neo4JOperation;
 import org.ekstep.graph.service.request.validaor.Neo4JBoltDataVersionKeyValidator;
 import org.ekstep.graph.service.util.DriverUtil;
@@ -61,7 +62,7 @@ public class Neo4JBoltNodeOperations {
 		node.getMetadata().remove(GraphDACParams.versionKey.name());
 		LOGGER.debug("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -116,7 +117,7 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 					DACErrorMessageConstants.INVALID_NODE + " | [Create Node Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -183,7 +184,7 @@ public class Neo4JBoltNodeOperations {
 		node.getMetadata().remove(GraphDACParams.versionKey.name());
 		LOGGER.debug("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -266,7 +267,7 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_PROPERTY.name(),
 					DACErrorMessageConstants.INVALID_PROPERTY + " | [Update Property Value Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -301,7 +302,7 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_PROPERTY.name(),
 					DACErrorMessageConstants.INVALID_PROPERTY + " | [Update Property Value Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -337,7 +338,7 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_PROPERTY.name(),
 					DACErrorMessageConstants.INVALID_PROPERTY + " | [Remove Property Value Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -373,7 +374,7 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_PROPERTY.name(),
 					DACErrorMessageConstants.INVALID_PROPERTY + " | [Remove Property Values Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -404,7 +405,7 @@ public class Neo4JBoltNodeOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
 					DACErrorMessageConstants.INVALID_IDENTIFIER + " | [Remove Property Values Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -432,7 +433,7 @@ public class Neo4JBoltNodeOperations {
 		LOGGER.debug("Initializing Node.");
 		Node node = new Node();
 		node.setMetadata(new HashMap<String, Object>());
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");

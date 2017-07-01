@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,10 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
+import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -48,8 +52,10 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
+
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 import scala.concurrent.Await;
@@ -90,6 +96,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * Content Image Object Type
 	 */
 	private static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
+	
+	/**
+	 * Content Object Type
+	 */
+	private static final String CONTENT_OBJECT_TYPE = "Content";
+	
+	private static final String GRAPH_ID = "domain";
 
 	/**
 	 * Is Content Image Object flag property key
@@ -519,6 +532,23 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		response.setParams(getSucessStatus());
 		return response;
 	}
+	
+	@Override
+	public Response getById(String graphId, String contentId, String mode) {
+		LOGGER.debug("Graph Id: ", graphId);
+		LOGGER.debug("Content Id: ", contentId);
+		Response response = new Response();
+		
+		Node node = getContentNode(graphId, contentId, mode);
+		
+		LOGGER.info("Fetching the Data For Content Id: " + node.getIdentifier());
+		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+		
+		response.put("content", contentMap);
+		response.setParams(getSucessStatus());
+		return response;
+	}
 
 	protected ResponseParams getSucessStatus() {
 		ResponseParams params = new ResponseParams();
@@ -587,6 +617,27 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Response response = makeLearningRequest(request, LOGGER);
 		String body = (String) response.get(ContentStoreParams.body.name());
 		return body;
+	}
+	
+	private Response getContentProperties(String contentId, List<String> properties) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getContentProperties.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		request.put(ContentStoreParams.properties.name(), properties);
+		Response response = makeLearningRequest(request, LOGGER);
+		return response;
+	}
+	
+	private Response updateContentProperties(String contentId, Map<String, Object> properties) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.updateContentProperties.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		request.put(ContentStoreParams.properties.name(), properties);
+		
+		Response response = makeLearningRequest(request, LOGGER);
+		return response;
 	}
 
 	/**
@@ -706,6 +757,195 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			response = getResponse(request, LOGGER);
 		}
 		return response;
+	}
+	
+	public Response createContent(Map<String, Object> map) {
+		if (null == map)
+			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		Object mimeType = map.get("mimeType");
+		if (null != mimeType && StringUtils.isNotBlank(mimeType.toString())) {
+			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType.toString()))
+				map.put("osId", "org.ekstep.quiz.app");
+			Object contentType = map.get("contentType");
+			if (null != contentType && StringUtils.isNotBlank(contentType.toString())) {
+				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType.toString()))
+					map.put("visibility", "Parent");
+			}
+			
+			Map<String, Object> externalProps = new HashMap<String, Object>();
+			List<String> externalPropsList = getExternalPropsList(definition);
+			if (null != externalPropsList && !externalPropsList.isEmpty()) {
+				for (String prop : externalPropsList) {
+					if (null != map.get(prop))
+						externalProps.put(prop, map.get(prop));
+					map.remove(prop);
+				}
+			}
+			
+			if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.plugin-archive", mimeType.toString())) {
+				Object code = map.get("code");
+				if (null == code || StringUtils.isBlank(code.toString()))
+					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins", ResponseCode.CLIENT_ERROR);
+				map.put("identifier", map.get("code"));
+			}
+			
+			try {
+				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+				node.setObjectType(CONTENT_OBJECT_TYPE);
+				node.setGraphId(GRAPH_ID);
+				Response response = createDataNode(node);
+				if (checkError(response)) 
+					return response;
+				else {
+					String contentId = (String) response.get(GraphDACParams.node_id.name());
+					if (null != externalProps && !externalProps.isEmpty()) {
+						Response externalPropsResponse = updateContentProperties(contentId, externalProps);
+						if (checkError(externalPropsResponse))
+							return externalPropsResponse;
+					}
+					return response;
+				}
+			} catch (Exception e) {
+				return ERROR("ERR_CONTENT_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR);
+			}
+		} else {
+			return ERROR("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", "Mime Type cannot be empty", ResponseCode.CLIENT_ERROR);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Response updateContent(String contentId, Map<String, Object> map) throws Exception {
+		if (null == map)
+			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+		
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		String originalId = contentId;
+		String objectType = CONTENT_OBJECT_TYPE;
+		map.put("objectType", CONTENT_OBJECT_TYPE);
+		map.put("identifier", contentId);
+		
+		boolean isImageObjectCreationNeeded = false;
+		boolean imageObjectExists = false;
+		
+		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		Response getNodeResponse = getDataNode(GRAPH_ID, contentImageId);
+		if (checkError(getNodeResponse)) {
+			LOGGER.info("Content image not found: " + contentImageId);
+			isImageObjectCreationNeeded = true;
+			getNodeResponse = getDataNode(GRAPH_ID, contentId);
+			LOGGER.info("Content node response: " + getNodeResponse);
+		} else
+			imageObjectExists = true;
+		
+		if (checkError(getNodeResponse)) {
+			LOGGER.info("Content not found: " + contentId);
+			return getNodeResponse;
+		}
+		
+		Map<String, Object> externalProps = new HashMap<String, Object>();
+		List<String> externalPropsList = getExternalPropsList(definition);
+		if (null != externalPropsList && !externalPropsList.isEmpty()) {
+			for (String prop : externalPropsList) {
+				if (null != map.get(prop))
+					externalProps.put(prop, map.get(prop));
+				map.remove(prop);
+			}
+		}
+		
+		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
+		LOGGER.info("Graph node found: " + graphNode.getIdentifier());
+		Map<String, Object> metadata = graphNode.getMetadata();
+		String status = (String) metadata.get("status");
+		boolean isReviewState = StringUtils.equalsIgnoreCase("Review", status);
+		boolean isFlaggedReviewState = StringUtils.equalsIgnoreCase("FlagReview", status);
+		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
+		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
+		boolean logEvent = false;
+		Object inputStatus = map.get("status");
+		if (null != inputStatus) {
+			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus.toString());
+			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus.toString());
+			if ( (updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
+				map.put("lastSubmittedOn", DateUtils.format(new Date()));
+			if (!StringUtils.equalsIgnoreCase(status, inputStatus.toString()))
+				logEvent = true;
+		}
+		
+		boolean checkError = false;
+		Response createResponse = null;
+		if (isLiveState || isFlaggedState) {
+			if (isImageObjectCreationNeeded) {
+				graphNode.setIdentifier(contentImageId);
+				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+				metadata.put("status", "Draft");
+				Object lastUpdatedBy = map.get("lastUpdatedBy");
+				if (null != lastUpdatedBy)
+					metadata.put("lastUpdatedBy", lastUpdatedBy);
+				graphNode.setGraphId(GRAPH_ID);
+				LOGGER.info("Creating content image: " + graphNode.getIdentifier());
+				createResponse = createDataNode(graphNode);
+				checkError = checkError(createResponse);
+				if (!checkError) {
+					LOGGER.info("Updating external props for: " + contentImageId);
+					Response bodyResponse = getContentProperties(contentId, externalPropsList);
+					checkError = checkError(bodyResponse);
+					if (!checkError) {
+						Map<String, Object> extValues = (Map<String, Object>) bodyResponse.get(ContentStoreParams.values.name());
+						if (null != extValues && !extValues.isEmpty()) {
+							updateContentProperties(contentImageId, extValues);
+						}
+					}
+					map.put("versionKey", createResponse.get("versionKey"));
+				}
+			}
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
+			contentId = contentImageId;
+		} else if (imageObjectExists) {
+			objectType = CONTENT_IMAGE_OBJECT_TYPE;
+			contentId = contentImageId;
+		}
+		
+		if (checkError)
+			return createResponse;
+		LOGGER.info("Updating content node: " + contentId);
+		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
+		domainObj.setGraphId(GRAPH_ID);
+		domainObj.setIdentifier(contentId);
+		domainObj.setObjectType(objectType);
+		createResponse = updateDataNode(domainObj);
+		checkError = checkError(createResponse);
+		if (checkError)
+			return createResponse;
+		
+		createResponse.put(GraphDACParams.node_id.name(), originalId);
+		if (logEvent) {
+			metadata.putAll(map);
+			metadata.put("prevState", status);
+			LogTelemetryEventUtil.logContentLifecycleEvent(originalId, metadata);
+		}
+		
+		if (null != externalProps && !externalProps.isEmpty()) {
+			Response externalPropsResponse = updateContentProperties(contentId, externalProps);
+			if (checkError(externalPropsResponse))
+				return externalPropsResponse;
+		}
+		return createResponse;
+	}
+	
+	private List<String> getExternalPropsList(DefinitionDTO definition) {
+		List<String> list = new ArrayList<String>();
+		if (null != definition) {
+			List<MetadataDefinition> props = definition.getProperties();
+			if (null != props && !props.isEmpty()) {
+				for (MetadataDefinition prop : props) {
+					if (StringUtils.equalsIgnoreCase("external", prop.getDataType())) {
+						list.add(prop.getPropertyName().trim());
+					}
+				}
+			}
+		}
+		return list;
 	}
 
 }

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.Neo4JOperation;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.QueryUtil;
@@ -68,7 +69,7 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_PROPERTY.name(),
 					DACErrorMessageConstants.INVALID_INDEX_PROPERTY_KEY_LIST
 							+ " | ['Create Graph Unique Contraint' Operation Failed.]");
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -112,7 +113,7 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_INDEX_PROPERTY_KEY_LIST
 							+ " | [Create Graph Index Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -148,7 +149,7 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Delete Graph' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -203,7 +204,7 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
 					DACErrorMessageConstants.INVALID_RELATION_TYPE + " | ['Create Relation' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -274,7 +275,7 @@ public class Neo4JBoltGraphOperations {
 
 		Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
 		if (null != metadata && !metadata.isEmpty()) {
-			Driver driver = DriverUtil.getDriver(graphId);
+			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 			LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
 				LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -344,7 +345,7 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
 					DACErrorMessageConstants.INVALID_RELATION_TYPE + " | ['Delete Relation' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -405,7 +406,7 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_RELATION_TYPE
 							+ " | ['Create Incoming Relations' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -455,7 +456,7 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_RELATION_TYPE
 							+ " | ['Create Outgoing Relations' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -505,7 +506,7 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_RELATION_TYPE
 							+ " | ['Delete Incoming Relations' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -555,7 +556,7 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_RELATION_TYPE
 							+ " | ['Delete Outgoing Relations' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -612,7 +613,7 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_PROPERTY_KEY
 							+ " | ['Remove Relation Metadata' Operation Failed.]");
 
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
@@ -741,7 +742,7 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_DATA.name(),
 					DACErrorMessageConstants.INVALID_IMPORT_DATA + " | ['Import Graph' Operation Failed.]");
 		Map<String, List<String>> messages = new HashMap<String, List<String>>();
-		Driver driver = DriverUtil.getDriver(graphId);
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		try (Session session = driver.session()) {
 			try (org.neo4j.driver.v1.Transaction tx = session.beginTransaction()) {
 				Map<String, com.ilimi.graph.dac.model.Node> existingNodes = new HashMap<String, com.ilimi.graph.dac.model.Node>();
