@@ -73,12 +73,12 @@ public class TclExecutorActor extends UntypedActor {
 			                + request.getScript().getName() + ",STARTTIME," + startTime);
 					Object result = execute(request.getScript(), request.getParams());
 					long endTime = System.currentTimeMillis();
-	                long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
+	                long exeTime = endTime - startTime;
 	                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-	                        + request.getRequestId() + ",TclExecutor,"
+	                        + request.getRequestId() + ",TclExecutorActor,"
 	                        + request.getScript().getName() + ",ENDTIME," + endTime);
 	                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
-                            + request.getRequestId() + ",TclExecutor,"
+                            + request.getRequestId() + ",TclExecutorActor,"
                             + request.getScript().getName() + ",successful," + exeTime);
 					if (result instanceof Response)
 						response = (Response) result;
