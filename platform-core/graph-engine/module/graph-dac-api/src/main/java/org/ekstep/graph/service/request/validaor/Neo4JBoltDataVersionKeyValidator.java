@@ -32,8 +32,12 @@ import com.ilimi.graph.dac.model.Node;
 public class Neo4JBoltDataVersionKeyValidator {
 
 	private static Logger LOGGER = LogManager.getLogger(Neo4JBoltDataVersionKeyValidator.class.getName());
-
+	
 	public boolean validateUpdateOperation(String graphId, Node node) {
+		return true;
+	}
+
+	public boolean validateUpdateOperation1(String graphId, Node node) {
 		LOGGER.debug("Graph Engine Node: ", node);
 
 		// Fetching Neo4J Node
