@@ -68,4 +68,14 @@
 		</ConsumerGroup>
 	</ConsumerGroups>
 </ConsumerConfig>
+<ConsumerConfig>
+	<ConsumerInit serverURI="localhost:2181" topic="telemetry-event-topic"></ConsumerInit>
+	<ConsumerGroups>
+		<ConsumerGroup id="lp-collection-extraction-group" messageProcessor="org.ekstep.searchindex.processor.CollectionEnhancementMessageProcessor">
+			<Consumers>
+				<Consumer partitions="8" />
+			</Consumers>
+		</ConsumerGroup>
+	</ConsumerGroups>
+</ConsumerConfig>
 </ConsumerConfigs>
