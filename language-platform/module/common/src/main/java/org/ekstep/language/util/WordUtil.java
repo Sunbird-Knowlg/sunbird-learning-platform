@@ -2368,7 +2368,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Double getWordComplexity(Node word, String languageId) throws Exception {
+	public Double computeWordComplexity(Node word, String languageId) throws Exception {
 		Map<String, Object> wordMap = convertGraphNode(word, languageId, null);
 		String languageGraphName = "language";
 		DefinitionDTO wordComplexityDefinition = DefinitionDTOCache
@@ -2581,8 +2581,27 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		word.getMetadata().put(LanguageParams.word_complexity.name(), bd.doubleValue());
 		// remove temporary "morphology" metadata
 		word.getMetadata().remove(LanguageParams.morphology.name());
-		updateWord(word, languageId, word.getIdentifier());
+		
 		return bd.doubleValue();
+	}
+	
+	/**
+	 * Computes the word complexity of the given word node using the word
+	 * complexity definition
+	 * 
+	 * @param word
+	 *            Node object of the word
+	 * @param languageId
+	 *            Graph Id
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Double getWordComplexity(Node word, String languageId) throws Exception {
+		
+		Double db = computeWordComplexity(word, languageId);
+		updateWord(word, languageId, word.getIdentifier());
+		return db;
 	}
 
 	/**

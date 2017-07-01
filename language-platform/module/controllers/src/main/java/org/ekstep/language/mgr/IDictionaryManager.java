@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Interface IDictionaryManager defines the behaviour of all dictionary
  * managers. Defines implementation for word, synsets and relations
@@ -110,13 +111,11 @@ public interface IDictionaryManager {
 	/**
 	 * Imports words and synsets from a CSV file.
 	 *
-	 * @param languageId
-	 *            the language id
-	 * @param inputStream
-	 *            the input stream
+	 * @param languageId            the language id
+	 * @param objectType the object type
+	 * @param is the is
+	 * @param out the out
 	 * @return the response
-	 * @throws Exception
-	 *             the exception
 	 */
 	//Response importWordSynset(String languageId, InputStream inputStream) throws Exception;
 
@@ -200,10 +199,9 @@ public interface IDictionaryManager {
 	/**
 	 * Gets the phonetic spelling by language for a word.
 	 *
-	 * @param languageID
-	 *            the language ID
-	 * @param word
-	 *            the word
+	 * @param languageID            the language ID
+	 * @param word            the word
+	 * @param addEndVirama the add end virama
 	 * @return the phonetic spelling by language
 	 */
 	Response getPhoneticSpellingByLanguage(String languageID, String word, boolean addEndVirama);
@@ -220,17 +218,32 @@ public interface IDictionaryManager {
 	Response getSimilarSoundWords(String languageId, String word);
 
 	/**
-	 * Transliterates an english text into a given language
-	 * 
-	 * @param languageId
-	 *            code of the language into which the text should be
+	 * Transliterates an english text into a given language.
+	 *
+	 * @param languageId            code of the language into which the text should be
 	 *            transliterated
-	 * @param addEndVirama
-	 *            if virama should be added at end of the words that end with a
+	 * @param request the request
+	 * @param addEndVirama            if virama should be added at end of the words that end with a
 	 *            consonant
-	 * @param map
-	 *            request body containing the text to be transliterated
 	 * @return the transliterated text
 	 */
 	Response transliterate(String languageId, Request request, boolean addEndVirama);
+	
+	/**
+	 * Gets the word v3.
+	 *
+	 * @param languageId the language id
+	 * @param id the id
+	 * @return the word
+	 */
+	Response getWordV3(String languageId, String id);
+	
+	/**
+	 * Gets the synset V3.
+	 *
+	 * @param languageId the language id
+	 * @param id the id
+	 * @return the synset
+	 */
+	Response getSynsetV3(String languageId, String id);
 }
