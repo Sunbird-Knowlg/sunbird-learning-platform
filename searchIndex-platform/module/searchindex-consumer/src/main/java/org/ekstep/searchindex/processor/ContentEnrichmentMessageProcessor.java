@@ -740,7 +740,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		try {
 
 			LOGGER.info("Processing Collection Content :" + node.getIdentifier());
-			Response response = util.getHirerachy("", node.getIdentifier());
+			Response response = util.getHirerachy(node.getIdentifier());
 			if (null != response && null != response.getResult()) {
 				Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
 				Map<String,Object> mimeTypeMap = new HashMap<>();

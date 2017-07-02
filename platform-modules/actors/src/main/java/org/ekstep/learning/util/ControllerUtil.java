@@ -169,7 +169,7 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 
-	public Response getHirerachy(String taxonomyId, String identifier) {
+	public Response getHirerachy(String identifier) {
 		String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/hierarchy/" + identifier;
 		Response hirerachyRes = null;
 		try {
