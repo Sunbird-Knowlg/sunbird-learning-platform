@@ -90,14 +90,12 @@ public class AWSUploader {
 
 	public static List<String> getObjectList(String prefix) {
 		AmazonS3 s3 = new AmazonS3Client();
-		LOGGER.info("Reading s3 BucketRegion : " + s3Environment);
-		LOGGER.info("Reading s3 Bucket" + s3Bucket);
+		LOGGER.info("Reading s3 Bucket and Region" + s3Bucket + s3Environment);
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
-		LOGGER.info("fetching s3 objectList from bucket: " + bucketName + prefix);
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
-		LOGGER.info("SummaryData returned from s3 object Listing" + summaries);
+		LOGGER.debug("SummaryData returned from s3 object Listing" + summaries.size());
 		List<String> fileList = new ArrayList<String>();
 		while (listing.isTruncated()) {
 			listing = s3.listNextBatchOfObjects(listing);

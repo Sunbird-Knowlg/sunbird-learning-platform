@@ -57,7 +57,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 			if (null != manifest) {
 				List<Media> medias = manifest.getMedias();
 				for (Media media: medias) {
-					LOGGER.info("Validating Asset Id: " + media.getId());
+					LOGGER.debug("Validating Asset Id: " + media.getId());
 					validateAsset(media);
 				}
 			}
@@ -77,7 +77,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 						throw new ClientException(ContentErrorCodeConstants.FILE_SIZE_EXCEEDS_LIMIT.name(), 
 								ContentErrorMessageConstants.ASSET_FILE_SIZE_LIMIT_EXCEEDS + " | [Asset " + file.getName() + " is Bigger in Size.]");
 					isValid = true;
-					LOGGER.info("Asset Id '" + media.getId() + "' is Valid.");
+					LOGGER.debug("Asset Id '" + media.getId() + "' is Valid.");
 				}
 			}
 		} catch(IOException e) {
@@ -90,7 +90,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private boolean isValidAssetMimeType(File file) throws IOException {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
-			LOGGER.info("Validating Asset File '" + file.getName() + "' for Mime-Type.");
+			LOGGER.debug("Validating Asset File '" + file.getName() + "' for Mime-Type.");
 			Tika tika = new Tika();
 			String mimeType = tika.detect(file);
 			isValidMimeType = AssetsMimeTypeMap.isAllowedMimeType(mimeType);
@@ -101,7 +101,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private boolean isValidAssetSize(File file) {
 		boolean isValidSize = false;
 		if (file.exists()) {
-			LOGGER.info("Validating Asset File '" + file.getName() + "' for Size.");
+			LOGGER.debug("Validating Asset File '" + file.getName() + "' for Size.");
 			if (file.length() < getAssetFileSizeLimit())
 				isValidSize = true;
 		}
@@ -124,7 +124,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private String getAssetPath(String type, String src) {
 		String path = "";
 		if (!StringUtils.isBlank(type) && !StringUtils.isBlank(src)) {
-			LOGGER.info("Fetching Asset Path.");
+			LOGGER.debug("Fetching Asset Path.");
 			if (isWidgetTypeAsset(type))
 				path = basePath + File.separator + ContentWorkflowPipelineParams.widgets.name() + File.separator + src;
 			else

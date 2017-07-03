@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +25,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.logger.LogHelper;
 
 @Controller
 @RequestMapping("/v3/")
@@ -32,7 +33,7 @@ public class ConfigV3Controller extends BaseController {
 	public static final String folderName = "resources";
 	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
 
-	private static LogHelper LOGGER = LogHelper.getInstance(ConfigController.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(ConfigController.class.getName());
 	
 	@RequestMapping(value = "/resourcebundles/list", method = RequestMethod.GET)
 	@ResponseBody
@@ -65,7 +66,7 @@ public class ConfigV3Controller extends BaseController {
 			LOGGER.info("get All ResourceBundles | Response: " + response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("getAllResources | Exception" + e.getMessage(), e);
+			LOGGER.warn("getAllResources | Exception" + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -76,7 +77,7 @@ public class ConfigV3Controller extends BaseController {
 		String apiId = "ekstep.config.resourebundles.read";
 
 		try {
-			LOGGER.info("ResourceBundle | GET | languageId" + languageId);
+			LOGGER.debug("ResourceBundle | GET | languageId" + languageId);
 			Response response = new Response();
 			String data = HttpDownloadUtility
 					.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
@@ -108,7 +109,7 @@ public class ConfigV3Controller extends BaseController {
 				return getResponseEntity(response, apiId, null);
 			}
 		} catch (Exception e) {
-			LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
+			LOGGER.warn("getResourceBundle | Exception" + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -137,7 +138,7 @@ public class ConfigV3Controller extends BaseController {
 			LOGGER.info("Get Ordinals | Response" + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.warn("getOrdinalsException" + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -146,6 +147,7 @@ public class ConfigV3Controller extends BaseController {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(folderName);
+		LOGGER.info("ResourceBundle Urls fetched from s3" + res.size());
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
 				apiUrl = baseUrl + data;

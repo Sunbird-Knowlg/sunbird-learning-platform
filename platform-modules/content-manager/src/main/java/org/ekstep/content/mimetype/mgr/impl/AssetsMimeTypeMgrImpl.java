@@ -104,15 +104,15 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			response = updateContentNode(contentId, node, urlArray[1]);
 
 			FileType type = FileUtils.getFileType(uploadFile);
-			// Call async image optimiser for configured resolutions if asset
-			// type is image
-			if (type == FileType.Image) {
-				// make async request to image optimiser actor
-				Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(),
-						LearningOperations.optimizeImage.name());
-				request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
-				makeAsyncLearningRequest(request, LOGGER);
-			}
+//			// Call async image optimiser for configured resolutions if asset
+//			// type is image
+//			if (type == FileType.Image) {
+//				// make async request to image optimiser actor
+//				Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(),
+//						LearningOperations.optimizeImage.name());
+//				request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
+//				makeAsyncLearningRequest(request, LOGGER);
+//			}
 
 
 		} catch (IOException e) {

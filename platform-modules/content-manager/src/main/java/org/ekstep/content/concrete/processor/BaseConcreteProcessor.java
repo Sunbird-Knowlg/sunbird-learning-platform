@@ -20,7 +20,6 @@ import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.ContentPipelineProcessor;
-import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Request;
@@ -395,7 +394,7 @@ public class BaseConcreteProcessor extends BaseManager {
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			LOGGER.info("Base Path Already Exist: " + path.getFileName());
+			LOGGER.warn("Base Path Already Exist: " + path.getFileName());
 		} catch (Exception e) {
 			exist = false;
 			LOGGER.error("Error! Something went wrong while creating the path - " + path.getFileName(), e);
