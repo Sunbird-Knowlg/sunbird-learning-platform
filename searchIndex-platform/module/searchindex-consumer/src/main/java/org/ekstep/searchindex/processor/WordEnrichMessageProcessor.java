@@ -116,11 +116,11 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 		 requestBodyMap.put("request", requestMap);
 		 
 		 String requestBody = mapper.writeValueAsString(requestBodyMap);
-		 LOGGER.info("Updating Word Count | URL: " + url + " | Request body: " + requestBody);
+		 LOGGER.info("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
 		 
 		 HTTPUtil.makePostRequest(url, requestBody);
 		 
-		 LOGGER.info("Word Count updated");
+		 LOGGER.info("Word enriched for the lemma change successfully - wordId :"+wordId);
 
 		} catch (Exception e) {
 			LOGGER.error("error when calling enrich api Language Id:"+languageId + " word :"+ wordId+",error"+e.getMessage(), e);
