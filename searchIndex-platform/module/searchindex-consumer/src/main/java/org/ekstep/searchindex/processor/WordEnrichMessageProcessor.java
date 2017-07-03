@@ -14,7 +14,7 @@ import com.ilimi.common.logger.LogHelper;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(WordCountMessageProcessor.class.getName());
+	private static LogHelper LOGGER = LogHelper.getInstance(WordEnrichMessageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	public WordEnrichMessageProcessor() {
@@ -108,7 +108,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 		
 		try {
 		
-		String url = PropertiesUtil.getProperty("platform-api-url") +"v1/language/tools/enrich/"+languageId;
+		String url = PropertiesUtil.getProperty("platform-api-url") +"/v1/language/tools/enrich/"+languageId;
 		
 		 Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 		 Map<String, Object> requestMap = new HashMap<String, Object>();
