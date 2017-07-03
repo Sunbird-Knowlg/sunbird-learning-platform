@@ -526,7 +526,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition, mode);
-
+		
+		if(map.containsKey("identifier")) {
+			String identifier = (String)map.get("identifier");
+			if(StringUtils.endsWithIgnoreCase(identifier, ".img")){
+			 String new_identifier = identifier.replace(".img", "");
+			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+			 map.replace("identifier", identifier, new_identifier);
+			}
+		}
 		Response response = new Response();
 		response.put("content", map);
 		response.setParams(getSucessStatus());
