@@ -25,19 +25,19 @@ public class PlatformLogger<T> {
 	}
 
 	private void info(String message, Object data) throws JsonProcessingException{
-		logger(className).info(mapper.writeValueAsString(getLogEvent("PLATFORM_LOG", "INFO", message, data)));
+		logger(className).info(mapper.writeValueAsString(getLogEvent("BE_LOG", "INFO", message, data)));
 	}
 	
 	private void debug(String message, Object data) throws JsonProcessingException{
-		logger(className).debug(mapper.writeValueAsString(getLogEvent("PLATFORM_LOG", "DEBUG", message, data)));
+		logger(className).debug(mapper.writeValueAsString(getLogEvent("BE_LOG", "DEBUG", message, data)));
 	}
 	
 	private void error(String message, Object data, Exception e) throws JsonProcessingException{
-		logger(className).error(mapper.writeValueAsString(getLogEvent("PLATFORM_LOG", "ERROR", message, data, e)));
+		logger(className).error(mapper.writeValueAsString(getLogEvent("BE_LOG", "ERROR", message, data, e)));
 	}
 	
 	private void warn(String message, Object data,  Exception e) throws JsonProcessingException{
-		logger(className).warn(mapper.writeValueAsString(getLogEvent("PLATFORM_LOG", "WARN", message, data, e)));
+		logger(className).warn(mapper.writeValueAsString(getLogEvent("BE_LOG", "WARN", message, data, e)));
 	}
 
 	public void log(String logLevel, String message, Object data) throws JsonProcessingException{
