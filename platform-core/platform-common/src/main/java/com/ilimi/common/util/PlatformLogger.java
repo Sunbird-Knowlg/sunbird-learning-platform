@@ -13,7 +13,7 @@ import com.ilimi.common.dto.TelemetryBEEvent;
 public class PlatformLogger<T> {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static final org.apache.logging.log4j.Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
+	private static final Logger telemetryEventLogger = (Logger) LogManager.getLogger("TelemetryEventLogger");
 	private String className;
 	public PlatformLogger(Class<T> cls) {
 		className = cls.getName();
