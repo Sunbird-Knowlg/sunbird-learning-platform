@@ -25,7 +25,7 @@ public class PlatformLogger<T> {
 		return logger;
 	}
 
-	public void info(String message, Object data) {
+	private void info(String message, Object data) {
 		try {
 			logger(className).info(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.INFO.name(), message, data)));
 		} catch (JsonProcessingException e) {
@@ -33,7 +33,7 @@ public class PlatformLogger<T> {
 		}
 	}
 
-	public void debug(String message, Object data)  {
+	private void debug(String message, Object data)  {
 		try {
 			logger(className).debug(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.DEBUG.name(), message, data)));
 		} catch (JsonProcessingException e) {
@@ -41,7 +41,7 @@ public class PlatformLogger<T> {
 		}
 	}
 
-	public void error(String message, Object data, Exception exception) {
+	private void error(String message, Object data, Exception exception) {
 		try {
 			logger(className).error(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.ERROR.name(), message, data, exception)));
 		} catch (JsonProcessingException e) {
@@ -49,7 +49,7 @@ public class PlatformLogger<T> {
 		}
 	}
 
-	public void warn(String message, Object data, Exception exception) {
+	private void warn(String message, Object data, Exception exception) {
 		try {
 			logger(className).warn(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.WARN.name(), message, data, exception)));
 		} catch (JsonProcessingException e) {

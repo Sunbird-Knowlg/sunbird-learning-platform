@@ -350,7 +350,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_MIMETYPE
 									+ " | [Invalid or 'null' MimeType for Content Id: " + node.getIdentifier() + "]");
-				LOGGER.log("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]", node.getIdentifier(), "INFO");
+				LOGGER.log("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
 
 				LOGGER.log("Publishing Content Id: " + node.getIdentifier());
 				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(node.getIdentifier(), node, false);
