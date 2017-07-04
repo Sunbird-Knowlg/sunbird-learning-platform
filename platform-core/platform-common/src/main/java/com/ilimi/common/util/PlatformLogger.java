@@ -39,17 +39,7 @@ public class PlatformLogger<T> {
 	private void warn(String message, Object data,  Exception e) throws JsonProcessingException{
 		logger(className).warn(mapper.writeValueAsString(getLogEvent("PLATFORM_LOG", "WARN", message, data, e)));
 	}
-	
-	@SuppressWarnings("unused")
-	private void start(String message, Object data) throws JsonProcessingException{
-		logger(className).info(mapper.writeValueAsString(getLogEvent("JOB_START", "INFO", message, data)));
-	}
-	
-	@SuppressWarnings("unused")
-	private void stop(String message, Object data) throws JsonProcessingException{
-		logger(className).info(mapper.writeValueAsString(getLogEvent("JOB_END", "INFO",  message, data)));
-	}
-	
+
 	public void log(String logLevel, String message, Object data) throws JsonProcessingException{
 		logData(logLevel, message, data, null);
 	}
@@ -95,8 +85,12 @@ public class PlatformLogger<T> {
 		eks.put("class", className);
 		eks.put("level", logLevel);
 		eks.put("message", message);
-		eks.put("data", data);
-		eks.put("stacktrace", e);
+		if(data != null){
+			eks.put("data", data);
+		}
+		if(e != null){
+			eks.put("stacktrace", e);
+		}
 		te.setEid(logName);
 		te.setEts(unixTime);
 		te.setMid(mid);
