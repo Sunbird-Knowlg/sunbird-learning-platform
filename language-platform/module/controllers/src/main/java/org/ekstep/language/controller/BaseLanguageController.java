@@ -1,8 +1,6 @@
 package org.ekstep.language.controller;
 
 import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
@@ -16,6 +14,7 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 import akka.actor.ActorRef;
@@ -43,7 +42,8 @@ public abstract class BaseLanguageController extends BaseController {
         return request;
     }
     
-    protected Response getResponse(Request request, Logger logger) {
+    @SuppressWarnings("rawtypes")
+	protected Response getResponse(Request request, PlatformLogger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
@@ -54,12 +54,13 @@ public abstract class BaseLanguageController extends BaseController {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }   
     }
     
-    protected Response getNonLanguageResponse(Request request, Logger logger) {
+    @SuppressWarnings("rawtypes")
+	protected Response getNonLanguageResponse(Request request, PlatformLogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -70,22 +71,24 @@ public abstract class BaseLanguageController extends BaseController {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception",e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }   
     }
     
-    public void makeAsyncRequest(Request request, Logger logger) {
+    @SuppressWarnings("rawtypes")
+	public void makeAsyncRequest(Request request, PlatformLogger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             router.tell(request, router);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }
     }
     
-    protected Response getBulkOperationResponse(Request request, Logger logger) {
+    @SuppressWarnings("rawtypes")
+	protected Response getBulkOperationResponse(Request request, PlatformLogger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             request.getContext().put(LanguageParams.bulk_request.name(), true);
@@ -97,7 +100,7 @@ public abstract class BaseLanguageController extends BaseController {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something went wrong while processing the request", e);
         }   
     }

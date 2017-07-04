@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -76,12 +75,13 @@ public abstract class BaseManager {
         }
     }
     
-    public void makeAsyncRequest(Request request, Logger logger) {
+    @SuppressWarnings("rawtypes")
+	public void makeAsyncRequest(Request request, PlatformLogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             router.tell(request, router);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception",e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
         }
     }
