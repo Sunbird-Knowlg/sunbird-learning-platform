@@ -8,21 +8,19 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.HealthCheckManager;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 
 @Component
 public class LearningHealthCheckManager extends HealthCheckManager {
 
-	private static Logger LOGGER = LogManager.getLogger(LearningHealthCheckManager.class.getName());
+	private static PlatformLogger<LearningHealthCheckManager> LOGGER = new PlatformLogger<>(LearningHealthCheckManager.class.getName());
 	private static final int MAX_THREAD_NUM = 10;
 
 	@Autowired
@@ -98,7 +96,7 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Exception", e.getMessage(), "WARN");
 			check.put("healthy", false);
 			check.put("err", "503"); // error code, if any
 			check.put("errmsg", " MongoDB is not available"); 
