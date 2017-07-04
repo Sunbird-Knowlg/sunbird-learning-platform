@@ -526,9 +526,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		LOGGER.info("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition, mode);
-
+		Map<String, Object> dataMap = contentCleanUp(map);
 		Response response = new Response();
-		response.put("content", map);
+		response.put("content", dataMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
@@ -568,7 +568,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
 				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
 				childMap.put("index", dto.getIndex());
-				childList.add(childMap);
+				Map<String,Object> childData = contentCleanUp(childMap);
+				childList.add(childData);
 			}
 			contentMap.put("children", childList);
 		} else {
@@ -577,6 +578,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return contentMap;
 	}
 
+	private Map<String, Object> contentCleanUp(Map<String,Object> map){
+		if(map.containsKey("identifier")){
+			String identifier = (String)map.get("identifier");
+			LOGGER.info("Checking if identifier ends with .img" + identifier);
+			if(StringUtils.endsWithIgnoreCase(identifier, ".img")){
+				 String new_identifier = identifier.replace(".img", "");
+				 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+				 map.replace("identifier", identifier, new_identifier);
+			}
+		}
+		return map;
+	}
+	
 	private Node getContentNode(String graphId, String contentId, String mode) {
 		
 		if (StringUtils.equalsIgnoreCase("edit", mode)) {
