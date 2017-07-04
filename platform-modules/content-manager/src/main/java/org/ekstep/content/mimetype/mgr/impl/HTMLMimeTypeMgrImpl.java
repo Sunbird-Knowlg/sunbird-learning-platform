@@ -41,9 +41,7 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		LOGGER.log("Uploaded File: " + uploadFile.getName());
-
-		LOGGER.log("Calling Upload Content For Node ID: " + node.getIdentifier());
+		LOGGER.log("Calling Upload Content For Node ID: " + node.getIdentifier(), "Uploaded File :" + uploadFile);
 		return uploadContentArtifact(contentId, node, uploadFile);
 	}
 
@@ -68,18 +66,18 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
 		
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId, "");
+			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId, "INFO");
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
+			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId, "INFO");
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 
@@ -95,7 +93,7 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , node.getIdentifier(), "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , node.getIdentifier());
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

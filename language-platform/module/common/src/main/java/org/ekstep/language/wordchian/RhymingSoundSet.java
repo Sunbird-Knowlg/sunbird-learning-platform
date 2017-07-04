@@ -3,11 +3,10 @@ package org.ekstep.language.wordchian;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
@@ -20,7 +19,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class RhymingSoundSet extends BaseWordSet {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(RhymingSoundSet.class.getName());
+	private static PlatformLogger<RhymingSoundSet> LOGGER = new PlatformLogger<>(RhymingSoundSet.class.getName());
 
 	/** The rhyming sound. */
 	private String rhymingSound;
@@ -62,13 +61,13 @@ public class RhymingSoundSet extends BaseWordSet {
 	 * relations
 	 */
 	public void create(){
-		LOGGER.info("Rhyming sound is " + rhymingSound);
+		LOGGER.log("Rhyming sound is " + rhymingSound);
 		if(StringUtils.isNotBlank(rhymingSound)){
 			String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
 			if(!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
 				createRhymingSoundSet(rhymingSoundLemma);
 		} else {
-			LOGGER.info("Deleting existing rhyming sound relation");
+			LOGGER.log("Deleting existing rhyming sound relation");
 			removeSetRelation(LanguageParams.RhymingSound.name());
 		}
 	}
@@ -81,7 +80,7 @@ public class RhymingSoundSet extends BaseWordSet {
 	 *            the rhyming sound
 	 */
 	private void createRhymingSoundSet(String rhymingSound) {
-		LOGGER.info("create RhymingSound " + rhymingSound + "for the word"
+		LOGGER.log("create RhymingSound " + rhymingSound + "for the word"
 				+ (String) wordNode.getMetadata().get(LanguageParams.lemma.name()));
 
 		String setId = getWordSet(rhymingSound, LanguageParams.RhymingSound.name());

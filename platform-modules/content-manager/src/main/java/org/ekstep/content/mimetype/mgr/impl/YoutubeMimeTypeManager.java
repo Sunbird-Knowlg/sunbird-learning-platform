@@ -71,7 +71,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 
 		LOGGER.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.log("Review Operation Finished Successfully for Node ID: " + contentId);
+		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
@@ -83,7 +83,6 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
-
 	}
 
 	/*
@@ -102,7 +101,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 }

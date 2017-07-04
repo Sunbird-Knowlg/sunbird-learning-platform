@@ -16,8 +16,6 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.batch.mgr.IWordnetCSVManager;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -28,6 +26,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * WordnetCSVManagerImpl provides implementations to process words from a CSV,
@@ -42,7 +41,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(IWordnetCSVManager.class.getName());
+	private static PlatformLogger<WordnetCSVManagerImpl> LOGGER = new PlatformLogger<>(IWordnetCSVManager.class.getName());
 
 	/*
 	 * (non-Javadoc)

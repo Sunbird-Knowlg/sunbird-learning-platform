@@ -21,10 +21,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -34,7 +31,6 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
-import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.xml.sax.InputSource;
@@ -50,6 +46,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -73,7 +70,7 @@ import scala.concurrent.Future;
 public class BasePipeline extends BaseManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(BasePipeline.class.getName());
+	private static PlatformLogger<BasePipeline> LOGGER = new PlatformLogger<>(BasePipeline.class.getName());
 
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -151,21 +148,22 @@ public class BasePipeline extends BaseManager {
 	 *            the logger object
 	 * @return the LearningActor response
 	 */
-	protected Response makeLearningRequest(Request request, Logger logger) {
+	@SuppressWarnings("rawtypes")
+	protected Response makeLearningRequest(Request request, PlatformLogger LOGGER) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
-				logger.info("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
-						+ " | Result: " + response.getResult().keySet());
+				LOGGER.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+						, " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			LOGGER.log("Error! Something went wrong" , e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something went wrong while processing the request", e);
 		}
 	}
@@ -179,7 +177,7 @@ public class BasePipeline extends BaseManager {
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
-			LOGGER.info("Validating the Base Path: " + path);
+			LOGGER.log("Validating the Base Path: " + path);
 			isValid = isPathExist(Paths.get(path));
 		} catch (InvalidPathException | NullPointerException e) {
 			isValid = false;
@@ -199,15 +197,15 @@ public class BasePipeline extends BaseManager {
 		boolean exist = true;
 		try {
 			if (null != path) {
-				LOGGER.info("Creating the Base Path: " + path.getFileName());
+				LOGGER.log("Creating the Base Path: " + path.getFileName());
 				if (!Files.exists(path))
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			LOGGER.info("Base Path Already Exist: " + path.getFileName());
+			LOGGER.log("Base Path Already Exist: " + path.getFileName());
 		} catch (Exception e) {
 			exist = false;
-			LOGGER.error("Error! Something went wrong while creating the path - " + path.getFileName(), e);
+			LOGGER.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
 		}
 		return exist;
 	}
@@ -291,7 +289,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				LOGGER.error("Error! While getting the file size from AWS", e);
+				LOGGER.log("Error! While getting the file size from AWS", key, e,"WARN");
 			}
 		}
 		return bytes;
@@ -312,7 +310,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return sdf.format(date);
 			} catch (Exception e) {
-				LOGGER.error("Error! While Converting the Date Format.", e);
+				LOGGER.log("Error! While Converting the Date Format.", date, e, "WARN");
 			}
 		}
 		return null;
@@ -422,10 +420,10 @@ public class BasePipeline extends BaseManager {
 			List<String> childrenIds, boolean onlyLive) {
 		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		if (null != nodes && !nodes.isEmpty()) {
-			LOGGER.info("Starting Data Collection For Bundling...");
+			LOGGER.log("Starting Data Collection For Bundling...");
 			List<Node> childrenNodes = new ArrayList<Node>();
 			for (Node node : nodes) {
-				LOGGER.info("Collecting Hierarchical Bundling Data For Content Id: " + node.getIdentifier());
+				LOGGER.log("Collecting Hierarchical Bundling Data For Content Id: " + node.getIdentifier());
 				getContentRecursive(graphId, childrenNodes, node, nodeMap, childrenIds, ctnts, onlyLive);
 			}
 			nodes.addAll(childrenNodes);
@@ -523,7 +521,7 @@ public class BasePipeline extends BaseManager {
 	 * @return Response of the search
 	 */
 	protected Response searchNodes(String taxonomyId, List<String> contentIds) {
-		LOGGER.info("Searching Nodes For Bundling...");
+		LOGGER.log("Searching Nodes For Bundling...");
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
 		List<Filter> filters = new ArrayList<Filter>();
 		Filter filter = new Filter(ContentWorkflowPipelineParams.identifier.name(), SearchConditions.OP_IN, contentIds);

@@ -17,7 +17,6 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
@@ -419,7 +418,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 //				requests.add(req);
 //			}
 //		}
-		Response response = getResponse(requests, (Logger) LOGGER, GraphDACParams.node_list.name(),
+		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
 				ContentAPIParams.contents.name());
 		return response;
 	}

@@ -86,7 +86,8 @@ public abstract class BaseManager {
         }
     }
 
-    protected Response getResponse(List<Request> requests, Logger logger, String paramName, String returnParam) {
+    @SuppressWarnings("rawtypes")
+	protected Response getResponse(List<Request> requests, PlatformLogger logger, String paramName, String returnParam) {
         if (null != requests && !requests.isEmpty()) {
             ActorRef router = RequestRouterPool.getRequestRouter();
             try {
@@ -124,7 +125,7 @@ public abstract class BaseManager {
                     return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logger.log("ERROR! Something went wrong", e.getMessage(), e);
                 throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
             }
         } else {

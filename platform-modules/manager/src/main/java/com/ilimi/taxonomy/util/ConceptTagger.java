@@ -8,13 +8,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -37,7 +36,7 @@ import com.ilimi.graph.enums.CollectionTypes;
 public class ConceptTagger extends BaseManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ConceptTagger.class.getName());
+	private static PlatformLogger<ConceptTagger> LOGGER = new PlatformLogger<>(ConceptTagger.class.getName());
 
 	/**
 	 * This method triggers an asynchronous method to tag the given content
@@ -55,7 +54,7 @@ public class ConceptTagger extends BaseManager {
 		ExecutorService pool = null;
 		try {
 			pool = Executors.newFixedThreadPool(1);
-			LOGGER.info("Call Async method to tag concepts for " + contentId);
+			LOGGER.log("Call Async method to tag concepts for " + contentId);
 			pool.execute(new Runnable() {
 				@Override
 				public void run() {
@@ -63,7 +62,7 @@ public class ConceptTagger extends BaseManager {
 				}
 			});
 		} catch (Exception e) {
-			LOGGER.error("Error sending Content2Vec request", e);
+			LOGGER.log("Error sending Content2Vec request", e.getMessage(), e);
 		} finally {
 			if (null != pool)
 				pool.shutdown();
@@ -86,7 +85,7 @@ public class ConceptTagger extends BaseManager {
 	private void tagNewConcepts(String graphId, String contentId, Node content) {
 		List<String> itemSets = new ArrayList<String>();
 		List<Relation> outRelations = content.getOutRelations();
-		LOGGER.info("Get item sets associated with the content: " + contentId);
+		LOGGER.log("Get item sets associated with the content: " + contentId);
 		if (null != outRelations && !outRelations.isEmpty()) {
 			for (Relation rel : outRelations) {
 				if (StringUtils.equalsIgnoreCase("ItemSet", rel.getEndNodeObjectType())
@@ -95,29 +94,29 @@ public class ConceptTagger extends BaseManager {
 			}
 		}
 		if (null != itemSets && !itemSets.isEmpty()) {
-			LOGGER.info("Number of item sets: " + itemSets.size());
+			LOGGER.log("Number of item sets: " + itemSets.size());
 			Set<String> itemIds = new HashSet<String>();
 			for (String itemSet : itemSets) {
 				List<String> members = getItemSetMembers(graphId, itemSet);
 				if (null != members && !members.isEmpty())
 					itemIds.addAll(members);
 			}
-			LOGGER.info("Total number of items: " + itemIds.size());
+			LOGGER.log("Total number of items: " + itemIds.size());
 			if (!itemIds.isEmpty()) {
 				List<String> items = new ArrayList<String>(itemIds);
 				List<String> conceptIds = getItemConcepts(graphId, items);
 				if (null != conceptIds && !conceptIds.isEmpty()) {
-					LOGGER.info("Number of concepts: " + conceptIds.size());
+					LOGGER.log("Number of concepts: " + conceptIds.size());
 					Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "addOutRelations",
 							GraphDACParams.start_node_id.name(), contentId);
 					request.put(GraphDACParams.relation_type.name(), RelationTypes.ASSOCIATED_TO.relationName());
 					request.put(GraphDACParams.end_node_id.name(), conceptIds);
 					Response response = getResponse(request, LOGGER);
 					if (checkError(response))
-						LOGGER.error(
+						LOGGER.log(
 								"Error adding concepts to content: " + contentId + " | Error: " + response.getParams());
 					else
-						LOGGER.info("New concepts tagged successfully: " + contentId);
+						LOGGER.log("New concepts tagged successfully: " + contentId);
 				}
 			}
 		}
@@ -135,7 +134,7 @@ public class ConceptTagger extends BaseManager {
 	 */
 	@SuppressWarnings("unchecked")
 	private List<String> getItemSetMembers(String graphId, String itemSetId) {
-		LOGGER.info("Get members of items set: " + itemSetId);
+		LOGGER.log("Get members of items set: " + itemSetId);
 		Request request = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers",
 				GraphDACParams.collection_id.name(), itemSetId);
 		request.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());

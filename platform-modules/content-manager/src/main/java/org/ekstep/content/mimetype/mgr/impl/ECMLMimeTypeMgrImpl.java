@@ -117,7 +117,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		LOGGER.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 		
@@ -167,7 +167,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	 */
 	@Override
 	public Response review(String contentId,Node node, boolean isAsync) {
-		LOGGER.log("Node: ", node);
+		LOGGER.log("Node: ", node.getIdentifier());
 
 		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
@@ -175,7 +175,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

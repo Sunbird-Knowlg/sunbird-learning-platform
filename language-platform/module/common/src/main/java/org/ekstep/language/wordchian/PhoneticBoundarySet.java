@@ -3,11 +3,10 @@ package org.ekstep.language.wordchian;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -22,7 +21,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class PhoneticBoundarySet extends BaseWordSet {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(RhymingSoundSet.class.getName());
+	private static PlatformLogger<PhoneticBoundarySet> LOGGER = new PlatformLogger<>(PhoneticBoundarySet.class.getName());
 
 	/** The starts with akshara. */
 	private String startsWithAkshara;
@@ -104,7 +103,7 @@ public class PhoneticBoundarySet extends BaseWordSet {
 		String actualLemma;
 		String connectingLemma;
 
-		LOGGER.info("create " + type + " set " + lemma + "for the word"
+		LOGGER.log("create " + type + " set " + lemma + "for the word"
 				+ (String) wordNode.getMetadata().get(LanguageParams.lemma.name()));
 
 		if (type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name())) {

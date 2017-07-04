@@ -111,7 +111,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		LOGGER.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId , "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 
@@ -139,7 +139,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

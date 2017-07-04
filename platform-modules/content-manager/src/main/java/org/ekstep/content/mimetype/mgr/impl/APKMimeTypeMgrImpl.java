@@ -41,7 +41,7 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		LOGGER.log("Node: ", node);
+		LOGGER.log("Node: ", node.getIdentifier());
 		LOGGER.log("Uploaded File: " + uploadFile.getName());
 
 		LOGGER.log("Calling Upload Content For Node ID: ", node.getIdentifier());
@@ -57,7 +57,7 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		LOGGER.log("Node: ", node);
+		LOGGER.log("Node: ", node.getIdentifier());
 
 		Response response = new Response();
 		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
@@ -71,16 +71,16 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 		LOGGER.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.log("Review Operation Finished Successfully for Node ID: " + contentId);
+		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
+			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " ,contentId, "INFO");
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
+			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId, "INFO");
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 
@@ -93,7 +93,7 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		LOGGER.log("Node: ", node);
+		LOGGER.log("Node: ", node.getIdentifier());
 
 		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);

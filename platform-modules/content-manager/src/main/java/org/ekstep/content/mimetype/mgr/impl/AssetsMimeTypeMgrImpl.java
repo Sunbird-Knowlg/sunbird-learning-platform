@@ -65,7 +65,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			LOGGER.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadFile, node.getIdentifier());
 
-			LOGGER.log("Updating the Content Node for Node ID: " + node.getIdentifier(), "INFO");
+			LOGGER.log("Updating the Content Node for Node ID: " , node.getIdentifier(), "INFO");
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
@@ -85,7 +85,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 								LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
 					}
 					else {
-						LOGGER.log("Updating status to Live for mimeTypes other than image");
+						LOGGER.log("Updating status to Live for mimeTypes other than image", node.getMetadata().get("contentType").toString(), "INFO");
 						node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 					}
 			}
@@ -142,7 +142,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
 		
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 
