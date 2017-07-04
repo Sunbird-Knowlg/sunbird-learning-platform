@@ -36,6 +36,8 @@ public class DACConfigurationConstants {
 	
 	public static final boolean IS_PASSPORT_AUTHENTICATION_ENABLED = true;
 	
+	public static final boolean IS_USER_AUTHORIZATION_ENABLED = false;
+	
 	private DACConfigurationConstants() {
 		  throw new AssertionError();
 	}

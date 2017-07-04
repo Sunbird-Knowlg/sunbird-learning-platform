@@ -43,6 +43,12 @@ public class Request implements Serializable {
                     ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CONSUMER_ID.getParamName()));
         }
         
+        // Setting the Channel Id
+        if (ExecutionContext.getCurrent().getGlobalContext().containsKey(HeaderParam.CHANNEL_ID.getParamName())) {
+            context.put(HeaderParam.CHANNEL_ID.getParamName(),
+                    ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CHANNEL_ID.getParamName()));
+        }
+        
         //set request_id
 		request_id = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
     }

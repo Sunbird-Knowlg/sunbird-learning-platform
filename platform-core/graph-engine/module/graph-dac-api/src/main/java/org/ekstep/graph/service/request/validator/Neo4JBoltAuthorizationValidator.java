@@ -6,6 +6,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
@@ -47,20 +48,21 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 				&& null != node && null != node.getMetadata() && null != request) {
 			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
 			LOGGER.info("Consumer Id: " + consumerId);
-			
+
 			LOGGER.info("Fetching the Neo4J Node Metadata.");
 			Map<String, Object> neo4jNode = getNeo4jNodeProperty(graphId, node.getIdentifier());
 			if (null != neo4jNode && !neo4jNode.isEmpty()) {
-				LOGGER.info("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name()) + " | [Node Id: '"
-						+ node.getIdentifier() + "']");
-				
+				LOGGER.info("Fetched the Neo4J Node Id: " + neo4jNode.get(GraphDACParams.identifier.name())
+						+ " | [Node Id: '" + node.getIdentifier() + "']");
+
 				String neo4jNodeConsumerId = (String) neo4jNode.get(GraphDACParams.consumerId.name());
 				LOGGER.info("Neo4J Node Consumer Id: " + neo4jNodeConsumerId);
-				
+
 				if (!StringUtils.equals(consumerId, neo4jNodeConsumerId))
 					isAuthorized = false;
 			} else {
-				// Setting the 'consumerId' for node since node doesn't exist in Neo4J
+				// Setting the 'consumerId' for node since node doesn't exist in
+				// Neo4J
 				LOGGER.info("Setting the 'consumerId' Property Since it's a node creation operation.");
 				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
 			}
@@ -73,7 +75,8 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 
 	private boolean isAuthorizationCheckRequired(Request request) {
 		boolean isCheckRequired = true;
-		if (StringUtils.isBlank((String) request.getContext().get(GraphDACParams.CONSUMER_ID.name())))
+		if (StringUtils.isBlank((String) request.getContext().get(GraphDACParams.CONSUMER_ID.name()))
+				|| BooleanUtils.isFalse(DACConfigurationConstants.IS_USER_AUTHORIZATION_ENABLED))
 			isCheckRequired = false;
 
 		LOGGER.info("Authorization Check Required ? " + isCheckRequired);

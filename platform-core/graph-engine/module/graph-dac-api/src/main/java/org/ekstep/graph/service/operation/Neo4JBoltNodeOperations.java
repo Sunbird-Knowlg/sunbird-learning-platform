@@ -59,6 +59,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_NODE + " | [Upsert Node Operation Failed.]");
 		
 		LOGGER.debug("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
+		node.getMetadata().put(GraphDACParams.channelId.name(), getChannelId(request));
 		node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
 		authorizationValidator.validateAuthorization(graphId, node, request);
 		LOGGER.debug("Consumer is Authorized for Node Id: " + node.getIdentifier());
@@ -129,8 +130,9 @@ public class Neo4JBoltNodeOperations {
 			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
 			node.setGraphId(graphId);
 			
-			LOGGER.info("Adding Consumer Identifer.");
+			LOGGER.info("Adding Authorization Metadata.");
 			node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
+			node.getMetadata().put(GraphDACParams.channelId.name(), getChannelId(request));
 
 			LOGGER.debug("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -500,6 +502,18 @@ public class Neo4JBoltNodeOperations {
 		}
 		} catch (Exception e) {
 			LOGGER.error("Error! While Fetching the Consumer Id From Request.", e);
+		}
+		return consumerId;
+	}
+	
+	private String getChannelId(Request request) {
+		String consumerId = "";
+		try {
+		if (null != request && null != request.getContext()) {
+			consumerId = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
+		}
+		} catch (Exception e) {
+			LOGGER.error("Error! While Fetching the Channel Id From Request.", e);
 		}
 		return consumerId;
 	}

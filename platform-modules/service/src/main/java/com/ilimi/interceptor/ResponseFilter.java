@@ -38,7 +38,9 @@ public class ResponseFilter implements Filter {
 		boolean isMultipart = (httpRequest.getHeader("content-type") != null
 				&& httpRequest.getHeader("content-type").indexOf("multipart/form-data") != -1);
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
+		String channelId = httpRequest.getHeader("X-Channel-ID");
 		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
+		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
