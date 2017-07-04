@@ -19,6 +19,7 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Node;
 
@@ -56,20 +57,21 @@ public abstract class BaseManager {
         }
     }
     
-    protected Response getResponse(Request request, Logger logger) {
+    @SuppressWarnings("rawtypes")
+	protected Response getResponse(Request request, PlatformLogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
             Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
             if (obj instanceof Response) {
             	Response response = (Response) obj;
-            	logger.info("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() + " | Result: " + response.getResult().keySet());
+            	logger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() , " | Result: " + response.getResult().keySet());
                 return response;
             } else {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
         }
     }

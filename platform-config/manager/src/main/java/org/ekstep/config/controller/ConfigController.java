@@ -33,7 +33,7 @@ public class ConfigController extends BaseController {
 	public static final String folderName = "resources";
 	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
 
-	private static PlatformLogger<ConfigController> LOGGER = new PlatformLogger<>(ConfigController.class);
+	private static PlatformLogger<ConfigController> LOGGER = new PlatformLogger<>(ConfigController.class.getName());
 
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody

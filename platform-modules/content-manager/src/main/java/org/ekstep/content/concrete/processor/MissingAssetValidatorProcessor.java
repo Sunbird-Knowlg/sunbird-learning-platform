@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Manifest;
 import org.ekstep.content.entity.Media;
@@ -17,6 +15,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class MissingAssetValidatorProcessor.
@@ -36,7 +35,7 @@ import com.ilimi.common.exception.ServerException;
 public class MissingAssetValidatorProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(MissingAssetValidatorProcessor.class.getName());
+	private static PlatformLogger<MissingAssetValidatorProcessor> LOGGER = new PlatformLogger<>(MissingAssetValidatorProcessor.class.getName());
 
 	/**
 	 * Instantiates a new missing asset validator processor.
@@ -83,7 +82,7 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 			if (null != manifest) {
 				List<Media> medias = manifest.getMedias();
 				List<String> mediaIds = new ArrayList<String>();
-				LOGGER.info("Validating Assets.");
+				LOGGER.log("Validating Assets.");
 				for (Media media : medias) {
 					if (mediaIds.contains(getMediaId(media)))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_ASSET_ID.name(),

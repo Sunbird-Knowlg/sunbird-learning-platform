@@ -7,24 +7,18 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeTypes;
-import org.ekstep.common.optimizr.FileType;
-import org.ekstep.common.optimizr.FileUtils;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.LearningActorNames;
-import org.ekstep.learning.common.enums.LearningOperations;
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 // TODO: Auto-generated Javadoc
@@ -43,7 +37,7 @@ import com.ilimi.graph.dac.model.Node;
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */
-	private static Logger LOGGER = LogManager.getLogger(AssetsMimeTypeMgrImpl.class.getName());
+	private static PlatformLogger<AssetsMimeTypeMgrImpl> LOGGER = new PlatformLogger<>(AssetsMimeTypeMgrImpl.class.getName());
 
 	/*
 	 * (non-Javadoc)
@@ -54,56 +48,52 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
-		LOGGER.debug("Uploaded File: " + uploadFile.getName());
+		LOGGER.log("Node: ", node.getIdentifier());
+		LOGGER.log("Uploaded File: " + uploadFile.getName());
 
 		Response response = new Response();
 		try {
-			LOGGER.info("Verifying the MimeTypes.");
+			LOGGER.log("Verifying the MimeTypes.");
 			Tika tika = new Tika(new MimeTypes());
 			String mimeType = tika.detect(uploadFile);
 			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-			LOGGER.debug("Uploaded Asset MimeType: " + mimeType);
+			LOGGER.log("Uploaded Asset MimeType: " , mimeType);
 			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType))
-				LOGGER.warn("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
+				LOGGER.log("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
 						+ mimeType + " | Node (Object) MimeType: " + nodeMimeType + "]");
 
-			LOGGER.info("Calling Upload Content Node For Node ID: " + node.getIdentifier());
+			LOGGER.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadFile, node.getIdentifier());
 
-			LOGGER.info("Updating the Content Node for Node ID: " + node.getIdentifier());
+			LOGGER.log("Updating the Content Node for Node ID: " + node.getIdentifier(), "INFO");
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
 
 			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
-			LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 			response = updateContentNode(contentId, node, urlArray[1]);
 			String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 			if (!checkError(response)) {
 					if ((StringUtils.equalsIgnoreCase(node.getMetadata().get("contentType").toString(), "Asset"))
 						&& (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image"))) {
-								LOGGER.info("Initiatizing variants map if mimeType is image");
-
 								Map<String, String> variantsMap = new HashMap<String, String>();
 								node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 								node.getMetadata().put("prevState", prevState);
 
-								LOGGER.info("Generating Telemetry Event. | [Content ID: " + node.getIdentifier()+ "]");
+								LOGGER.log("Generating Telemetry Event. | [Content ID: " , node.getIdentifier(), "INFO");
 								LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
 					}
-					else{
-
-						LOGGER.info("Updating status to Live for mimeTypes other than image");
+					else {
+						LOGGER.log("Updating status to Live for mimeTypes other than image");
 						node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 					}
 			}
 
-			LOGGER.info("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
+			LOGGER.log("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 			response = updateContentNode(contentId, node, urlArray[1]);
 
-			FileType type = FileUtils.getFileType(uploadFile);
+//			FileType type = FileUtils.getFileType(uploadFile);
 //			// Call async image optimiser for configured resolutions if asset
 //			// type is image
 //			if (type == FileType.Image) {
@@ -139,49 +129,45 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
+		LOGGER.log("Node: ", node.getIdentifier());
 
 		Response response = new Response();
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		LOGGER.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
 		
-		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + contentId);
+		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId, "INFO");
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + contentId);
+		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
+			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId , "INFO");
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
-
+			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId, "INFO");
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
-
 		return response;
 	}
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
-
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " , contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + contentId);
+		LOGGER.log("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

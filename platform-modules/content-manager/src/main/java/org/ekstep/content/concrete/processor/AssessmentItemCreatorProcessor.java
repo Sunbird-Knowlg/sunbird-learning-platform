@@ -1,19 +1,11 @@
 package org.ekstep.content.concrete.processor;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
@@ -24,13 +16,10 @@ import org.ekstep.content.processor.AbstractProcessor;
 //import com.ilimi.assessment.enums.QuestionnaireType;
 //import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class AssessmentItemCreatorProcessor is responsible of creating the
@@ -59,9 +48,9 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //	private IAssessmentManager assessmentMgr;
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(AssessmentItemCreatorProcessor.class.getName());
+	private static PlatformLogger<AssessmentItemCreatorProcessor> LOGGER = new PlatformLogger<>(AssessmentItemCreatorProcessor.class.getName());
 
-	private ObjectMapper mapper = new ObjectMapper();
+//	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The valid list of question difficulty level. */
 	private List<String> questionLevelList = Arrays.asList("EASY", "MEDIUM", "DIFFICULT", "RARE");
@@ -96,14 +85,14 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
-			LOGGER.debug("Plugin: ", plugin);
-			LOGGER.info("Calling 'createAssessmentItemSubGraph' Inner Operation.");
+			LOGGER.log("Plugin: ", plugin);
+			LOGGER.log("Calling 'createAssessmentItemSubGraph' Inner Operation.");
 			createAssessmentItemSubGraph(plugin);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(),
 					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [AssessmentItemCreatorProcessor]", e);
 		}
-		LOGGER.info("Returning the ECRF (Plugin) Object", plugin);
+		LOGGER.log("Returning the ECRF (Plugin) Object", plugin);
 		return plugin;
 	}
 
@@ -114,7 +103,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	 *            the plugin
 	 * @return the map
 	 */
-	@SuppressWarnings({ "unchecked" })
+
 	private Map<String, Object> createAssessmentItemSubGraph(Plugin plugin) {
 //		LOGGER.debug("ECRF Object (Plugin): ", plugin + " | [Content Id '"+ contentId +"']");
 //		Map<String, Object> assessmentItemCreationFilewiseResult = new HashMap<String, Object>();
@@ -237,6 +226,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	 *            the assessment item map form ECRF Object.
 	 * @return the response is the object of Assessment Item Set Creation.
 	 */
+	@SuppressWarnings("unused")
 	private Response createItemSet(List<String> assessmentItemIds, Map<String, Object> assessmentItemMap) {
 //		LOGGER.debug("Member Assessment Items: ", assessmentItemIds);
 //		LOGGER.debug("Assessment Item Map: ", assessmentItemMap);
@@ -295,6 +285,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	 *            the param the parameters for creation.
 	 * @return the assessment model request object.
 	 */
+	@SuppressWarnings("unused")
 	private Request getAssessmentModelRequestObject(Map<String, Object> map, String objectType, String contentId,
 			String param) {
 		Request request = new Request();
@@ -379,7 +370,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	 *            the request map
 	 * @return the request
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unused" })
 	private Request getRequest(Map<String, Object> requestMap) {
 //		Request request = new Request();
 //		if (null != requestMap) {

@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 import org.ekstep.content.common.AssetsMimeTypeMap;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -20,10 +18,12 @@ import org.ekstep.content.util.PropertiesUtil;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.PlatformLogger;
 
 public class AssetsValidatorProcessor extends AbstractProcessor {
-
-	private static Logger LOGGER = LogManager.getLogger(AssetsValidatorProcessor.class.getName());
+	
+	/** The logger. */
+	private static PlatformLogger<AssetCreatorProcessor> LOGGER = new PlatformLogger<>(AssetCreatorProcessor.class.getName());
 
 	public AssetsValidatorProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -57,7 +57,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 			if (null != manifest) {
 				List<Media> medias = manifest.getMedias();
 				for (Media media: medias) {
-					LOGGER.debug("Validating Asset Id: " + media.getId());
+					LOGGER.log("Validating Asset Id: " + media.getId());
 					validateAsset(media);
 				}
 			}
@@ -77,7 +77,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 						throw new ClientException(ContentErrorCodeConstants.FILE_SIZE_EXCEEDS_LIMIT.name(), 
 								ContentErrorMessageConstants.ASSET_FILE_SIZE_LIMIT_EXCEEDS + " | [Asset " + file.getName() + " is Bigger in Size.]");
 					isValid = true;
-					LOGGER.debug("Asset Id '" + media.getId() + "' is Valid.");
+					LOGGER.log("Asset Id '" + media.getId() + "' is Valid.");
 				}
 			}
 		} catch(IOException e) {
@@ -90,7 +90,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private boolean isValidAssetMimeType(File file) throws IOException {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
-			LOGGER.debug("Validating Asset File '" + file.getName() + "' for Mime-Type.");
+			LOGGER.log("Validating Asset File '" + file.getName() + "' for Mime-Type.");
 			Tika tika = new Tika();
 			String mimeType = tika.detect(file);
 			isValidMimeType = AssetsMimeTypeMap.isAllowedMimeType(mimeType);
@@ -101,7 +101,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private boolean isValidAssetSize(File file) {
 		boolean isValidSize = false;
 		if (file.exists()) {
-			LOGGER.debug("Validating Asset File '" + file.getName() + "' for Size.");
+			LOGGER.log("Validating Asset File '" + file.getName() + "' for Size.");
 			if (file.length() < getAssetFileSizeLimit())
 				isValidSize = true;
 		}
@@ -115,7 +115,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 			try {
 				size = Double.parseDouble(limit);
 			} catch(Exception e) {
-				LOGGER.error("Error While Getting the Asset File Size Limit.", e);
+				LOGGER.log("Error While Getting the Asset File Size Limit.", size, e);
 			}
 		}
 		return size;
@@ -124,7 +124,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private String getAssetPath(String type, String src) {
 		String path = "";
 		if (!StringUtils.isBlank(type) && !StringUtils.isBlank(src)) {
-			LOGGER.debug("Fetching Asset Path.");
+			LOGGER.log("Fetching Asset Path.");
 			if (isWidgetTypeAsset(type))
 				path = basePath + File.separator + ContentWorkflowPipelineParams.widgets.name() + File.separator + src;
 			else
@@ -132,5 +132,4 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 		}
 		return path;
 	}
-
 }

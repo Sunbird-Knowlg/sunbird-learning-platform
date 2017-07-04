@@ -16,8 +16,8 @@ public class PlatformLogger<T> {
 	private static final Logger telemetryEventLogger = (Logger) LogManager.getLogger("TelemetryEventLogger");
 	private String className;
 
-	public PlatformLogger(Class<T> cls) {
-		className = cls.getName();
+	public PlatformLogger(String clsName) {
+		className = clsName;
 	}
 
 	private Logger logger(String name) {
@@ -59,6 +59,10 @@ public class PlatformLogger<T> {
 
 	public void log(String message, Object data) {
 		log(message, data, LoggerEnum.DEBUG.name());
+	}
+	
+	public void log(String message){
+		log(message, null, LoggerEnum.DEBUG.name());
 	}
 	
 	public void log(String message, Object data, String logLevel) {
