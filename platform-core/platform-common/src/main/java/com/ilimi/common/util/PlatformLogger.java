@@ -15,81 +15,106 @@ public class PlatformLogger<T> {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final Logger telemetryEventLogger = (Logger) LogManager.getLogger("TelemetryEventLogger");
 	private String className;
+
 	public PlatformLogger(Class<T> cls) {
 		className = cls.getName();
 	}
 
-	private Logger logger(String name) {	
-	    Logger logger  = (Logger) LogManager.getLogger(name+".logger");
-	    return logger;
+	private Logger logger(String name) {
+		Logger logger = (Logger) LogManager.getLogger(name + ".logger");
+		return logger;
 	}
 
-	private void info(String message, Object data) throws JsonProcessingException{
-		logger(className).info(mapper.writeValueAsString(getLogEvent("BE_LOG", "INFO", message, data)));
-	}
-	
-	private void debug(String message, Object data) throws JsonProcessingException{
-		logger(className).debug(mapper.writeValueAsString(getLogEvent("BE_LOG", "DEBUG", message, data)));
-	}
-	
-	private void error(String message, Object data, Exception e) throws JsonProcessingException{
-		logger(className).error(mapper.writeValueAsString(getLogEvent("BE_LOG", "ERROR", message, data, e)));
-	}
-	
-	private void warn(String message, Object data,  Exception e) throws JsonProcessingException{
-		logger(className).warn(mapper.writeValueAsString(getLogEvent("BE_LOG", "WARN", message, data, e)));
+	private void info(String message, Object data) {
+		try {
+			logger(className).info(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.INFO.name(), message, data)));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
 	}
 
-	public void log(String logLevel, String message, Object data) throws JsonProcessingException{
-		logData(logLevel, message, data, null);
+	private void debug(String message, Object data)  {
+		try {
+			logger(className).debug(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.DEBUG.name(), message, data)));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void error(String message, Object data, Exception exception) {
+		try {
+			logger(className).error(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.ERROR.name(), message, data, exception)));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void warn(String message, Object data, Exception exception) {
+		try {
+			logger(className).warn(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.WARN.name(), message, data, exception)));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void log(String message, Object data) {
+		log(message, data, LoggerEnum.DEBUG.name());
 	}
 	
-	public void log(String logLevel, String message, Object data, Exception e) throws JsonProcessingException{
-		logData(logLevel, message, data, e);
+	public void log(String message, Object data, String logLevel) {
+		logData(message, data, null, logLevel);
 	}
-	
-	public void log(String logLevel, String message) throws JsonProcessingException{
-		logData(logLevel, message, null, null);
+
+	public void log(String message, Object data, Exception e)  {
+		logData(message, data, e, LoggerEnum.ERROR.name());
 	}
-		
-	private void logData(String logLevel, String message, Object data, Exception e) throws JsonProcessingException{
-		if(StringUtils.isNotBlank(logLevel)){
-			switch(logLevel){
-				case "INFO" :  info(message,  data);
-				               break;
-				case "DEBUG":  debug(message, data);
-				               break;
-				case "WARN" :  warn(message,  data, e);
-				               break;
-				case "ERROR" : error(message, data, e);
-				               break;
+
+	public void log(String message, Object data, Exception e, String logLevel) {
+		logData(message, data, e, logLevel);
+	}
+
+	private void logData(String message, Object data, Exception e, String logLevel) {
+		if (StringUtils.isNotBlank(logLevel)) {
+			switch (logLevel) {
+			case "INFO":
+				info(message, data);
+				break;
+			case "DEBUG":
+				debug(message, data);
+				break;
+			case "WARN":
+				warn(message, data, e);
+				break;
+			case "ERROR":
+				error(message, data, e);
+				break;
 			}
 		}
 	}
-	
+
 	private String getLogEvent(String logName, String logLevel, String message, Object data) {
 		String logData = getLogMap(logName, logLevel, message, data, null);
-		return logData;	
+		return logData;
 	}
 
-	private String getLogEvent(String logName, String logLevel, String message, Object data , Exception e) {
+	private String getLogEvent(String logName, String logLevel, String message, Object data, Exception e) {
 		String logData = getLogMap(logName, logLevel, message, data, e);
 		return logData;
 	}
-	
-	private String getLogMap(String logName, String logLevel, String message, Object data, Exception e) {
-		String mid = "LP."+System.currentTimeMillis()+"."+UUID.randomUUID();
+
+	private String getLogMap(String logName, String logLevel, String message, Object data, Exception exception) {
+		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();
-		Map<String,Object> eks = new HashMap<String,Object>();
+		Map<String, Object> eks = new HashMap<String, Object>();
 		eks.put("class", className);
 		eks.put("level", logLevel);
 		eks.put("message", message);
-		if(data != null){
+		if (data != null) {
 			eks.put("data", data);
 		}
-		if(e != null){
-			eks.put("stacktrace", e);
+		if (exception != null) {
+			eks.put("stacktrace", exception);
 		}
 		te.setEid(logName);
 		te.setEts(unixTime);
@@ -101,8 +126,8 @@ public class PlatformLogger<T> {
 			te.setEdata(eks);
 			jsonMessage = mapper.writeValueAsString(te);
 			telemetryEventLogger.info(jsonMessage);
-		} catch (Exception e1) {
-			e1.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return jsonMessage;
 	}

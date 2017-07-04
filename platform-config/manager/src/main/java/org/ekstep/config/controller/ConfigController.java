@@ -7,8 +7,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.controller.BaseController;
@@ -25,6 +24,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.util.PlatformLogger;
 
 @Controller
 @RequestMapping("v2/config")
@@ -33,8 +33,8 @@ public class ConfigController extends BaseController {
 	public static final String folderName = "resources";
 	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
 
-	private static Logger LOGGER = LogManager.getLogger(ConfigController.class.getName());
-	
+	private static PlatformLogger<ConfigController> LOGGER = new PlatformLogger<>(ConfigController.class);
+
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundles() {
@@ -43,7 +43,7 @@ public class ConfigController extends BaseController {
 			Response response = new Response();
 			Map<String, Object> resourcebundles = new HashMap<String, Object>();
 			Map<String, String> urlMap = getUrlFromS3();
-			LOGGER.info("urls of resourcebundle files from s3" + urlMap);
+			LOGGER.log("urls of resourcebundle files from s3", urlMap);
 			for (Entry<String, String> entry : urlMap.entrySet()) {
 				String langMap = HttpDownloadUtility.readFromUrl(entry.getValue());
 				String langId = entry.getKey();
@@ -52,10 +52,10 @@ public class ConfigController extends BaseController {
 						continue;
 					Map<String, Object> map = mapper.readValue(langMap, new TypeReference<Map<String, Object>>() {
 					});
-					LOGGER.debug("Resourcebundles fetched : " + map.keySet());
+					LOGGER.log("Resourcebundles fetched : ", map.keySet());
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
-					LOGGER.error("Error in fetching all ResourceBundles from s3"+ e.getMessage(), e);
+					LOGGER.log("Error in fetching all ResourceBundles from s3", e.getMessage(), e, "WARN");
 				}
 			}
 			response.put("resourcebundles", resourcebundles);
@@ -65,10 +65,10 @@ public class ConfigController extends BaseController {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("ttl", 24.0);
-			LOGGER.info("get All ResourceBundles | Response: " + response + "Id" + apiId);
+			LOGGER.log("get All ResourceBundles | Response: " , response + "Id" + apiId , "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.warn("getAllResources | Exception" + e.getMessage(), e);
+			LOGGER.log("getAllResources | Exception" + e.getMessage(), e, "WARN");
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -79,11 +79,10 @@ public class ConfigController extends BaseController {
 		String apiId = "ekstep.config.resourebundles.info";
 
 		try {
-			LOGGER.debug("ResourceBundle | GET | languageId" + languageId);
+			LOGGER.log("ResourceBundle | GET | languageId" , languageId);
 			Response response = new Response();
-			String data = HttpDownloadUtility
-					.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
-			LOGGER.debug("Resource bundle file read from url:" + StringUtils.isNotBlank(data));
+			String data = HttpDownloadUtility.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
+			LOGGER.log("Resource bundle file read from url:", StringUtils.isNotBlank(data));
 			if (StringUtils.isNotBlank(data)) {
 				ResponseParams params = new ResponseParams();
 				params.setErr("0");
@@ -95,9 +94,9 @@ public class ConfigController extends BaseController {
 					Map<String, Object> map = mapper.readValue(data, new TypeReference<Map<String, Object>>() {
 					});
 					response.put(languageId, map);
-					LOGGER.info("getResourceBundle | successResponse" + response);
+					LOGGER.log("getResourceBundle | successResponse" , response);
 				} catch (Exception e) {
-					LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
+					LOGGER.log("getResourceBundle | Exception" , e.getMessage(), e, "WARN");
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -108,11 +107,11 @@ public class ConfigController extends BaseController {
 				response.setParams(params);
 				response.getResponseCode();
 				response.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-				LOGGER.info("getResourceBundle | FailureResponse" + response);
+				LOGGER.log("getResourceBundle | FailureResponse" , response, "WARN");
 				return getResponseEntity(response, apiId, null);
 			}
-		} catch (Exception e) {
-			LOGGER.warn("getResourceBundle | Exception" + e.getMessage(), e);
+		} catch (Exception e){
+			LOGGER.log("getResourceBundle | Exception" , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -125,7 +124,7 @@ public class ConfigController extends BaseController {
 		Response response = new Response();
 		try {
 			ordinals = HttpDownloadUtility.readFromUrl(baseUrl + "ordinals.json");
-			LOGGER.info("Ordinals data read from s3 url" + StringUtils.isNotBlank(ordinals));
+			LOGGER.log("Ordinals data read from s3 url" , StringUtils.isNotBlank(ordinals));
 			ResponseParams params = new ResponseParams();
 			params.setErr("0");
 			params.setStatus(StatusType.successful.name());
@@ -137,21 +136,21 @@ public class ConfigController extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				LOGGER.error("Get Ordinals | Exception" + e.getMessage(), e);
+				LOGGER.log("Get Ordinals | Exception" , e.getMessage(), e, "WARN");
 			}
-			LOGGER.info("Get Ordinals | Response" + response.getResponseCode());
+			LOGGER.log("Get Ordinals | Response" , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.warn("getOrdinalsException" + e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
+				LOGGER.log("getOrdinalsException" , e.getMessage(), e);
+				return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
-	private Map<String, String> getUrlFromS3() {
+
+	private Map<String, String> getUrlFromS3() throws JsonProcessingException {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(folderName);
-		LOGGER.info("ResourceBundle Urls fetched from s3" + res.size());
+		LOGGER.log("ResourceBundle Urls fetched from s3" , res.size());
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
 				apiUrl = baseUrl + data;
