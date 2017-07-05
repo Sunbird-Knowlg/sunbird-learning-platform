@@ -87,7 +87,7 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 		return response;
 
-		// LOGGER.info("Calling the 'rePublish' for Node ID: " +
+		// LOGGER.log("Calling the 'rePublish' for Node ID: " +
 		// node.getIdentifier());
 		// return rePublish(node);
 	}

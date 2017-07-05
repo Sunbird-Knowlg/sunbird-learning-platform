@@ -135,10 +135,10 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 //	private Map<String,Object> setLogRecordData(Map<String, Object> transactionDataMap) {
 //		Map<String,Object> newPropertiesMap = new HashMap<String,Object>();
 //		Map<String,Object> transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
-//		LOGGER.info("Fetching transactionData from transactionMap");
+//		LOGGER.log("Fetching transactionData from transactionMap");
 //		Map<String,Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
 //		for(Entry <String, Object> entry: propertiesMap.entrySet()){
-//			LOGGER.info("Checking if entry is a systemProperty :" + entry.getKey());
+//			LOGGER.log("Checking if entry is a systemProperty :" + entry.getKey());
 //			if(!SystemProperties.isSystemProperty(entry.getKey())){
 //				newPropertiesMap.put(entry.getKey(), entry.getValue());
 //			}

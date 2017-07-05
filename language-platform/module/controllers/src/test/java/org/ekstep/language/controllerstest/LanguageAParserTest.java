@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -17,9 +15,7 @@ import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +31,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -53,7 +51,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 //	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static Logger LOGGER = LogManager.getLogger(LanguageAParserTest.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(LanguageAParserTest.class.getName());
 
 	static {
 		LanguageRequestRouterPool.init();
@@ -88,7 +86,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.put(GraphDACParams.node.name(), word);
 		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
 		if (!res.getParams().getStatus().equalsIgnoreCase("successful")) {
-			LOGGER.error(res.getParams().getErr() + res.getParams().getErrmsg());
+			LOGGER.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), "WARN");
 			System.out.println(res.getParams().getErr() + res.getParams().getErrmsg());
 		}
 		Assert.assertEquals("successful", res.getParams().getStatus());

@@ -9,15 +9,23 @@ import org.apache.logging.log4j.core.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.TelemetryBEEvent;
-
+/**
+ * This is the custom logger implementation to carryout
+ * platform Logging. This class holds methods used to log
+ * Events which are pushed to kafka
+ * 
+ * @author Rashmi
+ *
+ */
 public class PlatformLogger implements ILogger {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static final Logger telemetryEventLogger = (Logger) LogManager.getLogger("TelemetryEventLogger");
-	private String className;
+	private Logger logger = null;
+	private static String className;
 
 	public PlatformLogger(String clsName) {
 		className = clsName;
+		logger = (Logger) LogManager.getLogger(clsName);
 	}
 
 	public Logger logger(String name) {
@@ -27,15 +35,17 @@ public class PlatformLogger implements ILogger {
 
 	private void info(String message, Object data) {
 		try {
-			logger(className).info(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.INFO.name(), message, data)));
+			logger.info(mapper
+					.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.INFO.name(), message, data)));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void debug(String message, Object data)  {
+	private void debug(String message, Object data) {
 		try {
-			logger(className).debug(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.DEBUG.name(), message, data)));
+			logger.debug(mapper
+					.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.DEBUG.name(), message, data)));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -43,7 +53,8 @@ public class PlatformLogger implements ILogger {
 
 	private void error(String message, Object data, Exception exception) {
 		try {
-			logger(className).error(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.ERROR.name(), message, data, exception)));
+			logger.error(mapper.writeValueAsString(
+					getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.ERROR.name(), message, data, exception)));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -51,7 +62,8 @@ public class PlatformLogger implements ILogger {
 
 	private void warn(String message, Object data, Exception exception) {
 		try {
-			logger(className).warn(mapper.writeValueAsString(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.WARN.name(), message, data, exception)));
+			logger.warn(mapper.writeValueAsString(
+					getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.WARN.name(), message, data, exception)));
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -60,16 +72,16 @@ public class PlatformLogger implements ILogger {
 	public void log(String message, Object data) {
 		log(message, data, LoggerEnum.DEBUG.name());
 	}
-	
-	public void log(String message){
+
+	public void log(String message) {
 		log(message, null, LoggerEnum.DEBUG.name());
 	}
-	
+
 	public void log(String message, Object data, String logLevel) {
 		logData(message, data, null, logLevel);
 	}
 
-	public void log(String message, Object data, Exception e)  {
+	public void log(String message, Object data, Exception e) {
 		logData(message, data, e, LoggerEnum.ERROR.name());
 	}
 
@@ -129,7 +141,7 @@ public class PlatformLogger implements ILogger {
 		try {
 			te.setEdata(eks);
 			jsonMessage = mapper.writeValueAsString(te);
-			telemetryEventLogger.info(jsonMessage);
+			logger.info(jsonMessage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
