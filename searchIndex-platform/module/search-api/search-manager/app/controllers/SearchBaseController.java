@@ -3,13 +3,13 @@ package controllers;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import play.mvc.Controller;
 import play.mvc.Http.RequestBody;
@@ -18,7 +18,7 @@ public class SearchBaseController extends Controller {
 
 	private static final String API_ID_PREFIX = "ekstep";
 	protected ObjectMapper mapper = new ObjectMapper();
-	private static Logger LOGGER = LogManager.getLogger(SearchBaseController.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(SearchBaseController.class.getName());
 
 	protected String getAPIId(String apiId) {
 		return API_ID_PREFIX + "." + apiId;
@@ -36,7 +36,7 @@ public class SearchBaseController extends Controller {
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(RequestBody requestBody, String apiId, String path) {
-		LOGGER.info(apiId);
+		LOGGER.log(apiId);
 		Request request = new Request();
 		if (null != requestBody) {
 			JsonNode data = requestBody.asJson();
