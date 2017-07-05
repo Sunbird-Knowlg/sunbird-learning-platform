@@ -20,6 +20,8 @@ import org.junit.Test;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -28,14 +30,14 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class LanguageCacheActorTest extends BaseLanguageTest {
 	
-	private static ObjectMapper mapper = new ObjectMapper();
-	private static Logger LOGGER = LogManager.getLogger(LanguageCacheActorTest.class
+	private static ILogger LOGGER = new PlatformLogger(LanguageCacheActorTest.class
 			.getName());
 
 	static {
 		LanguageRequestRouterPool.init();
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void getGradeLevelComplexityTest() throws IOException{
         Request request = new Request();
@@ -44,10 +46,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " , request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);		
+		LOGGER.log("List | Response: " , response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List<Node> gradeLevelComplexities = (List<Node>) result
@@ -67,10 +69,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 
-        LOGGER.info("List | Request: " + request);
+        LOGGER.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);		
+		LOGGER.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 	
@@ -87,10 +89,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.node_id.name(), node2);
-        LOGGER.info("List | Request: " + request);
+        LOGGER.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);		
+		LOGGER.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		getGradeLevelComplexityTest();
 	}
@@ -111,10 +113,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.node_id.name(), node2);
-        LOGGER.info("List | Request: " + request);
+        LOGGER.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);		
+		LOGGER.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		
 		newGradeLevelcomplexity.getMetadata().put("averageComplexity",(double) 35);
@@ -125,10 +127,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.grade_level_complexity.name(), newGradeLevelcomplexity);
-        LOGGER.info("List | Request: " + request);
+        LOGGER.log("List | Request: " + request);
 		response = LanguageRequestRepsonseHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);		
+		LOGGER.log("List | Response: " + response);		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 
 		
@@ -155,10 +157,10 @@ public class LanguageCacheActorTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(LanguageParams.grade_level_complexity.name(), newGradeLevelcomplexity);
-        LOGGER.info("List | Request: " + request);
+        LOGGER.log("List | Request: " + request);
 		Response response = LanguageRequestRepsonseHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);		
+		LOGGER.log("List | Response: " + response);		
 		Assert.assertEquals("failed", response.getParams().getStatus());
 
 		

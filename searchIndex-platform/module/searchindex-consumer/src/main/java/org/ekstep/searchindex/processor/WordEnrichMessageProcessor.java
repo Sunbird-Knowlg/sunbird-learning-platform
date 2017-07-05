@@ -9,32 +9,32 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
-
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(WordCountMessageProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(WordCountMessageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	public WordEnrichMessageProcessor() {
 		super();
 	}
-
-
+	
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.info("Processing message: " + messageData);
+			LOGGER.log("Processing message: " + messageData);
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Exception", e.getMessage(), e);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("operationType") != null) {
@@ -43,7 +43,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 			String languageId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
 			if (StringUtils.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD, objectType)) {
-				LOGGER.info("Processing message for Word object type");
+				LOGGER.log("Processing message for Word object type");
 				switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					String operationType = (String) message.get("operationType");
@@ -104,7 +104,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 	}
 
 	private void enrichWord(String languageId, String wordId){
-		LOGGER.info("calling enrich api Language Id:"+languageId + " word :"+ wordId);
+		LOGGER.log("calling enrich api Language Id:"+languageId + " word :"+ wordId);
 		
 		try {
 		
@@ -116,14 +116,14 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 		 requestBodyMap.put("request", requestMap);
 		 
 		 String requestBody = mapper.writeValueAsString(requestBodyMap);
-		 LOGGER.info("Updating Word Count | URL: " + url + " | Request body: " + requestBody);
+		 LOGGER.log("Updating Word Count | URL: " + url + " | Request body: " + requestBody);
 		 
 		 HTTPUtil.makePostRequest(url, requestBody);
 		 
-		 LOGGER.info("Word Count updated");
+		 LOGGER.log("Word Count updated");
 
 		} catch (Exception e) {
-			LOGGER.error("error when calling enrich api Language Id:"+languageId + " word :"+ wordId+",error"+e.getMessage(), e);
+			LOGGER.log("error when calling enrich api Language Id:"+languageId + " word :"+ wordId+",error", e.getMessage(), e);
 		}
 		
 	}

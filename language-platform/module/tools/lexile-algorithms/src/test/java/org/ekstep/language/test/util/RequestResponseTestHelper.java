@@ -28,8 +28,8 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.model.Node;
-
 
 public class RequestResponseTestHelper {
 
@@ -95,7 +95,8 @@ public class RequestResponseTestHelper {
 	        return request;
 	    }
 	    
-	    public static Request getRequest(Map<String, Object> requestMap) {
+	    @SuppressWarnings("unchecked")
+		public static Request getRequest(Map<String, Object> requestMap) {
 	        Request request = new Request();
 	        if (null != requestMap && !requestMap.isEmpty()) {
 	            String id = (String) requestMap.get("id");
@@ -127,7 +128,7 @@ public class RequestResponseTestHelper {
 	    }
 
 	    
-	    public static Response getResponse(Request request, Logger logger) {
+	    public static Response getResponse(Request request, ILogger logger) {
 	        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 	        try {
 	            Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
@@ -138,7 +139,7 @@ public class RequestResponseTestHelper {
 	                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 	            }
 	        } catch (Exception e) {
-	            logger.error(e.getMessage(), e);
+	            logger.log("Exception", e.getMessage(), e);
 	            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 	        }   
 	    }

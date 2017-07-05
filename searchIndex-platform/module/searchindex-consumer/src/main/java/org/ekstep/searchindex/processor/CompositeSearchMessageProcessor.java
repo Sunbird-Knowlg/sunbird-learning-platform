@@ -12,16 +12,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-//import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
-
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(CompositeSearchMessageProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(CompositeSearchMessageProcessor.class.getName());
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-//	private ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public CompositeSearchMessageProcessor() {
@@ -34,13 +32,12 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			});
 			Object index = message.get("index");
 			Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
-			LOGGER.info("Checking condition if the message should be indexed or not" + message.containsKey("index"));
+			LOGGER.log("Checking condition if the message should be indexed or not" + message.containsKey("index"));
 			if(!BooleanUtils.isFalse(shouldindex)){
 				processMessage(message);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Exception", e.getMessage(), e);
 		}
 	}
 
@@ -59,25 +56,25 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 				Map<String, String> relationMap = ObjectDefinitionCache.getRelationDefinition(objectType, graphId);
 				// objectType = WordUtils.capitalize(objectType.toLowerCase());
 				String operationType = (String) message.get("operationType");
-				LOGGER.info("Processing composite search message: Object Type: " + objectType + " | Identifier: " 
+				LOGGER.log("Processing composite search message: Object Type: " + objectType + " | Identifier: " 
 						+ uniqueId + " | Graph: " + graphId + " | Operation: " + operationType);
 				switch (operationType) {
 				case CompositeSearchConstants.OPERATION_CREATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, false);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					LOGGER.info("CREATE Operation | adding index document");
+					LOGGER.log("CREATE Operation | adding index document");
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_UPDATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, true);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					LOGGER.info("CREATE Operation | updating index document");
+					LOGGER.log("CREATE Operation | updating index document");
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_DELETE: {
-					LOGGER.info("Composite search index deleted: Identifier: " + uniqueId);
+					LOGGER.log("Composite search index deleted: Identifier: " + uniqueId);
 					elasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 							CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 					break;
@@ -96,7 +93,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 	}
 
 	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
-		LOGGER.info("Composite search index updated: Identifier: " + uniqueId);
+		LOGGER.log("Composite search index updated: Identifier: " + uniqueId);
 		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
@@ -118,12 +115,12 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
-				LOGGER.info("Document exists for " + uniqueId);
+				LOGGER.log("Document exists for " + uniqueId);
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
 			}
 		}
-		LOGGER.info("Index Document for " + uniqueId + " | document: " + indexDocument.size());
+		LOGGER.log("Index Document for " + uniqueId + " | document: " + indexDocument.size());
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
 			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("properties");
@@ -206,7 +203,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		indexDocument.put("identifier", (String) message.get("nodeUniqueId"));
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
-		LOGGER.info("Updated Index Document for " + uniqueId + " | document: " + indexDocument.size());
+		LOGGER.log("Updated Index Document for " + uniqueId + " | document: " + indexDocument.size());
 		return indexDocument;
 	}
 }

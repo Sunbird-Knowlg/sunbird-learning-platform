@@ -5,8 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -24,13 +22,15 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class LanguageToolsActorErrorTest {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	static ElasticSearchUtil util;
 	private static String TEST_LANGUAGE = "hi";
-	private static Logger LOGGER = LogManager.getLogger(LanguageToolsActorTest.class
+	private static ILogger LOGGER = new PlatformLogger(LanguageToolsActorTest.class
 			.getName());
 
 	static {
@@ -49,10 +49,10 @@ public class LanguageToolsActorErrorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeWordComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -72,10 +72,10 @@ public class LanguageToolsActorErrorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation("computeTextComplexityError");
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
