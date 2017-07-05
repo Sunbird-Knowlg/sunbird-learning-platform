@@ -3148,6 +3148,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (inRelation.getRelationType().equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
 					&& inRelation.getStartNodeObjectType().equalsIgnoreCase(LanguageParams.Synset.name())) {
 				Map<String, Object> synsetMap = getMetadata(inRelation.getStartNodeMetadata(), synsetDefinition);
+				if(!synsetMap.containsKey(LanguageParams.identifier.name()))
+					synsetMap.put(LanguageParams.identifier.name(), inRelation.getStartNodeId());
 				synsets.add(synsetMap);
 			}
 		}
