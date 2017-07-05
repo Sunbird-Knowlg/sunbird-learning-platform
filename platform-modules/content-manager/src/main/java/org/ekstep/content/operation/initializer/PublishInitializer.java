@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.client.PipelineRequestorClient;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
@@ -17,6 +15,8 @@ import org.ekstep.content.validator.ContentValidator;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -27,7 +27,7 @@ import com.ilimi.graph.dac.model.Node;
 public class PublishInitializer extends BaseInitializer {
 	
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(BundleInitializer.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(BundleInitializer.class.getName());
 
 	/** The BasePath. */
 	protected String basePath;
@@ -72,7 +72,7 @@ public class PublishInitializer extends BaseInitializer {
 	public Response initialize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 
-		LOGGER.info("Fetching The Parameters From Parameter Map");
+		LOGGER.log("Fetching The Parameters From Parameter Map");
 
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Boolean ecmlContent = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
@@ -88,7 +88,7 @@ public class PublishInitializer extends BaseInitializer {
 
 			// Get ECRF Object 
 			Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
-			LOGGER.info("ECRF Object Created.");
+			LOGGER.log("ECRF Object Created.");
 
 			if (isCompressRequired) {
 				// Get Pipeline Object 
@@ -100,7 +100,7 @@ public class PublishInitializer extends BaseInitializer {
 			}
 
 			// Call Finalyzer 
-			LOGGER.info("Calling Finalizer");
+			LOGGER.log("Calling Finalizer");
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);

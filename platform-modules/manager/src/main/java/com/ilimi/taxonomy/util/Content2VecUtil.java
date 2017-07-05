@@ -10,30 +10,30 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.content.util.PropertiesUtil;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 @Deprecated
 @CoverageIgnore
 public class Content2VecUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(Content2VecUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(Content2VecUtil.class.getName());
 	private static ObjectMapper mapper = new ObjectMapper();
 	
 	@CoverageIgnore
 	public static void invokeContent2Vec(String contentId, final String event) {
 		ExecutorService pool = null;
 		try {
-			LOGGER.info("Call Content2Vec API: " + contentId + " | Event: " + event);
+			LOGGER.log("Call Content2Vec API: " + contentId + " | Event: " + event);
 			String url = PropertiesUtil.getProperty("CONTENT_TO_VEC_URL");
 			if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(contentId)) {
 				url += "/" + contentId;
-				LOGGER.info("Content2Vec API URL: " + url);
+				LOGGER.log("Content2Vec API URL: " + url);
 				final String endPoint = url;
 				pool = Executors.newFixedThreadPool(1);
 				pool.execute(new Runnable() {
@@ -47,7 +47,7 @@ public class Content2VecUtil {
 				});
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error sending Content2Vec request", e);
+			LOGGER.log("Error sending Content2Vec request", e.getMessage(), e);
 		} finally {
 			if (null != pool)
 				pool.shutdown();
@@ -65,9 +65,9 @@ public class Content2VecUtil {
 				post.setEntity(new StringEntity(body));
 			}
 			HttpResponse response = client.execute(post);
-			LOGGER.info("Content2Vec API: " + url + " | responseCode: " + response.getStatusLine().getStatusCode());
+			LOGGER.log("Content2Vec API: " + url + " | responseCode: " + response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
-			LOGGER.error("Error calling content2vec api", e);
+			LOGGER.log("Error calling content2vec api", e.getMessage(), e);
 		}
 	}
 }

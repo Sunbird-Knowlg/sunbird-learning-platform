@@ -19,13 +19,14 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 @Controller
 @RequestMapping("/media")
 public class MediaController extends BaseController {
     
-    private static LogHelper LOGGER = LogHelper.getInstance(MediaController.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(MediaController.class.getName());
     
     private static final String s3Media = "s3.media.folder";
 
@@ -33,7 +34,7 @@ public class MediaController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> upload(@RequestParam(value = "file", required = true) MultipartFile file) {
         String apiId = "media.upload";
-        LOGGER.info("Upload | File: " + file);
+        LOGGER.log("Upload | File: " + file);
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
                     + FilenameUtils.getExtension(file.getOriginalFilename());
@@ -55,10 +56,10 @@ public class MediaController extends BaseController {
             params.setStatus(StatusType.successful.name());
             params.setErrmsg("Operation successful");
             response.setParams(params);
-            LOGGER.info("Upload | Response: " + response);
+            LOGGER.log("Upload | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+            LOGGER.log("Upload | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

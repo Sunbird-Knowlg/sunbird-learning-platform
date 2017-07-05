@@ -7,6 +7,8 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IAuditHistoryEsService;
@@ -28,7 +30,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	IAuditHistoryEsService auditHistoryEsService;
 
 	/** The Logger */
-	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(AuditHistoryManager.class.getName());
 
 	/*
 	 * (non-Javadoc)
@@ -40,22 +42,22 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	@Override
 	// @Async
 	public void saveAuditHistory(AuditHistoryRecord audit) {
-		LOGGER.info("setting request object from audit history record" + audit);
+		LOGGER.log("setting request object from audit history record" + audit);
 		if (null != audit) {
-			LOGGER.debug("Checking if audit record is empty or not" + audit);
+			LOGGER.log("Checking if audit record is empty or not" + audit);
 			if (StringUtils.isBlank(audit.getObjectId())) {
-				LOGGER.info("Throws Client Exception when audit record is null");
+				LOGGER.log("Throws Client Exception when audit record is null");
 				throw new ClientException(AuditLogErrorCodes.ERR_SAVE_AUDIT_MISSING_REQ_PARAMS.name(),
 						"Required params missing...");
 			}	
-			LOGGER.info("checking if requestId is null or not" + audit.getRequestId());
+			LOGGER.log("checking if requestId is null or not" + audit.getRequestId());
 			Request request = new Request();
 			request.setRequest_id(audit.getRequestId());
 			request.put(CommonDACParams.audit_history_record.name(), audit);
-			LOGGER.info("Sending request to save Logs to DB" + request);
+			LOGGER.log("Sending request to save Logs to DB" + request);
 			auditHistoryEsService.saveAuditHistoryLog(request);
 		} else {
-			LOGGER.info("Throws new exception on processing audit history record");
+			LOGGER.log("Throws new exception on processing audit history record");
 			throw new ClientException(AuditLogErrorCodes.ERR_INVALID_AUDIT_RECORD.name(), "audit record is null.");
 		}
 
@@ -72,24 +74,24 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	public Response getAuditHistory(String graphId, String startTime, String endTime, String versionId) {
 		Request request = new Request();
 		try {
-			LOGGER.info("Checking if graphId is empty or not" + graphId);
+			LOGGER.log("Checking if graphId is empty or not" + graphId);
 			if (StringUtils.isNotBlank(graphId)) {
 				request.put(CommonDACParams.graph_id.name(), graphId);
 			}
 			request.put(CommonDACParams.start_date.name(), startTime);
 			request.put(CommonDACParams.end_date.name(), endTime);
 		} catch (Exception e) {
-			LOGGER.error("Exception during creating request" + e.getMessage(), e);
+			LOGGER.log("Exception during creating request" , e.getMessage(), e);
 			e.printStackTrace();
 		}
-		LOGGER.info("Sending request to auditHistoryEsService" + request);
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLog(request, versionId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		LOGGER.info("Response received from the auditHistoryEsService as a result" + response);
+		LOGGER.log("Response received from the auditHistoryEsService as a result" + response);
 		return response;
 	}
 
@@ -105,7 +107,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			String versionId) {
 		Request request = new Request();
 		try {
-			LOGGER.debug("Checking if received parameters are empty or not" + graphId + objectType);
+			LOGGER.log("Checking if received parameters are empty or not" + graphId + objectType);
 			if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(objectType)) {
 				request.put(CommonDACParams.graph_id.name(), graphId);
 				request.put(CommonDACParams.object_type.name(), objectType);
@@ -113,17 +115,17 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			request.put(CommonDACParams.start_date.name(), startTime);
 			request.put(CommonDACParams.end_date.name(), endTime);
 		} catch (Exception e) {
-			LOGGER.error("Exception during creating request" + e.getMessage(), e);
+			LOGGER.log("Exception during creating request" , e.getMessage(), e);
 			e.printStackTrace();
 		}
-		LOGGER.info("Sending request to auditHistoryEsService" + request);
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLogByObjectType(request, versionId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		LOGGER.info("Response received from the auditHistoryEsService as a result" + response);
+		LOGGER.log("Response received from the auditHistoryEsService as a result" , response);
 		return response;
 	}
 	
@@ -138,7 +140,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	public Response getAuditHistoryById(String graphId, String objectId, String startTime, String endTime,
 			String versionId) {
 		Request request = new Request();
-		LOGGER.debug("Checking if received parameters are empty or not" + graphId + objectId);
+		LOGGER.log("Checking if received parameters are empty or not" + graphId + objectId);
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(objectId)) {
 			request.put(CommonDACParams.graph_id.name(), graphId);
 			request.put(CommonDACParams.object_id.name(), objectId);
@@ -146,14 +148,14 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		request.put(CommonDACParams.start_date.name(), startTime);
 		request.put(CommonDACParams.end_date.name(), endTime);
 
-		LOGGER.info("Sending request to auditHistoryEsService" + request);
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLogByObjectId(request, versionId);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		LOGGER.info("Response received from the auditHistoryEsService as a result" + response);
+		LOGGER.log("Response received from the auditHistoryEsService as a result" , response);
 		return response;
 	}
 
@@ -167,40 +169,40 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	@Override
 	public Response getAuditLogRecordById(String objectId, String timeStamp) {
 		Request request = new Request();
-		LOGGER.debug("Checking if received parameters are empty or not" + objectId);
+		LOGGER.log("Checking if received parameters are empty or not" + objectId);
 		if (StringUtils.isNotBlank(objectId)) {
 			request.put(CommonDACParams.object_id.name(), objectId);
 		}
 		request.put(CommonDACParams.time_stamp.name(), timeStamp);
 
-		LOGGER.info("Sending request to auditHistoryEsService" + request);
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditLogRecordById(request);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		LOGGER.info("Response received from the auditHistoryEsService as a result" + response);
+		LOGGER.log("Response received from the auditHistoryEsService as a result" , response);
 		return response;
 	}
 
 	@Override
 	public Response deleteAuditHistory(String timeStamp) {
 		Request request = new Request();
-		LOGGER.debug("Checking if timestamp exists or not" + timeStamp);
+		LOGGER.log("Checking if timestamp exists or not" + timeStamp);
 		if (StringUtils.isNotBlank(timeStamp)) {
 			request.put(CommonDACParams.time_stamp.name(), timeStamp);
 		}
 		request.put(CommonDACParams.time_stamp.name(), timeStamp);
 
-		LOGGER.info("Sending request to auditHistoryESService" + request);
+		LOGGER.log("Sending request to auditHistoryESService" + request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.deleteEsData(request);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		LOGGER.info("Response received from the auditHistoryESService as a result" + response);
+		LOGGER.log("Response received from the auditHistoryESService as a result" + response);
 		return response;
 	}
 }

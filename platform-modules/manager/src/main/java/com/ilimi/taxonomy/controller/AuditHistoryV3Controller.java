@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
 /**
@@ -31,7 +33,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryV3Controller extends BaseController {
 	
 	/** The Logger */
-	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryV3Controller.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(AuditHistoryV3Controller.class.getName());
 	
 	private String versionId = getAPIVersion();
 	
@@ -66,14 +68,14 @@ public class AuditHistoryV3Controller extends BaseController {
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.audit_history.read";
 
-		LOGGER.info("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
+		LOGGER.log("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			LOGGER.info("Find Item | Response: " + response);
+			LOGGER.log("Find Item | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.content.client.PipelineRequestorClient;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -24,6 +22,8 @@ import org.ekstep.content.validator.ContentValidator;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -34,7 +34,7 @@ import com.ilimi.graph.dac.model.Node;
 public class UploadInitializer extends BaseInitializer {
 	
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(UploadInitializer.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(UploadInitializer.class.getName());
 	
 	/** The Constant JSON_ECML_FILE_NAME. */
 	private static final String JSON_ECML_FILE_NAME = "index.json";
@@ -174,7 +174,7 @@ public class UploadInitializer extends BaseInitializer {
 					ContentErrorMessageConstants.MULTIPLE_ECML_FILES_FOUND + " | [index.json and index.ecml]");
 
 		try {
-			LOGGER.info("Reading ECML File.");
+			LOGGER.log("Reading ECML File.");
 			if (jsonECMLFile.exists())
 				fileString = FileUtils.readFileToString(jsonECMLFile);
 			else if (xmlECMLFilePath.exists())
@@ -198,7 +198,7 @@ public class UploadInitializer extends BaseInitializer {
 			type = ContentWorkflowPipelineParams.json.name();
 		else if (new File(basePath + File.separator + XML_ECML_FILE_NAME).exists())
 			type = ContentWorkflowPipelineParams.ecml.name();
-		LOGGER.info("ECML Type: " + type);
+		LOGGER.log("ECML Type: " + type);
 		return type;
 	}
 }
