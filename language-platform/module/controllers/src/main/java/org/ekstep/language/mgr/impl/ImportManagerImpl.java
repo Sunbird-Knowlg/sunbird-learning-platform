@@ -46,6 +46,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -83,7 +84,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The logger. */
-	private static PlatformLogger<ImportManagerImpl> LOGGER = new PlatformLogger<>(IImportManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(IImportManager.class.getName());
 
 	/**
 	 * Gets the word list.

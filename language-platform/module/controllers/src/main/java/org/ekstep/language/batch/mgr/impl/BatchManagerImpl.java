@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -53,7 +54,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 	private WordChainUtil wordChainUtil = new WordChainUtil();
 
 	/** The logger. */
-	private static PlatformLogger<BatchManagerImpl> LOGGER = new PlatformLogger<>(BatchManagerImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(BatchManagerImpl.class.getName());
 
 	/** The Constant BATCH. */
 	private static final int BATCH = 1000;

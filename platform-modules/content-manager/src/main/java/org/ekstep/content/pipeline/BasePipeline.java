@@ -46,6 +46,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -70,7 +71,7 @@ import scala.concurrent.Future;
 public class BasePipeline extends BaseManager {
 
 	/** The logger. */
-	private static PlatformLogger<BasePipeline> LOGGER = new PlatformLogger<>(BasePipeline.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(BasePipeline.class.getName());
 
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -148,8 +149,7 @@ public class BasePipeline extends BaseManager {
 	 *            the logger object
 	 * @return the LearningActor response
 	 */
-	@SuppressWarnings("rawtypes")
-	protected Response makeLearningRequest(Request request, PlatformLogger LOGGER) {
+	protected Response makeLearningRequest(Request request, ILogger LOGGER) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);

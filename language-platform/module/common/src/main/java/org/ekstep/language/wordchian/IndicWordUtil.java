@@ -14,6 +14,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -30,7 +31,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class IndicWordUtil extends BaseManager {
 
 	/** The logger. */
-	private static PlatformLogger<IndicWordUtil> LOGGER = new PlatformLogger<>(IndicWordUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(IndicWordUtil.class.getName());
 
 	/** The language id. */
 	private String languageId;

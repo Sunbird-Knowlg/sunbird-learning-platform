@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -27,7 +28,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class ToolsController extends BaseLanguageController {
 
 	/** The logger. */
-	private static PlatformLogger<ToolsController> LOGGER = new PlatformLogger<>(ToolsController.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ToolsController.class.getName());
 
 	/**
 	 * Computes and returns the complexity measures of a word or a text.

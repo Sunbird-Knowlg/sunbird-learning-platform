@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 
 @Controller
@@ -27,7 +28,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class ToolsV3Controller extends BaseLanguageController {
 
 	/** The logger. */
-	private static PlatformLogger<ToolsController> LOGGER = new PlatformLogger<>(ToolsController.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ToolsController.class.getName());
 
 	/** The parser manger. */
 	@Autowired

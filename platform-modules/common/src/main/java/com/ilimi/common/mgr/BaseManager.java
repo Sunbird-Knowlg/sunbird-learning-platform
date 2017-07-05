@@ -18,7 +18,7 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Node;
 
@@ -56,8 +56,7 @@ public abstract class BaseManager {
         }
     }
     
-    @SuppressWarnings("rawtypes")
-	protected Response getResponse(Request request, PlatformLogger logger) {
+	public Response getResponse(Request request, ILogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -75,8 +74,7 @@ public abstract class BaseManager {
         }
     }
     
-    @SuppressWarnings("rawtypes")
-	public void makeAsyncRequest(Request request, PlatformLogger logger) {
+	public void makeAsyncRequest(Request request, ILogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             router.tell(request, router);
@@ -86,8 +84,7 @@ public abstract class BaseManager {
         }
     }
 
-    @SuppressWarnings("rawtypes")
-	protected Response getResponse(List<Request> requests, PlatformLogger logger, String paramName, String returnParam) {
+	protected Response getResponse(List<Request> requests, ILogger logger, String paramName, String returnParam) {
         if (null != requests && !requests.isEmpty()) {
             ActorRef router = RequestRouterPool.getRequestRouter();
             try {

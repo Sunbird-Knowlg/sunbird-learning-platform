@@ -6,6 +6,7 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -19,7 +20,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class UpdateDataNodeUtil extends BaseManager {
 
 	/** The logger. */
-	private static PlatformLogger<UpdateDataNodeUtil> LOGGER = new PlatformLogger<>(UpdateDataNodeUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(UpdateDataNodeUtil.class.getName());
 
 	public Response updateDataNode(Node node) {
 		LOGGER.log("Node: ", node);

@@ -11,6 +11,7 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -31,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
 public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */
-	private static PlatformLogger<CollectionMimeTypeMgrImpl> LOGGER = new PlatformLogger<>(CollectionMimeTypeMgrImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(CollectionMimeTypeMgrImpl.class.getName());
 
 	/*
 	 * (non-Javadoc)

@@ -14,7 +14,7 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.model.Node;
 
 import akka.actor.ActorRef;
@@ -42,8 +42,7 @@ public abstract class BaseLanguageController extends BaseController {
         return request;
     }
     
-    @SuppressWarnings("rawtypes")
-	protected Response getResponse(Request request, PlatformLogger logger) {
+	protected Response getResponse(Request request, ILogger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
@@ -59,8 +58,7 @@ public abstract class BaseLanguageController extends BaseController {
         }   
     }
     
-    @SuppressWarnings("rawtypes")
-	protected Response getNonLanguageResponse(Request request, PlatformLogger logger) {
+	protected Response getNonLanguageResponse(Request request, ILogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -76,8 +74,7 @@ public abstract class BaseLanguageController extends BaseController {
         }   
     }
     
-    @SuppressWarnings("rawtypes")
-	public void makeAsyncRequest(Request request, PlatformLogger logger) {
+	public void makeAsyncRequest(Request request, ILogger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             router.tell(request, router);
@@ -87,8 +84,7 @@ public abstract class BaseLanguageController extends BaseController {
         }
     }
     
-    @SuppressWarnings("rawtypes")
-	protected Response getBulkOperationResponse(Request request, PlatformLogger logger) {
+	protected Response getBulkOperationResponse(Request request, ILogger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             request.getContext().put(LanguageParams.bulk_request.name(), true);

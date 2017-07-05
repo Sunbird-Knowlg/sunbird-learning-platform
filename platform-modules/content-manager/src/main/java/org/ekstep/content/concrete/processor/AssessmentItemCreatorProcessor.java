@@ -19,6 +19,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -48,7 +49,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //	private IAssessmentManager assessmentMgr;
 
 	/** The logger. */
-	private static PlatformLogger<AssessmentItemCreatorProcessor> LOGGER = new PlatformLogger<>(AssessmentItemCreatorProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(AssessmentItemCreatorProcessor.class.getName());
 
 //	private ObjectMapper mapper = new ObjectMapper();
 

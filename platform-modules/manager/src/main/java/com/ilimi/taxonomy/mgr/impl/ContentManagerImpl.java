@@ -40,6 +40,7 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
@@ -77,7 +78,7 @@ import scala.concurrent.Future;
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The logger. */
-	private static PlatformLogger<ContentManagerImpl> LOGGER = new PlatformLogger<>(ContentManagerImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ContentManagerImpl.class.getName());
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -648,8 +649,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 *            the logger object
 	 * @return the LearningActor response
 	 */
-	@SuppressWarnings("rawtypes")
-	private Response makeLearningRequest(Request request, PlatformLogger logger) {
+	private Response makeLearningRequest(Request request, ILogger logger) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);

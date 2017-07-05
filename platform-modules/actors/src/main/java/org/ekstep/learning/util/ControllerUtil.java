@@ -7,6 +7,7 @@ import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -22,7 +23,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class ControllerUtil extends BaseLearningManager {
 
 	/** The logger. */
-	private static PlatformLogger<ControllerUtil> LOGGER = new PlatformLogger<>(ControllerUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ControllerUtil.class.getName());
 
 	private static ObjectMapper mapper = new ObjectMapper();
 

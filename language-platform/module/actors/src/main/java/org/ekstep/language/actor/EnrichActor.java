@@ -28,6 +28,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.ConvertGraphNode;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -47,7 +48,7 @@ import akka.actor.ActorRef;
 public class EnrichActor extends LanguageBaseActor implements IWordnetConstants {
 
 	/** The logger. */
-	private static PlatformLogger<EnrichActor> LOGGER = new PlatformLogger<>(EnrichActor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(EnrichActor.class.getName());
 
 	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();

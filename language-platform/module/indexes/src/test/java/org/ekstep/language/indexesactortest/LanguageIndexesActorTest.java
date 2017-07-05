@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -35,6 +33,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
@@ -46,7 +46,7 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static Logger LOGGER = LogManager.getLogger(LanguageIndexesActorTest.class
+	private static ILogger LOGGER = new PlatformLogger(LanguageIndexesActorTest.class
 			.getName());
 //	private static String TEST_LANGUAGE = "test";
 //	private static String TEST_LOAD_LANGUAGE = "testload";
@@ -124,23 +124,23 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		try {
 			Response response = LanguageIndexesTestHelper.getResponse(request,
 					LOGGER);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 			ResponseEntity<Response> responseEntity = LanguageIndexesTestHelper
 					.getResponseEntity(response, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			LOGGER.log("List | Exception: " + e.getMessage(), e);
 			ResponseEntity<Response> responseEntity = LanguageIndexesTestHelper
 					.getExceptionResponseEntity(e, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			LOGGER.info("List | Response: " + responseEntity);
+			LOGGER.log("List | Response: " + responseEntity);
 		}
 	}
 
@@ -156,16 +156,16 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		try {
 			Response response = LanguageIndexesTestHelper
 					.getBulkOperationResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 			LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			LOGGER.log("List | Exception: " + e.getMessage(), e);
 			LanguageIndexesTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);
@@ -218,10 +218,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getRootWords.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -260,10 +260,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getWordId.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -295,10 +295,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getIndexInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -330,11 +330,11 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.loadCitations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request,
 				LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -360,11 +360,11 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.loadCitations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request,
 				LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -385,11 +385,11 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request,
 				LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -411,10 +411,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.wordWildCard.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -442,10 +442,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.morphologicalVariants.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -473,10 +473,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.citationsCount.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -500,10 +500,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.getWordMetrics.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -531,10 +531,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.citations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -562,10 +562,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.citations.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -593,10 +593,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.wordInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -624,10 +624,10 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.rootWordInfo.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -706,14 +706,14 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);//load
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(request,
 				LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		ResponseEntity<Response> responseEntity = LanguageIndexesTestHelper
 				.getResponseEntity(response, apiId, (null != request
 						.getParams()) ? request.getParams().getMsgid() : null);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 

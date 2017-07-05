@@ -28,10 +28,10 @@ import net.sf.json.util.JSONStringer;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class ElasticSearchUtil acts as a tool and a wrapper to work with an
@@ -65,7 +65,7 @@ public class ElasticSearchUtil {
 	private int resultLimit = defaultResultLimit;
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ElasticSearchUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ElasticSearchUtil.class.getName());
 
 	/**
 	 * Instantiates a new elastic search util by connecting to the ES cluster or
@@ -568,7 +568,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		LOGGER.info("Time taken for search: " + diff);
+		LOGGER.log("Time taken for search: " , diff, "INFO");
 		return result;
 	}
 

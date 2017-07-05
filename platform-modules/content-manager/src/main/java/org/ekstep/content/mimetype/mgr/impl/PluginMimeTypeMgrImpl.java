@@ -24,6 +24,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -32,7 +33,7 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
-	private static PlatformLogger<PluginMimeTypeMgrImpl> LOGGER = new PlatformLogger<>(PluginMimeTypeMgrImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(PluginMimeTypeMgrImpl.class.getName());
 
 	/* (non-Javadoc)
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)

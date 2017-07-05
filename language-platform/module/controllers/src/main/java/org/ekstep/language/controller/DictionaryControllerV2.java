@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
@@ -46,7 +47,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	private IDictionaryManager dictionaryManager;
 
 	/** The logger. */
-	private static PlatformLogger<DictionaryControllerV2> LOGGER = new PlatformLogger<>(DictionaryControllerV2.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(DictionaryControllerV2.class.getName());
 
 	/**
 	 * Upload.

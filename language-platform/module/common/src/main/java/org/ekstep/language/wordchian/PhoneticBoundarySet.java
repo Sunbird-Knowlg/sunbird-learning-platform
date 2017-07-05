@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -21,7 +22,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class PhoneticBoundarySet extends BaseWordSet {
 
 	/** The logger. */
-	private static PlatformLogger<PhoneticBoundarySet> LOGGER = new PlatformLogger<>(PhoneticBoundarySet.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(PhoneticBoundarySet.class.getName());
 
 	/** The starts with akshara. */
 	private String startsWithAkshara;

@@ -17,6 +17,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
@@ -37,7 +38,7 @@ import com.ilimi.graph.dac.model.Node;
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */
-	private static PlatformLogger<AssetsMimeTypeMgrImpl> LOGGER = new PlatformLogger<>(AssetsMimeTypeMgrImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(AssetsMimeTypeMgrImpl.class.getName());
 
 	/*
 	 * (non-Javadoc)

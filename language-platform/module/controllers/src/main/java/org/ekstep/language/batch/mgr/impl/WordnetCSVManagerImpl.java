@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -41,7 +42,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	
 	/** The logger. */
-	private static PlatformLogger<WordnetCSVManagerImpl> LOGGER = new PlatformLogger<>(IWordnetCSVManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(IWordnetCSVManager.class.getName());
 
 	/*
 	 * (non-Javadoc)

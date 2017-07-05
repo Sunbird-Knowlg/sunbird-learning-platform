@@ -26,6 +26,7 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -51,7 +52,7 @@ import scala.concurrent.Future;
 public class ControllerUtil extends BaseLanguageManager implements IWordnetConstants {
 
 	/** The logger. */
-	private static PlatformLogger<ControllerUtil> LOGGER = new PlatformLogger<>(ControllerUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ControllerUtil.class.getName());
 
 	/** The task refresh time in millis. */
 	private Long TASK_REFRESH_TIME_IN_MILLIS = 10000L;
@@ -99,8 +100,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * org.ekstep.language.util.BaseLanguageManager#getLanguageResponse(com.
 	 * ilimi.common.dto.Request, org.apache.logging.log4j.Logger)
 	 */
-	@SuppressWarnings("rawtypes")
-	public Response getLanguageResponse(Request request, PlatformLogger logger) {
+	public Response getLanguageResponse(Request request, ILogger logger) {
 		return super.getLanguageResponse(request, logger);
 	}
 
@@ -110,8 +110,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @see com.ilimi.common.mgr.BaseManager#getResponse(com.ilimi.common.dto.
 	 * Request, org.apache.logging.log4j.Logger)
 	 */
-	@SuppressWarnings("rawtypes")
-	public Response getResponse(Request request, PlatformLogger logger) {
+	public Response getResponse(Request request, ILogger logger) {
 		ActorRef router = RequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -160,8 +159,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @param request the request message to the language service actor
 	 * @param logger log4j logger object
 	 */
-	@SuppressWarnings("rawtypes")
-	public void makeLanguageAsyncRequest(Request request, PlatformLogger logger) {
+	public void makeLanguageAsyncRequest(Request request, ILogger logger) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);

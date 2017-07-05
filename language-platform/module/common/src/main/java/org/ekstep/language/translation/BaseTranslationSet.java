@@ -11,7 +11,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -29,10 +29,9 @@ public class BaseTranslationSet extends BaseManager{
 	protected Node proxyNode;
 	private Map<String, Object> metadata;
 
-	private PlatformLogger<BaseTranslationSet> LOGGER;
+	private ILogger LOGGER;
 	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public BaseTranslationSet(String graphId, Node proxyNode, PlatformLogger LOGGER, Map<String, Object> metadata){
+	public BaseTranslationSet(String graphId, Node proxyNode, ILogger LOGGER, Map<String, Object> metadata){
 		this.LOGGER = LOGGER;
 		this.graphId = graphId;
 		this.proxyNode = proxyNode;

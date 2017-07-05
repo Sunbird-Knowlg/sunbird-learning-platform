@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.TelemetryBEEvent;
 
-public class PlatformLogger<T> {
+public class PlatformLogger implements ILogger {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static final Logger telemetryEventLogger = (Logger) LogManager.getLogger("TelemetryEventLogger");

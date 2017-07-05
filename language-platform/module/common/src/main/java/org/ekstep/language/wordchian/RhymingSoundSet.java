@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -19,7 +20,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class RhymingSoundSet extends BaseWordSet {
 
 	/** The logger. */
-	private static PlatformLogger<RhymingSoundSet> LOGGER = new PlatformLogger<>(RhymingSoundSet.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(RhymingSoundSet.class.getName());
 
 	/** The rhyming sound. */
 	private String rhymingSound;

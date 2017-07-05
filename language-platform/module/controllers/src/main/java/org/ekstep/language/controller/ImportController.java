@@ -14,8 +14,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -37,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -59,7 +58,7 @@ public class ImportController extends BaseLanguageController {
 	private WordUtil wordUtil = new WordUtil();
 	
 	/** The logger. */
-	private static  PlatformLogger<ImportController> LOGGER = new PlatformLogger<>(ImportController.class.getName());
+	private static  ILogger LOGGER = new PlatformLogger(ImportController.class.getName());
 
 	/**
 	 * Import wordnet data from JSON.

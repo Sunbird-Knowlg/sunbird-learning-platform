@@ -16,6 +16,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -35,7 +36,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class EmbedControllerProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static PlatformLogger<EmbedControllerProcessor> LOGGER = new PlatformLogger<>(EmbedControllerProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(EmbedControllerProcessor.class.getName());
 
 	/**
 	 * Instantiates a new embed controller processor.

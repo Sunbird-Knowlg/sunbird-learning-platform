@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -44,7 +45,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class ParserManagerImpl extends BaseLanguageManager implements IParserManager, IWordnetConstants {
 
 	/** The logger. */
-	private static PlatformLogger<ParserManagerImpl> LOGGER = new PlatformLogger<>(ParserManagerImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ParserManagerImpl.class.getName());
 
 	/** The object type. */
 	private String objectType = "Word";

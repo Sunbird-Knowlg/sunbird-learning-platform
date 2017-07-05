@@ -19,6 +19,7 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import akka.actor.ActorRef;
@@ -43,7 +44,7 @@ import scala.concurrent.Future;
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/** The logger. */
-	private static PlatformLogger<ECMLMimeTypeMgrImpl> LOGGER = new PlatformLogger<>(ECMLMimeTypeMgrImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ECMLMimeTypeMgrImpl.class.getName());
 
 	/*
 	 * (non-Javadoc)
@@ -89,7 +90,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 				}
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				LOGGER.log("Exception",e.getMessage(), e);
 				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 			}
 		} else {

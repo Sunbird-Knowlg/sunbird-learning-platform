@@ -29,6 +29,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.mgr.Configuration;
@@ -45,7 +46,7 @@ import com.rits.cloning.Cloner;
 public class PublishFinalizer extends BaseFinalizer {
 
 	/** The logger. */
-	private static PlatformLogger<PublishFinalizer> LOGGER = new PlatformLogger<>(PublishFinalizer.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(PublishFinalizer.class.getName());
 
 	private static String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 

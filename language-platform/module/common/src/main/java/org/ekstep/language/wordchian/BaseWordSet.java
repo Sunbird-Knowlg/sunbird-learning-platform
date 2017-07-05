@@ -16,7 +16,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -50,7 +50,7 @@ public abstract class BaseWordSet extends BaseManager {
 	protected List<Relation> existingWordSetRelatios;
 
 	/** The logger. */
-	private PlatformLogger<BaseWordSet> LOGGER;
+	private ILogger LOGGER;
 
 	/**
 	 * Instantiates a new base word set.
@@ -66,9 +66,8 @@ public abstract class BaseWordSet extends BaseManager {
 	 * @param LOGGER
 	 *            the logger
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public BaseWordSet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordSetRelatios,
-			PlatformLogger LOGGER) {
+			ILogger LOGGER) {
 		this.LOGGER = LOGGER;
 		this.languageId = languageId;
 		this.wordNode = wordNode;

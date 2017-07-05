@@ -26,6 +26,7 @@ import org.ekstep.content.util.PropertiesUtil;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -51,7 +52,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class LocalizeAssetProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static PlatformLogger<LocalizeAssetProcessor> LOGGER = new PlatformLogger<>(LocalizeAssetProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(LocalizeAssetProcessor.class.getName());
 
 	/**
 	 * Instantiates a new localize asset processor and sets the base path and

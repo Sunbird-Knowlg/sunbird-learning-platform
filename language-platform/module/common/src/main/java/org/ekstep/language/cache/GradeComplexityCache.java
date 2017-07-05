@@ -11,6 +11,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Filter;
@@ -30,7 +31,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class GradeComplexityCache extends BaseManager {
 
-	private static PlatformLogger<GradeComplexityCache> LOGGER = new PlatformLogger<>(GradeComplexityCache.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(GradeComplexityCache.class.getName());
 
 	/**
 	 * The Map which stores GradeLevelComplexity nodes against the complexity in

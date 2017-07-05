@@ -13,6 +13,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -26,7 +27,7 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @Component
 public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager {
 
-	private static PlatformLogger<TaxonomyManagerImpl> LOGGER = new PlatformLogger<>(ITaxonomyManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ITaxonomyManager.class.getName());
 
 	public static String[] taxonomyIds = { "numeracy", "literacy", "literacy_v2" };
 

@@ -26,6 +26,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -49,7 +50,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	private static final String ITEM_SET_OBJECT_TYPE = "ItemSet";
 	private static final String ITEM_SET_MEMBERS_TYPE = "AssessmentItem";
 
-	private static PlatformLogger<AssessmentManagerImpl> LOGGER = new PlatformLogger<>(IAssessmentManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(IAssessmentManager.class.getName());
 
 	private ObjectMapper mapper = new ObjectMapper();
 

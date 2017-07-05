@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class DatabasePropertiesUtil {
 	private static Properties prop = new Properties();
 	private static InputStream input = null;
-	private static Logger LOGGER = LogManager.getLogger(DatabasePropertiesUtil.class
+	private static ILogger LOGGER = new PlatformLogger(DatabasePropertiesUtil.class
 			.getName());
 
 	static {
@@ -18,12 +18,12 @@ public class DatabasePropertiesUtil {
 		input = DatabasePropertiesUtil.class.getClassLoader().getResourceAsStream(
 				filename);
 		if (input == null) {
-			LOGGER.error("Unable to find " + filename);
+			LOGGER.log("Unable to find " + filename);
 		}
 		try {
 			prop.load(input);
 		} catch (IOException e) {
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Exception",e.getMessage(), e);
 		}
 	}
 	

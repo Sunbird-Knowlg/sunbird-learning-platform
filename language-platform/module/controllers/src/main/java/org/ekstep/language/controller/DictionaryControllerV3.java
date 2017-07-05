@@ -1,9 +1,6 @@
 package org.ekstep.language.controller;
 
 import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 
 /**
@@ -34,7 +33,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	private IDictionaryManager dictionaryManager;
 	
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(DictionaryControllerV3.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(DictionaryControllerV3.class.getName());
 	
 	/**
 	 * Finds and returns the word.
@@ -59,10 +58,10 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
 			Response response = dictionaryManager.getWordV3(languageId, objectId);
-			LOGGER.info("Find | Response: " + response);
+			LOGGER.log("Find | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find | Exception: " + e.getMessage(), e);
+			LOGGER.log("Find | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -102,7 +101,6 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            User making the request
 	 * @return the response entity
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestParam(value = "language_id", required = true) String languageId,
@@ -126,7 +124,6 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            User making the request
 	 * @return the response entity
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> partialUpdate(@RequestParam(value = "language_id", required = true) String languageId,

@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.mgr.Configuration;
 
 /**
@@ -24,7 +26,7 @@ public class CassandraConnector {
 	private static Session session;
 
 	/** The Logger object. */
-	private static LogHelper LOGGER = LogHelper.getInstance(CassandraConnector.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(CassandraConnector.class.getName());
 
 	static {
 		// Connect to Cassandra Cluster specified by provided node IP address
@@ -52,7 +54,7 @@ public class CassandraConnector {
 				registerShutdownHook();
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error! While Loading Cassandra Properties.", e);
+			LOGGER.log("Error! While Loading Cassandra Properties.", e.getMessage(), e);
 		}
 	}
 
@@ -81,7 +83,7 @@ public class CassandraConnector {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				LOGGER.info("Shutting down Cassandra connector session");
+				LOGGER.log("Shutting down Cassandra connector session");
 				CassandraConnector.close();
 			}
 		});

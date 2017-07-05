@@ -10,6 +10,7 @@ import org.ekstep.content.util.JSONContentParser;
 import org.ekstep.content.util.XMLContentParser;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -22,7 +23,7 @@ import com.ilimi.graph.dac.model.Node;
 public class BaseInitializer extends BasePipeline {
 
 	/** The logger. */
-	private static PlatformLogger<BaseInitializer> LOGGER = new PlatformLogger<>(BaseInitializer.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(BaseInitializer.class.getName());
 
 	/**
 	 * isCompressRequired()

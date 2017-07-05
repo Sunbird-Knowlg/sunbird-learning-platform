@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -19,8 +19,7 @@ public abstract class HealthCheckManager extends BaseManager{
 		return OK();
 	}
 
-	@SuppressWarnings("rawtypes")
-	protected Map<String, Object> checkGraphHealth(String graphId , PlatformLogger LOGGER){
+	protected Map<String, Object> checkGraphHealth(String graphId , ILogger LOGGER){
 		Map<String, Object> check = new HashMap<String, Object>();
 		check.put("name", graphId + " graph");
 

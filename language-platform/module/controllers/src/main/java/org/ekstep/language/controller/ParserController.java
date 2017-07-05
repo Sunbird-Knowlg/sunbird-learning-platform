@@ -1,11 +1,7 @@
 package org.ekstep.language.controller;
 
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IParserManager;
@@ -22,6 +18,8 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class ParserController, entry point for parser operation
@@ -33,7 +31,7 @@ import com.ilimi.common.exception.ClientException;
 public class ParserController extends BaseController {
 
     /** The logger. */
-    private static Logger LOGGER = LogManager.getLogger(SearchController.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(SearchController.class.getName());
 
     /** The parser manger. */
     @Autowired
@@ -66,11 +64,11 @@ public class ParserController extends BaseController {
             Integer limit = (Integer) request.get("limit");
             Response response = parserManger.parseContent(languageId, content, wordSuggestions, false, translations,
                     equivalentWords, limit);
-            LOGGER.info("Parser | Response: " + response);
+            LOGGER.log("Parser | Response: " + response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            LOGGER.error("Parser | Exception: " + e.getMessage(), e);
+            LOGGER.log("Parser | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }

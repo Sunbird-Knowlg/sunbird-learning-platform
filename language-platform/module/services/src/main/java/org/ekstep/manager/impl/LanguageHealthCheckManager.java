@@ -14,13 +14,14 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.HealthCheckManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 
 @Component
 public class LanguageHealthCheckManager extends HealthCheckManager {
 
-	private static PlatformLogger<LanguageHealthCheckManager> LOGGER = new PlatformLogger<>(LanguageHealthCheckManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(LanguageHealthCheckManager.class.getName());
 	private static final int MAX_THREAD_NUM = 10;
 
 	@Autowired

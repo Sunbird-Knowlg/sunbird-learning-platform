@@ -56,6 +56,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -90,7 +91,7 @@ import net.sf.json.util.JSONStringer;
 public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private static PlatformLogger<WordUtil> LOGGER = new PlatformLogger<>(WordUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
 	
 	/** The search util. */
