@@ -27,6 +27,7 @@ public class GraphUtil {
 	 * @throws Exception
 	 *             the exception
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Map<String, Object> getDataNode(String graphId, String identifier) throws Exception {
 		String url = PropertiesUtil.getProperty("platform-api-url") + "/v1/graph/" + graphId + "/datanodes/"
 				+ identifier;

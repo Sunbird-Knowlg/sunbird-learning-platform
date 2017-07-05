@@ -1,10 +1,6 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import java.util.Map;
-
 import org.ekstep.language.util.LogWordEventUtil;
-
-import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
@@ -22,7 +18,6 @@ public class LogTranslationLifecycleEvent extends BaseSystemCommand implements I
         return "log_translation_lifecycle_event";
     }
     
-    @SuppressWarnings("unchecked")
 	@Override
 	public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
         if (argv.length == 3) {

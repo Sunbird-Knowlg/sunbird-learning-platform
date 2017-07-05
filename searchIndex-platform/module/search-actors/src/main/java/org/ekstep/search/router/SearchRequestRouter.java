@@ -1,8 +1,6 @@
 package org.ekstep.search.router;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.search.actor.DefinitionSyncScheduler;
@@ -19,6 +17,8 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -32,7 +32,7 @@ import scala.concurrent.Future;
 
 public class SearchRequestRouter extends UntypedActor{
 
-    private static Logger LOGGER = LogManager.getLogger(SearchRequestRouter.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(SearchRequestRouter.class.getName());
     protected long timeout = 30000;
     
 	@Override
@@ -88,8 +88,8 @@ public class SearchRequestRouter extends UntypedActor{
                 parent.tell(arg0, getSelf());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                LOGGER.info(
-                        request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
+                LOGGER.log(
+                        request.getManagerName()  , request.getOperation() + ", SUCCESS, " + params.toString(), "INFO");
             }
         }, getContext().dispatcher());
 
@@ -102,7 +102,7 @@ public class SearchRequestRouter extends UntypedActor{
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
+        LOGGER.log(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), "WARN");
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

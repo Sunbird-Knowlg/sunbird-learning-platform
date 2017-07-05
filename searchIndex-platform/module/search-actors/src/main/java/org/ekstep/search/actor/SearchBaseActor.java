@@ -2,10 +2,6 @@ package org.ekstep.search.actor;
 
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -16,6 +12,8 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 
 import akka.actor.ActorRef;
@@ -23,7 +21,7 @@ import akka.actor.UntypedActor;
 
 public abstract class SearchBaseActor extends UntypedActor {
 
-    private static Logger LOGGER = LogManager.getLogger(SearchBaseActor.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(SearchBaseActor.class.getName());
     private static final String ekstep = "org.ekstep.";
     private static final String ilimi = "com.ilimi.";
     private static final String java = "java.";
@@ -65,7 +63,7 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     @CoverageIgnore
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
-        LOGGER.error(errorCode + ", " + errorMessage);
+        LOGGER.log("Error", errorCode , errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -75,7 +73,7 @@ public abstract class SearchBaseActor extends UntypedActor {
 
     @CoverageIgnore
     public void handleException(Throwable e, ActorRef parent) {
-        LOGGER.error(e.getMessage(), e);
+        LOGGER.log("Error", e.getMessage());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());
@@ -85,7 +83,7 @@ public abstract class SearchBaseActor extends UntypedActor {
         } else {
             params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        LOGGER.error("Exception occured in class :"+ e.getClass().getName() + "with message :" + e.getMessage());
+        LOGGER.log("Exception occured in class :"+ e.getClass().getName() , e.getMessage());
         params.setErrmsg(setErrMessage(e));
         response.setParams(params);
         setResponseCode(response, e);
@@ -125,11 +123,11 @@ public abstract class SearchBaseActor extends UntypedActor {
     protected String setErrMessage(Throwable e){
     	Class<? extends Throwable> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+        	LOGGER.log("Setting error message sent from class " + className , e.getMessage());
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	LOGGER.error("Setting default err msg " + className + e.getMessage());
+        	LOGGER.log("Setting default err msg " + className , e.getMessage());
         	return default_err_msg;
         }
         return null;
