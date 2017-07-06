@@ -21,16 +21,11 @@ public class PlatformLogger implements ILogger {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private Logger logger = null;
-	private static String className;
+	private String className;
 
 	public PlatformLogger(String clsName) {
 		className = clsName;
 		logger = (Logger) LogManager.getLogger(clsName);
-	}
-
-	public Logger logger(String name) {
-		Logger logger = (Logger) LogManager.getLogger(name + ".logger");
-		return logger;
 	}
 
 	private void info(String message, Object data) {
