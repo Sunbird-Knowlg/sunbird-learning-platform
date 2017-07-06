@@ -5,7 +5,7 @@
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
 		<RollingFile name="RollingFileAppender" fileName="/data/logs/language_service.log"
-			filePattern="/data/logs/language-%d{MM-dd-yyyy-hh}-%i.log">
+			filePattern="/data/logs/language_service-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -16,7 +16,7 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="language-*.log" />
+                    <IfFileName glob="language_service-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>
