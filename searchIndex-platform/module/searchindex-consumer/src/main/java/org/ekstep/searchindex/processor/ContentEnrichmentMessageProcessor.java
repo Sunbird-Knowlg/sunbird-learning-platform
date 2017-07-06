@@ -1,5 +1,6 @@
 package org.ekstep.searchindex.processor;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,10 +9,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
@@ -33,7 +40,15 @@ import com.ilimi.graph.enums.CollectionTypes;
  * @see IMessageProcessor
  */
 public class ContentEnrichmentMessageProcessor extends BaseProcessor implements IMessageProcessor {
-
+	
+	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
+	
+	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
+	
+	private static final String s3Content = "s3.content.folder";
+	
+	private static final String s3Artifact = "s3.artifact.folder";
+	
 	/** The logger. */
 	private static ILogger LOGGER = new PlatformLogger(ContentEnrichmentMessageProcessor.class.getName());
 
@@ -96,6 +111,10 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			} else {
 				LOGGER.log("calling processData to fetch node metadata" + node);
 				processData(node);
+			}
+			if (node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())
+					.equals("application/vnd.ekstep.content-collection")) {
+				processCollectionForTOC(node);
 			}
 		}
 	}
@@ -715,4 +734,107 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		}
 		return node;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public void processCollectionForTOC(Node node){
+		try {
+
+			LOGGER.info("Processing Collection Content :" + node.getIdentifier());
+			Response response = util.getHirerachy(node.getIdentifier());
+			if (null != response && null != response.getResult()) {
+				Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
+				Map<String,Object> mimeTypeMap = new HashMap<>();
+				Map<String,Object> contentTypeMap = new HashMap<>();
+				int leafCount = 0;
+				getTypeCount(content, "mimeType", mimeTypeMap);
+				getTypeCount(content, "contentType", contentTypeMap);
+				content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+				content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+				leafCount = getLeafNodeCount(content,leafCount);
+				content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
+				LOGGER.info("Write hirerachy to JSON File :" + node.getIdentifier());
+				String data = mapper.writeValueAsString(content);
+				File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
+				try {
+					FileUtils.writeStringToFile(file, data);
+					if(file.exists()){
+					    LOGGER.info("Upload File to S3 :" + file.getName());
+						String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(node.getIdentifier()), file);
+						if (null != uploadedFileUrl && uploadedFileUrl.length > 1){
+							String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
+							LOGGER.info("Update S3 url to node" + url);
+							node.getMetadata().put(ContentAPIParams.toc_url.name(), url);
+						}
+						FileUtils.deleteDirectory(file.getParentFile());
+						LOGGER.info("Deleting Uploaded files");
+					}
+				}catch (Exception e) {
+					LOGGER.error("Error while uploading file "+e);
+				}
+				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+				node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+				util.updateNode(node);
+				LOGGER.info("Updating Node MetaData");
+			}
+		}catch(Exception e){
+			LOGGER.error("Error while processing the collection "+e);
+		}
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void getTypeCount(Map<String,Object> data, String type, Map<String,Object> typeMap) {
+		List<Object> children = (List<Object>) data.get("children");
+		if(null!=children && !children.isEmpty()){
+			for(Object child: children){
+				Map<String,Object> childMap = (Map<String,Object>) child;
+				String typeValue = childMap.get(type).toString();
+				if(typeMap.containsKey(typeValue)){
+					int count = (int) typeMap.get(typeValue);
+					count++;
+					typeMap.put(typeValue, count);
+				}else {
+					typeMap.put(typeValue, 1);
+				}
+				if(childMap.containsKey("children")){
+					getTypeCount(childMap, type, typeMap);
+				}
+			}
+		} 
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Integer getLeafNodeCount(Map<String,Object> data,int leafCount) {
+		List<Object> children = (List<Object>) data.get("children");
+		if(null!=children && !children.isEmpty()){
+			for(Object child: children){
+				Map<String,Object> childMap = (Map<String,Object>) child;
+				int lc =0;
+				 lc =  getLeafNodeCount(childMap,lc);
+				 leafCount = leafCount +lc;
+			}
+		} else {
+			leafCount++;
+		}
+		return leafCount;
+	}
+	
+	private String getBasePath(String contentId) {
+		String path = "";
+		if (!StringUtils.isBlank(contentId))
+			path = TEMP_FILE_LOCATION + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
+					+ File.separator + contentId;
+		return path;
+	}
+	
+	private String getAWSPath(String identifier) {
+		String folderName = S3PropertyReader.getProperty(s3Content);
+		if (!StringUtils.isBlank(folderName)) {
+			folderName = folderName + File.separator  + Slug.makeSlug(identifier, true) + File.separator + S3PropertyReader.getProperty(s3Artifact);
+		}
+		return folderName;
+	}
+
 }

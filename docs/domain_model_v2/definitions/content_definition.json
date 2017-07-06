@@ -943,7 +943,9 @@
 		    "ContentTemplate",
 		    "ItemTemplate",
 		    "TextBook",
-		    "TextBookUnit"
+		    "TextBookUnit",
+        "Course",
+        "CourseUnit"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",

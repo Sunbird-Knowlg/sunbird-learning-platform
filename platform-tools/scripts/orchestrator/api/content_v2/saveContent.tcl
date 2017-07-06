@@ -62,7 +62,8 @@ if {$object_null == 1} {
 
 		if {!$contentTypeEmpty} {
 			set textbookUnitCheck [[java::new String [$contentType toString]] equalsIgnoreCase "TextBookUnit"]
-			if {$textbookUnitCheck == 1} {
+			set courseUnitCheck [[java::new String [$contentType toString]] equalsIgnoreCase "CourseUnit"]
+			if {$textbookUnitCheck == 1 || $courseUnitCheck == 1} {
 				$content put "visibility" "Parent"
 			}
 		}

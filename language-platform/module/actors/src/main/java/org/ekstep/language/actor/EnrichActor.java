@@ -197,9 +197,17 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 	 */
 	private void enrichWord(String languageId, Node word) {
 		long startTime = System.currentTimeMillis();
+		
+		Map<String, Object> wordMetadata = word.getMetadata();
+		String lemma = (String) wordMetadata.get(LanguageParams.lemma.name());
+		if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
+			word.getMetadata().put(ATTRIB_IS_PHRASE, true);
+		}
+
 		if (languageId.equalsIgnoreCase("en")) {
 			updateSyllablesList(word);
 		}
+		
 		updateLexileMeasures(languageId, word);
 		updatePosList(languageId, word);
 		updateWordComplexity(languageId, word);
@@ -243,17 +251,16 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 
 			if (synsets != null && synsets.size() > 0) {
 				word.getMetadata().put(ATTRIB_SYNSET_COUNT, synsets.size());
-			}
-
-			String lemma = (String) wordMap.get(LanguageParams.lemma.name());
-			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
-				word.getMetadata().put(ATTRIB_IS_PHRASE, true);
+			} else {
+				word.getMetadata().put(ATTRIB_SYNSET_COUNT, 0);
 			}
 
 			if (primaryMeaningId != null) {
 				Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
 				if (wordUtil.getSynonymRelations(synset.getOutRelations()) != null)
 					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
+				else
+					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
 
 				if (wordUtil.getAntonymRelations(synset.getOutRelations()) != null)
 					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
@@ -270,8 +277,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				if (tags != null && tags.size() > 0)
 					word.setTags(tags);
 
-			} else {
-				word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
 			}
 
 			try {

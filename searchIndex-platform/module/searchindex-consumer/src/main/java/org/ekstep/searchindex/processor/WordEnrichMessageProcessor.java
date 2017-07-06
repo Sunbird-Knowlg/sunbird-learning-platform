@@ -14,7 +14,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = new PlatformLogger(WordCountMessageProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(WordEnrichMessageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	public WordEnrichMessageProcessor() {
@@ -108,7 +108,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 		
 		try {
 		
-		String url = PropertiesUtil.getProperty("platform-api-url") +"v1/language/tools/enrich/"+languageId;
+		String url = PropertiesUtil.getProperty("language-api-url") +"/v1/language/tools/enrich/"+languageId;
 		
 		 Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 		 Map<String, Object> requestMap = new HashMap<String, Object>();
@@ -116,11 +116,11 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 		 requestBodyMap.put("request", requestMap);
 		 
 		 String requestBody = mapper.writeValueAsString(requestBodyMap);
-		 LOGGER.log("Updating Word Count | URL: " + url , " | Request body: " + requestBody, "INFO");
+		 LOGGER.info("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
 		 
 		 HTTPUtil.makePostRequest(url, requestBody);
 		 
-		 LOGGER.log("Word Count updated");
+		 LOGGER.info("Word enriched for the lemma change successfully - wordId :", wordId, "INFO");
 
 		} catch (Exception e) {
 			LOGGER.log("error when calling enrich api Language Id:"+languageId + " word :"+ wordId+",error", e.getMessage(), e);

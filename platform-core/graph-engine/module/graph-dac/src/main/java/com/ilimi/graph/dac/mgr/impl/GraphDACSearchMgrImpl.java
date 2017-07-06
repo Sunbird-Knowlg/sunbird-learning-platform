@@ -125,7 +125,13 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
 					"Required parameters are missing");
 		} else {
 			SearchCriteria searchCriteria = new SearchCriteria();
-			MetadataCriterion mc = MetadataCriterion.create(Arrays.asList(new Filter("identifier", SearchConditions.OP_IN, nodeIds)));
+			MetadataCriterion mc = null;
+			if (nodeIds.size() == 1)
+				mc = MetadataCriterion
+						.create(Arrays.asList(new Filter("identifier", SearchConditions.OP_EQUAL, nodeIds.get(0))));
+			else
+				mc = MetadataCriterion.create(Arrays.asList(new Filter("identifier", SearchConditions.OP_IN, nodeIds)));
+			
 			searchCriteria.addMetadata(mc);
 			searchCriteria.setCountQuery(false);
             try {

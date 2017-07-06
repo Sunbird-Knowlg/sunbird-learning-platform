@@ -3153,10 +3153,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		Map<String, Object> wordMap = getMetadata(node.getMetadata(), wordDefinition);
 		List<Map<String, Object>> synsets = new ArrayList<>();
 		wordMap.put("synsets", synsets);
+		wordUtil.updatePrimaryMeaning(languageId, wordMap, wordUtil.getSynsets(node));
+		
 		for (Relation inRelation : node.getInRelations()) {
 			if (inRelation.getRelationType().equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
 					&& inRelation.getStartNodeObjectType().equalsIgnoreCase(LanguageParams.Synset.name())) {
 				Map<String, Object> synsetMap = getMetadata(inRelation.getStartNodeMetadata(), synsetDefinition);
+				if(!synsetMap.containsKey(LanguageParams.identifier.name()))
+					synsetMap.put(LanguageParams.identifier.name(), inRelation.getStartNodeId());
 				synsets.add(synsetMap);
 			}
 		}
