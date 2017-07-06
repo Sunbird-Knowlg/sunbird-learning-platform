@@ -56,7 +56,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 						String languageId = (String) data.get("languageId");
 						Map<String,String> finalDocumentMap = getIndexDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 								CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, lemma, languageId);
-						LOGGER.log("Adding/Updating translation index document");
+						LOGGER.log("Adding/Updating translation index document", languageId, "INFO");
 						if(finalDocumentMap!=null && finalDocumentMap.size()>0)
 						{
 							addOrUpdateIndex(id, finalDocumentMap);
@@ -69,7 +69,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 	}
 
 	private void addOrUpdateIndex(String uniqueId,Map<String, String> indexesMap) throws Exception {
-		LOGGER.log("Translation index created: Identifier: " + uniqueId);
+		LOGGER.log("Translation index created: Identifier: " , uniqueId, "INFO");
 		if(indexesMap!=null && indexesMap.size()>0){
 			LOGGER.log("Translation index size " + indexesMap.size());
 			elasticSearchUtil.bulkIndexWithIndexId(WordTranslationConstants.TRANSLATION_INDEX,
@@ -84,8 +84,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		elasticSearchUtil.addIndex(WordTranslationConstants.TRANSLATION_INDEX,
 				WordTranslationConstants.TRANSLATION_INDEX_TYPE, settings, mappings);
 	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	
 	private Map<String,String> getIndexDocument(String index,String type, String uniqueId,String lemma, String languageId) throws IOException {
 		Map<String,String> finalDocumentMap = new HashMap<String,String>();
 		try
@@ -112,7 +111,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 			Map<String, Object> indexDocument = new HashMap<String, Object>();
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(index,type, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
-				LOGGER.log("Document exists for " + uniqueId);
+				LOGGER.log("Document exists for " , uniqueId, "INFO");
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
 				Object synsets = indexDocument.get("synonyms");
@@ -191,7 +190,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		String documentJson = elasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
 		if (documentJson != null && !documentJson.isEmpty()) {
-			LOGGER.log("Document exists for " + id);
+			LOGGER.log("Document exists for " , id, "INFO");
 			indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 			});
 			Object words = indexDocument.get("synonyms");

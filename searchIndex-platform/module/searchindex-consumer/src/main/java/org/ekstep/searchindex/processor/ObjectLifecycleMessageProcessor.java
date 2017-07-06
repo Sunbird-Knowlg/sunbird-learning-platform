@@ -49,7 +49,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
-				LOGGER.log("Reading from kafka consumer" + messageData);
+				LOGGER.log("Reading from kafka consumer" , messageData, "INFO");
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}
@@ -124,7 +124,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							objectMap.put(ConsumerWorkflowEnums.state.name(), state);
 							
 							
-							LOGGER.log("prevstate of object:" + prevstate + "currentstate of object:" + state + objectType);
+							LOGGER.log("prevstate of object:" + prevstate + "currentstate of object:" , state + objectType, "INFO");
 							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
@@ -189,7 +189,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								setDefaultMetadata(node, objectMap);
 								break;
 							}
-							LOGGER.log("Logging Telemetry for BE_OBJECT_LIFECYCLE event" + node_id + objectMap);
+							LOGGER.log("Logging Telemetry for BE_OBJECT_LIFECYCLE event" , node_id + objectMap, "INFO");
 							LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 						}
 					}
@@ -331,7 +331,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								+ nodeMap.containsKey(ConsumerWorkflowEnums.category.name()));
 						if (nodeMap.containsKey(ConsumerWorkflowEnums.category.name())) {
 							String[] category = (String[]) nodeMap.get(ConsumerWorkflowEnums.category.name());
-							LOGGER.log("Setting Category as subtype for object_lifecycle_events" + category);
+							LOGGER.log("Setting Category as subtype for object_lifecycle_events" , category, "INFO");
 							String subtype = "";
 							for (String str : category) {
 								subtype = str;
@@ -409,7 +409,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.ItemSet.name())
 						&& rel.getRelationType().equals(ConsumerWorkflowEnums.hasMember.name())) {
-					LOGGER.log("Setting parentid for assessmentitem" + rel.getEndNodeId());
+					LOGGER.log("Setting parentid for assessmentitem" , rel.getEndNodeId(), "INFO");
 					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
 					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
 				} else {
@@ -436,7 +436,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			nodeMap = (Map) node.getMetadata();
 			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
 				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
-					LOGGER.log("Setting subType field for type from node" + entry.getKey() + entry.getValue());
+					LOGGER.log("Setting subType field for type from node" , entry.getKey() + entry.getValue(), "INFO");
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
 				} else {
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
