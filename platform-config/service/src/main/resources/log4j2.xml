@@ -4,7 +4,7 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="RollingFileAppender" fileName="/data/logs/config-service.log"
+		<RollingFile name="RollingFileAppender" fileName="/data/logs/config_service.log"
 			filePattern="/data/logs/config-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
