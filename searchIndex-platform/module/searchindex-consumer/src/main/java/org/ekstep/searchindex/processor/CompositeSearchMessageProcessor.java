@@ -32,7 +32,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			});
 			Object index = message.get("index");
 			Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
-			LOGGER.log("Checking condition if the message should be indexed or not" + message.containsKey("index"));
+			LOGGER.log("Checking condition if the message should be indexed or not" , message.containsKey("index"), "INFO");
 			if(!BooleanUtils.isFalse(shouldindex)){
 				processMessage(message);
 			}
@@ -93,7 +93,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 	}
 
 	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
-		LOGGER.log("Composite search index updated: Identifier: " + uniqueId);
+		LOGGER.log("Composite search index updated: Identifier: " , uniqueId, "INFO");
 		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
@@ -120,7 +120,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 				});
 			}
 		}
-		LOGGER.log("Index Document for " + uniqueId + " | document: " + indexDocument.size());
+		LOGGER.log("Index Document for " + uniqueId , " | document: " + indexDocument.size(), "INFO");
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
 			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("properties");
@@ -203,7 +203,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		indexDocument.put("identifier", (String) message.get("nodeUniqueId"));
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
-		LOGGER.log("Updated Index Document for " + uniqueId + " | document: " + indexDocument.size());
+		LOGGER.log("Updated Index Document for " + uniqueId , " | document: " + indexDocument.size(), "INFO");
 		return indexDocument;
 	}
 }

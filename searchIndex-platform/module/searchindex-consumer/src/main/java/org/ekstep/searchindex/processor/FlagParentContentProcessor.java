@@ -46,7 +46,7 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" + messageData);
+			LOGGER.log("Reading from kafka consumer" , messageData, "INFO");
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {

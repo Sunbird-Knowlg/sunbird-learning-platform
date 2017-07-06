@@ -79,7 +79,7 @@ public class ContentV3Controller extends BaseController {
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
             Response response = contentManager.upload(contentId, "domain", uploadedFile);
-            LOGGER.log("Upload | Response: " , response);
+            LOGGER.log("Upload | Response: " , response.getResponseCode(), "INFO");
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.log("Upload | Exception: " , e.getMessage(), e);
@@ -112,7 +112,7 @@ public class ContentV3Controller extends BaseController {
 
 			LOGGER.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			LOGGER.log("Archive | Response: " , response);
+			LOGGER.log("Archive | Response: " , response.getResponseCode(), "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -140,7 +140,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		LOGGER.log("Publish content | Content Id : " + contentId);
 		try {
-			LOGGER.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]", contentId, "INFO");
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
 			if(null==requestMap.get("lastPublishedBy") || StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())){
@@ -174,7 +174,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		LOGGER.log("Review content | Content Id : " + contentId);
 		try {
-			LOGGER.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]",contentId,  "INFO");
 			Request request = getRequest(map);
 			response = contentManager.review(graphId, contentId, request);
 			return getResponseEntity(response, apiId, null);
@@ -198,7 +198,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		LOGGER.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			LOGGER.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]", contentId, "INFO");
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -221,7 +221,7 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		LOGGER.log("Content GetById | Content Id : " + contentId);
 		try {
-			LOGGER.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]", contentId, "INFO");
 			response = contentManager.getById(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

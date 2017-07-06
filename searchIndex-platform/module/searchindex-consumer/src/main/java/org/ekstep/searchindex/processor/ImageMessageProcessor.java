@@ -65,7 +65,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 			LOGGER.log("Reading from kafka consumer" + messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
-				LOGGER.log("checking if kafka message is blank or not" + messageData);
+				LOGGER.log("checking if kafka message is blank or not" , messageData, "INFO");
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}
@@ -110,7 +110,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 							Map<String, String> variantsMap;
 							try {
 								variantsMap = OptimizerUtil.optimiseImage(eks.get("cid").toString());
-								LOGGER.log("optimized images returned from optimizer util" + variantsMap);
+								LOGGER.log("optimized images returned from optimizer util" , variantsMap, "INFO");
 
 								if (null == variantsMap)
 									variantsMap = new HashMap<String, String>();

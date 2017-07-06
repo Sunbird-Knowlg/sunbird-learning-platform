@@ -57,7 +57,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" + messageData);
+			LOGGER.log("Reading from kafka consumer" , messageData, "INFO");
 			Map<String, Object> message = new HashMap<String, Object>();
 
 			if (StringUtils.isNotBlank(messageData)) {
@@ -360,7 +360,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		if (null != concepts && !concepts.isEmpty()) {
 			result.put("concepts", concepts);
 		}
-		LOGGER.log("Concept in resultMap->" + result.get("concepts"));
+		LOGGER.log("Concept in resultMap->" , result.get("concepts"), "INFO");
 		return result;
 	}
 
@@ -419,7 +419,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				LOGGER.log("Total number of items: " + itemIds.size());
 				if (!itemIds.isEmpty()) {
 					items = new ArrayList<String>(itemIds);
-					LOGGER.log("getting items associated with itemsets" + items);
+					LOGGER.log("getting items associated with itemsets" , items, "INFO");
 
 				}
 			}
@@ -453,7 +453,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			LOGGER.log("getting members from response");
 			members = (List<String>) response.get(GraphDACParams.members.name());
 		}
-		LOGGER.log("item members fetched from itemSets" + members);
+		LOGGER.log("item members fetched from itemSets" , members.size(), "INFO");
 		return members;
 	}
 
@@ -538,7 +538,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		LOGGER.log("calling processAgeGroup method to process ageGroups from gradeLevels");
 		Node content_node = processAgeGroup(node);
 
-		LOGGER.log("updating node with extracted features" + content_node);
+		LOGGER.log("updating node with extracted features" , content_node.getIdentifier(), "INFO");
 		node.setOutRelations(null);
 		node.setInRelations(null);
 		util.updateNode(content_node);
@@ -707,7 +707,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					for (String age : age_array) {
 						ageSet.add(age);
 					}
-					LOGGER.log("adding age metadata to node" + ageSet);
+					LOGGER.log("adding age metadata to node" , ageSet, "INFO");
 					List<String> ageGroup = new ArrayList(ageSet);
 					node.getMetadata().put("ageGroup", ageGroup);
 				}

@@ -71,7 +71,7 @@ public class AuditHistoryV3Controller extends BaseController {
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			LOGGER.log("Find Item | Response: " , response);
+			LOGGER.log("Find Item | Response: " , response.getResponseCode(), "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);

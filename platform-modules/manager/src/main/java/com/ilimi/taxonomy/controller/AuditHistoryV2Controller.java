@@ -65,7 +65,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ endTime);
 		try {
 			Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime, versionId);
-			LOGGER.log("Find Item | Response: " , response);
+			LOGGER.log("Find Item | Response: " , response.getResponseCode(), "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -104,7 +104,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			LOGGER.log("Find Item | Response: " , response);
+			LOGGER.log("Find Item | Response: " , response.getResponseCode(), "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -142,7 +142,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime, versionId);
-			LOGGER.log("Find Item | Response: " + response);
+			LOGGER.log("Find Item | Response: " , response, "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -178,7 +178,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | objectId: " + objectId);
 		try {
 				Response response = auditHistoryManager.getAuditLogRecordById(objectId, timeStamp);
-				LOGGER.log("Find Item | Response: " , response);
+				LOGGER.log("Find Item | Response: " , response.getResponseCode(), "INFO");
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -197,7 +197,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | objectId: " + start);
 		try {
 				Response response = auditHistoryManager.deleteAuditHistory(start);
-				LOGGER.log("delete Item | Response: " + response);
+				LOGGER.log("delete Item | Response: " , response.getResponseCode(),  "INFO");
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);

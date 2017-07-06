@@ -119,7 +119,7 @@ public class BaseProcessor {
 						&& StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
 
 					String status = null;
-					LOGGER.log("checking for endNode metadata contains status" + rel.getEndNodeMetadata().containsKey("status"));
+					LOGGER.log("checking for endNode metadata contains status" , rel.getEndNodeMetadata().containsKey("status"), "INFO");
 					if (null != rel.getEndNodeMetadata().get("status")) {
 						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
 					}
@@ -160,7 +160,7 @@ public class BaseProcessor {
 				result_map.put("domain", domain);
 			}
 		}
-		LOGGER.log("Map of conceptGrades and nodeIds" , result_map);
+		LOGGER.log("Map of conceptGrades and nodeIds" , result_map, "INFO");
 		return result_map;
 	}
 }
