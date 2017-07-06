@@ -7,8 +7,7 @@
 		<RollingFile name="RollingFileAppender" fileName="/data/logs/language_service.log"
 			filePattern="/data/logs/language-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
-				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
-				</Pattern>
+				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<SizeBasedTriggeringPolicy size="250 MB" />

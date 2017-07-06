@@ -7,8 +7,7 @@
 		<RollingFile name="SearchLogAppender" fileName="/data/logs/search_service.log"
 			filePattern="/data/logs/search-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
-				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
-				</Pattern>
+				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="24"
