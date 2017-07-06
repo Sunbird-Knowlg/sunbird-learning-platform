@@ -43,7 +43,7 @@ public class AuditHistoryEsDao {
 			try {
 				LOGGER.log("sending search request to search processor" ,search);
 				result = (List<Object>) processor.processSearchAuditHistory(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX);
-				LOGGER.log("result from search processor" , result);
+				LOGGER.log("result from search processor" , result, "INFO");
 			} catch (Exception e) {
 				LOGGER.log("error while processing the search request", e.getMessage(), e);
 				e.printStackTrace();

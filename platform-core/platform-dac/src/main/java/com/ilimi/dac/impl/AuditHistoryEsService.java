@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.dac.BaseDataAccessService;
@@ -85,7 +84,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		modelMapper.map(auditRecord, entity);
 		Map<String, Object> entity_map = objectMapper.convertValue(entity, Map.class);
 		try {
-			LOGGER.log("sending entity object to audit history dao" , entity_map);
+			LOGGER.log("sending entity object to audit history dao" , entity_map, "INFO");
 			dao.save(entity_map);
 		} catch (IOException e) {
 			LOGGER.log("exception while proceesing audit history entity map", e.getMessage(), e);
