@@ -581,10 +581,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	private Map<String, Object> contentCleanUp(Map<String,Object> map){
 		if(map.containsKey("identifier")){
 			String identifier = (String)map.get("identifier");
-			LOGGER.info("Checking if identifier ends with .img" + identifier);
+			LOGGER.log("Checking if identifier ends with .img" + identifier);
 			if(StringUtils.endsWithIgnoreCase(identifier, ".img")){
 				 String new_identifier = identifier.replace(".img", "");
-				 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
+				 LOGGER.log("replacing image id with content id in response" + identifier + new_identifier);
 				 map.replace("identifier", identifier, new_identifier);
 			}
 		}

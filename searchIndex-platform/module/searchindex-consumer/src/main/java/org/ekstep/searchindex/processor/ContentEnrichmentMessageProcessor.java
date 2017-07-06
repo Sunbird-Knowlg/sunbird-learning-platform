@@ -739,7 +739,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	public void processCollectionForTOC(Node node){
 		try {
 
-			LOGGER.info("Processing Collection Content :" + node.getIdentifier());
+			LOGGER.log("Processing Collection Content :" , node.getIdentifier(), "INFO");
 			Response response = util.getHirerachy(node.getIdentifier());
 			if (null != response && null != response.getResult()) {
 				Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
@@ -752,33 +752,33 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 				leafCount = getLeafNodeCount(content,leafCount);
 				content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
-				LOGGER.info("Write hirerachy to JSON File :" + node.getIdentifier());
+				LOGGER.log("Write hirerachy to JSON File :" + node.getIdentifier());
 				String data = mapper.writeValueAsString(content);
 				File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
 				try {
 					FileUtils.writeStringToFile(file, data);
 					if(file.exists()){
-					    LOGGER.info("Upload File to S3 :" + file.getName());
+					    LOGGER.log("Upload File to S3 :" , file.getName(), "INFO");
 						String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(node.getIdentifier()), file);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1){
 							String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
-							LOGGER.info("Update S3 url to node" + url);
+							LOGGER.log("Update S3 url to node" + url);
 							node.getMetadata().put(ContentAPIParams.toc_url.name(), url);
 						}
 						FileUtils.deleteDirectory(file.getParentFile());
-						LOGGER.info("Deleting Uploaded files");
+						LOGGER.log("Deleting Uploaded files");
 					}
 				}catch (Exception e) {
-					LOGGER.error("Error while uploading file "+e);
+					LOGGER.log("Error while uploading file "+e);
 				}
 				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 				node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 				util.updateNode(node);
-				LOGGER.info("Updating Node MetaData");
+				LOGGER.log("Updating Node MetaData");
 			}
 		}catch(Exception e){
-			LOGGER.error("Error while processing the collection "+e);
+			LOGGER.log("Error while processing the collection ", e.getMessage(), e);
 		}
 		
 	}
