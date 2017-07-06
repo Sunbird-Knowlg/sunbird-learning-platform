@@ -390,7 +390,7 @@ paths:
           schema:
             $ref: "#/definitions/FailedResponseHeader"
       security: []
-  /v3/tools/transliterate?language_id=###&addClosingVirama=###:
+  /v3/tools/transliterate?lemma=###&languages=###:
     post:
       tags:
       - "Tools"
@@ -401,25 +401,19 @@ paths:
       produces:
       - "application/json"
       parameters:
-      - name: "language_id"
+      - name: "lemma"
         in: "query"
-        description: "Unique code of the language into which the given english text\
-          \ should be transliterated"
+        description: "any english text for which transliteration required"
         required: true
         type: "string"
-      - name: "addClosingVirama"
+      - name: "languages"
         in: "query"
-        description: "Parameter to specify if the transliterated word should end with\
-          \ a virama if there is no ending vowel"
-        required: false
-        type: "boolean"
-        default: false
-      - in: "body"
-        name: "Body"
+        description: "list of languages for which translation required"
         required: true
-        schema:
-          $ref: "#/definitions/transliterateRequestBody"
-        x-is-map: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
       responses:
         200:
           description: "Successfully transliterated into the specified language"
@@ -1324,26 +1318,6 @@ definitions:
       request:
         $ref: "#/definitions/parserReqObject"
     title: "Text Analysis Request Body"
-  transliterateRequestBody:
-    type: "object"
-    required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
-    properties:
-      id:
-        type: "string"
-      ver:
-        type: "string"
-      ts:
-        type: "string"
-      params:
-        $ref: "#/definitions/RequestParams"
-      request:
-        $ref: "#/definitions/transliterateReqObject"
-    title: "Transliterate Request Body"
   createSynsetRequestBody:
     type: "object"
     required:
@@ -1816,12 +1790,6 @@ definitions:
         type: "number"
         description: "Maximum number of equivalent words, per word in the input text,\
           \ to be returned"
-  transliterateReqObject:
-    properties:
-      text:
-        type: "string"
-        description: "English text that needs to be transliterated into the specified\
-          \ language"
   wordResponse:
     properties:
       word:
