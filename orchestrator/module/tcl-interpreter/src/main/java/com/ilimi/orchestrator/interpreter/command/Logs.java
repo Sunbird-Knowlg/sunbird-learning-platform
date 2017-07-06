@@ -1,8 +1,7 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -13,7 +12,7 @@ import tcl.lang.TclObject;
 
 public class Logs extends BaseSystemCommand implements ICommand, Command {
 
-	private static Logger LOGGER = LogManager.getLogger(Logs.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(Logs.class.getName());
 	
 	@Override
 	public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
@@ -24,7 +23,7 @@ public class Logs extends BaseSystemCommand implements ICommand, Command {
                     throw new TclException(interp, "Null arguments to " + getCommandName());
                 } else {
                     String logMessage = tclObject1.toString();
-                    LOGGER.info(logMessage);
+                    LOGGER.log("LogMessage", logMessage, "INFO");
                     interp.setResult(true);
                 }
             } catch (Exception e) {
