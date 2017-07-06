@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -24,7 +24,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class VarnaCache extends BaseManager {
 	
-	private static Logger LOGGER = LogManager.getLogger(VarnaCache.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(VarnaCache.class.getName());
 
 	private final Map<String, List<Node>> varnaMap = new HashMap<String, List<Node>>();
 	private final Map<String, Map<String, String>> isoSymbolMap = new HashMap<String, Map<String, String>>();

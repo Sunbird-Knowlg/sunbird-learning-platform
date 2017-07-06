@@ -2,8 +2,6 @@ package managers;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
@@ -12,13 +10,15 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import play.libs.F.Promise;
 import play.mvc.Result;
 
 public class PlaySearchManager extends BasePlaySearchManager {
 
-	private static Logger LOGGER = LogManager.getLogger(PlaySearchManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(PlaySearchManager.class.getName());
 
 	public Promise<Result> search(Request request) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(),

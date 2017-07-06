@@ -17,11 +17,12 @@ import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
 
 import com.ilimi.common.dto.ExecutionContext;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(ResponseFilter.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ResponseFilter.class.getName());
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -38,7 +39,7 @@ public class ResponseFilter implements Filter {
 				&& httpRequest.getHeader("content-type").indexOf("multipart/form-data") != -1);
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
+			LOGGER.log("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
 			+ " | Params: " + request.getParameterMap());
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
@@ -48,7 +49,7 @@ public class ResponseFilter implements Filter {
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
-			LOGGER.info("Path: " + httpRequest.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
+			LOGGER.log("Path: " + httpRequest.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
 			+ " | Params: " + request.getParameterMap());
 			chain.doFilter(request, response);
 		}

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Plugin;
@@ -16,6 +14,8 @@ import org.ekstep.content.processor.AbstractProcessor;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class MissingControllerValidatorProcessor.
@@ -34,7 +34,7 @@ import com.ilimi.common.exception.ServerException;
 public class MissingControllerValidatorProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(MissingControllerValidatorProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(MissingControllerValidatorProcessor.class.getName());
 
 	/**
 	 * Instantiates a new missing controller validator processor.
@@ -80,7 +80,7 @@ public class MissingControllerValidatorProcessor extends AbstractProcessor {
 			List<Controller> controllers = plugin.getControllers();
 			if (null != controllers && !controllers.isEmpty()) {
 				List<String> controllerIds = new ArrayList<String>();
-				LOGGER.info("Validating Contollers.");
+				LOGGER.log("Validating Contollers.");
 				for (Controller controller : controllers) {
 					if (controllerIds.contains(controller.getId()))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_CONTROLLER_ID.name(),

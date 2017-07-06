@@ -14,6 +14,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -68,12 +69,12 @@ public abstract class BaseLearningManager extends BaseManager {
 	 * @param logger
 	 *            the logger
 	 */
-	public void makeAsyncLearningRequest(Request request, Logger logger) {
+	public void makeAsyncLearningRequest(Request request, ILogger logger) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception",e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -87,7 +88,7 @@ public abstract class BaseLearningManager extends BaseManager {
 	 *            the logger
 	 * @return the language response
 	 */
-	protected Response getLearningResponse(Request request, Logger logger) {
+	protected Response getLearningResponse(Request request, ILogger logger) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, LearningRequestRouterPool.REQ_TIMEOUT);
@@ -98,7 +99,7 @@ public abstract class BaseLearningManager extends BaseManager {
 				return ERROR(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception", e.getMessage(), e);
 			throw new ServerException(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}

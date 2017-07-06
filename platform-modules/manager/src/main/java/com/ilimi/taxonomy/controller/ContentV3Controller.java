@@ -22,7 +22,8 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 /**
@@ -41,7 +42,7 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 @RequestMapping("/v3/content")
 public class ContentV3Controller extends BaseController {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(ContentV3Controller.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ContentV3Controller.class.getName());
 
 	@Autowired
 	private IContentManager contentManager;
@@ -69,19 +70,19 @@ public class ContentV3Controller extends BaseController {
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "ekstep.learning.content.upload";
-		LOGGER.debug("Upload Content | Content Id: " + contentId);
-		LOGGER.info("Uploaded File Name: " + file.getName());
-		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
+		LOGGER.log("Upload Content | Content Id: " + contentId);
+		LOGGER.log("Uploaded File Name: " + file.getName());
+		LOGGER.log("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
             Response response = contentManager.upload(contentId, "domain", uploadedFile);
-            LOGGER.info("Upload | Response: " + response);
+            LOGGER.log("Upload | Response: " , response.getResponseCode(), "INFO");
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+            LOGGER.log("Upload | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
 	}
@@ -104,14 +105,14 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.archive";
-		LOGGER.info("Create Content Bundle");
+		LOGGER.log("Create Content Bundle");
 		try {
 			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
 			request.put(ContentAPIParams.version.name(), "v2");
 
-			LOGGER.info("Calling the Manager for 'Bundle' Operation");
+			LOGGER.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			LOGGER.info("Archive | Response: " + response);
+			LOGGER.log("Archive | Response: " , response.getResponseCode(), "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -137,9 +138,9 @@ public class ContentV3Controller extends BaseController {
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.publish";
 		Response response;
-		LOGGER.info("Publish content | Content Id : " + contentId);
+		LOGGER.log("Publish content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]", contentId, "INFO");
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
 			if(null==requestMap.get("lastPublishedBy") || StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())){
@@ -171,9 +172,9 @@ public class ContentV3Controller extends BaseController {
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.review";
 		Response response;
-		LOGGER.info("Review content | Content Id : " + contentId);
+		LOGGER.log("Review content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]",contentId,  "INFO");
 			Request request = getRequest(map);
 			response = contentManager.review(graphId, contentId, request);
 			return getResponseEntity(response, apiId, null);
@@ -195,9 +196,9 @@ public class ContentV3Controller extends BaseController {
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
-		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
+		LOGGER.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]", contentId, "INFO");
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -218,9 +219,9 @@ public class ContentV3Controller extends BaseController {
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "content.getById";
 		Response response;
-		LOGGER.info("Content GetById | Content Id : " + contentId);
+		LOGGER.log("Content GetById | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
+			LOGGER.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]", contentId, "INFO");
 			response = contentManager.getById(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

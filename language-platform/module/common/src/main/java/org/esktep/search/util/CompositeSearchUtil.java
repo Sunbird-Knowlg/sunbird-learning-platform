@@ -2,15 +2,14 @@ package org.esktep.search.util;
 
 import java.util.List;
 import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -21,7 +20,7 @@ import com.ilimi.common.dto.Response;
 public class CompositeSearchUtil extends BaseSearchManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(CompositeSearchUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(CompositeSearchUtil.class.getName());
 	
 	/**
 	 * Search.
@@ -51,6 +50,7 @@ public class CompositeSearchUtil extends BaseSearchManager {
 	 * @param searchRequestMap the search request map
 	 * @return the list
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> searchWords(Map<String, Object> searchRequestMap){
 		Map<String, Object> wordResults = search(searchRequestMap);
 		

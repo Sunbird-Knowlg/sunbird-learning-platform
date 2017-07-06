@@ -1,9 +1,6 @@
 package org.ekstep.language.batch.controller;
 
 import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.batch.mgr.IBatchManager;
 import org.ekstep.language.batch.mgr.IWordnetCSVManager;
 import org.ekstep.language.controller.BaseLanguageController;
@@ -18,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class BatchController. provide batch operations like correct wordnet
@@ -37,7 +36,7 @@ public class BatchController extends BaseLanguageController {
 	@Autowired
 	private IWordnetCSVManager wordnetCSVManager;
 
-	private static Logger LOGGER = LogManager.getLogger(BatchController.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(BatchController.class.getName());
 
 	/**
 	 * Correct wordnet data.
@@ -52,10 +51,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.correctWordnetData";
 		try {
 			Response response = batchManager.correctWordnetData(languageId);
-			LOGGER.info("correctWordnetData | Response: " + response);
+			LOGGER.log("correctWordnetData | Response: " , response, "INFO");
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("correctWordnetData | Exception: " + e.getMessage(), e);
+			LOGGER.log("correctWordnetData | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -73,10 +72,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.updatePictures";
 		try {
 			Response response = batchManager.updatePictures(languageId);
-			LOGGER.info("updatePictures | Response: " + response);
+			LOGGER.log("updatePictures | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("updatePictures | Exception: " + e.getMessage(), e);
+			LOGGER.log("updatePictures | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -94,10 +93,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.cleanupWordNetData";
 		try {
 			Response response = batchManager.cleanupWordNetData(languageId);
-			LOGGER.info("cleanupWordNetData | Response: " + response);
+			LOGGER.log("cleanupWordNetData | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("cleanupWordNetData | Exception: " + e.getMessage(), e);
+			LOGGER.log("cleanupWordNetData | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -121,10 +120,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.updateWordChain";
 		try {
 			Response response = batchManager.updateWordChain(languageId, start, total);
-			LOGGER.info("updateWordChain | Response: " + response);
+			LOGGER.log("updateWordChain | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("updateWordChain | Exception: " + e.getMessage(), e);
+			LOGGER.log("updateWordChain | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -142,10 +141,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.setPrimaryMeaning";
 		try {
 			Response response = batchManager.setPrimaryMeaning(languageId);
-			LOGGER.info("setPrimaryMeaning | Response: " + response);
+			LOGGER.log("setPrimaryMeaning | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("setPrimaryMeaning | Exception: " + e.getMessage(), e);
+			LOGGER.log("setPrimaryMeaning | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -163,10 +162,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.updatePosList";
 		try {
 			Response response = batchManager.updatePosList(languageId);
-			LOGGER.info("updatePosList | Response: " + response);
+			LOGGER.log("updatePosList | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("updatePosList | Exception: " + e.getMessage(), e);
+			LOGGER.log("updatePosList | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -184,10 +183,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.updateWordComplexity";
 		try {
 			Response response = batchManager.updateWordComplexity(languageId);
-			LOGGER.info("updateWordComplexity | Response: " + response);
+			LOGGER.log("updateWordComplexity | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			LOGGER.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -205,10 +204,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.updateWordFeatures";
 		try {
 			Response response = batchManager.updateWordFeatures(languageId);
-			LOGGER.info("updateWordFeatures | Response: " + response);
+			LOGGER.log("updateWordFeatures | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("updateWordFeatures | Exception: " + e.getMessage(), e);
+			LOGGER.log("updateWordFeatures | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -226,10 +225,10 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.updateFrequencyCounts";
 		try {
 			Response response = batchManager.updateFrequencyCounts(languageId);
-			LOGGER.info("updateFrequencyCounts | Response: " + response);
+			LOGGER.log("updateFrequencyCounts | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("updateFrequencyCounts | Exception: " + e.getMessage(), e);
+			LOGGER.log("updateFrequencyCounts | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -251,10 +250,10 @@ public class BatchController extends BaseLanguageController {
 		try {
 			String wordsCSV = (String) map.get("words_csv");
 			Response response = wordnetCSVManager.createWordnetCitations(languageId, wordsCSV);
-			LOGGER.info("createWordnetCitations | Response: " + response);
+			LOGGER.log("createWordnetCitations | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("createWordnetCitations | Exception: " + e.getMessage(), e);
+			LOGGER.log("createWordnetCitations | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -278,10 +277,10 @@ public class BatchController extends BaseLanguageController {
 			String synsetCSV = (String) map.get("synsets_csv");
 			String outputDir = (String) map.get("output_dir");
 			Response response = wordnetCSVManager.replaceWordnetIds(languageId, wordsCSV, synsetCSV, outputDir);
-			LOGGER.info("replaceWordnetIds | Response: " + response);
+			LOGGER.log("replaceWordnetIds | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("replaceWordnetIds | Exception: " + e.getMessage(), e);
+			LOGGER.log("replaceWordnetIds | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -303,10 +302,10 @@ public class BatchController extends BaseLanguageController {
 		try {
 			String wordsCSV = (String) map.get("words_csv");
 			Response response = wordnetCSVManager.addWordnetIndexes(languageId, wordsCSV);
-			LOGGER.info("addWordnetIndexes | Response: " + response);
+			LOGGER.log("addWordnetIndexes | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("addWordnetIndexes | Exception: " + e.getMessage(), e);
+			LOGGER.log("addWordnetIndexes | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

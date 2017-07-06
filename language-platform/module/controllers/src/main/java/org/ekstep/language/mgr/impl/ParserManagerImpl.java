@@ -11,8 +11,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.ComplexityMeasures;
 import org.ekstep.language.mgr.IParserManager;
@@ -24,6 +22,8 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -45,7 +45,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class ParserManagerImpl extends BaseLanguageManager implements IParserManager, IWordnetConstants {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ParserManagerImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ParserManagerImpl.class.getName());
 
 	/** The object type. */
 	private String objectType = "Word";
@@ -69,7 +69,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 		Map<String, Map<String, Object>> returnMap = new HashMap<String, Map<String, Object>>();
 		if (null != nodes && !nodes.isEmpty()) {
 			Set<String> synsetIds = new HashSet<String>();
-			LOGGER.info("Number of words: " + nodes.size());
+			LOGGER.log("Number of words: " + nodes.size());
 			for (Node node : nodes) {
 				if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
 					String primarySynsetId = getPrimarySynsetId(node);
@@ -83,7 +83,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 							wordMap.put("measures", measures);
 						}
 					} catch (Exception e) {
-						LOGGER.error(e.getMessage(), e);
+						LOGGER.log("Exception",e.getMessage(), e);
 					}
 					returnMap.put(lemma, wordMap);
 					if (StringUtils.isNotBlank(primarySynsetId)) {
@@ -358,7 +358,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 			Map<String, String> synsetIdMap, Map<String, Set<String>> lemmaMap, Map<String, Node> nodeMap, int limit) {
 		for (Entry<String, Map<String, Object>> entry : returnMap.entrySet()) {
 			String lemma = entry.getKey();
-			LOGGER.info("Getting related words for : " + lemma);
+			LOGGER.log("Getting related words for : " + lemma);
 			Map<String, Object> wordMap = entry.getValue();
 			String synsetId = synsetIdMap.get(lemma);
 			if (StringUtils.isNotBlank(synsetId)) {
@@ -386,7 +386,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 						}
 					}
 					if (null != hyponymIds && !hyponymIds.isEmpty()) {
-						LOGGER.info("hyponymIds count: " + hyponymIds.size());
+						LOGGER.log("hyponymIds count: " + hyponymIds.size());
 						getNodes(nodeMap, languageId, hyponymIds, limit);
 						for (String hyponymId : hyponymIds) {
 							Node hyponym = nodeMap.get(hyponymId);
@@ -407,7 +407,7 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 					}
 				}
 				if (null != words && !words.isEmpty()) {
-					LOGGER.info("Related words count: " + words.size());
+					LOGGER.log("Related words count: " + words.size());
 					wordMap.put("relatedWords", words);
 				}
 			}

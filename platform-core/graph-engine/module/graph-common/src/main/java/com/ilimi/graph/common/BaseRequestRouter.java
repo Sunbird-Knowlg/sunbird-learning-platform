@@ -24,6 +24,8 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 
@@ -33,7 +35,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
 
     private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 
-    private static Logger LOGGER = LogManager.getLogger(BaseRequestRouter.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(BaseRequestRouter.class.getName());
 
     protected abstract void initActorPool();
 
@@ -83,7 +85,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
                 long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                LOGGER.info(request.getRequestId() + " | " + request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
+                LOGGER.log(request.getRequestId() + " | " + request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
                 perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
                         + request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
                         + request.getOperation() + ",ENDTIME," + endTime);
@@ -102,7 +104,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        LOGGER.error(request.getRequestId() + " | " + request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
+        LOGGER.log(request.getRequestId() + " | " + request.getManagerName() + "," + request.getOperation() , e.getMessage(), "WARN");
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

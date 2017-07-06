@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.mgr.IAwsUrlUpdateManager;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class AwsUrlUpdateController, is the main entry point for 
@@ -30,7 +31,7 @@ import com.ilimi.common.mgr.IAwsUrlUpdateManager;
 public class AwsLanguageUrlUpdateController extends BaseController {
 
 	/** The Class Logger. */
-	private static LogHelper LOGGER = LogHelper.getInstance(AwsLanguageUrlUpdateController.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(AwsLanguageUrlUpdateController.class.getName());
 
 	@Autowired
 	private IAwsUrlUpdateManager awsUrlUpdateManager;
@@ -56,8 +57,8 @@ public class AwsLanguageUrlUpdateController extends BaseController {
 			@PathVariable(value = "objectType") String objectType,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.language.aws.urls.update";
-		LOGGER.info("API to update AWS urls");
-		LOGGER.info(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
+		LOGGER.log("API to update AWS urls");
+		LOGGER.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
 		try {
 			Response response = awsUrlUpdateManager.updateNodesWithUrl(objectType, graphId, apiId);
 			return getResponseEntity(response, apiId, null);
@@ -87,9 +88,9 @@ public class AwsLanguageUrlUpdateController extends BaseController {
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.language.aws.urls.update";
-		LOGGER.info(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
+		LOGGER.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
 		try {
-			LOGGER.info("Invoking API to update AWS urls of existing nodes:"+apiId);
+			LOGGER.log("Invoking API to update AWS urls of existing nodes:"+apiId);
 			Response response = awsUrlUpdateManager.updateNodesWithIdentifiers(
 					graphId, identifiers, apiId);
 			return getResponseEntity(response, apiId, null);

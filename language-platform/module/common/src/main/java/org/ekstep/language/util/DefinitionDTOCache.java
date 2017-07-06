@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -15,6 +13,8 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -33,7 +33,7 @@ import scala.concurrent.Future;
 public class DefinitionDTOCache {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(DefinitionDTOCache.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(DefinitionDTOCache.class.getName());
 
 	/**
 	 * Gets the definition DTO.
@@ -108,7 +108,7 @@ public class DefinitionDTOCache {
 	 *            the logger
 	 * @return the response
 	 */
-	private static Response getResponse(Request request, Logger logger) {
+	private static Response getResponse(Request request, ILogger logger) {
 		ActorRef router = RequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -119,7 +119,7 @@ public class DefinitionDTOCache {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

@@ -1,8 +1,6 @@
 package org.ekstep.graph.service.factory;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
@@ -10,10 +8,12 @@ import org.ekstep.graph.service.impl.Neo4JBoltImpl;
 import org.ekstep.graph.service.impl.Neo4JEmbeddedImpl;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class GraphServiceFactory {
 
-	private static Logger LOGGER = LogManager.getLogger(GraphServiceFactory.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(GraphServiceFactory.class.getName());
 
 	static IGraphDatabaseService bolt = new Neo4JBoltImpl();
 	static IGraphDatabaseService embedded = new Neo4JEmbeddedImpl();
@@ -25,7 +25,7 @@ public class GraphServiceFactory {
 					DACErrorMessageConstants.INVALID_POLICY_ID_ERROR + " | [Policy Id " + databasePolicy + "]");
 		IGraphDatabaseService service = embedded;
 
-		LOGGER.info("Graph Database Poilicy: " + databasePolicy);
+		LOGGER.log("Graph Database Poilicy: " , databasePolicy, "INFO");
 
 		switch (databasePolicy.toUpperCase()) {
 		case "EMBEDDED":

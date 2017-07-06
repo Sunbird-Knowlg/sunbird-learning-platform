@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -19,6 +18,7 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Node;
 
@@ -56,35 +56,35 @@ public abstract class BaseManager {
         }
     }
     
-    protected Response getResponse(Request request, Logger logger) {
+	public Response getResponse(Request request, ILogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
             Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
             if (obj instanceof Response) {
             	Response response = (Response) obj;
-            	logger.info("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() + " | Result: " + response.getResult().keySet());
+            	logger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() , " | Result: " + response.getResult().keySet());
                 return response;
             } else {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
         }
     }
     
-    public void makeAsyncRequest(Request request, Logger logger) {
+	public void makeAsyncRequest(Request request, ILogger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             router.tell(request, router);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            logger.log("Exception",e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
         }
     }
 
-    protected Response getResponse(List<Request> requests, Logger logger, String paramName, String returnParam) {
+	protected Response getResponse(List<Request> requests, ILogger logger, String paramName, String returnParam) {
         if (null != requests && !requests.isEmpty()) {
             ActorRef router = RequestRouterPool.getRequestRouter();
             try {
@@ -122,7 +122,7 @@ public abstract class BaseManager {
                     return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                logger.log("ERROR! Something went wrong", e.getMessage(), e);
                 throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
             }
         } else {

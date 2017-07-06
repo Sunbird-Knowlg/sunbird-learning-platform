@@ -4,25 +4,26 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
+
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class DefinitionSyncScheduler {
 	
-	private static Logger LOGGER = LogManager.getLogger(DefinitionSyncScheduler.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(DefinitionSyncScheduler.class.getName());
 
 	public static void init() {
 		Timer time = new Timer(); // Instantiate Timer Object
 		ScheduledTask st = new ScheduledTask(); // Instantiate SheduledTask class
-		LOGGER.info("Initialising definition sync scheduler");
+		LOGGER.log("Initialising definition sync scheduler");
 		time.schedule(st, 3600000, 3600000); // Create Repetitively task for every 1 hour
 	}
 }
 
 class ScheduledTask extends TimerTask {
 
-	private static Logger LOGGER = LogManager.getLogger(DefinitionSyncScheduler.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(DefinitionSyncScheduler.class.getName());
 	
 	@SuppressWarnings("rawtypes")
 	public void run() {
@@ -31,7 +32,7 @@ class ScheduledTask extends TimerTask {
 			if (null != map && !map.isEmpty()) {
 				String graphId = "domain";
 				for (String objectType : map.keySet()) {
-					LOGGER.info("Syncing definition : " + objectType);
+					LOGGER.log("Syncing definition : " , objectType,"INFO");
 					ObjectDefinitionCache.resyncDefinition(objectType, graphId);
 				}
 			}

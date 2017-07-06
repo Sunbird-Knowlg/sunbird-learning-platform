@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
@@ -15,6 +13,8 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -29,7 +29,7 @@ import com.ilimi.graph.dac.model.Node;
 public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(DocumentMimeTypeManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(DocumentMimeTypeManager.class.getName());
 
 	/*
 	 * (non-Javadoc)
@@ -40,10 +40,8 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadedFile, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
-		LOGGER.debug("Uploaded File: " + uploadedFile.getName());
-
-		LOGGER.info("Calling Upload Content For Node ID: " + node.getIdentifier());
+		LOGGER.log("Uploaded File: " + uploadedFile.getName());
+		LOGGER.log("Calling Upload Content For Node ID: " + node.getIdentifier());
 		return uploadContentArtifact(contentId, node, uploadedFile);
 	}
 
@@ -57,29 +55,26 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
 		Response response = new Response();
-		LOGGER.debug("Node: ", node);
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + contentId);
+		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline for Node Id: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + contentId);
+		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId, "INFO");
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + contentId);
+		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
+			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId + "INFO");
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
-
+			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId, "INFO");
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
@@ -93,15 +88,14 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	 */
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
 
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + contentId);
+		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId, "INFO");
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 
@@ -116,20 +110,20 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile) {
 		try {
 			Response response = new Response();
-			LOGGER.info("Verifying the MimeTypes.");
+			LOGGER.log("Verifying the MimeTypes.");
 			String mimeType = (String) node.getMetadata().get("mimeType");
 			ContentValidator validator = new ContentValidator();
 			if(validator.exceptionChecks(mimeType, uploadedFile)){
-				LOGGER.info("Calling Upload Content Node For Node ID: " + contentId);
+				
+				LOGGER.log("Calling Upload Content Node For Node ID: " , contentId + "INFO");
 				String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 	
-				LOGGER.info("Updating the Content Node for Node ID: " + contentId);
 				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 				node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
 				response = updateContentNode(contentId, node, urlArray[1]);
 	
-				LOGGER.info("Calling 'updateContentNode' for Node ID: " + contentId);
+				LOGGER.log("Calling 'updateContentNode' for Node ID: " , contentId);
 				response = updateContentNode(contentId, node, urlArray[1]);
 				if (!checkError(response)) {
 					return response;
@@ -145,5 +139,4 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		}
 		return null;
 	}
-
 }

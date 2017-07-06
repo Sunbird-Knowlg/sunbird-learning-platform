@@ -8,10 +8,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.TelemetryBEEvent;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class LogWordEventUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(LogWordEventUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(LogWordEventUtil.class.getName());
 	private static final Logger wordEventLogger = LogManager.getLogger("WordEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 
@@ -29,7 +31,7 @@ public class LogWordEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				wordEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			LOGGER.error("Error logging BE_WORD_LIFECYCLE event", e);
+			LOGGER.log("Error logging BE_WORD_LIFECYCLE event", e.getMessage(), e);
 		}
 		return jsonMessage;
 	}

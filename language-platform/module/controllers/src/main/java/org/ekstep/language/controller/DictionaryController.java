@@ -5,9 +5,6 @@ import java.io.InputStream;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * Entry point for all v1 CRUD operations on Word and relations.
@@ -38,7 +37,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 	private WordControllerV2 wordController;
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(DictionaryController.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(DictionaryController.class.getName());
 
 	/**
 	 * Uploads a media and returns the Amazon s3 URL
@@ -213,18 +212,18 @@ public abstract class DictionaryController extends BaseLanguageController {
 			if (null != wordsArpabetsFile)
 				wordsArpabetsStream = wordsArpabetsFile.getInputStream();
 			Response response = dictionaryManager.loadEnglishWordsArpabetsMap(wordsArpabetsStream);
-			LOGGER.info("loadWordsArpabetsMap | Response: " + response);
+			LOGGER.log("loadWordsArpabetsMap | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (IOException e) {
 			e.printStackTrace();
-			LOGGER.error("loadWordsArpabetsMap | Exception: " + e.getMessage(), e);
+			LOGGER.log("loadWordsArpabetsMap | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			if (null != wordsArpabetsStream)
 				try {
 					wordsArpabetsStream.close();
 				} catch (IOException e) {
-					LOGGER.error("Error! While Closing the Input Stream.", e);
+					LOGGER.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 				}
 		}
 	}
@@ -248,7 +247,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".Syllable";
 		try {
 			Response response = dictionaryManager.getSyllables(languageId, word);
-			LOGGER.info("Get Syllables | Response: " + response);
+			LOGGER.log("Get Syllables | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -274,7 +273,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".Arpabets";
 		try {
 			Response response = dictionaryManager.getArpabets(languageId, word);
-			LOGGER.info("Get Arpabets | Response: " + response);
+			LOGGER.log("Get Arpabets | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -305,7 +304,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".PhoneticSpelling";
 		try {
 			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
-			LOGGER.info("Get PhoneticSpelling | Response: " + response);
+			LOGGER.log("Get PhoneticSpelling | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -334,7 +333,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		try {
 			Request request = getRequest(map);
 			Response response = dictionaryManager.transliterate(languageId, request, addEndVirama);
-			LOGGER.info("Transliterate | Response: " + response);
+			LOGGER.log("Transliterate | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -360,7 +359,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".SimilarSound";
 		try {
 			Response response = dictionaryManager.getSimilarSoundWords(languageId, word);
-			LOGGER.info("Get SimilarSound | Response: " + response);
+			LOGGER.log("Get SimilarSound | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

@@ -7,7 +7,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +22,7 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 
@@ -101,6 +101,7 @@ public class LanguageCommonTestHelper {
 		return request;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected static Request getRequest(Map<String, Object> requestMap) {
 		Request request = new Request();
 		if (null != requestMap && !requestMap.isEmpty()) {
@@ -132,7 +133,7 @@ public class LanguageCommonTestHelper {
 		return request;
 	}
 
-	public static Response getResponse(Request request, Logger logger) {
+	public static Response getResponse(Request request, ILogger logger) {
 		ActorRef router = GraphEngineActorPoolMgr.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, REQ_TIMEOUT);
@@ -143,7 +144,7 @@ public class LanguageCommonTestHelper {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

@@ -17,7 +17,8 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.taxonomy.enums.SuggestionCodeConstants;
 import com.ilimi.taxonomy.mgr.ISuggestionManager;
 
@@ -38,7 +39,7 @@ import com.ilimi.taxonomy.mgr.ISuggestionManager;
 public class SuggestionV3Controller extends BaseController {
 
 	/** The Class Logger. */
-	private static LogHelper LOGGER = LogHelper.getInstance(SuggestionV3Controller.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(SuggestionV3Controller.class.getName());
 
 	@Autowired
 	private ISuggestionManager suggestionManager;
@@ -56,12 +57,12 @@ public class SuggestionV3Controller extends BaseController {
 		String apiId = "ekstep.learning.content.suggestions.create";
 		try {
 			Map<String,Object>  request = validateSuggestionRequest(map);
-			LOGGER.info("Create | Suggestions: " + " | Request: " + request);
+			LOGGER.log("Create | Suggestions: " + " | Request: " + request);
 			Response response = suggestionManager.saveSuggestion(request);
-			LOGGER.info("Create | Response: " + response);
+			LOGGER.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			LOGGER.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -89,13 +90,13 @@ public class SuggestionV3Controller extends BaseController {
 			@RequestParam(name = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.content.suggestions.read";
-		LOGGER.info("Get | Suggestions: " + " | Request: " + object_id);
+		LOGGER.log("Get | Suggestions: " + " | Request: " + object_id);
 		try {
 			Response response = suggestionManager.readSuggestion(object_id, startTime, endTime);
-			LOGGER.info("Create | Response: " + response);
+			LOGGER.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			LOGGER.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
@@ -116,16 +117,16 @@ public class SuggestionV3Controller extends BaseController {
 			@PathVariable(value = "id") String suggestion_id,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.content.suggestions.approve";
-		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
+		LOGGER.log("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
 			if(StringUtils.isBlank(suggestion_id)){
 				throw new ClientException(SuggestionCodeConstants.MISSING_OBJECT_ID.name(), "Error! Invalid or Missing Object_Id");
 			}
 			Response response = suggestionManager.approveSuggestion(suggestion_id, map);
-			LOGGER.info("Create | Response: " + response);
+			LOGGER.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			LOGGER.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
@@ -146,13 +147,13 @@ public class SuggestionV3Controller extends BaseController {
 			@PathVariable(value = "id") String suggestion_id,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.content.suggestions.reject";
-		LOGGER.info("Get | Suggestions: " + " | Request: " + suggestion_id);
+		LOGGER.log("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
 			Response response = suggestionManager.rejectSuggestion(suggestion_id, map);
-			LOGGER.info("Create | Response: " + response);
+			LOGGER.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			LOGGER.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
@@ -167,13 +168,13 @@ public class SuggestionV3Controller extends BaseController {
 	public ResponseEntity<Response> list(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.content.suggestions.list";
-		LOGGER.info("Get | Suggestions: " + " | Request: " + map);
+		LOGGER.log("Get | Suggestions: " + " | Request: " + map);
 		try {
 			Response response = suggestionManager.listSuggestion(map);
-			LOGGER.info("Create | Response: " + response);
+			LOGGER.log("Create | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			LOGGER.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}	
@@ -215,11 +216,11 @@ public class SuggestionV3Controller extends BaseController {
 				throw new ClientException(SuggestionCodeConstants.MISSING_SUGGESTED_BY.name(),
 						"Invalid Request | Missing SuggestedBy parameter");
 			} else {
-				LOGGER.info("Returning requestMap if validation is successful");
+				LOGGER.log("Returning requestMap if validation is successful");
 				return map;
 			}
 		}
-		LOGGER.info("Returning null if request is emptty");
+		LOGGER.log("Returning null if request is emptty");
 		return null;
 	}
 }

@@ -3,8 +3,6 @@ package org.ekstep.language.controller;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -22,13 +20,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 @Controller
 @RequestMapping("v3/tools")
 public class ToolsV3Controller extends BaseLanguageController {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ToolsV3Controller.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ToolsController.class.getName());
 
 	/** The parser manger. */
 	@Autowired
@@ -63,11 +63,11 @@ public class ToolsV3Controller extends BaseLanguageController {
 			Integer limit = (Integer) request.get("limit");
 			Response response = parserManger.parseContent(languageId, content, wordSuggestions, false, translations,
 					equivalentWords, limit);
-			LOGGER.info("Parser | Response: " + response);
+			LOGGER.log("Parser | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("Parser | Exception: " + e.getMessage(), e);
+			LOGGER.log("Parser | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -90,14 +90,14 @@ public class ToolsV3Controller extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.computeComplexity.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			LOGGER.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -119,14 +119,14 @@ public class ToolsV3Controller extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.computeTextComplexity.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		try {
 			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			LOGGER.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

@@ -3,8 +3,6 @@ package org.ekstep.content.pipeline.initializer;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.operation.initializer.BundleInitializer;
@@ -15,6 +13,8 @@ import org.ekstep.content.pipeline.BasePipeline;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class InitializePipeline is a PipelineClass, extends the BasePipline which holds all 
@@ -24,7 +24,7 @@ import com.ilimi.common.exception.ClientException;
 public class InitializePipeline extends BasePipeline {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(InitializePipeline.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(InitializePipeline.class.getName());
 
 	/** The basePath. */
 	protected String basePath;
@@ -68,7 +68,7 @@ public class InitializePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && StringUtils.isNotBlank(operation)) {
-			LOGGER.info("Performing Content Operation: " + operation);
+			LOGGER.log("Performing Content Operation: " , operation);
 			switch (operation) {
 			case "upload":
 			case "UPLOAD": {
@@ -99,7 +99,7 @@ public class InitializePipeline extends BasePipeline {
 				break;
 
 			default:
-				LOGGER.info("Invalid Content Operation: " + operation);
+				LOGGER.log("Invalid Content Operation: " , operation);
 				break;
 			}
 

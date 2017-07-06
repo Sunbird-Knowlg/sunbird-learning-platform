@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 
 import com.ilimi.common.dto.Request;
@@ -19,6 +17,8 @@ import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -37,7 +37,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public abstract class CompositeIndexSyncManager extends BaseManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(CompositeIndexSyncManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(CompositeIndexSyncManager.class.getName());
 
 	/** The Constant SYNC_BATCH_SIZE. */
 	private static final int SYNC_BATCH_SIZE = 1000;
@@ -60,7 +60,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
-		LOGGER.info("Composite index sync : " + graphId);
+		LOGGER.log("Composite index sync : " + graphId);
 		Response response = OK();
 
 		// if object type is given, sync only objects of the given type
@@ -95,7 +95,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_IDENTIFIER.name(),
 					"Identifier is blank.");
-		LOGGER.info("Composite index sync : " + graphId + " | Identifier: " + identifiers);
+		LOGGER.log("Composite index sync : " + graphId , " | Identifier: " + identifiers, "INFO");
 		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
 		if (null != identifiers && identifiers.length > 0) {
 			for (String identifier : identifiers) {
@@ -108,7 +108,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 							"Object not found: " + identifier);
 				}
 			}
-			LOGGER.info("Sync messages count : " + lstMessages.size());
+			LOGGER.log("Sync messages count : " , lstMessages.size(), "INFO");
 		}
 		return pushMessageToKafka(lstMessages);
 	}

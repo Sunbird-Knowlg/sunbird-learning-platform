@@ -12,21 +12,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.ContentPipelineProcessor;
-import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -53,7 +52,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class BaseConcreteProcessor extends BaseManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(BaseConcreteProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(BaseConcreteProcessor.class.getName());
 
 	/**
 	 * Gets the media.
@@ -371,7 +370,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
-			LOGGER.info("Validating the Base Path: " + path);
+			LOGGER.log("Validating the Base Path: " , path);
 			isValid = isPathExist(Paths.get(path));
 		} catch (InvalidPathException | NullPointerException e) {
 			isValid = false;
@@ -390,15 +389,15 @@ public class BaseConcreteProcessor extends BaseManager {
 		boolean exist = true;
 		try {
 			if (null != path) {
-				LOGGER.info("Creating the Base Path: " + path.getFileName());
+				LOGGER.log("Creating the Base Path: " + path.getFileName());
 				if (!Files.exists(path))
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			LOGGER.info("Base Path Already Exist: " + path.getFileName());
+			LOGGER.log("Base Path Already Exist: " , path.getFileName(), e, "WARN");
 		} catch (Exception e) {
 			exist = false;
-			LOGGER.error("Error! Something went wrong while creating the path - " + path.getFileName(), e);
+			LOGGER.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
 		}
 		return exist;
 	}

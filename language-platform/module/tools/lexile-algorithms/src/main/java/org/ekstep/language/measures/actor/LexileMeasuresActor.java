@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -25,12 +23,14 @@ import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import akka.actor.ActorRef;
 
 public class LexileMeasuresActor extends LanguageBaseActor {
 
-	private static Logger LOGGER = LogManager.getLogger(LexileMeasuresActor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(LexileMeasuresActor.class.getName());
 	private WordUtil wordUtil = new WordUtil();
 	ObjectMapper mapper = new ObjectMapper();
 
@@ -38,7 +38,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		Request request = (Request) msg;
-		LOGGER.info(request.getRequestId() + " | Received Command: " + request);
+		LOGGER.log(request.getRequestId() + " | Received Command: " , request);
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
@@ -109,7 +109,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 				DefinitionDTOCache.syncDefintion(definitionName, languageId);
 				OK(getSender());
 			} else {
-				LOGGER.info("Unsupported operation: " + operation);
+				LOGGER.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}

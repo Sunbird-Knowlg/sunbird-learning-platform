@@ -12,8 +12,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +26,8 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public abstract class BaseController {
 
@@ -41,7 +41,7 @@ public abstract class BaseController {
     private static final String default_err_msg = "Something went wrong in server while processing the request";
     
     protected ObjectMapper mapper = new ObjectMapper();
-    private static Logger LOGGER = LogManager.getLogger(BaseController.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(BaseController.class.getName());
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();
@@ -78,11 +78,11 @@ public abstract class BaseController {
     protected String setMessage(Exception e){
     	Class<? extends Exception> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+        	LOGGER.log("Setting error message sent from class " + className , e.getMessage(), e);
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	LOGGER.error("Setting default err msg " + className + e.getMessage());
+        	LOGGER.log("Setting default err msg " + className , e.getMessage(), e);
         	return default_err_msg;
         }
         return "";

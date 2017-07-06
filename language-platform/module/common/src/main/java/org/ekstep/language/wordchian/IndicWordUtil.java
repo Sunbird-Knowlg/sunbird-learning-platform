@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
@@ -16,6 +14,8 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -31,7 +31,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class IndicWordUtil extends BaseManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(IndicWordUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(IndicWordUtil.class.getName());
 
 	/** The language id. */
 	private String languageId;

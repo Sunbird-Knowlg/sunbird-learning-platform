@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -28,6 +26,8 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Node;
@@ -52,7 +52,7 @@ import scala.concurrent.Future;
 public class ControllerUtil extends BaseLanguageManager implements IWordnetConstants {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ControllerUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ControllerUtil.class.getName());
 
 	/** The task refresh time in millis. */
 	private Long TASK_REFRESH_TIME_IN_MILLIS = 10000L;
@@ -100,7 +100,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * org.ekstep.language.util.BaseLanguageManager#getLanguageResponse(com.
 	 * ilimi.common.dto.Request, org.apache.logging.log4j.Logger)
 	 */
-	public Response getLanguageResponse(Request request, Logger logger) {
+	public Response getLanguageResponse(Request request, ILogger logger) {
 		return super.getLanguageResponse(request, logger);
 	}
 
@@ -110,7 +110,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @see com.ilimi.common.mgr.BaseManager#getResponse(com.ilimi.common.dto.
 	 * Request, org.apache.logging.log4j.Logger)
 	 */
-	public Response getResponse(Request request, Logger logger) {
+	public Response getResponse(Request request, ILogger logger) {
 		ActorRef router = RequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -121,7 +121,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -137,7 +137,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 *            the task id
 	 */
 	public void importNodesFromStreamAsync(String wordContent, String languageId, String taskId) {
-		LOGGER.info("importNodesFromStreamAsync | wordContent =" + wordContent + " | languageId =" + languageId
+		LOGGER.log("importNodesFromStreamAsync | wordContent =" + wordContent + " | languageId =" + languageId
 			+ " | taskId =" + taskId);
 		try (InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8))) {
 			Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
@@ -146,10 +146,10 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			if (taskId != null) {
 				request.put(GraphEngineParams.task_id.name(), taskId);
 			}
-			LOGGER.info("making async request to GRAPH_MANAGER | operation = importGraph");
+			LOGGER.log("making async request to GRAPH_MANAGER | operation = importGraph");
 			makeAsyncRequest(request, LOGGER);
 		} catch (IOException e) {
-			LOGGER.error("Error! While Closing the Input Stream.", e);
+			LOGGER.log("Error! While Closing the Input Stream.",e.getMessage(), e);
 		}
 	}
 
@@ -159,12 +159,12 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @param request the request message to the language service actor
 	 * @param logger log4j logger object
 	 */
-	public void makeLanguageAsyncRequest(Request request, Logger logger) {
+	public void makeLanguageAsyncRequest(Request request, ILogger logger) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -180,7 +180,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 *            the task id
 	 */
 	public void importNodesFromStreamAsync(InputStream in, String languageId, String taskId) {
-		LOGGER.info("importNodesFromStreamAsync | InputStream | languageId =" + languageId + " | taskId =" + taskId);
+		LOGGER.log("importNodesFromStreamAsync | InputStream | languageId =" + languageId + " | taskId =" + taskId);
 
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
 		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
@@ -189,7 +189,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			request.put(GraphEngineParams.task_id.name(), taskId);
 		}
 
-		LOGGER.info("making async request to GRAPH_MANAGER | operation = importGraph");
+		LOGGER.log("making async request to GRAPH_MANAGER | operation = importGraph");
 		makeAsyncRequest(request, LOGGER);
 	}
 
@@ -215,7 +215,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @return the string
 	 */
 	public String importNodesFromStream(String wordContent, String languageId) {
-		LOGGER.info("importNodesFromStream | wordContent =" + wordContent + " | languageId =" + languageId);
+		LOGGER.log("importNodesFromStream | wordContent =" + wordContent + " | languageId =" + languageId);
 		InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
 		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
@@ -225,10 +225,10 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 			response = getResponse(request, LOGGER);
 			String taskId = (String) response.get(GraphEngineParams.task_id.name());
 
-			LOGGER.info("importNodesFromStream complete | response taskId =" + taskId);
+			LOGGER.log("importNodesFromStream complete | response taskId =" + taskId);
 			return taskId;
 		} catch (Exception e) {
-			LOGGER.error("error in importNodesFromStream , msg" + e.getMessage(), e);
+			LOGGER.log("error in importNodesFromStream , msg" , e.getMessage(), e);
 		}
 		return null;
 	}
@@ -241,17 +241,17 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @return the string
 	 */
 	public String createTaskNode(String languageId) {
-		LOGGER.info("createTaskNode | languageId =" + languageId);
+		LOGGER.log("createTaskNode | languageId =" + languageId);
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createTaskNode");
 		Response response;
 		try {
 			response = getResponse(request, LOGGER);
 			String taskId = (String) response.get(GraphEngineParams.task_id.name());
 
-			LOGGER.info("createTaskNode complete | response taskId =" + taskId);
+			LOGGER.log("createTaskNode complete | response taskId =" + taskId);
 			return taskId;
 		} catch (Exception e) {
-			LOGGER.error("error in createTaskNode" + e.getMessage(), e);
+			LOGGER.log("error in createTaskNode" , e.getMessage(), e);
 		}
 		return null;
 	}
@@ -503,7 +503,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 						indexesMap.putAll(map);
 					}
 				}
-				LOGGER.info("getIndexInfo complete starts from " + start + " | " + batch + " words");
+				LOGGER.log("getIndexInfo complete starts from " + start + " | " + batch + " words");
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -545,7 +545,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 						wordInfoMap.putAll(map);
 					}
 				}
-				LOGGER.info("getWordInfo complete starts from " + start + " | " + batch + " words");
+				LOGGER.log("getWordInfo complete starts from " + start + " | " + batch + " words");
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -565,7 +565,7 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 *            the language id
 	 */
 	public void importWordsAndSynsets(String wordContent, String synsetContent, String languageId) {
-		LOGGER.info("importWordsAndSynsets | wordContent = " + wordContent + " | synsetContent = " + synsetContent
+		LOGGER.log("importWordsAndSynsets | wordContent = " + wordContent + " | synsetContent = " + synsetContent
 				+ " | languageId =" + languageId);
 		try (InputStream wordsInputStream = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
 				InputStream synsetsInputStream = new ByteArrayInputStream(
@@ -574,10 +574,10 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 					LanguageOperations.importWordsAndSynsets.name());
 			request.put(LanguageParams.words_input_stream.name(), new InputStreamValue(wordsInputStream));
 			request.put(LanguageParams.synset_input_stream.name(), new InputStreamValue(synsetsInputStream));
-			LOGGER.info("making async request to IMPORT_ACTOR operation importWordsAndSynsets");
+			LOGGER.log("making async request to IMPORT_ACTOR operation importWordsAndSynsets");
 			makeAsyncRequest(request, LOGGER);
 		} catch (IOException e) {
-			LOGGER.error("Error! While Closing the Input Stream.", e);
+			LOGGER.log("Error! While Closing the Input Stream.",e.getMessage(),  e);
 		}
 	}
 

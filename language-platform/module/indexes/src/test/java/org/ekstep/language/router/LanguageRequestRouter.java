@@ -1,8 +1,6 @@
 package org.ekstep.language.router;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.actor.IndexesActor;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -18,6 +16,8 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -31,7 +31,7 @@ import scala.concurrent.Future;
 
 public class LanguageRequestRouter extends UntypedActor {
 
-    private static Logger LOGGER = LogManager.getLogger(LanguageRequestRouter.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(LanguageRequestRouter.class.getName());
 
     protected long timeout = 30000;
 
@@ -86,8 +86,8 @@ public class LanguageRequestRouter extends UntypedActor {
                 parent.tell(arg0, getSelf());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                LOGGER.info(
-                        request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
+                LOGGER.log(
+                        request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString(), "INFO");
             }
         }, getContext().dispatcher());
 
@@ -100,7 +100,7 @@ public class LanguageRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
+        LOGGER.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), "WARN");
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

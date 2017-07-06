@@ -9,32 +9,32 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
-
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(WordEnrichMessageProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(WordEnrichMessageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	public WordEnrichMessageProcessor() {
 		super();
 	}
 
-
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.info("Processing message: " + messageData);
+			LOGGER.log("Processing message: ", messageData, "INFO");
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Exception", e.getMessage(), e);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("operationType") != null) {
@@ -43,7 +43,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 			String languageId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
 			if (StringUtils.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD, objectType)) {
-				LOGGER.info("Processing message for Word object type");
+				LOGGER.log("Processing message for Word object type");
 				switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					String operationType = (String) message.get("operationType");
@@ -54,7 +54,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
 									.get("properties");
 							if (addedProperties != null && !addedProperties.isEmpty()) {
-								if(isEnrichNeeded(addedProperties))
+								if (isEnrichNeeded(addedProperties))
 									enrichWord(languageId, uniqueId);
 							}
 						}
@@ -66,34 +66,39 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
 									.get("properties");
 							if (addedProperties != null && !addedProperties.isEmpty()) {
-								if(isEnrichNeeded(addedProperties))
+								if (isEnrichNeeded(addedProperties))
 									enrichWord(languageId, uniqueId);
 							}
 						}
 						break;
 					}
 					}
-					//System.out.println("Word count message processor: " + wordsCount + " | " + liveWordsCount);
+					// System.out.println("Word count message processor: " +
+					// wordsCount + " | " + liveWordsCount);
 					break;
 				}
 				}
 			}
 		}
 	}
-	
-	private boolean isEnrichNeeded(Map<String, Object> addedProperties){
-		
+
+	@SuppressWarnings("unchecked")
+	private boolean isEnrichNeeded(Map<String, Object> addedProperties) {
+
 		if (addedProperties != null && !addedProperties.isEmpty()) {
 			for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 				if (propertyMap != null && propertyMap.getKey() != null) {
 					String propertyName = (String) propertyMap.getKey();
 					if (propertyName.equalsIgnoreCase("lemma")) {
-						String newpLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");//new value
-						String oldLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("ov");//old value
-						
-						if(oldLemmaValue==null)
+						String newpLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");// new
+																													// value
+						String oldLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("ov");// old
+																													// value
+
+						if (oldLemmaValue == null)
 							return true;
-						if(newpLemmaValue!=null&&oldLemmaValue!=null&&!StringUtils.equalsIgnoreCase(oldLemmaValue, newpLemmaValue))
+						if (newpLemmaValue != null && oldLemmaValue != null
+								&& !StringUtils.equalsIgnoreCase(oldLemmaValue, newpLemmaValue))
 							return true;
 					}
 				}
@@ -103,28 +108,27 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 		return false;
 	}
 
-	private void enrichWord(String languageId, String wordId){
-		LOGGER.info("calling enrich api Language Id:"+languageId + " word :"+ wordId);
-		
+	private void enrichWord(String languageId, String wordId) {
+		LOGGER.log("calling enrich api Language Id:" + languageId + " word :" + wordId);
+
 		try {
-		
-		String url = PropertiesUtil.getProperty("language-api-url") +"/v1/language/tools/enrich/"+languageId;
-		
-		 Map<String, Object> requestBodyMap = new HashMap<String, Object>();
-		 Map<String, Object> requestMap = new HashMap<String, Object>();
-		 requestMap.put("word_id", wordId);
-		 requestBodyMap.put("request", requestMap);
-		 
-		 String requestBody = mapper.writeValueAsString(requestBodyMap);
-		 LOGGER.info("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
-		 
-		 HTTPUtil.makePostRequest(url, requestBody);
-		 
-		 LOGGER.info("Word enriched for the lemma change successfully - wordId :"+wordId);
+
+			String url = PropertiesUtil.getProperty("language-api-url") + "/v1/language/tools/enrich/" + languageId;
+
+			Map<String, Object> requestBodyMap = new HashMap<String, Object>();
+			Map<String, Object> requestMap = new HashMap<String, Object>();
+			requestMap.put("word_id", wordId);
+			requestBodyMap.put("request", requestMap);
+
+			String requestBody = mapper.writeValueAsString(requestBodyMap);
+			LOGGER.log("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
+			HTTPUtil.makePostRequest(url, requestBody);
+			LOGGER.log("Word enriched for the lemma change successfully - wordId :", wordId, "INFO");
 
 		} catch (Exception e) {
-			LOGGER.error("error when calling enrich api Language Id:"+languageId + " word :"+ wordId+",error"+e.getMessage(), e);
+			LOGGER.log("error when calling enrich api Language Id:" + languageId + " word :" + wordId + ",error",
+					e.getMessage(), e);
 		}
-		
+
 	}
 }

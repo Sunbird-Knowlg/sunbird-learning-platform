@@ -8,12 +8,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.common.util.PlatformLogger;
 
 public class TelemetryAccessEventUtil {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(TelemetryAccessEventUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(TelemetryAccessEventUtil.class.getName());
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public static void writeTelemetryEventLog(Map<String, Object> data) {
@@ -73,10 +74,10 @@ public class TelemetryAccessEventUtil {
 				LogTelemetryEventUtil.logAccessEvent(accessData);
 			}
 		} catch (NullPointerException e) {
-			LOGGER.error(e);
+			LOGGER.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		} catch (Exception e) {
-			LOGGER.error(e);
+			LOGGER.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}
@@ -122,7 +123,7 @@ public class TelemetryAccessEventUtil {
 			data.put("X-Authenticated-Userid", requestWrapper.getHeader("X-Authenticated-Userid"));
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
-			LOGGER.error(e);
+			LOGGER.log("Exception", e.getMessage(), e);
 		
 		}
 

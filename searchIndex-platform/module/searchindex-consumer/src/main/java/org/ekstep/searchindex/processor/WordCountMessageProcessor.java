@@ -16,19 +16,23 @@ import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 public class WordCountMessageProcessor implements IMessageProcessor {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(WordCountMessageProcessor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(WordCountMessageProcessor.class.getName());
 	ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 	private Timer timer;
 	private AtomicBoolean timerTaskDone = new AtomicBoolean(true);
+	@SuppressWarnings("unused")
 	private boolean messageProcessed = false;
 	private Map<String, Map<String, Integer>> wordsCountMap = new ConcurrentHashMap<String, Map<String, Integer>>();
+	@SuppressWarnings("unused")
 	private int BATCH_TIME_IN_SECONDS = 60;
 	
 	public WordCountMessageProcessor() {
@@ -37,13 +41,13 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.info("Processing message: " + messageData);
+			LOGGER.log("Processing message: " , messageData, "INFO");
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Exception", e.getMessage(), e);
 		}
 	}
 
@@ -70,7 +74,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 	
 	private void updateWordsCount() throws Exception {
 		messageProcessed = true;
-		LOGGER.info("Updating wordcount");
+		LOGGER.log("Updating wordcount");
 		for(Map.Entry<String, Map<String, Integer>> entry: wordsCountMap.entrySet()){
 			String languageId = entry.getKey();
 			 Map<String, Integer> wordsCountObj = entry.getValue();
@@ -85,11 +89,11 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 requestBodyMap.put("request", requestMap);
 			 
 			 String requestBody = mapper.writeValueAsString(requestBodyMap);
-			 LOGGER.info("Updating Word Count | URL: " + url + " | Request body: " + requestBody);
+			 LOGGER.log("Updating Word Count | URL: " + url , " | Request body: " + requestBody, "INFO");
 			 
 			 HTTPUtil.makePostRequest(url, requestBody);
 			 
-			 LOGGER.info("Word Count updated");
+			 LOGGER.log("Word Count updated");
 			 
 			wordsCountObj.put("wordsCount", new Integer(0));
 			wordsCountObj.put("liveWordsCount", new Integer(0));
@@ -114,7 +118,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			//objectType = WordUtils.capitalize(objectType.toLowerCase());
 			String languageId = (String) message.get("graphId");
 			if (StringUtils.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD, objectType)) {
-				LOGGER.info("Processing message for Word object type");
+				LOGGER.log("Processing message for Word object type");
 				Map<String, Integer> wordsCountObj = wordsCountMap.get(languageId);
 				if(wordsCountObj == null){
 					wordsCountObj = new HashMap<String, Integer>();
@@ -132,7 +136,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					switch (operationType) {
 					case CompositeSearchConstants.OPERATION_CREATE: {
 						wordsCount = wordsCount + 1;
-						LOGGER.info("Word create operation: " + wordsCount);
+						LOGGER.log("Word create operation: " , wordsCount, "INFO");
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -174,12 +178,12 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								}
 							}
 						}
-						LOGGER.info("Word update operation: " + liveWordsCount);
+						LOGGER.log("Word update operation: " , liveWordsCount, "INFO");
 						break;
 					}
 					case CompositeSearchConstants.OPERATION_DELETE: {
 						wordsCount = wordsCount - 1;
-						LOGGER.info("Word delete operation: " + wordsCount);
+						LOGGER.log("Word delete operation: " + wordsCount);
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -206,7 +210,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					wordsCountMap.put(languageId, wordsCountObj);
 					//createTimer(BATCH_TIME_IN_SECONDS);
 					messageProcessed = false;
-					LOGGER.info("Word count message processor: " + wordsCount + " | " + liveWordsCount);
+					LOGGER.log("Word count message processor: " + wordsCount + " | " + liveWordsCount);
 					updateWordsCount();
 					//System.out.println("Word count message processor: " + wordsCount + " | " + liveWordsCount);
 					break;

@@ -28,8 +28,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -58,6 +56,8 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -91,7 +91,7 @@ import net.sf.json.util.JSONStringer;
 public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
 	
 	/** The search util. */
@@ -186,7 +186,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List list = mapper.readValue(strObject.toString(), List.class);
 				return list;
 			} catch (Exception e) {
-				LOGGER.error(e.getMessage(), e);
+				LOGGER.log("Error! Exception", e.getMessage(), e);
 				List<String> list = new ArrayList<String>();
 				list.add(object.toString());
 				return list;
@@ -213,7 +213,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		map.put("request", lemmaMap);
 		Request request = getRequest(map);
 		Response response = list(languageId, LanguageObjectTypes.Word.name(), request);
-		LOGGER.info("Search | Response: " + response);
+		LOGGER.log("Search | Response: " + response);
 		List<Map<String, Object>> list = (List<Map<String, Object>>) response.get("words");
 		if (list != null && !list.isEmpty()) {
 			Map<String, Object> wordMap = list.get(0);
@@ -275,7 +275,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Error! Exception occurred", e.getMessage(), e);
 			dateTimeString = "";
 		}
 		return dateTimeString;
@@ -357,7 +357,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 								}
 							}
 						} else {
-							LOGGER.info("Unable to add word to graph");
+							LOGGER.log("Unable to add word to graph");
 						}
 					}
 				}
@@ -1113,7 +1113,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		}
-		LOGGER.info("returning nodemap size: " + nodeMap.size());
+		LOGGER.log("returning nodemap size: " + nodeMap.size());
 		return nodeMap;
 	}
 
@@ -1161,7 +1161,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		}
-		LOGGER.info("returning nodemap size: " + nodeMap.size());
+		LOGGER.log("returning nodemap size: " + nodeMap.size());
 		return nodeMap;
 	}
 
@@ -1296,7 +1296,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Error!Exception occured", e.getMessage(), e);
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -1309,7 +1309,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param objectType
 	 * @return List of nodes
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Node> getAllObjects(String languageId, String objectType) {
 
 		int batch = 1000;
@@ -1330,6 +1329,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return allNodes;
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<Node> getDataNodes(String graphId, String objectType, int startPosition, int batchSize) {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -1436,7 +1436,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 								getErrorMessage(updateResponse));
 					}
 				} catch (Exception e) {
-					LOGGER.error(e.getMessage(), e);
+					LOGGER.log("Error!Exception ", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -1644,6 +1644,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return (Node) getNodeRes.get(GraphDACParams.node.name());
 	}
 
+	@SuppressWarnings("unchecked")
 	private Node createNodeObjectForSynset(String languageId, Map<String, Object> meaningMap,
 			List<String> errorMessages) {
 
@@ -1765,6 +1766,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Relation> getRelations(List<Relation> relations, String relationName) {
 		if(CollectionUtils.isEmpty(relations))
 				return ListUtils.EMPTY_LIST;
@@ -1908,7 +1910,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
+			LOGGER.log("Error!Exception", e.getMessage(), e);
 			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}
@@ -1973,6 +1975,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param errorMessages
 	 *            List of error messages
 	 */
+	@SuppressWarnings("unused")
 	private void addSynsetRelation(List<String> wordIds, String relationType, String languageId, String synsetId,
 			List<String> errorMessages) {
 		if (wordIds != null) {
@@ -2345,7 +2348,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						Double complexity = getWordComplexity(node, languageId);
 						map.put(lemma, complexity);
 					} catch (Exception e) {
-						LOGGER.error(e.getMessage(), e);
+						LOGGER.log("Exception", e.getMessage(), e);
 						map.put(lemma, null);
 					}
 				} else {
@@ -2596,7 +2599,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Double getWordComplexity(Node word, String languageId) throws Exception {
 		
 		Double db = computeWordComplexity(word, languageId);
@@ -2630,7 +2632,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		} else {
 			id = "" + indowordId;
 		}
-		LOGGER.info("Primary meaning id and indowordnetid:" + primaryMeaningId + ":" + id);
+		LOGGER.log("Primary meaning id and indowordnetid:" + primaryMeaningId + ":" + id);
 		boolean create = false;
 		String nodeId = getTranslationSetWithMember(primaryMeaningId, id, graphId);
 		if (nodeId == null) {
@@ -2639,7 +2641,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				create = true;
 			}
 			if (!create) {
-				LOGGER.info("Translation set already exists for indowordnetid:" + nodeId);
+				LOGGER.log("Translation set already exists for indowordnetid:" + nodeId);
 				proxyReq.put(GraphDACParams.collection_id.name(), nodeId);
 			}
 			proxyReq.put("create", create);
@@ -2647,10 +2649,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Response res = getResponse(proxyReq, LOGGER);
 			if (!checkError(res)) {
 				String proxyId = (String) res.get("node_id");
-				LOGGER.info("Proxy node created:" + proxyId);
+				LOGGER.log("Proxy node created:" + proxyId);
 			}
 		} else {
-			LOGGER.info("Translation set already exists with this member:" + nodeId);
+			LOGGER.log("Translation set already exists with this member:" + nodeId);
 		}
 	}
 
@@ -2687,8 +2689,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param graphId
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public String getTranslationSet(String wordnetId, String graphId) {
-		LOGGER.info("Logging wordnet id for getting translation set:" + wordnetId);
+		LOGGER.log("Logging wordnet id for getting translation set:" + wordnetId);
 		Node node = null;
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.SET.name());
@@ -2722,8 +2725,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 * @param graphId
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public String getTranslationSetWithMember(String id, String wordnetId, String graphId) {
-		LOGGER.info("Logging synsetid and wordnetid for getting with member:" + id + ":" + wordnetId);
+		LOGGER.log("Logging synsetid and wordnetid for getting with member:" + id + ":" + wordnetId);
 		Node node = null;
 		RelationCriterion rc = new RelationCriterion("hasMember", "Synset");
 		List<String> identifiers = new ArrayList<String>();
@@ -2785,6 +2789,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 *            the words
 	 * @return the list
 	 */
+	@SuppressWarnings("rawtypes")
 	public List<Map<String, Object>> indexSearch(String language_id, List<String> words){
 		Map<String, Object> searchCriteria = new HashMap<>();
 
@@ -2848,9 +2853,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					continue;
 				}
 			}
-			LOGGER.info("importExampleSentences |"+
+			LOGGER.log("importExampleSentences |"+
 					count + " words found in input file, " + wordDetailMap.size() + " words loaded into map");
-			LOGGER.info("importExampleSentences |  words found in file are "+wordDetailMap.toString());
+			LOGGER.log("importExampleSentences |  words found in file are "+wordDetailMap.toString());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -2867,6 +2872,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return wordDetailMap;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<String> importExampleSentencesfor(String languageId, InputStream stream) {
 
 		Map<String, Map<String, String>> wordDetailsMap = parseExSentencesFile(stream);
@@ -2904,7 +2910,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					updateReq.put(GraphDACParams.node_id.name(), synset.getIdentifier());
 					Response updateRes = getResponse(updateReq, LOGGER);
 					if (checkError(updateRes)) {
-						LOGGER.error("error while uploading example sentences for synset:"+synsetId+" word:"+wordId+", error message:"+updateRes.getResult().toString());
+						LOGGER.log("error while uploading example sentences for synset:"+ synsetId +" word:"+ wordId, "error message:"+updateRes.getResult().toString());
 					}
 				}
 				
@@ -2915,10 +2921,11 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				wordDetailsMap.remove(lemma);
 			}
 		}
-		LOGGER.info("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
+		LOGGER.log("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
 		return wordIds;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Node> getWords(String languageId, int offset, int limit){
 		List<Node> nodes = null;
 		SearchCriteria sc = new SearchCriteria();

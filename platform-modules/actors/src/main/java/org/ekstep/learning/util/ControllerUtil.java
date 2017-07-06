@@ -1,15 +1,14 @@
 package org.ekstep.learning.util;
 
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -24,7 +23,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class ControllerUtil extends BaseLearningManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ControllerUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ControllerUtil.class.getName());
 
 	private static ObjectMapper mapper = new ObjectMapper();
 
@@ -176,7 +175,7 @@ public class ControllerUtil extends BaseLearningManager {
 			String result = HTTPUtil.makeGetRequest(url);
 			hirerachyRes = mapper.readValue(result, Response.class);
 		} catch (Exception e) {
-			LOGGER.error(" Error while getting the Hirerachy of the node " + e);
+			LOGGER.log(" Error while getting the Hirerachy of the node " ,e.getMessage(),  e);
 		}
 		return hirerachyRes;
 	}

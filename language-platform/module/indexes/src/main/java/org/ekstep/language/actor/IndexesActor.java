@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -31,6 +29,8 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import akka.actor.ActorRef;
 
@@ -44,7 +44,7 @@ import akka.actor.ActorRef;
 public class IndexesActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(IndexesActor.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(IndexesActor.class.getName());
 
 	/** The default limit. */
 	private int DEFAULT_LIMIT = 10000;
@@ -64,7 +64,7 @@ public class IndexesActor extends LanguageBaseActor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.info("Received Command: " + msg);
+		LOGGER.log("Received Command: " , msg + "INFO");
 		Request request = (Request) msg;
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
@@ -97,7 +97,7 @@ public class IndexesActor extends LanguageBaseActor {
 						try {
 							delete(zipFileDirectory);
 						} catch (IOException e) {
-							LOGGER.error(e.getMessage(), e);
+							LOGGER.log("Exception",e.getMessage(), e);
 							e.printStackTrace();
 						}
 					}
@@ -187,12 +187,12 @@ public class IndexesActor extends LanguageBaseActor {
 						? request.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 				getWordInfo(words, languageId, limit);
 			} else {
-				LOGGER.info("Unsupported operation: " + operation);
+				LOGGER.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			LOGGER.log("List | Exception: " , e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}
@@ -217,7 +217,7 @@ public class IndexesActor extends LanguageBaseActor {
 			if (elasticSearchUtil.isIndexExists(wordInfoIndexName))
 				elasticSearchUtil.deleteIndex(wordInfoIndexName);
 		} catch (Exception e) {
-			LOGGER.error("IndexesActor, dropIndex | Exception: " + e.getMessage(), e);
+			LOGGER.log("IndexesActor, dropIndex | Exception: " , e.getMessage(), e);
 		}
 
 	}
@@ -746,6 +746,7 @@ public class IndexesActor extends LanguageBaseActor {
 	 *            the words map
 	 * @return the string
 	 */
+	@SuppressWarnings("unchecked")
 	private String writeMapToCSV(Map<String, Object> wordsMap) {
 
 		String NEW_LINE = "\n";

@@ -2,27 +2,21 @@ package org.ekstep.language.translation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
-import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.measures.entity.WordComplexity;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -35,9 +29,9 @@ public class BaseTranslationSet extends BaseManager{
 	protected Node proxyNode;
 	private Map<String, Object> metadata;
 
-	private Logger LOGGER;
+	private ILogger LOGGER;
 	
-	public BaseTranslationSet(String graphId, Node proxyNode, Logger LOGGER, Map<String, Object> metadata){
+	public BaseTranslationSet(String graphId, Node proxyNode, ILogger LOGGER, Map<String, Object> metadata){
 		this.LOGGER = LOGGER;
 		this.graphId = graphId;
 		this.proxyNode = proxyNode;
@@ -48,8 +42,9 @@ public class BaseTranslationSet extends BaseManager{
 		this.graphId = graphId;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String getTranslationSet(String wordnetId){
-		System.out.println("Logging data:"+wordnetId);
+		LOGGER.log("Logging data:"+wordnetId);
 		Node node = null;
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.SET.name());
@@ -75,8 +70,9 @@ public class BaseTranslationSet extends BaseManager{
         }
 	}
 	
+	@SuppressWarnings("unchecked")
 	public String getTranslationSetWithMember(String id, String wordnetId){
-		System.out.println("Logging data:"+id+":"+wordnetId);
+		LOGGER.log("Logging data: "+id+": "+wordnetId);
 		Node node = null;
 		RelationCriterion rc = new RelationCriterion("hasMember","Synset");
 		List<String> identifiers = new ArrayList<String>();
@@ -108,7 +104,7 @@ public class BaseTranslationSet extends BaseManager{
 	}
 	
 	public String createTranslationSetCollection(){
-		System.out.println("Creating new set!!!!!!!!!!!!!!!!!");
+		LOGGER.log("Creating new set!!!!!!!!!!!!!!!!!");
         Request setReq = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
         //setReq.put(GraphDACParams.criteria.name(), getItemSetCriteria(node));
 
@@ -175,7 +171,7 @@ public class BaseTranslationSet extends BaseManager{
 
 	
 	public void removeProxyNodeFromTranslationSet(String setId){
-		LOGGER.info("Deleting relation : " + setId + " --> " + proxyNode.getIdentifier());
+		LOGGER.log("Deleting relation : " + setId + " --> " + proxyNode.getIdentifier());
         Request setReq = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
         setReq.put(GraphDACParams.member_id.name(), proxyNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);

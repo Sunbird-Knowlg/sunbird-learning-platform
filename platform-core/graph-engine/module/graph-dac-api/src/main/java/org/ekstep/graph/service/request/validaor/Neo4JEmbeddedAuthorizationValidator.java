@@ -1,15 +1,15 @@
 package org.ekstep.graph.service.request.validaor;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 
 public class Neo4JEmbeddedAuthorizationValidator {
 	
-	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedAuthorizationValidator.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(Neo4JEmbeddedAuthorizationValidator.class.getName());
 	
 	public boolean isAuthorizedToken() {
-		LOGGER.info("Checking with Authorization.");
+		LOGGER.log("Checking with Authorization.");
 		return false;
 	}
 

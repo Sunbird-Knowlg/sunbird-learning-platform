@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -19,28 +17,21 @@ import org.ekstep.language.index.common.BaseLanguageTest;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.Assert;
-import org.junit.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 
-	private WebApplicationContext context;
-//	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
+	//	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
-	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static Logger LOGGER = LogManager.getLogger(LanguageIndexesActorTest.class
+	private static ILogger LOGGER = new PlatformLogger(LanguageIndexesActorTest.class
 			.getName());
 //	private static String TEST_LANGUAGE = "testindexactorerror";
 //	private static String TEST_LOAD_LANGUAGE = "testindexactorerrorload";
@@ -101,10 +92,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation("rootWordsError");
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -125,11 +116,11 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response;
 		response = LanguageIndexesTestHelper.getBulkOperationResponse(request,
 				LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -149,10 +140,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.wordWildCard.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
 				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+		LOGGER.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);

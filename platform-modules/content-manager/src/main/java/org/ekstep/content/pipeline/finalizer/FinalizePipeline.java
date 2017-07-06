@@ -5,8 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.operation.finalizer.BundleFinalizer;
@@ -17,6 +15,8 @@ import org.ekstep.content.pipeline.BasePipeline;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class FinalizePipeline is a PipelineClass, extends the BasePipeline which holds all 
@@ -26,7 +26,7 @@ import com.ilimi.common.exception.ClientException;
 public class FinalizePipeline extends BasePipeline {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(FinalizePipeline.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(FinalizePipeline.class.getName());
 
 	/** The basePath. */
 	protected String basePath;
@@ -70,7 +70,7 @@ public class FinalizePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && !StringUtils.isBlank(operation)) {
-			LOGGER.info("Performing Operation: " + operation);
+			LOGGER.log("Performing Operation: " , operation);
 			switch (operation) {
 				case "upload":
 				case "UPLOAD": {
@@ -101,14 +101,14 @@ public class FinalizePipeline extends BasePipeline {
 					break;	
 					
 				default:
-					LOGGER.info("Invalid Operation: " + operation);
+					LOGGER.log("Invalid Operation: " + operation);
 					break;
 			}
 		}
 		try {
 			FileUtils.deleteDirectory(new File(basePath));
 		} catch (Exception e) {
-			LOGGER.error("Error deleting directory: " + basePath, e);
+			LOGGER.log("Error deleting directory: " , basePath, e);
 		}
 		return response;
 	}

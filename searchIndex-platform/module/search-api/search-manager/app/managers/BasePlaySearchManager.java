@@ -1,9 +1,11 @@
 package managers;
 
 import static akka.pattern.Patterns.ask;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +14,7 @@ import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.search.router.SearchRequestRouterPool;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
@@ -19,8 +22,11 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
+
 import akka.actor.ActorRef;
 import play.libs.F;
 import play.libs.F.Function;
@@ -31,13 +37,13 @@ import play.mvc.Results;
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
-	private static Logger LOGGER = LogManager.getLogger(BasePlaySearchManager.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(BasePlaySearchManager.class.getName());
 	private static final String ekstep = "org.ekstep";
 	private static final String ilimi = "com.ilimi";
 	private static final String java = "java.";
 	private static final String default_err_msg = "Something went wrong in server while processing the request";
 
-	protected Promise<Result> getSearchResponse(Request request, Logger logger) {
+	protected Promise<Result> getSearchResponse(Request request, ILogger logger) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
 		Promise<Result> res = null;
 		try {

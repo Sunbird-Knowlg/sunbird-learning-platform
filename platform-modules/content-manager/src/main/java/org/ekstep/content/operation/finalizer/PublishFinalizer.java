@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
@@ -31,7 +29,9 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -46,7 +46,7 @@ import com.rits.cloning.Cloner;
 public class PublishFinalizer extends BaseFinalizer {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(PublishFinalizer.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(PublishFinalizer.class.getName());
 
 	private static String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 
@@ -116,7 +116,7 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
 		node.setIdentifier(contentId);
 		node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-		LOGGER.info("Compression Applied ? " + isCompressionApplied);
+		LOGGER.log("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
 		String artifactUrl = null;
 		String downloadUrl = null;
@@ -134,7 +134,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 					+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
-			LOGGER.info("Zip File Name: " + zipFileName);
+			LOGGER.log("Zip File Name: " + zipFileName);
 			createZipPackage(basePath, zipFileName);
 			// Upload Package
 			File packageFile = new File(zipFileName);
@@ -165,7 +165,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), null);
 //		node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 1);
 		
-		LOGGER.info("setting compatability level for textbook");
+		LOGGER.log("setting compatability level for textbook");
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.TextBook.name())
@@ -174,13 +174,14 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.TextBookUnit.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
 		
-		LOGGER.info("setting compatability level for youtube, pdf and doc");
+		LOGGER.log("setting compatability level for youtube, pdf and doc");
 		if(StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.youtube.name()) 
 				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.pdf.name())
 				|| StringUtils.containsIgnoreCase((String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()), ContentWorkflowPipelineParams.msword.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		
-		LOGGER.info("setting compatability level for course and coure unit");
+
+		LOGGER.log("setting compatability level for course and coure unit");
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.Course.name())
@@ -189,7 +190,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.CourseUnit.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 		
-		LOGGER.info("checking is the contentType is Asset");
+		LOGGER.log("checking is the contentType is Asset");
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
@@ -200,7 +201,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<String> childrenIds = new ArrayList<String>();
 			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
 
-			LOGGER.info("Publishing the Un-Published Children.");
+			LOGGER.log("Publishing the Un-Published Children.");
 			publishChildren(nodes.stream().filter(n -> !n.getIdentifier().equalsIgnoreCase(node.getIdentifier()))
 					.collect(Collectors.toList()));
 
@@ -213,10 +214,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			Cloner cloner = new Cloner();
 			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
 
-			LOGGER.info("Initialising the ECAR variant Map For Content Id: " + node.getIdentifier());
+			LOGGER.log("Initialising the ECAR variant Map For Content Id: " , node.getIdentifier(), "INFO");
 			Map<String, Object> variants = new HashMap<String, Object>();
 
-			LOGGER.debug("Creating Full ECAR For Content Id: " + node.getIdentifier());
+			LOGGER.log("Creating Full ECAR For Content Id: ", node.getIdentifier(), "INFO");
 			String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
 			ContentBundle contentBundle = new ContentBundle();
 			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
@@ -225,9 +226,9 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION, downloadUrls, node.getIdentifier());
 			downloadUrl = urlArray[IDX_S3_URL];
 			s3Key = urlArray[IDX_S3_KEY];
-			LOGGER.info("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
+			LOGGER.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 
-			LOGGER.info("Creating Spine ECAR For Content Id: " + node.getIdentifier());
+			LOGGER.log("Creating Spine ECAR For Content Id: " , node.getIdentifier(), "INFO");
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
 			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
@@ -237,10 +238,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			spineEcarMap.put(ContentWorkflowPipelineParams.ecarUrl.name(), urlArray[IDX_S3_URL]);
 			spineEcarMap.put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
 
-			LOGGER.info("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
+			LOGGER.log("Adding Spine Ecar Information to Variants Map For Content Id: " + node.getIdentifier());
 			variants.put(ContentWorkflowPipelineParams.spine.name(), spineEcarMap);
 
-			LOGGER.info("Adding variants to Content Id: " + node.getIdentifier());
+			LOGGER.log("Adding variants to Content Id: " + node.getIdentifier());
 			node.getMetadata().put(ContentWorkflowPipelineParams.variants.name(), variants);
 		}
 
@@ -250,7 +251,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			File packageFile = (File) artifact;
 			if (packageFile.exists())
 				packageFile.delete();
-			LOGGER.info("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath());
+			LOGGER.log("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
 
 			if (StringUtils.isNotBlank(artifactUrl))
@@ -279,10 +280,10 @@ public class PublishFinalizer extends BaseFinalizer {
 		}
 
 		try {
-			LOGGER.info("Deleting the temporary folder: " + basePath);
+			LOGGER.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
-			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
+			LOGGER.log("Error deleting the temporary folder: " , basePath, e);
 		}
 
 		// Setting default version key for internal node update
@@ -298,7 +299,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setOutRelations(node.getOutRelations());
 		newNode.setTags(node.getTags());
 		
-		LOGGER.info("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
+		LOGGER.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]");
 		Response response = migrateContentImageObjectData(contentId, newNode);
 		
 		// delete image..
@@ -308,7 +309,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		
 		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(),
 				null);
-		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+		LOGGER.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", contentId ,"INFO");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		LogTelemetryEventUtil.logContentLifecycleEvent(contentId, newNode.getMetadata());
@@ -316,16 +317,15 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private void publishChildren(List<Node> nodes) {
-		LOGGER.debug("Node List: ", nodes);
 		if (null != nodes && !nodes.isEmpty()) {
-			LOGGER.info("Node is not Empty.");
+			LOGGER.log("Node is not Empty.");
 
-			LOGGER.info("Fetching the Non-Collection Content Nodes.");
+			LOGGER.log("Fetching the Non-Collection Content Nodes.");
 			List<Node> nonCollectionNodes = new ArrayList<Node>();
 			List<Node> collectionNodes = new ArrayList<Node>();
 			for (Node node : nodes) {
 				if (null != node && null != node.getMetadata()) {
-					LOGGER.info("Content Id: " + node.getIdentifier() + " has MimeType: "
+					LOGGER.log("Content Id: " + node.getIdentifier() + " has MimeType: "
 							+ node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
 					if (StringUtils.equalsIgnoreCase(
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
@@ -348,22 +348,22 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	private void publishChild(Node node) {
 		if (null != node && null != node.getMetadata()) {
-			LOGGER.info("Checking Node Id: " + node.getIdentifier());
+			LOGGER.log("Checking Node Id: " + node.getIdentifier());
 			if ((StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Draft.name(),
 					(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name()))
 					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Review.name(),
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name())))
 					&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Parent.name(),
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.visibility.name()))) {
-				LOGGER.info("Fetching 'MimeType' for Content Id: " + node.getIdentifier());
+				LOGGER.log("Fetching 'MimeType' for Content Id: " + node.getIdentifier());
 				String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
 				if (StringUtils.isBlank(mimeType))
 					throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_MIMETYPE
 									+ " | [Invalid or 'null' MimeType for Content Id: " + node.getIdentifier() + "]");
-				LOGGER.info("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
+				LOGGER.log("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
 
-				LOGGER.info("Publishing Content Id: " + node.getIdentifier());
+				LOGGER.log("Publishing Content Id: " + node.getIdentifier());
 				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(node.getIdentifier(), node, false);
 			}
 		}
@@ -376,14 +376,14 @@ public class PublishFinalizer extends BaseFinalizer {
 				URL url = new URL(s3Url);
 				s3Key = url.getPath();
 			} catch (Exception e) {
-				LOGGER.error("Something Went Wrong While Getting 's3Key' from s3Url.", e);
+				LOGGER.log("Something Went Wrong While Getting 's3Key' from s3Url.", s3Url,  e);
 			}
 		}
 		return s3Key;
 	}
 
 	private String getBundleFileName(String contentId, Node node, EcarPackageType packageType) {
-		LOGGER.debug("Generating Bundle File Name For ECAR Package Type: " + packageType.name());
+		LOGGER.log("Generating Bundle File Name For ECAR Package Type: " , packageType.name(), "INFO");
 		String fileName = "";
 		if (null != node && null != node.getMetadata() && null != packageType) {
 			String suffix = "";
@@ -397,8 +397,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private Response migrateContentImageObjectData(String contentId, Node contentImage) {
-		LOGGER.debug("Content Id: " + contentId);
-		LOGGER.debug("Content Image: ", contentImage);
+		LOGGER.log("Content Image: ", contentImage);
 		Response response = new Response();
 		if (null != contentImage && StringUtils.isNotBlank(contentId)) {
 			String contentImageId = contentId + ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
@@ -409,7 +408,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
 
-			LOGGER.info("Migrating the Content Body. | [Content Id: " + contentId + "]");
+			LOGGER.log("Migrating the Content Body. | [Content Id: " + contentId + "]");
 			String imageBody = getContentBody(contentImageId);
 			if (StringUtils.isNotBlank(imageBody)) {
 				response = updateContentBody(contentId, getContentBody(contentImageId));
@@ -419,7 +418,7 @@ public class PublishFinalizer extends BaseFinalizer {
 									+ "]");
 			}
 
-			LOGGER.info("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
+			LOGGER.log("Migrating the Content Object Metadata. | [Content Id: " + contentId + "]");
 			response = updateNode(contentImage);
 			if (checkError(response))
 				throw new ServerException(ContentErrorCodeConstants.PUBLISH_ERROR.name(),
@@ -427,7 +426,7 @@ public class PublishFinalizer extends BaseFinalizer {
 								+ "]");
 		}
 
-		LOGGER.debug("Returning the Response Object After Migrating the Content Body and Metadata.", response);
+		LOGGER.log("Returning the Response Object After Migrating the Content Body and Metadata.", response);
 		return response;
 	}
 

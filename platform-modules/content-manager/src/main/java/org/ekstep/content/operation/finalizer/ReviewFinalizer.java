@@ -4,21 +4,21 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 public class ReviewFinalizer extends BaseFinalizer {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ReviewFinalizer.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(ReviewFinalizer.class.getName());
 
 	/** The BasePath. */
 	protected String basePath;
@@ -64,7 +64,7 @@ public class ReviewFinalizer extends BaseFinalizer {
 	 * @return the response
 	 */
 	public Response finalize(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		LOGGER.log("Parameter Map: "+ parameterMap);
 		if (null == parameterMap)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_PARAMETER_MAP + " | [Parameter Map Cannot be 'null']");
@@ -80,16 +80,16 @@ public class ReviewFinalizer extends BaseFinalizer {
 				.get(ContentWorkflowPipelineParams.isPublishOperation.name());
 	
 		if (BooleanUtils.isTrue(isPublishOperation)) {
-			LOGGER.info("Changing the Content Status to 'Processing'.");
+			LOGGER.log("Changing the Content Status to 'Processing'.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Processing.name());
 		} else {
-			LOGGER.info("Changing the Content Status to 'Review'.");
+			LOGGER.log("Changing the Content Status to 'Review'.");
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Review.name());
 		}
 		if(StringUtils.equalsIgnoreCase(prevState, ContentWorkflowPipelineParams.FlagDraft.name())){
-			LOGGER.info("Setting status to flagReview from previous state : " + prevState);
+			LOGGER.log("Setting status to flagReview from previous state : " + prevState);
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.FlagReview.name());
 		}
 		// Clean-Up
@@ -98,9 +98,9 @@ public class ReviewFinalizer extends BaseFinalizer {
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
 		
-		LOGGER.info("Updating the Node: ", node.getIdentifier());
+		LOGGER.log("Updating the Node: ", node.getIdentifier());
 		Response response = updateContentNode(contentId, newNode, null);
-		LOGGER.info("Generating Telemetry Event. | [Content ID: " + contentId + "]");
+		LOGGER.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", node);
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(), prevState);
 		LogTelemetryEventUtil.logContentLifecycleEvent(newNode.getIdentifier(), newNode.getMetadata());
 		return response;

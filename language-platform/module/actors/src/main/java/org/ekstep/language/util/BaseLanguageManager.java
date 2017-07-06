@@ -2,7 +2,6 @@ package org.ekstep.language.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
@@ -14,7 +13,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
-
+import com.ilimi.common.util.ILogger;
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.pattern.Patterns;
@@ -73,12 +72,12 @@ public abstract class BaseLanguageManager extends BaseManager {
 	 * @param logger
 	 *            the logger
 	 */
-	public void makeAsyncLanguageRequest(Request request, Logger logger) {
+	public void makeAsyncLanguageRequest(Request request, ILogger logger) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception",e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -92,7 +91,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 	 *            the logger
 	 * @return the language response
 	 */
-	protected Response getLanguageResponse(Request request, Logger logger) {
+	protected Response getLanguageResponse(Request request, ILogger logger) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
@@ -103,7 +102,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			logger.log("Exception Occured", e.getMessage(), e);
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -121,7 +120,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 	 *            the final param name of the accumulated responses
 	 * @return the language response
 	 */
-	protected Response getLanguageResponse(List<Request> requests, Logger logger, String paramName,
+	protected Response getLanguageResponse(List<Request> requests, ILogger logger, String paramName,
 			String returnParam) {
 		if (null != requests && !requests.isEmpty()) {
 			ActorRef router = LanguageRequestRouterPool.getRequestRouter();
@@ -160,7 +159,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 					return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 				}
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				logger.log("Exception", e.getMessage(), e);
 				throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 			}
 		} else {

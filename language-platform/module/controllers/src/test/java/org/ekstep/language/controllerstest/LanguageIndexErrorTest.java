@@ -5,10 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -40,6 +37,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
@@ -54,7 +53,7 @@ public class LanguageIndexErrorTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static Logger LOGGER = LogManager.getLogger(SSFParser.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(SSFParser.class.getName());
 	private static String TEST_LANGUAGE = "testoneError";
 	private static String TEST_LOAD_LANGUAGE = "testoneloadError";
 
@@ -97,18 +96,18 @@ public class LanguageIndexErrorTest extends BaseLanguageTest{
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(), "" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		try {
 			Response response = RequestResponseTestHelper.getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 			ResponseEntity<Response> responseEntity = RequestResponseTestHelper.getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			LOGGER.log("List | Exception: " , e.getMessage(), e);
 			ResponseEntity<Response> responseEntity = RequestResponseTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
-			LOGGER.info("List | Response: " + responseEntity);
+			LOGGER.log("List | Response: " + responseEntity);
 		}
 	}
 
@@ -121,14 +120,14 @@ public class LanguageIndexErrorTest extends BaseLanguageTest{
 		request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(), "" + TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		LOGGER.log("List | Request: " + request);
 		try {
 			Response response = RequestResponseTestHelper.getBulkOperationResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			LOGGER.log("List | Response: " + response);
 			RequestResponseTestHelper.getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			LOGGER.log("List | Exception: " , e.getMessage(), e);
 			RequestResponseTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

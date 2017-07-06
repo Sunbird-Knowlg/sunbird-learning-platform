@@ -1,8 +1,5 @@
 package com.ilimi.taxonomy.mgr.impl;
 import java.io.File;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -15,6 +12,8 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -23,7 +22,7 @@ import com.ilimi.taxonomy.mgr.IReferenceManager;
 @Component
 public class ReferenceManagerImpl extends BaseManager implements IReferenceManager {
 
-    private static Logger LOGGER = LogManager.getLogger(ReferenceManagerImpl.class.getName());
+    private static ILogger LOGGER = new PlatformLogger(ReferenceManagerImpl.class.getName());
     
     private static final String s3Content = "s3.content.folder";
     private static final String s3Artifacts = "s3.artifact.folder";

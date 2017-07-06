@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
@@ -17,6 +15,8 @@ import org.ekstep.graph.service.factory.GraphServiceFactory;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -35,19 +35,19 @@ import akka.actor.ActorRef;
 public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNodeMgr {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(GraphDACNodeMgrImpl.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(GraphDACNodeMgrImpl.class.getName());
 
 	/** The service. */
 	static IGraphDatabaseService service;
 	static {
 		String databasePolicy = DACConfigurationConstants.ACTIVE_DATABASE_POLICY;
 
-		LOGGER.info("Active Database Policy Id:" + databasePolicy);
+		LOGGER.log("Active Database Policy Id:" , databasePolicy, "INFO");
 
 		if (StringUtils.isBlank(databasePolicy))
 			databasePolicy = DACConfigurationConstants.DEFAULT_DATABASE_POLICY;
 
-		LOGGER.info("Creating Database Connection Using Policy Id:" + databasePolicy);
+		LOGGER.log("Creating Database Connection Using Policy Id:" , databasePolicy, "INFO");
 
 		service = GraphServiceFactory.getDatabaseService(databasePolicy);
 	}

@@ -3,13 +3,12 @@ package org.ekstep.language.wordchian;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.util.WordUtil;
 
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
@@ -24,7 +23,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class WordChainUtil {
 
 	/** The LOGGER. */
-	private static Logger LOGGER = LogManager.getLogger(WordChainUtil.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(WordChainUtil.class.getName());
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
@@ -42,7 +41,7 @@ public class WordChainUtil {
 	 *             the exception
 	 */
 	public void updateWordSet(String languageId, Node node, WordComplexity wc) throws Exception {
-		LOGGER.info("updateWordSet  languageId " + languageId + " | Word Identifier" + node.getIdentifier());
+		LOGGER.log("updateWordSet  languageId " + languageId + " | Word Identifier" + node.getIdentifier());
 		List<Relation> existingWordSetRelatios = getExistingWordSetRelations(node);
 		new RhymingSoundSet(languageId, node, wc, existingWordSetRelatios).create();
 		new PhoneticBoundarySet(languageId, node, wc, existingWordSetRelatios).create();

@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ExtractionType;
@@ -16,6 +14,8 @@ import org.ekstep.content.util.ContentPackageExtractionUtil;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 
@@ -27,7 +27,7 @@ import com.ilimi.graph.dac.model.Node;
 public class UploadFinalizer extends BaseFinalizer {
 	
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(PublishFinalizer.class.getName());
+	private static ILogger LOGGER = new PlatformLogger(PublishFinalizer.class.getName());
 	
 	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
@@ -79,7 +79,7 @@ public class UploadFinalizer extends BaseFinalizer {
 	public Response finalize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		
-		LOGGER.info("Started fetching the Parameters from Parameter Map.");
+		LOGGER.log("Started fetching the Parameters from Parameter Map.");
 		
 		File file = (File) parameterMap.get(ContentWorkflowPipelineParams.file.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
@@ -101,12 +101,12 @@ public class UploadFinalizer extends BaseFinalizer {
 
 		// Get Content String
 		String ecml = getECMLString(ecrf, ContentWorkflowPipelineParams.ecml.name());
-		LOGGER.info("Generated ECML String From ECRF: " + ecml);
+		LOGGER.log("Generated ECML String From ECRF: " , ecml);
 
 		// Upload Package
 		String folderName = S3PropertyReader.getProperty(s3Artifact);
 		String[] urlArray = uploadToAWS(file, getUploadFolderName(contentId, folderName));
-		LOGGER.info("Package Uploaded to S3.");
+		LOGGER.log("Package Uploaded to S3.");
 		
 		// Extract Content Uploaded Package to S3
 		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
@@ -123,20 +123,20 @@ public class UploadFinalizer extends BaseFinalizer {
 		response = updateContentBody(node.getIdentifier(), ecml);
 		if (checkError(response))
 			return response;
-		LOGGER.info("Content Body Update Status: " + response.getResponseCode());
+		LOGGER.log("Content Body Update Status: " , response.getResponseCode());
 
 		// Update Node
 		response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
-		LOGGER.info("Content Node Update Status: " + response.getResponseCode());
+		LOGGER.log("Content Node Update Status: " , response.getResponseCode());
 		
 		if (!checkError(response))
 			response.put(GraphDACParams.node_id.name(), contentId);
 		
 		try {
-			LOGGER.info("Deleting the temporary folder: " + basePath);
+			LOGGER.log("Deleting the temporary folder: " , basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
-			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
+			LOGGER.log("Error deleting the temporary folder: " , basePath, e);
 		}
 		
 		return response;
