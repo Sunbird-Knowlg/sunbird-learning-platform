@@ -35,7 +35,7 @@ public class LearningDataSyncV3Controller extends BaseController {
 			@RequestParam(name = "delete", required = false, defaultValue = "false") boolean delete,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.composite-search.sync";
-		LOGGER.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
+		LOGGER.log(apiId + " | Graph : " + graphId , " | ObjectType: " + objectType, "INFO");
 		try {
 			Response response = compositeSearchManager.sync(graphId, objectType, start, total, delete);
 			return getResponseEntity(response, apiId, null);
@@ -51,7 +51,7 @@ public class LearningDataSyncV3Controller extends BaseController {
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.composite-search.sync-object";
-		LOGGER.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
+		LOGGER.log(apiId + " | Graph : " + graphId , " | Identifier: " + identifiers, "INFO");
 		try {
 			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
