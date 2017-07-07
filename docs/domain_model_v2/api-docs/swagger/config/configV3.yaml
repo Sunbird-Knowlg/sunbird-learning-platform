@@ -49,7 +49,7 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  '/resourcebundles/read{languageId}':
+  '/resourcebundles/read/{languageId}':
     get:
       summary: Gets Specific resourcebundle
       description: This API returns specific resourcebundle based on the specified language

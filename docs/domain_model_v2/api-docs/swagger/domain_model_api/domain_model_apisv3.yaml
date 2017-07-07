@@ -29,7 +29,7 @@ paths:
       description: >-
         This API  is used to get list of all live domains available in the 
         _EkStep Learning Platform_
-      operationId: domain.list
+      operationId: ekstep.domain.list
       produces:
         - application/json
       tags:
@@ -214,7 +214,7 @@ paths:
         and relations
       tags:
         - Domains
-      operationId: domain.info
+      operationId: ekstep.domain.read
       produces:
         - application/json
       parameters:
