@@ -35,21 +35,6 @@
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
-		<RollingFile name="AuditLogAppender" fileName="/data/logs/audit.log"
-			filePattern="/data/logs/audit-%d{MM-dd-yyyy-hh-mm}-%i.log">
-			<PatternLayout>
-				<Pattern>%d [%t] - %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<OnStartupTriggeringPolicy />
-			</Policies>
-			<DefaultRolloverStrategy>
-                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="audit-*.log" />
-                    <IfLastModified age="7d" />
-                </Delete>
-            </DefaultRolloverStrategy>
-		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
 			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
@@ -103,9 +88,6 @@
 		</Logger>
 		<Logger name="GraphEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="GraphEventAppender" />
-		</Logger>
-		<Logger name="AuditTestLogger" level="INFO" additivity="false">
-			<AppenderRef ref="AuditLogAppender" />
 		</Logger>
 		<Logger name="ObjectLifecycleLogger" level="INFO" additivity="false">
 			<AppenderRef ref="ObjectLifecycleEventAppender" />

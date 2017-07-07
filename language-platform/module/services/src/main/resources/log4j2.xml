@@ -53,22 +53,6 @@
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
-		<RollingRandomAccessFile name="WordEventAppender"
-			fileName="/data/logs/word_event.log" filePattern="/data/logs/word_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
-			<PatternLayout>
-				<Pattern>%d %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<OnStartupTriggeringPolicy />
-			</Policies>
-			<DefaultRolloverStrategy>
-                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="word_event-*.log" />
-                    <IfLastModified age="7d" />
-                </Delete>
-            </DefaultRolloverStrategy>
-		</RollingRandomAccessFile>
-
 		<RollingRandomAccessFile name="TelemetryEventAppender"
 			fileName="/data/logs/language_telemetry_event.log"
 			filePattern="/data/logs/language_telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -95,9 +79,6 @@
 		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
-		</Logger>
-		<Logger name="WordEventLogger" level="INFO" additivity="false">
-			<AppenderRef ref="WordEventAppender" />
 		</Logger>
 		<Root level="INFO">
 			<AppenderRef ref="RollingFileAppender" />
