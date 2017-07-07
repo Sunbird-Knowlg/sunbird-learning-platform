@@ -473,30 +473,35 @@
                     {
                         "name": "languages",
                         "in": "query",
-                        "description": "list of languages for which translation required",
+                        "description": "comma seperated language ids for which translation required",
                         "required": true,
-                        "type": "array",
-                        "items": {
-                            "type": "string"
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "Body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RequestBody"
                         },
-                        "collectionFormat": "multi"
+                        "x-is-map": false
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully transliterated into the specified language",
+                        "description": "Successfully translated into the specified language",
                         "schema": {
-                            "$ref": "#/definitions/transliterateResponse"
+                            "$ref": "#/definitions/translationResponse"
                         }
                     },
                     "400": {
-                        "description": "Error during transliteration! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "description": "Error during translation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
                         "schema": {
                             "$ref": "#/definitions/FailedResponseHeader"
                         }
                     },
                     "500": {
-                        "description": "Error during transliteration! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "description": "Error during translation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
                         "schema": {
                             "$ref": "#/definitions/FailedResponseHeader"
                         }
@@ -527,13 +532,18 @@
                     {
                         "name": "languages",
                         "in": "query",
-                        "description": "list of languages for which translation required",
+                        "description": "comma seperated language ids for which transliteration required",
                         "required": true,
-                        "type": "array",
-                        "items": {
-                            "type": "string"
+                        "type": "string"
+                    },
+                    {
+                        "in": "body",
+                        "name": "Body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/RequestBody"
                         },
-                        "collectionFormat": "multi"
+                        "x-is-map": false
                     }
                 ],
                 "responses": {
@@ -1559,6 +1569,30 @@
             },
             "title": "Update Word Request Body"
         },
+        "RequestBody": {
+            "type": "object",
+            "required": [
+                "request"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/emptyRequestObject"
+                }
+            },
+            "title": "Update Word Request Body"
+        },
         "flagWordRequestBody": {
             "type": "object",
             "required": [
@@ -2278,6 +2312,30 @@
             },
             "title": "Transliterate API result"
         },
+        "translationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/translateObject"
+                }
+            },
+            "title": "Translate API result"
+        },
         "nodeIdsObject": {
             "properties": {
                 "node_ids": {
@@ -2715,6 +2773,9 @@
                 }
             }
         },
+        "emptyRequestObject": {
+            "properties": {}
+        },
         "complexityMeasuresObject": {
             "properties": {
                 "complexity_measures": {
@@ -2859,14 +2920,70 @@
             },
             "description": "map of results for each word in the input text"
         },
+        "translateObject": {
+            "properties": {
+               "translations": {
+                   "$ref": "#/definitions/translate"
+               }
+            },
+            "description": "output of the trasnlate API"
+        },
+        "translate": {
+          "type": "object",
+          "properties": {
+            "synset_id":{
+                "type": "object",
+                "properties": {
+                  "language_id": {
+                      "type": "array",
+                      "description": "list of word object",
+                      "items": {
+                          "type": "object",
+                          "properties": {
+                            "lemma":{
+                                "type": "string",
+                                "description": "lemma of the word in the required language"
+                            },
+                            "id": {
+                                "type": "string",
+                                "description": "id of the word in the required language"
+                            }
+                          }
+                       }
+                    },
+                  "gloss": {
+                      "type": "string",
+                      "description": "meaning of the given word in the given language"
+                  }
+                  
+                }
+            }
+          },
+            "title": "translate"
+        },
         "transliteratedObject": {
             "properties": {
-                "output": {
-                    "type": "string",
-                    "description": "transliteration of the input english text in the specified language"
-                }
+               "transliterations": {
+                   "$ref": "#/definitions/transliterate"
+               }
             },
             "description": "output of the transliterate API"
+        },
+        "transliterate": {
+            "type": "object",
+            "properties": {
+                "language_id": {
+                  "type": "object",
+                  "properties": {
+                    "output": {
+                        "type": "string",
+                        "description": "transliterated text for the given language_id"
+                    }
+                  }
+                  
+                }
+            },
+            "title": "transliterate"
         },
         "wordlistObject": {
             "properties": {
