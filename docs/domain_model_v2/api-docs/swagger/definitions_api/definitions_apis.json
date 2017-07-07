@@ -9,7 +9,7 @@
       "url": "http:www.EkStep.in"
     }
   },
-  "basePath":"/v3",
+  "basePath":"meta/v3",
    "host": "api.ekstep.in",
   "securityDefinitions": {},
    "schemes": [
