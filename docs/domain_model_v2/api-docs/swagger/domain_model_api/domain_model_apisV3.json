@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "2.0.0",
+    "version": "3.0",
     "title": "Domain Model API",
     "description": "Domain Model encapsulates WHAT TO TEACH (Dimensions and Concepts) and HOW TO TEACH (Methods) aspects of EkStep Learning Platform",
     "license": {
@@ -10,7 +10,7 @@
     }
   },
   "host": "api.EkStep.in",
-  "basePath": "/v3",
+  "basePath": "/domain/v3",
   "schemes": [
     "https"
   ],

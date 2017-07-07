@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "2.0",
+    "version": "3.0",
     "title": "Composite Search - API",
     "description": "Composite search API provides a single window access to all indexed data in the platform. The search is backed by an elastic search index, allowing the user to search for different types of objects using a single keyword. The index is updated on every update to the Graph.",
     "license": {
@@ -9,7 +9,7 @@
       "url": "http:www.ekstep.in"
     }
   },
-  "basePath": "/v3",
+  "basePath": "/search/v3",
   "host": "api.ekstep.in",
   "securityDefinitions": {},
   "consumes": [

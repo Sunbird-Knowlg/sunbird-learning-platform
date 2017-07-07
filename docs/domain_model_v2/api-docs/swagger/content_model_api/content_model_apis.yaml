@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 2.0.0
+  version: '3.0'
   title: Content Model API
   description: >-
     The Content Model API deals with all the operations related to the Content
@@ -11,7 +11,7 @@ info:
     name: EkStep License
     url: 'http:www.ekstep.in'
 host: api.ekstep.in
-basePath: /v3
+basePath: /content/v3
 schemes:
   - https
 securityDefinitions: {}
