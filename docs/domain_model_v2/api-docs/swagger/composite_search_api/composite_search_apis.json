@@ -29,7 +29,7 @@
         "summary": "Search API to search all indexed data",
         "description": "This is the main API that accepts the search request and returns the response. The API contract is identical to the graph data structures. So the returned data structures for each object type conform to the definition specification for that object type.",
         "tags": [],
-        "operationId": "search",
+        "operationId": "ekstep.search.composite-search",
         "consumes" : [ "application/json" ],
         "produces": [
           "application/json"

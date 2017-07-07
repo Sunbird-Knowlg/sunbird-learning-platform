@@ -29,7 +29,7 @@
         "tags": [
           "ResourceBundle"
         ],
-        "operationId": "resourebundles.list",
+        "operationId": "ekstep.config.resourebundles.list",
         "produces": [
           "application/json"
         ],
@@ -63,7 +63,7 @@
         "tags": [
           "ResourceBundle"
         ],
-        "operationId": "resourcebundles.find",
+        "operationId": "ekstep.config.resourcebundles.find",
         "produces": [
           "application/json"
         ],
@@ -106,7 +106,7 @@
         "tags": [
           "Ordinals"
         ],
-        "operationId": "ordinals.list",
+        "operationId": "ekstep.config.ordinals.list",
         "produces": [
           "application/json"
         ],

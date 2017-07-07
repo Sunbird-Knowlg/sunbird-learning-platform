@@ -29,7 +29,7 @@ paths:
         Learning Platform
       tags:
         - Definitions
-      operationId: definition.list
+      operationId: ekstep.definitions.list
       produces:
         - application/json
       responses:
@@ -60,7 +60,7 @@ paths:
         on the specified object type
       tags:
         - Definitions
-      operationId: definition.find
+      operationId: ekstep.definition.find
       produces:
         - application/json
       parameters:

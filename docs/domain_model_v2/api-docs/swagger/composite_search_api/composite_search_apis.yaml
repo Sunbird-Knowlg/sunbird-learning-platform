@@ -30,7 +30,7 @@ paths:
         the returned data structures for each object type conform to the
         definition specification for that object type.
       tags: []
-      operationId: search
+      operationId: ekstep.search.composite-search
       consumes:
         - application/json
       produces:

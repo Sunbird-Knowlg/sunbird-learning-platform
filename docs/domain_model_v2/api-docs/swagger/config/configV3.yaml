@@ -26,7 +26,7 @@ paths:
         EkStep Platform
       tags:
         - ResourceBundle
-      operationId: resourebundles.list
+      operationId: ekstep.config.resourebundles.list
       produces:
         - application/json
       responses:
@@ -55,7 +55,7 @@ paths:
       description: This API returns specific resourcebundle based on the specified language
       tags:
         - ResourceBundle
-      operationId: resourcebundles.find
+      operationId: ekstep.config.resourcebundles.find
       produces:
         - application/json
       parameters:
@@ -90,7 +90,7 @@ paths:
       description: This API returns list of config ordinals supported by the platform
       tags:
         - Ordinals
-      operationId: ordinals.list
+      operationId: ekstep.config.ordinals.list
       produces:
         - application/json
       responses:

@@ -1,1391 +1,1905 @@
-swagger: '2.0'
-info:
-  version: '3.0'
-  title: Assessment - Service
-  description: >-
-    Assessment Service of EkStep Learning Platform provides resources to create,
-    manage and search Assessment Items and itemsets. AssessmentItem API provides
-    resources to work with questions in the platform and itemset API provides
-    resources to create and manage itemsets.
-  license:
-    name: EkStep License
-    url: 'http:www.EkStep.in'
-basePath: /assessment/v3
-host: api.ekstep.in
-securityDefinitions: {}
-schemes:
-  - https
-consumes:
-  - application/json
-produces:
-  - application/json
-tags:
-  - name: AssessmentItem
-    description: Everything related to CRUD Operations of the AssessmentItem
-  - name: itemset
-    description: Everything related to CRUD Operations of the itemset
-paths:
-  /items/search:
-    post:
-      summary: Search an AssessmentItem
-      description: >-
-        This API searches and retrieves an assessmentitem/question based on the
-        filter and relation types specified in the request body
-      tags:
-        - AssessmentItem
-      operationId: assessment_item.search
-      produces:
-        - application/json
-      parameters:
-        - name: assessmentSearchRequest
-          in: body
-          required: true
-          description: searchAssessmentRequest
-          schema:
-            $ref: '#/definitions/searchAssessmentRequest'
-      responses:
-        '200':
-          description: AssessmentItem searched Successfully
-          schema:
-            $ref: '#/definitions/searchAssessmentItemResponse'
-        '400':
-          description: >-
-            Error While searching for an AssessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While searching for an AssessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  /items/create:
-    post:
-      summary: Creates an AssessmentItem
-      description: >-
-        This API creates an assessmentItem/question of type MCQ(multiple choice
-        questions) or FTB(fill in the blanks) or MTF(match the following) based
-        on the request body
-      tags:
-        - AssessmentItem
-      operationId: assessment_item.create
-      produces:
-        - application/json
-      parameters:
-        - name: assessmentCreateRequest
-          in: body
-          required: true
-          description: assessment request Object
-          schema:
-            $ref: '#/definitions/createAssessmentRequest'
-      responses:
-        '200':
-          description: AssessmentItem Created Successfully
-          schema:
-            $ref: '#/definitions/assessmentCreateResponse'
-        '400':
-          description: >-
-            Error While creating assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While Creating assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  '/items/read/{assessmentId}':
-    get:
-      summary: Gets an AssessmentItem
-      description: >-
-        This API is used to fetch an assessmentItem from the _EkStep
-        Platform_.This endpoint returns the entire assessmentItem Object with
-        default fields. 
-      tags:
-        - AssessmentItem
-      operationId: assessment_Item.find
-      produces:
-        - application/json
-      parameters:
-        - name: assessmentId
-          in: path
-          required: true
-          description: assessmentId
-          type: string
-      responses:
-        '200':
-          description: AssessmentItem fetched Successfully
-          schema:
-            $ref: '#/definitions/getAssessmentItemResponse'
-        '400':
-          description: >-
-            Error While fetching the assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While fetching the assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  '/items/retire/{assessmentId}':
-    delete:
-      summary: Deletes an AssessmentItem
-      description: This API is used to delete an assessmentItem from the EkStep Platform
-      tags:
-        - AssessmentItem
-      operationId: assessment_item.delete
-      produces:
-        - application/json
-      parameters:
-        - name: assessmentId
-          in: path
-          required: true
-          type: string
-      responses:
-        '200':
-          description: AssessmentItem deleted Successfully
-          schema:
-            $ref: '#/definitions/assessmentDeleteResponse'
-        '400':
-          description: >-
-            Error While deleting the assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While deleting the assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  '/items/update/{assessmentId}':
-    patch:
-      summary: Updates the given assessmentItem
-      description: >-
-        This API is used to update an assessmentItem based on the request body
-        provided from the _EkStep Platform_. This endpoint return node_Id on
-        updation
-      tags:
-        - AssessmentItem
-      operationId: assessment_item.patch
-      produces:
-        - application/json
-      parameters:
-        - name: assessmentId
-          in: path
-          required: true
-          type: string
-        - name: update assessment request
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/updateAssessmentRequest'
-      responses:
-        '200':
-          description: AssessmentItem Updated Successfully
-          schema:
-            $ref: '#/definitions/assessmentUpdateResponse'
-        '400':
-          description: >-
-            Error While Updating the assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While Updating the assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  /items/list:
-    post:
-      summary: Returns list of AssessmentItems
-      description: >-
-        This API is used to list all assessmentItem from the _EkStep
-        Platform_.This endpoint returns the assessmentItems  with default
-        fields. 
-      tags:
-        - AssessmentItem
-      operationId: assessment_Item.list
-      produces:
-        - application/json
-      parameters:
-        - name: assessmentSearchRequest
-          in: body
-          required: true
-          description: searchAssessmentRequest
-          schema:
-            $ref: '#/definitions/listAssessmentRequest'
-      responses:
-        '200':
-          description: AssessmentItems fetched Successfully
-          schema:
-            $ref: '#/definitions/listAssessmentItemResponse'
-        '400':
-          description: >-
-            Error While fetching the assessmentItems! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While fetching the assessmentItems! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  /itemsets/create:
-    post:
-      summary: Creates an itemset
-      description: >-
-        This API is used to create an itemset into the _EkStep Platform_ based
-        on the request body provided. This endpoint returns the response Object
-        with SetId created
-      tags:
-        - itemset
-      operationId: itemset.create
-      produces:
-        - application/json
-      parameters:
-        - name: itemset create Request
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/creatitemsetRequest'
-      responses:
-        '200':
-          description: Item Created Successfully
-          schema:
-            $ref: '#/definitions/itemsetCreateResponse'
-        '400':
-          description: >-
-            Error While creating Item! | Error occurred while operation, mostly
-            because of the input given by client, In general it is 'Client
-            Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While creating Item! | Error occurred while operation, mostly
-            because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  '/itemsets/read/{itemsetId}':
-    get:
-      summary: Gets an itemset
-      description: >-
-        This API is used to fetch an itemset from Item Repository of EkStep
-        Platform. This endpoint returns the entire itemset Object with default
-        fields.
-      tags:
-        - itemset
-      operationId: itemset.find
-      produces:
-        - application/json
-      parameters:
-        - name: itemsetId
-          in: path
-          required: true
-          description: itemsetId
-          type: string
-      responses:
-        '200':
-          description: itemset fetched Successfully
-          schema:
-            $ref: '#/definitions/itemsetgetResponse'
-        '400':
-          description: >-
-            Error While fetching the itemset! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While fetching the itemset! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  '/itemsets/retire/{itemsetId}':
-    delete:
-      summary: Deletes an itemset
-      description: >-
-        This API is used to delete an Item set from the itemset repository of
-        EkStep Platform.
-      tags:
-        - itemset
-      operationId: itemset.delete
-      produces:
-        - application/json
-      parameters:
-        - name: itemsetId
-          in: path
-          required: true
-          type: string
-      responses:
-        '200':
-          description: itemset deleted Successfully
-          schema:
-            $ref: '#/definitions/itemsetDeleteResponse'
-        '400':
-          description: >-
-            Error While deleting the itemset! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While deleting the itemset! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  '/itemsets/update/{itemsetId}':
-    patch:
-      summary: Updates an itemset
-      description: >-
-        This API is used to update an existing itemset in the Item repository 
-        based on the request body provided from the _EkStep Platform_. This
-        endpoint returns responseObject with SetId on updation
-      tags:
-        - itemset
-      operationId: itemset.patch
-      produces:
-        - application/json
-      parameters:
-        - name: itemsetId
-          in: path
-          required: true
-          type: string
-        - name: itemsetUpdateRequest
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/updateitemsetRequest'
-      responses:
-        '200':
-          description: itemset Updated Successfully
-          schema:
-            $ref: '#/definitions/itemsetUpdateResponse'
-        '400':
-          description: >-
-            Error While Updating the Item Set! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While Updating the Item Set! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  /itemsets/search:
-    post:
-      summary: Search an itemset
-      description: >-
-        This API is used to search and retrieve all itemsets from the Item
-        repository based on the given search creteria in the request body
-      tags:
-        - itemset
-      operationId: itemset.search
-      produces:
-        - application/json
-      parameters:
-        - name: assessmentSearchRequest
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/searchitemsetRequest'
-      responses:
-        '200':
-          description: itemsets searched Successfully
-          schema:
-            $ref: '#/definitions/itemsetSearchResponse'
-        '400':
-          description: >-
-            Error While searching for an itemset! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While searching for an itemset! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  /itemsets/list:
-    post:
-      summary: Lists an itemset
-      description: >-
-        This API is used to list and retrieve all itemsets from the Item
-        repository based on the given search creteria in the request body
-      tags:
-        - itemset
-      operationId: itemset.list
-      produces:
-        - application/json
-      parameters:
-        - name: itemsetListRequest
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/listitemsetRequest'
-      responses:
-        '200':
-          description: itemsets listed Successfully
-          schema:
-            $ref: '#/definitions/itemsetlistResponse'
-        '400':
-          description: >-
-            Error While fetching all itemset lists! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While fetching all itemset lists! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-  '/itemsets/generate/{itemsetId}':
-    get:
-      summary: ' Generates an itemset'
-      description: >-
-        This API is used to generate an itemset from itemset Repository of
-        EkStep Platform. This endpoint returns the entire itemset Object with
-        default fields. 
-      tags:
-        - itemset
-      operationId: itemset.generate
-      produces:
-        - application/json
-      parameters:
-        - name: itemsetId
-          in: path
-          required: true
-          description: itemsetId
-          type: string
-      responses:
-        '200':
-          description: itemset generated Successfully
-          schema:
-            $ref: '#/definitions/generateitemsetResponse'
-        '400':
-          description: >-
-            Error While generating the itemset! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While generating the itemset! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-      security: []
-definitions:
-  searchAssessmentRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/searchObject'
-  listAssessmentRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/searchObject'
-  updateAssessmentRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/createAssessmentObject'
-  creatitemsetRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/createItemWithMembersObject'
-  updateitemsetRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/updateitemsetWithMembers'
-  searchitemsetRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/searchitemsetObject'
-  listitemsetRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/searchitemsetObject'
-  createAssessmentRequest:
-    type: object
-    required:
-      - id
-      - params
-      - request
-      - ts
-      - ver
-    properties:
-      id:
-        type: string
-      ver:
-        type: string
-      ts:
-        type: string
-      params:
-        $ref: '#/definitions/RequestParams'
-      request:
-        $ref: '#/definitions/createAssessmentObject'
-  createAssessmentObject:
-    type: object
-    title: Create Assessment Request
-    allOf:
-      - description: select any one request body to create/update AssessmentItem
-      - $ref: '#/definitions/createMcqObject'
-      - $ref: '#/definitions/createMtfObject'
-      - $ref: '#/definitions/createFtbObject'
-  createMcqObject:
-    properties:
-      identifier:
-        type: string
-        description: assessmentId
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        $ref: '#/definitions/mcqMetadataObject'
-      outRelations:
-        $ref: '#/definitions/outRelations'
-  createFtbObject:
-    properties:
-      identifier:
-        type: string
-        description: assessmentId
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        $ref: '#/definitions/ftbMetadataObject'
-      outRelations:
-        $ref: '#/definitions/outRelations'
-  createMtfObject:
-    properties:
-      identifier:
-        type: string
-        description: assessmentId
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        $ref: '#/definitions/mtfMetadataObject'
-  mcqMetadataObject:
-    allOf:
-      - $ref: '#/definitions/assessmentItemMetadata'
-      - $ref: '#/definitions/values'
-      - $ref: '#/definitions/response'
-      - $ref: '#/definitions/model'
-  ftbMetadataObject:
-    allOf:
-      - $ref: '#/definitions/assessmentItemMetadata'
-      - $ref: '#/definitions/answers'
-      - $ref: '#/definitions/model'
-  mtfMetadataObject:
-    allOf:
-      - $ref: '#/definitions/assessmentItemMetadata'
-      - $ref: '#/definitions/model'
-      - $ref: '#/definitions/lhs_options'
-      - $ref: '#/definitions/rhs_options'
-  getAssessmentItemResponse:
-    title: get Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/assessmentItemMetadata'
-  searchAssessmentItemResponse:
-    title: search Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        type: array
-        items:
-          $ref: '#/definitions/assessmentItemMetadata'
-  listAssessmentItemResponse:
-    title: search Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        type: array
-        items:
-          $ref: '#/definitions/assessmentItemMetadata'
-  assessmentDeleteResponse:
-    title: Delete Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/result'
-  assessmentUpdateResponse:
-    title: Update Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/NodeId'
-  assessmentCreateResponse:
-    title: Create Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/NodeId'
-  itemsetDeleteResponse:
-    title: Delete Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/result'
-  itemsetCreateResponse:
-    title: Create Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/SetId'
-  itemsetUpdateResponse:
-    title: Update Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/SetId'
-  itemsetgetResponse:
-    title: Get Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        $ref: '#/definitions/assessment_item_set'
-  itemsetSearchResponse:
-    title: Get Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        type: array
-        items:
-          $ref: '#/definitions/assessment_item_set'
-  itemsetlistResponse:
-    title: Get Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        type: array
-        items:
-          $ref: '#/definitions/assessment_item_set'
-  createItemWithMembersObject:
-    properties:
-      identifier:
-        type: string
-        description: assessmentId
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        $ref: '#/definitions/createItemObject'
-  createItemObject:
-    type: object
-    title: creates itemset
-    allOf:
-      - $ref: '#/definitions/assessment_item_set'
-      - properties:
-          memberIds:
-            type: array
-            items:
-              $ref: '#/definitions/members'
-      - $ref: '#/definitions/outRelations'
-  updateitemsetWithMembers:
-    properties:
-      identifier:
-        type: string
-        description: assessmentId
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        $ref: '#/definitions/updateitemsetObject'
-  updateitemsetObject:
-    type: object
-    allOf:
-      - $ref: '#/definitions/assessment_item_set'
-      - $ref: '#/definitions/members'
-      - $ref: '#/definitions/outRelations'
-  members:
-    properties:
-      membersIds:
-        type: string
-        description: list of memberIds
-  searchitemsetObject:
-    properties:
-      metadata:
-        type: array
-        items:
-          $ref: '#/definitions/filters'
-  generateitemsetResponse:
-    title: Generate Response
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-      result:
-        allOf:
-          - $ref: '#/definitions/assessment_item_set'
-          - $ref: '#/definitions/item_sets'
-  item_sets:
-    properties:
-      item_sets:
-        type: array
-        items:
-          $ref: '#/definitions/item_set'
-      items:
-        type: object
-        description: items
-  item_set:
-    properties:
-      count:
-        type: number
-        description: count
-      id:
-        type: string
-        description: id
-  assessment_item_set:
-    properties:
-      owner:
-        type: string
-        description: ownerName
-      difficulty_level:
-        type: string
-        description: defficulty_level
-      identifier:
-        type: string
-        description: assessmentId
-      code:
-        type: string
-        description: code of assessmentItem
-      subject:
-        type: string
-        description: subject of assessmentItem
-      SET_OBJECT_TYPE_KEY:
-        type: string
-        description: set object type
-      description:
-        type: string
-        description: description
-      language:
-        type: object
-        description: languages
-      type:
-        type: string
-        description: assessmentItem type
-      title:
-        type: string
-        description: title
-      createdOn:
-        type: string
-        description: creation date
-      totalItems:
-        type: number
-        description: total number of items
-      gradeLevel:
-        type: object
-        description: gradeLevel
-      maxScore:
-        type: object
-        description: maxScore
-      lastUpdatedOn:
-        type: string
-        description: last updated date
-      usedFor:
-        type: string
-        description: where the itemset is used For
-      SET_TYPE:
-        type: string
-        description: Item Set Type
-  assessmentItemMetadata:
-    title: assessmentItem
-    properties:
-      template:
-        type: string
-        description: type of template
-      code:
-        type: string
-        description: code of assessmentItem
-      keywords:
-        type: object
-      subject:
-        type: string
-        description: subject of assessmentItem
-      qlevel:
-        type: string
-        description: qlevel of assessmentItem
-      portalOwner:
-        type: string
-        description: ownerName
-      identifier:
-        type: string
-        description: assessmentId
-      language:
-        type: object
-      partial_scoring:
-        type: string
-        description: scores
-      type:
-        type: string
-        description: assessmentItem type
-      title:
-        type: string
-        description: title
-      usedIn:
-        type: string
-        description: where the assessment is used used
-      createdOn:
-        type: string
-        description: date of creation
-      gradeLevel:
-        type: object
-      conceptIds:
-        type: object
-      question:
-        type: string
-        description: qid
-      options:
-        $ref: '#/definitions/values'
-      concepts:
-        $ref: '#/definitions/concepts'
-      rownum:
-        type: number
-        description: rownum
-      maxScore:
-        type: object
-      domain:
-        type: string
-        description: domain
-      num_answers:
-        type: number
-        description: number of answers
-      template_Id:
-        type: string
-        description: template Id
-      usedFor:
-        type: string
-        description: where the itemset is used For
-      max_score:
-        type: number
-        description: maximum score
-      name:
-        type: string
-        description: name
-      lastUpdatedOn:
-        type: string
-        description: last updated date
-  response:
-    properties:
-      values:
-        type: object
-        description: values
-      score:
-        type: number
-        description: score
-  answers:
-    properties:
-      value:
-        type: string
-        description: values
-      score:
-        type: string
-        description: scores
-  model:
-    properties:
-      type:
-        type: string
-        description: type
-      asset:
-        type: string
-        description: asset
-  lhs_options:
-    properties:
-      index:
-        type: number
-        description: index
-      Options:
-        $ref: '#/definitions/values'
-  rhs_options:
-    allOf:
-      - properties:
-          index:
-            type: number
-            description: index
-      - $ref: '#/definitions/values'
-  values:
-    properties:
-      type:
-        type: string
-        description: ''
-      asset:
-        type: string
-        description: ''
-      font:
-        type: string
-        description: ''
-      color:
-        type: string
-        description: ''
-  concepts:
-    properties:
-      identifier:
-        type: string
-        description: Identifier
-      name:
-        type: string
-        description: name
-      objectType:
-        type: string
-        description: objectType
-      description:
-        type: string
-        description: description
-      relation:
-        type: string
-        description: relationType
-      index:
-        type: string
-        description: index
-  searchObject:
-    properties:
-      metadata:
-        $ref: '#/definitions/searchMetadata'
-  searchMetadata:
-    properties:
-      filter:
-        type: array
-        items:
-          $ref: '#/definitions/filters'
-      sortOrder:
-        type: array
-        items:
-          $ref: '#/definitions/sortOrder'
-      resultSize:
-        type: number
-        description: resultSize
-      startPosition:
-        type: number
-        description: startPosition
-  filters:
-    title: filters
-    properties:
-      property:
-        type: string
-        description: ''
-      operator:
-        type: string
-        description: ''
-      value:
-        type: string
-        description: ''
-      relations:
-        type: string
-        description: ''
-  ResponseParams:
-    title: Response Parameter
-    type: object
-    properties:
-      resmsgid:
-        type: string
-        description: Response Message Id
-      msgid:
-        type: string
-        description: Message Id
-      err:
-        type: string
-        description: Error Code
-      status:
-        type: string
-        description: Response Status
-      errmsg:
-        type: string
-        description: Error Message
-  RequestParams:
-    type: object
-    required:
-      - msgid
-    properties:
-      msgid:
-        type: string
-    title: Params
-  FailedResponseHeader:
-    title: Failure Response
-    type: object
-    properties:
-      id:
-        type: string
-        description: API Identifier
-      ver:
-        type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/FailedResponseParams'
-      responseCode:
-        type: string
-        description: responseCode
-  FailedResponseParams:
-    title: Failed Response Parameter
-    type: object
-    properties:
-      resmsgid:
-        type: string
-        description: Response Message Id
-      msgid:
-        type: string
-        description: Message Id
-      err:
-        type: string
-        description: Error Code
-      status:
-        type: string
-        description: Response Status
-      errmsg:
-        type: string
-        description: Error Message
-  outRelations:
-    properties:
-      endNodeId:
-        type: string
-        description: ''
-      relationType:
-        type: string
-        description: ''
-  result:
-    properties: {}
-  sortOrder:
-    title: sortOrder
-    properties:
-      sortFields:
-        type: string
-        description: field to be sorted
-      sortOrder:
-        type: string
-        description: sort order
-  NodeId:
-    title: Node Id
-    type: object
-    properties:
-      node_id:
-        type: string
-        description: Node Identifier
-  SetId:
-    title: Set Id
-    type: object
-    properties:
-      set_id:
-        type: string
-        description: Set Identifier
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "3.0",
+        "title": "Assessment - Service",
+        "description": "Assessment Service of EkStep Learning Platform provides resources to create, manage and search Assessment Items and itemsets. AssessmentItem API provides resources to work with questions in the platform and itemset API provides resources to create and manage itemsets.",
+        "license": {
+            "name": "EkStep License",
+            "url": "http:www.EkStep.in"
+        }
+    },
+    "basePath": "/assessment/v3",
+    "host": "api.ekstep.in",
+    "securityDefinitions": {},
+    "schemes": [
+        "https"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "AssessmentItem",
+            "description": "Everything related to CRUD Operations of the AssessmentItem"
+        },
+        {
+            "name": "itemset",
+            "description": "Everything related to CRUD Operations of the itemset"
+        }
+    ],
+    "paths": {
+        "/items/search": {
+            "post": {
+                "summary": "Search an AssessmentItem",
+                "description": "This API searches and retrieves an assessmentitem/question based on the filter and relation types specified in the request body",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "ekstep.learning.item.search",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentSearchRequest",
+                        "in": "body",
+                        "required": true,
+                        "description": "searchAssessmentRequest",
+                        "schema": {
+                            "$ref": "#/definitions/searchAssessmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AssessmentItem searched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/searchAssessmentItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While searching for an AssessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While searching for an AssessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/items/create": {
+            "post": {
+                "summary": "Creates an AssessmentItem",
+                "description": "This API creates an assessmentItem/question of type MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match the following) based on the request body",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "ekstep.learning.item.create",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentCreateRequest",
+                        "in": "body",
+                        "required": true,
+                        "description": "assessment request Object",
+                        "schema": {
+                            "$ref": "#/definitions/createAssessmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AssessmentItem Created Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/assessmentCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While creating assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Creating assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/items/read/{assessmentId}": {
+            "get": {
+                "summary": "Gets an AssessmentItem",
+                "description": "This API is used to fetch an assessmentItem from the _EkStep Platform_.This endpoint returns the entire assessmentItem Object with default fields. ",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "ekstep.learning.item.read",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "assessmentId",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AssessmentItem fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/getAssessmentItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/items/retire/{assessmentId}": {
+            "delete": {
+                "summary": "Deletes an AssessmentItem",
+                "description": "This API is used to delete an assessmentItem from the EkStep Platform",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "ekstep.learning.item.retire",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AssessmentItem deleted Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/assessmentDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While deleting the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While deleting the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/items/update/{assessmentId}": {
+            "patch": {
+                "summary": "Updates the given assessmentItem",
+                "description": "This API is used to update an assessmentItem based on the request body provided from the _EkStep Platform_. This endpoint return node_Id on updation",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "ekstep.learning.item.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "update assessment request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/updateAssessmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AssessmentItem Updated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/assessmentUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Updating the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Updating the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/items/list": {
+            "post": {
+                "summary": "Returns list of AssessmentItems",
+                "description": "This API is used to list all assessmentItem from the _EkStep Platform_.This endpoint returns the assessmentItems  with default fields. ",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "ekstep.learning.item.list",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentSearchRequest",
+                        "in": "body",
+                        "required": true,
+                        "description": "searchAssessmentRequest",
+                        "schema": {
+                            "$ref": "#/definitions/listAssessmentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AssessmentItems fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/listAssessmentItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the assessmentItems! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the assessmentItems! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/itemsets/create": {
+            "post": {
+                "summary": "Creates an itemset",
+                "description": "This API is used to create an itemset into the _EkStep Platform_ based on the request body provided. This endpoint returns the response Object with SetId created",
+                "tags": [
+                    "itemset"
+                ],
+                "operationId": "ekstep.learning.itemset.create",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemset create Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/creatitemsetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Item Created Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/itemsetCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While creating Item! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While creating Item! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/itemsets/read/{itemsetId}": {
+            "get": {
+                "summary": "Gets an itemset",
+                "description": "This API is used to fetch an itemset from Item Repository of EkStep Platform. This endpoint returns the entire itemset Object with default fields.",
+                "tags": [
+                    "itemset"
+                ],
+                "operationId": "ekstep.learning.itemset.read",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemsetId",
+                        "in": "path",
+                        "required": true,
+                        "description": "itemsetId",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "itemset fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/itemsetgetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/itemsets/retire/{itemsetId}": {
+            "delete": {
+                "summary": "Deletes an itemset",
+                "description": "This API is used to delete an Item set from the itemset repository of EkStep Platform.",
+                "tags": [
+                    "itemset"
+                ],
+                "operationId": "ekstep.learning.itemset.retire",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemsetId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "itemset deleted Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/itemsetDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While deleting the itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While deleting the itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/itemsets/update/{itemsetId}": {
+            "patch": {
+                "summary": "Updates an itemset",
+                "description": "This API is used to update an existing itemset in the Item repository  based on the request body provided from the _EkStep Platform_. This endpoint returns responseObject with SetId on updation",
+                "tags": [
+                    "itemset"
+                ],
+                "operationId": "ekstep.learning.itemset.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemsetId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "itemsetUpdateRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/updateitemsetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "itemset Updated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/itemsetUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Updating the Item Set! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Updating the Item Set! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/itemsets/search": {
+            "post": {
+                "summary": "Search an itemset",
+                "description": "This API is used to search and retrieve all itemsets from the Item repository based on the given search creteria in the request body",
+                "tags": [
+                    "itemset"
+                ],
+                "operationId": "ekstep.learning.itemset.search",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentSearchRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/searchitemsetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "itemsets searched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/itemsetSearchResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While searching for an itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While searching for an itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/itemsets/list": {
+            "post": {
+                "summary": "Lists an itemset",
+                "description": "This API is used to list and retrieve all itemsets from the Item repository based on the given search creteria in the request body",
+                "tags": [
+                    "itemset"
+                ],
+                "operationId": "ekstep.learning.itemset.list",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemsetListRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/listitemsetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "itemsets listed Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/itemsetlistResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching all itemset lists! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching all itemset lists! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/itemsets/generate/{itemsetId}": {
+            "get": {
+                "summary": " Generates an itemset",
+                "description": "This API is used to generate an itemset from itemset Repository of EkStep Platform. This endpoint returns the entire itemset Object with default fields. ",
+                "tags": [
+                    "itemset"
+                ],
+                "operationId": "ekstep.learning.itemset.generate",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "itemsetId",
+                        "in": "path",
+                        "required": true,
+                        "description": "itemsetId",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "itemset generated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/generateitemsetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While generating the itemset! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While generating the itemset! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        }
+    },
+    "definitions": {
+        "searchAssessmentRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/searchObject"
+                }
+            }
+        },
+        "listAssessmentRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/searchObject"
+                }
+            }
+        },
+        "updateAssessmentRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/createAssessmentObject"
+                }
+            }
+        },
+        "creatitemsetRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/createItemWithMembersObject"
+                }
+            }
+        },
+        "updateitemsetRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/updateitemsetWithMembers"
+                }
+            }
+        },
+        "searchitemsetRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/searchitemsetObject"
+                }
+            }
+        },
+        "listitemsetRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/searchitemsetObject"
+                }
+            }
+        },
+        "createAssessmentRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/createAssessmentObject"
+                }
+            }
+        },
+        "createAssessmentObject": {
+            "type": "object",
+            "title": "Create Assessment Request",
+            "allOf": [
+                {
+                    "description": "select any one request body to create/update AssessmentItem"
+                },
+                {
+                    "$ref": "#/definitions/createMcqObject"
+                },
+                {
+                    "$ref": "#/definitions/createMtfObject"
+                },
+                {
+                    "$ref": "#/definitions/createFtbObject"
+                }
+            ]
+        },
+        "createMcqObject": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/mcqMetadataObject"
+                },
+                "outRelations": {
+                    "$ref": "#/definitions/outRelations"
+                }
+            }
+        },
+        "createFtbObject": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/ftbMetadataObject"
+                },
+                "outRelations": {
+                    "$ref": "#/definitions/outRelations"
+                }
+            }
+        },
+        "createMtfObject": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/mtfMetadataObject"
+                }
+            }
+        },
+        "mcqMetadataObject": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/assessmentItemMetadata"
+                },
+                {
+                    "$ref": "#/definitions/values"
+                },
+                {
+                    "$ref": "#/definitions/response"
+                },
+                {
+                    "$ref": "#/definitions/model"
+                }
+            ]
+        },
+        "ftbMetadataObject": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/assessmentItemMetadata"
+                },
+                {
+                    "$ref": "#/definitions/answers"
+                },
+                {
+                    "$ref": "#/definitions/model"
+                }
+            ]
+        },
+        "mtfMetadataObject": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/assessmentItemMetadata"
+                },
+                {
+                    "$ref": "#/definitions/model"
+                },
+                {
+                    "$ref": "#/definitions/lhs_options"
+                },
+                {
+                    "$ref": "#/definitions/rhs_options"
+                }
+            ]
+        },
+        "getAssessmentItemResponse": {
+            "title": "get Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/assessmentItemMetadata"
+                }
+            }
+        },
+        "searchAssessmentItemResponse": {
+            "title": "search Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/assessmentItemMetadata"
+                    }
+                }
+            }
+        },
+        "listAssessmentItemResponse": {
+            "title": "search Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/assessmentItemMetadata"
+                    }
+                }
+            }
+        },
+        "assessmentDeleteResponse": {
+            "title": "Delete Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/result"
+                }
+            }
+        },
+        "assessmentUpdateResponse": {
+            "title": "Update Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/NodeId"
+                }
+            }
+        },
+        "assessmentCreateResponse": {
+            "title": "Create Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/NodeId"
+                }
+            }
+        },
+        "itemsetDeleteResponse": {
+            "title": "Delete Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/result"
+                }
+            }
+        },
+        "itemsetCreateResponse": {
+            "title": "Create Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/SetId"
+                }
+            }
+        },
+        "itemsetUpdateResponse": {
+            "title": "Update Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/SetId"
+                }
+            }
+        },
+        "itemsetgetResponse": {
+            "title": "Get Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "$ref": "#/definitions/assessment_item_set"
+                }
+            }
+        },
+        "itemsetSearchResponse": {
+            "title": "Get Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/assessment_item_set"
+                    }
+                }
+            }
+        },
+        "itemsetlistResponse": {
+            "title": "Get Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/assessment_item_set"
+                    }
+                }
+            }
+        },
+        "createItemWithMembersObject": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/createItemObject"
+                }
+            }
+        },
+        "createItemObject": {
+            "type": "object",
+            "title": "creates itemset",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/assessment_item_set"
+                },
+                {
+                    "properties": {
+                        "memberIds": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/members"
+                            }
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/outRelations"
+                }
+            ]
+        },
+        "updateitemsetWithMembers": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/updateitemsetObject"
+                }
+            }
+        },
+        "updateitemsetObject": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/assessment_item_set"
+                },
+                {
+                    "$ref": "#/definitions/members"
+                },
+                {
+                    "$ref": "#/definitions/outRelations"
+                }
+            ]
+        },
+        "members": {
+            "properties": {
+                "membersIds": {
+                    "type": "string",
+                    "description": "list of memberIds"
+                }
+            }
+        },
+        "searchitemsetObject": {
+            "properties": {
+                "metadata": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/filters"
+                    }
+                }
+            }
+        },
+        "generateitemsetResponse": {
+            "title": "Generate Response",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "API response code"
+                },
+                "result": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/assessment_item_set"
+                        },
+                        {
+                            "$ref": "#/definitions/item_sets"
+                        }
+                    ]
+                }
+            }
+        },
+        "item_sets": {
+            "properties": {
+                "item_sets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/item_set"
+                    }
+                },
+                "items": {
+                    "type": "object",
+                    "description": "items"
+                }
+            }
+        },
+        "item_set": {
+            "properties": {
+                "count": {
+                    "type": "number",
+                    "description": "count"
+                },
+                "id": {
+                    "type": "string",
+                    "description": "id"
+                }
+            }
+        },
+        "assessment_item_set": {
+            "properties": {
+                "owner": {
+                    "type": "string",
+                    "description": "ownerName"
+                },
+                "difficulty_level": {
+                    "type": "string",
+                    "description": "defficulty_level"
+                },
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "code of assessmentItem"
+                },
+                "subject": {
+                    "type": "string",
+                    "description": "subject of assessmentItem"
+                },
+                "SET_OBJECT_TYPE_KEY": {
+                    "type": "string",
+                    "description": "set object type"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "description"
+                },
+                "language": {
+                    "type": "object",
+                    "description": "languages"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "assessmentItem type"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "title"
+                },
+                "createdOn": {
+                    "type": "string",
+                    "description": "creation date"
+                },
+                "totalItems": {
+                    "type": "number",
+                    "description": "total number of items"
+                },
+                "gradeLevel": {
+                    "type": "object",
+                    "description": "gradeLevel"
+                },
+                "maxScore": {
+                    "type": "object",
+                    "description": "maxScore"
+                },
+                "lastUpdatedOn": {
+                    "type": "string",
+                    "description": "last updated date"
+                },
+                "usedFor": {
+                    "type": "string",
+                    "description": "where the itemset is used For"
+                },
+                "SET_TYPE": {
+                    "type": "string",
+                    "description": "Item Set Type"
+                }
+            }
+        },
+        "assessmentItemMetadata": {
+            "title": "assessmentItem",
+            "properties": {
+                "template": {
+                    "type": "string",
+                    "description": "type of template"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "code of assessmentItem"
+                },
+                "keywords": {
+                    "type": "object"
+                },
+                "subject": {
+                    "type": "string",
+                    "description": "subject of assessmentItem"
+                },
+                "qlevel": {
+                    "type": "string",
+                    "description": "qlevel of assessmentItem"
+                },
+                "portalOwner": {
+                    "type": "string",
+                    "description": "ownerName"
+                },
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "language": {
+                    "type": "object"
+                },
+                "partial_scoring": {
+                    "type": "string",
+                    "description": "scores"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "assessmentItem type"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "title"
+                },
+                "usedIn": {
+                    "type": "string",
+                    "description": "where the assessment is used used"
+                },
+                "createdOn": {
+                    "type": "string",
+                    "description": "date of creation"
+                },
+                "gradeLevel": {
+                    "type": "object"
+                },
+                "conceptIds": {
+                    "type": "object"
+                },
+                "question": {
+                    "type": "string",
+                    "description": "qid"
+                },
+                "options": {
+                    "$ref": "#/definitions/values"
+                },
+                "concepts": {
+                    "$ref": "#/definitions/concepts"
+                },
+                "rownum": {
+                    "type": "number",
+                    "description": "rownum"
+                },
+                "maxScore": {
+                    "type": "object"
+                },
+                "domain": {
+                    "type": "string",
+                    "description": "domain"
+                },
+                "num_answers": {
+                    "type": "number",
+                    "description": "number of answers"
+                },
+                "template_Id": {
+                    "type": "string",
+                    "description": "template Id"
+                },
+                "usedFor": {
+                    "type": "string",
+                    "description": "where the itemset is used For"
+                },
+                "max_score": {
+                    "type": "number",
+                    "description": "maximum score"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "name"
+                },
+                "lastUpdatedOn": {
+                    "type": "string",
+                    "description": "last updated date"
+                }
+            }
+        },
+        "response": {
+            "properties": {
+                "values": {
+                    "type": "object",
+                    "description": "values"
+                },
+                "score": {
+                    "type": "number",
+                    "description": "score"
+                }
+            }
+        },
+        "answers": {
+            "properties": {
+                "value": {
+                    "type": "string",
+                    "description": "values"
+                },
+                "score": {
+                    "type": "string",
+                    "description": "scores"
+                }
+            }
+        },
+        "model": {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": "type"
+                },
+                "asset": {
+                    "type": "string",
+                    "description": "asset"
+                }
+            }
+        },
+        "lhs_options": {
+            "properties": {
+                "index": {
+                    "type": "number",
+                    "description": "index"
+                },
+                "Options": {
+                    "$ref": "#/definitions/values"
+                }
+            }
+        },
+        "rhs_options": {
+            "allOf": [
+                {
+                    "properties": {
+                        "index": {
+                            "type": "number",
+                            "description": "index"
+                        }
+                    }
+                },
+                {
+                    "$ref": "#/definitions/values"
+                }
+            ]
+        },
+        "values": {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": ""
+                },
+                "asset": {
+                    "type": "string",
+                    "description": ""
+                },
+                "font": {
+                    "type": "string",
+                    "description": ""
+                },
+                "color": {
+                    "type": "string",
+                    "description": ""
+                }
+            }
+        },
+        "concepts": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "Identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "name"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "description"
+                },
+                "relation": {
+                    "type": "string",
+                    "description": "relationType"
+                },
+                "index": {
+                    "type": "string",
+                    "description": "index"
+                }
+            }
+        },
+        "searchObject": {
+            "properties": {
+                "metadata": {
+                    "$ref": "#/definitions/searchMetadata"
+                }
+            }
+        },
+        "searchMetadata": {
+            "properties": {
+                "filter": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/filters"
+                    }
+                },
+                "sortOrder": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/sortOrder"
+                    }
+                },
+                "resultSize": {
+                    "type": "number",
+                    "description": "resultSize"
+                },
+                "startPosition": {
+                    "type": "number",
+                    "description": "startPosition"
+                }
+            }
+        },
+        "filters": {
+            "title": "filters",
+            "properties": {
+                "property": {
+                    "type": "string",
+                    "description": ""
+                },
+                "operator": {
+                    "type": "string",
+                    "description": ""
+                },
+                "value": {
+                    "type": "string",
+                    "description": ""
+                },
+                "relations": {
+                    "type": "string",
+                    "description": ""
+                }
+            }
+        },
+        "ResponseParams": {
+            "title": "Response Parameter",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        },
+        "RequestParams": {
+            "type": "object",
+            "required": [
+                "msgid"
+            ],
+            "properties": {
+                "msgid": {
+                    "type": "string"
+                }
+            },
+            "title": "Params"
+        },
+        "FailedResponseHeader": {
+            "title": "Failure Response",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "$ref": "#/definitions/FailedResponseParams"
+                },
+                "responseCode": {
+                    "type": "string",
+                    "description": "responseCode"
+                }
+            }
+        },
+        "FailedResponseParams": {
+            "title": "Failed Response Parameter",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        },
+        "outRelations": {
+            "properties": {
+                "endNodeId": {
+                    "type": "string",
+                    "description": ""
+                },
+                "relationType": {
+                    "type": "string",
+                    "description": ""
+                }
+            }
+        },
+        "result": {
+            "properties": {}
+        },
+        "sortOrder": {
+            "title": "sortOrder",
+            "properties": {
+                "sortFields": {
+                    "type": "string",
+                    "description": "field to be sorted"
+                },
+                "sortOrder": {
+                    "type": "string",
+                    "description": "sort order"
+                }
+            }
+        },
+        "NodeId": {
+            "title": "Node Id",
+            "type": "object",
+            "properties": {
+                "node_id": {
+                    "type": "string",
+                    "description": "Node Identifier"
+                }
+            }
+        },
+        "SetId": {
+            "title": "Set Id",
+            "type": "object",
+            "properties": {
+                "set_id": {
+                    "type": "string",
+                    "description": "Set Identifier"
+                }
+            }
+        }
+    }
+}

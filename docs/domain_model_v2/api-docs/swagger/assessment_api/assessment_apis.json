@@ -39,7 +39,7 @@
         "tags": [
           "AssessmentItem"
         ],
-        "operationId": "assessment_item.search",
+        "operationId": "ekstep.learning.item.search",
         "produces": [
           "application/json"
         ],
@@ -84,7 +84,7 @@
         "tags": [
           "AssessmentItem"
         ],
-        "operationId": "assessment_item.create",
+        "operationId": "ekstep.learning.item.create",
         "produces": [
           "application/json"
         ],
@@ -129,7 +129,7 @@
         "tags": [
           "AssessmentItem"
         ],
-        "operationId": "assessment_Item.find",
+        "operationId": "ekstep.learning.item.read",
         "produces": [
           "application/json"
         ],
@@ -172,7 +172,7 @@
         "tags": [
           "AssessmentItem"
         ],
-        "operationId": "assessment_item.delete",
+        "operationId": "ekstep.learning.item.retire",
         "produces": [
           "application/json"
         ],
@@ -214,7 +214,7 @@
         "tags": [
           "AssessmentItem"
         ],
-        "operationId": "assessment_item.patch",
+        "operationId": "ekstep.learning.item.update",
         "produces": [
           "application/json"
         ],
@@ -264,7 +264,7 @@
         "tags": [
           "AssessmentItem"
         ],
-        "operationId": "assessment_Item.list",
+        "operationId": "ekstep.learning.item.list",
         "produces": [
           "application/json"
         ],
@@ -309,7 +309,7 @@
         "tags": [
           "itemset"
         ],
-        "operationId": "itemset.create",
+        "operationId": "ekstep.learning.itemset.create",
         "produces": [
           "application/json"
         ],
@@ -353,7 +353,7 @@
         "tags": [
           "itemset"
         ],
-        "operationId": "itemset.find",
+        "operationId": "ekstep.learning.itemset.read",
         "produces": [
           "application/json"
         ],
@@ -396,7 +396,7 @@
         "tags": [
           "itemset"
         ],
-        "operationId": "itemset.delete",
+        "operationId": "ekstep.learning.itemset.retire",
         "produces": [
           "application/json"
         ],
@@ -438,7 +438,7 @@
         "tags": [
           "itemset"
         ],
-        "operationId": "itemset.patch",
+        "operationId": "ekstep.learning.itemset.update",
         "produces": [
           "application/json"
         ],
@@ -488,7 +488,7 @@
         "tags": [
           "itemset"
         ],
-        "operationId": "itemset.search",
+        "operationId": "ekstep.learning.itemset.search",
         "produces": [
           "application/json"
         ],
@@ -532,7 +532,7 @@
         "tags": [
           "itemset"
         ],
-        "operationId": "itemset.list",
+        "operationId": "ekstep.learning.itemset.list",
         "produces": [
           "application/json"
         ],
@@ -576,7 +576,7 @@
         "tags": [
           "itemset"
         ],
-        "operationId": "itemset.generate",
+        "operationId": "ekstep.learning.itemset.generate",
         "produces": [
           "application/json"
         ],
