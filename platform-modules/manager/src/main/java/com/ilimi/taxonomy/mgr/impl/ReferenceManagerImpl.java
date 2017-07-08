@@ -13,6 +13,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -22,7 +23,7 @@ import com.ilimi.taxonomy.mgr.IReferenceManager;
 @Component
 public class ReferenceManagerImpl extends BaseManager implements IReferenceManager {
 
-    private static ILogger LOGGER = new PlatformLogger(ReferenceManagerImpl.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
     
     private static final String s3Content = "s3.content.folder";
     private static final String s3Artifacts = "s3.artifact.folder";

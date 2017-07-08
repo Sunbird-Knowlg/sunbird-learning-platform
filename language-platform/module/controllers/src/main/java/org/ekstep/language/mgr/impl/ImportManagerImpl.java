@@ -84,7 +84,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(IImportManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Gets the word list.

@@ -16,13 +16,14 @@ import org.ekstep.content.util.PropertiesUtil;
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 @Deprecated
 @CoverageIgnore
 public class Content2VecUtil {
 
-	private static ILogger LOGGER = new PlatformLogger(Content2VecUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static ObjectMapper mapper = new ObjectMapper();
 	
 	@CoverageIgnore

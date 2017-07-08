@@ -23,7 +23,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class WordChainUtil {
 
 	/** The LOGGER. */
-	private static ILogger LOGGER = new PlatformLogger(WordChainUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();

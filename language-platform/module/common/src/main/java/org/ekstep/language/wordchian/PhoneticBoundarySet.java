@@ -22,7 +22,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class PhoneticBoundarySet extends BaseWordSet {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(PhoneticBoundarySet.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The starts with akshara. */
 	private String startsWithAkshara;

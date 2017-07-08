@@ -36,7 +36,7 @@ public class BatchController extends BaseLanguageController {
 	@Autowired
 	private IWordnetCSVManager wordnetCSVManager;
 
-	private static ILogger LOGGER = new PlatformLogger(BatchController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Correct wordnet data.
@@ -51,7 +51,7 @@ public class BatchController extends BaseLanguageController {
 		String apiId = "language.correctWordnetData";
 		try {
 			Response response = batchManager.correctWordnetData(languageId);
-			LOGGER.log("correctWordnetData | Response: " , response, "INFO");
+			LOGGER.log("correctWordnetData | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("correctWordnetData | Exception: " , e.getMessage(), e);

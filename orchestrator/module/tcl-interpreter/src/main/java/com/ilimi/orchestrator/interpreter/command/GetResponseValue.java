@@ -14,7 +14,7 @@ import tcl.pkg.java.ReflectObject;
 
 public class GetResponseValue implements ICommand, Command {
 	
-	private static ILogger LOGGER = new PlatformLogger(GetResponseValue.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Override
 	public String getCommandName() {

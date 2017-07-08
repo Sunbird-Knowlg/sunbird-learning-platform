@@ -23,7 +23,7 @@ public class SynsetControllerV3 extends BaseLanguageController {
 	@Autowired
 	private IDictionaryManager dictionaryManager;
 	
-	private static ILogger LOGGER = new PlatformLogger(SynsetControllerV3.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@RequestMapping(value = "/read/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody

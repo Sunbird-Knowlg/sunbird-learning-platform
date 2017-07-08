@@ -31,7 +31,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class IndicWordUtil extends BaseManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(IndicWordUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The language id. */
 	private String languageId;

@@ -16,6 +16,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.mgr.IAwsUrlUpdateManager;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -32,7 +33,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class AwsUrlUpdateController extends BaseController {
 
 	/** The Class Logger. */
-	private static ILogger LOGGER = new PlatformLogger(AwsUrlUpdateController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Autowired
 	private IAwsUrlUpdateManager awsUrlUpdateManager;

@@ -19,12 +19,13 @@ import org.ekstep.content.util.PropertiesUtil;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class AssetsValidatorProcessor extends AbstractProcessor {
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(AssetCreatorProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public AssetsValidatorProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))

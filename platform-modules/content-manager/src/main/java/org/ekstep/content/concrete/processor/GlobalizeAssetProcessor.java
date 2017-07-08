@@ -28,6 +28,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -47,7 +48,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class GlobalizeAssetProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(GlobalizeAssetProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	private static final String s3Content = "s3.content.folder";
     private static final String s3Assets = "s3.asset.folder";

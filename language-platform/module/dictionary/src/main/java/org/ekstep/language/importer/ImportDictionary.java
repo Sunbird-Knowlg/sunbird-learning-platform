@@ -29,7 +29,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class ImportDictionary {
 
-	private static ILogger LOGGER = new PlatformLogger(ImportDictionary.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	private static final String CSV_SEPARATOR = ",";
 

@@ -18,6 +18,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 import akka.actor.ActorRef;
@@ -32,7 +33,7 @@ import scala.concurrent.Future;
 
 public class SearchRequestRouter extends UntypedActor{
 
-    private static ILogger LOGGER = new PlatformLogger(SearchRequestRouter.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
     protected long timeout = 30000;
     
 	@Override
@@ -89,7 +90,7 @@ public class SearchRequestRouter extends UntypedActor{
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
                 LOGGER.log(
-                        request.getManagerName()  , request.getOperation() + ", SUCCESS, " + params.toString(), "INFO");
+                        request.getManagerName()  , request.getOperation() + ", SUCCESS, " + params.toString());
             }
         }, getContext().dispatcher());
 

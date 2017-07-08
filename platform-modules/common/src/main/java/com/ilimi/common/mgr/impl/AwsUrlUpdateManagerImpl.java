@@ -26,6 +26,7 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.common.mgr.IAwsUrlUpdateManager;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 
@@ -49,7 +50,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 	protected static final String URL_String = "url";
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(AwsUrlUpdateManagerImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@SuppressWarnings("unchecked")
 	public Response updateNodesWithUrl(String objectType, String graphId, String apiId)

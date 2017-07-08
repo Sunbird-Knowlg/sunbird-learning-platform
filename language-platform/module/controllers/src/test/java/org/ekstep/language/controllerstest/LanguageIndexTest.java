@@ -55,7 +55,7 @@ public class LanguageIndexTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = new PlatformLogger(SSFParser.class
+	private static ILogger LOGGER = PlatformLogManager.getLogger()
 			.getName());
 	//private static String TEST_LANGUAGE = "testone";
 //	private static String TEST_LOAD_LANGUAGE = "testoneload";

@@ -28,7 +28,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class LanguageDataSyncController extends BaseController {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(LanguageDataSyncController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The composite search manager. */
 	@Autowired

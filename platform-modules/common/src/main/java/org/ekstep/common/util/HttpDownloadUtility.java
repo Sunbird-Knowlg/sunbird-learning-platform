@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.ekstep.common.slugs.Slug;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -23,7 +24,7 @@ import com.ilimi.common.util.PlatformLogger;
  */
 public class HttpDownloadUtility {
 
-	private static ILogger LOGGER = new PlatformLogger(HttpDownloadUtility.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	private static final int BUFFER_SIZE = 4096;
 

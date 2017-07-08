@@ -28,6 +28,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -39,7 +40,7 @@ import com.ilimi.graph.dac.model.Node;
 public class ContentPackageExtractionUtil {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ContentPackageExtractionUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Constant AWS_UPLOAD_RESULT_URL_INDEX. */
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;

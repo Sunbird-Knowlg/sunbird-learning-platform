@@ -37,7 +37,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 	private WordControllerV2 wordController;
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(DictionaryController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Uploads a media and returns the Amazon s3 URL

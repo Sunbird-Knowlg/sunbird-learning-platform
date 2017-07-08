@@ -45,7 +45,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class ParserManagerImpl extends BaseLanguageManager implements IParserManager, IWordnetConstants {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ParserManagerImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The object type. */
 	private String objectType = "Word";

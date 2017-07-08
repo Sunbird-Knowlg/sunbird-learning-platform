@@ -7,11 +7,12 @@ import java.util.TimerTask;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class DefinitionSyncScheduler {
 	
-	private static ILogger LOGGER = new PlatformLogger(DefinitionSyncScheduler.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public static void init() {
 		Timer time = new Timer(); // Instantiate Timer Object
@@ -23,7 +24,7 @@ public class DefinitionSyncScheduler {
 
 class ScheduledTask extends TimerTask {
 
-	private static ILogger LOGGER = new PlatformLogger(DefinitionSyncScheduler.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	@SuppressWarnings("rawtypes")
 	public void run() {
@@ -32,7 +33,7 @@ class ScheduledTask extends TimerTask {
 			if (null != map && !map.isEmpty()) {
 				String graphId = "domain";
 				for (String objectType : map.keySet()) {
-					LOGGER.log("Syncing definition : " , objectType,"INFO");
+					LOGGER.log("Syncing definition : " , objectType);
 					ObjectDefinitionCache.resyncDefinition(objectType, graphId);
 				}
 			}

@@ -10,11 +10,12 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class TelemetryAccessEventUtil {
 
-	private static ILogger LOGGER = new PlatformLogger(TelemetryAccessEventUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public static void writeTelemetryEventLog(Map<String, Object> data) {

@@ -13,6 +13,7 @@ import org.ekstep.searchindex.enums.ConsumerWorkflowEnums;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -30,7 +31,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 	/** The LOGGER */
-	private static ILogger LOGGER = new PlatformLogger(ObjectLifecycleMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The ObjectMapper */
 	private ObjectMapper mapper = new ObjectMapper();

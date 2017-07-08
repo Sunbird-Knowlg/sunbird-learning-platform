@@ -38,7 +38,7 @@ import scala.concurrent.Future;
 public class LearningRequestRouter extends UntypedActor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(LearningRequestRouter.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static final String ekstep = "org.ekstep.";
 	private static final String ilimi = "com.ilimi.";
 	private static final String java = "java.";
@@ -121,7 +121,7 @@ public class LearningRequestRouter extends UntypedActor {
 				Response res = (Response) arg0;
 				ResponseParams params = res.getParams();
 				LOGGER.log(
-						request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString(), "INFO");
+						request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString());
 			}
 		}, getContext().dispatcher());
 

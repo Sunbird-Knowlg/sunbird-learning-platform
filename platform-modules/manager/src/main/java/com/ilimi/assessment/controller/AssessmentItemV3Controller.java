@@ -23,6 +23,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -37,7 +38,7 @@ import com.ilimi.graph.model.node.MetadataDefinition;
 @RequestMapping("/v3/assessment/assessmentitems")
 public class AssessmentItemV3Controller extends BaseController {
 
-    private static ILogger LOGGER = new PlatformLogger(AssessmentItemV3Controller.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     @Autowired
     private IAssessmentManager assessmentManager;

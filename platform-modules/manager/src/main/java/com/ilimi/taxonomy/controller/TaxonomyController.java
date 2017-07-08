@@ -26,6 +26,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -38,7 +39,7 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @RequestMapping("/taxonomy")
 public class TaxonomyController extends BaseController {
 
-	private static ILogger LOGGER = new PlatformLogger(TaxonomyController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Autowired
 	private ITaxonomyManager taxonomyManager;

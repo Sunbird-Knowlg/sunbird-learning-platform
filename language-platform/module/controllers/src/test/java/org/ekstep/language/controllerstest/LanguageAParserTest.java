@@ -51,7 +51,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 //	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = new PlatformLogger(LanguageAParserTest.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	static {
 		LanguageRequestRouterPool.init();

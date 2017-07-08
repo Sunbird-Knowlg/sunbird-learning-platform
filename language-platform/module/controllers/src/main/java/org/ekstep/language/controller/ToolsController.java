@@ -28,7 +28,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class ToolsController extends BaseLanguageController {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ToolsController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Computes and returns the complexity measures of a word or a text.

@@ -33,7 +33,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	private IDictionaryManager dictionaryManager;
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(DictionaryControllerV3.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	/**
 	 * Finds and returns the word.

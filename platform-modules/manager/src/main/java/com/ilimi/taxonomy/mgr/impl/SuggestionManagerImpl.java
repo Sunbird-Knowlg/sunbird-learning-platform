@@ -27,6 +27,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -50,7 +51,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	private ControllerUtil util = new ControllerUtil();
 
 	/** The Class Logger. */
-	private static ILogger LOGGER = new PlatformLogger(SuggestionManagerImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The ElasticSearchUtil */
 	private static ElasticSearchUtil es = new ElasticSearchUtil();

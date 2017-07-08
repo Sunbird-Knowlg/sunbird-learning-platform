@@ -25,6 +25,7 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -37,7 +38,7 @@ import com.ilimi.common.util.PlatformLogger;
  */
 public class AWSUploader {
 
-	private static ILogger LOGGER = new PlatformLogger(AWSUploader.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	private static final String s3Bucket = "s3.bucket";
 	private static final String s3Environment = "s3.env";

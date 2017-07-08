@@ -20,6 +20,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -31,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
 public class BundleInitializer extends BaseInitializer {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(BundleInitializer.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The BasePath. */
 	protected String basePath;

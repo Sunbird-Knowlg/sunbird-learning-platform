@@ -34,7 +34,7 @@ public class SearchControllerV2 extends BaseController {
 	private IDictionaryManager dictionaryManager;
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ParserController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * List all words based on the filters and populates primary meanings and

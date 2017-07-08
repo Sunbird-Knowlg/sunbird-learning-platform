@@ -24,6 +24,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -36,7 +37,7 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @RequestMapping("/v3/system")
 public class GraphV3Controller extends BaseController {
 
-	private static ILogger LOGGER = new PlatformLogger(GraphV3Controller.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Autowired
 	private ITaxonomyManager taxonomyManager;

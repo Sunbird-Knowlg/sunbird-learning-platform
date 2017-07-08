@@ -22,6 +22,7 @@ import org.neo4j.driver.v1.Transaction;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -31,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
 
 public class Neo4JBoltDataVersionKeyValidator {
 
-	private static ILogger LOGGER = new PlatformLogger(Neo4JBoltDataVersionKeyValidator.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public boolean validateUpdateOperation(String graphId, Node node) {
 		LOGGER.log("Graph Engine Node: ", node);
@@ -146,7 +147,7 @@ public class Neo4JBoltDataVersionKeyValidator {
 	private Map<String, Object> getNeo4jNodeProperty(String graphId, String identifier) {
 		Map<String, Object> prop = null;
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.log("Driver Initialised. | [Graph Id: " + graphId + "]", identifier, "INFO");
+		LOGGER.log("Driver Initialised. | [Graph Id: " + graphId + "]", identifier);
 		try (Session session = driver.session()) {
 			try (Transaction tx = session.beginTransaction()) {
 				String query = "match (n:" + graphId + "{IL_UNIQUE_ID:'" + identifier + "'}) return (n) as result";

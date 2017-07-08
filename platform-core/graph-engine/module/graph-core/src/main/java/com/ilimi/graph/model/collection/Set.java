@@ -16,6 +16,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
@@ -65,7 +66,7 @@ public class Set extends AbstractCollection {
 	private List<Relation> outRelations;
 	private ObjectMapper mapper = new ObjectMapper();
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(Set.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public static enum SET_TYPES {
 		MATERIALISED_SET, CRITERIA_SET;
@@ -819,7 +820,7 @@ public class Set extends AbstractCollection {
 			final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
 			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			LOGGER.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: " , newRels.size(), "INFO");
+			LOGGER.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: " , newRels.size());
 			for (Entry<String, List<String>> entry : newRels.entrySet()) {
 				if (out) {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
@@ -851,7 +852,7 @@ public class Set extends AbstractCollection {
 	private void deleteRelations(Request req, Map<String, List<String>> delRels, boolean out) {
 		final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		if (null != delRels && delRels.size() > 0) {
-			LOGGER.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: " , delRels.size(), "INFO");
+			LOGGER.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: " , delRels.size());
 			Request request = new Request(req);
 			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			for (Entry<String, List<String>> entry : delRels.entrySet()) {

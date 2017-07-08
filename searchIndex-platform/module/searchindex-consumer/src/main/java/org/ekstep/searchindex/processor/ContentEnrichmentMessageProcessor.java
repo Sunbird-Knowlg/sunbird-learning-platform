@@ -22,6 +22,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -50,7 +51,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	private static final String s3Artifact = "s3.artifact.folder";
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ContentEnrichmentMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The ObjectMapper */
 	private static ObjectMapper mapper = new ObjectMapper();

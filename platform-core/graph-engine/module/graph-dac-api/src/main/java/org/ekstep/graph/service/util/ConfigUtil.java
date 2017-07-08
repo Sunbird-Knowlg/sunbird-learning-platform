@@ -10,16 +10,17 @@ import org.neo4j.driver.v1.Config.EncryptionLevel;
 import org.neo4j.driver.v1.Config.TrustStrategy;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class ConfigUtil {
 
-	private static ILogger LOGGER = new PlatformLogger(ConfigUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public static Config getConfig() {
 		ConfigBuilder config = Config.build();
 		
-		LOGGER.log("Fetching the Configuration for Neo4J Bolt.", config, "INFO");
+		LOGGER.log("Fetching the Configuration for Neo4J Bolt.", config);
 
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED))
 			config.withEncryptionLevel(EncryptionLevel.NONE);

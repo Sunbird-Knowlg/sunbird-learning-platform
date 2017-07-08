@@ -91,7 +91,7 @@ import net.sf.json.util.JSONStringer;
 public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = new PlatformLogger(WordUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static final String LEMMA_PROPERTY = "lemma";
 	
 	/** The search util. */

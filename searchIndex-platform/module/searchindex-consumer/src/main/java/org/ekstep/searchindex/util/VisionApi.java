@@ -44,7 +44,7 @@ public class VisionApi {
 	private static final String APPLICATION_NAME = "Google-VisionSample/1.0";
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(VisionApi.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Vision */
 	private final Vision vision;

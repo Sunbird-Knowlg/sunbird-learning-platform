@@ -26,7 +26,7 @@ import tcl.pkg.java.ReflectObject;
 
 public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Command {
 
-	private static ILogger LOGGER = new PlatformLogger(ConvertGraphNode.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
     @Override
     public String getCommandName() {

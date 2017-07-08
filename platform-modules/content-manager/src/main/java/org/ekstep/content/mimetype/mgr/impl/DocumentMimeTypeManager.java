@@ -14,6 +14,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -29,7 +30,7 @@ import com.ilimi.graph.dac.model.Node;
 public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(DocumentMimeTypeManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/*
 	 * (non-Javadoc)

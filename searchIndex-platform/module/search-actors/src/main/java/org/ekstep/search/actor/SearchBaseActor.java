@@ -13,6 +13,7 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 
@@ -21,7 +22,7 @@ import akka.actor.UntypedActor;
 
 public abstract class SearchBaseActor extends UntypedActor {
 
-    private static ILogger LOGGER = new PlatformLogger(SearchBaseActor.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
     private static final String ekstep = "org.ekstep.";
     private static final String ilimi = "com.ilimi.";
     private static final String java = "java.";

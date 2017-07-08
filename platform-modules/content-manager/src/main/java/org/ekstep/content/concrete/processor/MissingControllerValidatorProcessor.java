@@ -15,6 +15,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -34,7 +35,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class MissingControllerValidatorProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(MissingControllerValidatorProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Instantiates a new missing controller validator processor.

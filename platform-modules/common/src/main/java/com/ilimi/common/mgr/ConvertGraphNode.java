@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.model.Node;
@@ -19,7 +20,7 @@ import com.ilimi.graph.model.node.RelationDefinition;
 
 public class ConvertGraphNode {
 	
-	private static ILogger LOGGER = new PlatformLogger(ConvertGraphNode.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     public static Map<String, Object> convertGraphNode(Node node, String domainId, DefinitionDTO definition,
             List<String> fieldList) {

@@ -20,6 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 import io.searchbox.client.JestClient;
@@ -48,7 +49,7 @@ import net.sf.json.util.JSONStringer;
 
 public class ElasticSearchUtil {
 
-	private static ILogger LOGGER = new PlatformLogger(ElasticSearchUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private JestClient client;
 	private String hostName;
 	private String port;
@@ -404,7 +405,7 @@ public class ElasticSearchUtil {
 
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String query) throws IOException {
-		LOGGER.log("getting query to search from ES" , query, "INFO");
+		LOGGER.log("getting query to search from ES" , query);
 		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);

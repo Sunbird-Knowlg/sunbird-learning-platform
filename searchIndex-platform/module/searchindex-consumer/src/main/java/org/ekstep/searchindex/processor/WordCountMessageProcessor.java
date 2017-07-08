@@ -24,7 +24,7 @@ import net.sf.json.util.JSONStringer;
 
 public class WordCountMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = new PlatformLogger(WordCountMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 	private Timer timer;

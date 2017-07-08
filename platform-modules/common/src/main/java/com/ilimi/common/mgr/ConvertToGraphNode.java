@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
@@ -22,7 +23,7 @@ public class ConvertToGraphNode {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	private static ILogger LOGGER = new  PlatformLogger(ConvertToGraphNode.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition, Node graphNode) throws Exception {

@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -30,7 +31,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class ApplicationContextUtils implements ApplicationContextAware {
 
-	private static ILogger logger = new PlatformLogger(ApplicationContextUtils.class.getName());
+	private static ILogger logger = PlatformLogManager.getLogger();
 	private static ApplicationContext ctx;
 	private static ApplicationContextUtils applicationContextUtils; 
 	private static Map<String, Object> globalObjects = new HashMap<String, Object>();

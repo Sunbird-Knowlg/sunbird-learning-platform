@@ -11,6 +11,7 @@ import org.ekstep.graph.service.operation.Neo4JEmbeddedSearchOperations;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
@@ -22,7 +23,7 @@ import com.ilimi.graph.importer.ImportData;
 
 public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 
-	private static ILogger LOGGER = new PlatformLogger(Neo4JEmbeddedImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	Neo4JEmbeddedGraphOperations graphOperations = new Neo4JEmbeddedGraphOperations();
 	Neo4JEmbeddedNodeOperations nodeOperations = new Neo4JEmbeddedNodeOperations();

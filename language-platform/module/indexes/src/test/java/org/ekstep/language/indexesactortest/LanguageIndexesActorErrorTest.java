@@ -31,7 +31,7 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 	//	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = new PlatformLogger(LanguageIndexesActorTest.class
+	private static ILogger LOGGER = PlatformLogManager.getLogger()
 			.getName());
 //	private static String TEST_LANGUAGE = "testindexactorerror";
 //	private static String TEST_LOAD_LANGUAGE = "testindexactorerrorload";

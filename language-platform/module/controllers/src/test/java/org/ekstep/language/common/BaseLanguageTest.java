@@ -28,7 +28,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class BaseLanguageTest {
 
-	private static ILogger LOGGER = new PlatformLogger(BaseLanguageTest.class
+	private static ILogger LOGGER = PlatformLogManager.getLogger()
 			.getName());
 	private static ObjectMapper mapper = new ObjectMapper();
 	protected static String TEST_LANGUAGE = "en";

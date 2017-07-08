@@ -53,7 +53,7 @@ public class LanguageIndexErrorTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = new PlatformLogger(SSFParser.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static String TEST_LANGUAGE = "testoneError";
 	private static String TEST_LOAD_LANGUAGE = "testoneloadError";
 

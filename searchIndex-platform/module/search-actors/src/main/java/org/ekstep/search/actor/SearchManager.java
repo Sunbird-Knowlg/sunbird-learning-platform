@@ -27,6 +27,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
@@ -34,7 +35,7 @@ import akka.actor.ActorRef;
 
 public class SearchManager extends SearchBaseActor {
 
-	private static ILogger LOGGER = new PlatformLogger(SearchManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@SuppressWarnings({ "unchecked" })
 	@Override

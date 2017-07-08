@@ -23,6 +23,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -34,7 +35,7 @@ import com.ilimi.graph.dac.model.Node;
 public class UploadInitializer extends BaseInitializer {
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(UploadInitializer.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	/** The Constant JSON_ECML_FILE_NAME. */
 	private static final String JSON_ECML_FILE_NAME = "index.json";

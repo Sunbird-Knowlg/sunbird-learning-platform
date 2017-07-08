@@ -26,7 +26,7 @@ public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = new PlatformLogger(SearchProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {

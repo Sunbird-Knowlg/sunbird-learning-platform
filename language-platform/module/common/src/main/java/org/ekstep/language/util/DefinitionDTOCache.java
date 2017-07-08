@@ -33,7 +33,7 @@ import scala.concurrent.Future;
 public class DefinitionDTOCache {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(DefinitionDTOCache.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Gets the definition DTO.

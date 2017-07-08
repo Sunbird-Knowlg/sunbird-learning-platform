@@ -20,7 +20,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class WordTranslationMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = new PlatformLogger(WordTranslationMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 

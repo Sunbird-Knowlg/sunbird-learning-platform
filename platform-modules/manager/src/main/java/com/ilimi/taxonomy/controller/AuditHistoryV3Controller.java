@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
@@ -32,7 +33,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryV3Controller extends BaseController {
 	
 	/** The Logger */
-	private static ILogger LOGGER = new PlatformLogger(AuditHistoryV3Controller.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	private String versionId = getAPIVersion();
 	

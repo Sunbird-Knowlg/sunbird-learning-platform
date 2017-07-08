@@ -31,7 +31,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class GradeComplexityCache extends BaseManager {
 
-	private static ILogger LOGGER = new PlatformLogger(GradeComplexityCache.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * The Map which stores GradeLevelComplexity nodes against the complexity in

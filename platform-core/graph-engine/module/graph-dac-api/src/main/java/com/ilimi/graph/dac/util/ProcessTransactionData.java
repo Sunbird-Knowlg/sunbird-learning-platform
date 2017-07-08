@@ -28,7 +28,7 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 
 public class ProcessTransactionData {
 
-	private static ILogger LOGGER = new PlatformLogger(ProcessTransactionData.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	protected String graphId;
 	protected GraphDatabaseService graphDb;
 

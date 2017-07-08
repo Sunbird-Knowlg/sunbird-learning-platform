@@ -33,7 +33,7 @@ public class LanguageMap {
 	private static InputStream input = null;
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(PropertiesUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	static {
 		String filename = "language-map.properties";

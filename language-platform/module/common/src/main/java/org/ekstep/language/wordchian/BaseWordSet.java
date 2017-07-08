@@ -108,7 +108,7 @@ public abstract class BaseWordSet extends BaseManager {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && nodes.size() > 0) {
 				node = nodes.get(0);
-				LOGGER.log("got  WordSet id " , node.getIdentifier(), "INFO");
+				LOGGER.log("got  WordSet id " , node.getIdentifier());
 				return node.getIdentifier();
 			}
 			LOGGER.log("WordSet is not found");
@@ -157,7 +157,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the collection id
 	 */
 	protected void addMemberToSet(String collectionId) {
-		LOGGER.log("adding word " + wordNode.getIdentifier() + "as member to wordSet " , collectionId, "INFO");
+		LOGGER.log("adding word " + wordNode.getIdentifier() + "as member to wordSet " , collectionId);
 
 		Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "addMember");
 
@@ -180,7 +180,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the relation type
 	 */
 	protected void createRelation(String startNodeId, String endNodeId, String relationType) {
-		LOGGER.log("createRelation " , relationType + " between sets " + startNodeId + " and " + endNodeId, "INFO");
+		LOGGER.log("createRelation " , relationType + " between sets " + startNodeId + " and " + endNodeId);
 
 		Request req = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
 		req.put(GraphDACParams.start_node_id.name(), startNodeId);
@@ -277,7 +277,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the set id
 	 */
 	protected void removeWordFromWordSet(String setId){
-		LOGGER.log("Deleting relation : " , setId + " --> " + wordNode.getIdentifier(), "INFO");
+		LOGGER.log("Deleting relation : " , setId + " --> " + wordNode.getIdentifier());
         Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
         setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);

@@ -23,7 +23,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class ControllerUtil extends BaseLearningManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ControllerUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	private static ObjectMapper mapper = new ObjectMapper();
 

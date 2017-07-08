@@ -46,7 +46,7 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = new PlatformLogger(LanguageIndexesActorTest.class
+	private static ILogger LOGGER = PlatformLogManager.getLogger()
 			.getName());
 //	private static String TEST_LANGUAGE = "test";
 //	private static String TEST_LOAD_LANGUAGE = "testload";

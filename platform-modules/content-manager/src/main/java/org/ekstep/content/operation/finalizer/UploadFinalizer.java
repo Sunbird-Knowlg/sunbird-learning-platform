@@ -15,6 +15,7 @@ import org.ekstep.content.util.ContentPackageExtractionUtil;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -27,7 +28,7 @@ import com.ilimi.graph.dac.model.Node;
 public class UploadFinalizer extends BaseFinalizer {
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(PublishFinalizer.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;

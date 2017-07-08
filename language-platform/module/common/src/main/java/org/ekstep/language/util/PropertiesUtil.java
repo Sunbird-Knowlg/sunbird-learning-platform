@@ -23,7 +23,7 @@ public class PropertiesUtil {
 	private static InputStream input = null;
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(PropertiesUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	//load language-indexes.properties by default
 	static {

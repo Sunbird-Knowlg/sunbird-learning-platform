@@ -20,6 +20,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import akka.actor.ActorRef;
@@ -44,7 +45,7 @@ import scala.concurrent.Future;
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ECMLMimeTypeMgrImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/*
 	 * (non-Javadoc)

@@ -37,7 +37,7 @@ import play.mvc.Results;
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
-	private static ILogger LOGGER = new PlatformLogger(BasePlaySearchManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static final String ekstep = "org.ekstep";
 	private static final String ilimi = "com.ilimi";
 	private static final String java = "java.";

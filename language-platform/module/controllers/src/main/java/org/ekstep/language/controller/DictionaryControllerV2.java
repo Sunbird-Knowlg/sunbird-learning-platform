@@ -47,7 +47,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	private IDictionaryManager dictionaryManager;
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(DictionaryControllerV2.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Upload.

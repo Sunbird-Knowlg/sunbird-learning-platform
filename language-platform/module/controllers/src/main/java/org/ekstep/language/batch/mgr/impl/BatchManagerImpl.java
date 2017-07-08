@@ -54,7 +54,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 	private WordChainUtil wordChainUtil = new WordChainUtil();
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(BatchManagerImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Constant BATCH. */
 	private static final int BATCH = 1000;

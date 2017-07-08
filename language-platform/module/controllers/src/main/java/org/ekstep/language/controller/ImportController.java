@@ -58,7 +58,7 @@ public class ImportController extends BaseLanguageController {
 	private WordUtil wordUtil = new WordUtil();
 	
 	/** The logger. */
-	private static  ILogger LOGGER = new PlatformLogger(ImportController.class.getName());
+	private static  ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Import wordnet data from JSON.

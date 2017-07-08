@@ -14,6 +14,7 @@ import org.ekstep.content.pipeline.BasePipeline;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -24,7 +25,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class InitializePipeline extends BasePipeline {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(InitializePipeline.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The basePath. */
 	protected String basePath;

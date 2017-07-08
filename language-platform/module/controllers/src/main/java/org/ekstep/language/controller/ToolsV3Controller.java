@@ -28,7 +28,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class ToolsV3Controller extends BaseLanguageController {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ToolsController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The parser manger. */
 	@Autowired

@@ -20,13 +20,14 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 @Controller
 @RequestMapping("/media")
 public class MediaController extends BaseController {
     
-    private static ILogger LOGGER = new PlatformLogger(MediaController.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
     
     private static final String s3Media = "s3.media.folder";
 

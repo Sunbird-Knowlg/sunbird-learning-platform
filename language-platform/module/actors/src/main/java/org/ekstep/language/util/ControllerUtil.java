@@ -52,7 +52,7 @@ import scala.concurrent.Future;
 public class ControllerUtil extends BaseLanguageManager implements IWordnetConstants {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ControllerUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The task refresh time in millis. */
 	private Long TASK_REFRESH_TIME_IN_MILLIS = 10000L;

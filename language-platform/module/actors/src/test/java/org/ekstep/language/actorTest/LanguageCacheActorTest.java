@@ -30,7 +30,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class LanguageCacheActorTest extends BaseLanguageTest {
 	
-	private static ILogger LOGGER = new PlatformLogger(LanguageCacheActorTest.class
+	private static ILogger LOGGER = PlatformLogManager.getLogger()
 			.getName());
 
 	static {

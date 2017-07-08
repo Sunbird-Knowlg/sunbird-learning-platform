@@ -24,7 +24,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class VarnaCache extends BaseManager {
 	
-	private static ILogger LOGGER = new PlatformLogger(VarnaCache.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	private final Map<String, List<Node>> varnaMap = new HashMap<String, List<Node>>();
 	private final Map<String, Map<String, String>> isoSymbolMap = new HashMap<String, Map<String, String>>();

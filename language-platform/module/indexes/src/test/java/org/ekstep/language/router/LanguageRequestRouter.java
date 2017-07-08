@@ -31,7 +31,7 @@ import scala.concurrent.Future;
 
 public class LanguageRequestRouter extends UntypedActor {
 
-    private static ILogger LOGGER = new PlatformLogger(LanguageRequestRouter.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     protected long timeout = 30000;
 
@@ -87,7 +87,7 @@ public class LanguageRequestRouter extends UntypedActor {
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
                 LOGGER.log(
-                        request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString(), "INFO");
+                        request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString());
             }
         }, getContext().dispatcher());
 

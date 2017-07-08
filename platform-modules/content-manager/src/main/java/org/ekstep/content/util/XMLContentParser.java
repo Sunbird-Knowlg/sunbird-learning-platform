@@ -39,6 +39,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 /**
  * The Class XMLContentParser is a utility 
  * used to parse Content to XML
@@ -47,7 +49,7 @@ import com.ilimi.common.exception.ClientException;
 public class XMLContentParser {
 	
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(XMLContentParser.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * parse the Content(XML)
@@ -374,9 +376,9 @@ public class XMLContentParser {
 				return output.substring(output.indexOf("?>") + 2); // remove <?xml version="1.0" encoding="UTF-8"?>
 			}
 		} catch (TransformerException e) {
-			LOGGER.error(ContentErrorMessageConstants.XML_TRANSFORMATION_ERROR, e);
+			LOGGER.log(ContentErrorMessageConstants.XML_TRANSFORMATION_ERROR, e);
 		} catch (IOException e) {
-			LOGGER.error(ContentErrorMessageConstants.STRING_WRITER_AUTO_CLOSE_ERROR, e);
+			LOGGER.log(ContentErrorMessageConstants.STRING_WRITER_AUTO_CLOSE_ERROR, e);
 		}
 		return node.getTextContent();
 	}

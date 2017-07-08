@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class LogTelemetryEventUtil {
 
-	private static ILogger LOGGER = new PlatformLogger(LogTelemetryEventUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
 	private static ObjectMapper mapper = new ObjectMapper();

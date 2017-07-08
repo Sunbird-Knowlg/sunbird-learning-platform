@@ -20,7 +20,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class RhymingSoundSet extends BaseWordSet {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(RhymingSoundSet.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The rhyming sound. */
 	private String rhymingSound;
