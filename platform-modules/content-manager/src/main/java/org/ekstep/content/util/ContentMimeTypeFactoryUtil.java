@@ -14,6 +14,8 @@ import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogger;;
 import com.ilimi.common.util.PlatformLogManager;
 
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;

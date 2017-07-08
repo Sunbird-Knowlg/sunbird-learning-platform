@@ -32,6 +32,9 @@ import org.codehaus.jackson.map.JsonMappingException;
 import com.google.gson.internal.LinkedTreeMap;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogger;;
+import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class ElasticSearchUtil acts as a tool and a wrapper to work with an

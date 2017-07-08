@@ -21,6 +21,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogger;;
 import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
