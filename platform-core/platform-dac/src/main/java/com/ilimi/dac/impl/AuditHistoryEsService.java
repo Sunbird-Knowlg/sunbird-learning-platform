@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.dac.BaseDataAccessService;
 import com.ilimi.dac.TransformationHelper;
@@ -52,7 +53,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 	private ObjectMapper objectMapper = null;
 
 	/** The Logger */
-	private static ILogger LOGGER = new PlatformLogger(AuditHistoryEsService.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	/** This is the init method for the AuditHistoryEsService */
 	public AuditHistoryEsService() {
@@ -84,7 +85,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		modelMapper.map(auditRecord, entity);
 		Map<String, Object> entity_map = objectMapper.convertValue(entity, Map.class);
 		try {
-			LOGGER.log("sending entity object to audit history dao" , entity_map, "INFO");
+			LOGGER.log("sending entity object to audit history dao" , entity_map);
 			dao.save(entity_map);
 		} catch (IOException e) {
 			LOGGER.log("exception while proceesing audit history entity map", e.getMessage(), e);
@@ -114,7 +115,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setSortBy(sortBy);
 		LOGGER.log("creating search criteria to fetch audit history from ES" , search);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
-		LOGGER.log("list of fields returned from search result" , auditHistoryLogEntities, "INFO");
+		LOGGER.log("list of fields returned from search result" , auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
@@ -141,7 +142,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setSortBy(sortBy);
 		LOGGER.log("setting search criteria to fetch audit records from ES" , search);
 		List<Object> auditHistoryLogEntities = (List<Object>) dao.search(search);
-		LOGGER.log("list of fields returned from ES based on search query" , auditHistoryLogEntities, "INFO");
+		LOGGER.log("list of fields returned from ES based on search query" , auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 
 	}
@@ -169,7 +170,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setSortBy(sortBy);
 		LOGGER.log("setting search criteria to fetch audit records from ES" , search);
 		List<Object> auditHistoryLogEntities = dao.search(search);
-		LOGGER.log("list of fields returned from ES based on search query" , auditHistoryLogEntities, "INFO");
+		LOGGER.log("list of fields returned from ES based on search query" , auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 
@@ -194,7 +195,7 @@ public class AuditHistoryEsService extends BaseDataAccessService implements IAud
 		search.setSortBy(sortBy);
 		LOGGER.log("setting search criteria to fetch audit records from ES" , search);
 		List<Object> auditHistoryLogEntities = dao.search(search);
-		LOGGER.log("list of fields returned from ES based on search query" , auditHistoryLogEntities, "INFO");
+		LOGGER.log("list of fields returned from ES based on search query" , auditHistoryLogEntities);
 		return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryLogEntities));
 	}
 	/*

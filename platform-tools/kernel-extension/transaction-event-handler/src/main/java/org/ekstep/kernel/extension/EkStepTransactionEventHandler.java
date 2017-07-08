@@ -12,7 +12,7 @@ import com.ilimi.graph.dac.util.ProcessTransactionData;
 @SuppressWarnings("rawtypes")
 public class EkStepTransactionEventHandler implements TransactionEventHandler {
 
-	private static ILogger LOGGER = new PlatformLogger(EkStepTransactionEventHandler.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public static HighlyAvailableGraphDatabase db;
 
@@ -23,9 +23,9 @@ public class EkStepTransactionEventHandler implements TransactionEventHandler {
 	@Override
 	public Void beforeCommit(TransactionData transactionData) throws Exception {
 		try {
-			LOGGER.log("Checking if the Current Instance is Master...." , db.isMaster(), "INFO");
+			LOGGER.log("Checking if the Current Instance is Master...." , db.isMaster());
 			if (db.isMaster()) {
-				LOGGER.log("Processing the Transaction as I am the Master." , db.role(), "INFO");
+				LOGGER.log("Processing the Transaction as I am the Master." , db.role());
 				ProcessTransactionData processTransactionData = new ProcessTransactionData(
 						"domain", db);
 				processTransactionData.processTxnData(transactionData);

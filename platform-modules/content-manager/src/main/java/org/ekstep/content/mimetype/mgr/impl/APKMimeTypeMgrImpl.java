@@ -12,6 +12,7 @@ import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -31,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
 public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/* Logger */
-	private static ILogger LOGGER = new PlatformLogger(APKMimeTypeMgrImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/*
 	 * (non-Javadoc)

@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -48,7 +49,7 @@ import com.ilimi.graph.dac.model.Node;
 public class BaseFinalizer extends BasePipeline {
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(BaseFinalizer.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;

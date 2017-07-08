@@ -30,7 +30,7 @@ import akka.actor.ActorRef;
 
 public class LexileMeasuresActor extends LanguageBaseActor {
 
-	private static ILogger LOGGER = new PlatformLogger(LexileMeasuresActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private WordUtil wordUtil = new WordUtil();
 	ObjectMapper mapper = new ObjectMapper();
 

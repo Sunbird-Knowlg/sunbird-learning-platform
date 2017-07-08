@@ -42,7 +42,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(IWordnetCSVManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/*
 	 * (non-Javadoc)

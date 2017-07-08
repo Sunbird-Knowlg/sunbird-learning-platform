@@ -34,7 +34,7 @@ public class ContentStoreUtil {
 	
 	
 	/** The Logger object. */
-	private static ILogger LOGGER = new PlatformLogger(ContentStoreUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public static void updateContentBody(String contentId, String body) {
 		updateContentProperty(contentId, "body", body);

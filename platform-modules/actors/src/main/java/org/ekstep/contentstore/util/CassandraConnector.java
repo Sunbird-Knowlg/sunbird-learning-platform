@@ -26,7 +26,7 @@ public class CassandraConnector {
 	private static Session session;
 
 	/** The Logger object. */
-	private static ILogger LOGGER = new PlatformLogger(CassandraConnector.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	static {
 		// Connect to Cassandra Cluster specified by provided node IP address

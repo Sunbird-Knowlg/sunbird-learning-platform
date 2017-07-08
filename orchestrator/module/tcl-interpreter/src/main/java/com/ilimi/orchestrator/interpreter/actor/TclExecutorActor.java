@@ -42,7 +42,7 @@ public class TclExecutorActor extends UntypedActor {
 
 	private Interp interpreter;
 	private ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = new PlatformLogger(TclExecutorActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 
 	public TclExecutorActor(List<OrchestratorScript> commands) {

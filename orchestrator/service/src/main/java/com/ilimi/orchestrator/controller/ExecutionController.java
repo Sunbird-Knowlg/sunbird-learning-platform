@@ -41,7 +41,7 @@ import com.ilimi.orchestrator.mgr.service.OrchestratorScriptMap;
 @RequestMapping("")
 public class ExecutionController extends BaseOrchestratorController {
 
-	private static ILogger LOGGER = new PlatformLogger(ExecutionController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Autowired
 	private IOrchestratorManager manager;

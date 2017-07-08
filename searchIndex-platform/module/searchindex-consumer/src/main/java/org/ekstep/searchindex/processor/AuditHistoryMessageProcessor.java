@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.graph.common.DateUtils;
@@ -29,7 +30,7 @@ import com.ilimi.util.ApplicationContextUtils;
 public class AuditHistoryMessageProcessor implements IMessageProcessor {
 
 	/** The LOGGER */
-	private static ILogger LOGGER = new PlatformLogger(AuditHistoryMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The ObjectMapper */
 	private ObjectMapper mapper = new ObjectMapper();

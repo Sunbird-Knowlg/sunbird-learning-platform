@@ -22,6 +22,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -35,7 +36,7 @@ import com.ilimi.graph.dac.model.Node;
 @RequestMapping("/v1/assessmentitemset")
 public class AssessmentItemSetController extends BaseController {
 
-    private static ILogger LOGGER = new PlatformLogger(AssessmentItemSetController.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     private static final String V2_GRAPH_ID = "domain";
 

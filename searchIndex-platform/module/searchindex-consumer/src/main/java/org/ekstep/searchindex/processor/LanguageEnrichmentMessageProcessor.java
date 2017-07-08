@@ -16,6 +16,7 @@ import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -31,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
 public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements IMessageProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(LanguageEnrichmentMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The ObjectMapper */
 	private static ObjectMapper mapper = new ObjectMapper();

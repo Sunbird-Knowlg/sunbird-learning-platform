@@ -25,6 +25,7 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 @Controller
@@ -34,7 +35,7 @@ public class ConfigController extends BaseController {
 	public static final String folderName = "resources";
 	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
 
-	private static ILogger LOGGER = new PlatformLogger(ConfigController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody

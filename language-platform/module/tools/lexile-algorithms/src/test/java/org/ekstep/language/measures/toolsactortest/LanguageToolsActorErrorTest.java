@@ -30,7 +30,7 @@ public class LanguageToolsActorErrorTest {
 	private static ObjectMapper mapper = new ObjectMapper();
 	static ElasticSearchUtil util;
 	private static String TEST_LANGUAGE = "hi";
-	private static ILogger LOGGER = new PlatformLogger(LanguageToolsActorTest.class
+	private static ILogger LOGGER = PlatformLogManager.getLogger()
 			.getName());
 
 	static {

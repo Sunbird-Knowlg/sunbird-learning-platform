@@ -31,7 +31,7 @@ import akka.actor.ActorRef;
 public class TransliteratorActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(TransliteratorActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();

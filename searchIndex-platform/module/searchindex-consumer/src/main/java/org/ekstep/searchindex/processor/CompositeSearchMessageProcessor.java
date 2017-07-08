@@ -14,11 +14,12 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = new PlatformLogger(CompositeSearchMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 

@@ -31,7 +31,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class ParserController extends BaseController {
 
     /** The logger. */
-    private static ILogger LOGGER = new PlatformLogger(SearchController.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     /** The parser manger. */
     @Autowired

@@ -20,7 +20,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class CompositeSearchUtil extends BaseSearchManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(CompositeSearchUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	/**
 	 * Search.

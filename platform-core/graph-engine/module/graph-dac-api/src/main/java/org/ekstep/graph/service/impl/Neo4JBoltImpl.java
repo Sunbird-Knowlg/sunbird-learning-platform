@@ -12,6 +12,7 @@ import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
@@ -23,7 +24,7 @@ import com.ilimi.graph.importer.ImportData;
 
 public class Neo4JBoltImpl implements IGraphDatabaseService {
 
-	private static ILogger LOGGER = new PlatformLogger(Neo4JBoltImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	Neo4JBoltGraphOperations graphOperations = new Neo4JBoltGraphOperations();
 	Neo4JBoltNodeOperations nodeOperations = new Neo4JBoltNodeOperations();

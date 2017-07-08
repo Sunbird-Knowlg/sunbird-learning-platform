@@ -25,6 +25,7 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -35,7 +36,7 @@ import com.ilimi.graph.dac.model.Node;
 public class ContentValidator {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ContentValidator.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Constant DEF_CONTENT_PACKAGE_MIME_TYPE. */
 	private static final String DEF_CONTENT_PACKAGE_MIME_TYPE = "application/zip";

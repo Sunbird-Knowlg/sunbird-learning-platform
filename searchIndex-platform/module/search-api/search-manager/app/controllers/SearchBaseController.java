@@ -18,7 +18,7 @@ public class SearchBaseController extends Controller {
 
 	private static final String API_ID_PREFIX = "ekstep";
 	protected ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = new PlatformLogger(SearchBaseController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	protected String getAPIId(String apiId) {
 		return API_ID_PREFIX + "." + apiId;

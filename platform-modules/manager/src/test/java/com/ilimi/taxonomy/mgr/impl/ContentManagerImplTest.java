@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
@@ -36,7 +37,7 @@ public class ContentManagerImplTest {
 	private WebApplicationContext context;
 	//private ContentManagerImpl contentManager = new ContentManagerImpl();
 	private ResultActions actions;
-	private static ILogger LOGGER = new PlatformLogger(IContentManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static String contentId = "";
 	private static String TAXONOMY_ID = "numeracy";
 	private static String OBJECT_TYPE = "Story";

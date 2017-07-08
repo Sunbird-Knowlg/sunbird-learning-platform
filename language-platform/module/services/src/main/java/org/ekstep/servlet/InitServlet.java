@@ -14,13 +14,13 @@ public class InitServlet extends HttpServlet {
 
 private static final long serialVersionUID = 8162107839763607722L;
     
-    private static ILogger LOGGER = new PlatformLogger(InitServlet.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
     
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         // Initialising Request Router Pool
-        LOGGER.log("Initialising Language Request Router Pool", config, "INFO");
+        LOGGER.log("Initialising Language Request Router Pool", config);
         LanguageRequestRouterPool.init();
         SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());
     }

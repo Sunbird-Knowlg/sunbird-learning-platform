@@ -17,6 +17,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
@@ -25,7 +26,7 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @RequestMapping("/v2/domains")
 public class DomainV2Controller extends BaseController {
 
-    private static ILogger LOGGER = new PlatformLogger(DomainV2Controller.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     @Autowired
     private ITaxonomyManager taxonomyManager;

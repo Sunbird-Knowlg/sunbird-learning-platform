@@ -47,6 +47,7 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -71,7 +72,7 @@ import scala.concurrent.Future;
 public class BasePipeline extends BaseManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(BasePipeline.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");

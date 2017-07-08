@@ -39,7 +39,7 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
 public class Neo4jGraphFactory {
 	
-	private static ILogger LOGGER = new PlatformLogger(Neo4jGraphFactory.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	private static List<String> restrictedGraphList = new ArrayList<String>();
 

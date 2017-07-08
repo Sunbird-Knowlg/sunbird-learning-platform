@@ -22,7 +22,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
-	private static ILogger LOGGER = new PlatformLogger(ResponseFilter.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -40,7 +40,7 @@ public class ResponseFilter implements Filter {
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
 			LOGGER.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap(), "INFO");
+			+ " | Params: " + request.getParameterMap());
 			
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
@@ -50,7 +50,7 @@ public class ResponseFilter implements Filter {
 			response.getOutputStream().write(responseWrapper.getData());
 		} else {
 			LOGGER.log("Path: " + httpRequest.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
-			+ " | Params: " + request.getParameterMap(), "INFO");
+			+ " | Params: " + request.getParameterMap());
 			chain.doFilter(request, response);
 		}
 	}

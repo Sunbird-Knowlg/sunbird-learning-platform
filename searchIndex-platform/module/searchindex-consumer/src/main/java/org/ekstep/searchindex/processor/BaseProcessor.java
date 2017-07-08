@@ -9,6 +9,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -16,7 +17,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class BaseProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(BaseProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Controller Utility */
 	private static ControllerUtil util = new ControllerUtil();

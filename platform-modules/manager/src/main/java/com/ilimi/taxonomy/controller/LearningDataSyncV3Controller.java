@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 
@@ -21,7 +22,7 @@ import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 @RequestMapping("/v3/sync")
 public class LearningDataSyncV3Controller extends BaseController {
 
-	private static ILogger LOGGER = new PlatformLogger(LearningDataSyncV3Controller.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	@Autowired
 	private ICompositeSearchManager compositeSearchManager;

@@ -14,6 +14,7 @@ import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -36,18 +37,18 @@ import akka.actor.ActorRef;
 
 public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDACSearchMgr {
 	
-	private static ILogger LOGGER = new PlatformLogger(GraphDACSearchMgrImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	static IGraphDatabaseService service;
 	static {
 		String databasePolicy = DACConfigurationConstants.ACTIVE_DATABASE_POLICY;
 
-		LOGGER.log("Active Database Policy Id:" , databasePolicy, "INFO");
+		LOGGER.log("Active Database Policy Id:" , databasePolicy);
 
 		if (StringUtils.isBlank(databasePolicy))
 			databasePolicy = DACConfigurationConstants.DEFAULT_DATABASE_POLICY;
 
-		LOGGER.log("Creating Database Connection Using Policy Id:" , databasePolicy, "INFO");
+		LOGGER.log("Creating Database Connection Using Policy Id:" , databasePolicy);
 
 		service = GraphServiceFactory.getDatabaseService(databasePolicy);
 	}

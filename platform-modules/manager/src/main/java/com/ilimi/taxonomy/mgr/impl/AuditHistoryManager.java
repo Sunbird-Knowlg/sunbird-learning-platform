@@ -8,6 +8,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.CommonDACParams;
@@ -30,7 +31,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 	IAuditHistoryEsService auditHistoryEsService;
 
 	/** The Logger */
-	private static ILogger LOGGER = new PlatformLogger(AuditHistoryManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/*
 	 * (non-Javadoc)

@@ -39,7 +39,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class IndexesController extends BaseLanguageController {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(IndexesController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Parses a file in Simple Shakti format, retrieves and loads citations into

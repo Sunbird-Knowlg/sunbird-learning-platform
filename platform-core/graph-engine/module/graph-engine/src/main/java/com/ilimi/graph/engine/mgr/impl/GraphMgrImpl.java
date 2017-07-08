@@ -24,7 +24,7 @@ import com.ilimi.graph.model.relation.RelationHandler;
 
 public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
-    private static final ILogger logger = new PlatformLogger(IGraphManager.class.getName());
+    private static final ILogger logger = PlatformLogManager.getLogger();
 
     protected void invokeMethod(Request request, ActorRef parent) {
         String methodName = request.getOperation();
@@ -44,7 +44,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createGraph(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            logger.log("Create Graph request: ", graphId, "INFO");
+            logger.log("Create Graph request: ", graphId);
             Graph graph = new Graph(this, graphId);
             graph.create(request);
         } catch (Exception e) {

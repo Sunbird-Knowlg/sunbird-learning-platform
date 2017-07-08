@@ -83,7 +83,7 @@ import com.ilimi.graph.model.node.RelationDefinition;
 public class DictionaryManagerImpl extends BaseLanguageManager implements IDictionaryManager, IWordnetConstants {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(IDictionaryManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Constant LEMMA_PROPERTY. */
 	private static final String LEMMA_PROPERTY = "lemma";

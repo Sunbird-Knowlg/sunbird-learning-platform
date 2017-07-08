@@ -18,11 +18,12 @@ import org.ekstep.common.util.TelemetryAccessEventUtil;
 
 import com.ilimi.common.dto.ExecutionContext;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
-	private static ILogger LOGGER = new PlatformLogger(ResponseFilter.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {

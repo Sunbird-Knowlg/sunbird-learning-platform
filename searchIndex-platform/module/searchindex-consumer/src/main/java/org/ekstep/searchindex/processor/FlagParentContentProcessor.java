@@ -11,6 +11,7 @@ import org.ekstep.searchindex.util.GraphUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -24,7 +25,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class FlagParentContentProcessor implements IMessageProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(FlagParentContentProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();

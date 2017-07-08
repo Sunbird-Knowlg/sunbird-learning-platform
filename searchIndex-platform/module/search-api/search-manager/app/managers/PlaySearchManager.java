@@ -18,7 +18,7 @@ import play.mvc.Result;
 
 public class PlaySearchManager extends BasePlaySearchManager {
 
-	private static ILogger LOGGER = new PlatformLogger(PlaySearchManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public Promise<Result> search(Request request) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(),

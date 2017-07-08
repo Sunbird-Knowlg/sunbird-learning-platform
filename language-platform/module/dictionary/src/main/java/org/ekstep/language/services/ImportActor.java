@@ -17,11 +17,11 @@ import akka.actor.ActorRef;
 
 public class ImportActor extends LanguageBaseActor {
 
-	private static ILogger LOGGER = new PlatformLogger(ImportActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.log("Received Command: " , msg, "INFO");
+		LOGGER.log("Received Command: " , msg);
 		if (msg instanceof Request) {
 			Request request = (Request) msg;
 			String languageId = (String) request.getContext().get(LanguageParams.language_id.name());

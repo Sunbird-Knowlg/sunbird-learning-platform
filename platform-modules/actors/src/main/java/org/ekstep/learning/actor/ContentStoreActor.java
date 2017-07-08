@@ -26,7 +26,7 @@ import akka.actor.ActorRef;
 public class ContentStoreActor extends BaseGraphManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ContentStoreActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@SuppressWarnings("unchecked")
 	@Override

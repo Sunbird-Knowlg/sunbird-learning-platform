@@ -48,7 +48,7 @@ import akka.actor.ActorRef;
 public class EnrichActor extends LanguageBaseActor implements IWordnetConstants {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(EnrichActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();

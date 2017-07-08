@@ -65,7 +65,7 @@ public class ElasticSearchUtil {
 	private int resultLimit = defaultResultLimit;
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ElasticSearchUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/**
 	 * Instantiates a new elastic search util by connecting to the ES cluster or
@@ -568,7 +568,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		LOGGER.log("Time taken for search: " , diff, "INFO");
+		LOGGER.log("Time taken for search: " , diff);
 		return result;
 	}
 

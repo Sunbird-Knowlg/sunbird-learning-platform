@@ -13,7 +13,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class LogWordEventUtil {
 
-	private static ILogger LOGGER = new PlatformLogger(LogWordEventUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static final Logger wordEventLogger = LogManager.getLogger("WordEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 

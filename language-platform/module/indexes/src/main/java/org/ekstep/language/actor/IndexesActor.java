@@ -44,7 +44,7 @@ import akka.actor.ActorRef;
 public class IndexesActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(IndexesActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The default limit. */
 	private int DEFAULT_LIMIT = 10000;
@@ -64,7 +64,7 @@ public class IndexesActor extends LanguageBaseActor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.log("Received Command: " , msg + "INFO");
+		LOGGER.log("Received Command: " , msg);
 		Request request = (Request) msg;
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();

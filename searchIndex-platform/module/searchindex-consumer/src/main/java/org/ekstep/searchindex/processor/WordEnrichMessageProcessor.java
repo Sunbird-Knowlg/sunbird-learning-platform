@@ -14,7 +14,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = new PlatformLogger(WordEnrichMessageProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public WordEnrichMessageProcessor() {

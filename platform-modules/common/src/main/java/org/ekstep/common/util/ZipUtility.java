@@ -10,6 +10,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -19,7 +20,7 @@ import com.ilimi.common.util.PlatformLogger;
  **/
 public class ZipUtility {
 
-	private static ILogger LOGGER = new PlatformLogger(ZipUtility.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	List<String> fileList;
 	private String outPutZipFile = null;

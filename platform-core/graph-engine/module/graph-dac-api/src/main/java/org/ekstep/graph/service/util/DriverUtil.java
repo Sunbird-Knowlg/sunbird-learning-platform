@@ -13,11 +13,12 @@ import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class DriverUtil {
 
-	private static ILogger LOGGER = new PlatformLogger(DriverUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static Map<String, Driver> driverMap = new HashMap<String, Driver>();
 	
 	public static Driver getDriver(String graphId, GraphOperation graphOperation) {

@@ -18,6 +18,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -37,7 +38,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public abstract class CompositeIndexSyncManager extends BaseManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(CompositeIndexSyncManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Constant SYNC_BATCH_SIZE. */
 	private static final int SYNC_BATCH_SIZE = 1000;

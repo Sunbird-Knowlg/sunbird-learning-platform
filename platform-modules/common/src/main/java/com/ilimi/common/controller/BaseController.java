@@ -27,6 +27,7 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public abstract class BaseController {
@@ -41,7 +42,7 @@ public abstract class BaseController {
     private static final String default_err_msg = "Something went wrong in server while processing the request";
     
     protected ObjectMapper mapper = new ObjectMapper();
-    private static ILogger LOGGER = new PlatformLogger(BaseController.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();

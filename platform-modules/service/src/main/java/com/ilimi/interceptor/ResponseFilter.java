@@ -22,7 +22,7 @@ import com.ilimi.common.util.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
-	private static ILogger LOGGER = new PlatformLogger(ResponseFilter.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {

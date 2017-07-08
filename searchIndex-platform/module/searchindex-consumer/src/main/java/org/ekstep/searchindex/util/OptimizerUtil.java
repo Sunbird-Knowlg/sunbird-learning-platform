@@ -33,7 +33,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class OptimizerUtil {
 	/** The logger. */
 	
-	private static ILogger LOGGER = new PlatformLogger(OptimizerUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The ekstep optimizr. */
 	private static Optimizr ekstepOptimizr = new Optimizr();

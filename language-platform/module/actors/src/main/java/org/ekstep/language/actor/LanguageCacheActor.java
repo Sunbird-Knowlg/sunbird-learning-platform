@@ -27,7 +27,7 @@ import akka.actor.ActorRef;
 public class LanguageCacheActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(LanguageCacheActor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The util. */
 	private GradeLevelComplexityUtil util = new GradeLevelComplexityUtil();

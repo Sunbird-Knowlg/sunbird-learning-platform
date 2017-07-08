@@ -35,7 +35,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryV2Controller extends BaseController {
 	
 	/** The Logger */
-	private static ILogger LOGGER = PlatformLogManager.initiateLogger();
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	
 	private String versionId = getAPIVersion();
 	

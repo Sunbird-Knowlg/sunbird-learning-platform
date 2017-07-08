@@ -31,7 +31,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class AwsLanguageUrlUpdateController extends BaseController {
 
 	/** The Class Logger. */
-	private static ILogger LOGGER = new PlatformLogger(AwsLanguageUrlUpdateController.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	@Autowired
 	private IAwsUrlUpdateManager awsUrlUpdateManager;

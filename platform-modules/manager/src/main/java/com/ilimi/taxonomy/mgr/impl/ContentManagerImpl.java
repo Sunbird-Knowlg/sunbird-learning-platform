@@ -42,6 +42,7 @@ import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -78,7 +79,7 @@ import scala.concurrent.Future;
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ContentManagerImpl.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";

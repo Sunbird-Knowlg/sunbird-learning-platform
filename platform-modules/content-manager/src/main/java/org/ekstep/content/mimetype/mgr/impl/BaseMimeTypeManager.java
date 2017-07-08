@@ -42,6 +42,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -56,7 +57,7 @@ import org.ekstep.content.dto.ContentSearchCriteria;
 public class BaseMimeTypeManager extends BaseLearningManager {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
-	private static ILogger LOGGER = new PlatformLogger(BaseMimeTypeManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	private static final String s3Content = "s3.content.folder";
 	private static final String s3Artifact = "s3.artifact.folder";

@@ -21,7 +21,7 @@ import akka.actor.ActorRef;
 public class IndowordnetActor extends LanguageBaseActor {
 
     /** The logger. */
-    private static ILogger LOGGER = new PlatformLogger(IndowordnetActor.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
     
     /** The util. */
     private IndowordnetUtil util = new IndowordnetUtil();

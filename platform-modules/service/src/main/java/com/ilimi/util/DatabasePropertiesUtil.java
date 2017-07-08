@@ -10,7 +10,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class DatabasePropertiesUtil {
 	private static Properties prop = new Properties();
 	private static InputStream input = null;
-	private static ILogger LOGGER = new PlatformLogger(DatabasePropertiesUtil.class
+	private static ILogger LOGGER = PlatformLogManager.getLogger()
 			.getName());
 
 	static {

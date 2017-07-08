@@ -30,7 +30,7 @@ import redis.clients.jedis.JedisPoolConfig;
 public class WordCacheUtil {
 
 	/** The LOGGER. */
-	private static ILogger LOGGER = new PlatformLogger(WordCacheUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The jedis pool. */
 	private static JedisPool jedisPool;

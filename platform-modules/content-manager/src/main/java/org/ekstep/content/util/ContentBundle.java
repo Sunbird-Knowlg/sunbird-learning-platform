@@ -41,6 +41,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 
@@ -50,7 +51,7 @@ import com.ilimi.graph.common.JSONUtils;
 public class ContentBundle {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(ContentBundle.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();

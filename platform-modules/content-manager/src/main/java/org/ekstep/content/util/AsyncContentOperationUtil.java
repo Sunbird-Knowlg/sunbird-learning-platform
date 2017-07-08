@@ -13,6 +13,8 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.model.Node;
 
 public class AsyncContentOperationUtil {
@@ -20,11 +22,11 @@ public class AsyncContentOperationUtil {
 	private static final String tempFileLocation = "/data/contentBundle/";
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(AsyncContentOperationUtil.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	public static void makeAsyncOperation(ContentOperations operation, String contentId, Map<String, Object> parameterMap) {
-		LOGGER.debug("Content Operation: ", operation);
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		LOGGER.log("Content Operation: ", operation);
+		LOGGER.log("Parameter Map: ", parameterMap);
 
 		if (null == operation)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_OPERATION.name(),
@@ -54,7 +56,7 @@ public class AsyncContentOperationUtil {
 									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.upload.name(), parameterMap);
 						} catch (Exception e) {
-							LOGGER.error(
+							LOGGER.log(
 									"Something Went Wrong While Performing 'Content Upload' Operation in Async Mode. | [Content Id: "
 											+ node.getIdentifier() + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.uploadError.name(), e.getMessage());
@@ -78,7 +80,7 @@ public class AsyncContentOperationUtil {
 									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.publish.name(), parameterMap);
 						} catch (Exception e) {
-							LOGGER.error(
+							LOGGER.log(
 									"Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 											+ contentId + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
@@ -97,7 +99,7 @@ public class AsyncContentOperationUtil {
 							InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
 							pipeline.init(ContentWorkflowPipelineParams.bundle.name(), parameterMap);
 						} catch (Exception e) {
-							LOGGER.error(
+							LOGGER.log(
 									"Something Went Wrong While Performing 'Content Bundle' Operation in Async Mode.", e);
 						}
 					}
@@ -115,7 +117,7 @@ public class AsyncContentOperationUtil {
 									contentId);
 							pipeline.init(ContentWorkflowPipelineParams.review.name(), parameterMap);
 						} catch (Exception e) {
-							LOGGER.error(
+							LOGGER.log(
 									"Something Went Wrong While Performing 'Content Review (Send For Review)' Operation in Async Mode. | [Content Id: "
 											+ node.getIdentifier() + "]", e);
 							node.getMetadata().put(ContentWorkflowPipelineParams.reviewError.name(), e.getMessage());
@@ -128,11 +130,11 @@ public class AsyncContentOperationUtil {
 						break;
 
 					default:
-						LOGGER.error("Invalid Async Operation.");
+						LOGGER.log("Invalid Async Operation.");
 						break;
 					}
 				} catch (Exception e) {
-					LOGGER.error("Error! While Making Async Call for Content Operation: " + operation.name(), e);
+					LOGGER.log("Error! While Making Async Call for Content Operation: " + operation.name(), e);
 				}
 			}
 		};

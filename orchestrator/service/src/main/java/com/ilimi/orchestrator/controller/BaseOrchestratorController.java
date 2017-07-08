@@ -29,7 +29,7 @@ public abstract class BaseOrchestratorController {
     
     private static final String API_ID_PREFIX = "orchestrator";
     private static final String API_VERSION = "2.0";
-    private static ILogger LOGGER = new PlatformLogger(BaseGraphManager.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
     private static final String ekstep = "org.ekstep.";
     private static final String ilimi = "com.ilimi.";
     private static final String java = "java.";

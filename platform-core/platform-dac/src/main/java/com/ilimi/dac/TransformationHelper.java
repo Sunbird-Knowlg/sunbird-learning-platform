@@ -3,6 +3,7 @@ package com.ilimi.dac;
 import org.modelmapper.ModelMapper;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 /**
@@ -14,7 +15,7 @@ import com.ilimi.common.util.PlatformLogger;
 public class TransformationHelper {
 
     /** The Constant logger. */
-    private static ILogger LOGGER = new PlatformLogger(TransformationHelper.class.getName());
+    private static ILogger LOGGER = PlatformLogManager.getLogger();
 
     /**
      * Registers a type map between a given pair of classes(bi-directional) with

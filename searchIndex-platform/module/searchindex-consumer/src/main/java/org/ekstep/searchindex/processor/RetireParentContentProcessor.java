@@ -24,7 +24,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class RetireParentContentProcessor implements IMessageProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = new PlatformLogger(FlagParentContentProcessor.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();

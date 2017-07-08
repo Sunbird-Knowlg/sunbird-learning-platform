@@ -21,7 +21,7 @@ import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 @Component
 public class LearningHealthCheckManager extends HealthCheckManager {
 
-	private static ILogger LOGGER = new PlatformLogger(LearningHealthCheckManager.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	private static final int MAX_THREAD_NUM = 10;
 
 	@Autowired
