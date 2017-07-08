@@ -86,8 +86,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.put(GraphDACParams.node.name(), word);
 		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
 		if (!res.getParams().getStatus().equalsIgnoreCase("successful")) {
-			LOGGER.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), "WARN");
-			System.out.println(res.getParams().getErr() + res.getParams().getErrmsg());
+			LOGGER.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), LoggerEnum.WARN.name());
 		}
 		Assert.assertEquals("successful", res.getParams().getStatus());
 

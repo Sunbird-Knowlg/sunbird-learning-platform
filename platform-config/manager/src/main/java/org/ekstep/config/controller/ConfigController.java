@@ -58,7 +58,7 @@ public class ConfigController extends BaseController {
 					LOGGER.log("Resourcebundles fetched : ", map.keySet());
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
-					LOGGER.log("Error in fetching all ResourceBundles from s3", e.getMessage(), e, "WARN");
+					LOGGER.log("Error in fetching all ResourceBundles from s3", e.getMessage(), e, LoggerEnum.WARN.name());
 				}
 			}
 			response.put("resourcebundles", resourcebundles);
@@ -71,7 +71,7 @@ public class ConfigController extends BaseController {
 			LOGGER.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.log("getAllResources | Exception" + e.getMessage(), e, "WARN");
+			LOGGER.log("getAllResources | Exception" + e.getMessage(), e, LoggerEnum.WARN.name());
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -99,7 +99,7 @@ public class ConfigController extends BaseController {
 					response.put(languageId, map);
 					LOGGER.log("getResourceBundle | successResponse" , response);
 				} catch (Exception e) {
-					LOGGER.log("getResourceBundle | Exception" , e.getMessage(), e, "WARN");
+					LOGGER.log("getResourceBundle | Exception" , e.getMessage(), e, LoggerEnum.WARN.name());
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -110,7 +110,7 @@ public class ConfigController extends BaseController {
 				response.setParams(params);
 				response.getResponseCode();
 				response.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-				LOGGER.log("getResourceBundle | FailureResponse" , response, "WARN");
+				LOGGER.log("getResourceBundle | FailureResponse" , response, LoggerEnum.WARN.name());
 				return getResponseEntity(response, apiId, null);
 			}
 		} catch (Exception e){
@@ -139,7 +139,7 @@ public class ConfigController extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				LOGGER.log("Get Ordinals | Exception" , e.getMessage(), e, "WARN");
+				LOGGER.log("Get Ordinals | Exception" , e.getMessage(), e, LoggerEnum.WARN.name());
 			}
 			LOGGER.log("Get Ordinals | Response" , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);

@@ -100,7 +100,7 @@ public class LanguageRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        LOGGER.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), "WARN");
+        LOGGER.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), LoggerEnum.WARN.name());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

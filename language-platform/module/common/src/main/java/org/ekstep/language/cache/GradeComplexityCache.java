@@ -125,11 +125,9 @@ public class GradeComplexityCache extends BaseManager {
 				gradeComplexitySortedCacheMap.put(languageId, sortedGradeComplexityMap);
 				gradeComplexityMatrixMap.put(languageId, gradeComplexityMatrix);
 			}
-			LOGGER.log(
-					"completed loadGradeLevelComplexity with " + nodes.size() + " nodes for the language" + languageId);
+			LOGGER.log("completed loadGradeLevelComplexity with " + nodes.size() + " nodes for the language" + languageId);
 		} else {
-			LOGGER.log(
-					"error in getting GradeLevelComplexity nodes from graph, message: ", getErrorMessage(searchRes), "WARN");
+			LOGGER.log("error in getting GradeLevelComplexity nodes from graph, message: ", getErrorMessage(searchRes), LoggerEnum.WARN.name());
 		}
 
 	}
@@ -180,7 +178,7 @@ public class GradeComplexityCache extends BaseManager {
 					"completed loadGradeLevelComplexity for the language: " + languageId + " and node_id: " + node_id);
 		}else {
 			LOGGER.log(
-					"error in getting GradeLevelComplexity node("+node_id+") from graph, message: " , getErrorMessage(findRes), "WARN");
+					"error in getting GradeLevelComplexity node("+node_id+") from graph, message: " , getErrorMessage(findRes), LoggerEnum.WARN.name());
 		}
 
 

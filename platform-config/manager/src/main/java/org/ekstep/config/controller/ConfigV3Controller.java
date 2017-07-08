@@ -96,7 +96,7 @@ public class ConfigV3Controller extends BaseController {
 					response.put(languageId, map);
 					LOGGER.log("getResourceBundle | successResponse" , response.getResponseCode());
 				} catch (Exception e) {
-					LOGGER.log("getResourceBundle | Exception" + e.getMessage(), e, "WARN");
+					LOGGER.log("getResourceBundle | Exception" + e.getMessage(), e, LoggerEnum.WARN.name());
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -135,7 +135,7 @@ public class ConfigV3Controller extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				LOGGER.log("Get Ordinals | Exception" , e.getMessage(), e, "WARN");
+				LOGGER.log("Get Ordinals | Exception" , e.getMessage(), e, LoggerEnum.WARN.name());
 			}
 			LOGGER.log("Get Ordinals | Response" , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);

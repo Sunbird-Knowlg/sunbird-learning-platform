@@ -26,6 +26,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.LoggerEnum;
 import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -395,7 +396,7 @@ public class BaseConcreteProcessor extends BaseManager {
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			LOGGER.log("Base Path Already Exist: " , path.getFileName(), e, "WARN");
+			LOGGER.log("Base Path Already Exist: " , path.getFileName(), e, LoggerEnum.WARN.name());
 		} catch (Exception e) {
 			exist = false;
 			LOGGER.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);

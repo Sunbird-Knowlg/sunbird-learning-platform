@@ -119,7 +119,7 @@ public class HttpDownloadUtility {
 				}
 		}
 
-		LOGGER.log("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'.", fileURL, "WARN");
+		LOGGER.log("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'.", fileURL, LoggerEnum.WARN.name());
 		return null;
 	}
 

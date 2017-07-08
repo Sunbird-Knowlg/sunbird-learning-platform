@@ -26,6 +26,26 @@ public class PlatformLogger implements ILogger {
 	public void PlatformLoger(){
 		logger = (Logger) LogManager.getLogger();
 	}
+	
+	public void log(String message) {
+		log(message, null, LoggerEnum.DEBUG.name());
+	}
+	
+	public void log(String message, Object data) {
+		log(message, data, LoggerEnum.DEBUG.name());
+	}
+
+	public void log(String message,Object data, String logLevel) {
+		logData(message,  data, null, logLevel);
+	}
+
+	public void log(String message, Object data, Exception e) {
+		logData(message,  data, e, LoggerEnum.ERROR.name());
+	}
+
+	public void log(String message,  Object data, Exception e, String logLevel) {
+		logData(message,  data, e, logLevel);
+	}
 
 	private void info(String message,  Object data) {
 		logger.info(getLogEvent(LoggerEnum.BE_LOG.name(),  LoggerEnum.INFO.name(), message, data));
@@ -41,26 +61,6 @@ public class PlatformLogger implements ILogger {
 
 	private void warn(String message, Object data, Exception exception) {
 		logger.warn(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.WARN.name(), message, data, exception));
-	}
-
-	public void log(String message, Object data) {
-		log(message, data, LoggerEnum.DEBUG.name());
-	}
-
-	public void log(String message) {
-		log(message, null, LoggerEnum.DEBUG.name());
-	}
-
-	public void log(String message,Object data, String logLevel) {
-		logData(message,  data, null, logLevel);
-	}
-
-	public void log(String message, Object data, Exception e) {
-		logData(message,  data, e, LoggerEnum.ERROR.name());
-	}
-
-	public void log(String message,  Object data, Exception e, String logLevel) {
-		logData(message,  data, e, logLevel);
 	}
 
 	private void logData(String message,  Object data, Exception e, String logLevel) {
@@ -115,7 +115,6 @@ public class PlatformLogger implements ILogger {
 		try {
 			te.setEdata(eks);
 			jsonMessage = mapper.writeValueAsString(te);
-			// logger.info(jsonMessage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

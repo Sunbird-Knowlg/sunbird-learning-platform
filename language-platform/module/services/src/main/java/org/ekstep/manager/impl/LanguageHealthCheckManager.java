@@ -93,7 +93,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
-			LOGGER.log("Exception", e.getMessage(), "WARN");
+			LOGGER.log("Exception", e.getMessage(), LoggerEnum.WARN.name());
 			check.put("healthy", false);
 			check.put("err", "503"); // error code, if any
 			check.put("errmsg", " MongoDB is not available"); 

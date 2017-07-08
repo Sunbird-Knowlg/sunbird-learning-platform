@@ -205,7 +205,7 @@ public class SearchManager extends SearchBaseActor {
 						}
 					}
 				} catch (Exception e) {
-					LOGGER.log("Invalid soft Constraints", e.getMessage(), e, "WARN");
+					LOGGER.log("Invalid soft Constraints", e.getMessage(), e, LoggerEnum.WARN.name());
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}

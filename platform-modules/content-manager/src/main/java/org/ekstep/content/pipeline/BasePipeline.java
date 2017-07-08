@@ -289,7 +289,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				LOGGER.log("Error! While getting the file size from AWS", key, e,"WARN");
+				LOGGER.log("Error! While getting the file size from AWS", key, e,LoggerEnum.WARN.name());
 			}
 		}
 		return bytes;
@@ -310,7 +310,7 @@ public class BasePipeline extends BaseManager {
 			try {
 				return sdf.format(date);
 			} catch (Exception e) {
-				LOGGER.log("Error! While Converting the Date Format.", date, e, "WARN");
+				LOGGER.log("Error! While Converting the Date Format.", date, e, LoggerEnum.WARN.name());
 			}
 		}
 		return null;
