@@ -21,10 +21,10 @@ import com.ilimi.common.dto.TelemetryBEEvent;
 public class PlatformLogger implements ILogger {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private Logger logger = null;
+	private Logger rootLogger = null;
 
 	public void PlatformLoger(){
-		logger = (Logger) LogManager.getLogger();
+		rootLogger = (Logger) LogManager.getLogger();
 	}
 	/**
 	 * To log only message.
@@ -62,19 +62,19 @@ public class PlatformLogger implements ILogger {
 	}
 
 	private void info(String message,  Object data) {
-		logger.info(getBELogEvent(LoggerEnum.INFO.name(), message, data));
+		rootLogger.info(getBELogEvent(LoggerEnum.INFO.name(), message, data));
 	}
 
 	private void debug(String message,  Object data) {
-		logger.debug(getBELogEvent(LoggerEnum.DEBUG.name(), message, data));
+		rootLogger.debug(getBELogEvent(LoggerEnum.DEBUG.name(), message, data));
 	}
 
 	private void error(String message,  Object data, Exception exception) {
-		logger.error(getBELogEvent(LoggerEnum.ERROR.name(), message, data, exception));
+		rootLogger.error(getBELogEvent(LoggerEnum.ERROR.name(), message, data, exception));
 	}
 
 	private void warn(String message, Object data, Exception exception) {
-		logger.warn(getBELogEvent(LoggerEnum.WARN.name(), message, data, exception));
+		rootLogger.warn(getBELogEvent(LoggerEnum.WARN.name(), message, data, exception));
 	}
 
 	private void backendLog(String message,  Object data, Exception e, String logLevel) {
