@@ -7,9 +7,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -40,15 +47,6 @@ import com.ilimi.graph.model.node.MetadataNode;
 import com.ilimi.graph.model.node.RelationNode;
 import com.ilimi.graph.model.node.ValueNode;
 import com.ilimi.graph.model.relation.UsedBySetRelation;
-
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
 
 public class Set extends AbstractCollection {
 

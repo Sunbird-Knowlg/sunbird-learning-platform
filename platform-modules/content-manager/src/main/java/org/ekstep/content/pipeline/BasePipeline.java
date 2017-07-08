@@ -27,6 +27,7 @@ import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.contentstore.util.ContentStoreOperations;
@@ -35,6 +36,11 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,9 +53,7 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -58,13 +62,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import org.ekstep.content.dto.ContentSearchCriteria;
 import com.rits.cloning.Cloner;
-
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 /**
  * The Class BasePipeline is a PipeLineClass between initializers and finalizers

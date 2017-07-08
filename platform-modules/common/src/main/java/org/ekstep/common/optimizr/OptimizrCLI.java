@@ -1,12 +1,9 @@
 package org.ekstep.common.optimizr;
 
 import java.io.File;
-import java.nio.file.Paths;
 
-import org.apache.commons.io.FilenameUtils;
 import org.ekstep.common.optimizr.audio.MonoChannelProcessor;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
-import org.ekstep.common.optimizr.image.ResolutionProcessor;
 
 
 

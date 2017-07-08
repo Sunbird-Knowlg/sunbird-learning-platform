@@ -21,6 +21,11 @@ import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+
 import com.google.gson.Gson;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -31,14 +36,8 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
-
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 public class BaseTest {
 

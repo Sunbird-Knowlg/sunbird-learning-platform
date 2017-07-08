@@ -3,15 +3,14 @@ package com.ilimi.servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.ekstep.searchindex.consumer.ConsumerRunner;
 
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 
 public class InitServlet extends HttpServlet {

@@ -4,10 +4,6 @@
  */
 package org.ekstep.common.optimizr;
 
-import static org.ekstep.common.optimizr.FileType.Audio;
-import static org.ekstep.common.optimizr.FileType.Image;
-import static org.ekstep.common.optimizr.FileType.Video;
-
 import java.text.DecimalFormat;
 
 import org.apache.logging.log4j.LogManager;

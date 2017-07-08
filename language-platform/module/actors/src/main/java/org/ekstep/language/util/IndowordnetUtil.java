@@ -19,10 +19,11 @@ import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.language.util.WordUtil;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+
+import akka.actor.ActorRef;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,8 +32,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.model.node.DefinitionDTO;
-
-import akka.actor.ActorRef;
 
 /**
  * The Class IndowordnetUtil provides utilities to load words form a indoword

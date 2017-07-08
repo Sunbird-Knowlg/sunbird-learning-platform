@@ -7,6 +7,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Promise;
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -22,15 +32,6 @@ import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.cache.DefinitionCache;
-
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import scala.concurrent.Promise;
 
 public abstract class AbstractRelation extends AbstractDomainObject implements IRelation {
 

@@ -26,6 +26,7 @@ import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.EcarPackageType;
 import org.ekstep.content.common.ExtractionType;
+import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
@@ -42,9 +43,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -53,7 +52,6 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import org.ekstep.content.dto.ContentSearchCriteria;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
 

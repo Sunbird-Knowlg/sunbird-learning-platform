@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import scala.concurrent.Await;
 import scala.concurrent.Future;

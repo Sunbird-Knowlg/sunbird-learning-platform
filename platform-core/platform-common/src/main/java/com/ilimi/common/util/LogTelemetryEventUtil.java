@@ -1,6 +1,7 @@
 package com.ilimi.common.util;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -9,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
-import java.util.UUID;
 
 public class LogTelemetryEventUtil {
 

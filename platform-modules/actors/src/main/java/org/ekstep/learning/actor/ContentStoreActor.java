@@ -9,15 +9,13 @@ import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.contentstore.util.ContentStoreUtil;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 
+import akka.actor.ActorRef;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
-
-import akka.actor.ActorRef;
 
 /**
  * The Class ContentStoreActor, provides akka actor functionality to access the

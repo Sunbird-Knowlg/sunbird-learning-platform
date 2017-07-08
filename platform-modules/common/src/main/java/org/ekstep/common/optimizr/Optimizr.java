@@ -11,9 +11,7 @@ import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
 import org.ekstep.common.util.HttpDownloadUtility;
 
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 public class Optimizr {
 

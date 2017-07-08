@@ -10,9 +10,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.processor.ContentPipelineProcessor;
 
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 public class PipelineRequestorClient {
 	

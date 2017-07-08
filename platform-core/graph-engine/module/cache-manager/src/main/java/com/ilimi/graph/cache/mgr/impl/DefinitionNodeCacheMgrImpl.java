@@ -5,6 +5,8 @@ import static com.ilimi.graph.cache.factory.JedisFactory.returnConnection;
 
 import java.util.Map;
 
+import redis.clients.jedis.Jedis;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -15,8 +17,6 @@ import com.ilimi.graph.cache.util.RedisKeyGenerator;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-
-import redis.clients.jedis.Jedis;
 
 public class DefinitionNodeCacheMgrImpl implements IDefinitionNodeCacheMgr {
 

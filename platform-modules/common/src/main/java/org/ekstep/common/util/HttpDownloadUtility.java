@@ -12,10 +12,9 @@ import java.net.URL;
 import java.util.List;
 
 import org.ekstep.common.slugs.Slug;
+
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 /**
  * A utility that downloads a file from a URL.

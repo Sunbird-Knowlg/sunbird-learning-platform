@@ -4,10 +4,7 @@
  */
 package org.ekstep.common.optimizr.image;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Enumeration;
-import javax.imageio.ImageIO;
 
 import org.ekstep.common.optimizr.FileUtils;
 import org.im4java.core.ConvertCmd;

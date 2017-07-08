@@ -17,9 +17,7 @@ import org.ekstep.common.util.S3PropertyReader;
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 @CoverageIgnore
 public class PublishWebHookInvoker {

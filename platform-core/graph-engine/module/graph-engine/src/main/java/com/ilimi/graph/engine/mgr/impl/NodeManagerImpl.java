@@ -9,6 +9,13 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -30,13 +37,6 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.DefinitionNode;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.ProxyNode;
-
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
 
 /**
  * The Class NodeManagerImpl.

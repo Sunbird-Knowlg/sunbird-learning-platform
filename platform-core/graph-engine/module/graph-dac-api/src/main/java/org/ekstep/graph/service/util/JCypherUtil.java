@@ -1,5 +1,14 @@
 package org.ekstep.graph.service.util;
 
+import iot.jcypher.query.JcQuery;
+import iot.jcypher.query.api.IClause;
+import iot.jcypher.query.factories.clause.CREATE;
+import iot.jcypher.query.factories.clause.MERGE;
+import iot.jcypher.query.factories.clause.ON_CREATE;
+import iot.jcypher.query.values.JcNode;
+import iot.jcypher.query.writer.Format;
+import iot.jcypher.util.Util;
+
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -17,14 +26,6 @@ import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
-import iot.jcypher.query.JcQuery;
-import iot.jcypher.query.api.IClause;
-import iot.jcypher.query.factories.clause.CREATE;
-import iot.jcypher.query.factories.clause.MERGE;
-import iot.jcypher.query.factories.clause.ON_CREATE;
-import iot.jcypher.query.values.JcNode;
-import iot.jcypher.query.writer.Format;
-import iot.jcypher.util.Util;
 
 public class JCypherUtil {
 

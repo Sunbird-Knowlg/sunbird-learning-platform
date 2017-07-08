@@ -1,6 +1,5 @@
 package org.ekstep.language.controller;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
-import org.ekstep.language.controller.BaseLanguageController;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

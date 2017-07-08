@@ -7,6 +7,12 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.pattern.Patterns;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
@@ -15,13 +21,6 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.pattern.Patterns;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 // TODO: Auto-generated Javadoc
 /**

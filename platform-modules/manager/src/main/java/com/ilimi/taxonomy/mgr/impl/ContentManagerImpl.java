@@ -26,6 +26,11 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.springframework.stereotype.Component;
 
+import scala.concurrent.Await;
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -41,10 +46,8 @@ import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -57,11 +60,6 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
-
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-import scala.concurrent.Await;
-import scala.concurrent.Future;
 
 /**
  * The Class <code>ContentManagerImpl</code> is the implementation of

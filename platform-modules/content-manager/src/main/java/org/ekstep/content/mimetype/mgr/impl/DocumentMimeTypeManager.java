@@ -3,6 +3,7 @@ package org.ekstep.content.mimetype.mgr.impl;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
@@ -10,13 +11,12 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.validator.ContentValidator;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**

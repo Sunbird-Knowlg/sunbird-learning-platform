@@ -17,6 +17,7 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.util.RelationType;

@@ -32,7 +32,6 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
-import com.ilimi.graph.model.cache.DefinitionCache;
 
 public class DefinitionNode extends AbstractNode {
 

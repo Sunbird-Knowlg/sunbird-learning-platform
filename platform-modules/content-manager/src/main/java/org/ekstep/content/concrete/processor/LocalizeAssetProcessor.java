@@ -27,9 +27,7 @@ import org.ekstep.content.util.PropertiesUtil;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 /**
  * The Class LocalizeAssetProcessor is a Content Workflow pipeline Processor

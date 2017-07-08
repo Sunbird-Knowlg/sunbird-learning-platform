@@ -1,5 +1,7 @@
 package org.ekstep.content.enums;
 
+import org.ekstep.content.common.ContentErrorMessageConstants;
+
 /** 
  *  ContentErrorCodeConstants Enum holds all the ErrorCodeConstants
  *  used in the ContentModel

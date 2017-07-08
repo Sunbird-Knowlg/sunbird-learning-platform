@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ekstep.language.enums.Enums.ObjectType;
 import org.ekstep.language.models.DictionaryObject;
