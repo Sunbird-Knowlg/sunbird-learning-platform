@@ -18,12 +18,11 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.searchindex.util.OptimizerUtil;
-import org.ekstep.searchindex.util.*;
+import org.ekstep.searchindex.util.PropertiesUtil;
+import org.ekstep.searchindex.util.VisionApi;
 
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**

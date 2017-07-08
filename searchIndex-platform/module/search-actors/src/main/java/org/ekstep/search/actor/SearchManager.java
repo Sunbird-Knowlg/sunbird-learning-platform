@@ -22,17 +22,16 @@ import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
+import akka.actor.ActorRef;
+
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.LoggerEnum;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-
-import akka.actor.ActorRef;
 
 public class SearchManager extends SearchBaseActor {
 

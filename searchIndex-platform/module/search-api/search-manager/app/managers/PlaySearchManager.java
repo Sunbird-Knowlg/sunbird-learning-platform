@@ -2,18 +2,7 @@ package managers;
 
 import java.util.Map;
 
-import org.ekstep.compositesearch.enums.SearchActorNames;
-import org.ekstep.compositesearch.enums.SearchOperations;
-import org.ekstep.searchindex.util.ObjectDefinitionCache;
-
-import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogManager;
+import javax.ws.rs.core.Response.StatusType;
 
 import play.libs.F.Promise;
 import play.mvc.Result;

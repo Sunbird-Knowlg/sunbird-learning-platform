@@ -1,13 +1,13 @@
 package org.ekstep.searchindex.consumer;
 
+import kafka.consumer.ConsumerIterator;
+import kafka.consumer.KafkaStream;
+import kafka.javaapi.consumer.ConsumerConnector;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.searchindex.processor.IMessageProcessor;
 import org.ekstep.searchindex.util.ConsumerUtil;
-
-import kafka.consumer.ConsumerIterator;
-import kafka.consumer.KafkaStream;
-import kafka.javaapi.consumer.ConsumerConnector;
 
 public class ConsumerThread implements Runnable {
     private KafkaStream<byte[], byte[]> m_stream;

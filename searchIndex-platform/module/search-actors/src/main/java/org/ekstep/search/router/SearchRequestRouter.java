@@ -7,6 +7,16 @@ import org.ekstep.search.actor.DefinitionSyncScheduler;
 import org.ekstep.search.actor.HealthCheckManager;
 import org.ekstep.search.actor.SearchManager;
 
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
+import akka.actor.Props;
+import akka.actor.UntypedActor;
+import akka.dispatch.OnFailure;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+import akka.routing.SmallestMailboxPool;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
@@ -18,19 +28,8 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.LoggerEnum;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
-
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
-import akka.dispatch.OnFailure;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
-import akka.routing.SmallestMailboxPool;
-import scala.concurrent.Future;
 
 public class SearchRequestRouter extends UntypedActor{
 

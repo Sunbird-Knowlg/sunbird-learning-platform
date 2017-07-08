@@ -27,6 +27,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.LoggerEnum;
 import com.ilimi.common.util.PlatformLogManager;
 
 public class LanguageRequestRouter extends UntypedActor {

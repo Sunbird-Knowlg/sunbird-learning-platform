@@ -13,11 +13,8 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.WordTranslationConstants;
 
-import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 
 public class WordTranslationMessageProcessor implements IMessageProcessor {

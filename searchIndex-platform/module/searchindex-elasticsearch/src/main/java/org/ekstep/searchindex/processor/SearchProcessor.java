@@ -1,10 +1,17 @@
 package org.ekstep.searchindex.processor;
 
+import io.searchbox.core.CountResult;
+import io.searchbox.core.SearchResult;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.sf.json.util.JSONBuilder;
+import net.sf.json.util.JSONStringer;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.dto.SearchDTO;
@@ -14,15 +21,8 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-
-import io.searchbox.core.CountResult;
-import io.searchbox.core.SearchResult;
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONStringer;
 
 public class SearchProcessor {
 

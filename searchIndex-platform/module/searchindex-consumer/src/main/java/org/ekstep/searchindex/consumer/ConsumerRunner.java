@@ -8,6 +8,9 @@ import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import kafka.consumer.KafkaStream;
+import kafka.javaapi.consumer.ConsumerConnector;
+
 import org.ekstep.searchindex.util.Consumer;
 import org.ekstep.searchindex.util.ConsumerConfig;
 import org.ekstep.searchindex.util.ConsumerConfigs;
@@ -16,9 +19,6 @@ import org.ekstep.searchindex.util.ConsumerInit;
 import org.ekstep.searchindex.util.ConsumerUtil;
 
 import com.ilimi.common.dto.CoverageIgnore;
-
-import kafka.consumer.KafkaStream;
-import kafka.javaapi.consumer.ConsumerConnector;
 
 public class ConsumerRunner {
 
