@@ -30,7 +30,6 @@ public class LogTranslationLifecycleEvent extends BaseSystemCommand implements I
                     String wordId = tclObject1.toString();
                     Object obj2 = ReflectObject.get(interp, tclObject2);
                     Node node = (Node) obj2;
-                    LogWordEventUtil.logWordLifecycleEvent(wordId, node.getMetadata());
                     interp.setResult(true);
                 }
             } catch (Exception e) {
