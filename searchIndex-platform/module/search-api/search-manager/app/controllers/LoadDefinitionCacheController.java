@@ -1,5 +1,7 @@
 package controllers;
 
+import com.ilimi.common.dto.Request;
+
 import managers.PlaySearchManager;
 import play.mvc.Result;
 
