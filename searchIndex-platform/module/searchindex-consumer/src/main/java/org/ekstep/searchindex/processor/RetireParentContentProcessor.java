@@ -47,7 +47,6 @@ public class RetireParentContentProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" , messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {

@@ -40,7 +40,6 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Processing message: ");
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			processMessage(message);

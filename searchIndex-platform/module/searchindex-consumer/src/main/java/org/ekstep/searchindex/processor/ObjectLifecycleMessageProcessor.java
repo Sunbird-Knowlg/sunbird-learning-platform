@@ -49,7 +49,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
-				LOGGER.log("Reading from kafka consumer");
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}

@@ -53,10 +53,9 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" , messageData);
+			
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
-				LOGGER.log("checking if kafka message is blank or not" + messageData);
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}

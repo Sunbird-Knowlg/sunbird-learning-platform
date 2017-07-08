@@ -24,6 +24,7 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.LoggerEnum;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
