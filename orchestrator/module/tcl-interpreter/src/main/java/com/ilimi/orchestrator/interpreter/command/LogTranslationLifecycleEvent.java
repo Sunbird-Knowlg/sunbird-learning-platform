@@ -1,6 +1,5 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import org.ekstep.language.util.LogWordEventUtil;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
