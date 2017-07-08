@@ -26,44 +26,58 @@ public class PlatformLogger implements ILogger {
 	public void PlatformLoger(){
 		logger = (Logger) LogManager.getLogger();
 	}
-	
+	/**
+	 * To log only message.
+	 */
 	public void log(String message) {
 		log(message, null, LoggerEnum.DEBUG.name());
 	}
 	
+	/**
+	 * To log message with some data.
+	 */
 	public void log(String message, Object data) {
 		log(message, data, LoggerEnum.DEBUG.name());
 	}
 
+	/**
+	 * To log message, data in used defined log level.
+	 */
 	public void log(String message,Object data, String logLevel) {
-		logData(message,  data, null, logLevel);
+		backendLog(message,  data, null, logLevel);
 	}
 
+	/**
+	 * To log exception with message and data.
+	 */
 	public void log(String message, Object data, Exception e) {
-		logData(message,  data, e, LoggerEnum.ERROR.name());
+		backendLog(message,  data, e, LoggerEnum.ERROR.name());
 	}
 
+	/**
+	 * To log exception with message and data for user specific log level.
+	 */
 	public void log(String message,  Object data, Exception e, String logLevel) {
-		logData(message,  data, e, logLevel);
+		backendLog(message,  data, e, logLevel);
 	}
 
 	private void info(String message,  Object data) {
-		logger.info(getLogEvent(LoggerEnum.BE_LOG.name(),  LoggerEnum.INFO.name(), message, data));
+		logger.info(getBELogEvent(LoggerEnum.INFO.name(), message, data));
 	}
 
 	private void debug(String message,  Object data) {
-		logger.debug(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.DEBUG.name(), message, data));
+		logger.debug(getBELogEvent(LoggerEnum.DEBUG.name(), message, data));
 	}
 
 	private void error(String message,  Object data, Exception exception) {
-		logger.error(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.ERROR.name(), message, data, exception));
+		logger.error(getBELogEvent(LoggerEnum.ERROR.name(), message, data, exception));
 	}
 
 	private void warn(String message, Object data, Exception exception) {
-		logger.warn(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.WARN.name(), message, data, exception));
+		logger.warn(getBELogEvent(LoggerEnum.WARN.name(), message, data, exception));
 	}
 
-	private void logData(String message,  Object data, Exception e, String logLevel) {
+	private void backendLog(String message,  Object data, Exception e, String logLevel) {
 		if (StringUtils.isNotBlank(logLevel)) {
 			switch (logLevel) {
 			case "INFO":
@@ -82,17 +96,17 @@ public class PlatformLogger implements ILogger {
 		}
 	}
 
-	private String getLogEvent(String logName,  String logLevel, String message, Object data) {
-		String logData = getLogMap(logName, logLevel, message, data, null);
+	private String getBELogEvent(String logLevel, String message, Object data) {
+		String logData = getBELog(logLevel, message, data, null);
 		return logData;
 	}
 
-	private String getLogEvent(String logName, String logLevel, String message, Object data, Exception e) {
-		String logData = getLogMap(logName,  logLevel, message, data, e);
+	private String getBELogEvent(String logLevel, String message, Object data, Exception e) {
+		String logData = getBELog(logLevel, message, data, e);
 		return logData;
 	}
 
-	private String getLogMap(String logName, String logLevel, String message, Object data, Exception exception) {
+	private String getBELog(String logLevel, String message, Object data, Exception exception) {
 		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();
@@ -104,9 +118,9 @@ public class PlatformLogger implements ILogger {
 			eks.put("data", data);
 		}
 		if (exception != null) {
-			eks.put("stacktrace", exception);
+			eks.put("stacktrace", exception.getMessage());
 		}
-		te.setEid(logName);
+		te.setEid(LoggerEnum.BE_LOG.name());
 		te.setEts(unixTime);
 		te.setMid(mid);
 		te.setVer("2.0");
