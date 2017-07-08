@@ -18,12 +18,11 @@ import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.Assert;
 import org.springframework.test.web.servlet.ResultActions;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
-
+import com.ilimi.common.util.PlatformLogManager;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
@@ -32,8 +31,7 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 	//	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = PlatformLogManager.getLogger()
-			.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 //	private static String TEST_LANGUAGE = "testindexactorerror";
 //	private static String TEST_LOAD_LANGUAGE = "testindexactorerrorload";
 

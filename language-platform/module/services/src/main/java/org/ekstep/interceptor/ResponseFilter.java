@@ -18,8 +18,7 @@ import org.ekstep.common.util.TelemetryAccessEventUtil;
 
 import com.ilimi.common.dto.ExecutionContext;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogManager;
 
 public class ResponseFilter implements Filter {
 

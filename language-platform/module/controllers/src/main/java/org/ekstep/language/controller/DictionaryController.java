@@ -20,9 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 
 /**
  * Entry point for all v1 CRUD operations on Word and relations.

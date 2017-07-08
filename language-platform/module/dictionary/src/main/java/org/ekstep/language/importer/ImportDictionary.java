@@ -25,8 +25,7 @@ import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
 
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogManager;
 
 public class ImportDictionary {
 

@@ -8,9 +8,7 @@ import org.ekstep.language.util.IndowordnetUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
-
+import com.ilimi.common.util.PlatformLogManager;
 import akka.actor.ActorRef;
 
 /**

@@ -13,9 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 
 import redis.clients.jedis.Jedis;

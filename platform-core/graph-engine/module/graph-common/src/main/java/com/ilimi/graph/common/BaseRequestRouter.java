@@ -25,9 +25,7 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 

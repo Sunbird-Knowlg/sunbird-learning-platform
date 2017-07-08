@@ -7,7 +7,6 @@ import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.request.validaor.Neo4JBoltDataVersionKeyValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.junit.Assert;
-import org.junit.Test;
 import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;

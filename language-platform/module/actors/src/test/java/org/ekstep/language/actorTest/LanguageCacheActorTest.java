@@ -21,8 +21,7 @@ import org.junit.Test;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -31,8 +30,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class LanguageCacheActorTest extends BaseLanguageTest {
 	
-	private static ILogger LOGGER = PlatformLogManager.getLogger()
-			.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	static {
 		LanguageRequestRouterPool.init();

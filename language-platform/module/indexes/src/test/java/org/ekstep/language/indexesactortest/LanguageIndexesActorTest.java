@@ -34,9 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
-
+import com.ilimi.common.util.PlatformLogManager;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
@@ -47,8 +45,7 @@ public class LanguageIndexesActorTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = PlatformLogManager.getLogger()
-			.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 //	private static String TEST_LANGUAGE = "test";
 //	private static String TEST_LOAD_LANGUAGE = "testload";
 

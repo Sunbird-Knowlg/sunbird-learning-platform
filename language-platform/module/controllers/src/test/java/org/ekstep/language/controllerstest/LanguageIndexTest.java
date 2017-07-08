@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -39,9 +40,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
-
+import com.ilimi.common.util.PlatformLogManager;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
@@ -56,8 +55,7 @@ public class LanguageIndexTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = PlatformLogManager.getLogger()
-			.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 	//private static String TEST_LANGUAGE = "testone";
 //	private static String TEST_LOAD_LANGUAGE = "testoneload";
 

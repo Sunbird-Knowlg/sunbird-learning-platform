@@ -7,9 +7,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 

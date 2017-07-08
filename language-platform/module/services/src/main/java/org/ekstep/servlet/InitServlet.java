@@ -3,13 +3,13 @@ package org.ekstep.servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogManager;
 
 public class InitServlet extends HttpServlet {
 

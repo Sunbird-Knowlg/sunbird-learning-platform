@@ -9,13 +9,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.HealthCheckManager;
 import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 
