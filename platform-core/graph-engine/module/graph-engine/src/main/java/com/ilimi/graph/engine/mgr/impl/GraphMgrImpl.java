@@ -8,6 +8,7 @@ import akka.actor.ActorRef;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;

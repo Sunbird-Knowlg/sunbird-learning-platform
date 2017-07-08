@@ -5,13 +5,13 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 public class DatabasePropertiesUtil {
 	private static Properties prop = new Properties();
 	private static InputStream input = null;
-	private static ILogger LOGGER = PlatformLogManager.getLogger()
-			.getName());
+	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	static {
 		String filename = "database.properties";

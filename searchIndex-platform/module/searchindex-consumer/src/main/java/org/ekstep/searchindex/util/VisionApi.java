@@ -16,6 +16,7 @@ import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.SafeSearchAnnotation;
 import com.google.common.collect.ImmutableList;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 import java.io.File;

@@ -9,6 +9,7 @@ import org.ekstep.searchindex.consumer.ConsumerRunner;
 
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 

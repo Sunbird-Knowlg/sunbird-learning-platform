@@ -17,6 +17,7 @@ import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 
 import net.sf.json.util.JSONBuilder;

@@ -9,6 +9,7 @@ import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.graph.common.mgr.Configuration;
 
