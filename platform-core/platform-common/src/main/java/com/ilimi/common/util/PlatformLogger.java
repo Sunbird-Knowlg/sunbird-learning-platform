@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
@@ -21,11 +22,8 @@ import com.ilimi.common.dto.TelemetryBEEvent;
 public class PlatformLogger implements ILogger {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private Logger rootLogger = null;
+	private Logger rootLogger = (Logger) LogManager.getLogger();
 
-	public void PlatformLoger(){
-		rootLogger = (Logger) LogManager.getLogger();
-	}
 	/**
 	 * To log only message.
 	 */
@@ -111,14 +109,13 @@ public class PlatformLogger implements ILogger {
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();
 		Map<String, Object> eks = new HashMap<String, Object>();
-		eks.put("class", "");
 		eks.put("level", logLevel);
 		eks.put("message", message);
 		if (data != null) {
 			eks.put("data", data);
 		}
 		if (exception != null) {
-			eks.put("stacktrace", exception.getMessage());
+			eks.put("stacktrace", ExceptionUtils.getStackTrace(exception));
 		}
 		te.setEid(LoggerEnum.BE_LOG.name());
 		te.setEts(unixTime);
