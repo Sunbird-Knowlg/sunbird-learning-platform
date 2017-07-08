@@ -250,7 +250,7 @@ public class ContentBundle {
 								+ " | [Content List is 'null' or Empty.]");
 			if (StringUtils.isBlank(manifestVersion))
 				manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
-			LOGGER.log("Manifest Header Version: " , manifestVersion, "INFO");
+			LOGGER.log("Manifest Header Version: " , manifestVersion);
 			StringBuilder header = new StringBuilder();
 			header.append("{ \"id\": \"ekstep.content.archive\", \"ver\": \"").append(manifestVersion);
 			header.append("\", \"ts\": \"").append(getResponseTimestamp()).append("\", \"params\": { \"resmsgid\": \"");

@@ -72,7 +72,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" , messageData, "INFO");
+			LOGGER.log("Reading from kafka consumer" , messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 
 			if (StringUtils.isNotBlank(messageData)) {
@@ -379,7 +379,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		if (null != concepts && !concepts.isEmpty()) {
 			result.put("concepts", concepts);
 		}
-		LOGGER.log("Concept in resultMap->" , result.get("concepts"), "INFO");
+		LOGGER.log("Concept in resultMap->" , result.get("concepts"));
 		return result;
 	}
 
@@ -438,7 +438,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				LOGGER.log("Total number of items: " + itemIds.size());
 				if (!itemIds.isEmpty()) {
 					items = new ArrayList<String>(itemIds);
-					LOGGER.log("getting items associated with itemsets" , items, "INFO");
+					LOGGER.log("getting items associated with itemsets" , items);
 
 				}
 			}
@@ -472,7 +472,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			LOGGER.log("getting members from response");
 			members = (List<String>) response.get(GraphDACParams.members.name());
 		}
-		LOGGER.log("item members fetched from itemSets" , members.size(), "INFO");
+		LOGGER.log("item members fetched from itemSets" , members.size());
 		return members;
 	}
 
@@ -557,7 +557,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		LOGGER.log("calling processAgeGroup method to process ageGroups from gradeLevels");
 		Node content_node = processAgeGroup(node);
 
-		LOGGER.log("updating node with extracted features" , content_node.getIdentifier(), "INFO");
+		LOGGER.log("updating node with extracted features" , content_node.getIdentifier());
 		node.setOutRelations(null);
 		node.setInRelations(null);
 		util.updateNode(content_node);
@@ -726,7 +726,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					for (String age : age_array) {
 						ageSet.add(age);
 					}
-					LOGGER.log("adding age metadata to node" , ageSet, "INFO");
+					LOGGER.log("adding age metadata to node" , ageSet);
 					List<String> ageGroup = new ArrayList(ageSet);
 					node.getMetadata().put("ageGroup", ageGroup);
 				}
@@ -739,7 +739,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	public void processCollectionForTOC(Node node){
 		try {
 
-			LOGGER.log("Processing Collection Content :" , node.getIdentifier(), "INFO");
+			LOGGER.log("Processing Collection Content :" , node.getIdentifier());
 			Response response = util.getHirerachy(node.getIdentifier());
 			if (null != response && null != response.getResult()) {
 				Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
@@ -758,7 +758,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				try {
 					FileUtils.writeStringToFile(file, data);
 					if(file.exists()){
-					    LOGGER.log("Upload File to S3 :" , file.getName(), "INFO");
+					    LOGGER.log("Upload File to S3 :" , file.getName());
 						String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(node.getIdentifier()), file);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1){
 							String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];

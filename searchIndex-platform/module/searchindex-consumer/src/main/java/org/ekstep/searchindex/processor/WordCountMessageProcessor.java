@@ -41,7 +41,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Processing message: " , messageData, "INFO");
+			LOGGER.log("Processing message: ");
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			processMessage(message);
@@ -89,7 +89,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 requestBodyMap.put("request", requestMap);
 			 
 			 String requestBody = mapper.writeValueAsString(requestBodyMap);
-			 LOGGER.log("Updating Word Count | URL: " + url , " | Request body: " + requestBody, "INFO");
+			 LOGGER.log("Updating Word Count | URL: " + url , " | Request body: " + requestBody);
 			 
 			 HTTPUtil.makePostRequest(url, requestBody);
 			 
@@ -136,7 +136,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					switch (operationType) {
 					case CompositeSearchConstants.OPERATION_CREATE: {
 						wordsCount = wordsCount + 1;
-						LOGGER.log("Word create operation: " , wordsCount, "INFO");
+						LOGGER.log("Word create operation: " , wordsCount);
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -178,7 +178,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								}
 							}
 						}
-						LOGGER.log("Word update operation: " , liveWordsCount, "INFO");
+						LOGGER.log("Word update operation: " , liveWordsCount);
 						break;
 					}
 					case CompositeSearchConstants.OPERATION_DELETE: {

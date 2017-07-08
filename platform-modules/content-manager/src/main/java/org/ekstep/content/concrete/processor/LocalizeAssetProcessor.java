@@ -55,7 +55,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	private static ILogger LOGGER = new PlatformLogger(LocalizeAssetProcessor.class.getName());
 
 	/**
-	 * Instantiates a new localize asset processor and sets the base path and
+	 * Instantiates a new localize asset processor and sets the base path andS
 	 * current content id for further processing.
 	 *
 	 * @param basePath
@@ -183,7 +183,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	private Map<String, Object> downloadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != medias && !StringUtils.isBlank(basePath)) {
-			LOGGER.log("Starting Asset Download Fanout. | [Content Id '" + contentId + "']", contentId, "INFO");
+			LOGGER.log("Starting Asset Download Fanout. | [Content Id '" + contentId + "']", contentId);
 			final List<Media> skippedMediaDownloads = new ArrayList<Media>();
 			final Map<String, String> successfulMediaDownloads = new HashMap<String, String>();
 			ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -235,9 +235,9 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 			}
 			pool.shutdown();
 			LOGGER.log("Successful Media Download Count for | [Content Id '"
-					+ contentId + "']", successfulMediaDownloads.size(), "INFO");
+					+ contentId + "']", successfulMediaDownloads.size());
 			LOGGER.log("Skipped Media Download Count: | [Content Id '" + contentId
-					+ "']", skippedMediaDownloads.size(), "INFO");
+					+ "']", skippedMediaDownloads.size());
 			map.put(ContentWorkflowPipelineParams.success.name(), successfulMediaDownloads);
 			map.put(ContentWorkflowPipelineParams.skipped.name(), skippedMediaDownloads);
 		}

@@ -66,7 +66,7 @@ public class ConfigController extends BaseController {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("ttl", 24.0);
-			LOGGER.log("get All ResourceBundles | Response: " , response + "Id" + apiId , "INFO");
+			LOGGER.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("getAllResources | Exception" + e.getMessage(), e, "WARN");

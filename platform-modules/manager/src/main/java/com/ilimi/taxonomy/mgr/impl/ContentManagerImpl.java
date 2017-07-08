@@ -141,7 +141,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	public Response upload(String contentId, String taxonomyId, File uploadedFile) {
 		LOGGER.log("Content ID: " + contentId);
 		LOGGER.log("Graph ID: " + taxonomyId);
-		LOGGER.log("Uploaded File: " , uploadedFile.getAbsolutePath() , "INFO");
+		LOGGER.log("Uploaded File: " , uploadedFile.getAbsolutePath());
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
@@ -169,7 +169,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
 		if (null != uploadedFile && uploadedFile.exists()) {
 			try {
-				LOGGER.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId, "INFO");
+				LOGGER.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId);
 				uploadedFile.delete();
 			} catch (Exception e) {
 				LOGGER.log("Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
@@ -203,7 +203,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		String bundleFileName = (String) request.get("file_name");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
 		LOGGER.log("Bundle File Name: " + bundleFileName);
-		LOGGER.log("Total No. of Contents: " , contentIds.size(), "INFO");
+		LOGGER.log("Total No. of Contents: " , contentIds.size());
 		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
 					"ECAR file name should not be blank");

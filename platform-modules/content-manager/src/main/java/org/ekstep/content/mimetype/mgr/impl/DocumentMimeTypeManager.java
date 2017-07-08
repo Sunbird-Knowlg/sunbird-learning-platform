@@ -63,18 +63,18 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
+		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId + "INFO");
+			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId, "INFO");
+			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
@@ -95,7 +95,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId, "INFO");
+		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 
@@ -115,7 +115,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 			ContentValidator validator = new ContentValidator();
 			if(validator.exceptionChecks(mimeType, uploadedFile)){
 				
-				LOGGER.log("Calling Upload Content Node For Node ID: " , contentId + "INFO");
+				LOGGER.log("Calling Upload Content Node For Node ID: " , contentId);
 				String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 	
 				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);

@@ -119,7 +119,7 @@ public class BundleInitializer extends BaseInitializer {
 		LOGGER.log("Populating the Recursive (Children) Contents.");
 		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
 
-		LOGGER.log("Total Content To Bundle: " , nodes.size(), "INFO");
+		LOGGER.log("Total Content To Bundle: " , nodes.size());
 		ContentValidator validator = new ContentValidator();
 		Map<String, Object> bundleMap = new HashMap<String, Object>();
 		for (Node node : nodes) {

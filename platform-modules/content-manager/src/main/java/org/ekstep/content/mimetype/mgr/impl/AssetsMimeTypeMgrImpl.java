@@ -66,7 +66,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			LOGGER.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadFile, node.getIdentifier());
 
-			LOGGER.log("Updating the Content Node for Node ID: " , node.getIdentifier(), "INFO");
+			LOGGER.log("Updating the Content Node for Node ID: " , node.getIdentifier());
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
@@ -82,11 +82,11 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 								node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 								node.getMetadata().put("prevState", prevState);
 
-								LOGGER.log("Generating Telemetry Event. | [Content ID: " , node.getIdentifier(), "INFO");
+								LOGGER.log("Generating Telemetry Event. | [Content ID: " , node.getIdentifier());
 								LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
 					}
 					else {
-						LOGGER.log("Updating status to Live for mimeTypes other than image", node.getMetadata().get("contentType").toString(), "INFO");
+						LOGGER.log("Updating status to Live for mimeTypes other than image", node.getMetadata().get("contentType").toString());
 						node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 					}
 			}
@@ -145,16 +145,16 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		
 		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId, "INFO");
+		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId , "INFO");
+			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId, "INFO");
+			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;

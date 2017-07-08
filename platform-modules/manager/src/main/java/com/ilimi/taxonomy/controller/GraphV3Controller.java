@@ -53,7 +53,7 @@ public class GraphV3Controller extends BaseController {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = taxonomyManager.create(id, stream);
-			LOGGER.log("Create | Response: " , response, "INFO");
+			LOGGER.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Create | Exception: " , e.getMessage(), e);
@@ -98,7 +98,7 @@ public class GraphV3Controller extends BaseController {
 					resp.getOutputStream().close();
 				}
 			}
-			LOGGER.log("Export | Response: " , response, "INFO");
+			LOGGER.log("Export | Response: " , response);
 		} catch (Exception e) {
 			LOGGER.log("Create | Exception: " , e.getMessage(), e);
 		}
@@ -130,7 +130,7 @@ public class GraphV3Controller extends BaseController {
 		LOGGER.log("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findDefinition(graphId, objectType);
-			LOGGER.log("Find Definition | Response: " , response, "INFO");
+			LOGGER.log("Find Definition | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Definition | Exception: " , e.getMessage(), e);
@@ -147,7 +147,7 @@ public class GraphV3Controller extends BaseController {
 		LOGGER.log("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findAllDefinitions(graphId);
-			LOGGER.log("Find All Definitions | Response: " , response, "INFO");
+			LOGGER.log("Find All Definitions | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find All Definitions | Exception: " , e.getMessage(), e);

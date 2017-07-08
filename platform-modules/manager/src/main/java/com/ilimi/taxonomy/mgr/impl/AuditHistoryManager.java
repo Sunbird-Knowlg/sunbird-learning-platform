@@ -54,7 +54,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			Request request = new Request();
 			request.setRequest_id(audit.getRequestId());
 			request.put(CommonDACParams.audit_history_record.name(), audit);
-			LOGGER.log("Sending request to save Logs to DB" , request, "INFO");
+			LOGGER.log("Sending request to save Logs to DB" , request);
 			auditHistoryEsService.saveAuditHistoryLog(request);
 		} else {
 			LOGGER.log("Throws new exception on processing audit history record");
@@ -84,7 +84,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			LOGGER.log("Exception during creating request" , e.getMessage(), e);
 			e.printStackTrace();
 		}
-		LOGGER.log("Sending request to auditHistoryEsService" , request, "INFO");
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLog(request, versionId);
@@ -118,7 +118,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 			LOGGER.log("Exception during creating request" , e.getMessage(), e);
 			e.printStackTrace();
 		}
-		LOGGER.log("Sending request to auditHistoryEsService" , request, "INFO");
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLogByObjectType(request, versionId);
@@ -148,7 +148,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		request.put(CommonDACParams.start_date.name(), startTime);
 		request.put(CommonDACParams.end_date.name(), endTime);
 
-		LOGGER.log("Sending request to auditHistoryEsService" , request, "INFO");
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditHistoryLogByObjectId(request, versionId);
@@ -175,7 +175,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		}
 		request.put(CommonDACParams.time_stamp.name(), timeStamp);
 
-		LOGGER.log("Sending request to auditHistoryEsService" , request, "INFO");
+		LOGGER.log("Sending request to auditHistoryEsService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.getAuditLogRecordById(request);
@@ -195,7 +195,7 @@ public class AuditHistoryManager implements IAuditHistoryManager {
 		}
 		request.put(CommonDACParams.time_stamp.name(), timeStamp);
 
-		LOGGER.log("Sending request to auditHistoryESService" , request, "INFO");
+		LOGGER.log("Sending request to auditHistoryESService" , request);
 		Response response = null;
 		try {
 			response = auditHistoryEsService.deleteEsData(request);

@@ -50,7 +50,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         LOGGER.log("Create | TaxonomyId: " + taxonomyId + " | Request: " + request);
         try {
             Response response = assessmentManager.createItemSet(taxonomyId, request);
-            LOGGER.log("Create | Response: " , response.getResponseCode(), "INFO");
+            LOGGER.log("Create | Response: " , response.getResponseCode());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
@@ -68,7 +68,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.list";
         Request request = getRequest(map);
-        LOGGER.log("List all Items | TaxonomyId: " + taxonomyId , " | Request: " + request, "INFO");
+        LOGGER.log("List all Items | TaxonomyId: " + taxonomyId , " | Request: " + request);
         try {
         	ItemSetSearchCriteria criteria = new ItemSetSearchCriteria();
         	criteria.setResultSize(limit);
@@ -95,7 +95,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         LOGGER.log("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request);
         try {
             Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
-            LOGGER.log("Update | Response: " , response.getResponseCode(), "INFO");
+            LOGGER.log("Update | Response: " , response.getResponseCode());
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
@@ -111,7 +111,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
             @RequestParam(value = "isfields", required = false) String[] isfields) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.read";
-        LOGGER.log("Find | TaxonomyId: " + taxonomyId , " | Id: " + id + " | ifields: " + isfields, "INFO");
+        LOGGER.log("Find | TaxonomyId: " + taxonomyId , " | Id: " + id + " | ifields: " + isfields);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, false);
             LOGGER.log("Find | Response: " , response);
@@ -131,7 +131,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         LOGGER.log("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, true);
-            LOGGER.log("Find | Response: " , response, "INFO");
+            LOGGER.log("Find | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.log("Find | Exception: " , e.getMessage(), e);
@@ -148,7 +148,7 @@ public class AssessmentItemSetV3Controller extends BaseController {
         try {
             Request reqeust = getSearchRequest(map);
             Response response = assessmentManager.searchItemSets(taxonomyId, reqeust);
-            LOGGER.log("Search | Response: " , response.getResponseCode(), "INFO");
+            LOGGER.log("Search | Response: " , response.getResponseCode());
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.log("Search | Exception: " , e.getMessage(), e);

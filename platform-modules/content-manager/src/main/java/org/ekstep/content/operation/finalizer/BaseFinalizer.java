@@ -308,7 +308,7 @@ public class BaseFinalizer extends BasePipeline {
 	 */
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
-			LOGGER.log("Creating Zip File: " , zipFileName, "INFO");
+			LOGGER.log("Creating Zip File: " , zipFileName);
 			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
 			appZip.generateFileList(new File(basePath));
 			appZip.zipIt(zipFileName);

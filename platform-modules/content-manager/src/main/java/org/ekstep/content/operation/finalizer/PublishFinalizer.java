@@ -214,10 +214,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			Cloner cloner = new Cloner();
 			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
 
-			LOGGER.log("Initialising the ECAR variant Map For Content Id: " , node.getIdentifier(), "INFO");
+			LOGGER.log("Initialising the ECAR variant Map For Content Id: " , node.getIdentifier());
 			Map<String, Object> variants = new HashMap<String, Object>();
 
-			LOGGER.log("Creating Full ECAR For Content Id: ", node.getIdentifier(), "INFO");
+			LOGGER.log("Creating Full ECAR For Content Id: ", node.getIdentifier());
 			String bundleFileName = getBundleFileName(contentId, node, EcarPackageType.FULL);
 			ContentBundle contentBundle = new ContentBundle();
 			Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(contents, childrenIds,
@@ -228,7 +228,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			s3Key = urlArray[IDX_S3_KEY];
 			LOGGER.log("Set 'downloadUrl' and 's3Key' i.e. Full Ecar Url and s3Key.");
 
-			LOGGER.log("Creating Spine ECAR For Content Id: " , node.getIdentifier(), "INFO");
+			LOGGER.log("Creating Spine ECAR For Content Id: " , node.getIdentifier());
 			Map<String, Object> spineEcarMap = new HashMap<String, Object>();
 			String spineEcarFileName = getBundleFileName(contentId, node, EcarPackageType.SPINE);
 			downloadUrls = contentBundle.createContentManifestData(spineContents, childrenIds, null,
@@ -309,7 +309,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		
 		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(),
 				null);
-		LOGGER.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", contentId ,"INFO");
+		LOGGER.log("Generating Telemetry Event. | [Content ID: " + contentId + "]", contentId);
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
 				ContentWorkflowPipelineParams.Processing.name());
 		LogTelemetryEventUtil.logContentLifecycleEvent(contentId, newNode.getMetadata());
@@ -383,7 +383,7 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 
 	private String getBundleFileName(String contentId, Node node, EcarPackageType packageType) {
-		LOGGER.log("Generating Bundle File Name For ECAR Package Type: " , packageType.name(), "INFO");
+		LOGGER.log("Generating Bundle File Name For ECAR Package Type: " , packageType.name());
 		String fileName = "";
 		if (null != node && null != node.getMetadata() && null != packageType) {
 			String suffix = "";

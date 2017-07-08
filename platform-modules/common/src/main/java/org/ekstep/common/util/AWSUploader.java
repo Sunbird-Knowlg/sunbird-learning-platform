@@ -60,14 +60,14 @@ public class AWSUploader {
 		String key = file.getName();
 		String env = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = S3PropertyReader.getProperty(s3Bucket, env);
-		LOGGER.log("Fetching bucket name:" , bucketName, "INFO");
+		LOGGER.log("Fetching bucket name:" , bucketName);
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3.setRegion(region);
 		s3.putObject(new PutObjectRequest(bucketName + "/" + folderName, key, file));
 		s3.setObjectAcl(bucketName + "/" + folderName, key, CannedAccessControlList.PublicRead);
 		URL url = s3.getUrl(bucketName, folderName + "/" + key);
-		LOGGER.log("AWS Upload '" + file.getName() + "' complete", file.getName(), "INFO");
+		LOGGER.log("AWS Upload '" + file.getName() + "' complete", file.getName());
 		return new String[] { folderName + "/" + key, url.toURI().toString() };
 	}
 
@@ -90,12 +90,12 @@ public class AWSUploader {
 
 	public static List<String> getObjectList(String prefix) {
 		AmazonS3 s3 = new AmazonS3Client();
-		LOGGER.log("Reading s3 Bucket and Region" , s3Bucket + s3Environment, "INFO");
+		LOGGER.log("Reading s3 Bucket and Region" , s3Bucket + s3Environment);
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
-		LOGGER.log("SummaryData returned from s3 object Listing" , summaries.size(), "INFO");
+		LOGGER.log("SummaryData returned from s3 object Listing" , summaries.size());
 		List<String> fileList = new ArrayList<String>();
 		while (listing.isTruncated()) {
 			listing = s3.listNextBatchOfObjects(listing);
@@ -104,7 +104,7 @@ public class AWSUploader {
 		for (S3ObjectSummary data : summaries) {
 			fileList.add(data.getKey());
 		}
-		LOGGER.log("resource bundles fileList returned from s3" , fileList,"INFO");
+		LOGGER.log("resource bundles fileList returned from s3" , fileList);
 		return fileList;
 	}
 
@@ -127,7 +127,7 @@ public class AWSUploader {
 			url = url.replaceAll(oldPublicStringV2, newString);
 			url = url.replaceAll(oldConfigStringV1, newString);
 			url = url.replaceAll(oldConfigStringV2, newString);
-			LOGGER.log("Updated bucket url:" , url, "INFO");
+			LOGGER.log("Updated bucket url:" , url);
 		}
 		return url;
 	}

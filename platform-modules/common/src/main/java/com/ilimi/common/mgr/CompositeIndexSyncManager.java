@@ -95,7 +95,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_IDENTIFIER.name(),
 					"Identifier is blank.");
-		LOGGER.log("Composite index sync : " + graphId , " | Identifier: " + identifiers, "INFO");
+		LOGGER.log("Composite index sync : " + graphId , " | Identifier: " + identifiers);
 		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
 		if (null != identifiers && identifiers.length > 0) {
 			for (String identifier : identifiers) {
@@ -108,7 +108,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 							"Object not found: " + identifier);
 				}
 			}
-			LOGGER.log("Sync messages count : " , lstMessages.size(), "INFO");
+			LOGGER.log("Sync messages count : " , lstMessages.size());
 		}
 		return pushMessageToKafka(lstMessages);
 	}

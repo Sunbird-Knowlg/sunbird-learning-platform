@@ -1,5 +1,7 @@
 package com.ilimi.taxonomy.controller;
 
+import java.util.logging.LogManager;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
+import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
@@ -32,7 +35,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryV2Controller extends BaseController {
 	
 	/** The Logger */
-	private static ILogger LOGGER = new PlatformLogger(AuditHistoryV2Controller.class.getName());
+	private static ILogger LOGGER = PlatformLogManager.initiateLogger();
 	
 	private String versionId = getAPIVersion();
 	
@@ -65,7 +68,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ endTime);
 		try {
 			Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime, versionId);
-			LOGGER.log("Find Item | Response: " , response.getResponseCode(), "INFO");
+			LOGGER.log("Find Item | Response: " , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -104,7 +107,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			LOGGER.log("Find Item | Response: " , response.getResponseCode(), "INFO");
+			LOGGER.log("Find Item | Response: " , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -142,7 +145,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime, versionId);
-			LOGGER.log("Find Item | Response: " , response, "INFO");
+			LOGGER.log("Find Item | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -178,7 +181,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | objectId: " + objectId);
 		try {
 				Response response = auditHistoryManager.getAuditLogRecordById(objectId, timeStamp);
-				LOGGER.log("Find Item | Response: " , response.getResponseCode(), "INFO");
+				LOGGER.log("Find Item | Response: " , response.getResponseCode());
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);
@@ -197,7 +200,7 @@ public class AuditHistoryV2Controller extends BaseController {
 				+ " | objectId: " + start);
 		try {
 				Response response = auditHistoryManager.deleteAuditHistory(start);
-				LOGGER.log("delete Item | Response: " , response.getResponseCode(),  "INFO");
+				LOGGER.log("delete Item | Response: " , response.getResponseCode());
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("Find Item | Exception: " , e.getMessage(), e);

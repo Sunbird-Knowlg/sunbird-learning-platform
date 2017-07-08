@@ -20,79 +20,77 @@ public class PlatformLogger implements ILogger {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	private Logger logger = null;
-	private String className;
 
-	public PlatformLogger(String clsName) {
-		className = clsName;
-		logger = (Logger) LogManager.getLogger(clsName);
+	public void PlatformLoger(){
+		logger = (Logger) LogManager.getLogger();
 	}
 
-	private void info(String message, Object data) {
-		logger.info(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.INFO.name(), message, data));
+	private void info(String message, String className, String method, Object data) {
+		logger.info(getLogEvent(LoggerEnum.BE_LOG.name(), className, method, LoggerEnum.INFO.name(), message, data));
 	}
 
-	private void debug(String message, Object data) {
-		logger.debug(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.DEBUG.name(), message, data));
+	private void debug(String message, String className, String method, Object data) {
+		logger.debug(getLogEvent(LoggerEnum.BE_LOG.name(),className, method,  LoggerEnum.DEBUG.name(), message, data));
 	}
 
-	private void error(String message, Object data, Exception exception) {
-		logger.error(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.ERROR.name(), message, data, exception));
+	private void error(String message, String className, String method, Object data, Exception exception) {
+		logger.error(getLogEvent(LoggerEnum.BE_LOG.name(), className, method, LoggerEnum.ERROR.name(), message, data, exception));
 	}
 
-	private void warn(String message, Object data, Exception exception) {
-		logger.warn(getLogEvent(LoggerEnum.BE_LOG.name(), LoggerEnum.WARN.name(), message, data, exception));
+	private void warn(String message,String className, String method, Object data, Exception exception) {
+		logger.warn(getLogEvent(LoggerEnum.BE_LOG.name(),className, method, LoggerEnum.WARN.name(), message, data, exception));
 	}
 
-	public void log(String message, Object data) {
-		log(message, data, LoggerEnum.DEBUG.name());
+	public void log(String message, String className, String method, Object data) {
+		log(message,className, method, data, LoggerEnum.DEBUG.name());
 	}
 
-	public void log(String message) {
-		log(message, null, LoggerEnum.DEBUG.name());
+	public void log(String message, String className, String method) {
+		log(message, className, method, null, LoggerEnum.DEBUG.name());
 	}
 
-	public void log(String message, Object data, String logLevel) {
-		logData(message, data, null, logLevel);
+	public void log(String message, String className, String method, Object data, String logLevel) {
+		logData(message, className, method, data, null, logLevel);
 	}
 
-	public void log(String message, Object data, Exception e) {
-		logData(message, data, e, LoggerEnum.ERROR.name());
+	public void log(String message,String className, String method, Object data, Exception e) {
+		logData(message,className, method,  data, e, LoggerEnum.ERROR.name());
 	}
 
-	public void log(String message, Object data, Exception e, String logLevel) {
-		logData(message, data, e, logLevel);
+	public void log(String message, String className, String method, Object data, Exception e, String logLevel) {
+		logData(message, className, method, data, e, logLevel);
 	}
 
-	private void logData(String message, Object data, Exception e, String logLevel) {
+	private void logData(String message, String className, String method, Object data, Exception e, String logLevel) {
 		if (StringUtils.isNotBlank(logLevel)) {
 			switch (logLevel) {
 			case "INFO":
-				info(message, data);
+				info(message, className, method, data);
 				break;
 			case "DEBUG":
-				debug(message, data);
+				debug(message, className, method, data);
 				break;
 			case "WARN":
-				warn(message, data, e);
+				warn(message, className, method, data, e);
 				break;
 			case "ERROR":
-				error(message, data, e);
+				error(message, className, method, data, e);
 				break;
 			}
 		}
 	}
 
-	private String getLogEvent(String logName, String logLevel, String message, Object data) {
-		String logData = getLogMap(logName, logLevel, message, data, null);
+	private String getLogEvent(String logName, String className, String method, String logLevel, String message, Object data) {
+		String logData = getLogMap(logName,className, method, logLevel, message, data, null);
 		return logData;
 	}
 
-	private String getLogEvent(String logName, String logLevel, String message, Object data, Exception e) {
-		String logData = getLogMap(logName, logLevel, message, data, e);
+	private String getLogEvent(String logName, String className, String method, String logLevel, String message, Object data, Exception e) {
+		String logData = getLogMap(logName, className, method, logLevel, message, data, e);
 		return logData;
 	}
 
-	private String getLogMap(String logName, String logLevel, String message, Object data, Exception exception) {
+	private String getLogMap(String logName, String className, String method, String logLevel, String message, Object data, Exception exception) {
 		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();

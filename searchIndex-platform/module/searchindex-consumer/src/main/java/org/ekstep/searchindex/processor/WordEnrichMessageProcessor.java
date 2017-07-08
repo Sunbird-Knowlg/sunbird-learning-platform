@@ -24,7 +24,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Processing message: ", messageData, "INFO");
+			LOGGER.log("Processing message: ");
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
 			processMessage(message);
@@ -123,7 +123,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 			String requestBody = mapper.writeValueAsString(requestBodyMap);
 			LOGGER.log("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
 			HTTPUtil.makePostRequest(url, requestBody);
-			LOGGER.log("Word enriched for the lemma change successfully - wordId :", wordId, "INFO");
+			LOGGER.log("Word enriched for the lemma change successfully - wordId :", wordId);
 
 		} catch (Exception e) {
 			LOGGER.log("error when calling enrich api Language Id:" + languageId + " word :" + wordId + ",error",

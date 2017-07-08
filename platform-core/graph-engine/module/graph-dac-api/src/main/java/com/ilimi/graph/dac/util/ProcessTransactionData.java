@@ -38,7 +38,7 @@ public class ProcessTransactionData {
 	}
 
 	public void processTxnData(TransactionData data) {
-		LOGGER.log("Txn Data : " , data.toString(), "INFO");
+		LOGGER.log("Txn Data : ");
 		try {
 			List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 			if (kafkaMessages != null && !kafkaMessages.isEmpty())

@@ -63,7 +63,7 @@ public class ConfigV3Controller extends BaseController {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("ttl", 24.0);
-			LOGGER.log("get All ResourceBundles | Response: " , response + "Id" + apiId, "INFO");
+			LOGGER.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("getAllResources | Exception" , e.getMessage(), e);
@@ -92,7 +92,7 @@ public class ConfigV3Controller extends BaseController {
 					Map<String, Object> map = mapper.readValue(data, new TypeReference<Map<String, Object>>() {
 					});
 					response.put(languageId, map);
-					LOGGER.log("getResourceBundle | successResponse" , response.getResult(), "INFO");
+					LOGGER.log("getResourceBundle | successResponse" , response.getResponseCode());
 				} catch (Exception e) {
 					LOGGER.log("getResourceBundle | Exception" + e.getMessage(), e, "WARN");
 				}
@@ -135,7 +135,7 @@ public class ConfigV3Controller extends BaseController {
 			} catch (Exception e) {
 				LOGGER.log("Get Ordinals | Exception" , e.getMessage(), e, "WARN");
 			}
-			LOGGER.log("Get Ordinals | Response" , response.getResult(), "INFO");
+			LOGGER.log("Get Ordinals | Response" , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.log("getOrdinalsException" , e.getMessage(), e);
@@ -147,7 +147,7 @@ public class ConfigV3Controller extends BaseController {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(folderName);
-		LOGGER.log("ResourceBundle Urls fetched from s3" , res.size(),"INFO");
+		LOGGER.log("ResourceBundle Urls fetched from s3" , res.size());
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
 				apiUrl = baseUrl + data;

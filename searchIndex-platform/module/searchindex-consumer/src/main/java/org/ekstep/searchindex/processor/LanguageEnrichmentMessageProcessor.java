@@ -53,7 +53,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" , messageData, "INFO");
+			LOGGER.log("Reading from kafka consumer" , messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
 				LOGGER.log("checking if kafka message is blank or not" + messageData);
@@ -145,7 +145,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 			Map<String, Object> result = new HashMap<String, Object>();
 			try {
 				result = getComplexityMeasures(languageId, text);
-				LOGGER.log("complexity measures result" , result, "INFO");
+				LOGGER.log("complexity measures result" , result.size());
 
 				if (null != result && !result.isEmpty()) {
 					LOGGER.log("mapping complexity measures with node metadata and updating the node");
@@ -184,13 +184,13 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 		request_map.put("text", text);
 		requestObj.put("request", request_map);
 
-		LOGGER.log("creating request map to make rest post call" , requestObj, "INFO");
+		LOGGER.log("creating request map to make rest post call" , requestObj.size());
 		String request = mapper.writeValueAsString(requestObj);
 
 		LOGGER.log("making a post call to get complexity measures for a given text");
 		String result = HTTPUtil.makePostRequest(api_url, request);
 
-		LOGGER.log("response from complexity measures api" , result, "INFO");
+		LOGGER.log("response from complexity measures api");
 		Map<String, Object> responseObject = mapper.readValue(result, new TypeReference<Map<String, Object>>() {
 		});
 
@@ -391,7 +391,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 					node.setOutRelations(null);
 					node.setInRelations(null);
 					Response response = util.updateNode(node);
-					LOGGER.log("response of content update" , response.getResponseCode(), "INFO");
+					LOGGER.log("response of content update" , response.getResponseCode());
 				}
 			}
 		} catch (Exception e) {
@@ -457,7 +457,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 							if (!gradeLevel.contains(grade) && StringUtils.isNotBlank(grade)) {
 								gradeLevel.add(grade);
 
-								LOGGER.log("Updating node with gradeLevel" , gradeLevel, "INFO");
+								LOGGER.log("Updating node with gradeLevel" , gradeLevel.size());
 								node.getMetadata().put("gradeLevel", gradeLevel);
 							}
 						}

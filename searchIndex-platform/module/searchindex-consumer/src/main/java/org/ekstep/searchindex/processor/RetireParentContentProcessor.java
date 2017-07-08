@@ -46,7 +46,7 @@ public class RetireParentContentProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" , messageData, "INFO");
+			LOGGER.log("Reading from kafka consumer" , messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
@@ -95,7 +95,7 @@ public class RetireParentContentProcessor implements IMessageProcessor {
 										String parentContentId = relation.getStartNodeId();
 										LOGGER.log("content id - " + contentId + " has parent - parent content id -"
 												+ parentContentId
-												+ ", to make status as Draft as one of the child is Retired", parentContentId, "INFO");
+												+ ", to make status as Draft as one of the child is Retired", parentContentId);
 										Map<String, Object> parentNodeMap = GraphUtil.getDataNode("domain",
 												parentContentId);
 										Node parentNode = mapper.convertValue(parentNodeMap, Node.class);

@@ -53,7 +53,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = new HashMap<String, Object>();
 			if(StringUtils.isNotBlank(messageData)){
-				LOGGER.log("Reading from kafka consumer" , messageData ,"INFO");
+				LOGGER.log("Reading from kafka consumer");
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}
@@ -100,7 +100,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	 */
 	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) {
 		AuditHistoryRecord record = new AuditHistoryRecord();
-        LOGGER.log("Setting the audit history fields from transactionData" , transactionDataMap, "INFO");
+        LOGGER.log("Setting the audit history fields from transactionData" , transactionDataMap.size());
         try {
 			record.setUserId((String) transactionDataMap.get("userId"));
 			record.setRequestId((String) transactionDataMap.get("requestId"));

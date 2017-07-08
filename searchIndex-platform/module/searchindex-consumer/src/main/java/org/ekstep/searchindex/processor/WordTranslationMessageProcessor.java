@@ -56,7 +56,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 						String languageId = (String) data.get("languageId");
 						Map<String,String> finalDocumentMap = getIndexDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 								CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, lemma, languageId);
-						LOGGER.log("Adding/Updating translation index document", languageId, "INFO");
+						LOGGER.log("Adding/Updating translation index document", languageId);
 						if(finalDocumentMap!=null && finalDocumentMap.size()>0)
 						{
 							addOrUpdateIndex(id, finalDocumentMap);
@@ -69,7 +69,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 	}
 
 	private void addOrUpdateIndex(String uniqueId,Map<String, String> indexesMap) throws Exception {
-		LOGGER.log("Translation index created: Identifier: " , uniqueId, "INFO");
+		LOGGER.log("Translation index created: Identifier: " , uniqueId);
 		if(indexesMap!=null && indexesMap.size()>0){
 			LOGGER.log("Translation index size " + indexesMap.size());
 			elasticSearchUtil.bulkIndexWithIndexId(WordTranslationConstants.TRANSLATION_INDEX,
@@ -111,7 +111,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 			Map<String, Object> indexDocument = new HashMap<String, Object>();
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(index,type, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
-				LOGGER.log("Document exists for " , uniqueId, "INFO");
+				LOGGER.log("Document exists for " , uniqueId);
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
 				Object synsets = indexDocument.get("synonyms");
@@ -190,7 +190,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		String documentJson = elasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
 		if (documentJson != null && !documentJson.isEmpty()) {
-			LOGGER.log("Document exists for " , id, "INFO");
+			LOGGER.log("Document exists for " , id);
 			indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 			});
 			Object words = indexDocument.get("synonyms");
