@@ -12,7 +12,6 @@ import org.ekstep.language.models.DictionaryObject;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;;
 import com.ilimi.common.util.PlatformLogger;
 
 import akka.actor.ActorRef;

@@ -12,7 +12,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;;
 import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.common.util.PlatformLogger;
 import com.ilimi.dac.dto.AuditHistoryRecord;

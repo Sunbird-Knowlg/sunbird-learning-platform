@@ -16,7 +16,6 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;

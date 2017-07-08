@@ -6,7 +6,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;;
 import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.engine.router.GraphEngineManagers;

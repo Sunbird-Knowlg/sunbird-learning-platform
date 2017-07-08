@@ -15,7 +15,6 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;;
 import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.model.Node;
 
