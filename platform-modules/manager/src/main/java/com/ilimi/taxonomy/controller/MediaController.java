@@ -19,14 +19,13 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 @Controller
 @RequestMapping("/media")
 public class MediaController extends BaseController {
     
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
     
     private static final String s3Media = "s3.media.folder";
 
@@ -34,7 +33,7 @@ public class MediaController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> upload(@RequestParam(value = "file", required = true) MultipartFile file) {
         String apiId = "media.upload";
-        LOGGER.log("Upload | File: " + file);
+        PlatformLogger.log("Upload | File: " + file);
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
                     + FilenameUtils.getExtension(file.getOriginalFilename());
@@ -56,10 +55,10 @@ public class MediaController extends BaseController {
             params.setStatus(StatusType.successful.name());
             params.setErrmsg("Operation successful");
             response.setParams(params);
-            LOGGER.log("Upload | Response: " , response);
+            PlatformLogger.log("Upload | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.log("Upload | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

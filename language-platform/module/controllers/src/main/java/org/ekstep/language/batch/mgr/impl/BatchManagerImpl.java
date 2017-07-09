@@ -25,8 +25,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -54,7 +53,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 	private WordChainUtil wordChainUtil = new WordChainUtil();
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The Constant BATCH. */
 	private static final int BATCH = 1000;
@@ -73,7 +72,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("CorrectWordnetData starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("CorrectWordnetData starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> words = new ArrayList<String>();
 				Map<String, Node> nodeMap = new HashMap<String, Node>();
@@ -81,12 +80,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
 						LanguageOperations.getWordFeatures.name());
 				langReq.put(LanguageParams.words.name(), words);
-				Response langRes = getLanguageResponse(langReq, LOGGER);
+				Response langRes = getLanguageResponse(langReq);
 				Map<String, WordComplexity> featureMap = new HashMap<String, WordComplexity>();
 				if (!checkError(langRes)) {
 					featureMap = (Map<String, WordComplexity>) langRes.get(LanguageParams.word_features.name());
 					if (null != featureMap)
-						LOGGER.log("Word features returned for " + featureMap.size() + " words");
+						PlatformLogger.log("Word features returned for " + featureMap.size() + " words");
 				}
 				for (Node node : nodes) {
 					Object pictures = null;
@@ -129,29 +128,29 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								wordChainUtil.updateWordSet(languageId, node, wc);
 							} catch (Exception e) {
-								LOGGER.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+								PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 							}
 						}
 					}
 					try {
 						wordUtil.getWordComplexity(node, languageId);
 					} catch (Exception e) {
-						LOGGER.log("Update wordcomplexity error : " + node.getIdentifier() , e.getMessage(),
+						PlatformLogger.log("Update wordcomplexity error : " + node.getIdentifier() , e.getMessage(),
 								e);
 						Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 						updateReq.put(GraphDACParams.node.name(), node);
 						updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 						try {
-							getResponse(updateReq, LOGGER);
+							getResponse(updateReq);
 						} catch (Exception ex) {
-							LOGGER.log("Update error : " + node.getIdentifier() , ex.getMessage(), ex);
+							PlatformLogger.log("Update error : " + node.getIdentifier() , ex.getMessage(), ex);
 						}
 					}
 				}
-				LOGGER.log("CorrectWordnetData complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("CorrectWordnetData complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -172,7 +171,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("UpdatePictures starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("UpdatePictures starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					Object pictures = null;
@@ -198,15 +197,15 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					updateReq.put(GraphDACParams.node.name(), node);
 					updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 					try {
-						getResponse(updateReq, LOGGER);
+						getResponse(updateReq);
 					} catch (Exception e) {
-						LOGGER.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 					}
 				}
-				LOGGER.log("UpdatePictures complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("UpdatePictures complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -227,7 +226,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("cleanupWordNetData starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("cleanupWordNetData starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> list = new ArrayList<String>();
 				list.add(ATTRIB_SOURCE_IWN);
@@ -248,25 +247,25 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							updateReq.put(GraphDACParams.node.name(), wordNode);
 							updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
 							try {
-								getResponse(updateReq, LOGGER);
+								getResponse(updateReq);
 							} catch (Exception e) {
-								LOGGER.log("Update error : " + wordNode.getIdentifier() , e.getMessage(), e);
+								PlatformLogger.log("Update error : " + wordNode.getIdentifier() , e.getMessage(), e);
 							}
 						}
 					} else {
 						Request deleteReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
 						deleteReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 						try {
-							getResponse(deleteReq, LOGGER);
+							getResponse(deleteReq);
 						} catch (Exception e) {
-							LOGGER.log("Delete error : " + node.getIdentifier() , e.getMessage(), e);
+							PlatformLogger.log("Delete error : " + node.getIdentifier() , e.getMessage(), e);
 						}
 					}
 				}
-				LOGGER.log("cleanupWordNetData complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("cleanupWordNetData complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -294,7 +293,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, start, batch);
-			LOGGER.log("updateWordChain starts from " + start + " - " + batch + " words");
+			PlatformLogger.log("updateWordChain starts from " + start + " - " + batch + " words");
 			fetchCount += batch;
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> words = new ArrayList<String>();
@@ -303,12 +302,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
 						LanguageOperations.getWordFeatures.name());
 				langReq.put(LanguageParams.words.name(), words);
-				Response langRes = getLanguageResponse(langReq, LOGGER);
+				Response langRes = getLanguageResponse(langReq);
 				Map<String, WordComplexity> featureMap = new HashMap<String, WordComplexity>();
 				if (!checkError(langRes)) {
 					featureMap = (Map<String, WordComplexity>) langRes.get(LanguageParams.word_features.name());
 					if (null != featureMap)
-						LOGGER.log("Word features returned for " + featureMap.size() + " words");
+						PlatformLogger.log("Word features returned for " + featureMap.size() + " words");
 
 				}
 				for (Node node : nodes) {
@@ -321,12 +320,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 							try {
 								wordChainUtil.updateWordSet(languageId, node, wc);
 							} catch (Exception e) {
-								LOGGER.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+								PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 							}
 						}
 					}
 				}
-				LOGGER.log("updateWordChain complete from " + start + " - " + batch + " words");
+				PlatformLogger.log("updateWordChain complete from " + start + " - " + batch + " words");
 				start += batch;
 				if (null != total && fetchCount >= total) {
 					found = false;
@@ -334,7 +333,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 				}
 
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -427,7 +426,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("setPrimaryMeaning starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("setPrimaryMeaning starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					Map<String, Object> metadata = node.getMetadata();
@@ -459,15 +458,15 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					updateReq.put(GraphDACParams.node.name(), wordNode);
 					updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
 					try {
-						getResponse(updateReq, LOGGER);
+						getResponse(updateReq);
 					} catch (Exception e) {
-						LOGGER.log("Update error : " + wordNode.getIdentifier(),  e.getMessage(), e);
+						PlatformLogger.log("Update error : " + wordNode.getIdentifier(),  e.getMessage(), e);
 					}
 				}
-				LOGGER.log("setPrimaryMeaning complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("setPrimaryMeaning complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -487,7 +486,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("updatePosList starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("updatePosList starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					WordnetUtil.updatePOS(node);
@@ -495,15 +494,15 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 					updateReq.put(GraphDACParams.node.name(), node);
 					updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 					try {
-						getResponse(updateReq, LOGGER);
+						getResponse(updateReq);
 					} catch (Exception e) {
-						LOGGER.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 					}
 				}
-				LOGGER.log("updatePosList complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("updatePosList complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -524,19 +523,19 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("updateWordComplexity starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("updateWordComplexity starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				for (Node node : nodes) {
 					try {
 						wordUtil.getWordComplexity(node, languageId);
 					} catch (Exception e) {
-						LOGGER.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+						PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 					}
 				}
-				LOGGER.log("updateWordComplexity complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("updateWordComplexity complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -558,7 +557,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("updateWordFeatures starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("updateWordFeatures starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				List<String> words = new ArrayList<String>();
 				Map<String, Node> nodeMap = new HashMap<String, Node>();
@@ -566,14 +565,14 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
 						LanguageOperations.getWordFeatures.name());
 				langReq.put(LanguageParams.words.name(), words);
-				Response langRes = getLanguageResponse(langReq, LOGGER);
+				Response langRes = getLanguageResponse(langReq);
 				if (checkError(langRes))
 					return langRes;
 				else {
 					Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
 							.get(LanguageParams.word_features.name());
 					if (null != featureMap && !featureMap.isEmpty()) {
-						LOGGER.log("Word features returned for " + featureMap.size() + " words");
+						PlatformLogger.log("Word features returned for " + featureMap.size() + " words");
 						for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
 							Node node = nodeMap.get(entry.getKey());
 							WordComplexity wc = entry.getValue();
@@ -588,18 +587,18 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 								updateReq.put(GraphDACParams.node.name(), node);
 								updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 								try {
-									getResponse(updateReq, LOGGER);
+									getResponse(updateReq);
 								} catch (Exception e) {
-									LOGGER.log("Update error : " + node.getIdentifier() ,e.getMessage(), e);
+									PlatformLogger.log("Update error : " + node.getIdentifier() ,e.getMessage(), e);
 								}
 							}
 						}
 					}
 				}
-				LOGGER.log("updateWordFeatures complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("updateWordFeatures complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -621,21 +620,21 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		boolean found = true;
 		while (found) {
 			List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
-			LOGGER.log("updateFrequencyCounts starts from " + startPosistion + " - " + BATCH + " words");
+			PlatformLogger.log("updateFrequencyCounts starts from " + startPosistion + " - " + BATCH + " words");
 			if (null != nodes && !nodes.isEmpty()) {
 				String[] groupBy = new String[] { "pos", "sourceType", "source", "grade" };
 				List<String> words = new ArrayList<String>();
 				Map<String, Node> nodeMap = new HashMap<String, Node>();
 				controllerUtil.getNodeMap(nodes, nodeMap, words);
 				if (null != words && !words.isEmpty()) {
-					LOGGER.log("Total words: " + nodes.size());
+					PlatformLogger.log("Total words: " + nodes.size());
 					Map<String, Object> indexesMap = new HashMap<String, Object>();
 					Map<String, Object> wordInfoMap = new HashMap<String, Object>();
 					List<String> groupList = Arrays.asList(groupBy);
 					controllerUtil.getIndexInfo(languageId, indexesMap, words, groupList);
-					LOGGER.log("indexesMap size: " + indexesMap.size());
+					PlatformLogger.log("indexesMap size: " + indexesMap.size());
 					controllerUtil.getWordInfo(languageId, wordInfoMap, words);
-					LOGGER.log("wordInfoMap size: " + wordInfoMap.size());
+					PlatformLogger.log("wordInfoMap size: " + wordInfoMap.size());
 					if (null != nodeMap && !nodeMap.isEmpty()) {
 						for (Entry<String, Node> entry : nodeMap.entrySet()) {
 							Node node = entry.getValue();
@@ -679,18 +678,18 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 								updateReq.put(GraphDACParams.node.name(), node);
 								updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 								try {
-									getResponse(updateReq, LOGGER);
+									getResponse(updateReq);
 								} catch (Exception e) {
-									LOGGER.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
+									PlatformLogger.log("Update error : " + node.getIdentifier() , e.getMessage(), e);
 								}
 							}
 						}
 					}
 				}
-				LOGGER.log("updateFrequencyCounts complete from " + startPosistion + " - " + BATCH + " words");
+				PlatformLogger.log("updateFrequencyCounts complete from " + startPosistion + " - " + BATCH + " words");
 				startPosistion += BATCH;
 			} else {
-				LOGGER.log("No more words");
+				PlatformLogger.log("No more words");
 				found = false;
 				break;
 			}
@@ -719,7 +718,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		req.put(GraphDACParams.get_tags.name(), true);
-		Response listRes = getResponse(req, LOGGER);
+		Response listRes = getResponse(req);
 		if (checkError(listRes))
 			throw new ResourceNotFoundException("WORDS_NOT_FOUND", "Words not found for language: " + languageId);
 		else {

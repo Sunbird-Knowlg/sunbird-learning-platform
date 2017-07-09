@@ -16,13 +16,12 @@ import org.ekstep.common.util.S3PropertyReader;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 @CoverageIgnore
 public class PublishWebHookInvoker {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	private static Map<String, String> urlMap = new HashMap<String, String>();
@@ -40,10 +39,10 @@ public class PublishWebHookInvoker {
 	public static void invokePublishWebKook(String contentId, final String status, final String error) {
 		ExecutorService pool = null;
 		try {
-			LOGGER.log("Call PublishWebHook API: " + contentId + " | Status: " + status + " | Error: " + error);
+			PlatformLogger.log("Call PublishWebHook API: " + contentId + " | Status: " + status + " | Error: " + error);
 			String env = S3PropertyReader.getProperty("s3.env");
 			String url = urlMap.get(env);
-			LOGGER.log("PublishWebHook API URL: " + url + " | Environment: " + env);
+			PlatformLogger.log("PublishWebHook API URL: " + url + " | Environment: " + env);
 			if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(contentId)) {
 				final String endPoint = url;
 				pool = Executors.newFixedThreadPool(1);
@@ -61,7 +60,7 @@ public class PublishWebHookInvoker {
 				});
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error sending Content2Vec request", e.getMessage(), e);
+			PlatformLogger.log("Error sending Content2Vec request", e.getMessage(), e);
 		} finally {
 			if (null != pool)
 				pool.shutdown();
@@ -79,9 +78,9 @@ public class PublishWebHookInvoker {
 				post.setEntity(new StringEntity(body));
 			}
 			HttpResponse response = client.execute(post);
-			LOGGER.log("PublishWebHook API: " + url + " | responseCode: " , response.getStatusLine().getStatusCode());
+			PlatformLogger.log("PublishWebHook API: " + url + " | responseCode: " , response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
-			LOGGER.log("Error calling PublishWebHook api", e.getMessage(), e);
+			PlatformLogger.log("Error calling PublishWebHook api", e.getMessage(), e);
 		}
 	}
 }

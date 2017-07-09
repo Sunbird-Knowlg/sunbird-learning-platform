@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * Loads properties from a properties file and supports operations to retrieve
@@ -23,14 +22,14 @@ public class PropertiesUtil {
 	private static InputStream input = null;
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	//load language-indexes.properties by default
 	static {
 		String filename = "language-indexes.properties";
 		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
 		if (input == null) {
-			LOGGER.log("Unable to find " + filename);
+			PlatformLogger.log("Unable to find " + filename);
 		}
 		try {
 			prop.load(input);

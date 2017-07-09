@@ -14,16 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.HealthCheckManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.LoggerEnum;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 
 @Component
 public class LanguageHealthCheckManager extends HealthCheckManager {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private static final int MAX_THREAD_NUM = 10;
 
 	@Autowired
@@ -39,7 +38,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 		FutureTask<Map<String, Object>> futureTask_graph = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
 			@Override
 			public Map<String, Object> call() {
-				return checkGraphHealth("en", LOGGER);
+				return checkGraphHealth("en");
 			}
 		});
 		taskList.add(futureTask_graph);
@@ -94,7 +93,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
-			LOGGER.log("Exception", e.getMessage(), LoggerEnum.WARN.name());
+			PlatformLogger.log("Exception", e.getMessage(), LoggerEnum.WARN.name());
 			check.put("healthy", false);
 			check.put("err", "503"); // error code, if any
 			check.put("errmsg", " MongoDB is not available"); 

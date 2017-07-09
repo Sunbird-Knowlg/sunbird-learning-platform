@@ -42,8 +42,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -56,7 +55,7 @@ public class LanguageIndexTest extends BaseLanguageTest{
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	//private static String TEST_LANGUAGE = "testone";
 //	private static String TEST_LOAD_LANGUAGE = "testoneload";
 
@@ -112,23 +111,22 @@ public class LanguageIndexTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addWordIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.log("List | Request: " , request);
+		PlatformLogger.log("List | Request: " , request);
 		try {
-			Response response = RequestResponseTestHelper.getResponse(request,
-					LOGGER);
-			LOGGER.log("List | Response: " , response);
+			Response response = RequestResponseTestHelper.getResponse(request);
+			PlatformLogger.log("List | Response: " , response);
 			ResponseEntity<Response> responseEntity = RequestResponseTestHelper
 					.getResponseEntity(response, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			LOGGER.log("List | Response: " , response);
+			PlatformLogger.log("List | Response: " , response);
 		} catch (Exception e) {
-			LOGGER.log("List | Exception: " , e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			ResponseEntity<Response> responseEntity = RequestResponseTestHelper
 					.getExceptionResponseEntity(e, apiId, (null != request
 							.getParams()) ? request.getParams().getMsgid()
 							: null);
-			LOGGER.log("List | Response: " , responseEntity);
+			PlatformLogger.log("List | Response: " , responseEntity);
 		}
 	}
 
@@ -144,16 +142,16 @@ public class LanguageIndexTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.log("List | Request: " , request);
+		PlatformLogger.log("List | Request: " , request);
 		try {
 			Response response = RequestResponseTestHelper
-					.getBulkOperationResponse(request, LOGGER);
-			LOGGER.log("List | Response: " , response);
+					.getBulkOperationResponse(request);
+			PlatformLogger.log("List | Response: " , response);
 			RequestResponseTestHelper.getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.log("List | Exception: " , e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			RequestResponseTestHelper.getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams()
 							.getMsgid() : null);

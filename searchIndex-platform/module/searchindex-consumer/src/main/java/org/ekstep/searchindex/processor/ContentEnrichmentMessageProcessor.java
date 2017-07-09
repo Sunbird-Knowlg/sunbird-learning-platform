@@ -22,8 +22,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -51,7 +50,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	private static final String s3Artifact = "s3.artifact.folder";
 	
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The ObjectMapper */
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -73,11 +72,11 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			LOGGER.log("Reading from kafka consumer" , messageData);
+			PlatformLogger.log("Reading from kafka consumer" , messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 
 			if (StringUtils.isNotBlank(messageData)) {
-				LOGGER.log("checking if kafka message is blank or not" + messageData);
+				PlatformLogger.log("checking if kafka message is blank or not" + messageData);
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}
@@ -88,7 +87,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					processMessage(message);
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error while processing kafka message", e.getMessage(), e);
+			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
 		}
 	}
 
@@ -101,16 +100,16 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
 
-		LOGGER.log("filtering out the kafka message" + message);
+		PlatformLogger.log("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
 
 		if (null != node) {
 			if (node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name())
 					.equals(ContentWorkflowPipelineParams.Collection.name())) {
-				LOGGER.log("Processing Collection :" + node.getIdentifier());
+				PlatformLogger.log("Processing Collection :" + node.getIdentifier());
 				processCollection(node);
 			} else {
-				LOGGER.log("calling processData to fetch node metadata" + node);
+				PlatformLogger.log("calling processData to fetch node metadata" + node);
 				processData(node);
 			}
 			if (node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())
@@ -134,24 +133,24 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		Set<String> conceptGrades = new HashSet<String>();
 		Map<String, Object> result = new HashMap<String, Object>();
 
-		LOGGER.log("getting graphId and contentId from node");
+		PlatformLogger.log("getting graphId and contentId from node");
 		String graphId = node.getGraphId();
 		String contentId = node.getIdentifier();
 
-		LOGGER.log("checking if node contains outRelations");
+		PlatformLogger.log("checking if node contains outRelations");
 		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<Relation> outRelations = node.getOutRelations();
 			result = getOutRelationsMap(outRelations);
 		}
 
-		LOGGER.log("fetching conceptIds from result" + result.containsKey("conceptIds"));
+		PlatformLogger.log("fetching conceptIds from result" + result.containsKey("conceptIds"));
 		if (null != result.get("conceptIds")) {
 			List list = (List) result.get("conceptIds");
 			if (null != list && !list.isEmpty())
 				conceptIds.addAll(list);
 		}
 
-		LOGGER.log("fetching conceptGrades from result" + result.containsKey("conceptGrades"));
+		PlatformLogger.log("fetching conceptGrades from result" + result.containsKey("conceptGrades"));
 		if (null != result.get("conceptGrades")) {
 			List list = (List) result.get("conceptGrades");
 			if (null != list && !list.isEmpty())
@@ -185,23 +184,23 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			}
 		}
 
-		LOGGER.log("calling getItemsMap method to get items from item sets");
+		PlatformLogger.log("calling getItemsMap method to get items from item sets");
 		List<String> items = getItemsMap(node, graphId, contentId);
 
-		LOGGER.log("null and empty check for items" + items.isEmpty());
+		PlatformLogger.log("null and empty check for items" + items.isEmpty());
 		if (null != items && !items.isEmpty()) {
-			LOGGER.log("calling getConceptsFromItems method to get concepts from items" + items);
+			PlatformLogger.log("calling getConceptsFromItems method to get concepts from items" + items);
 			getConceptsFromItems(graphId, contentId, items, node, conceptIds, conceptGrades);
 
 		} else if (null != conceptGrades && !conceptGrades.isEmpty()) {
 
-			LOGGER.log("calling process grades method to fetch and update grades");
+			PlatformLogger.log("calling process grades method to fetch and update grades");
 			Node content_node = processGrades(node, null, conceptGrades);
 
-			LOGGER.log("calling processAgeGroup method to process ageGroups from gradeLevels");
+			PlatformLogger.log("calling processAgeGroup method to process ageGroups from gradeLevels");
 			Node contentNode = processAgeGroup(content_node);
 
-			LOGGER.log("updating node with extracted features" + contentNode);
+			PlatformLogger.log("updating node with extracted features" + contentNode);
 			util.updateNode(contentNode);
 		}
 	}
@@ -213,7 +212,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		try {
 			Map<String, Object> dataMap = new HashMap<>();
 			dataMap = processChildren(node, graphId, dataMap);
-			LOGGER.log("Processed Child nodes");
+			PlatformLogger.log("Processed Child nodes");
 			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
 				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
 					continue;
@@ -231,7 +230,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					Set<String> valueSet = (HashSet<String>) entry.getValue();
 					String[] value = valueSet.toArray(new String[valueSet.size()]);
 					node.getMetadata().put(entry.getKey(), value);
-					LOGGER.log("Updating property" + entry.getKey() + ":" + value);
+					PlatformLogger.log("Updating property" + entry.getKey() + ":" + value);
 				}
 			}
 			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
@@ -251,22 +250,22 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				node.getMetadata().put("keywords", keywordsList);
 			}
 			util.updateNode(node);
-			LOGGER.log("Keywords ->" + node.getMetadata().get("keywords"));
+			PlatformLogger.log("Keywords ->" + node.getMetadata().get("keywords"));
 			List<String> concepts = new ArrayList<>();
-			LOGGER.log("Concepts DataMap " + dataMap.get("concepts"));
+			PlatformLogger.log("Concepts DataMap " + dataMap.get("concepts"));
 			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
 			if (null != concepts && !concepts.isEmpty()) {
 				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
 			}
-			LOGGER.log("Updated Concepts ->" + concepts);
+			PlatformLogger.log("Updated Concepts ->" + concepts);
 		} catch (Exception e) {
-			LOGGER.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
 	}
 
 	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap)
 			throws Exception {
-		LOGGER.log("In processChildren");
+		PlatformLogger.log("In processChildren");
 		List<String> children;
 		children = getChildren(node);
 		for (String child : children) {
@@ -279,7 +278,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap)throws Exception {
-		LOGGER.log("In mergeMap");
+		PlatformLogger.log("In mergeMap");
 		if (dataMap.isEmpty()) {
 			dataMap.putAll(childDataMap);
 		} else {
@@ -303,7 +302,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	}
 
 	private List<String> getChildren(Node node) throws Exception {
-		LOGGER.log("In getChildren");
+		PlatformLogger.log("In getChildren");
 		List<String> children = new ArrayList<>();
 		for (Relation rel : node.getOutRelations()) {
 			if (ContentWorkflowPipelineParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
@@ -314,7 +313,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	}
 
 	private Map<String, Object> processChild(Node node) throws Exception {
-		LOGGER.log("In processChild");
+		PlatformLogger.log("In processChild");
 		Map<String, Object> result = new HashMap<>();
 		Set<Object> language = new HashSet<Object>();
 		Set<Object> concepts = new HashSet<Object>();
@@ -373,14 +372,14 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		}
 		for (Relation rel : node.getOutRelations()) {
 			if ("Concept".equalsIgnoreCase(rel.getEndNodeObjectType())) {
-				LOGGER.log("EndNodeId as Concept ->" + rel.getEndNodeId());
+				PlatformLogger.log("EndNodeId as Concept ->" + rel.getEndNodeId());
 				concepts.add(rel.getEndNodeId());
 			}
 		}
 		if (null != concepts && !concepts.isEmpty()) {
 			result.put("concepts", concepts);
 		}
-		LOGGER.log("Concept in resultMap->" , result.get("concepts"));
+		PlatformLogger.log("Concept in resultMap->" , result.get("concepts"));
 		return result;
 	}
 
@@ -407,44 +406,44 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 				List<Relation> outRelations = node.getOutRelations();
 
-				LOGGER.log("outRelations fetched from each item" + outRelations);
+				PlatformLogger.log("outRelations fetched from each item" + outRelations);
 				if (null != outRelations && !outRelations.isEmpty()) {
 
-					LOGGER.log("Iterating through relations");
+					PlatformLogger.log("Iterating through relations");
 					for (Relation rel : outRelations) {
 
-						LOGGER.log("Get item sets associated with the content: " + contentId);
+						PlatformLogger.log("Get item sets associated with the content: " + contentId);
 						if (StringUtils.equalsIgnoreCase("ItemSet", rel.getEndNodeObjectType())
 								&& !itemSets.contains(rel.getEndNodeId()))
 							itemSets.add(rel.getEndNodeId());
 					}
 				}
 			}
-			LOGGER.log("checking if itemSets are empty" + itemSets);
+			PlatformLogger.log("checking if itemSets are empty" + itemSets);
 			if (null != itemSets && !itemSets.isEmpty()) {
 
-				LOGGER.log("Number of item sets: " + itemSets.size());
+				PlatformLogger.log("Number of item sets: " + itemSets.size());
 				Set<String> itemIds = new HashSet<String>();
 
-				LOGGER.log("Iterating through itemSet map" + itemSets);
+				PlatformLogger.log("Iterating through itemSet map" + itemSets);
 				for (String itemSet : itemSets) {
 
-					LOGGER.log("calling getItemSetMembers methods to get items from itemSets");
+					PlatformLogger.log("calling getItemSetMembers methods to get items from itemSets");
 					List<String> members = getItemSetMembers(graphId, itemSet);
 
-					LOGGER.log("getting item memebers from item set" + members);
+					PlatformLogger.log("getting item memebers from item set" + members);
 					if (null != members && !members.isEmpty())
 						itemIds.addAll(members);
 				}
-				LOGGER.log("Total number of items: " + itemIds.size());
+				PlatformLogger.log("Total number of items: " + itemIds.size());
 				if (!itemIds.isEmpty()) {
 					items = new ArrayList<String>(itemIds);
-					LOGGER.log("getting items associated with itemsets" , items);
+					PlatformLogger.log("getting items associated with itemsets" , items);
 
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.log("exception occured while getting item and itemsets", e);
+			PlatformLogger.log("exception occured while getting item and itemsets", e);
 		}
 		return items;
 	}
@@ -465,15 +464,15 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	private List<String> getItemSetMembers(String graphId, String itemSetId) {
 
 		List<String> members = new ArrayList<String>();
-		LOGGER.log("Get members of items set: " + itemSetId);
+		PlatformLogger.log("Get members of items set: " + itemSetId);
 		Response response = util.getCollectionMembers(graphId, itemSetId, CollectionTypes.SET.name());
 
-		LOGGER.log("checking if response is null" + response);
+		PlatformLogger.log("checking if response is null" + response);
 		if (null != response) {
-			LOGGER.log("getting members from response");
+			PlatformLogger.log("getting members from response");
 			members = (List<String>) response.get(GraphDACParams.members.name());
 		}
-		LOGGER.log("item members fetched from itemSets" , members.size());
+		PlatformLogger.log("item members fetched from itemSets" , members.size());
 		return members;
 	}
 
@@ -505,39 +504,39 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		Response response = null;
 		Set<String> itemGrades = new HashSet<String>();
 
-		LOGGER.log("checking if itemsList is empty" + items);
+		PlatformLogger.log("checking if itemsList is empty" + items);
 		if (null != items && !items.isEmpty()) {
-			LOGGER.log("getting all items Data from itemIds" , items);
+			PlatformLogger.log("getting all items Data from itemIds" , items);
 
 			response = util.getDataNodes(graphId, items);
-			LOGGER.log("response from getDataNodes" + response);
+			PlatformLogger.log("response from getDataNodes" + response);
 		}
 
-		LOGGER.log("checking if response is null" + response);
+		PlatformLogger.log("checking if response is null" + response);
 		if (null != response) {
 
 			List<Node> item_nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 
-			LOGGER.log("List of nodes retrieved from response" + item_nodes.size());
+			PlatformLogger.log("List of nodes retrieved from response" + item_nodes.size());
 			if (null != item_nodes && !item_nodes.isEmpty()) {
 
-				LOGGER.log("Iterating through item_nodes");
+				PlatformLogger.log("Iterating through item_nodes");
 				for (Node node : item_nodes) {
 
-					LOGGER.log("Checking if item node contains gradeLevel");
+					PlatformLogger.log("Checking if item node contains gradeLevel");
 					if (null != node.getMetadata().get("gradeLevel")) {
 						String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
 						for (String grade : grade_array) {
-							LOGGER.log("adding item grades" + grade);
+							PlatformLogger.log("adding item grades" + grade);
 							itemGrades.add(grade);
 						}
 					}
 
 					List<Relation> outRelations = node.getOutRelations();
-					LOGGER.log("calling getOutRelationsMap" + outRelations);
+					PlatformLogger.log("calling getOutRelationsMap" + outRelations);
 					Map<String, Object> result = getOutRelationsMap(outRelations);
 
-					LOGGER.log("fetching conceptIds from result" + result);
+					PlatformLogger.log("fetching conceptIds from result" + result);
 					if (null != result.get("conceptIds")) {
 						List list = (List) result.get("conceptIds");
 						if (null != list && !list.isEmpty())
@@ -547,24 +546,24 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 			}
 		}
 		List<String> totalConceptIds = new ArrayList<String>();
-		LOGGER.log("adding conceptId from content node to list");
+		PlatformLogger.log("adding conceptId from content node to list");
 		if (null != existingConceptIds && !existingConceptIds.isEmpty()) {
 			totalConceptIds.addAll(existingConceptIds);
 		}
 
-		LOGGER.log("calling process grades method to fetch and update grades");
+		PlatformLogger.log("calling process grades method to fetch and update grades");
 		Node node = processGrades(content, itemGrades, existingConceptGrades);
 
-		LOGGER.log("calling processAgeGroup method to process ageGroups from gradeLevels");
+		PlatformLogger.log("calling processAgeGroup method to process ageGroups from gradeLevels");
 		Node content_node = processAgeGroup(node);
 
-		LOGGER.log("updating node with extracted features" , content_node.getIdentifier());
+		PlatformLogger.log("updating node with extracted features" , content_node.getIdentifier());
 		node.setOutRelations(null);
 		node.setInRelations(null);
 		util.updateNode(content_node);
 
 		if (null != totalConceptIds && !totalConceptIds.isEmpty()) {
-			LOGGER.log("result node after adding required metadata" + node);
+			PlatformLogger.log("result node after adding required metadata" + node);
 			util.addOutRelations(graphId, contentId, totalConceptIds, RelationTypes.ASSOCIATED_TO.relationName());
 		}
 	}
@@ -591,18 +590,18 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		Node content_node = null;
 		try {
 
-			LOGGER.log("checking if concept grades exist" + existingConceptGrades);
+			PlatformLogger.log("checking if concept grades exist" + existingConceptGrades);
 			if (null != existingConceptGrades && !existingConceptGrades.isEmpty()) {
 				content_node = setGradeLevels(existingConceptGrades, node);
 			} else {
-				LOGGER.log("checking if item grades exist" + itemGrades);
+				PlatformLogger.log("checking if item grades exist" + itemGrades);
 				if (null != itemGrades && !itemGrades.isEmpty()) {
 					content_node = setGradeLevels(itemGrades, node);
 				}
 			}
 
 		} catch (Exception e) {
-			LOGGER.log("Exception occured while setting age group from grade level", e.getMessage(), e);
+			PlatformLogger.log("Exception occured while setting age group from grade level", e.getMessage(), e);
 		}
 		return content_node;
 	}
@@ -622,26 +621,26 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Node setGradeLevels(Set<String> grades, Node node) {
 
-		LOGGER.log("checking if node contains gradeLevel");
+		PlatformLogger.log("checking if node contains gradeLevel");
 		if (null == node.getMetadata().get("gradeLevel")) {
 			List<String> gradeLevel = new ArrayList(grades);
 			node.getMetadata().put("gradeLevel", gradeLevel);
 
 		} else {
-			LOGGER.log("fetching grade levels from node");
+			PlatformLogger.log("fetching grade levels from node");
 			String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
 
-			LOGGER.log("checking if grade levels obtained are empty ");
+			PlatformLogger.log("checking if grade levels obtained are empty ");
 			if (null != grade_array) {
 
-				LOGGER.log("adding grades which doesnt exist in node" + grades);
+				PlatformLogger.log("adding grades which doesnt exist in node" + grades);
 				for (String grade : grade_array) {
 
-					LOGGER.log("checking if grade already exists" + grade);
+					PlatformLogger.log("checking if grade already exists" + grade);
 					grades.add(grade);
 					List gradeLevel = new ArrayList(grades);
 					node.getMetadata().put("gradeLevel", gradeLevel);
-					LOGGER.log("updating node metadata with additional grades" + node);
+					PlatformLogger.log("updating node metadata with additional grades" + node);
 				}
 			}
 		}
@@ -665,12 +664,12 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 		Set<String> ageSet = new HashSet<String>();
 
 		if (null != node.getMetadata().get("gradeLevel")) {
-			LOGGER.log("fetching gradeLevel from node metadata" + node);
+			PlatformLogger.log("fetching gradeLevel from node metadata" + node);
 			List<String> grades = (List) node.getMetadata().get("gradeLevel");
 			if (null != grades) {
 
 				for (String grade : grades) {
-					LOGGER.log("mapping age group based on grades");
+					PlatformLogger.log("mapping age group based on grades");
 					if ("Kindergarten".equalsIgnoreCase(grade)) {
 						ageSet.add("<5");
 					} else if ("Grade 1".equalsIgnoreCase(grade)) {
@@ -687,7 +686,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 						ageSet.add("Other");
 					}
 				}
-				LOGGER.log("Calling set ageGroup method to set ageGroups" + ageSet);
+				PlatformLogger.log("Calling set ageGroup method to set ageGroups" + ageSet);
 				data = setAgeGroup(node, ageSet);
 			}
 		}
@@ -708,26 +707,26 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Node setAgeGroup(Node node, Set<String> ageSet) {
 
-		LOGGER.log("Checking if node contains ageGroup in it");
+		PlatformLogger.log("Checking if node contains ageGroup in it");
 		if (null == node.getMetadata().get("ageGroup")) {
 
-			LOGGER.log("adding ageSet to node if it doesnt have ageGroup in it");
+			PlatformLogger.log("adding ageSet to node if it doesnt have ageGroup in it");
 			if (null != ageSet) {
-				LOGGER.log("adding age metadata to node" + ageSet);
+				PlatformLogger.log("adding age metadata to node" + ageSet);
 				List<String> ageGroup = new ArrayList(ageSet);
 				node.getMetadata().put("ageGroup", ageGroup);
 			}
 
 		} else {
 
-			LOGGER.log("fetching ageGroup from node");
+			PlatformLogger.log("fetching ageGroup from node");
 			String[] age_array = (String[]) node.getMetadata().get("ageGroup");
 			if (null != ageSet) {
 				if (null != age_array) {
 					for (String age : age_array) {
 						ageSet.add(age);
 					}
-					LOGGER.log("adding age metadata to node" , ageSet);
+					PlatformLogger.log("adding age metadata to node" , ageSet);
 					List<String> ageGroup = new ArrayList(ageSet);
 					node.getMetadata().put("ageGroup", ageGroup);
 				}
@@ -740,7 +739,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	public void processCollectionForTOC(Node node){
 		try {
 
-			LOGGER.log("Processing Collection Content :" , node.getIdentifier());
+			PlatformLogger.log("Processing Collection Content :" , node.getIdentifier());
 			Response response = util.getHirerachy(node.getIdentifier());
 			if (null != response && null != response.getResult()) {
 				Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
@@ -753,33 +752,33 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 				leafCount = getLeafNodeCount(content,leafCount);
 				content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
-				LOGGER.log("Write hirerachy to JSON File :" + node.getIdentifier());
+				PlatformLogger.log("Write hirerachy to JSON File :" + node.getIdentifier());
 				String data = mapper.writeValueAsString(content);
 				File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
 				try {
 					FileUtils.writeStringToFile(file, data);
 					if(file.exists()){
-					    LOGGER.log("Upload File to S3 :" , file.getName());
+					    PlatformLogger.log("Upload File to S3 :" , file.getName());
 						String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(node.getIdentifier()), file);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1){
 							String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
-							LOGGER.log("Update S3 url to node" + url);
+							PlatformLogger.log("Update S3 url to node" + url);
 							node.getMetadata().put(ContentAPIParams.toc_url.name(), url);
 						}
 						FileUtils.deleteDirectory(file.getParentFile());
-						LOGGER.log("Deleting Uploaded files");
+						PlatformLogger.log("Deleting Uploaded files");
 					}
 				}catch (Exception e) {
-					LOGGER.log("Error while uploading file "+e);
+					PlatformLogger.log("Error while uploading file "+e);
 				}
 				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 				node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 				util.updateNode(node);
-				LOGGER.log("Updating Node MetaData");
+				PlatformLogger.log("Updating Node MetaData");
 			}
 		}catch(Exception e){
-			LOGGER.log("Error while processing the collection ", e.getMessage(), e);
+			PlatformLogger.log("Error while processing the collection ", e.getMessage(), e);
 		}
 		
 	}

@@ -15,8 +15,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class MissingAssetValidatorProcessor.
@@ -36,7 +35,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class MissingAssetValidatorProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * Instantiates a new missing asset validator processor.
@@ -83,7 +82,7 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 			if (null != manifest) {
 				List<Media> medias = manifest.getMedias();
 				List<String> mediaIds = new ArrayList<String>();
-				LOGGER.log("Validating Assets.");
+				PlatformLogger.log("Validating Assets.");
 				for (Media media : medias) {
 					if (mediaIds.contains(getMediaId(media)))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_ASSET_ID.name(),

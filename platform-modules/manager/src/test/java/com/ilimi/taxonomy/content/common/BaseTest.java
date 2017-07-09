@@ -34,8 +34,8 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
@@ -215,21 +215,21 @@ public class BaseTest {
 		return resp;
 	}
 
-	protected static Response getResponse(Request request, ILogger logger) {
+	protected static Response getResponse(Request request) {
 		ActorRef router = RequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
-				logger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+				PlatformLogger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
 						+ " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}

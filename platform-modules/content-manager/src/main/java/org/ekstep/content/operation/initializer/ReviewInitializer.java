@@ -15,14 +15,13 @@ import org.ekstep.content.validator.ContentValidator;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 public class ReviewInitializer extends BaseInitializer {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The BasePath. */
 	protected String basePath;
@@ -66,14 +65,14 @@ public class ReviewInitializer extends BaseInitializer {
 	 * @return the response
 	 */
 	public Response initialize(Map<String, Object> parameterMap) {
-		LOGGER.log("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 		if (null == parameterMap)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_PARAMETER_MAP + " | [Parameter Map Cannot be 'null']");
 
 		Response response = new Response();
 
-		LOGGER.log("Fetching The Parameters From Parameter Map");
+		PlatformLogger.log("Fetching The Parameters From Parameter Map");
 
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Boolean isECMLContent = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
@@ -81,8 +80,8 @@ public class ReviewInitializer extends BaseInitializer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
 
-		LOGGER.log("Node: ", node);
-		LOGGER.log("Is ECML Content ? ", isECMLContent);
+		PlatformLogger.log("Node: ", node);
+		PlatformLogger.log("Is ECML Content ? ", isECMLContent);
 
 		// Validating the Content Node
 		ContentValidator validator = new ContentValidator();
@@ -94,7 +93,7 @@ public class ReviewInitializer extends BaseInitializer {
 
 			// Get ECRF Object
 			Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
-			LOGGER.log("ECRF Object Created.");
+			PlatformLogger.log("ECRF Object Created.");
 
 			if (isValidationRequired) {
 				// Get Pipeline Object
@@ -106,7 +105,7 @@ public class ReviewInitializer extends BaseInitializer {
 			}
 
 			// Call Finalyzer
-			LOGGER.log("Calling Finalizer");
+			PlatformLogger.log("Calling Finalizer");
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);

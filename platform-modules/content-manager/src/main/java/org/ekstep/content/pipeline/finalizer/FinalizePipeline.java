@@ -15,8 +15,7 @@ import org.ekstep.content.pipeline.BasePipeline;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class FinalizePipeline is a PipelineClass, extends the BasePipeline which holds all 
@@ -26,7 +25,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class FinalizePipeline extends BasePipeline {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The basePath. */
 	protected String basePath;
@@ -70,7 +69,7 @@ public class FinalizePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && !StringUtils.isBlank(operation)) {
-			LOGGER.log("Performing Operation: " , operation);
+			PlatformLogger.log("Performing Operation: " , operation);
 			switch (operation) {
 				case "upload":
 				case "UPLOAD": {
@@ -101,14 +100,14 @@ public class FinalizePipeline extends BasePipeline {
 					break;	
 					
 				default:
-					LOGGER.log("Invalid Operation: " + operation);
+					PlatformLogger.log("Invalid Operation: " + operation);
 					break;
 			}
 		}
 		try {
 			FileUtils.deleteDirectory(new File(basePath));
 		} catch (Exception e) {
-			LOGGER.log("Error deleting directory: " , basePath, e);
+			PlatformLogger.log("Error deleting directory: " , basePath, e);
 		}
 		return response;
 	}

@@ -17,8 +17,7 @@ import akka.actor.ActorRef;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -35,19 +34,19 @@ import com.ilimi.graph.dac.router.GraphDACManagers;
 public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNodeMgr {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The service. */
 	static IGraphDatabaseService service;
 	static {
 		String databasePolicy = DACConfigurationConstants.ACTIVE_DATABASE_POLICY;
 
-		LOGGER.log("Active Database Policy Id:" , databasePolicy);
+		PlatformLogger.log("Active Database Policy Id:" , databasePolicy);
 
 		if (StringUtils.isBlank(databasePolicy))
 			databasePolicy = DACConfigurationConstants.DEFAULT_DATABASE_POLICY;
 
-		LOGGER.log("Creating Database Connection Using Policy Id:" , databasePolicy);
+		PlatformLogger.log("Creating Database Connection Using Policy Id:" , databasePolicy);
 
 		service = GraphServiceFactory.getDatabaseService(databasePolicy);
 	}

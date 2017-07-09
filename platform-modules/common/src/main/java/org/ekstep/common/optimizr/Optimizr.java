@@ -10,12 +10,11 @@ import org.ekstep.common.optimizr.audio.MonoChannelProcessor;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
 import org.ekstep.common.util.HttpDownloadUtility;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class Optimizr {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
@@ -26,10 +25,10 @@ public class Optimizr {
 	}
 	
 	public File optimizeECAR(String url)  throws Exception{
-		LOGGER.log("optimizeECAR URL" , url);
+		PlatformLogger.log("optimizeECAR URL" , url);
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File ecarFile = HttpDownloadUtility.downloadFile(url, tempFileDwn);
-		LOGGER.log("optimizeECAR ecarFile -" ,  ecarFile.getPath());
+		PlatformLogger.log("optimizeECAR ecarFile -" ,  ecarFile.getPath());
 		return optimizeECAR(ecarFile);
 	}
 	

@@ -14,8 +14,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class MissingControllerValidatorProcessor.
@@ -34,7 +33,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class MissingControllerValidatorProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * Instantiates a new missing controller validator processor.
@@ -80,7 +79,7 @@ public class MissingControllerValidatorProcessor extends AbstractProcessor {
 			List<Controller> controllers = plugin.getControllers();
 			if (null != controllers && !controllers.isEmpty()) {
 				List<String> controllerIds = new ArrayList<String>();
-				LOGGER.log("Validating Contollers.");
+				PlatformLogger.log("Validating Contollers.");
 				for (Controller controller : controllers) {
 					if (controllerIds.contains(controller.getId()))
 						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_CONTROLLER_ID.name(),

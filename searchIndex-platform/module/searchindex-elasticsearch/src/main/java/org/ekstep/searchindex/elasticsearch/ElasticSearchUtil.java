@@ -44,12 +44,11 @@ import org.ekstep.searchindex.util.PropertiesUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ElasticSearchUtil {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private JestClient client;
 	private String hostName;
 	private String port;
@@ -147,7 +146,7 @@ public class ElasticSearchUtil {
 			throws IOException {
 		Index index = new Index.Builder(document).index(indexName).type(documentType).id(documentId).build();
 		client.execute(index);
-		LOGGER.log("Added " + documentId + " to index " + indexName);
+		PlatformLogger.log("Added " + documentId + " to index " + indexName);
 	}
 
 	public void addIndex(String indexName, String documentType, String settings, String mappings) throws IOException {
@@ -405,7 +404,7 @@ public class ElasticSearchUtil {
 
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String query) throws IOException {
-		LOGGER.log("getting query to search from ES" , query);
+		PlatformLogger.log("getting query to search from ES" , query);
 		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
@@ -414,7 +413,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		LOGGER.log("search result" + result);
+		PlatformLogger.log("search result" + result);
 		return result;
 	}
 

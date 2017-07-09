@@ -16,15 +16,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 @Controller
 @RequestMapping("/v1/library")
 public class LibraryController extends BaseController {
 
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
 
     @Autowired
     private IContentManager contentManager;
@@ -37,17 +36,17 @@ public class LibraryController extends BaseController {
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "library.upload";
-        LOGGER.log("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
+        PlatformLogger.log("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
             Response response = contentManager.upload(id, "domain", uploadedFile);
-            LOGGER.log("Upload | Response: " , response);
+            PlatformLogger.log("Upload | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.log("Upload | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -57,12 +56,12 @@ public class LibraryController extends BaseController {
     public ResponseEntity<Response> publish(@PathVariable(value = "id") String libraryId,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "library.publish";
-        LOGGER.log("Publish library | Library Id : " , libraryId);
+        PlatformLogger.log("Publish library | Library Id : " , libraryId);
         try {
             Response response = contentManager.publish(graphId, libraryId, null);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.log("Publish | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Publish | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

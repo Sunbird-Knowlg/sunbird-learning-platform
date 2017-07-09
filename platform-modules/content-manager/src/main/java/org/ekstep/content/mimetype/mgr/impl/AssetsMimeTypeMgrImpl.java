@@ -18,9 +18,8 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.model.Node;
 
 // TODO: Auto-generated Javadoc
@@ -38,8 +37,8 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	/* Logger */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
+	
 
 	/*
 	 * (non-Javadoc)
@@ -50,24 +49,24 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		LOGGER.log("Node: ", node.getIdentifier());
-		LOGGER.log("Uploaded File: " + uploadFile.getName());
+		PlatformLogger.log("Node: ", node.getIdentifier());
+		PlatformLogger.log("Uploaded File: " + uploadFile.getName());
 
 		Response response = new Response();
 		try {
-			LOGGER.log("Verifying the MimeTypes.");
+			PlatformLogger.log("Verifying the MimeTypes.");
 			Tika tika = new Tika(new MimeTypes());
 			String mimeType = tika.detect(uploadFile);
 			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-			LOGGER.log("Uploaded Asset MimeType: " , mimeType);
+			PlatformLogger.log("Uploaded Asset MimeType: " , mimeType);
 			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType))
-				LOGGER.log("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
+				PlatformLogger.log("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
 						+ mimeType + " | Node (Object) MimeType: " + nodeMimeType + "]");
 
-			LOGGER.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
+			PlatformLogger.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadFile, node.getIdentifier());
 
-			LOGGER.log("Updating the Content Node for Node ID: " , node.getIdentifier());
+			PlatformLogger.log("Updating the Content Node for Node ID: " , node.getIdentifier());
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
@@ -83,16 +82,16 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 								node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
 								node.getMetadata().put("prevState", prevState);
 
-								LOGGER.log("Generating Telemetry Event. | [Content ID: " , node.getIdentifier());
+								PlatformLogger.log("Generating Telemetry Event. | [Content ID: " , node.getIdentifier());
 								LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
 					}
 					else {
-						LOGGER.log("Updating status to Live for mimeTypes other than image", node.getMetadata().get("contentType").toString());
+						PlatformLogger.log("Updating status to Live for mimeTypes other than image", node.getMetadata().get("contentType").toString());
 						node.getMetadata().put(ContentAPIParams.status.name(), "Live");
 					}
 			}
 
-			LOGGER.log("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
+			PlatformLogger.log("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
 			response = updateContentNode(contentId, node, urlArray[1]);
 
 //			FileType type = FileUtils.getFileType(uploadFile);
@@ -103,7 +102,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 //				Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(),
 //						LearningOperations.optimizeImage.name());
 //				request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
-//				makeAsyncLearningRequest(request, LOGGER);
+//				makeAsyncLearningRequest(request);
 //			}
 
 
@@ -131,31 +130,31 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		LOGGER.log("Node: ", node.getIdentifier());
+		PlatformLogger.log("Node: ", node.getIdentifier());
 
 		Response response = new Response();
-		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Adding 'isPublishOperation' Flag to 'true'");
+		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
 		
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
@@ -163,13 +162,13 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " , contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " , contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: " + contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: " + contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

@@ -14,12 +14,11 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -33,12 +32,12 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			});
 			Object index = message.get("index");
 			Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
-			LOGGER.log("Checking condition if the message should be indexed or not" , message.containsKey("index"));
+			PlatformLogger.log("Checking condition if the message should be indexed or not" , message.containsKey("index"));
 			if(!BooleanUtils.isFalse(shouldindex)){
 				processMessage(message);
 			}
 		} catch (Exception e) {
-			LOGGER.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
 	}
 
@@ -57,25 +56,25 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 				Map<String, String> relationMap = ObjectDefinitionCache.getRelationDefinition(objectType, graphId);
 				// objectType = WordUtils.capitalize(objectType.toLowerCase());
 				String operationType = (String) message.get("operationType");
-				LOGGER.log("Processing composite search message: Object Type: " + objectType + " | Identifier: " 
+				PlatformLogger.log("Processing composite search message: Object Type: " + objectType + " | Identifier: " 
 						+ uniqueId + " | Graph: " + graphId + " | Operation: " + operationType);
 				switch (operationType) {
 				case CompositeSearchConstants.OPERATION_CREATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, false);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					LOGGER.log("CREATE Operation | adding index document");
+					PlatformLogger.log("CREATE Operation | adding index document");
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_UPDATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, true);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					LOGGER.log("CREATE Operation | updating index document");
+					PlatformLogger.log("CREATE Operation | updating index document");
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_DELETE: {
-					LOGGER.log("Composite search index deleted: Identifier: " + uniqueId);
+					PlatformLogger.log("Composite search index deleted: Identifier: " + uniqueId);
 					elasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 							CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 					break;
@@ -94,7 +93,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 	}
 
 	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
-		LOGGER.log("Composite search index updated: Identifier: " , uniqueId);
+		PlatformLogger.log("Composite search index updated: Identifier: " , uniqueId);
 		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
@@ -116,12 +115,12 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
-				LOGGER.log("Document exists for " + uniqueId);
+				PlatformLogger.log("Document exists for " + uniqueId);
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
 			}
 		}
-		LOGGER.log("Index Document for " + uniqueId , " | document: " + indexDocument.size());
+		PlatformLogger.log("Index Document for " + uniqueId , " | document: " + indexDocument.size());
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
 			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("properties");
@@ -204,7 +203,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		indexDocument.put("identifier", (String) message.get("nodeUniqueId"));
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
-		LOGGER.log("Updated Index Document for " + uniqueId , " | document: " + indexDocument.size());
+		PlatformLogger.log("Updated Index Document for " + uniqueId , " | document: " + indexDocument.size());
 		return indexDocument;
 	}
 }

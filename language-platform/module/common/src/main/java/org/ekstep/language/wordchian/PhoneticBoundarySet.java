@@ -6,8 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -20,9 +19,6 @@ import com.ilimi.graph.dac.model.Relation;
  * @author karthik
  */
 public class PhoneticBoundarySet extends BaseWordSet {
-
-	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
 
 	/** The starts with akshara. */
 	private String startsWithAkshara;
@@ -50,7 +46,7 @@ public class PhoneticBoundarySet extends BaseWordSet {
 	 */
 	public PhoneticBoundarySet(String languageId, Node wordNode, WordComplexity wc,
 			List<Relation> existingWordChainRelatios) {
-		super(languageId, wordNode, wc, existingWordChainRelatios, LOGGER);
+		super(languageId, wordNode, wc, existingWordChainRelatios);
 		init();
 	}
 
@@ -104,7 +100,7 @@ public class PhoneticBoundarySet extends BaseWordSet {
 		String actualLemma;
 		String connectingLemma;
 
-		LOGGER.log("create " + type + " set " + lemma + "for the word"
+		PlatformLogger.log("create " + type + " set " + lemma + "for the word"
 				+ (String) wordNode.getMetadata().get(LanguageParams.lemma.name()));
 
 		if (type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name())) {

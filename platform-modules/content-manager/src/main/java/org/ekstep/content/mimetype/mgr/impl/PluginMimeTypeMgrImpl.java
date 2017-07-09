@@ -24,8 +24,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -33,18 +32,18 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/* (non-Javadoc)
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		LOGGER.log("Uploaded File: " , uploadFile.getName());
+		PlatformLogger.log("Uploaded File: " , uploadFile.getName());
 
 		ContentValidator validator = new ContentValidator();
 		if (validator.isValidPluginPackage(uploadFile)) {
-			LOGGER.log("Calling Upload Content For Node ID: " + contentId);
+			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId);
 			String basePath = getBasePath(contentId);
 			// Extract the ZIP File 
 			extractContentPackage(uploadFile, basePath);
@@ -64,7 +63,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			try {
 				FileUtils.deleteDirectory(new File(basePath));
 			} catch (Exception e) {
-				LOGGER.log("Error deleting directory: " , basePath, e);
+				PlatformLogger.log("Error deleting directory: " , basePath, e);
 			}
 			return uploadContentArtifact(contentId, node, uploadFile);
 		} else {
@@ -85,7 +84,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
 		}
-		LOGGER.log("pluginId:" + pluginId + "ManifestId:" + id);
+		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id);
 		if (!StringUtils.equals(pluginId, id))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);
@@ -103,27 +102,27 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
 		Response response = new Response();
-		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 		
-		LOGGER.log("Adding 'isPublishOperation' Flag to 'true'");
+		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " , contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
 
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
@@ -134,13 +133,13 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
 
-		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: " , contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

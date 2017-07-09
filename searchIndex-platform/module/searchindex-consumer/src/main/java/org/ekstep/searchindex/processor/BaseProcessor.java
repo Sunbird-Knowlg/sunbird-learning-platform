@@ -9,15 +9,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
 public class BaseProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The Controller Utility */
 	private static ControllerUtil util = new ControllerUtil();
@@ -38,17 +37,17 @@ public class BaseProcessor {
 		Map<String, Object> eks = new HashMap<String, Object>();
 		Node node = null;
 
-		LOGGER.log("checking if kafka message contains edata");
+		PlatformLogger.log("checking if kafka message contains edata");
 		if (null != message.get("edata")) {
 			edata = (Map) message.get("edata");
 			if (null != edata.get("eks")) {
 				eks = (Map) edata.get("eks");
-				LOGGER.log("checking if the content is a live content");
+				PlatformLogger.log("checking if the content is a live content");
 				if (null != eks.get("state") && StringUtils.equalsIgnoreCase("Live", eks.get("state").toString())) {
 					if (null != eks.get("cid")) {
-						LOGGER.log("checking if eks contains cid" , eks);
+						PlatformLogger.log("checking if eks contains cid" , eks);
 						node = util.getNode("domain", eks.get("cid").toString());
-						LOGGER.log("node data fetched from cid" , node);
+						PlatformLogger.log("node data fetched from cid" , node);
 						return node;
 					}
 				}
@@ -79,7 +78,7 @@ public class BaseProcessor {
 		languageMap.put("odia", "or");
 		languageMap.put("assamese", "as");
 
-		LOGGER.log("checking if node contains language in it");
+		PlatformLogger.log("checking if node contains language in it");
 		if (null != node.getMetadata().get("language")) {
 			Object language = node.getMetadata().get("language");
 			if (null != language) {
@@ -89,7 +88,7 @@ public class BaseProcessor {
 					String langId = str;
 					String languageCode = languageMap.get(langId.toLowerCase());
 
-					LOGGER.log("checking if language is not empty and not english" + languageCode);
+					PlatformLogger.log("checking if language is not empty and not english" + languageCode);
 					if (StringUtils.isNotBlank(languageCode) && !StringUtils.equalsIgnoreCase(languageCode, "en")) {
 						return languageCode;
 					}
@@ -120,7 +119,7 @@ public class BaseProcessor {
 						&& StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
 
 					String status = null;
-					LOGGER.log("checking for endNode metadata contains status" , rel.getEndNodeMetadata().containsKey("status"));
+					PlatformLogger.log("checking for endNode metadata contains status" , rel.getEndNodeMetadata().containsKey("status"));
 					if (null != rel.getEndNodeMetadata().get("status")) {
 						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
 					}
@@ -129,14 +128,14 @@ public class BaseProcessor {
 						domain = (String) rel.getEndNodeMetadata().get("subject");
 					}
 
-					LOGGER.log("checking if status is LIVE and fetching nodeIds from it" , status);
+					PlatformLogger.log("checking if status is LIVE and fetching nodeIds from it" , status);
 					if (StringUtils.isNotBlank(status)
 							&& StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)) {
-						LOGGER.log("nodeIds fetched form LIVE nodes" , nodeIds);
+						PlatformLogger.log("nodeIds fetched form LIVE nodes" , nodeIds);
 						nodeIds.add(rel.getEndNodeId());
 					}
 
-					LOGGER.log("checking if concept contains gradeLevel" , rel.getEndNodeMetadata().containsKey("gradeLevel"));
+					PlatformLogger.log("checking if concept contains gradeLevel" , rel.getEndNodeMetadata().containsKey("gradeLevel"));
 					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
 						String[] grade_array =  (String[])(rel.getEndNodeMetadata().get("gradeLevel"));
 						for(String garde : grade_array){
@@ -146,22 +145,22 @@ public class BaseProcessor {
 				}
 			}
 
-			LOGGER.log("Adding nodeIds to map" + nodeIds);
+			PlatformLogger.log("Adding nodeIds to map" + nodeIds);
 			if (null != nodeIds && !nodeIds.isEmpty()) {
 				result_map.put("conceptIds", nodeIds);
 			}
 
-			LOGGER.log("Adding conceptGrades to map" + conceptGrades);
+			PlatformLogger.log("Adding conceptGrades to map" + conceptGrades);
 			if (null != conceptGrades && !conceptGrades.isEmpty()) {
 				result_map.put("conceptGrades", conceptGrades);
 			}
 			
-			LOGGER.log("Adding domain to map: " + domain);
+			PlatformLogger.log("Adding domain to map: " + domain);
 			if (StringUtils.isNotBlank(domain)) {
 				result_map.put("domain", domain);
 			}
 		}
-		LOGGER.log("Map of conceptGrades and nodeIds" , result_map.size());
+		PlatformLogger.log("Map of conceptGrades and nodeIds" , result_map.size());
 		return result_map;
 	}
 }

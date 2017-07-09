@@ -18,9 +18,9 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.ILogger;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -69,12 +69,12 @@ public abstract class BaseLearningManager extends BaseManager {
 	 * @param logger
 	 *            the logger
 	 */
-	public void makeAsyncLearningRequest(Request request, ILogger logger) {
+	public void makeAsyncLearningRequest(Request request) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			logger.log("Exception",e.getMessage(), e);
+			PlatformLogger.log("Exception",e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
@@ -88,7 +88,7 @@ public abstract class BaseLearningManager extends BaseManager {
 	 *            the logger
 	 * @return the language response
 	 */
-	protected Response getLearningResponse(Request request, ILogger logger) {
+	protected Response getLearningResponse(Request request) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, LearningRequestRouterPool.REQ_TIMEOUT);
@@ -99,7 +99,7 @@ public abstract class BaseLearningManager extends BaseManager {
 				return ERROR(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			throw new ServerException(LearningErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}

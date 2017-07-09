@@ -24,10 +24,9 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.LoggerEnum;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -54,7 +53,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class BaseConcreteProcessor extends BaseManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * Gets the media.
@@ -193,14 +192,14 @@ public class BaseConcreteProcessor extends BaseManager {
 			Request validateReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
 					ContentWorkflowPipelineParams.validateNode.name());
 			validateReq.put(GraphDACParams.node.name(), node);
-			Response validateRes = getResponse(validateReq, LOGGER);
+			Response validateRes = getResponse(validateReq);
 			if (checkError(validateRes)) {
 				response = validateRes;
 			} else {
 				Request createReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
 						ContentWorkflowPipelineParams.createDataNode.name());
 				createReq.put(GraphDACParams.node.name(), node);
-				response = getResponse(createReq, LOGGER);
+				response = getResponse(createReq);
 			}
 		}
 		return response;
@@ -222,7 +221,7 @@ public class BaseConcreteProcessor extends BaseManager {
 			Request validateReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
 					ContentWorkflowPipelineParams.validateNode.name());
 			validateReq.put(GraphDACParams.node.name(), node);
-			Response validateRes = getResponse(validateReq, LOGGER);
+			Response validateRes = getResponse(validateReq);
 			if (checkError(validateRes)) {
 				response = validateRes;
 			} else {
@@ -230,7 +229,7 @@ public class BaseConcreteProcessor extends BaseManager {
 						ContentWorkflowPipelineParams.updateDataNode.name());
 				updateReq.put(GraphDACParams.node.name(), node);
 				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-				response = getResponse(updateReq, LOGGER);
+				response = getResponse(updateReq);
 			}
 		}
 		return response;
@@ -331,7 +330,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		request.put(GraphDACParams.start_node_id.name(), objectId1);
 		request.put(GraphDACParams.relation_type.name(), relation);
 		request.put(GraphDACParams.end_node_id.name(), objectId2);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		return response;
 	}
 
@@ -372,7 +371,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
-			LOGGER.log("Validating the Base Path: " , path);
+			PlatformLogger.log("Validating the Base Path: " , path);
 			isValid = isPathExist(Paths.get(path));
 		} catch (InvalidPathException | NullPointerException e) {
 			isValid = false;
@@ -391,15 +390,15 @@ public class BaseConcreteProcessor extends BaseManager {
 		boolean exist = true;
 		try {
 			if (null != path) {
-				LOGGER.log("Creating the Base Path: " + path.getFileName());
+				PlatformLogger.log("Creating the Base Path: " + path.getFileName());
 				if (!Files.exists(path))
 					Files.createDirectories(path);
 			}
 		} catch (FileAlreadyExistsException e) {
-			LOGGER.log("Base Path Already Exist: " , path.getFileName(), e, LoggerEnum.WARN.name());
+			PlatformLogger.log("Base Path Already Exist: " , path.getFileName(), e, LoggerEnum.WARN.name());
 		} catch (Exception e) {
 			exist = false;
-			LOGGER.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
+			PlatformLogger.log("Error! Something went wrong while creating the path - " , path.getFileName(), e);
 		}
 		return exist;
 	}

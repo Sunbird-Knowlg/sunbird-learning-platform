@@ -14,8 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 
 /**
@@ -34,7 +33,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	private IDictionaryManager dictionaryManager;
 	
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	
 	/**
 	 * Finds and returns the word.
@@ -59,10 +58,10 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
 			Response response = dictionaryManager.getWordV3(languageId, objectId);
-			LOGGER.log("Find | Response: " + response);
+			PlatformLogger.log("Find | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.log("Find | Exception: " , e.getMessage(), e);
+			PlatformLogger.log("Find | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

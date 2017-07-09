@@ -13,35 +13,33 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 
 public class PlaySearchManager extends BasePlaySearchManager {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	public Promise<Result> search(Request request) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(),
 				SearchOperations.INDEX_SEARCH.name());
-		Promise<Result> getRes = getSearchResponse(request, LOGGER);
+		Promise<Result> getRes = getSearchResponse(request);
 		return getRes;
 	}
 
 	public Promise<Result> count(Request request) {
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.COUNT.name());
-		Promise<Result> getRes = getSearchResponse(request, LOGGER);
+		Promise<Result> getRes = getSearchResponse(request);
 		return getRes;
 	}
 	
 	public Promise<Result> metrics(Request request){
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() , SearchOperations.METRICS.name());
-		Promise<Result> getRes = getSearchResponse(request, LOGGER);
+		Promise<Result> getRes = getSearchResponse(request);
 		return getRes;
 	}
 	
 	public Promise<Result> health(Request request){
 		request = setSearchContext(request, SearchActorNames.HEALTH_CHECK_MANAGER.name() , SearchOperations.HEALTH.name());
-		Promise<Result> getRes = getSearchResponse(request, LOGGER);
+		Promise<Result> getRes = getSearchResponse(request);
 		return getRes;
 	}
 	

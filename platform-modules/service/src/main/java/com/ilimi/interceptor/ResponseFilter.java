@@ -17,12 +17,11 @@ import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
 
 import com.ilimi.common.dto.ExecutionContext;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -36,7 +35,7 @@ public class ResponseFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		ExecutionContext.setRequestId(requestId);
 		RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-		LOGGER.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
+		PlatformLogger.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
 				+ " | Params: " + request.getParameterMap());
 
 		ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);

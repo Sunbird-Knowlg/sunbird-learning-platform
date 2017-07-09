@@ -27,7 +27,7 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 
@@ -128,7 +128,7 @@ public class RequestResponseTestHelper {
 	    }
 
 	    
-	    public static Response getResponse(Request request, ILogger logger) {
+	    public static Response getResponse(Request request) {
 	        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 	        try {
 	            Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
@@ -139,12 +139,12 @@ public class RequestResponseTestHelper {
 	                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 	            }
 	        } catch (Exception e) {
-	            logger.log("Exception", e.getMessage(), e);
+	            PlatformLogger.log("Exception", e.getMessage(), e);
 	            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 	        }   
 	    }
 	    
-	    public static Response getBulkOperationResponse(Request request, ILogger logger) {
+	    public static Response getBulkOperationResponse(Request request) {
 	        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 	        try {
 	            Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.BULK_REQ_TIMEOUT);
@@ -155,7 +155,7 @@ public class RequestResponseTestHelper {
 	                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 	            }
 	        } catch (Exception e) {
-	            logger.log("Exception", e.getMessage(), e);
+	            PlatformLogger.log("Exception", e.getMessage(), e);
 	            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 	        }   
 	    }

@@ -26,8 +26,6 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 
 /**
  * WordnetCSVManagerImpl provides implementations to process words from a CSV,
@@ -42,7 +40,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/*
 	 * (non-Javadoc)
@@ -207,7 +205,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.addCitationIndex.name());
 				langReq.put(LanguageParams.citations.name(), list);
-				getLanguageResponse(langReq, LOGGER);
+				getLanguageResponse(langReq);
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -247,7 +245,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.addWordIndex.name());
 				langReq.put(LanguageParams.words.name(), list);
-				getLanguageResponse(langReq, LOGGER);
+				getLanguageResponse(langReq);
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -291,7 +289,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.getIndexInfo.name());
 				langReq.put(LanguageParams.words.name(), list);
-				Response langRes = getLanguageResponse(langReq, LOGGER);
+				Response langRes = getLanguageResponse(langReq);
 				if (!checkError(langRes)) {
 					Map<String, Object> map = (Map<String, Object>) langRes.get(LanguageParams.index_info.name());
 					if (null != map && !map.isEmpty())

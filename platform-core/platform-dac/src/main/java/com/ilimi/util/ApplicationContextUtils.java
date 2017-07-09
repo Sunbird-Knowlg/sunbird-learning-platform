@@ -21,8 +21,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * @author ravitejagarlapati
@@ -31,7 +30,6 @@ import com.ilimi.common.util.PlatformLogManager;
 
 public class ApplicationContextUtils implements ApplicationContextAware {
 
-	private static ILogger logger = PlatformLogManager.getLogger();
 	private static ApplicationContext ctx;
 	private static ApplicationContextUtils applicationContextUtils; 
 	private static Map<String, Object> globalObjects = new HashMap<String, Object>();
@@ -74,7 +72,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
 	public static Properties getAppProperties() {
 		if (applicationContextUtils.appProperties == null) {
-			logger.log("loading app.properties at ApplicationContextUtils...");
+			PlatformLogger.log("loading app.properties at ApplicationContextUtils...");
 			ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
 			Properties props = (Properties) appCtx.getBean("appProperties");
 			applicationContextUtils.appProperties = props;

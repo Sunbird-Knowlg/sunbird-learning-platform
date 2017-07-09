@@ -21,8 +21,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -35,7 +34,7 @@ import com.ilimi.graph.dac.model.Node;
 @RequestMapping("/v1/assessmentitemset")
 public class AssessmentItemSetController extends BaseController {
 
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
 
     private static final String V2_GRAPH_ID = "domain";
 
@@ -49,14 +48,14 @@ public class AssessmentItemSetController extends BaseController {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.create";
         Request request = getRequestObject(map);
-        LOGGER.log("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
+        PlatformLogger.log("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = assessmentManager.createItemSet(taxonomyId, request);
-            LOGGER.log("Create | Response: " , response);
+            PlatformLogger.log("Create | Response: " , response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            LOGGER.log("Create | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -69,15 +68,15 @@ public class AssessmentItemSetController extends BaseController {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.update";
         Request request = getRequestObject(map);
-        LOGGER.log("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request
+        PlatformLogger.log("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request
                 + " | user-id: " + userId);
         try {
             Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
-            LOGGER.log("Update | Response: " , response);
+            PlatformLogger.log("Update | Response: " , response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            LOGGER.log("Update | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Update | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
@@ -90,14 +89,14 @@ public class AssessmentItemSetController extends BaseController {
             @RequestHeader(value = "user-id") String userId) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.info";
-        LOGGER.log("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
+        PlatformLogger.log("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
                 + userId);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, false);
-            LOGGER.log("Find | Response: " , response);
+            PlatformLogger.log("Find | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.log("Find | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Find | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -109,14 +108,14 @@ public class AssessmentItemSetController extends BaseController {
             @RequestHeader(value = "user-id") String userId) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.generate";
-        LOGGER.log("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
+        PlatformLogger.log("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
                 + userId);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, true);
-            LOGGER.log("Find | Response: " , response);
+            PlatformLogger.log("Find | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.log("Find | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Find | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -127,14 +126,14 @@ public class AssessmentItemSetController extends BaseController {
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.search";
-        LOGGER.log("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
+        PlatformLogger.log("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
         try {
             Request reqeust = getSearchRequest(map);
             Response response = assessmentManager.searchItemSets(taxonomyId, reqeust);
-            LOGGER.log("Search | Response: " , response);
+            PlatformLogger.log("Search | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.log("Search | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Search | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -145,13 +144,13 @@ public class AssessmentItemSetController extends BaseController {
             @RequestHeader(value = "user-id") String userId) {
     	String taxonomyId = V2_GRAPH_ID;
         String apiId = "ekstep.learning.itemset.delete";
-        LOGGER.log("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
+        PlatformLogger.log("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = assessmentManager.deleteItemSet(id, taxonomyId);
-            LOGGER.log("Delete | Response: " , response);
+            PlatformLogger.log("Delete | Response: " , response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.log("Delete | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Delete | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

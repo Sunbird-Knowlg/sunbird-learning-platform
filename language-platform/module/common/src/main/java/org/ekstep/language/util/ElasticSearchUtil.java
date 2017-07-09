@@ -30,8 +30,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 import com.google.gson.internal.LinkedTreeMap;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class ElasticSearchUtil acts as a tool and a wrapper to work with an
@@ -65,7 +64,7 @@ public class ElasticSearchUtil {
 	private int resultLimit = defaultResultLimit;
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * Instantiates a new elastic search util by connecting to the ES cluster or
@@ -568,7 +567,7 @@ public class ElasticSearchUtil {
 		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		LOGGER.log("Time taken for search: " , diff);
+		PlatformLogger.log("Time taken for search: " , diff);
 		return result;
 	}
 

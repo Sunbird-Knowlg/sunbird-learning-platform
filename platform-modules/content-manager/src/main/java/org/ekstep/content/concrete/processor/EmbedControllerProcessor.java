@@ -16,8 +16,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class EmbedControllerProcessor.
@@ -36,7 +35,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class EmbedControllerProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * Instantiates a new embed controller processor.
@@ -83,12 +82,12 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 				if (null != controllers) {
 					for (Controller controller : controllers) {
 						if (StringUtils.isBlank(controller.getcData())) {
-							LOGGER.log("There is No Existing In-Line Controller.");
+							PlatformLogger.log("There is No Existing In-Line Controller.");
 							Map<String, Object> data = controller.getData();
 							if (null != data) {
 								String id = (String) data.get(ContentWorkflowPipelineParams.id.name());
 								String type = (String) data.get(ContentWorkflowPipelineParams.type.name());
-								LOGGER.log("Controller Id: " + id + " | type: " + type);
+								PlatformLogger.log("Controller Id: " + id + " | type: " + type);
 								if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(type)) {
 									File file = null;
 									if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), type))
@@ -100,7 +99,7 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 												basePath + File.separator + ContentWorkflowPipelineParams.data.name()
 														+ File.separator + id + ".json");
 									if (null != file && file.exists()) {
-										LOGGER.log("Reading Controller File: " + file.getPath());
+										PlatformLogger.log("Reading Controller File: " + file.getPath());
 										controller.setcData(FileUtils.readFileToString(file));
 									}
 								}

@@ -10,12 +10,11 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public WordEnrichMessageProcessor() {
@@ -30,7 +29,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
 	}
 
@@ -43,7 +42,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 			String languageId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
 			if (StringUtils.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD, objectType)) {
-				LOGGER.log("Processing message for Word object type");
+				PlatformLogger.log("Processing message for Word object type");
 				switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
 					String operationType = (String) message.get("operationType");
@@ -109,7 +108,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 	}
 
 	private void enrichWord(String languageId, String wordId) {
-		LOGGER.log("calling enrich api Language Id:" + languageId + " word :" + wordId);
+		PlatformLogger.log("calling enrich api Language Id:" + languageId + " word :" + wordId);
 
 		try {
 
@@ -121,12 +120,12 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 			requestBodyMap.put("request", requestMap);
 
 			String requestBody = mapper.writeValueAsString(requestBodyMap);
-			LOGGER.log("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
+			PlatformLogger.log("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
 			HTTPUtil.makePostRequest(url, requestBody);
-			LOGGER.log("Word enriched for the lemma change successfully - wordId :", wordId);
+			PlatformLogger.log("Word enriched for the lemma change successfully - wordId :", wordId);
 
 		} catch (Exception e) {
-			LOGGER.log("error when calling enrich api Language Id:" + languageId + " word :" + wordId + ",error",
+			PlatformLogger.log("error when calling enrich api Language Id:" + languageId + " word :" + wordId + ",error",
 					e.getMessage(), e);
 		}
 

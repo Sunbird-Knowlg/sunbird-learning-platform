@@ -22,8 +22,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class AssetCreatorProcessor.
@@ -42,7 +41,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class AssetCreatorProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The Constant URL_REGEX is the Pattern to verify the Web Address. */
 	private static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
@@ -239,7 +238,7 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 				mimeType = tika.detect(file);
 			}
 		} catch (IOException e) {
-			LOGGER.log(ContentErrorMessageConstants.FILE_READ_ERROR, file.getName(), e);
+			PlatformLogger.log(ContentErrorMessageConstants.FILE_READ_ERROR, file.getName(), e);
 		}
 		return mimeType;
 	}

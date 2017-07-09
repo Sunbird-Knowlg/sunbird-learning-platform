@@ -1,12 +1,5 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.orchestrator.interpreter.ICommand;
-
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
@@ -14,9 +7,13 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.orchestrator.interpreter.ICommand;
+
 public class GetResponseValue implements ICommand, Command {
 	
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	@Override
 	public String getCommandName() {
@@ -40,7 +37,7 @@ public class GetResponseValue implements ICommand, Command {
 					interp.setResult(tclResp);
 				}
 			} catch (Exception e) {
-				LOGGER.log("Exception", e.getMessage(), e);
+				PlatformLogger.log("Exception", e.getMessage(), e);
 				throw new TclException(interp, "Unable to read response: " + e.getMessage());
 			}
 		} else {

@@ -24,10 +24,9 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.LoggerEnum;
-import com.ilimi.common.util.PlatformLogManager;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -39,7 +38,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class LearningRequestRouter extends UntypedActor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private static final String ekstep = "org.ekstep.";
 	private static final String ilimi = "com.ilimi.";
 	private static final String java = "java.";
@@ -121,7 +120,7 @@ public class LearningRequestRouter extends UntypedActor {
 				parent.tell(arg0, getSelf());
 				Response res = (Response) arg0;
 				ResponseParams params = res.getParams();
-				LOGGER.log(
+				PlatformLogger.log(
 						request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString());
 			}
 		}, getContext().dispatcher());
@@ -145,7 +144,7 @@ public class LearningRequestRouter extends UntypedActor {
 	 *            the parent
 	 */
 	protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-		LOGGER.log(request.getManagerName() + "," + request.getOperation() , ", ERROR: " + e.getMessage(), LoggerEnum.WARN.name());
+		PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , ", ERROR: " + e.getMessage(), LoggerEnum.WARN.name());
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus(StatusType.failed.name());
@@ -164,10 +163,10 @@ public class LearningRequestRouter extends UntypedActor {
 	private String setErrMessage(Throwable e) {
 		Class<? extends Throwable> className = e.getClass();
 		if (className.getName().contains(ekstep) || className.getName().contains(ilimi)) {
-			LOGGER.log("Setting error message sent from class " + className + e.getMessage());
+			PlatformLogger.log("Setting error message sent from class " + className + e.getMessage());
 			return e.getMessage();
 		} else if (className.getName().startsWith(java)) {
-			LOGGER.log("Setting default err msg " + className + e.getMessage());
+			PlatformLogger.log("Setting default err msg " + className + e.getMessage());
 			return default_err_msg;
 		}
 		return "";

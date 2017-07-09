@@ -26,14 +26,13 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.LoggerEnum;
-import com.ilimi.common.util.PlatformLogManager;
 
 public class SearchRequestRouter extends UntypedActor{
 
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
     protected long timeout = 30000;
     
 	@Override
@@ -89,7 +88,7 @@ public class SearchRequestRouter extends UntypedActor{
                 parent.tell(arg0, getSelf());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                LOGGER.log(
+                PlatformLogger.log(
                         request.getManagerName()  , request.getOperation() + ", SUCCESS, " + params.toString());
             }
         }, getContext().dispatcher());
@@ -103,7 +102,7 @@ public class SearchRequestRouter extends UntypedActor{
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        LOGGER.log(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), LoggerEnum.WARN.name());
+        PlatformLogger.log(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), LoggerEnum.WARN.name());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

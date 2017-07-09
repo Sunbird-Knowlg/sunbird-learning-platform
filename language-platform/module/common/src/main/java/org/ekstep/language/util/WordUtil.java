@@ -58,9 +58,8 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -91,7 +90,7 @@ import com.ilimi.graph.model.node.RelationDefinition;
 public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private static final String LEMMA_PROPERTY = "lemma";
 	
 	/** The search util. */
@@ -186,7 +185,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List list = mapper.readValue(strObject.toString(), List.class);
 				return list;
 			} catch (Exception e) {
-				LOGGER.log("Error! Exception", e.getMessage(), e);
+				PlatformLogger.log("Error! Exception", e.getMessage(), e);
 				List<String> list = new ArrayList<String>();
 				list.add(object.toString());
 				return list;
@@ -213,7 +212,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		map.put("request", lemmaMap);
 		Request request = getRequest(map);
 		Response response = list(languageId, LanguageObjectTypes.Word.name(), request);
-		LOGGER.log("Search | Response: " + response);
+		PlatformLogger.log("Search | Response: " + response);
 		List<Map<String, Object>> list = (List<Map<String, Object>>) response.get("words");
 		if (list != null && !list.isEmpty()) {
 			Map<String, Object> wordMap = list.get(0);
@@ -275,7 +274,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
 		} catch (Exception e) {
-			LOGGER.log("Error! Exception occurred", e.getMessage(), e);
+			PlatformLogger.log("Error! Exception occurred", e.getMessage(), e);
 			dateTimeString = "";
 		}
 		return dateTimeString;
@@ -357,7 +356,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 								}
 							}
 						} else {
-							LOGGER.log("Unable to add word to graph");
+							PlatformLogger.log("Unable to add word to graph");
 						}
 					}
 				}
@@ -616,7 +615,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		req.put(GraphDACParams.get_tags.name(), true);
-		Response listRes = getResponse(req, LOGGER);
+		Response listRes = getResponse(req);
 		if (checkError(listRes))
 			return listRes;
 		else {
@@ -918,7 +917,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		if (null != items && !items.isEmpty()) {
 			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 					GraphDACParams.object_type.name(), objectType);
-			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+			Response responseDefiniton = getResponse(requestDefinition);
 			if (!checkError(responseDefiniton)) {
 				DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 				for (Map item : items) {
@@ -934,13 +933,13 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			node.setObjectType(objectType);
 			Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), node);
-			Response validateRes = getResponse(validateReq, LOGGER);
+			Response validateRes = getResponse(validateReq);
 			if (checkError(validateRes)) {
 				return validateRes;
 			} else {
 				Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 				createReq.put(GraphDACParams.node.name(), node);
-				Response res = getResponse(createReq, LOGGER);
+				Response res = getResponse(createReq);
 				if (checkError(res)) {
 					errResponse = res;
 				} else {
@@ -1113,7 +1112,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		}
-		LOGGER.log("returning nodemap size: " + nodeMap.size());
+		PlatformLogger.log("returning nodemap size: " + nodeMap.size());
 		return nodeMap;
 	}
 
@@ -1161,7 +1160,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		}
-		LOGGER.log("returning nodemap size: " + nodeMap.size());
+		PlatformLogger.log("returning nodemap size: " + nodeMap.size());
 		return nodeMap;
 	}
 
@@ -1183,7 +1182,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		sc.addMetadata(MetadataCriterion.create(Arrays.asList(new Filter(property, SearchConditions.OP_IN, words))));
 		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
 		req.put(GraphDACParams.search_criteria.name(), sc);
-		Response searchRes = getResponse(req, LOGGER);
+		Response searchRes = getResponse(req);
 		return searchRes;
 	}
 
@@ -1203,7 +1202,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
 		request.put(GraphDACParams.metadata.name(), property);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (!checkError(findRes)) {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && nodes.size() > 0)
@@ -1217,7 +1216,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			sc.setResultSize(1);
 			Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
 			req.put(GraphDACParams.search_criteria.name(), sc);
-			Response searchRes = getResponse(req, LOGGER);
+			Response searchRes = getResponse(req);
 			if (!checkError(searchRes)) {
 				List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 				if (null != nodes && nodes.size() > 0)
@@ -1241,7 +1240,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
 		request.put(GraphDACParams.metadata.name(), property);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (!checkError(findRes)) {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && nodes.size() > 0)
@@ -1255,7 +1254,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			sc.setResultSize(1);
 			Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
 			req.put(GraphDACParams.search_criteria.name(), sc);
-			Response searchRes = getResponse(req, LOGGER);
+			Response searchRes = getResponse(req);
 			if (!checkError(searchRes)) {
 				List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 				if (null != nodes && nodes.size() > 0)
@@ -1296,7 +1295,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error!Exception occured", e.getMessage(), e);
+			PlatformLogger.log("Error!Exception occured", e.getMessage(), e);
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -1339,7 +1338,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		req.put(GraphDACParams.get_tags.name(), true);
-		Response listRes = getResponse(req, LOGGER);
+		Response listRes = getResponse(req);
 		if (checkError(listRes))
 			throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: " + graphId);
 		else {
@@ -1436,7 +1435,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 								getErrorMessage(updateResponse));
 					}
 				} catch (Exception e) {
-					LOGGER.log("Error!Exception ", e.getMessage(), e);
+					PlatformLogger.log("Error!Exception ", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -1467,7 +1466,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
+		Response updateRes = getResponse(updateReq);
 		return updateRes;
 	}
 
@@ -1484,7 +1483,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		request.put(GraphDACParams.node_id.name(), nodeId);
 		request.put(GraphDACParams.get_tags.name(), true);
 
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (checkError(findRes))
 			return null;
 		else {
@@ -1513,7 +1512,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		node.setMetadata(metadata);
 		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 		req.put(GraphDACParams.node.name(), node);
-		Response res = getResponse(req, LOGGER);
+		Response res = getResponse(req);
 		if (checkError(res)) {
 			throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), getErrorMessage(res));
 		}
@@ -1557,7 +1556,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	private Response createWord(Node node, String languageId) {
 		Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 		createReq.put(GraphDACParams.node.name(), node);
-		Response res = getResponse(createReq, LOGGER);
+		Response res = getResponse(createReq);
 		return res;
 	}
 
@@ -1575,7 +1574,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		createReq.put(GraphDACParams.node.name(), node);
 		createReq.put(GraphDACParams.node_id.name(), wordId);
-		Response res = getResponse(createReq, LOGGER);
+		Response res = getResponse(createReq);
 		return res;
 	}
 
@@ -1590,7 +1589,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	public DefinitionDTO getDefinitionDTO(String definitionName, String graphId) {
 		Request requestDefinition = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), definitionName);
-		Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+		Response responseDefiniton = getResponse(requestDefinition);
 		if (checkError(responseDefiniton)) {
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(responseDefiniton));
 		} else {
@@ -1611,7 +1610,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		req.put(GraphDACParams.node.name(), node);
 		req.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response res = getResponse(req, LOGGER);
+		Response res = getResponse(req);
 		if (checkError(res)) {
 			errorMessages.add(getErrorMessage(res) + "- synset create/update");
 			return null;
@@ -1624,7 +1623,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		req.put(GraphDACParams.node.name(), node);
 		req.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response res = getResponse(req, LOGGER);
+		Response res = getResponse(req);
 		if (checkError(res)) {
 			errorMessages.add(getErrorMessage(res) + "- synset create/update");
 			return null;
@@ -1637,7 +1636,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request getNodeReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		getNodeReq.put(GraphDACParams.node_id.name(), nodeId);
 		getNodeReq.put(GraphDACParams.graph_id.name(), languageId);
-		Response getNodeRes = getResponse(getNodeReq, LOGGER);
+		Response getNodeRes = getResponse(getNodeReq);
 		if (checkError(getNodeRes)) {
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getNodeRes));
 		}
@@ -1910,7 +1909,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error!Exception", e.getMessage(), e);
+			PlatformLogger.log("Error!Exception", e.getMessage(), e);
 			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}
@@ -1933,7 +1932,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		request.put(GraphDACParams.start_node_id.name(), synsetId);
 		request.put(GraphDACParams.relation_type.name(), RelationTypes.SYNONYM.relationName());
 		request.put(GraphDACParams.end_node_id.name(), wordId);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (checkError(response)) {
 			errorMessages.add(getErrorMessage(response));
 		}
@@ -1954,7 +1953,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), wordId);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request, LOGGER);
+		Response getNodeRes = getResponse(request);
 		if (checkError(getNodeRes)) {
 			errorMessages.add(getErrorMessage(getNodeRes));
 		}
@@ -2021,7 +2020,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		request.put(GraphDACParams.start_node_id.name(), synsetId);
 		request.put(GraphDACParams.relation_type.name(), relationType);
 		request.put(GraphDACParams.end_node_id.name(), wordId);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (checkError(response)) {
 			errorMessages.add(getErrorMessage(response));
 		}
@@ -2303,7 +2302,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
 		request.put(GraphDACParams.metadata.name(), property);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (!checkError(findRes)) {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && nodes.size() > 0)
@@ -2348,7 +2347,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						Double complexity = getWordComplexity(node, languageId);
 						map.put(lemma, complexity);
 					} catch (Exception e) {
-						LOGGER.log("Exception", e.getMessage(), e);
+						PlatformLogger.log("Exception", e.getMessage(), e);
 						map.put(lemma, null);
 					}
 				} else {
@@ -2632,7 +2631,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		} else {
 			id = "" + indowordId;
 		}
-		LOGGER.log("Primary meaning id and indowordnetid:" + primaryMeaningId + ":" + id);
+		PlatformLogger.log("Primary meaning id and indowordnetid:" + primaryMeaningId + ":" + id);
 		boolean create = false;
 		String nodeId = getTranslationSetWithMember(primaryMeaningId, id, graphId);
 		if (nodeId == null) {
@@ -2641,18 +2640,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				create = true;
 			}
 			if (!create) {
-				LOGGER.log("Translation set already exists for indowordnetid:" + nodeId);
+				PlatformLogger.log("Translation set already exists for indowordnetid:" + nodeId);
 				proxyReq.put(GraphDACParams.collection_id.name(), nodeId);
 			}
 			proxyReq.put("create", create);
 			proxyReq.put("proxy", proxy);
-			Response res = getResponse(proxyReq, LOGGER);
+			Response res = getResponse(proxyReq);
 			if (!checkError(res)) {
 				String proxyId = (String) res.get("node_id");
-				LOGGER.log("Proxy node created:" + proxyId);
+				PlatformLogger.log("Proxy node created:" + proxyId);
 			}
 		} else {
-			LOGGER.log("Translation set already exists with this member:" + nodeId);
+			PlatformLogger.log("Translation set already exists with this member:" + nodeId);
 		}
 	}
 
@@ -2691,7 +2690,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings("unchecked")
 	public String getTranslationSet(String wordnetId, String graphId) {
-		LOGGER.log("Logging wordnet id for getting translation set:" + wordnetId);
+		PlatformLogger.log("Logging wordnet id for getting translation set:" + wordnetId);
 		Node node = null;
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.SET.name());
@@ -2704,7 +2703,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (checkError(findRes))
 			return null;
 		else {
@@ -2727,7 +2726,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	 */
 	@SuppressWarnings("unchecked")
 	public String getTranslationSetWithMember(String id, String wordnetId, String graphId) {
-		LOGGER.log("Logging synsetid and wordnetid for getting with member:" + id + ":" + wordnetId);
+		PlatformLogger.log("Logging synsetid and wordnetid for getting with member:" + id + ":" + wordnetId);
 		Node node = null;
 		RelationCriterion rc = new RelationCriterion("hasMember", "Synset");
 		List<String> identifiers = new ArrayList<String>();
@@ -2745,7 +2744,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (checkError(findRes))
 			return null;
 		else {
@@ -2769,7 +2768,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getProxyNode");
 		request.put(GraphDACParams.node_id.name(), proxyId);
 
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (checkError(findRes))
 			return false;
 		else {
@@ -2853,9 +2852,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					continue;
 				}
 			}
-			LOGGER.log("importExampleSentences |"+
+			PlatformLogger.log("importExampleSentences |"+
 					count + " words found in input file, " + wordDetailMap.size() + " words loaded into map");
-			LOGGER.log("importExampleSentences |  words found in file are "+wordDetailMap.toString());
+			PlatformLogger.log("importExampleSentences |  words found in file are "+wordDetailMap.toString());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -2908,9 +2907,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 					updateReq.put(GraphDACParams.node.name(), synset);
 					updateReq.put(GraphDACParams.node_id.name(), synset.getIdentifier());
-					Response updateRes = getResponse(updateReq, LOGGER);
+					Response updateRes = getResponse(updateReq);
 					if (checkError(updateRes)) {
-						LOGGER.log("error while uploading example sentences for synset:"+ synsetId +" word:"+ wordId, "error message:"+updateRes.getResult().toString());
+						PlatformLogger.log("error while uploading example sentences for synset:"+ synsetId +" word:"+ wordId, "error message:"+updateRes.getResult().toString());
 					}
 				}
 				
@@ -2921,7 +2920,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				wordDetailsMap.remove(lemma);
 			}
 		}
-		LOGGER.log("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
+		PlatformLogger.log("importExampleSentences | unprocessed words are "+wordDetailsMap.toString());
 		return wordIds;
 	}
 	
@@ -2935,7 +2934,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		sc.setResultSize(limit);
 		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
 		req.put(GraphDACParams.search_criteria.name(), sc);
-		Response searchRes = getResponse(req, LOGGER);
+		Response searchRes = getResponse(req);
 		if (!checkError(searchRes)) {
 			nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
 		}

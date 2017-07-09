@@ -17,9 +17,8 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -33,7 +32,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class DefinitionDTOCache {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * Gets the definition DTO.
@@ -53,7 +52,7 @@ public class DefinitionDTOCache {
 		if (definition == null) {
 			Request requestDefinition = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 					GraphDACParams.object_type.name(), definitionName);
-			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+			Response responseDefiniton = getResponse(requestDefinition);
 			if (checkError(responseDefiniton)) {
 				return null;
 			} else {
@@ -108,7 +107,7 @@ public class DefinitionDTOCache {
 	 *            the logger
 	 * @return the response
 	 */
-	private static Response getResponse(Request request, ILogger logger) {
+	private static Response getResponse(Request request) {
 		ActorRef router = RequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -119,7 +118,7 @@ public class DefinitionDTOCache {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -216,7 +215,7 @@ public class DefinitionDTOCache {
 		DefinitionDTO definition = defintionMap.get(definitionName);
 		Request requestDefinition = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), definitionName);
-		Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+		Response responseDefiniton = getResponse(requestDefinition);
 		if (checkError(responseDefiniton)) {
 			throw new Exception("Unable to sync definition: " + definitionName + " for graph: " + graphId);
 		} else {

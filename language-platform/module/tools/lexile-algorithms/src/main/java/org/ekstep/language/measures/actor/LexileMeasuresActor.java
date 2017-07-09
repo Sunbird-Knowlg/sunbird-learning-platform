@@ -25,12 +25,11 @@ import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class LexileMeasuresActor extends LanguageBaseActor {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private WordUtil wordUtil = new WordUtil();
 	ObjectMapper mapper = new ObjectMapper();
 
@@ -38,7 +37,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		Request request = (Request) msg;
-		LOGGER.log(request.getRequestId() + " | Received Command: " , request);
+		PlatformLogger.log(request.getRequestId() + " | Received Command: " , request);
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
@@ -109,7 +108,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 				DefinitionDTOCache.syncDefintion(definitionName, languageId);
 				OK(getSender());
 			} else {
-				LOGGER.log("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}

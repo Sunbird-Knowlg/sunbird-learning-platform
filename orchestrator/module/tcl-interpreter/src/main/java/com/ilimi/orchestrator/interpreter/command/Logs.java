@@ -1,20 +1,17 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.orchestrator.interpreter.ICommand;
-
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.orchestrator.interpreter.ICommand;
+
 public class Logs extends BaseSystemCommand implements ICommand, Command {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	
 	@Override
 	public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
@@ -25,7 +22,7 @@ public class Logs extends BaseSystemCommand implements ICommand, Command {
                     throw new TclException(interp, "Null arguments to " + getCommandName());
                 } else {
                     String logMessage = tclObject1.toString();
-                    LOGGER.log("LogMessage", logMessage);
+                    PlatformLogger.log("LogMessage", logMessage);
                     interp.setResult(true);
                 }
             } catch (Exception e) {

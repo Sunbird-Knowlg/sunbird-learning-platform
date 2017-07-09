@@ -14,8 +14,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
@@ -24,7 +23,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class BaseLanguageTest {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	protected static String TEST_LANGUAGE = "hi";
 	protected static String TEST_COMMON_LANGUAGE = "language";
 
@@ -103,10 +102,10 @@ public class BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graph_id);
 		request.put(GraphEngineParams.input_stream.name(), contentString);
-		LOGGER.log("List | Request: " , request);
+		PlatformLogger.log("List | Request: " , request);
 		Response response = LanguageCommonTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.log("List | Response: " , response);
+				request);
+		PlatformLogger.log("List | Response: " , response);
 		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}

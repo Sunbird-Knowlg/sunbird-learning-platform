@@ -19,8 +19,7 @@ import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
@@ -34,7 +33,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class OptimizerUtil {
 	/** The logger. */
 	
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The ekstep optimizr. */
 	private static Optimizr ekstepOptimizr = new Optimizr();
@@ -81,7 +80,7 @@ public class OptimizerUtil {
 
 				String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
 				File originalFile = HttpDownloadUtility.downloadFile(originalURL, tempFolder);
-				LOGGER.log("optimiseImage | originalURL=" + originalURL + " | uploadedFile="
+				PlatformLogger.log("optimiseImage | originalURL=" + originalURL + " | uploadedFile="
 						+ originalFile.getAbsolutePath());
 
 				// run for each resolution
@@ -104,10 +103,10 @@ public class OptimizerUtil {
 
 						if (null != optimisedFile && optimisedFile.exists()) {
 							try {
-								LOGGER.log("Cleanup - Deleting optimised File");
+								PlatformLogger.log("Cleanup - Deleting optimised File");
 								optimisedFile.delete();
 							} catch (Exception e) {
-								LOGGER.log("Something Went Wrong While Deleting the optimised File.", e.getMessage(), e);
+								PlatformLogger.log("Something Went Wrong While Deleting the optimised File.", e.getMessage(), e);
 							}
 						}
 					} else {
@@ -118,22 +117,22 @@ public class OptimizerUtil {
 
 				if (null != originalFile && originalFile.exists()) {
 					try {
-						LOGGER.log("Cleanup - Deleting Uploaded File");
+						PlatformLogger.log("Cleanup - Deleting Uploaded File");
 						originalFile.delete();
 					} catch (Exception e) {
-						LOGGER.log("Something Went Wrong While Deleting the Uploaded File.", e.getMessage(), e);
+						PlatformLogger.log("Something Went Wrong While Deleting the Uploaded File.", e.getMessage(), e);
 					}
 				}
 				// delete folder created for downloading asset file
 				delete(new File(tempFolder));
 
 			} catch (Exception e) {
-				LOGGER.log("Something Went Wrong While optimising image ", e.getMessage(), e);
+				PlatformLogger.log("Something Went Wrong While optimising image ", e.getMessage(), e);
 				throw e;
 			}
 
 		}
-		LOGGER.log("updated variants map" + variantsMap);
+		PlatformLogger.log("updated variants map" + variantsMap);
 		return variantsMap;
 	}
 

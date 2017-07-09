@@ -5,9 +5,8 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -20,13 +19,13 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class UpdateDataNodeUtil extends BaseManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	public Response updateDataNode(Node node) {
-		LOGGER.log("Node: ", node);
+		PlatformLogger.log("Node: ", node);
 		Response response = new Response();
 		if (node != null) {
-			LOGGER.log("Updating Data Node Id: " + node.getIdentifier());
+			PlatformLogger.log("Updating Data Node Id: " + node.getIdentifier());
 			
 			// Setting default version key for internal node update
 			String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
@@ -37,10 +36,10 @@ public class UpdateDataNodeUtil extends BaseManager {
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-			response = getResponse(updateReq, LOGGER);
+			response = getResponse(updateReq);
 		}
 
-		LOGGER.log("Returning Response of 'updateDataNode' Call.");
+		PlatformLogger.log("Returning Response of 'updateDataNode' Call.");
 		return response;
 	}
 

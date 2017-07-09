@@ -9,17 +9,16 @@ import org.neo4j.driver.v1.Config.ConfigBuilder;
 import org.neo4j.driver.v1.Config.EncryptionLevel;
 import org.neo4j.driver.v1.Config.TrustStrategy;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ConfigUtil {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	public static Config getConfig() {
 		ConfigBuilder config = Config.build();
 		
-		LOGGER.log("Fetching the Configuration for Neo4J Bolt.", config);
+		PlatformLogger.log("Fetching the Configuration for Neo4J Bolt.", config);
 
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED))
 			config.withEncryptionLevel(EncryptionLevel.NONE);
@@ -30,7 +29,7 @@ public class ConfigUtil {
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_SETTING_NEO4J_SERVER_MAX_IDLE_SESSION_ENABLED))
 			config.withTrustStrategy(getTrustStrategy());
 		
-		LOGGER.log("Returning Database Config: " , config.toConfig());
+		PlatformLogger.log("Returning Database Config: " , config.toConfig());
 		return config.toConfig();
 	}
 
@@ -38,7 +37,7 @@ public class ConfigUtil {
 		TrustStrategy trustStrategy = TrustStrategy.trustAllCertificates();
 
 		String strategy = DACConfigurationConstants.NEO4J_SERVER_CONNECTION_TRUST_STRATEGY;
-		LOGGER.log("Trust Strategy: " , strategy);
+		PlatformLogger.log("Trust Strategy: " , strategy);
 
 		switch (strategy) {
 		case "all":
@@ -61,7 +60,7 @@ public class ConfigUtil {
 			break;
 
 		default:
-			LOGGER.log("Invalid trust Strategy");
+			PlatformLogger.log("Invalid trust Strategy");
 			break;
 		}
 

@@ -9,8 +9,7 @@ import org.ekstep.language.util.IndowordnetUtil;
 import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class IndowordnetActor processes Indo-wordnet import related messages from the request router.
@@ -21,7 +20,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class IndowordnetActor extends LanguageBaseActor {
 
     /** The logger. */
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
     
     /** The util. */
     private IndowordnetUtil util = new IndowordnetUtil();
@@ -31,7 +30,7 @@ public class IndowordnetActor extends LanguageBaseActor {
      */
     @Override
     public void onReceive(Object msg) throws Exception {
-        LOGGER.log("Received Command: " + msg);
+        PlatformLogger.log("Received Command: " + msg);
         if (msg instanceof Request) {
             Request request = (Request) msg;
             String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
@@ -53,7 +52,7 @@ public class IndowordnetActor extends LanguageBaseActor {
                 	util.loadWords(languageId, batchSize, maxRecords, offset);
                 	OK(getSender());
                 }else {
-                    LOGGER.log("Unsupported operation: " + operation);
+                    PlatformLogger.log("Unsupported operation: " + operation);
                     unhandled(msg);
                 }
             } catch(Exception e) {
@@ -61,7 +60,7 @@ public class IndowordnetActor extends LanguageBaseActor {
                 handleException(e, getSender());
             }
         } else {
-            LOGGER.log("Unsupported operation!");
+            PlatformLogger.log("Unsupported operation!");
             unhandled(msg);
         }
         

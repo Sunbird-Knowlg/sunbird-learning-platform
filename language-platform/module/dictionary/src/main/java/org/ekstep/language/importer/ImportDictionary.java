@@ -25,12 +25,11 @@ import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ImportDictionary {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	private static final String CSV_SEPARATOR = ",";
 
@@ -193,7 +192,7 @@ public class ImportDictionary {
 				if (null != reader)
 					reader.close();
 			} catch (IOException e) {
-				LOGGER.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+				PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 			}
 		}
 
@@ -301,11 +300,11 @@ public class ImportDictionary {
 			}
 			bw.flush();
 		} catch (UnsupportedEncodingException e) {
-			LOGGER.log("Error! Unsupported File Encoding.", e.getMessage(), e);
+			PlatformLogger.log("Error! Unsupported File Encoding.", e.getMessage(), e);
 		} catch (FileNotFoundException e) {
-			LOGGER.log("Error! File Does not Exist.", e.getMessage(), e);
+			PlatformLogger.log("Error! File Does not Exist.", e.getMessage(), e);
 		} catch (IOException e) {
-			LOGGER.log("Error! While Handling the File.", e.getMessage(), e);
+			PlatformLogger.log("Error! While Handling the File.", e.getMessage(), e);
 		}
 	}
 

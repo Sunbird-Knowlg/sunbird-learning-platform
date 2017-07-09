@@ -13,9 +13,8 @@ import java.util.List;
 
 import org.ekstep.common.slugs.Slug;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.LoggerEnum;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * A utility that downloads a file from a URL.
@@ -25,7 +24,7 @@ import com.ilimi.common.util.PlatformLogManager;
  */
 public class HttpDownloadUtility {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	private static final int BUFFER_SIZE = 4096;
 
@@ -42,22 +41,22 @@ public class HttpDownloadUtility {
 		InputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		try {
-			LOGGER.log("Start Downloading for File: " , fileURL);
+			PlatformLogger.log("Start Downloading for File: " , fileURL);
 
 			URL url = new URL(fileURL);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			LOGGER.log("Response Code: " + responseCode);
+			PlatformLogger.log("Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				LOGGER.log("Response is OK.");
+				PlatformLogger.log("Response is OK.");
 
 				String fileName = "";
 				String disposition = httpConn.getHeaderField("Content-Disposition");
 				httpConn.getContentType();
 				httpConn.getContentLength();
-				LOGGER.log("Content Disposition: " + disposition);
+				PlatformLogger.log("Content Disposition: " + disposition);
 
 				if (disposition != null) {
 					// extracts file name from header field
@@ -72,7 +71,7 @@ public class HttpDownloadUtility {
 				} else {
 					// extracts file name from URL
 					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-					LOGGER.log("File Name: " + fileName);
+					PlatformLogger.log("File Name: " + fileName);
 				}
 
 				// opens input stream from the HTTP connection
@@ -82,7 +81,7 @@ public class HttpDownloadUtility {
 					saveFile.mkdirs();
 				}
 				String saveFilePath = saveDir + File.separator + fileName;
-				LOGGER.log("Save File Path: " + saveFilePath);
+				PlatformLogger.log("Save File Path: " + saveFilePath);
 
 				// opens an output stream to save into file
 				outputStream = new FileOutputStream(saveFilePath);
@@ -95,14 +94,14 @@ public class HttpDownloadUtility {
 				inputStream.close();
 				File file = new File(saveFilePath);
 				file = Slug.createSlugFile(file);
-				LOGGER.log("Sliggified File Name: " + file);
+				PlatformLogger.log("Sliggified File Name: " + file);
 
 				return file;
 			} else {
-				LOGGER.log("No file to download. Server replied HTTP code: " + responseCode);
+				PlatformLogger.log("No file to download. Server replied HTTP code: " + responseCode);
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error! While Downloading File.", e.getMessage(), e);
+			PlatformLogger.log("Error! While Downloading File.", e.getMessage(), e);
 		} finally {
 			if (null != httpConn)
 				httpConn.disconnect();
@@ -110,17 +109,17 @@ public class HttpDownloadUtility {
 				try {
 					inputStream.close();
 				} catch (IOException e) {
-					LOGGER.log("Error! While Closing the Input Stream.", e.getMessage(),e );
+					PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(),e );
 				}
 			if (null != outputStream)
 				try {
 					outputStream.close();
 				} catch (IOException e) {
-					LOGGER.log("Error! While Closing the Output Stream.", e.getMessage(), e);
+					PlatformLogger.log("Error! While Closing the Output Stream.", e.getMessage(), e);
 				}
 		}
 
-		LOGGER.log("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'.", fileURL, LoggerEnum.WARN.name());
+		PlatformLogger.log("Something Went Wrong While Downloading the File '" + fileURL + "' returning 'null'.", fileURL, LoggerEnum.WARN.name());
 		return null;
 	}
 
@@ -152,7 +151,7 @@ public class HttpDownloadUtility {
 		URL data;
 		StringBuffer sb = new StringBuffer();
 		try {
-			LOGGER.log("The url to be read: " , url);
+			PlatformLogger.log("The url to be read: " , url);
 			data = new URL(url);
 			try (BufferedReader in = new BufferedReader(new InputStreamReader(data.openStream()))) {
 				String inputLine;
@@ -164,7 +163,7 @@ public class HttpDownloadUtility {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		LOGGER.log("Data read from url" , sb.toString());
+		PlatformLogger.log("Data read from url" , sb.toString());
 		return sb.toString();
 	}
 

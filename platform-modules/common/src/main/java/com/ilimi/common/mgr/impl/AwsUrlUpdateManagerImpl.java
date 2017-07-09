@@ -19,10 +19,9 @@ import com.ilimi.common.enums.UrlProperties;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.IAwsUrlUpdateManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -49,7 +48,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 	protected static final String URL_String = "url";
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	@SuppressWarnings("unchecked")
 	public Response updateNodesWithUrl(String objectType, String graphId, String apiId)
@@ -65,7 +64,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 		sc.setObjectType(objectType);
 		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
-		Response findRes = getResponse(req, LOGGER);
+		Response findRes = getResponse(req);
 		if (checkError(findRes))
 			return null;
 		else {
@@ -155,8 +154,8 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-			LOGGER.log("Updating the Node id with AWS url: " + node.getIdentifier());
-			Response updateRes = getResponse(updateReq, LOGGER);
+			PlatformLogger.log("Updating the Node id with AWS url: " + node.getIdentifier());
+			Response updateRes = getResponse(updateReq);
 			if (checkError(updateRes)){
 				failedNodes.add(node.getIdentifier());
 			}
@@ -205,7 +204,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 	private Node getNode(String graphId, String identifier) {
 		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), identifier);
-		Response listRes = getResponse(req, LOGGER);
+		Response listRes = getResponse(req);
 		if (checkError(listRes))
 			throw new ResourceNotFoundException(
 					CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),

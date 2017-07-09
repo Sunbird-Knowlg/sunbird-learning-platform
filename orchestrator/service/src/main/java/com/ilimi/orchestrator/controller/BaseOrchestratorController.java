@@ -19,11 +19,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.graph.common.mgr.BaseGraphManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.interpreter.exception.ExecutionErrorCodes;
 
@@ -31,7 +27,7 @@ public abstract class BaseOrchestratorController {
     
     private static final String API_ID_PREFIX = "orchestrator";
     private static final String API_VERSION = "2.0";
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
     private static final String ekstep = "org.ekstep.";
     private static final String ilimi = "com.ilimi.";
     private static final String java = "java.";
@@ -84,11 +80,11 @@ public abstract class BaseOrchestratorController {
     private String setErrMessage(Exception e) {
     	Class<? extends Throwable> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	LOGGER.log("Setting error message sent from class " + className , e.getMessage(), e);
+        	PlatformLogger.log("Setting error message sent from class " + className , e.getMessage(), e);
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	LOGGER.log("Setting default err msg " + className , e.getMessage(), e);
+        	PlatformLogger.log("Setting default err msg " + className , e.getMessage(), e);
         	return default_err_msg;
         }
 		return null;
@@ -167,12 +163,12 @@ public abstract class BaseOrchestratorController {
 		try {
 			input = BaseOrchestratorController.class.getClassLoader().getResourceAsStream(filename);
 			if (input == null) {
-				LOGGER.log("Unable to find " + filename);
+				PlatformLogger.log("Unable to find " + filename);
 			}
 			prop.load(input);
 			envURL = prop.getProperty("env");
 		} catch (IOException e) {
-			LOGGER.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
     	return envURL;
     }

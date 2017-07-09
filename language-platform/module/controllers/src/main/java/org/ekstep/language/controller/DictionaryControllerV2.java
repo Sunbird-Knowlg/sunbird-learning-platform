@@ -30,8 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 /**
@@ -47,7 +46,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	private IDictionaryManager dictionaryManager;
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * Upload.
@@ -60,17 +59,17 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> upload(@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "media.upload";
-		LOGGER.log("Upload | File: " + file);
+		PlatformLogger.log("Upload | File: " + file);
 		try {
 			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
 			File uploadedFile = new File(name);
 			file.transferTo(uploadedFile);
 			Response response = dictionaryManager.upload(uploadedFile);
-			LOGGER.log("Upload | Response: " + response);
+			PlatformLogger.log("Upload | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.log("Upload | Exception: " , e.getMessage(), e);
+			PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -99,7 +98,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		Request request = getRequest(map);
 		try {
 			Response response = dictionaryManager.createWordV2(languageId, objectType, request, forceUpdate);
-			LOGGER.log("Create | Response: " + response);
+			PlatformLogger.log("Create | Response: " + response);
 			if (!checkError(response)) {
 				String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
@@ -115,7 +114,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.log("Create | Exception: " , e.getMessage(), e);
+			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -148,7 +147,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		Request request = getRequest(map);
 		try {
 			Response response = dictionaryManager.updateWordV2(languageId, objectId, objectType, request, forceUpdate);
-			LOGGER.log("Update | Response: " + response);
+			PlatformLogger.log("Update | Response: " + response);
 			if (!checkError(response)) {
 				String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
@@ -164,7 +163,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.log("Create | Exception: " , e.getMessage(), e);
+			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -187,7 +186,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
 		request.setOperation(LanguageOperations.enrichWords.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		makeAsyncRequest(request, LOGGER);
+		makeAsyncRequest(request);
 	}
 
 	/**
@@ -215,10 +214,10 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
 			Response response = dictionaryManager.find(languageId, objectId, fields, version);
-			LOGGER.log("Find | Response: " + response);
+			PlatformLogger.log("Find | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.log("Find | Exception: " , e.getMessage(), e);
+			PlatformLogger.log("Find | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -247,7 +246,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		String apiId = "ekstep.language." +objectType.toLowerCase() + ".list";
 		try {
 			Response response = dictionaryManager.findAll(languageId, objectType, fields, limit, version);
-			LOGGER.log("Find All | Response: " + response);
+			PlatformLogger.log("Find All | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -278,7 +277,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			response.setContentType("text/csv");
 			response.setHeader("Content-Disposition", "attachment; filename=words.csv");
 			dictionaryManager.findWordsCSV(languageId, objectType, file.getInputStream(), response.getOutputStream());
-			LOGGER.log("Find CSV | Response");
+			PlatformLogger.log("Find CSV | Response");
 			response.getOutputStream().close();
 			Response resp = new Response();
 			return getResponseEntity(resp, apiId, null);
@@ -312,7 +311,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		try {
 			Response response = dictionaryManager.deleteRelation(languageId, objectType, objectId1, relation,
 					objectId2);
-			LOGGER.log("Delete Relation | Response: " + response);
+			PlatformLogger.log("Delete Relation | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -352,7 +351,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 				}
 				throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), finalMessage.substring(2));
 			}
-			LOGGER.log("Add Relation | Response: " + response);
+			PlatformLogger.log("Add Relation | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

@@ -10,8 +10,7 @@ import org.ekstep.content.util.JSONContentParser;
 import org.ekstep.content.util.XMLContentParser;
 
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -23,7 +22,7 @@ import com.ilimi.graph.dac.model.Node;
 public class BaseInitializer extends BasePipeline {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/**
 	 * isCompressRequired()
@@ -36,7 +35,7 @@ public class BaseInitializer extends BasePipeline {
 	protected boolean isCompressRequired(Node node) {
 		boolean required = false;
 		if (null != node && null != node.getMetadata()) {
-			LOGGER.log("Compression Required Check For Content Id: " + node.getIdentifier());
+			PlatformLogger.log("Compression Required Check For Content Id: " + node.getIdentifier());
 			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
 			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 			if (StringUtils.isBlank(artifactUrl) && StringUtils.isBlank(contentBody))
@@ -96,7 +95,7 @@ public class BaseInitializer extends BasePipeline {
 			else
 				throw new ClientException(ContentErrorCodeConstants.INVALID_BODY.name(),
 						ContentErrorMessageConstants.INVALID_CONTENT_BODY);
-			LOGGER.log("ECML Type: " + type);
+			PlatformLogger.log("ECML Type: " + type);
 		}
 		return type;
 	}

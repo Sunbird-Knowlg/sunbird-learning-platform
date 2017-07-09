@@ -15,8 +15,7 @@ import org.ekstep.content.validator.ContentValidator;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -27,7 +26,7 @@ import com.ilimi.graph.dac.model.Node;
 public class PublishInitializer extends BaseInitializer {
 	
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The BasePath. */
 	protected String basePath;
@@ -72,7 +71,7 @@ public class PublishInitializer extends BaseInitializer {
 	public Response initialize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 
-		LOGGER.log("Fetching The Parameters From Parameter Map");
+		PlatformLogger.log("Fetching The Parameters From Parameter Map");
 
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Boolean ecmlContent = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
@@ -88,7 +87,7 @@ public class PublishInitializer extends BaseInitializer {
 
 			// Get ECRF Object 
 			Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
-			LOGGER.log("ECRF Object Created.");
+			PlatformLogger.log("ECRF Object Created.");
 
 			if (isCompressRequired) {
 				// Get Pipeline Object 
@@ -100,7 +99,7 @@ public class PublishInitializer extends BaseInitializer {
 			}
 
 			// Call Finalyzer 
-			LOGGER.log("Calling Finalizer");
+			PlatformLogger.log("Calling Finalizer");
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);

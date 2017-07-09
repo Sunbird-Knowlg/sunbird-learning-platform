@@ -12,16 +12,15 @@ import org.ekstep.language.models.DictionaryObject;
 import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ImportActor extends LanguageBaseActor {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.log("Received Command: " , msg);
+		PlatformLogger.log("Received Command: " , msg);
 		if (msg instanceof Request) {
 			Request request = (Request) msg;
 			String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
@@ -35,14 +34,14 @@ public class ImportActor extends LanguageBaseActor {
 						OK(LanguageParams.dictionary.name(), dictionaryObject, getSender());
 					}
 				} else {
-					LOGGER.log("Unsupported operation: " , operation);
+					PlatformLogger.log("Unsupported operation: " , operation);
 					unhandled(msg);
 				}
 			} catch (Exception e) {
 				handleException(e, getSender());
 			}
 		} else {
-			LOGGER.log("Unsupported operation!");
+			PlatformLogger.log("Unsupported operation!");
 			unhandled(msg);
 		}
 

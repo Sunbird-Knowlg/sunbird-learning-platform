@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class LanguageDataSyncController provides operations that can sync data
@@ -29,7 +28,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class LanguageDataSyncV3Controller extends BaseController {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The composite search manager. */
 	@Autowired
@@ -59,12 +58,12 @@ public class LanguageDataSyncV3Controller extends BaseController {
 			@RequestParam(name = "delete", required = false, defaultValue = "false") boolean delete, 
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.language.composite-search.sync";
-		LOGGER.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
+		PlatformLogger.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
 		try {
 			Response response = compositeSearchManager.sync(graphId, objectType, start, total, delete);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.log("Error: " , apiId, e);
+			PlatformLogger.log("Error: " , apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -86,12 +85,12 @@ public class LanguageDataSyncV3Controller extends BaseController {
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.language.composite-search.sync-object";
-		LOGGER.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
+		PlatformLogger.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
 		try {
 			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.log("Error: " , apiId, e);
+			PlatformLogger.log("Error: " , apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

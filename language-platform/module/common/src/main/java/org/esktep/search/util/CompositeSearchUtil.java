@@ -9,8 +9,6 @@ import org.ekstep.language.common.enums.LanguageParams;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -21,7 +19,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class CompositeSearchUtil extends BaseSearchManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	
 	/**
 	 * Search.
@@ -33,11 +31,11 @@ public class CompositeSearchUtil extends BaseSearchManager {
 		Request request=new Request();
 		request.setRequest(searchRequestMap);
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.INDEX_SEARCH.name());
-		Response searchResult= getSearchResponse(request, LOGGER);
+		Response searchResult= getSearchResponse(request);
 		if (!checkError(searchResult)) {
 			request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
 			request.put("searchResult", searchResult.getResult());
-			Response getRes = getSearchResponse(request, LOGGER);
+			Response getRes = getSearchResponse(request);
 			if (!checkError(getRes)) {
 				return getRes.getResult();
 			}

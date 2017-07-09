@@ -5,19 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.apache.commons.lang3.StringUtils;
-import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.graph.common.JSONUtils;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.graph.model.node.MetadataDefinition;
-import com.ilimi.graph.model.node.RelationDefinition;
-import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
 import tcl.lang.Interp;
@@ -26,9 +15,19 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
+import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.common.JSONUtils;
+import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.graph.model.node.RelationDefinition;
+import com.ilimi.orchestrator.interpreter.ICommand;
+
 public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Command {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	
     @Override
     public String getCommandName() {
@@ -98,7 +97,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                         if (fieldList.contains(entry.getKey())) {
                         	if (jsonProps.contains(entry.getKey().toLowerCase())) {
                         		Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                        		LOGGER.log("JSON Property " + entry.getKey() + " converted value is " + val);
+                        		PlatformLogger.log("JSON Property " + entry.getKey() + " converted value is " + val);
                                 if (null != val)
                                 	map.put(entry.getKey(), val);
                         	} else
@@ -112,7 +111,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                             key = new String(c);
                             if (jsonProps.contains(key.toLowerCase())) {
                             	Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                            	LOGGER.log("JSON Property " + key + " converted value is " + val);
+                            	PlatformLogger.log("JSON Property " + key + " converted value is " + val);
                                 if (null != val)
                                 	map.put(key, val);
                             } else
@@ -172,7 +171,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                 }
             }
         }
-        LOGGER.log("JSON properties: " , props);
+        PlatformLogger.log("JSON properties: " , props);
         return props;
     }
     

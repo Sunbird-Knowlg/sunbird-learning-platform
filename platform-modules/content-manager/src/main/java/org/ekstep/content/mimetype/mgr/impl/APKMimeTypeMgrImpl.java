@@ -12,8 +12,7 @@ import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -31,8 +30,8 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	/* Logger */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
+	
 
 	/*
 	 * (non-Javadoc)
@@ -43,10 +42,10 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		LOGGER.log("Node: ", node.getIdentifier());
-		LOGGER.log("Uploaded File: " + uploadFile.getName());
+		PlatformLogger.log("Node: ", node.getIdentifier());
+		PlatformLogger.log("Uploaded File: " + uploadFile.getName());
 
-		LOGGER.log("Calling Upload Content For Node ID: ", node.getIdentifier());
+		PlatformLogger.log("Calling Upload Content For Node ID: ", node.getIdentifier());
 		return uploadContentArtifact(contentId, node, uploadFile);
 	}
 
@@ -59,51 +58,51 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		LOGGER.log("Node: ", node.getIdentifier());
+		PlatformLogger.log("Node: ", node.getIdentifier());
 
 		Response response = new Response();
-		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Adding 'isPublishOperation' Flag to 'true'");
+		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node Id: " + contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " ,contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " ,contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 
 		return response;
 
-		// LOGGER.log("Calling the 'rePublish' for Node ID: " +
+		// PlatformLogger.log("Calling the 'rePublish' for Node ID: " +
 		// node.getIdentifier());
 		// return rePublish(node);
 	}
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		LOGGER.log("Node: ", node.getIdentifier());
+		PlatformLogger.log("Node: ", node.getIdentifier());
 
-		LOGGER.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", node.getIdentifier());
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.log("Calling the 'Review' Initializer for Node ID: ", node.getIdentifier());
+		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: ", node.getIdentifier());
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

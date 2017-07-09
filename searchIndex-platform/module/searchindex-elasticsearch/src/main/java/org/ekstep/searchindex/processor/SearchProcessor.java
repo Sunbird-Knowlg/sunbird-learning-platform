@@ -20,15 +20,14 @@ import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
@@ -46,7 +45,7 @@ public class SearchProcessor {
 				response.put("results", results);
 			}
 		}
-		LOGGER.log(response.toString());
+		PlatformLogger.log(response.toString());
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
 				.getValue("aggregations");
 		if (aggregations != null && !aggregations.isEmpty()) {
@@ -870,9 +869,9 @@ public class SearchProcessor {
 		Map<String, Object> res_map = new HashMap<String, Object>();
 		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		LOGGER.log("AuditHistory search query: " + query);
+		PlatformLogger.log("AuditHistory search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
-		LOGGER.log("search result from elastic search" + searchResult);
+		PlatformLogger.log("search result from elastic search" + searchResult);
 		Map<String, Object> result_map = (Map) searchResult.getValue("hits");
 		List<Map<String, Object>> result = (List) result_map.get("hits");
 		for (Map<String, Object> map : result) {
@@ -884,7 +883,7 @@ public class SearchProcessor {
 
 			}
 		}
-		LOGGER.log("search response size: " + response.size());
+		PlatformLogger.log("search response size: " + response.size());
 		return response;
 	}
 
@@ -902,7 +901,7 @@ public class SearchProcessor {
 			object = Arrays.asList();
 		}
 		}catch (Exception e) {
-			LOGGER.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
 		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object()
 				.key("query").array();

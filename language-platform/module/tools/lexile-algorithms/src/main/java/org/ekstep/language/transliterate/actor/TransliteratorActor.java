@@ -17,8 +17,7 @@ import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 // TODO: Auto-generated Javadoc
@@ -31,7 +30,7 @@ import com.ilimi.graph.dac.model.Node;
 public class TransliteratorActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
@@ -45,7 +44,7 @@ public class TransliteratorActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		Request request = (Request) msg;
-		LOGGER.log(request.getRequestId() + " | Received Command: " , request);
+		PlatformLogger.log(request.getRequestId() + " | Received Command: " , request);
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
@@ -81,7 +80,7 @@ public class TransliteratorActor extends LanguageBaseActor {
 				WordCacheUtil.loadWordArpabetCollection(in);
 				OK(getSender());
 			} else {
-				LOGGER.log("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}

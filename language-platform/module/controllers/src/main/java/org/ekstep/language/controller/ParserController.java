@@ -19,8 +19,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class ParserController, entry point for parser operation
@@ -32,7 +31,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class ParserController extends BaseController {
 
     /** The logger. */
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
 
     /** The parser manger. */
     @Autowired
@@ -65,11 +64,11 @@ public class ParserController extends BaseController {
             Integer limit = (Integer) request.get("limit");
             Response response = parserManger.parseContent(languageId, content, wordSuggestions, false, translations,
                     equivalentWords, limit);
-            LOGGER.log("Parser | Response: " + response);
+            PlatformLogger.log("Parser | Response: " + response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            LOGGER.log("Parser | Exception: " , e.getMessage(), e);
+            PlatformLogger.log("Parser | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }

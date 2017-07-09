@@ -29,8 +29,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.content.common.BaseTest;
 
 /**
@@ -44,7 +43,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
 public class ContentV2ControllerTest extends BaseTest {
 
 	/** The Class Logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The context. */
 	@Autowired
@@ -137,7 +136,7 @@ public class ContentV2ControllerTest extends BaseTest {
 		String url = "";
 		try {
 			if (null == file) {
-				LOGGER.log("Error! Upload File Package Cannot be 'null'.");
+				PlatformLogger.log("Error! Upload File Package Cannot be 'null'.");
 			} else {
 				String folder = S3PropertyReader.getProperty(s3Content);
             	folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(s3Artifact);
@@ -146,7 +145,7 @@ public class ContentV2ControllerTest extends BaseTest {
 					url = result[1];
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error! Upload File Package Cannot be 'null'.", e.getMessage(), e);
+			PlatformLogger.log("Error! Upload File Package Cannot be 'null'.", e.getMessage(), e);
 		}
 		return url;
 	}

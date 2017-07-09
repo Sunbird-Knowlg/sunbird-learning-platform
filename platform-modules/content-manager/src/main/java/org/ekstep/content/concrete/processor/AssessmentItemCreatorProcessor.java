@@ -14,14 +14,14 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
 
+
 //import com.ilimi.assessment.enums.QuestionnaireType;
 //import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class AssessmentItemCreatorProcessor is responsible of creating the
@@ -50,7 +50,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //	private IAssessmentManager assessmentMgr;
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 //	private ObjectMapper mapper = new ObjectMapper();
 
@@ -87,14 +87,14 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
-			LOGGER.log("Plugin: ", plugin);
-			LOGGER.log("Calling 'createAssessmentItemSubGraph' Inner Operation.");
+			PlatformLogger.log("Plugin: ", plugin);
+			PlatformLogger.log("Calling 'createAssessmentItemSubGraph' Inner Operation.");
 			createAssessmentItemSubGraph(plugin);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(),
 					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [AssessmentItemCreatorProcessor]", e);
 		}
-		LOGGER.log("Returning the ECRF (Plugin) Object", plugin);
+		PlatformLogger.log("Returning the ECRF (Plugin) Object", plugin);
 		return plugin;
 	}
 
@@ -107,26 +107,26 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	 */
 
 	private Map<String, Object> createAssessmentItemSubGraph(Plugin plugin) {
-//		LOGGER.log("ECRF Object (Plugin): ", plugin + " | [Content Id '"+ contentId +"']");
+//		PlatformLogger.log("ECRF Object (Plugin): ", plugin + " | [Content Id '"+ contentId +"']");
 //		Map<String, Object> assessmentItemCreationFilewiseResult = new HashMap<String, Object>();
 //		try {
 //			List<Relation> outRelations = new ArrayList<Relation>();
 //			
-//			LOGGER.log("Fetching the Controller File List." + " | [Content Id '"+ contentId +"']");
+//			PlatformLogger.log("Fetching the Controller File List." + " | [Content Id '"+ contentId +"']");
 //			List<File> controllerFileList = getControllersFileList(plugin.getControllers(),
 //					ContentWorkflowPipelineParams.data.name(), basePath);
-//			LOGGER.log("Total no. of Item Controllers: " + controllerFileList.size());
+//			PlatformLogger.log("Total no. of Item Controllers: " + controllerFileList.size());
 //			
 //			if (null != controllerFileList) {
-//				LOGGER.log("Iterating over all the Assessment Item JSON Files." + " | [Content Id '"+ contentId +"']");
+//				PlatformLogger.log("Iterating over all the Assessment Item JSON Files." + " | [Content Id '"+ contentId +"']");
 //				for (File file : controllerFileList) {
-//					LOGGER.log("Processing for File Name: " + file.getName() + " | [Content Id '"+ contentId +"']");
+//					PlatformLogger.log("Processing for File Name: " + file.getName() + " | [Content Id '"+ contentId +"']");
 //					if (file.exists()) {
 //						Map<String, Object> assessmentItemMap = new ObjectMapper().readValue(file, HashMap.class);
 //						if (null != assessmentItemMap) {
 //							Map<String, Object> itemSet = (Map<String, Object>) assessmentItemMap
 //									.get(ContentWorkflowPipelineParams.items.name());
-//							LOGGER.log("Iterating over the Controllers of Item Type Only." + " | [Content Id '"+ contentId +"']");
+//							PlatformLogger.log("Iterating over the Controllers of Item Type Only." + " | [Content Id '"+ contentId +"']");
 //							for (Entry<String, Object> entry : itemSet.entrySet()) {
 //								Object assessmentItem = (Object) entry.getValue();
 //								List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
@@ -135,7 +135,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //								Map<String, String> mapAssessItemRes = new HashMap<String, String>();
 //								Map<String, Object> mapRelation = new HashMap<String, Object>();
 //								for (Map<String, Object> map : lstMap) {
-//									LOGGER.log("Creating the Request Object For Item: ", map);
+//									PlatformLogger.log("Creating the Request Object For Item: ", map);
 //									Request request = getAssessmentModelRequestObject(map,
 //											ContentWorkflowPipelineParams.AssessmentItem.name(), contentId,
 //											ContentWorkflowPipelineParams.assessment_item.name());
@@ -150,7 +150,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 ////											response = assessmentMgr.updateAssessmentItem(itemNode.getIdentifier(),
 ////													ContentConfigurationConstants.GRAPH_ID, request);
 //										}
-//										LOGGER.log("Create Item | Response: " + response + " | [Content Id '"+ contentId +"']");
+//										PlatformLogger.log("Create Item | Response: " + response + " | [Content Id '"+ contentId +"']");
 //										Map<String, Object> resMap = response.getResult();
 //										if (null != resMap.get(ContentWorkflowPipelineParams.node_id.name())) {
 //											String identifier = (String) resMap
@@ -169,11 +169,11 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //										}
 //									}
 //								}
-//								LOGGER.log("Adding and Entry in Response Map." + " | [Content Id '"+ contentId +"']");
+//								PlatformLogger.log("Adding and Entry in Response Map." + " | [Content Id '"+ contentId +"']");
 //								assessResMap.put(ContentWorkflowPipelineParams.assessment_item.name(),
 //										mapAssessItemRes);
 //								
-//								LOGGER.log("Creating Item Set." + " | [Content Id '"+ contentId +"']");
+//								PlatformLogger.log("Creating Item Set." + " | [Content Id '"+ contentId +"']");
 //								Response itemSetRes = createItemSet(lstAssessmentItemId, assessmentItemMap);
 //								if (null != itemSetRes) {
 //									Map<String, Object> mapItemSetRes = itemSetRes.getResult();
@@ -181,20 +181,20 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //											mapItemSetRes);
 //									String itemSetNodeId = (String) mapItemSetRes
 //											.get(ContentWorkflowPipelineParams.set_id.name());
-//									LOGGER.log("Item Set ID: " + itemSetNodeId + " | [Content Id '"+ contentId +"']");
+//									PlatformLogger.log("Item Set ID: " + itemSetNodeId + " | [Content Id '"+ contentId +"']");
 //									if (StringUtils.isNotBlank(itemSetNodeId)) {
 //										Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(),
 //												itemSetNodeId);
 //										outRelations.add(outRel);
 //									}
-//									LOGGER.log("Creatign 'outRelations'." + " | [Content Id '"+ contentId +"']");
+//									PlatformLogger.log("Creatign 'outRelations'." + " | [Content Id '"+ contentId +"']");
 //								}
 //								List<String> lstAssessItemRelRes = createRelation(
 //										ContentConfigurationConstants.GRAPH_ID, mapRelation, outRelations);
-//								LOGGER.log("Adding and Entry in Assessment Item Creation Response Map." + " | [Content Id '"+ contentId +"']");
+//								PlatformLogger.log("Adding and Entry in Assessment Item Creation Response Map." + " | [Content Id '"+ contentId +"']");
 //								assessResMap.put(ContentWorkflowPipelineParams.AssessmentItemRelation.name(),
 //										lstAssessItemRelRes);
-//								LOGGER.log("Adding and Entry in File Wise Assessment Item Creation Response Map." + " | [Content Id '"+ contentId +"']");
+//								PlatformLogger.log("Adding and Entry in File Wise Assessment Item Creation Response Map." + " | [Content Id '"+ contentId +"']");
 //								assessmentItemCreationFilewiseResult.put(file.getName(), assessResMap);
 //							}
 //						} else {
@@ -210,11 +210,11 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //				}
 //			}
 //		} catch (IOException e) {
-//			LOGGER.log(ContentErrorMessageConstants.CONTROLLER_ASSESSMENT_ITEM_JSON_OBJECT_CONVERSION_CASTING_ERROR,
+//			PlatformLogger.log(ContentErrorMessageConstants.CONTROLLER_ASSESSMENT_ITEM_JSON_OBJECT_CONVERSION_CASTING_ERROR,
 //					e);
 //		}
 //		
-//		LOGGER.log("Returning Map of File wise details about Creation of Assessment Item." + " | [Content Id '"+ contentId +"']");
+//		PlatformLogger.log("Returning Map of File wise details about Creation of Assessment Item." + " | [Content Id '"+ contentId +"']");
 //		return assessmentItemCreationFilewiseResult;
 		return null;
 	}
@@ -230,44 +230,44 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	 */
 	@SuppressWarnings("unused")
 	private Response createItemSet(List<String> assessmentItemIds, Map<String, Object> assessmentItemMap) {
-//		LOGGER.log("Member Assessment Items: ", assessmentItemIds);
-//		LOGGER.log("Assessment Item Map: ", assessmentItemMap);
+//		PlatformLogger.log("Member Assessment Items: ", assessmentItemIds);
+//		PlatformLogger.log("Assessment Item Map: ", assessmentItemMap);
 //		
 //		Response response = new Response();
 //		if (null != assessmentItemIds) {
 //			Map<String, Object> map = new HashMap<String, Object>();
-//			LOGGER.log("Setting the Member IDs." + " | [Content Id '"+ contentId +"']");
+//			PlatformLogger.log("Setting the Member IDs." + " | [Content Id '"+ contentId +"']");
 //			map.put(ContentWorkflowPipelineParams.memberIds.name(), assessmentItemIds);
 //			Integer totalItems = (Integer) assessmentItemMap.get(ContentWorkflowPipelineParams.total_items.name());
 //			if (null == totalItems || totalItems > assessmentItemIds.size())
 //				totalItems = assessmentItemIds.size();
-//			LOGGER.log("Setting the Total Items Count: " + totalItems + " | [Content Id '"+ contentId +"']");
+//			PlatformLogger.log("Setting the Total Items Count: " + totalItems + " | [Content Id '"+ contentId +"']");
 //			map.put(ContentWorkflowPipelineParams.total_items.name(), totalItems);
 //			Integer maxScore = (Integer) assessmentItemMap.get(ContentWorkflowPipelineParams.max_score.name());
 //			if (null == maxScore)
 //				maxScore = totalItems;
-//			LOGGER.log("Setting the Maximum Scores: " + maxScore + " | [Content Id '"+ contentId +"']");
+//			PlatformLogger.log("Setting the Maximum Scores: " + maxScore + " | [Content Id '"+ contentId +"']");
 //			map.put(ContentWorkflowPipelineParams.max_score.name(), maxScore);
 //			String title = (String) assessmentItemMap.get(ContentWorkflowPipelineParams.title.name());
 //			if (StringUtils.isNotBlank(title))
 //				map.put(ContentWorkflowPipelineParams.title.name(), title);
-//			LOGGER.log("Setting the Assessment Item Set Title: " + title + " | [Content Id '"+ contentId +"']");
+//			PlatformLogger.log("Setting the Assessment Item Set Title: " + title + " | [Content Id '"+ contentId +"']");
 //			map.put(ContentWorkflowPipelineParams.type.name(), QuestionnaireType.materialised.name());
 //			String identifier = (String) assessmentItemMap.get(ContentWorkflowPipelineParams.identifier.name());
-//			LOGGER.log("Setting the Identifier: " + identifier + " | [Content Id '"+ contentId +"']");
+//			PlatformLogger.log("Setting the Identifier: " + identifier + " | [Content Id '"+ contentId +"']");
 //			if (StringUtils.isNotBlank(identifier)) {
 //				map.put(ContentWorkflowPipelineParams.code.name(), identifier);
 //			} else {
 //				map.put(ContentWorkflowPipelineParams.code.name(),
 //						ContentWorkflowPipelineParams.item_set_.name() + RandomUtils.nextInt(1, 10000));
 //			}
-//			LOGGER.log("Creating Request Object. | [Content Id '"+ contentId +"']");
+//			PlatformLogger.log("Creating Request Object. | [Content Id '"+ contentId +"']");
 //			Request request = getAssessmentModelRequestObject(map, ContentWorkflowPipelineParams.ItemSet.name(),
 //					contentId, ContentWorkflowPipelineParams.assessment_item_set.name());
 //			if (null != request) {
-//				LOGGER.log("Creating Assessment Item Object in Graph. | [Content Id '"+ contentId +"']");
+//				PlatformLogger.log("Creating Assessment Item Object in Graph. | [Content Id '"+ contentId +"']");
 ////				response = assessmentMgr.createItemSet(ContentConfigurationConstants.GRAPH_ID, request);
-//				LOGGER.log("Create Item | Response: " + response);
+//				PlatformLogger.log("Create Item | Response: " + response);
 //			}
 //		}
 //		return response;
@@ -358,7 +358,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //					request.put(ContentWorkflowPipelineParams.skipValidations.name(), true);
 //				}
 //			} catch (Exception e) {
-//				LOGGER.log(ContentErrorMessageConstants.ASSESSMENT_MANAGER_REQUEST_OBJECT_CREATION_ERROR, e);
+//				PlatformLogger.log(ContentErrorMessageConstants.ASSESSMENT_MANAGER_REQUEST_OBJECT_CREATION_ERROR, e);
 //			}
 //		}
 //		return request;
@@ -395,7 +395,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 //					if (null != map && !map.isEmpty())
 //						request.setRequest(map);
 //				} catch (Exception e) {
-//					LOGGER.log(ContentErrorMessageConstants.ASSESSMENT_MANAGER_REQUEST_OBJECT_CREATION_ERROR, e);
+//					PlatformLogger.log(ContentErrorMessageConstants.ASSESSMENT_MANAGER_REQUEST_OBJECT_CREATION_ERROR, e);
 //				}
 //			}
 //		}

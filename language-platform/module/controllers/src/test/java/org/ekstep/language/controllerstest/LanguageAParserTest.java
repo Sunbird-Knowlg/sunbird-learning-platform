@@ -31,9 +31,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.LoggerEnum;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -52,7 +51,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 //	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	static {
 		LanguageRequestRouterPool.init();
@@ -85,9 +84,9 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(GraphDACParams.node.name(), word);
-		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
+		res = LanguageCommonTestHelper.getResponse(request);
 		if (!res.getParams().getStatus().equalsIgnoreCase("successful")) {
-			LOGGER.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), LoggerEnum.WARN.name());
+			PlatformLogger.log("Error!",res.getParams().getErr() + res.getParams().getErrmsg(), LoggerEnum.WARN.name());
 		}
 		Assert.assertEquals("successful", res.getParams().getStatus());
 
@@ -103,7 +102,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(GraphDACParams.node.name(), word);
-		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
+		res = LanguageCommonTestHelper.getResponse(request);
 		Assert.assertEquals("successful", res.getParams().getStatus());
 
 		word = new Node("w_3", SystemNodeTypes.DATA_NODE.name(), "Word");
@@ -118,7 +117,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(GraphDACParams.node.name(), word);
-		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
+		res = LanguageCommonTestHelper.getResponse(request);
 		Assert.assertEquals("successful", res.getParams().getStatus());
 
 		Map<String, Object> metadata = new HashMap<String, Object>();
@@ -132,7 +131,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(GraphDACParams.node.name(), synset);
-		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
+		res = LanguageCommonTestHelper.getResponse(request);
 		Assert.assertEquals("successful", res.getParams().getStatus());
 
 		synset = new Node("s_1", SystemNodeTypes.DATA_NODE.name(), "Synset");
@@ -153,7 +152,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(GraphDACParams.node.name(), synset);
-		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
+		res = LanguageCommonTestHelper.getResponse(request);
 		Assert.assertEquals("successful", res.getParams().getStatus());
 
 		synset = new Node("s_2", SystemNodeTypes.DATA_NODE.name(), "Synset");
@@ -172,7 +171,7 @@ public class LanguageAParserTest extends BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				TEST_LANGUAGE);
 		request.put(GraphDACParams.node.name(), synset);
-		res = LanguageCommonTestHelper.getResponse(request, LOGGER);
+		res = LanguageCommonTestHelper.getResponse(request);
 		Assert.assertEquals("successful", res.getParams().getStatus());
 	}
 

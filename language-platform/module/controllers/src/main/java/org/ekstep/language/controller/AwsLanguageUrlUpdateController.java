@@ -13,9 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.IAwsUrlUpdateManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 
 /**
  * The Class AwsUrlUpdateController, is the main entry point for 
@@ -31,7 +30,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class AwsLanguageUrlUpdateController extends BaseController {
 
 	/** The Class Logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	@Autowired
 	private IAwsUrlUpdateManager awsUrlUpdateManager;
@@ -57,8 +56,8 @@ public class AwsLanguageUrlUpdateController extends BaseController {
 			@PathVariable(value = "objectType") String objectType,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.language.aws.urls.update";
-		LOGGER.log("API to update AWS urls");
-		LOGGER.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
+		PlatformLogger.log("API to update AWS urls");
+		PlatformLogger.log(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
 		try {
 			Response response = awsUrlUpdateManager.updateNodesWithUrl(objectType, graphId, apiId);
 			return getResponseEntity(response, apiId, null);
@@ -88,9 +87,9 @@ public class AwsLanguageUrlUpdateController extends BaseController {
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.language.aws.urls.update";
-		LOGGER.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
+		PlatformLogger.log(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
 		try {
-			LOGGER.log("Invoking API to update AWS urls of existing nodes:"+apiId);
+			PlatformLogger.log("Invoking API to update AWS urls of existing nodes:"+apiId);
 			Response response = awsUrlUpdateManager.updateNodesWithIdentifiers(
 					graphId, identifiers, apiId);
 			return getResponseEntity(response, apiId, null);

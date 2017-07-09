@@ -16,7 +16,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 	
 	public Response search(Request request){
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.INDEX_SEARCH.name());
-		Response getRes = getSearchResponse(request, LOGGER);
+		Response getRes = getSearchResponse(request);
 		if (checkError(getRes)) {
 			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}
@@ -26,7 +26,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 	
 	public Response count(Request request){
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.COUNT.name());
-		Response getRes = getSearchResponse(request, LOGGER);
+		Response getRes = getSearchResponse(request);
 		if (checkError(getRes)) {
 			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}
@@ -36,7 +36,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 	
 	public Response metrics(Request request){
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.METRICS.name());
-		Response getRes = getSearchResponse(request, LOGGER);
+		Response getRes = getSearchResponse(request);
 		if (checkError(getRes)) {
 			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}
@@ -48,7 +48,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 	public Response getSearchResponse(Response searchResult){
 		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
 		request.put("searchResult", searchResult.getResult());
-		Response getRes = getSearchResponse(request, LOGGER);
+		Response getRes = getSearchResponse(request);
 		if (checkError(getRes)) {
 			return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes), ResponseCode.SERVER_ERROR);
 		}

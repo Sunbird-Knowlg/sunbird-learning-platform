@@ -11,14 +11,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class SearchBaseController extends Controller {
 
 	private static final String API_ID_PREFIX = "ekstep";
 	protected ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	protected String getAPIId(String apiId) {
 		return API_ID_PREFIX + "." + apiId;
@@ -36,7 +35,7 @@ public class SearchBaseController extends Controller {
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(RequestBody requestBody, String apiId, String path) {
-		LOGGER.log(apiId);
+		PlatformLogger.log(apiId);
 		Request request = new Request();
 		if (null != requestBody) {
 			JsonNode data = requestBody.asJson();

@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * @author Rajiv Ranjan
@@ -19,7 +18,7 @@ import com.ilimi.common.util.PlatformLogManager;
  **/
 public class ZipUtility {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	List<String> fileList;
 	private String outPutZipFile = null;
@@ -65,7 +64,7 @@ public class ZipUtility {
 	public void zipIt(String zipFile) {
 		byte[] buffer = new byte[1024];
 		try (FileOutputStream fos = new FileOutputStream(zipFile); ZipOutputStream zos = new ZipOutputStream(fos)) {
-			LOGGER.log("Creating Zip File: " + zipFile);
+			PlatformLogger.log("Creating Zip File: " + zipFile);
 			for (String file : this.fileList) {
 				ZipEntry ze = new ZipEntry(file);
 				zos.putNextEntry(ze);
@@ -77,7 +76,7 @@ public class ZipUtility {
 				zos.closeEntry();
 			}
 		} catch (IOException ex) {
-			LOGGER.log("Error! Something Went Wrong While Creating the ZIP File.", ex.getMessage(), ex);
+			PlatformLogger.log("Error! Something Went Wrong While Creating the ZIP File.", ex.getMessage(), ex);
 		}
 	}
 

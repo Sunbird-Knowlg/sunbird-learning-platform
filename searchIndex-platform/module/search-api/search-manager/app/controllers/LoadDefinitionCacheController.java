@@ -1,9 +1,9 @@
 package controllers;
 
-import com.ilimi.common.dto.Request;
-
 import managers.PlaySearchManager;
 import play.mvc.Result;
+
+import com.ilimi.common.dto.Request;
 
 public class LoadDefinitionCacheController extends SearchBaseController {
 	

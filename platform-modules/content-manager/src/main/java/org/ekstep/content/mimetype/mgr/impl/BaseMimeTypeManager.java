@@ -42,8 +42,7 @@ import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -56,7 +55,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class BaseMimeTypeManager extends BaseLearningManager {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	private static final String s3Content = "s3.content.folder";
 	private static final String s3Artifact = "s3.artifact.folder";
@@ -256,7 +255,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				LOGGER.log("Error: While getting the file size from AWS", key, e);
+				PlatformLogger.log("Error: While getting the file size from AWS", key, e);
 			}
 		}
 		return bytes;
@@ -290,7 +289,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
+		Response updateRes = getResponse(updateReq);
 		return updateRes;
 	}
 
@@ -383,7 +382,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		try {
 			bytes = getFileSize(file) / 1024;
 		} catch (IOException e) {
-			LOGGER.log("Error: While Calculating the file size.",file.getName(), e);
+			PlatformLogger.log("Error: While Calculating the file size.",file.getName(), e);
 		}
 		return bytes;
 	}
@@ -419,7 +418,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 //				requests.add(req);
 //			}
 //		}
-		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
+		Response response = getResponse(requests, GraphDACParams.node_list.name(),
 				ContentAPIParams.contents.name());
 		return response;
 	}

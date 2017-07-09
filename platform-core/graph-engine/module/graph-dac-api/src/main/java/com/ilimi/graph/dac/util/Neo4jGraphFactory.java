@@ -28,8 +28,7 @@ import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.Configuration;
@@ -39,7 +38,7 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
 public class Neo4jGraphFactory {
 	
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	
 	private static List<String> restrictedGraphList = new ArrayList<String>();
 
@@ -65,7 +64,7 @@ public class Neo4jGraphFactory {
                 }
             }       
         } catch (Exception e) {
-			LOGGER.log("Error! While Closing the Input Stream.", e.getMessage(), e);
+			PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
         }
     }
     

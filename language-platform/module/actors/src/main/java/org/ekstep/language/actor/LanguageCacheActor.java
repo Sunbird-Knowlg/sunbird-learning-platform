@@ -14,8 +14,7 @@ import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -27,7 +26,7 @@ import com.ilimi.graph.dac.model.Node;
 public class LanguageCacheActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The util. */
 	private GradeLevelComplexityUtil util = new GradeLevelComplexityUtil();
@@ -41,7 +40,7 @@ public class LanguageCacheActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		// TODO Auto-generated method stub
-		LOGGER.log("Received Command: " + msg);
+		PlatformLogger.log("Received Command: " + msg);
 		Request request = (Request) msg;
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
@@ -62,12 +61,12 @@ public class LanguageCacheActor extends LanguageBaseActor {
 				util.validateComplexityRange(languageId, gradeLevelComplexity);
 				OK(getSender());
 			} else {
-				LOGGER.log("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error in enrich actor", e.getMessage(), e);
+			PlatformLogger.log("Error in enrich actor", e.getMessage(), e);
 			handleException(e, getSender());
 		}
 

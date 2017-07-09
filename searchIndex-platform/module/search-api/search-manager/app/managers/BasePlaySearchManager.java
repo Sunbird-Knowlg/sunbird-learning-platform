@@ -29,21 +29,19 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.util.ILogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 
 public class BasePlaySearchManager extends Results {
 	protected ObjectMapper mapper = new ObjectMapper();
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private static final String ekstep = "org.ekstep";
 	private static final String ilimi = "com.ilimi";
 	private static final String java = "java.";
 	private static final String default_err_msg = "Something went wrong in server while processing the request";
 
-	protected Promise<Result> getSearchResponse(Request request, ILogger logger) {
+	protected Promise<Result> getSearchResponse(Request request) {
 		ActorRef router = SearchRequestRouterPool.getRequestRouter();
 		Promise<Result> res = null;
 		try {
@@ -198,7 +196,7 @@ public class BasePlaySearchManager extends Results {
 		request.put("searchResult", searchResult.getResult());
 		request.setId(req.getId());
 		request.setVer(req.getVer());
-		Promise<Result> getRes = getSearchResponse(request, LOGGER);
+		Promise<Result> getRes = getSearchResponse(request);
 		return getRes;
 	}
 

@@ -13,8 +13,7 @@ import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 
 /**
@@ -26,12 +25,12 @@ import com.ilimi.graph.common.mgr.BaseGraphManager;
 public class ContentStoreActor extends BaseGraphManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.log("Received Command: " + msg);
+		PlatformLogger.log("Received Command: " + msg);
 		try {
 			Request request = (Request) msg;
 			String operation = request.getOperation();
@@ -66,13 +65,13 @@ public class ContentStoreActor extends BaseGraphManager {
 				ContentStoreUtil.updateContentProperties(contentId, map);
 				OK(sender());
 			} else {
-				LOGGER.log("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
-			LOGGER.log("Error in ContentStoreActor", e.getMessage(), e);
+			PlatformLogger.log("Error in ContentStoreActor", e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}

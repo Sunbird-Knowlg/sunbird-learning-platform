@@ -7,8 +7,7 @@ import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -23,8 +22,6 @@ import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.relation.RelationHandler;
 
 public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
-
-    private static final ILogger logger = PlatformLogManager.getLogger();
 
     protected void invokeMethod(Request request, ActorRef parent) {
         String methodName = request.getOperation();
@@ -44,11 +41,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createGraph(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            logger.log("Create Graph request: ", graphId);
+            PlatformLogger.log("Create Graph request: ", graphId);
             Graph graph = new Graph(this, graphId);
             graph.create(request);
         } catch (Exception e) {
-            logger.log("Error in Create Graph", e.getMessage(), e);
+        	PlatformLogger.log("Error in Create Graph", e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -57,11 +54,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createUniqueConstraint(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            logger.log("Create Unique Constraint request: " , graphId);
+        	PlatformLogger.log("Create Unique Constraint request: " , graphId);
             Graph graph = new Graph(this, graphId);
             graph.createUniqueConstraint(request);
         } catch (Exception e) {
-            logger.log("Error in Create Unique Constraint", e.getMessage(), e);
+        	PlatformLogger.log("Error in Create Unique Constraint", e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -70,11 +67,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createIndex(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            logger.log("Create Index request: " , graphId);
+        	PlatformLogger.log("Create Index request: " , graphId);
             Graph graph = new Graph(this, graphId);
             graph.createIndex(request);
         } catch (Exception e) {
-            logger.log("Error in Create Index", e.getMessage(), e);
+        	PlatformLogger.log("Error in Create Index", e.getMessage(), e);
             handleException(e, getSender());
         }
     }

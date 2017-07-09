@@ -11,8 +11,8 @@ import org.ekstep.language.common.enums.LanguageObjectTypes;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -29,11 +29,8 @@ public class BaseTranslationSet extends BaseManager{
 	protected String graphId ;
 	protected Node proxyNode;
 	private Map<String, Object> metadata;
-
-	private ILogger LOGGER;
 	
-	public BaseTranslationSet(String graphId, Node proxyNode, ILogger LOGGER, Map<String, Object> metadata){
-		this.LOGGER = LOGGER;
+	public BaseTranslationSet(String graphId, Node proxyNode, Map<String, Object> metadata){
 		this.graphId = graphId;
 		this.proxyNode = proxyNode;
 		this.metadata = metadata;
@@ -45,7 +42,7 @@ public class BaseTranslationSet extends BaseManager{
 	
 	@SuppressWarnings("unchecked")
 	public String getTranslationSet(String wordnetId){
-		LOGGER.log("Logging data:"+wordnetId);
+		PlatformLogger.log("Logging data:"+wordnetId);
 		Node node = null;
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.SET.name());
@@ -58,7 +55,7 @@ public class BaseTranslationSet extends BaseManager{
         Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
         request.put(GraphDACParams.get_tags.name(), true);
-        Response findRes = getResponse(request, LOGGER);
+        Response findRes = getResponse(request);
         if (checkError(findRes))
             return null;
         else {
@@ -73,7 +70,7 @@ public class BaseTranslationSet extends BaseManager{
 	
 	@SuppressWarnings("unchecked")
 	public String getTranslationSetWithMember(String id, String wordnetId){
-		LOGGER.log("Logging data: "+id+": "+wordnetId);
+		PlatformLogger.log("Logging data: "+id+": "+wordnetId);
 		Node node = null;
 		RelationCriterion rc = new RelationCriterion("hasMember","Synset");
 		List<String> identifiers = new ArrayList<String>();
@@ -91,7 +88,7 @@ public class BaseTranslationSet extends BaseManager{
         Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
         request.put(GraphDACParams.get_tags.name(), true);
-        Response findRes = getResponse(request, LOGGER);
+        Response findRes = getResponse(request);
         if (checkError(findRes))
             return null;
         else {
@@ -105,7 +102,7 @@ public class BaseTranslationSet extends BaseManager{
 	}
 	
 	public String createTranslationSetCollection(){
-		LOGGER.log("Creating new set!!!!!!!!!!!!!!!!!");
+		PlatformLogger.log("Creating new set!!!!!!!!!!!!!!!!!");
         Request setReq = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
         //setReq.put(GraphDACParams.criteria.name(), getItemSetCriteria(node));
 
@@ -120,7 +117,7 @@ public class BaseTranslationSet extends BaseManager{
         setReq.put(GraphDACParams.node.name(), translationSet);
         setReq.put(GraphDACParams.object_type.name(), LanguageObjectTypes.TranslationSet.name());
         setReq.put(GraphDACParams.member_type.name(), LanguageObjectTypes.Synset.name());
-        Response res = getResponse(setReq, LOGGER);
+        Response res = getResponse(setReq);
 		if (checkError(res))
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(),
 					getErrorMessage(res));
@@ -135,7 +132,7 @@ public class BaseTranslationSet extends BaseManager{
         setReq.put(GraphDACParams.member_id.name(), proxyNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), collectionId);
         setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
-        Response res = getResponse(setReq, LOGGER);
+        Response res = getResponse(setReq);
 		if (checkError(res))
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(),
 					getErrorMessage(res));
@@ -146,7 +143,7 @@ public class BaseTranslationSet extends BaseManager{
         req.put(GraphDACParams.start_node_id.name(), startNodeId);
         req.put(GraphDACParams.end_node_id.name(), endNodeId);
         req.put(GraphDACParams.relation_type.name(), relationType);
-		Response res = getResponse(req, LOGGER);
+		Response res = getResponse(req);
 		if (checkError(res)) {
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(), getErrorMessage(res));
 		}
@@ -159,7 +156,7 @@ public class BaseTranslationSet extends BaseManager{
 		request.put(GraphDACParams.node_id.name(), proxyId);
 		request.put(GraphDACParams.get_tags.name(), true);
 
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (checkError(findRes))
 			return null;
 		else {
@@ -172,12 +169,12 @@ public class BaseTranslationSet extends BaseManager{
 
 	
 	public void removeProxyNodeFromTranslationSet(String setId){
-		LOGGER.log("Deleting relation : " + setId + " --> " + proxyNode.getIdentifier());
+		PlatformLogger.log("Deleting relation : " + setId + " --> " + proxyNode.getIdentifier());
         Request setReq = getRequest(graphId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
         setReq.put(GraphDACParams.member_id.name(), proxyNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);
         setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
-        Response res = getResponse(setReq, LOGGER);
+        Response res = getResponse(setReq);
 		if (checkError(res))
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(),
 					getErrorMessage(res));

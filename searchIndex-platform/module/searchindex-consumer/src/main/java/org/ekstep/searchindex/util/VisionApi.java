@@ -26,8 +26,7 @@ import com.google.api.services.vision.v1.model.Feature;
 import com.google.api.services.vision.v1.model.Image;
 import com.google.api.services.vision.v1.model.SafeSearchAnnotation;
 import com.google.common.collect.ImmutableList;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class Vision API provides image tagging 
@@ -44,7 +43,7 @@ public class VisionApi {
 	private static final String APPLICATION_NAME = "Google-VisionSample/1.0";
 	
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The Vision */
 	private final Vision vision;
@@ -56,23 +55,23 @@ public class VisionApi {
 	
 	/** gets Tags from Google Vision API */
 	public Map<String, Object> getTags(File url, VisionApi vision) throws IOException, GeneralSecurityException{
-		LOGGER.log("Calling vision service to get labels" + vision);
+		PlatformLogger.log("Calling vision service to get labels" + vision);
 		Map<String, Object> label =	vision.labelImage(url.toPath());
-		LOGGER.log("Labels returned from vision API" + label);
+		PlatformLogger.log("Labels returned from vision API" + label);
 	 	return label;
 	}
 
 	/** gets Flags from Google Vision API */
 	public List<String> getFlags(File url, VisionApi vision) throws IOException, GeneralSecurityException{
-		LOGGER.log("Calling vision service to get flags" + vision);
+		PlatformLogger.log("Calling vision service to get flags" + vision);
 		List<String> flags = vision.safeSearch(url.toPath());
-		LOGGER.log("Labels returned from vision API" + flags);
+		PlatformLogger.log("Labels returned from vision API" + flags);
 	 	return flags;
 	}
 	
 	/** Process tags returned from Google Vision API */
 	private static Map<String, Object> processLabels(List<EntityAnnotation> label_map) {
-		LOGGER.log("processing the labels returned from Google Vision API" + label_map);
+		PlatformLogger.log("processing the labels returned from Google Vision API" + label_map);
 		Map<String, Object> labelMap = new HashMap<String, Object>();
 		List<String> list_90 = new ArrayList<String>();
 		List<String> list_80 = new ArrayList<String>();
@@ -85,13 +84,13 @@ public class VisionApi {
 				labelMap.put("80-90", list_80); 
 			}
 		}
-		LOGGER.log("fetching the labels which are above 80%" + labelMap);
+		PlatformLogger.log("fetching the labels which are above 80%" + labelMap);
 		return labelMap;
 	}
 
 	/** Initiates and Authenticates Google Vision Service */
 	public static Vision getVisionService() throws IOException, GeneralSecurityException {
-		LOGGER.log("Instantiating and Authenticating the Vision API");
+		PlatformLogger.log("Instantiating and Authenticating the Vision API");
 		GoogleCredential credential = GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
 		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 		return new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential)
@@ -100,7 +99,7 @@ public class VisionApi {
 
 	/** Calls Google Vision API to fetch labels/tags for a given image */
 	public Map<String, Object> labelImage(Path path) throws IOException {
-		LOGGER.log("calling vision API with path for LABEL_DETECTION" + path);
+		PlatformLogger.log("calling vision API with path for LABEL_DETECTION" + path);
 		byte[] data = Files.readAllBytes(path);
 
 		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data))
@@ -115,14 +114,14 @@ public class VisionApi {
 			throw new IOException(response.getError() != null ? response.getError().getMessage()
 					: "Unknown error getting image annotations");
 		}
-		LOGGER.log("Success response returned from Vision API Label_Detection");
+		PlatformLogger.log("Success response returned from Vision API Label_Detection");
 		Map<String, Object> labels = processLabels(response.getLabelAnnotations());
 		return labels;
 	}
 
 	/** Calls Google Vision API to fetch flags for a given image */
 	public List<String> safeSearch(Path path) throws IOException {
-		LOGGER.log("calling vision API with path for SAFE_SEARCH" + path);
+		PlatformLogger.log("calling vision API with path for SAFE_SEARCH" + path);
 		byte[] data = Files.readAllBytes(path);
 
 		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data))
@@ -137,7 +136,7 @@ public class VisionApi {
 			throw new IOException(response.getError() != null ? response.getError().getMessage()
 					: "Unknown error getting image annotations");
 		}
-		LOGGER.log("Success response returned from Vision API SAFE_SEARCH");
+		PlatformLogger.log("Success response returned from Vision API SAFE_SEARCH");
 		List<String> search = processSearch(response.getSafeSearchAnnotation());
 		return search;
 	}
@@ -145,7 +144,7 @@ public class VisionApi {
 	/** process flags returned from Google Vision API */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<String> processSearch(SafeSearchAnnotation safeSearchAnnotation) {
-		LOGGER.log("processing the result for safe_search returned from vision API" + safeSearchAnnotation);
+		PlatformLogger.log("processing the result for safe_search returned from vision API" + safeSearchAnnotation);
 		Map<String, String> map = (Map) safeSearchAnnotation;
 		Map<String, List<String>> result = new HashMap<String, List<String>>();
 		List<String> flagList = new ArrayList<String>();
@@ -161,13 +160,13 @@ public class VisionApi {
 				result.put(entry.getValue(), res);
 			}
 		}
-		LOGGER.log("list of flags from SAFE_SEARCH" + result);
+		PlatformLogger.log("list of flags from SAFE_SEARCH" + result);
 		for(Entry<String,List<String>> entry : result.entrySet()){
 			if(entry.getKey().equalsIgnoreCase("LIKELY")|| entry.getKey().equalsIgnoreCase("VERY_LIKELY") || entry.getKey().equalsIgnoreCase("POSSIBLE")){
 				flagList.addAll(entry.getValue());
 			}
 		}
-		LOGGER.log("filtered list of flags from GOOGLE_SAFE_SEARCH" + flagList);
+		PlatformLogger.log("filtered list of flags from GOOGLE_SAFE_SEARCH" + flagList);
 		return flagList;
 	}
 }

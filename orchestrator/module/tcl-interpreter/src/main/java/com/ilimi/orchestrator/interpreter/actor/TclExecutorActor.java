@@ -11,6 +11,14 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.web.multipart.MultipartFile;
 
+import tcl.lang.Command;
+import tcl.lang.Interp;
+import tcl.lang.TCL;
+import tcl.lang.TclException;
+import tcl.lang.TclObject;
+import tcl.pkg.java.ReflectObject;
+import akka.actor.UntypedActor;
+
 import com.ilimi.common.dto.ExecutionContext;
 import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.dto.Response;
@@ -18,11 +26,8 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.LoggerEnum;
-import com.ilimi.common.util.PlatformLogger;
-import com.ilimi.common.util.PlatformLogManager;
-import com.ilimi.common.util.PlatformLogger;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.ScriptParams;
@@ -33,19 +38,11 @@ import com.ilimi.orchestrator.interpreter.command.AkkaCommand;
 import com.ilimi.orchestrator.interpreter.command.ScriptCommand;
 import com.ilimi.orchestrator.interpreter.exception.ExecutionErrorCodes;
 
-import akka.actor.UntypedActor;
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TCL;
-import tcl.lang.TclException;
-import tcl.lang.TclObject;
-import tcl.pkg.java.ReflectObject;
-
 public class TclExecutorActor extends UntypedActor {
 
 	private Interp interpreter;
 	private ObjectMapper mapper = new ObjectMapper();
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 
 	public TclExecutorActor(List<OrchestratorScript> commands) {
@@ -127,7 +124,7 @@ public class TclExecutorActor extends UntypedActor {
 						} catch (MiddlewareException e) {
 							throw e;
 						} catch (Exception e) {
-							LOGGER.log("Error initialising command: " , script.getName(), e);
+							PlatformLogger.log("Error initialising command: " , script.getName(), e);
 						}
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
@@ -217,7 +214,7 @@ public class TclExecutorActor extends UntypedActor {
 			String msg = "";
 			switch (code) {
 			case TCL.ERROR:
-				LOGGER.log("tcl interpretation error" , interpreter.getResult().toString(), LoggerEnum.WARN.name());
+				PlatformLogger.log("tcl interpretation error" , interpreter.getResult().toString(), LoggerEnum.WARN.name());
 				msg = interpreter.getResult().toString();
 				if(StringUtils.contains(msg, "tcl.lang.TclException") || StringUtils.contains(msg, "java.")){
 					msg = "| Invalid request format |";

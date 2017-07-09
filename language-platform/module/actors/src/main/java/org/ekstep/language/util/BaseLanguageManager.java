@@ -18,9 +18,9 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.ILogger;
 
 /**
  * The Class BaseLanguageManager provides operations to manipulate akka requests
@@ -74,12 +74,12 @@ public abstract class BaseLanguageManager extends BaseManager {
 	 * @param logger
 	 *            the logger
 	 */
-	public void makeAsyncLanguageRequest(Request request, ILogger logger) {
+	public void makeAsyncLanguageRequest(Request request) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			logger.log("Exception",e.getMessage(), e);
+			PlatformLogger.log("Exception",e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -93,7 +93,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 	 *            the logger
 	 * @return the language response
 	 */
-	protected Response getLanguageResponse(Request request, ILogger logger) {
+	protected Response getLanguageResponse(Request request) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
@@ -104,7 +104,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.log("Exception Occured", e.getMessage(), e);
+			PlatformLogger.log("Exception Occured", e.getMessage(), e);
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
@@ -122,7 +122,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 	 *            the final param name of the accumulated responses
 	 * @return the language response
 	 */
-	protected Response getLanguageResponse(List<Request> requests, ILogger logger, String paramName,
+	protected Response getLanguageResponse(List<Request> requests, String paramName,
 			String returnParam) {
 		if (null != requests && !requests.isEmpty()) {
 			ActorRef router = LanguageRequestRouterPool.getRequestRouter();
@@ -161,7 +161,7 @@ public abstract class BaseLanguageManager extends BaseManager {
 					return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 				}
 			} catch (Exception e) {
-				logger.log("Exception", e.getMessage(), e);
+				PlatformLogger.log("Exception", e.getMessage(), e);
 				throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 			}
 		} else {

@@ -24,15 +24,14 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 
 	//	private static TaxonomyManagerImpl taxonomyManager = new TaxonomyManagerImpl();
 	private static ObjectMapper mapper = new ObjectMapper();
 	static ElasticSearchUtil util;
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 //	private static String TEST_LANGUAGE = "testindexactorerror";
 //	private static String TEST_LOAD_LANGUAGE = "testindexactorerrorload";
 
@@ -92,10 +91,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation("rootWordsError");
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.log("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.log("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -116,11 +115,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.addCitationIndex.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.log("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response;
-		response = LanguageIndexesTestHelper.getBulkOperationResponse(request,
-				LOGGER);
-		LOGGER.log("List | Response: " + response);
+		response = LanguageIndexesTestHelper.getBulkOperationResponse(request);
+		PlatformLogger.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -140,10 +138,10 @@ public class LanguageIndexesActorErrorTest extends BaseLanguageTest{
 		request.setOperation(LanguageOperations.wordWildCard.name());
 		request.getContext().put(LanguageParams.language_id.name(),
 				"" + TEST_LANGUAGE);
-		LOGGER.log("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = LanguageIndexesTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.log("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		LanguageIndexesTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);

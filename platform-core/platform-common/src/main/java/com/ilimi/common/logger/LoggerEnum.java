@@ -1,4 +1,4 @@
-package com.ilimi.common.util;
+package com.ilimi.common.logger;
 
 public enum LoggerEnum {
  INFO, WARN, DEBUG, ERROR, BE_LOG;

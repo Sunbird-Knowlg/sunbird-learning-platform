@@ -22,15 +22,14 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class LanguageToolsActorErrorTest {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	static ElasticSearchUtil util;
 	private static String TEST_LANGUAGE = "hi";
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	static {
 		LanguageRequestRouterPool.init();
@@ -48,10 +47,10 @@ public class LanguageToolsActorErrorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeWordComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.log("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.log("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -71,10 +70,10 @@ public class LanguageToolsActorErrorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation("computeTextComplexityError");
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.log("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.log("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);

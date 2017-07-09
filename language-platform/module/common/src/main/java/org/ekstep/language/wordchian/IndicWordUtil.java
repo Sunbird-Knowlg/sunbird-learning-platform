@@ -14,8 +14,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -31,7 +29,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class IndicWordUtil extends BaseManager {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The language id. */
 	private String languageId;
@@ -265,7 +263,7 @@ public class IndicWordUtil extends BaseManager {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
 		request.put(GraphDACParams.metadata.name(), property);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (!checkError(findRes)) {
 			return findRes;
 		}

@@ -40,8 +40,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 
 /**
@@ -50,7 +49,7 @@ import com.ilimi.graph.common.JSONUtils;
 public class ContentBundle {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
@@ -250,7 +249,7 @@ public class ContentBundle {
 								+ " | [Content List is 'null' or Empty.]");
 			if (StringUtils.isBlank(manifestVersion))
 				manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
-			LOGGER.log("Manifest Header Version: " , manifestVersion);
+			PlatformLogger.log("Manifest Header Version: " , manifestVersion);
 			StringBuilder header = new StringBuilder();
 			header.append("{ \"id\": \"ekstep.content.archive\", \"ver\": \"").append(manifestVersion);
 			header.append("\", \"ts\": \"").append(getResponseTimestamp()).append("\", \"params\": { \"resmsgid\": \"");
@@ -258,22 +257,22 @@ public class ContentBundle {
 			if (StringUtils.isNotBlank(expiresOn))
 				header.append("\"expires\": \"").append(expiresOn).append("\", ");
 			header.append("\"ttl\": 24, \"items\": ");
-			LOGGER.log("Content Items in Manifest JSON: " , contents.size());
+			PlatformLogger.log("Content Items in Manifest JSON: " , contents.size());
 
 			// Updating the 'variant' Property
-			LOGGER.log("Contents Before Updating for 'variant' Properties : " , contents);
+			PlatformLogger.log("Contents Before Updating for 'variant' Properties : " , contents);
 
-			LOGGER.log("Updating the 'variant' map from JSON string to JSON Object.");
+			PlatformLogger.log("Updating the 'variant' map from JSON string to JSON Object.");
 			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
 					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
 
-			LOGGER.log("Contents After Updating for 'variant' Properties : " , contents);
+			PlatformLogger.log("Contents After Updating for 'variant' Properties : " , contents);
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
 
 			FileUtils.writeStringToFile(manifestFileName, manifestJSON);
-			LOGGER.log("Manifest JSON Written");
+			PlatformLogger.log("Manifest JSON Written");
 		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + " | [Unable to Write Manifest File.]", e);
@@ -434,7 +433,7 @@ public class ContentBundle {
 			}
 			IOUtils.closeQuietly(bufferedOutputStream);
 			IOUtils.closeQuietly(byteArrayOutputStream);
-			LOGGER.log("Printing Byte Array for Content Bundle" , byteArrayOutputStream.toByteArray());
+			PlatformLogger.log("Printing Byte Array for Content Bundle" , byteArrayOutputStream.toByteArray());
 			return byteArrayOutputStream.toByteArray();
 		}
 	}

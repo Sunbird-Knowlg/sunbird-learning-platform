@@ -18,12 +18,11 @@ import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class WordCountMessageProcessor implements IMessageProcessor {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 	private Timer timer;
@@ -45,7 +44,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
 	}
 
@@ -72,7 +71,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 	
 	private void updateWordsCount() throws Exception {
 		messageProcessed = true;
-		LOGGER.log("Updating wordcount");
+		PlatformLogger.log("Updating wordcount");
 		for(Map.Entry<String, Map<String, Integer>> entry: wordsCountMap.entrySet()){
 			String languageId = entry.getKey();
 			 Map<String, Integer> wordsCountObj = entry.getValue();
@@ -87,11 +86,11 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 requestBodyMap.put("request", requestMap);
 			 
 			 String requestBody = mapper.writeValueAsString(requestBodyMap);
-			 LOGGER.log("Updating Word Count | URL: " + url , " | Request body: " + requestBody);
+			 PlatformLogger.log("Updating Word Count | URL: " + url , " | Request body: " + requestBody);
 			 
 			 HTTPUtil.makePostRequest(url, requestBody);
 			 
-			 LOGGER.log("Word Count updated");
+			 PlatformLogger.log("Word Count updated");
 			 
 			wordsCountObj.put("wordsCount", new Integer(0));
 			wordsCountObj.put("liveWordsCount", new Integer(0));
@@ -116,7 +115,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			//objectType = WordUtils.capitalize(objectType.toLowerCase());
 			String languageId = (String) message.get("graphId");
 			if (StringUtils.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD, objectType)) {
-				LOGGER.log("Processing message for Word object type");
+				PlatformLogger.log("Processing message for Word object type");
 				Map<String, Integer> wordsCountObj = wordsCountMap.get(languageId);
 				if(wordsCountObj == null){
 					wordsCountObj = new HashMap<String, Integer>();
@@ -134,7 +133,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					switch (operationType) {
 					case CompositeSearchConstants.OPERATION_CREATE: {
 						wordsCount = wordsCount + 1;
-						LOGGER.log("Word create operation: " , wordsCount);
+						PlatformLogger.log("Word create operation: " , wordsCount);
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -176,12 +175,12 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								}
 							}
 						}
-						LOGGER.log("Word update operation: " , liveWordsCount);
+						PlatformLogger.log("Word update operation: " , liveWordsCount);
 						break;
 					}
 					case CompositeSearchConstants.OPERATION_DELETE: {
 						wordsCount = wordsCount - 1;
-						LOGGER.log("Word delete operation: " + wordsCount);
+						PlatformLogger.log("Word delete operation: " + wordsCount);
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -208,7 +207,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					wordsCountMap.put(languageId, wordsCountObj);
 					//createTimer(BATCH_TIME_IN_SECONDS);
 					messageProcessed = false;
-					LOGGER.log("Word count message processor: " + wordsCount + " | " + liveWordsCount);
+					PlatformLogger.log("Word count message processor: " + wordsCount + " | " + liveWordsCount);
 					updateWordsCount();
 					//System.out.println("Word count message processor: " + wordsCount + " | " + liveWordsCount);
 					break;

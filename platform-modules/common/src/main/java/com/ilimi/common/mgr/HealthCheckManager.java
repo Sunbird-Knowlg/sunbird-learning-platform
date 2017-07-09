@@ -7,7 +7,6 @@ import redis.clients.jedis.Jedis;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -20,13 +19,13 @@ public abstract class HealthCheckManager extends BaseManager{
 		return OK();
 	}
 
-	protected Map<String, Object> checkGraphHealth(String graphId , ILogger LOGGER){
+	protected Map<String, Object> checkGraphHealth(String graphId){
 		Map<String, Object> check = new HashMap<String, Object>();
 		check.put("name", graphId + " graph");
 
 		try{
 			Request createReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "upsertRootNode");
-			Response res = getResponse(createReq, LOGGER);
+			Response res = getResponse(createReq);
 			if (checkError(res)) {
 	    		check.put("healthy", false);
 	    		check.put("err", ""); // error code, if any

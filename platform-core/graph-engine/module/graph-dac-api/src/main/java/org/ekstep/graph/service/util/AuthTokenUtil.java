@@ -11,19 +11,18 @@ import org.neo4j.driver.v1.AuthToken;
 import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class AuthTokenUtil {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	public static AuthToken getAuthToken() {
 		AuthToken authToken;
 
 		// Fetching Authentication Type for Neo4J
 		String authType = DACConfigurationConstants.NEO4J_SERVER_AUTH_TYPE;
-		LOGGER.log("Neo4J Authentication Type: " + authType);
+		PlatformLogger.log("Neo4J Authentication Type: " + authType);
 
 		if (!isValidConfiguration(authType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_CONFIG.name(),

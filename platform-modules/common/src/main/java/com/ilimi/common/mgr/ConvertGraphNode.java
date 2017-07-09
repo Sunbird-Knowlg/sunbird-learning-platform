@@ -9,8 +9,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -20,7 +19,7 @@ import com.ilimi.graph.model.node.RelationDefinition;
 
 public class ConvertGraphNode {
 	
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
     public static Map<String, Object> convertGraphNode(Node node, String domainId, DefinitionDTO definition,
             List<String> fieldList) {
@@ -34,7 +33,7 @@ public class ConvertGraphNode {
                         if (fieldList.contains(entry.getKey()))
                         	if (jsonProps.contains(entry.getKey().toLowerCase())) {
                         		Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                        		LOGGER.log("JSON Property " + entry.getKey() + " converted value is " + val);
+                        		PlatformLogger.log("JSON Property " + entry.getKey() + " converted value is " + val);
                                 if (null != val)
                                 	map.put(entry.getKey(), val);
                         	} else 
@@ -47,7 +46,7 @@ public class ConvertGraphNode {
                             key = new String(c);
                             if (jsonProps.contains(key.toLowerCase())) {
                             	Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                            	LOGGER.log("JSON Property " + key + " converted value is " + val);
+                            	PlatformLogger.log("JSON Property " + key + " converted value is " + val);
                                 if (null != val)
                                 	map.put(key, val);
                             } else
@@ -184,7 +183,7 @@ public class ConvertGraphNode {
                 }
             }
         }
-        LOGGER.log("JSON properties: " , props);
+        PlatformLogger.log("JSON properties: " , props);
         return props;
     }
     

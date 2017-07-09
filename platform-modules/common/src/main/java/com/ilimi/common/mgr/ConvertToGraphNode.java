@@ -10,8 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -22,7 +21,7 @@ public class ConvertToGraphNode {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition, Node graphNode) throws Exception {
@@ -142,7 +141,7 @@ public class ConvertToGraphNode {
                     	if (!map.containsKey(value)) {
                     		if (null == inRelations)
                     			inRelations = new ArrayList<Relation>();
-                    		LOGGER.log("adding " + value + " to inRelations");
+                    		PlatformLogger.log("adding " + value + " to inRelations");
                     		inRelations.add(inRel);
                     	}
                     }
@@ -156,7 +155,7 @@ public class ConvertToGraphNode {
                     	if (!map.containsKey(value)) {
                     		if (null == outRelations)
                     			outRelations = new ArrayList<Relation>();
-                    		LOGGER.log("adding " + value + " to outRelations");
+                    		PlatformLogger.log("adding " + value + " to outRelations");
                     		outRelations.add(outRel);
                     	}
                     }

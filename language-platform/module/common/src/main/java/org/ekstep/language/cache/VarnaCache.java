@@ -9,8 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -24,7 +22,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class VarnaCache extends BaseManager {
 	
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	private final Map<String, List<Node>> varnaMap = new HashMap<String, List<Node>>();
 	private final Map<String, Map<String, String>> isoSymbolMap = new HashMap<String, Map<String, String>>();
@@ -103,7 +101,7 @@ public class VarnaCache extends BaseManager {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType");
 		request.put(GraphDACParams.object_type.name(), "Varna");
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (!checkError(findRes)) {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && !nodes.isEmpty()) {

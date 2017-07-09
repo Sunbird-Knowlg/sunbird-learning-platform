@@ -2,8 +2,7 @@ package com.ilimi.dac;
 
 import org.modelmapper.ModelMapper;
 
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * Helper to wrap commonly used utility functions in model mapping and
@@ -14,7 +13,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class TransformationHelper {
 
     /** The Constant logger. */
-    private static ILogger LOGGER = PlatformLogManager.getLogger();
+    
 
     /**
      * Registers a type map between a given pair of classes(bi-directional) with
@@ -60,7 +59,7 @@ public class TransformationHelper {
         try {
             modelMapper.createTypeMap(source, destination);
         } catch (Exception ex) {
-            LOGGER.log("Failed to register type map", ex);
+            PlatformLogger.log("Failed to register type map", ex);
         }
     }
 }

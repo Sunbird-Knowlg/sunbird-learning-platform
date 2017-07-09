@@ -31,6 +31,7 @@ import com.google.common.base.Charsets;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
 /**
@@ -314,7 +315,7 @@ public class IndowordnetUtil {
 		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
 		request.setOperation(LanguageOperations.enrichWords.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		makeAsyncRequest(request, LOGGER);
+		makeAsyncRequest(request);
 	}
 
 	/**
@@ -325,12 +326,12 @@ public class IndowordnetUtil {
 	 * @param logger
 	 *            the logger
 	 */
-	public void makeAsyncRequest(Request request, Logger logger) {
+	public void makeAsyncRequest(Request request) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			PlatformLogger.log(e.getMessage(), null, e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

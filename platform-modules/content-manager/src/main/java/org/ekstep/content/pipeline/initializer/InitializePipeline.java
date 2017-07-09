@@ -13,8 +13,7 @@ import org.ekstep.content.pipeline.BasePipeline;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class InitializePipeline is a PipelineClass, extends the BasePipline which holds all 
@@ -24,7 +23,7 @@ import com.ilimi.common.util.PlatformLogManager;
 public class InitializePipeline extends BasePipeline {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The basePath. */
 	protected String basePath;
@@ -68,7 +67,7 @@ public class InitializePipeline extends BasePipeline {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && StringUtils.isNotBlank(operation)) {
-			LOGGER.log("Performing Content Operation: " , operation);
+			PlatformLogger.log("Performing Content Operation: " , operation);
 			switch (operation) {
 			case "upload":
 			case "UPLOAD": {
@@ -99,7 +98,7 @@ public class InitializePipeline extends BasePipeline {
 				break;
 
 			default:
-				LOGGER.log("Invalid Content Operation: " , operation);
+				PlatformLogger.log("Invalid Content Operation: " , operation);
 				break;
 			}
 

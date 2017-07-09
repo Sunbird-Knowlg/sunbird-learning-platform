@@ -19,8 +19,8 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
-import com.ilimi.common.util.ILogger;
 import com.ilimi.graph.dac.model.Node;
 
 public abstract class BaseLanguageController extends BaseController {
@@ -43,7 +43,7 @@ public abstract class BaseLanguageController extends BaseController {
         return request;
     }
     
-	protected Response getResponse(Request request, ILogger logger) {
+	protected Response getResponse(Request request) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
@@ -54,12 +54,12 @@ public abstract class BaseLanguageController extends BaseController {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.log("Exception", e.getMessage(), e);
+            PlatformLogger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }   
     }
     
-	protected Response getNonLanguageResponse(Request request, ILogger logger) {
+	protected Response getNonLanguageResponse(Request request) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
@@ -70,22 +70,22 @@ public abstract class BaseLanguageController extends BaseController {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.log("Exception",e.getMessage(), e);
+            PlatformLogger.log("Exception",e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }   
     }
     
-	public void makeAsyncRequest(Request request, ILogger logger) {
+	public void makeAsyncRequest(Request request) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             router.tell(request, router);
         } catch (Exception e) {
-            logger.log("Exception", e.getMessage(), e);
+        	PlatformLogger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }
     }
     
-	protected Response getBulkOperationResponse(Request request, ILogger logger) {
+	protected Response getBulkOperationResponse(Request request) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
             request.getContext().put(LanguageParams.bulk_request.name(), true);
@@ -97,7 +97,7 @@ public abstract class BaseLanguageController extends BaseController {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.log("Exception", e.getMessage(), e);
+            PlatformLogger.log("Exception", e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "Something went wrong while processing the request", e);
         }   
     }

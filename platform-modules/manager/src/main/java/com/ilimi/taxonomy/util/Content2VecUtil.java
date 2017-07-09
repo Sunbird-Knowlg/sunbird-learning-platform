@@ -15,25 +15,24 @@ import org.ekstep.content.util.PropertiesUtil;
 
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 @Deprecated
 @CoverageIgnore
 public class Content2VecUtil {
 
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 	private static ObjectMapper mapper = new ObjectMapper();
 	
 	@CoverageIgnore
 	public static void invokeContent2Vec(String contentId, final String event) {
 		ExecutorService pool = null;
 		try {
-			LOGGER.log("Call Content2Vec API: " + contentId + " | Event: " + event);
+			PlatformLogger.log("Call Content2Vec API: " + contentId + " | Event: " + event);
 			String url = PropertiesUtil.getProperty("CONTENT_TO_VEC_URL");
 			if (StringUtils.isNotBlank(url) && StringUtils.isNotBlank(contentId)) {
 				url += "/" + contentId;
-				LOGGER.log("Content2Vec API URL: " + url);
+				PlatformLogger.log("Content2Vec API URL: " + url);
 				final String endPoint = url;
 				pool = Executors.newFixedThreadPool(1);
 				pool.execute(new Runnable() {
@@ -47,7 +46,7 @@ public class Content2VecUtil {
 				});
 			}
 		} catch (Exception e) {
-			LOGGER.log("Error sending Content2Vec request", e.getMessage(), e);
+			PlatformLogger.log("Error sending Content2Vec request", e.getMessage(), e);
 		} finally {
 			if (null != pool)
 				pool.shutdown();
@@ -65,9 +64,9 @@ public class Content2VecUtil {
 				post.setEntity(new StringEntity(body));
 			}
 			HttpResponse response = client.execute(post);
-			LOGGER.log("Content2Vec API: " + url + " | responseCode: " + response.getStatusLine().getStatusCode());
+			PlatformLogger.log("Content2Vec API: " + url + " | responseCode: " + response.getStatusLine().getStatusCode());
 		} catch (Exception e) {
-			LOGGER.log("Error calling content2vec api", e.getMessage(), e);
+			PlatformLogger.log("Error calling content2vec api", e.getMessage(), e);
 		}
 	}
 }

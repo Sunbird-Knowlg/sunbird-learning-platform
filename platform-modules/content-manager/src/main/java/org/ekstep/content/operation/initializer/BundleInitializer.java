@@ -19,8 +19,7 @@ import org.ekstep.content.validator.ContentValidator;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -31,7 +30,7 @@ import com.ilimi.graph.dac.model.Node;
 public class BundleInitializer extends BaseInitializer {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	/** The BasePath. */
 	protected String basePath;
@@ -86,7 +85,7 @@ public class BundleInitializer extends BaseInitializer {
 	@SuppressWarnings("unchecked")
 	public Response initialize(Map<String, Object> parameterMap) {
 		Response response = new Response();
-		LOGGER.log("Fetching the Parameters From BundleInitializer.");
+		PlatformLogger.log("Fetching the Parameters From BundleInitializer.");
 		List<Node> nodes = (List<Node>) parameterMap.get(ContentWorkflowPipelineParams.nodes.name());
 		List<String> contentIdList = (List<String>) parameterMap
 				.get(ContentWorkflowPipelineParams.contentIdList.name());
@@ -105,7 +104,7 @@ public class BundleInitializer extends BaseInitializer {
 		if (StringUtils.isBlank(manifestVersion))
 			manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
 
-		LOGGER.log("Total Input Content Ids: " , contentIdList.size());
+		PlatformLogger.log("Total Input Content Ids: " , contentIdList.size());
 
 		// Validate the availability of all the Requested Contents
 		if (nodes.size() < contentIdList.size())
@@ -116,10 +115,10 @@ public class BundleInitializer extends BaseInitializer {
 		// also)
 		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 		List<String> childrenIds = new ArrayList<String>();
-		LOGGER.log("Populating the Recursive (Children) Contents.");
+		PlatformLogger.log("Populating the Recursive (Children) Contents.");
 		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
 
-		LOGGER.log("Total Content To Bundle: " , nodes.size());
+		PlatformLogger.log("Total Content To Bundle: " , nodes.size());
 		ContentValidator validator = new ContentValidator();
 		Map<String, Object> bundleMap = new HashMap<String, Object>();
 		for (Node node : nodes) {
@@ -138,13 +137,13 @@ public class BundleInitializer extends BaseInitializer {
 						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
 				ecmlContent = (null == ecmlContent) ? false : ecmlContent;
 
-				LOGGER.log("Is ECML Mime-Type? " + ecmlContent);
-				LOGGER.log("Processing Content Id: " + node.getIdentifier());
+				PlatformLogger.log("Is ECML Mime-Type? " + ecmlContent);
+				PlatformLogger.log("Processing Content Id: " + node.getIdentifier());
 
 				// Setting Attribute Value
 				this.basePath = getBasePath(node.getIdentifier());
 				this.contentId = node.getIdentifier();
-				LOGGER.log("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
+				PlatformLogger.log("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
 
 				// Check if Compression Required
 				boolean isCompressRequired = ecmlContent && isCompressRequired(node);

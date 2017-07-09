@@ -12,13 +12,12 @@ import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
 
 import com.ilimi.common.dto.CoverageIgnore;
-import com.ilimi.common.util.ILogger;
-import com.ilimi.common.util.PlatformLogManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ContentMimeTypeFactoryUtil {
 
 	/** The logger. */
-	private static ILogger LOGGER = PlatformLogManager.getLogger();
+	
 
 	static IMimeTypeManager ecmlMimeTypeMgr = new ECMLMimeTypeMgrImpl();
 	static IMimeTypeManager htmlMimeTypeMgr = new HTMLMimeTypeMgrImpl();
@@ -31,7 +30,7 @@ public class ContentMimeTypeFactoryUtil {
     
 	@CoverageIgnore
     public static IMimeTypeManager getImplForService(String mimeType) {
-		LOGGER.log("MimeType: " + mimeType);
+		PlatformLogger.log("MimeType: " + mimeType);
     	IMimeTypeManager manager = assetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
 			case "application/vnd.ekstep.ecml-archive":
