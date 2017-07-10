@@ -25,6 +25,7 @@
 		<module>orchestrator</module>
 		<module>platform-config</module>
 		<module>platform-tools/kernel-extension</module>
+		<module>platform-jobs</module>
 	</modules>
 
 	<dependencies>
