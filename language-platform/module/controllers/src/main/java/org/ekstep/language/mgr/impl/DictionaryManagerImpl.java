@@ -3150,6 +3150,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		DefinitionDTO wordDefinition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
 		DefinitionDTO synsetDefinition = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
 		Map<String, Object> wordMap = getMetadata(node.getMetadata(), wordDefinition);
+		
+		if(!wordMap.containsKey(LanguageParams.identifier.name()))
+			wordMap.put(LanguageParams.identifier.name(), node.getIdentifier());
+		
 		List<Map<String, Object>> synsets = new ArrayList<>();
 		wordMap.put("synsets", synsets);
 		wordUtil.updatePrimaryMeaning(languageId, wordMap, wordUtil.getSynsets(node));
