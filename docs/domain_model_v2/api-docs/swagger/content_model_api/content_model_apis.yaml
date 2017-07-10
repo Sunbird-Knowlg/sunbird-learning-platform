@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 2.0.0
+  version: '3.0'
   title: Content Model API
   description: >-
     The Content Model API deals with all the operations related to the Content
@@ -11,7 +11,7 @@ info:
     name: EkStep License
     url: 'http:www.ekstep.in'
 host: api.ekstep.in
-basePath: /v3
+basePath: /content/v3
 schemes:
   - https
 securityDefinitions: {}
@@ -48,7 +48,7 @@ paths:
         certain fields marked as mandatory for which the value has to be given
         in order to create the content into the platfrom, The _content_ endpoint
         returns the node id as _node_id_ i.e. the identifier of created content.
-      operationId: content.create
+      operationId: ekstep.learning.content.create
       produces:
         - application/json
       parameters:
@@ -86,7 +86,7 @@ paths:
         platfrom i.e. the mandatory fields cannot be null or empty, The
         _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the
         identifier of updated content.
-      operationId: content.update
+      operationId: ekstep.learning.content.update
       produces:
         - application/json
       parameters:
@@ -128,7 +128,7 @@ paths:
         fields by passing the comma separated list of fields in a query
         parameter _fields_ For Example:
         _/content/{contentId}?fields?body,soundCredits_
-      operationId: content.find
+      operationId: ekstep.learning.content.read
       produces:
         - application/json
       parameters:
@@ -167,7 +167,7 @@ paths:
         delete (Retire) the content from the _EkStep Platform_. It consumes the
         Content Identifier as 'contentId' on which the delete (Retire) operation
         has to be performed.
-      operationId: content.delete
+      operationId: ekstep.learning.content.retire
       produces:
         - application/json
       parameters:
@@ -447,7 +447,7 @@ paths:
         it unavailbale for future usage. It consumes the content identifier as
         request path variable with falg request body. In response it returns the
         message that particular content has been flagged
-      operationId: content.flag
+      operationId: ekstep.learning.content.flag
       produces:
         - application/json
       parameters:

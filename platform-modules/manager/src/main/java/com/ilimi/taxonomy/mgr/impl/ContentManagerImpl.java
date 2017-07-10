@@ -68,9 +68,9 @@ import com.ilimi.taxonomy.mgr.IContentManager;
  * <code>MimeType</code>. For <code>Bundle</code> implementation it is directly
  * backed by Content Work-Flow Pipeline and other High Level implementation is
  * backed by the implementation of <code>IMimeTypeManager</code>.
- * 
+ *
  * @author Azhar
- * 
+ *
  * @see IContentManager
  */
 @Component
@@ -95,12 +95,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * Content Image Object Type
 	 */
 	private static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
-	
+
 	/**
 	 * Content Object Type
 	 */
 	private static final String CONTENT_OBJECT_TYPE = "Content";
-	
+
 	private static final String GRAPH_ID = "domain";
 
 	/**
@@ -131,7 +131,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.ilimi.taxonomy.mgr.IContentManager#upload(java.lang.String,
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
@@ -188,7 +188,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.ilimi.taxonomy.mgr.IContentManager#bundle(com.ilimi.common.dto.
 	 * Request, java.lang.String, java.lang.String)
 	 */
@@ -297,7 +297,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.ilimi.taxonomy.mgr.IContentManager#optimize(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -417,7 +417,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.ilimi.taxonomy.mgr.IContentManager#publish(java.lang.String,
 	 * java.lang.String)
 	 */
@@ -531,19 +531,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		response.setParams(getSucessStatus());
 		return response;
 	}
-	
+
 	@Override
 	public Response getById(String graphId, String contentId, String mode) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Content Id: ", contentId);
 		Response response = new Response();
-		
+
 		Node node = getContentNode(graphId, contentId, mode);
-		
+
 		PlatformLogger.log("Fetching the Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
-		
+
 		response.put("content", contentMap);
 		response.setParams(getSucessStatus());
 		return response;
@@ -589,9 +589,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		return map;
 	}
-	
+
 	private Node getContentNode(String graphId, String contentId, String mode) {
-		
+
 		if (StringUtils.equalsIgnoreCase("edit", mode)) {
 			String contentImageId = getContentImageIdentifier(contentId);
 			Response responseNode = getDataNode(graphId, contentImageId);
@@ -631,7 +631,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		String body = (String) response.get(ContentStoreParams.body.name());
 		return body;
 	}
-	
+
 	private Response getContentProperties(String contentId, List<String> properties) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -641,21 +641,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Response response = makeLearningRequest(request);
 		return response;
 	}
-	
+
 	private Response updateContentProperties(String contentId, Map<String, Object> properties) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
 		request.setOperation(ContentStoreOperations.updateContentProperties.name());
 		request.put(ContentStoreParams.content_id.name(), contentId);
 		request.put(ContentStoreParams.properties.name(), properties);
-		
 		Response response = makeLearningRequest(request);
 		return response;
 	}
 
 	/**
 	 * Make a sync request to LearningRequestRouter
-	 * 
+	 *
 	 * @param request
 	 *            the request object
 	 * @param logger
@@ -771,7 +770,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		return response;
 	}
-	
+
 	public Response createContent(Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
@@ -785,7 +784,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType.toString()))
 					map.put("visibility", "Parent");
 			}
-			
+
 			Map<String, Object> externalProps = new HashMap<String, Object>();
 			List<String> externalPropsList = getExternalPropsList(definition);
 			if (null != externalPropsList && !externalPropsList.isEmpty()) {
@@ -795,20 +794,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					map.remove(prop);
 				}
 			}
-			
+
 			if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.plugin-archive", mimeType.toString())) {
 				Object code = map.get("code");
 				if (null == code || StringUtils.isBlank(code.toString()))
 					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins", ResponseCode.CLIENT_ERROR);
 				map.put("identifier", map.get("code"));
 			}
-			
+
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
 				node.setObjectType(CONTENT_OBJECT_TYPE);
 				node.setGraphId(GRAPH_ID);
 				Response response = createDataNode(node);
-				if (checkError(response)) 
+				if (checkError(response))
 					return response;
 				else {
 					String contentId = (String) response.get(GraphDACParams.node_id.name());
@@ -826,21 +825,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			return ERROR("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", "Mime Type cannot be empty", ResponseCode.CLIENT_ERROR);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Response updateContent(String contentId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-		
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
 		map.put("objectType", CONTENT_OBJECT_TYPE);
 		map.put("identifier", contentId);
-		
+
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
-		
+
 		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		Response getNodeResponse = getDataNode(GRAPH_ID, contentImageId);
 		if (checkError(getNodeResponse)) {
@@ -850,12 +849,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			PlatformLogger.log("Content node response: " + getNodeResponse);
 		} else
 			imageObjectExists = true;
-		
+
 		if (checkError(getNodeResponse)) {
 			PlatformLogger.log("Content not found: " + contentId);
 			return getNodeResponse;
 		}
-		
+
 		Map<String, Object> externalProps = new HashMap<String, Object>();
 		List<String> externalPropsList = getExternalPropsList(definition);
 		if (null != externalPropsList && !externalPropsList.isEmpty()) {
@@ -865,7 +864,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				map.remove(prop);
 			}
 		}
-		
+
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
 		PlatformLogger.log("Graph node found: " + graphNode.getIdentifier());
 		Map<String, Object> metadata = graphNode.getMetadata();
@@ -884,7 +883,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			if (!StringUtils.equalsIgnoreCase(status, inputStatus.toString()))
 				logEvent = true;
 		}
-		
+
 		boolean checkError = false;
 		Response createResponse = null;
 		if (isLiveState || isFlaggedState) {
@@ -918,7 +917,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			objectType = CONTENT_IMAGE_OBJECT_TYPE;
 			contentId = contentImageId;
 		}
-		
+
 		if (checkError)
 			return createResponse;
 		PlatformLogger.log("Updating content node: " + contentId);
@@ -930,14 +929,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		checkError = checkError(createResponse);
 		if (checkError)
 			return createResponse;
-		
+
 		createResponse.put(GraphDACParams.node_id.name(), originalId);
 		if (logEvent) {
 			metadata.putAll(map);
 			metadata.put("prevState", status);
 			LogTelemetryEventUtil.logContentLifecycleEvent(originalId, metadata);
 		}
-		
+
 		if (null != externalProps && !externalProps.isEmpty()) {
 			Response externalPropsResponse = updateContentProperties(contentId, externalProps);
 			if (checkError(externalPropsResponse))
@@ -945,7 +944,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		return createResponse;
 	}
-	
+
 	private List<String> getExternalPropsList(DefinitionDTO definition) {
 		List<String> list = new ArrayList<String>();
 		if (null != definition) {

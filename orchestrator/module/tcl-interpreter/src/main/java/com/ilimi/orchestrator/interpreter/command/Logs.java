@@ -11,8 +11,6 @@ import com.ilimi.orchestrator.interpreter.ICommand;
 
 public class Logs extends BaseSystemCommand implements ICommand, Command {
 
-	
-	
 	@Override
 	public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
         if (argv.length == 2) {
@@ -35,7 +33,7 @@ public class Logs extends BaseSystemCommand implements ICommand, Command {
 
 	@Override
 	public String getCommandName() {
-        return "logs";	
+        return "logs";
     }
 
 }

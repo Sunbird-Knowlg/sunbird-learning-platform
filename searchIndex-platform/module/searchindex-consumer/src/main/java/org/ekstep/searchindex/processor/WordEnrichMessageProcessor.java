@@ -14,7 +14,6 @@ import com.ilimi.common.logger.PlatformLogger;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
 
-	
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public WordEnrichMessageProcessor() {
@@ -112,17 +111,17 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 
 		try {
 
-			String url = PropertiesUtil.getProperty("language-api-url") + "/v1/language/tools/enrich/" + languageId;
+		String url = PropertiesUtil.getProperty("language-api-url") + "/v1/language/tools/enrich/" + languageId;
 
-			Map<String, Object> requestBodyMap = new HashMap<String, Object>();
-			Map<String, Object> requestMap = new HashMap<String, Object>();
-			requestMap.put("word_id", wordId);
-			requestBodyMap.put("request", requestMap);
+		Map<String, Object> requestBodyMap = new HashMap<String, Object>();
+		Map<String, Object> requestMap = new HashMap<String, Object>();
+		requestMap.put("word_id", wordId);
+		requestBodyMap.put("request", requestMap);
 
-			String requestBody = mapper.writeValueAsString(requestBodyMap);
-			PlatformLogger.log("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
-			HTTPUtil.makePostRequest(url, requestBody);
-			PlatformLogger.log("Word enriched for the lemma change successfully - wordId :", wordId);
+		String requestBody = mapper.writeValueAsString(requestBodyMap);
+		PlatformLogger.log("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
+		HTTPUtil.makePostRequest(url, requestBody);
+		PlatformLogger.log("Word enriched for the lemma change successfully - wordId :", wordId);
 
 		} catch (Exception e) {
 			PlatformLogger.log("error when calling enrich api Language Id:" + languageId + " word :" + wordId + ",error",
