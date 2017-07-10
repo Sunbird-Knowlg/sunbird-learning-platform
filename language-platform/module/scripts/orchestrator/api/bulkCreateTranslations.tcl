@@ -3,6 +3,7 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node Relation
 java::import -package com.ilimi.common.dto Response
+java::import  -package java.util.regex Pattern Matcher
 
 proc isNotEmpty {graph_nodes} {
 	set exist false
@@ -66,7 +67,7 @@ proc getSynonym {language_id word_node} {
 	set word_id [java::prop $word_node "identifier"]
 	set lemma [$word_metadata get "lemma"]
 	set pmId [$word_metadata get "primaryMeaningId"]
-	#puts "word_id is $word_id | pmId is $pmId"
+	#logs "word_id is $word_id | pmId is $pmId"
 	set isPrimaryIdNull [java::isnull $pmId]
 	#if primary meaning is null
 	if {$isPrimaryIdNull == 1} {
@@ -86,7 +87,7 @@ proc getSynonym {language_id word_node} {
 			set synsetResponse [createSynsetNode $language_id $lemma]
 			set check_error [check_response_error $synsetResponse]
 			if {$check_error} {
-				#puts "error while creating synset $language_id $lemma"
+				#logs "error while creating synset $language_id $lemma"
 				return $synsetResponse
 			}
 			set pmId [get_resp_value $synsetResponse "node_id"]
@@ -117,26 +118,26 @@ proc createWordNode {language_id lemma} {
 	set synsetResponse [createSynsetNode $language_id $lemma]
 	set check_error [check_response_error $synsetResponse]
 	if {$check_error} {
-		#puts "error while creating synset $language_id $lemma"
+		#logs "error while creating synset $language_id $lemma"
 		return $synsetResponse
 	} 
 	set nodePrimaryMeaningId [get_resp_value $synsetResponse "node_id"]
 	set nodePrimaryMeaningId [$nodePrimaryMeaningId toString]
 
-	#puts "createWordNode | nodePrimaryMeaningId $nodePrimaryMeaningId"
+	#logs "createWordNode | nodePrimaryMeaningId $nodePrimaryMeaningId"
 	set graph_node [java::new Node [java::null] "DATA_NODE" "Word"]
 	set metadata [java::new HashMap]
 	set trimmedLemma [string trim $lemma]
-	#puts "createWordNode | trimmedLemma $trimmedLemma"
+	#logs "createWordNode | trimmedLemma $trimmedLemma"
 
 	$metadata put "lemma" $trimmedLemma
 	$metadata put "primaryMeaningId" $nodePrimaryMeaningId
 	$graph_node setMetadata $metadata
-	#puts "creating word - [$metadata toString]"
+	#logs "creating word - [$metadata toString]"
 	set create_response [createDataNode $language_id $graph_node]
 	set check_error [check_response_error $create_response]
 	if {$check_error} {
-		#puts "error while creating word $language_id [$metadata toString]"
+		#logs "error while creating word $language_id [$metadata toString]"
 		return $create_response
 	}
 
@@ -155,18 +156,18 @@ proc createWordNode {language_id lemma} {
 
 proc addPrimaryMeaning {language_id wordId synsetId update} {
 
-	#puts "addPrimaryMeaning $language_id $wordId $synsetId $update"
+	#logs "addPrimaryMeaning $language_id $wordId $synsetId $update"
 	if {$update} {
-		#puts "updating node with primaryMeaningId $synsetId"
+		#logs "updating node with primaryMeaningId $synsetId"
 		set graph_node [java::new Node $wordId "DATA_NODE" "Word"]
 		set metadata [java::new HashMap]
 		$metadata put "primaryMeaningId" $synsetId
 		$graph_node setMetadata $metadata
-		#puts "update word $wordId metadata [$metadata toString]"
+		#logs "update word $wordId metadata [$metadata toString]"
 		set wordResponse [updateDataNode $language_id $wordId $graph_node]
 		set check_error [check_response_error $wordResponse]
 		if {$check_error} {
-			#puts "error while updating word with primary meaning id"
+			#logs "error while updating word with primary meaning id"
 			return $wordResponse
 		}
 	}
@@ -174,7 +175,7 @@ proc addPrimaryMeaning {language_id wordId synsetId update} {
 	set addRelation_response [addRelation $language_id $synsetId "synonym" $wordId]
 	set check_addRelation_error [check_response_error $addRelation_response]
 	if {$check_addRelation_error} {
-		#puts "error while adding synonym relation between word and synset"
+		#logs "error while adding synonym relation between word and synset"
 		return $addRelation_response;
 	}
 
@@ -186,7 +187,7 @@ proc addPrimaryMeaning {language_id wordId synsetId update} {
 }
 
 
-proc createTranslations {wordMap} {
+proc createTranslations {wordMap specialCharPattern} {
 
 	set maindWordLanguageId ""
 	set mainWord ""
@@ -201,7 +202,15 @@ proc createTranslations {wordMap} {
 	    if {$word_lemma == ""} {
 	    	continue
 	    }
-	   	#puts "language_id $language_id word_lemma $word_lemma"
+
+		set hasSpecial [$specialCharPattern matcher [java::new String $word_lemma]]
+		set matched [$hasSpecial matches]
+		if {$matched} {
+				$errors add "$word_lemma should not contain special character for language $language_id"
+				continue
+		}
+
+	   	#logs "language_id $language_id word_lemma $word_lemma"
 	   	set word [getWord $language_id $word_lemma]
 
    		set wordNull [java::isnull $word]
@@ -209,7 +218,7 @@ proc createTranslations {wordMap} {
 		if {!$wordNull} {
    			set wordId [$word get "identifier"]
    			set wordId [$wordId toString]
-   			#puts "wordId $wordId $language_id"
+   			#logs "wordId $wordId $language_id"
 			set get_node_response [getDataNode $language_id $wordId]
 			set check_error [check_response_error $get_node_response]
 
@@ -221,9 +230,9 @@ proc createTranslations {wordMap} {
 
 		}
 
-   		#puts "wordNull $wordNull"
+   		#logs "wordNull $wordNull"
    		if {$wordNull} {
-   			#puts "word not found"
+   			#logs "word not found"
    			set word_node [createWordNode $language_id  $word_lemma]
    			set wordId ""
    			set synsetId ""
@@ -240,7 +249,7 @@ proc createTranslations {wordMap} {
 			}
 
 	   	} else {
-   			#puts "word found - [$word toString]"
+   			#logs "word found - [$word toString]"
 			set synsetId [getSynonym $language_id $word_node]
 
 			set resp_instance [java::instanceof $synsetId Response]
@@ -254,13 +263,13 @@ proc createTranslations {wordMap} {
 	   	}
 
 	   	if {$mainVariablePopulated} {
-	   		#puts "populating $language_id $synsetId into translationSetMap"
+	   		#logs "populating $language_id $synsetId into translationSetMap"
 	   		set synsets [java::new ArrayList]
 	   		$synsets add $synsetId
 	   		$translationSetMap put $language_id $synsets
 	   	} else {
 	   		set mainVariablePopulated true
-	   		#puts "entering main info $language_id $wordId $synsetId "
+	   		#logs "entering main info $language_id $wordId $synsetId "
 	   		set mainWord $wordId
 	   		set mainSynset $synsetId
 	   		set maindWordLanguageId $language_id
@@ -268,7 +277,7 @@ proc createTranslations {wordMap} {
 
 	}
 
-	#puts "maindWordLanguageId $maindWordLanguageId  mainWord $mainWord mainSynset $mainSynset translationSetMap [$translationSetMap toString]"
+	logs "maindWordLanguageId $maindWordLanguageId  mainWord $mainWord mainSynset $mainSynset translationSetMap [$translationSetMap toString]"
 	if {[$translationSetMap size] > 0} {
 		set translationMap [java::new HashMap]
 		$translationMap put $mainSynset $translationSetMap
@@ -283,7 +292,7 @@ proc createTranslations {wordMap} {
 		$errors add " create tranlsation failure input  maindWordLanguageId $maindWordLanguageId  mainWord $mainWord translationSetMap [$translationSetMap toString], error is no proper synset"		
 	}
 
-	#puts "errors [$errors toString]"
+	logs "errors [$errors toString]"
 	return $errors
 }
 
@@ -292,10 +301,16 @@ proc createTranslations {wordMap} {
 set errors [java::new ArrayList]
 set result_map [java::new HashMap]
 
+set specialChar {.*\[`~!@#$%^&*()_=+\\\[\\\]\{\}|\\\\;:'\",<.>/?-\].*}
+set specialCharEsc [subst -nocommands -novariables $specialChar ]
+
+set specialCharPattern [java::call Pattern compile $specialCharEsc]
+
+
 java::for {Map word} $words {
 		set wordMap [$word get "word"]
 		set wordMap [java::cast Map $wordMap]
-		set resp [createTranslations $wordMap]
+		set resp [createTranslations $wordMap $specialCharPattern]
 		$errors addAll $resp
 }
 
