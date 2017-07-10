@@ -3176,6 +3176,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		DefinitionDTO synsetDefinition = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
 		Map<String, Object> synsetMap = getMetadata(synset.getMetadata(), synsetDefinition);
 
+		if(!synsetMap.containsKey(LanguageParams.identifier.name()))
+			synsetMap.put(LanguageParams.identifier.name(), synset.getIdentifier());
+
 		if (null != synsetDefinition.getOutRelations() && !synsetDefinition.getOutRelations().isEmpty()) {
 			Map<String, List<NodeDTO>> relMap = new HashMap<String, List<NodeDTO>>();
 			Map<String, String> relTitleMap = new HashMap<String, String>();
