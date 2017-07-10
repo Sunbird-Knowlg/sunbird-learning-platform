@@ -196,5 +196,7 @@ public interface IContentManager {
 	Response createContent(Map<String, Object> map);
 	
 	Response updateContent(String contentId, Map<String, Object> map) throws Exception;
+	
+	Response preSignedURL(String taxonomyId, String contentId, String fileName);
 
 }

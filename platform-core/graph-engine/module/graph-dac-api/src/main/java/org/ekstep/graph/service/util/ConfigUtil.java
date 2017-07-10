@@ -18,7 +18,7 @@ public class ConfigUtil {
 	public static Config getConfig() {
 		ConfigBuilder config = Config.build();
 		
-		PlatformLogger.log("Fetching the Configuration for Neo4J Bolt.", config);
+		PlatformLogger.log("Fetching the Configuration for Neo4J Bolt.");
 
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED))
 			config.withEncryptionLevel(EncryptionLevel.NONE);
@@ -29,7 +29,7 @@ public class ConfigUtil {
 		if (BooleanUtils.isTrue(DACConfigurationConstants.IS_SETTING_NEO4J_SERVER_MAX_IDLE_SESSION_ENABLED))
 			config.withTrustStrategy(getTrustStrategy());
 		
-		PlatformLogger.log("Returning Database Config: " , config.toConfig());
+		PlatformLogger.log("Returning Database Config.");
 		return config.toConfig();
 	}
 

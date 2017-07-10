@@ -227,6 +227,26 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "ekstep.learning.content.upload.url";
+		Response response;
+		PlatformLogger.log("Upload URL content | Content Id : " + contentId);
+		try {
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			if(null==requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())){
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"), apiId, null);
+			}
+			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
 	protected String getAPIVersion() {
 		return API_VERSION_3;

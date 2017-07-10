@@ -50,9 +50,7 @@ public class PropertiesUtil {
 					}
 				}
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} catch (Exception e) {}
 		return false;
 	}
 }

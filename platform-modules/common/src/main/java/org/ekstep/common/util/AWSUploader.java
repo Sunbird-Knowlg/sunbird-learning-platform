@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.ekstep.common.slugs.Slug;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -20,6 +22,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -46,6 +49,8 @@ public class AWSUploader {
 	private static final String dotOper = ".";
 	private static final String hyphen = "-";
 	private static final String forwardSlash = "/";
+	private static final String s3AssetFolder = "s3.asset.folder";
+	private static final String s3UploadURLExpiry = "s3.upload.url.expiry";
 
 	public static String getBucketName() {
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
@@ -203,6 +208,25 @@ public class AWSUploader {
 		return map;
 	}
 
+	public static String preSignedURL(String contentId, String fileName) {
+		AmazonS3Client s3 = new AmazonS3Client();
+		String env = S3PropertyReader.getProperty(s3Environment);
+		String bucketName = S3PropertyReader.getProperty(s3Bucket, env);
+		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
+		s3.setRegion(region);
+		Date expiration = new Date();
+		long milliSeconds = expiration.getTime();
+		int SECONDS = Integer.parseInt(S3PropertyReader.getProperty(s3UploadURLExpiry));
+		milliSeconds += 1000 * SECONDS;
+		expiration.setTime(milliSeconds);
+		String objectKey = S3PropertyReader.getProperty(s3AssetFolder)+"/"+contentId+"/"+fileName;
+		GeneratePresignedUrlRequest presignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
+		presignedUrlRequest.setMethod(HttpMethod.PUT);
+		presignedUrlRequest.setExpiration(expiration);
+		URL url = s3.generatePresignedUrl(presignedUrlRequest);
+		return url.toString();
+	}
+	
 	private static Region getS3Region(String name) {
 		if (StringUtils.isNotBlank(name)) {
 			if (StringUtils.equalsIgnoreCase(Regions.AP_SOUTH_1.name(), name))

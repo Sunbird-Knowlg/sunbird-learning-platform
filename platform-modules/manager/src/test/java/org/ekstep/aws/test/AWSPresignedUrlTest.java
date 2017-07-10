@@ -17,8 +17,8 @@ public class AWSPresignedUrlTest {
 
 	// TODO: Get these details from config or request.
 	String bucketName = "ekstep-public-dev";
-	String objectKey = "awstest/test.txt";
-	int SECONDS = 120;
+	String objectKey = "awstest/test.png";
+	int SECONDS = 600;
 
 	@Test
 	public void generatePresignedUrl() {
@@ -37,9 +37,10 @@ public class AWSPresignedUrlTest {
 		System.out.println("Pre-Signed URL = " + url.toString());
 	}
 
+	@Test
 	public void testUploadWithPresignedUrl() {
 		//TODO: Add urlStr before testing.
-		String urlStr = "";
+		String urlStr = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/awstest/test.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20170710T133335Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3599&X-Amz-Credential=AKIAI3QJF6EBIQEQ56MA%2F20170710%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=0878145777f1a06a59afa0a85eca187a31bd6087a01af652fc2cd2a0388674f7";
 		try {
 			URL url = new URL(urlStr);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();

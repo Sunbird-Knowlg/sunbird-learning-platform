@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
@@ -245,6 +247,26 @@ public class ContentV2Controller extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception", e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "ekstep.learning.content.upload.url";
+		Response response;
+		PlatformLogger.log("Upload URL content | Content Id : " + contentId);
+		try {
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			if(null==requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())){
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"), apiId, null);
+			}
+			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

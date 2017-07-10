@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
@@ -363,6 +364,17 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			updateDataNode(node);
 			response = ERROR(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		}
+		return response;
+	}
+	
+	
+	public Response preSignedURL(String taxonomyId, String contentId, String fileName) {
+		// TODO: Check content exist or not.
+		Response response = new Response();
+		String preSignedURL = AWSUploader.preSignedURL(contentId, fileName);
+		response.put(ContentAPIParams.content_id.name(), contentId);
+		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
+		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));
 		return response;
 	}
 
