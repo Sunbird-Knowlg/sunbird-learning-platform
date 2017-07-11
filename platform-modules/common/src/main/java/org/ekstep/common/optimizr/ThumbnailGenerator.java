@@ -5,7 +5,6 @@ import java.io.File;
 
 import javax.imageio.ImageIO;
 
-import org.apache.logging.log4j.LogManager;
 import org.imgscalr.Scalr;
 
 import com.ilimi.common.logger.LoggerEnum;

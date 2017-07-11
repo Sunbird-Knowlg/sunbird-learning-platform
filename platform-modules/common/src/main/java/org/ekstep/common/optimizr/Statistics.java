@@ -6,8 +6,6 @@ package org.ekstep.common.optimizr;
 
 import java.text.DecimalFormat;
 
-import org.apache.logging.log4j.LogManager;
-
 import com.ilimi.common.logger.PlatformLogger;
 
 /**
