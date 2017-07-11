@@ -72,11 +72,9 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			PlatformLogger.log("Reading from kafka consumer" , messageData);
 			Map<String, Object> message = new HashMap<String, Object>();
 
 			if (StringUtils.isNotBlank(messageData)) {
-				PlatformLogger.log("checking if kafka message is blank or not" + messageData);
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
 			}
@@ -87,7 +85,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					processMessage(message);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
+			e.printStacktrace();
 		}
 	}
 
@@ -100,7 +98,6 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
 
-		PlatformLogger.log("filtering out the kafka message" + message);
 		Node node = filterMessage(message);
 
 		if (null != node) {
@@ -109,7 +106,6 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 				PlatformLogger.log("Processing Collection :" + node.getIdentifier());
 				processCollection(node);
 			} else {
-				PlatformLogger.log("calling processData to fetch node metadata" + node);
 				processData(node);
 			}
 			if (node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())

@@ -64,7 +64,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 					processMessage(message);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
+			e.printStackTrace();
 		}
 	}
 

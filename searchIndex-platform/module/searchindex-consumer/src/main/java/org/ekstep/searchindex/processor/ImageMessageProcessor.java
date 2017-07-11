@@ -73,7 +73,6 @@ public class ImageMessageProcessor implements IMessageProcessor {
 					processMessage(message);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}
