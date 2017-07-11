@@ -11,8 +11,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
 
 public class CompositeSearchManager extends BaseSearchManager {
-
-	private static Logger LOGGER = LogManager.getLogger(CompositeSearchManager.class.getName());
 	
 	public Response search(Request request){
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.INDEX_SEARCH.name());

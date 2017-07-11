@@ -16,7 +16,6 @@ public class ConsumerThread implements Runnable {
     private String processor;
     private IMessageProcessor messagePrcessor;
     private ConsumerConnector m_consumer;
-    private static Logger LOGGER = LogManager.getLogger(ConsumerThread.class.getName());
 
     public ConsumerThread(KafkaStream<byte[], byte[]> a_stream, int a_threadNumber, String messageProcessor, ConsumerConnector consumer)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -38,8 +37,7 @@ public class ConsumerThread implements Runnable {
             }
             System.out.println("Shutting down Thread: " + m_threadNumber);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            LOGGER.error("Error process message", e);
+            LOGGER.log("Error process message", e.getMessage, LoggerEnum.ERROR.name);
         } finally {
             
         }

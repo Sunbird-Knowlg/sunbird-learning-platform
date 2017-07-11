@@ -25,6 +25,8 @@ import akka.remote.routing.RemoteRouterConfig;
 import akka.routing.RoundRobinPool;
 import akka.routing.SmallestMailboxPool;
 
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.actor.GraphCacheActor;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
@@ -41,8 +43,6 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 public class ActorBootstrap {
-	
-	private static Logger LOGGER = LogManager.getLogger(ActorBootstrap.class.getName());
 
     private static Document document;
     private static ActorSystem system;
@@ -57,7 +57,7 @@ public class ActorBootstrap {
             document.getDocumentElement().normalize();
             loadConfiguration();
         } catch (Exception e) {
-			LOGGER.error("Error! While Closing the Input Stream.", e);
+			PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), LoggerEnum.ERROR.name());
         }
     }
 
