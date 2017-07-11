@@ -5,15 +5,12 @@ import java.security.Key;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ilimi.common.logger.PlatformLogger;
 
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
 public class EncryptionUtil {
-
-	private static Logger LOGGER = LogManager.getLogger(EncryptionUtil.class.getName());
 
 	private static final String ALGO = "AES";
 	private static final byte[] keyValue = new byte[] { 'T', 'h', 'e', 'B', 'e', 's', 't', 'S', 'e', 'c', 'r', 'e', 't',
@@ -21,42 +18,42 @@ public class EncryptionUtil {
 
 	@SuppressWarnings("restriction")
 	public static String encrypt(String data) {
-		LOGGER.debug("Data: ", data);
+		PlatformLogger.log("Data: ", data);
 
 		String encryptedValue = "";
 		try {
 			Key key = generateKey();
-			LOGGER.debug("Key: ", key);
+			PlatformLogger.log("Key: ", key);
 			Cipher c = Cipher.getInstance(ALGO);
 			c.init(Cipher.ENCRYPT_MODE, key);
 			byte[] encVal = c.doFinal(data.getBytes());
 			encryptedValue = new BASE64Encoder().encode(encVal);
-			LOGGER.debug("E_Value: " + encryptedValue);
+			PlatformLogger.log("E_Value: " + encryptedValue);
 		} catch (Exception e) {
-			LOGGER.error("Error! While Encrypting Data.", e);
+			PlatformLogger.log("Error! While Encrypting Data.", null, e);
 		}
-		LOGGER.debug("Returning E_DATA: ", encryptedValue);
+		PlatformLogger.log("Returning E_DATA: ", encryptedValue);
 		return encryptedValue;
 	}
 
 	@SuppressWarnings("restriction")
 	public static String decrypt(String encryptedData) {
-		LOGGER.debug("Encrypted Data: ", encryptedData);
+		PlatformLogger.log("Encrypted Data: ", encryptedData);
 
 		String decryptedValue = "";
 		try {
 			Key key = generateKey();
-			LOGGER.debug("Key: ", key);
+			PlatformLogger.log("Key: ", key);
 			Cipher c = Cipher.getInstance(ALGO);
 			c.init(Cipher.DECRYPT_MODE, key);
 			byte[] decordedValue = new BASE64Decoder().decodeBuffer(encryptedData);
 			byte[] decValue = c.doFinal(decordedValue);
 			decryptedValue = new String(decValue);
-			LOGGER.debug("D_Value: " + decryptedValue);
+			PlatformLogger.log("D_Value: " + decryptedValue);
 		} catch (Exception e) {
-			LOGGER.error("Error! While Decrypting Values.", e);
+			PlatformLogger.log("Error! While Decrypting Values.", null, e);
 		}
-		LOGGER.debug("Returning D_DATA: ", decryptedValue);
+		PlatformLogger.log("Returning D_DATA: ", decryptedValue);
 		return decryptedValue;
 	}
 

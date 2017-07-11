@@ -7,12 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import scala.concurrent.Future;
-import scala.concurrent.Promise;
-import akka.actor.ActorRef;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
@@ -21,6 +15,12 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
+
+import akka.actor.ActorRef;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+import scala.concurrent.Future;
+import scala.concurrent.Promise;
 
 public abstract class AbstractIndexNode extends AbstractDomainObject {
 

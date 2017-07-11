@@ -2,11 +2,6 @@ package com.ilimi.graph.engine.loadtest;
 
 import org.neo4j.graphdb.Direction;
 
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -14,6 +9,11 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 /**
  * 

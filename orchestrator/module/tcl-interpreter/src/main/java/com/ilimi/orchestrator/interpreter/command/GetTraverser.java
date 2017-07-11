@@ -6,15 +6,15 @@ import java.util.Map;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.traversal.Uniqueness;
 
+import com.ilimi.graph.dac.model.Traverser;
+import com.ilimi.orchestrator.interpreter.ICommand;
+
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
-
-import com.ilimi.graph.dac.model.Traverser;
-import com.ilimi.orchestrator.interpreter.ICommand;
 
 public class GetTraverser implements ICommand, Command {
 

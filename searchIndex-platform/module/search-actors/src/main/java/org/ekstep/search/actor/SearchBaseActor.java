@@ -3,9 +3,6 @@ package org.ekstep.search.actor;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
-
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -18,6 +15,9 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
+
+import akka.actor.ActorRef;
+import akka.actor.UntypedActor;
 
 public abstract class SearchBaseActor extends UntypedActor {
 

@@ -11,11 +11,6 @@ import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import org.neo4j.graphdb.GraphDatabaseService;
 
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -30,6 +25,11 @@ import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.RelationDefinition;
 import com.ilimi.kafka.util.KafkaConsumer;
 import com.ilimi.kafka.util.KafkaMessage;
+
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TransactionEventTest {

@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
@@ -22,6 +20,7 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.types.Relationship;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -30,14 +29,12 @@ import com.ilimi.graph.dac.model.Node;
 
 public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(GraphQueryGenerationUtil.class.getName());
-
 	public static String generateCreateUniqueConstraintCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -54,16 +51,16 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
-		LOGGER.debug("Returning Create Unique Constraint Cypher Query: " + query);
+		PlatformLogger.log("Returning Create Unique Constraint Cypher Query: " + query);
 		return query.toString();
 	}
 
 	public static String generateCreateIndexCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -80,16 +77,16 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
-		LOGGER.debug("Returning Create Node Cypher Query: " + query);
+		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
 	public static String generateDeleteGraphCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -101,17 +98,17 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		LOGGER.debug("Returning Create Node Cypher Query: " + query);
+		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
 		return query.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateRelationCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -140,13 +137,13 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {
 				index = 0;
-				LOGGER.debug("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
+				PlatformLogger.log("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
 				// Fetch all the Relationships
 				List<Integer> allottedIndices = new ArrayList<Integer>();
 				allottedIndices.add(0);
 				List<Relationship> relationships = getAllRelationships(graphId, startNodeId,
 						RelationshipDirection.OUTGOING);
-				LOGGER.debug("Fetched Relationships: ", relationships);
+				PlatformLogger.log("Fetched Relationships: ", relationships);
 				for (Relationship relationship : relationships) {
 					if (StringUtils.equalsIgnoreCase(relationship.type(),
 							RelationTypes.SEQUENCE_MEMBERSHIP.relationName())) {
@@ -158,13 +155,13 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						}
 					}
 				}
-				LOGGER.debug("Allotted Indices So Far: ", allottedIndices);
+				PlatformLogger.log("Allotted Indices So Far: ", allottedIndices);
 				index = Collections.max(allottedIndices) + 1;
 			}
 			
 			if (null != request)
 				metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
-			LOGGER.debug("Recieved Relation Metadata: ", metadata);
+			PlatformLogger.log("Recieved Relation Metadata: ", metadata);
 
 			query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
@@ -177,11 +174,11 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateUpdateRelationCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -221,11 +218,11 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateDeleteRelationCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -254,17 +251,17 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
 		}
 
-		LOGGER.debug("'Delete Relation' Cypher Query: " + query);
+		PlatformLogger.log("'Delete Relation' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateIncomingRelationCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -301,17 +298,17 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 		}
 
-		LOGGER.debug("'Create Incoming Relations' Cypher Query: " + query);
+		PlatformLogger.log("'Create Incoming Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateOutgoingRelationCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -347,17 +344,17 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						getString(index++), getString(index++), metadata, RelationshipDirection.OUTGOING, null));
 		}
 
-		LOGGER.debug("'Create Outgoing Relations' Cypher Query: " + query);
+		PlatformLogger.log("'Create Outgoing Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static String generateDeleteIncomingRelationCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -388,17 +385,17 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						getString(index++), getString(index++), RelationshipDirection.INCOMING));
 		}
 
-		LOGGER.debug("'Delete Incoming Relations' Cypher Query: " + query);
+		PlatformLogger.log("'Delete Incoming Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static String generateDeleteOutgoingRelationCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -429,16 +426,16 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 						getString(index++), getString(index++), RelationshipDirection.INCOMING));
 		}
 
-		LOGGER.debug("'Delete Outgoing Relations' Cypher Query: " + query);
+		PlatformLogger.log("'Delete Outgoing Relations' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	public static String generateRemoveRelationMetadataCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -474,17 +471,17 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, RelationshipDirection.OUTGOING));
 		}
 
-		LOGGER.debug("Returning 'Create Relation' Cypher Query: " + query);
+		PlatformLogger.log("Returning 'Create Relation' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateCollectionCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -522,7 +519,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 								+ " | ['Create Collection' Query Generation Failed.]");
 
 			String date = DateUtils.formatCurrentDate();
-			LOGGER.debug("Date: " + date);
+			PlatformLogger.log("Date: " + date);
 
 			// Sample:
 			// MERGE (n:Employee {identifier: "4", name: "Ilimi", address:
@@ -563,16 +560,16 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
-		LOGGER.debug("Returning 'Create Collection' Cypher Query: " + query);
+		PlatformLogger.log("Returning 'Create Collection' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	public static String generateDeleteCollectionCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -589,16 +586,16 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 					+ "'}) DETACH DELETE a");
 		}
 
-		LOGGER.debug("Returning 'Delete Collection' Cypher Query: " + query);
+		PlatformLogger.log("Returning 'Delete Collection' Cypher Query: " + query);
 		return query.toString();
 	}
 
 	public static String generateImportGraphCypherQuery(Map<String, Object> parameterMap) {
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
-			LOGGER.debug("Fetching the Parameters From Parameter Map");
+			PlatformLogger.log("Fetching the Parameters From Parameter Map");
 			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
 			if (StringUtils.isBlank(graphId))
 				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -618,7 +615,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			query.append("");
 		}
 
-		LOGGER.debug("Returning 'Import Data' Cypher Query: " + query);
+		PlatformLogger.log("Returning 'Import Data' Cypher Query: " + query);
 		return query.toString();
 	}
 
@@ -626,14 +623,14 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Integer index,
 			Map<String, Object> parameterMap) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Start Node Object Variable: ", startNodeObjectVariableName);
-		LOGGER.debug("End Node Object Variable: ", endNodeObjectVariableName);
-		LOGGER.debug("Relationship Direction: ", direction.name());
-		LOGGER.debug("Metadata: ", metadata);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
+		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
+		PlatformLogger.log("Relationship Direction: ", direction.name());
+		PlatformLogger.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -691,7 +688,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				parameterMap.put(GraphDACParams.paramValueMap.name(), mpm);
 			}
 			parameterMap.put(GraphDACParams.query.name(), query.toString());
-			LOGGER.debug("Returning 'Create Relation' Cypher Query: " + query);
+			PlatformLogger.log("Returning 'Create Relation' Cypher Query: " + query);
 		}
 		return "";
 	}
@@ -699,14 +696,14 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getCreateRelationCypherQueryForCollection(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Integer index) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Start Node Object Variable: ", startNodeObjectVariableName);
-		LOGGER.debug("End Node Object Variable: ", endNodeObjectVariableName);
-		LOGGER.debug("Relationship Direction: ", direction.name());
-		LOGGER.debug("Metadata: ", metadata);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
+		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
+		PlatformLogger.log("Relationship Direction: ", direction.name());
+		PlatformLogger.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -750,14 +747,14 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getUpdateRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Map<String, Object> parameterMap) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Start Node Object Variable: ", startNodeObjectVariableName);
-		LOGGER.debug("End Node Object Variable: ", endNodeObjectVariableName);
-		LOGGER.debug("Relationship Direction: ", direction.name());
-		LOGGER.debug("Metadata: ", metadata);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
+		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
+		PlatformLogger.log("Relationship Direction: ", direction.name());
+		PlatformLogger.log("Metadata: ", metadata);
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -787,7 +784,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				parameterMap.put(GraphDACParams.paramValueMap.name(), metadataQueryMap.get(GraphDACParams.paramValueMap.name()));
 			}
 			parameterMap.put(GraphDACParams.query.name(), query.toString());
-			LOGGER.debug("'Update Relation' Cypher Query: " + query);
+			PlatformLogger.log("'Update Relation' Cypher Query: " + query);
 		}
 		return "";
 	}
@@ -795,13 +792,13 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getDeleteRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			RelationshipDirection direction) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Start Node Object Variable: ", startNodeObjectVariableName);
-		LOGGER.debug("End Node Object Variable: ", endNodeObjectVariableName);
-		LOGGER.debug("Relationship Direction: ", direction.name());
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
+		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
+		PlatformLogger.log("Relationship Direction: ", direction.name());
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -826,14 +823,14 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	private static String getRemoveRelationMetadataCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String key, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			RelationshipDirection direction) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Relation Property Key: ", key);
-		LOGGER.debug("Start Node Object Variable: ", startNodeObjectVariableName);
-		LOGGER.debug("End Node Object Variable: ", endNodeObjectVariableName);
-		LOGGER.debug("Relationship Direction: ", direction.name());
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Relation Property Key: ", key);
+		PlatformLogger.log("Start Node Object Variable: ", startNodeObjectVariableName);
+		PlatformLogger.log("End Node Object Variable: ", endNodeObjectVariableName);
+		PlatformLogger.log("Relationship Direction: ", direction.name());
 
 		StringBuilder query = new StringBuilder();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId) && StringUtils.isNotBlank(endNodeId)
@@ -861,9 +858,9 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 		List<Relationship> relationships = new ArrayList<Relationship>();
 		if (StringUtils.isNotBlank(graphId) && StringUtils.isNotBlank(startNodeId)) {
 			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-			LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
-				LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+				PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
 				StatementResult result = session
 						.run(generateGetAllRelationsCypherQuery(graphId, startNodeId, direction));

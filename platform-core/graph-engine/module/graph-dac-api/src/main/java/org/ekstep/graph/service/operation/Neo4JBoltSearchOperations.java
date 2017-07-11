@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
@@ -28,6 +26,7 @@ import org.neo4j.graphdb.Direction;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
@@ -37,9 +36,6 @@ import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
 
 public class Neo4JBoltSearchOperations {
-
-	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(Neo4JBoltSearchOperations.class.getName());
 
 	/**
 	 * Gets the node by id.
@@ -55,10 +51,9 @@ public class Neo4JBoltSearchOperations {
 	 * @return the node by id
 	 */
 	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Node Id: ", nodeId);
-		LOGGER.debug("Get Tags ? ", getTags);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: "+ graphId);
+		PlatformLogger.log("Node Id: " + nodeId);
+		PlatformLogger.log("Get Tags ? " + getTags);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -70,11 +65,11 @@ public class Neo4JBoltSearchOperations {
 
 		Node node = new Node();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
@@ -86,29 +81,29 @@ public class Neo4JBoltSearchOperations {
 				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]");
 
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			for (Record record : result.list()) {
-				LOGGER.debug("'Get Node By Id' Operation Finished.", record);
+				PlatformLogger.log("'Get Node By Id' Operation Finished.", record);
 				if (null != record)
 					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 			}
-			LOGGER.debug("Node Map: ", nodeMap);
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: ", nodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 							startNodeMap, endNodeMap);
 			}
 		}
-		LOGGER.debug("Returning Node By Id: ", node);
+		PlatformLogger.log("Returning Node By Id: ", node);
 		return node;
 	}
 
@@ -126,10 +121,10 @@ public class Neo4JBoltSearchOperations {
 	 * @return the node by unique id
 	 */
 	public Node getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Node Id: ", nodeId);
-		LOGGER.debug("Get Tags ? ", getTags);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Node Id: ", nodeId);
+		PlatformLogger.log("Get Tags ? ", getTags);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -141,11 +136,11 @@ public class Neo4JBoltSearchOperations {
 
 		Node node = new Node();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
@@ -158,28 +153,28 @@ public class Neo4JBoltSearchOperations {
 				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]");
 
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			for (Record record : result.list()) {
-				LOGGER.debug("'Get Node By Unique Id' Operation Finished.", record);
+				PlatformLogger.log("'Get Node By Unique Id' Operation Finished.", record);
 				if (null != record)
 					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 			}
-			LOGGER.debug("Node Map: ", nodeMap);
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Node Map: ", nodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 							startNodeMap, endNodeMap);
 			}
 		}
-		LOGGER.debug("Returning Node By Unique Id: ", node);
+		PlatformLogger.log("Returning Node By Unique Id: ", node);
 		return node;
 	}
 
@@ -197,10 +192,10 @@ public class Neo4JBoltSearchOperations {
 	 * @return the nodes by property
 	 */
 	public List<Node> getNodesByProperty(String graphId, Property property, Boolean getTags, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Property: ", property);
-		LOGGER.debug("Get Tags ? ", getTags);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Property: ", property);
+		PlatformLogger.log("Get Tags ? ", getTags);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -212,11 +207,11 @@ public class Neo4JBoltSearchOperations {
 
 		List<Node> nodes = new ArrayList<Node>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.property.name(), property);
@@ -225,31 +220,31 @@ public class Neo4JBoltSearchOperations {
 
 			StatementResult result = session
 					.run(QueryUtil.getQuery(Neo4JOperation.GET_NODES_BY_PROPERTY, parameterMap));
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get Nodes By Property Id' Operation Finished.", record);
+					PlatformLogger.log("'Get Nodes By Property Id' Operation Finished.", record);
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			LOGGER.debug("Node Map: ", nodeMap);
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: ", nodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 							startNodeMap, endNodeMap));
 			}
 		}
-		LOGGER.debug("Returning Node By Property: ", nodes);
+		PlatformLogger.log("Returning Node By Property: ", nodes);
 		return nodes;
 	}
 
@@ -265,9 +260,9 @@ public class Neo4JBoltSearchOperations {
 	 * @return the node by unique ids
 	 */
 	public List<Node> getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Search Criteria: ", searchCriteria);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Search Criteria: ", searchCriteria);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -281,11 +276,11 @@ public class Neo4JBoltSearchOperations {
 
 		List<Node> nodes = new ArrayList<Node>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.searchCriteria.name(), searchCriteria);
@@ -294,31 +289,31 @@ public class Neo4JBoltSearchOperations {
 			String query = QueryUtil.getQuery(Neo4JOperation.GET_NODES_BY_SEARCH_CRITERIA, parameterMap);
 			Map<String, Object> params = searchCriteria.getParams();
 			StatementResult result = session.run(query, params);
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get Nodes By Search Criteria' Operation Finished.", record);
+					PlatformLogger.log("'Get Nodes By Search Criteria' Operation Finished.", record);
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			LOGGER.debug("Node Map: ", nodeMap);
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: ", nodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 							startNodeMap, endNodeMap));
 			}
 		}
-		LOGGER.debug("Returning Node By Search Criteria: ", nodes);
+		PlatformLogger.log("Returning Node By Search Criteria: ", nodes);
 		return nodes;
 	}
 
@@ -336,10 +331,10 @@ public class Neo4JBoltSearchOperations {
 	 * @return the node property
 	 */
 	public Property getNodeProperty(String graphId, String nodeId, String key, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Node Id: ", nodeId);
-		LOGGER.debug("Property (Key): ", key);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Node Id: ", nodeId);
+		PlatformLogger.log("Property (Key): ", key);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -355,11 +350,11 @@ public class Neo4JBoltSearchOperations {
 
 		Property property = new Property();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
@@ -369,7 +364,7 @@ public class Neo4JBoltSearchOperations {
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_PROPERTY, parameterMap));
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get Node Property' Operation Finished.", record);
+					PlatformLogger.log("'Get Node Property' Operation Finished.", record);
 					if (null != record && null != record.get(key)) {
 						property.setPropertyName(key);
 						property.setPropertyValue(record.get(key));
@@ -377,7 +372,7 @@ public class Neo4JBoltSearchOperations {
 				}
 			}
 		}
-		LOGGER.debug("Returning Node Property: ", property);
+		PlatformLogger.log("Returning Node Property: ", property);
 		return property;
 	}
 
@@ -391,8 +386,8 @@ public class Neo4JBoltSearchOperations {
 	 * @return the all nodes
 	 */
 	public List<Node> getAllNodes(String graphId, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -400,41 +395,41 @@ public class Neo4JBoltSearchOperations {
 
 		List<Node> nodes = new ArrayList<Node>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_ALL_NODES, parameterMap));
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get All Nodes' Operation Finished.", record);
+					PlatformLogger.log("'Get All Nodes' Operation Finished.", record);
 					if (null != record)
 						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			LOGGER.debug("Node Map: ", nodeMap);
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Node Map: ", nodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 							startNodeMap, endNodeMap));
 			}
 		}
-		LOGGER.debug("Returning All Nodes: ", nodes);
+		PlatformLogger.log("Returning All Nodes: ", nodes);
 		return nodes;
 	}
 
@@ -448,8 +443,8 @@ public class Neo4JBoltSearchOperations {
 	 * @return the all relations
 	 */
 	public List<Relation> getAllRelations(String graphId, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -457,39 +452,39 @@ public class Neo4JBoltSearchOperations {
 
 		List<Relation> relations = new ArrayList<Relation>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_ALL_RELATIONS, parameterMap));
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get All Relations' Operation Finished.", record);
+					PlatformLogger.log("'Get All Relations' Operation Finished.", record);
 					if (null != record)
 						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!relationMap.isEmpty()) {
 				for (Entry<Long, Object> entry : relationMap.entrySet())
 					relations.add(new Relation(graphId, (org.neo4j.driver.v1.types.Relationship) entry.getValue(),
 							startNodeMap, endNodeMap));
 			}
 		}
-		LOGGER.debug("Returning All Relations: ", relations);
+		PlatformLogger.log("Returning All Relations: ", relations);
 		return relations;
 	}
 
@@ -512,12 +507,12 @@ public class Neo4JBoltSearchOperations {
 	 */
 	public Property getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
 			String key, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Property (Key): ", key);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Property (Key): ", key);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -541,11 +536,11 @@ public class Neo4JBoltSearchOperations {
 
 		Property property = new Property();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -558,7 +553,7 @@ public class Neo4JBoltSearchOperations {
 					.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION_PROPERTY, parameterMap));
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get Relation Property' Operation Finished.", record);
+					PlatformLogger.log("'Get Relation Property' Operation Finished.", record);
 					if (null != record && null != record.get(key)) {
 						property.setPropertyName(key);
 						property.setPropertyValue(record.get(key));
@@ -566,14 +561,14 @@ public class Neo4JBoltSearchOperations {
 				}
 			}
 		}
-		LOGGER.debug("Returning Relation Property: ", property);
+		PlatformLogger.log("Returning Relation Property: ", property);
 		return property;
 	}
 	
 	public Relation getRelationById(String graphId, Long relationId, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Relation Id: ", relationId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Relation Id: ", relationId);
+
 		
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -585,32 +580,32 @@ public class Neo4JBoltSearchOperations {
 		
 		Relation relation = new Relation();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.identifier.name(), relationId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 			
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.GET_RELATION_BY_ID, parameterMap));
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get Relation' Operation Finished.", record);
+					PlatformLogger.log("'Get Relation' Operation Finished.", record);
 					if (null != record)
 						getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 				}
 			}
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!relationMap.isEmpty()) {
 				for (Entry<Long, Object> entry : relationMap.entrySet())
 					relation = new Relation(graphId, (org.neo4j.driver.v1.types.Relationship) entry.getValue(),
@@ -637,11 +632,11 @@ public class Neo4JBoltSearchOperations {
 	 */
 	public Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
 			Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -661,11 +656,11 @@ public class Neo4JBoltSearchOperations {
 
 		Relation relation = new Relation();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -678,27 +673,27 @@ public class Neo4JBoltSearchOperations {
 				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
 						DACErrorMessageConstants.NODE_NOT_FOUND + " | [No Relation found.]");
 
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			for (Record record : result.list()) {
-				LOGGER.debug("'Get Relation' Operation Finished.", record);
+				PlatformLogger.log("'Get Relation' Operation Finished.", record);
 				if (null != record)
 					getRecordValues(record, null, relationMap, startNodeMap, endNodeMap);
 			}
-			LOGGER.debug("Relation Map: ", relationMap);
-			LOGGER.debug("Start Node Map: ", startNodeMap);
-			LOGGER.debug("End Node Map: ", endNodeMap);
+			PlatformLogger.log("Relation Map: ", relationMap);
+			PlatformLogger.log("Start Node Map: ", startNodeMap);
+			PlatformLogger.log("End Node Map: ", endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!relationMap.isEmpty()) {
 				for (Entry<Long, Object> entry : relationMap.entrySet())
 					relation = new Relation(graphId, (org.neo4j.driver.v1.types.Relationship) entry.getValue(),
 							startNodeMap, endNodeMap);
 			}
 		}
-		LOGGER.debug("Returning Relation: ", relation);
+		PlatformLogger.log("Returning Relation: ", relation);
 		return relation;
 	}
 
@@ -719,11 +714,11 @@ public class Neo4JBoltSearchOperations {
 	 */
 	public Map<String, Object> checkCyclicLoop(String graphId, String startNodeId, String relationType,
 			String endNodeId, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -743,11 +738,11 @@ public class Neo4JBoltSearchOperations {
 
 		Map<String, Object> cyclicLoopMap = new HashMap<String, Object>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -765,7 +760,7 @@ public class Neo4JBoltSearchOperations {
 			}
 		}
 
-		LOGGER.debug("Returning Cyclic Loop Map: ", cyclicLoopMap);
+		PlatformLogger.log("Returning Cyclic Loop Map: ", cyclicLoopMap);
 		return cyclicLoopMap;
 	}
 
@@ -784,10 +779,10 @@ public class Neo4JBoltSearchOperations {
 	 */
 	public List<Map<String, Object>> executeQuery(String graphId, String query, Map<String, Object> paramMap,
 			Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Query: ", query);
-		LOGGER.debug("Param Map: ", paramMap);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Query: ", query);
+		PlatformLogger.log("Param Map: ", paramMap);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -803,11 +798,11 @@ public class Neo4JBoltSearchOperations {
 
 		List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.cypherQuery.name(), query);
@@ -817,7 +812,7 @@ public class Neo4JBoltSearchOperations {
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.EXECUTE_QUERY, parameterMap),
 					paramMap);
 			for (Record record : result.list()) {
-				LOGGER.debug("'Execute Query' Operation Finished.", record);
+				PlatformLogger.log("'Execute Query' Operation Finished.", record);
 				Map<String, Object> recordMap = record.asMap();
 				Map<String, Object> map = new HashMap<String, Object>();
 				if (null != recordMap && !recordMap.isEmpty()) {
@@ -828,7 +823,7 @@ public class Neo4JBoltSearchOperations {
 				}
 			}
 		}
-		LOGGER.debug("Returning Execute Query Result: ", resultList);
+		PlatformLogger.log("Returning Execute Query Result: ", resultList);
 		return resultList;
 	}
 
@@ -846,10 +841,10 @@ public class Neo4JBoltSearchOperations {
 	 * @return the list
 	 */
 	public List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Search Criteria: ", searchCriteria);
-		LOGGER.debug("Get Tags ? ", getTags);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Search Criteria: ", searchCriteria);
+		PlatformLogger.log("Get Tags ? ", getTags);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -861,15 +856,15 @@ public class Neo4JBoltSearchOperations {
 
 		List<Node> nodes = new ArrayList<Node>();
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			List<String> fields = searchCriteria.getFields();
 			boolean returnNode = true;
 			if (null != fields && !fields.isEmpty())
 				returnNode = false;
 			
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.searchCriteria.name(), searchCriteria);
@@ -877,19 +872,19 @@ public class Neo4JBoltSearchOperations {
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			String query = QueryUtil.getQuery(Neo4JOperation.SEARCH_NODES, parameterMap);
-			LOGGER.debug("Search Query: " + query);
+			PlatformLogger.log("Search Query: " + query);
 			Map<String, Object> params = searchCriteria.getParams();
-			LOGGER.debug("Search Params: " + params);
+			PlatformLogger.log("Search Params: " + params);
 			StatementResult result = session.run(query, params);
-			LOGGER.debug("Initializing the Result Maps.");
+			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new LinkedHashMap<Long, Object>();
 			Map<Long, Object> relationMap = new HashMap<Long, Object>();
 			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
 			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
 			if (null != result) {
-				LOGGER.debug("'Search Nodes' result: " + result);
+				PlatformLogger.log("'Search Nodes' result: " + result);
 				for (Record record : result.list()) {
-					LOGGER.debug("'Search Nodes' Operation Finished.", record);
+					PlatformLogger.log("'Search Nodes' Operation Finished.", record);
 					if (null != record) {
 						if (returnNode)
 							getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
@@ -900,19 +895,19 @@ public class Neo4JBoltSearchOperations {
 					}
 				}
 			}
-			LOGGER.debug("Node Map: " + nodeMap);
-			LOGGER.debug("Relation Map: " + relationMap);
-			LOGGER.debug("Start Node Map: " + startNodeMap);
-			LOGGER.debug("End Node Map: " + endNodeMap);
+			PlatformLogger.log("Node Map: " + nodeMap);
+			PlatformLogger.log("Relation Map: " + relationMap);
+			PlatformLogger.log("Start Node Map: " + startNodeMap);
+			PlatformLogger.log("End Node Map: " + endNodeMap);
 
-			LOGGER.debug("Initializing Node.");
+			PlatformLogger.log("Initializing Node.");
 			if (!nodeMap.isEmpty()) {
 				for (Entry<Long, Object> entry : nodeMap.entrySet())
 					nodes.add(new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
 							startNodeMap, endNodeMap));
 			}
 		}
-		LOGGER.debug("Returning Search Nodes: " + nodes);
+		PlatformLogger.log("Returning Search Nodes: " + nodes);
 		return nodes;
 	}
 
@@ -928,9 +923,9 @@ public class Neo4JBoltSearchOperations {
 	 * @return the nodes count
 	 */
 	public Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Search Criteria: ", searchCriteria);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Search Criteria: ", searchCriteria);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -942,11 +937,11 @@ public class Neo4JBoltSearchOperations {
 
 		Long count = (long) 0;
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			searchCriteria.setCountQuery(true);
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
@@ -958,13 +953,13 @@ public class Neo4JBoltSearchOperations {
 			StatementResult result = session.run(query, params);
 			if (null != result) {
 				for (Record record : result.list()) {
-					LOGGER.debug("'Get Nodes Count' Operation Finished.", record);
+					PlatformLogger.log("'Get Nodes Count' Operation Finished.", record);
 					if (null != record && null != record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT))
 						count = record.get(CypherQueryConfigurationConstants.DEFAULT_CYPHER_COUNT_OBJECT).asLong();
 				}
 			}
 		}
-		LOGGER.debug("Returning Nodes Count: ", count);
+		PlatformLogger.log("Returning Nodes Count: ", count);
 		return count;
 	}
 
@@ -980,9 +975,9 @@ public class Neo4JBoltSearchOperations {
 	 * @return the sub graph
 	 */
 	public SubGraph traverse(String graphId, Traverser traverser, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Traverser: ", traverser);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Traverser: ", traverser);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -993,7 +988,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse' Operation Failed.]");
 
 		SubGraph subGraph = traverser.traverse();
-		LOGGER.debug("Returning Sub Graph: ", subGraph);
+		PlatformLogger.log("Returning Sub Graph: ", subGraph);
 		return subGraph;
 	}
 
@@ -1009,9 +1004,9 @@ public class Neo4JBoltSearchOperations {
 	 * @return the graph
 	 */
 	public Graph traverseSubGraph(String graphId, Traverser traverser, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Traverser: ", traverser);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Traverser: ", traverser);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -1022,7 +1017,7 @@ public class Neo4JBoltSearchOperations {
 					DACErrorMessageConstants.INVALID_TRAVERSER + " | ['Traverse Sub Graph' Operation Failed.]");
 
 		Graph subGraph = traverser.getSubGraph();
-		LOGGER.debug("Returning Graph : ", subGraph);
+		PlatformLogger.log("Returning Graph : ", subGraph);
 		return subGraph;
 	}
 
@@ -1042,11 +1037,11 @@ public class Neo4JBoltSearchOperations {
 	 * @return the sub graph
 	 */
 	public Graph getSubGraph(String graphId, String startNodeId, String relationType, Integer depth, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Depth: ", depth);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Depth: ", depth);
+
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -1062,7 +1057,7 @@ public class Neo4JBoltSearchOperations {
 			traverser.toDepth(depth);
 		}
 		Graph subGraph = traverser.getSubGraph();
-		LOGGER.debug("Returning Graph : ", subGraph);
+		PlatformLogger.log("Returning Graph : ", subGraph);
 		return subGraph;
 	}
 

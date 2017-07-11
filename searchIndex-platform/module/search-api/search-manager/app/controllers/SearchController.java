@@ -1,10 +1,10 @@
 package controllers;
 
+import com.ilimi.common.dto.Request;
+
 import managers.PlaySearchManager;
 import play.libs.F.Promise;
 import play.mvc.Result;
-
-import com.ilimi.common.dto.Request;
 
 /**
  * This is the main API that accepts the search request and returns the response. 

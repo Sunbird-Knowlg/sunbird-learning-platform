@@ -3,8 +3,6 @@ package com.ilimi.graph.engine.mgr.impl;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import akka.actor.ActorRef;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -20,6 +18,8 @@ import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.Graph;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.relation.RelationHandler;
+
+import akka.actor.ActorRef;
 
 public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 

@@ -8,15 +8,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import scala.concurrent.Promise;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -30,6 +21,15 @@ import com.ilimi.graph.model.node.MetadataNode;
 import com.ilimi.graph.model.node.ValueNode;
 import com.ilimi.graph.model.relation.HasValueRelation;
 import com.ilimi.graph.model.relation.UsedBySetRelation;
+
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Promise;
 
 public class SetUpdater extends AbstractDomainObject {
 

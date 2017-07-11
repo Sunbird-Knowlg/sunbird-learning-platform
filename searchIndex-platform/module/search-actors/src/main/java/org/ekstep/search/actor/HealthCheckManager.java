@@ -10,13 +10,13 @@ import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
-import akka.actor.ActorRef;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
+
+import akka.actor.ActorRef;
 
 public class HealthCheckManager extends SearchBaseActor {
 

@@ -2,10 +2,10 @@ package com.ilimi.graph.dac.util;
 
 import java.util.Properties;
 
+import org.neo4j.graphdb.event.TransactionData;
+
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
-
-import org.neo4j.graphdb.event.TransactionData;
 
 public class KafkaUtils {
 	

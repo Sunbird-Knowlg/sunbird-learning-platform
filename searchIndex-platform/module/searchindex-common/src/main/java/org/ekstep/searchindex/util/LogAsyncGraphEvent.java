@@ -8,8 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.ilimi.common.logger.PlatformLogger;
-
 public class LogAsyncGraphEvent {
 
 	private static final Logger graphEventLogger = LogManager.getLogger("GraphEventLogger");

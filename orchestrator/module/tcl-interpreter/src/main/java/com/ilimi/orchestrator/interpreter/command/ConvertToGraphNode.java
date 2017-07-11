@@ -9,13 +9,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.pkg.java.ReflectObject;
-
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -24,6 +17,13 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 import com.ilimi.orchestrator.interpreter.ICommand;
+
+import tcl.lang.Command;
+import tcl.lang.Interp;
+import tcl.lang.TclException;
+import tcl.lang.TclNumArgsException;
+import tcl.lang.TclObject;
+import tcl.pkg.java.ReflectObject;
 
 public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, Command {
 

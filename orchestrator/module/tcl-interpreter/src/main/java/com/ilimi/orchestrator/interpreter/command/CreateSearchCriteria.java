@@ -8,13 +8,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import tcl.lang.Command;
-import tcl.lang.Interp;
-import tcl.lang.TclException;
-import tcl.lang.TclNumArgsException;
-import tcl.lang.TclObject;
-import tcl.pkg.java.ReflectObject;
-
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.RelationCriterion;
@@ -25,6 +18,13 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.orchestrator.interpreter.ICommand;
+
+import tcl.lang.Command;
+import tcl.lang.Interp;
+import tcl.lang.TclException;
+import tcl.lang.TclNumArgsException;
+import tcl.lang.TclObject;
+import tcl.pkg.java.ReflectObject;
 
 public class CreateSearchCriteria implements ICommand, Command {
 

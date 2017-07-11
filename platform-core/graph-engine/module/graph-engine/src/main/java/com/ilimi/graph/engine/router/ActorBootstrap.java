@@ -8,22 +8,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import akka.actor.ActorRef;
-import akka.actor.ActorSelection;
-import akka.actor.ActorSystem;
-import akka.actor.Address;
-import akka.actor.AddressFromURIString;
-import akka.actor.Props;
-import akka.remote.routing.RemoteRouterConfig;
-import akka.routing.RoundRobinPool;
-import akka.routing.SmallestMailboxPool;
 
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
@@ -41,6 +29,16 @@ import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
 import com.ilimi.graph.engine.mgr.impl.SearchManagerImpl;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+
+import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
+import akka.actor.ActorSystem;
+import akka.actor.Address;
+import akka.actor.AddressFromURIString;
+import akka.actor.Props;
+import akka.remote.routing.RemoteRouterConfig;
+import akka.routing.RoundRobinPool;
+import akka.routing.SmallestMailboxPool;
 
 public class ActorBootstrap {
 

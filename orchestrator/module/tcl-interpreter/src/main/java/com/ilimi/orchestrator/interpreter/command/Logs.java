@@ -1,13 +1,13 @@
 package com.ilimi.orchestrator.interpreter.command;
 
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.orchestrator.interpreter.ICommand;
+
 import tcl.lang.Command;
 import tcl.lang.Interp;
 import tcl.lang.TclException;
 import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
-
-import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.orchestrator.interpreter.ICommand;
 
 public class Logs extends BaseSystemCommand implements ICommand, Command {
 

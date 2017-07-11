@@ -1,5 +1,18 @@
 package org.ekstep.language.util;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+
+import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.common.logger.PlatformLogger;
+
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.config.HttpClientConfig;
@@ -15,22 +28,8 @@ import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.IndicesExists;
 import io.searchbox.indices.mapping.PutMapping;
 import io.searchbox.indices.settings.GetSettings;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-
-import com.google.gson.internal.LinkedTreeMap;
-import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class ElasticSearchUtil acts as a tool and a wrapper to work with an

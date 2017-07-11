@@ -1,9 +1,9 @@
 
 package org.ekstep.ecml.slugs;
 
-import junit.framework.TestCase;
-
 import org.ekstep.common.slugs.Slug;
+
+import junit.framework.TestCase;
 
 /**
  *

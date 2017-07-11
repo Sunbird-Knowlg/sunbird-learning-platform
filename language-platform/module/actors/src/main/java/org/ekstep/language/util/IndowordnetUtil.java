@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.Util.HibernateSessionFactory;
 import org.ekstep.language.Util.IndowordnetConstants;
 import org.ekstep.language.common.LanguageMap;
@@ -23,8 +21,6 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
-import akka.actor.ActorRef;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
@@ -33,6 +29,8 @@ import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.model.node.DefinitionDTO;
+
+import akka.actor.ActorRef;
 
 /**
  * The Class IndowordnetUtil provides utilities to load words form a indoword
@@ -60,10 +58,6 @@ public class IndowordnetUtil {
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
-
-	/** The logger. */
-	// private EmailService emailService = new EmailService();
-	private static Logger LOGGER = LogManager.getLogger(IndowordnetUtil.class.getName());
 
 	/**
 	 * Queries words from the Indowordnet DB for a given language, processes the
@@ -138,7 +132,7 @@ public class IndowordnetUtil {
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							LOGGER.error(e.getMessage(), e);
+							PlatformLogger.log(e.getMessage(), null, e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -157,7 +151,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					LOGGER.error(e.getMessage(), e);
+					PlatformLogger.log(e.getMessage(), null, e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {

@@ -6,15 +6,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnFailure;
-import akka.dispatch.OnSuccess;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -29,6 +20,13 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
+
+import akka.actor.ActorRef;
+import akka.actor.UntypedActor;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnFailure;
+import akka.dispatch.OnSuccess;
+import scala.concurrent.Future;
 
 public abstract class BaseGraphManager extends UntypedActor {
 
