@@ -41,11 +41,6 @@
 			<outputDirectory>config</outputDirectory>
 			<filtered>true</filtered>
 		</file>
-		<file>
-			<source>${basedir}/src/main/config/local.object-lifecycle.properties</source>
-			<outputDirectory>config</outputDirectory>
-			<filtered>true</filtered>
-		</file>
 	</files>
 	<dependencySets>
 		<dependencySet>

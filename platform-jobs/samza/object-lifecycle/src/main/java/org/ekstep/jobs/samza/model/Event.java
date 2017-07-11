@@ -9,7 +9,7 @@ public class Event {
 	private long ets;
 	private String mid;
 	private String ver;
-	private String channel;
+	private String channel = "";
 	private Map<String, String> pdata = new HashMap<String, String>();
 	private Map<String, Object> edata = new HashMap<String, Object>();
 
