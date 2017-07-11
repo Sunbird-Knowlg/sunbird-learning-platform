@@ -3,10 +3,9 @@ package com.ilimi.graph.dac.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ekstep.graph.service.request.validator.Neo4JBoltDataVersionKeyValidator;
+import org.ekstep.graph.service.request.validator.Neo4jBoltGenericValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.junit.Assert;
-import org.junit.Test;
 import org.neo4j.driver.internal.InternalNode;
 import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
@@ -26,7 +25,7 @@ public class Neo4jBoltDataVersionKeyValidatorTest {
 		Map<String, Object> nodeMeta = getNeo4jNodeProperty("en", "44347");
 		System.out.println(nodeMeta);
 		Node node =new Node("en", nodeMeta);
-		Neo4JBoltDataVersionKeyValidator validator = new Neo4JBoltDataVersionKeyValidator();
+		Neo4jBoltGenericValidator validator = new Neo4jBoltGenericValidator();
 		Assert.assertEquals(true, validator.validateUpdateOperation("en", node));
 		
 		Map<String, Object> nodeMeta2 = getNeo4jNodeProperty("domain", "org.ekstep.nov23.story.2");

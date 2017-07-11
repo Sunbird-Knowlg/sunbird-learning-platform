@@ -512,6 +512,8 @@ public class DataNode extends AbstractNode {
 	                        if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
 	                            setNodeId(identifier);
 	                            setVersionKey(versionKey);
+	                            ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+	                            loadToCache(cacheRouter, req);
 	                        } else {
 	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
 	                        			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
@@ -553,6 +555,8 @@ public class DataNode extends AbstractNode {
 	                        if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
 	                            setNodeId(identifier);
 	                            setVersionKey(versionKey);
+	                            ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+	                            loadToCache(cacheRouter, req);
 	                        } else {
 	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
 	                        			"Error updating node in the graph", ResponseCode.SERVER_ERROR);
@@ -807,6 +811,18 @@ public class DataNode extends AbstractNode {
 			}
 		}
 	}
+
+    @SuppressWarnings("unchecked")
+	private void loadToCache(ActorRef cacheRouter, Request req) {
+        Request cacheReq = new Request(req);
+        cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+        cacheReq.setOperation("saveNodeProperty");
+        cacheReq.put(GraphDACParams.graph_id.name(), getGraphId());
+        cacheReq.put(GraphDACParams.node_id.name(), getNodeId());
+        cacheReq.put(GraphDACParams.propertyName.name(), GraphDACParams.versionKey.name());
+        cacheReq.put(GraphDACParams.value.name(), getVersionKey());
+        cacheRouter.tell(cacheReq, manager.getSelf());
+    }
 
 	private boolean checkRangeValue(List<Object> range, Object value) {
 		boolean found = false;

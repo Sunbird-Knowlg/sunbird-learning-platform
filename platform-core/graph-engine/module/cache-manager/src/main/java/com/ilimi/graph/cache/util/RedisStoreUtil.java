@@ -10,9 +10,6 @@ import redis.clients.jedis.Jedis;
 
 public class RedisStoreUtil {
 
-	public static String get(String key) {
-		return null;
-	}
 
 	public static void saveNodeProperty(String graphId, String objectId, String nodeProperty, String propValue) {
 
@@ -21,7 +18,7 @@ public class RedisStoreUtil {
 			String redisKey = RedisKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
 			jedis.set(redisKey, propValue);
 		} catch (Exception e) {
-			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name(), e.getMessage());
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
 			returnConnection(jedis);
 		}
@@ -35,7 +32,7 @@ public class RedisStoreUtil {
 			String value = jedis.get(redisKey);
 			return value;
 		} catch (Exception e) {
-			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name(), e.getMessage());
+			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
 		} finally {
 			returnConnection(jedis);
 		}

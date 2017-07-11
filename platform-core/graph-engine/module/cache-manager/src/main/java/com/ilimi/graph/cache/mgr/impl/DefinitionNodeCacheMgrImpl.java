@@ -14,7 +14,7 @@ import com.ilimi.graph.cache.mgr.IDefinitionNodeCacheMgr;
 import com.ilimi.graph.cache.util.RedisKeyGenerator;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
-import com.ilimi.graph.common.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import redis.clients.jedis.Jedis;
 

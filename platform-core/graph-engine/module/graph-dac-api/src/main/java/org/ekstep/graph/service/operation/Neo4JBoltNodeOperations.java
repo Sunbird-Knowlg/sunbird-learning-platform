@@ -13,7 +13,7 @@ import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.Neo4JOperation;
 import org.ekstep.graph.service.request.validator.Neo4JBoltAuthorizationValidator;
-import org.ekstep.graph.service.request.validator.Neo4JBoltDataVersionKeyValidator;
+import org.ekstep.graph.service.request.validator.Neo4jBoltGenericValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.QueryUtil;
 import org.neo4j.driver.v1.Driver;
@@ -40,7 +40,7 @@ public class Neo4JBoltNodeOperations {
 	private static Logger LOGGER = LogManager.getLogger(Neo4JBoltNodeOperations.class.getName());
 
 	private final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
-	private Neo4JBoltDataVersionKeyValidator versionValidator = new Neo4JBoltDataVersionKeyValidator();
+	private Neo4jBoltGenericValidator versionValidator = new Neo4jBoltGenericValidator();
 	private Neo4JBoltAuthorizationValidator authorizationValidator = new Neo4JBoltAuthorizationValidator();
 
 	@SuppressWarnings("unchecked")

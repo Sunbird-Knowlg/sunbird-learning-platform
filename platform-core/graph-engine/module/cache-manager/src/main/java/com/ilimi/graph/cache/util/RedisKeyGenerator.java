@@ -35,7 +35,7 @@ public class RedisKeyGenerator {
     }
 
     public static String getNodePropertyKey(String graphId, String objectId, String propertyName) {
-    	return graphId + KEY_SEPARATOR + RedisKeysEnum.DEF_NODE + KEY_SEPARATOR + removeSpaces(objectId) + KEY_SEPARATOR + removeSpaces(propertyName);
+    	return graphId + KEY_SEPARATOR + removeSpaces(objectId) + KEY_SEPARATOR + removeSpaces(propertyName);
     }
     
     public static String getAllGraphKeysPattern(String graphId) {
