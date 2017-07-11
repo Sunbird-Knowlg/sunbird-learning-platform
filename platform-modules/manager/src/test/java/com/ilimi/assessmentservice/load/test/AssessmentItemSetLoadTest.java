@@ -29,7 +29,6 @@ public class AssessmentItemSetLoadTest /* extends AbstractTestNGSpringContextTes
 	
 	@Autowired
 	protected WebApplicationContext context;
-	private static Logger LOGGER = LogManager.getLogger(AssessmentItemSetLoadTest.class.getName());
 	private ResultActions actions; 
 	public static final int IC = 300;
 	public static final int PS = 300;

@@ -12,12 +12,14 @@ import java.util.zip.ZipInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
+
 /**
  * @author Rajiv Ranjan
  */
 public class UnzipUtility {
 
-	private static Logger LOGGER = LogManager.getLogger(UnzipUtility.class.getName());
 	/**
 	 * Size of the buffer to read/write data
 	 */
@@ -74,7 +76,7 @@ public class UnzipUtility {
 			}
 			zipIn.close();
 		} catch (Exception e) {
-			LOGGER.error("Error! While Unzipping the File.", e);
+			PlatformLogger.log("Error! While Unzipping the File.", e.getMessage(),LoggerEnum.ERROR.name());
 		} finally {
 			zipIn.close();
 		}
