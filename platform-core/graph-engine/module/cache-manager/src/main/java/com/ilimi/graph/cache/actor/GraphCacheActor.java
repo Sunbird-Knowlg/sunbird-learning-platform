@@ -15,7 +15,7 @@ import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SetCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.TagCacheMgrImpl;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
-import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.common.enums.GraphDACParams;
 
 import akka.actor.ActorRef;
 
