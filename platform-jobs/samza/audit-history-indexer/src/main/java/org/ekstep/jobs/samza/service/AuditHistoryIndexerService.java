@@ -29,14 +29,14 @@ import com.ilimi.graph.common.DateUtils;
  * 
  * @see ISamzaService
  */
-public class AuditHistoryService implements ISamzaService {
+public class AuditHistoryIndexerService implements ISamzaService {
 
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private ElasticSearchUtil esUtil = null;
 
 	/** The constructor */
-	public AuditHistoryService() {
+	public AuditHistoryIndexerService() {
 		super();
 	}
 
