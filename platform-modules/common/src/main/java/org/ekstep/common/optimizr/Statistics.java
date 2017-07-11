@@ -7,7 +7,8 @@ package org.ekstep.common.optimizr;
 import java.text.DecimalFormat;
 
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  *
@@ -15,7 +16,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class Statistics {
 
-	private static Logger LOGGER = LogManager.getLogger(Statistics.class.getName());
     private static DecimalFormat decimalFormat = new DecimalFormat("#0.00");
     private int audioAssets = 0;
     private int videoAssets = 0;
@@ -33,11 +33,11 @@ public class Statistics {
 
     public void print() {
         System.out.println("---- Summary ----");
-        LOGGER.debug("    Compressed Zip: before - " + toMB(rawSize) + ", after - " + toMB(redSize) + " %n");
-        LOGGER.debug("    Audio Files: " +audioAssets + ", before - " + toMB(audioSizeRaw) + ", after - " + toMB(audioSizeRed) + ", %n");
-        LOGGER.debug("    Audio Files: " +imageAssets + ", before - " + toMB(imageSizeRaw) + ", after - " + toMB(imageSizeRed) + ", %n");
-        LOGGER.debug("    Video Files: " +videoAssets + ", before - " + toMB(videoSizeRaw) + ", after - " + toMB(videoSizeRed) + ", %n");
-        LOGGER.debug("    Optimized in" + (end - begin) + " ms %n");
+        PlatformLogger.log("    Compressed Zip: before - " + toMB(rawSize) + ", after - " + toMB(redSize) + " %n");
+        PlatformLogger.log("    Audio Files: " +audioAssets + ", before - " + toMB(audioSizeRaw) + ", after - " + toMB(audioSizeRed) + ", %n");
+        PlatformLogger.log("    Audio Files: " +imageAssets + ", before - " + toMB(imageSizeRaw) + ", after - " + toMB(imageSizeRed) + ", %n");
+        PlatformLogger.log("    Video Files: " +videoAssets + ", before - " + toMB(videoSizeRaw) + ", after - " + toMB(videoSizeRed) + ", %n");
+        PlatformLogger.log("    Optimized in" + (end - begin) + " ms %n");
         System.out.printf("    Optimization Ratio: %.2f%% of original %n", (redSize * 100.0 / rawSize));
         System.out.printf("    Compressed Zip: before - %s, after - %s %n", toMB(rawSize), toMB(redSize));
         System.out.printf("    Audio Files: %d, before - %s, after - %s, %n", audioAssets, toMB(audioSizeRaw), toMB(audioSizeRed));

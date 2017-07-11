@@ -12,11 +12,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
+
 import net.sf.junidecode.Junidecode;
 
 public class Slug {
 
-    private static Logger LOGGER = LogManager.getLogger(Slug.class.getName());
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-\\.]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     private static final Pattern DUPDASH = Pattern.compile("-+");
@@ -38,7 +40,7 @@ public class Slug {
                 return newFile;
             }
         } catch (Exception e) {
-            LOGGER.error("Error creating slug of the file: " + f, e);
+            PlatformLogger.log("Error creating slug of the file: " + f, e.getMessage(), LoggerEnum.ERROR.name());
         }
         return f;
     }
