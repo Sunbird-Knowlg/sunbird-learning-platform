@@ -208,7 +208,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public void handleException(Throwable e, ActorRef parent) {
-        PlatformLogger.log("Exception occured in class:"+ e.getClass().getName(), null, e, LoggerEnum.ERROR.name());
+        PlatformLogger.log("Exception occured in class:"+ e.getClass().getName(), null, e);
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

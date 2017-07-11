@@ -48,7 +48,7 @@ public class PlatformLogger {
 	/**
 	 * To log exception with message and data.
 	 */
-	public static void log(String message, Object data, Exception e) {
+	public static void log(String message, Object data, Throwable e) {
 		backendLog(message,  data, e, LoggerEnum.ERROR.name());
 	}
 
@@ -67,15 +67,15 @@ public class PlatformLogger {
 		rootLogger.debug(getBELogEvent(LoggerEnum.DEBUG.name(), message, data));
 	}
 
-	private static void error(String message,  Object data, Exception exception) {
+	private static void error(String message,  Object data, Throwable exception) {
 		rootLogger.error(getBELogEvent(LoggerEnum.ERROR.name(), message, data, exception));
 	}
 
-	private static void warn(String message, Object data, Exception exception) {
+	private static void warn(String message, Object data, Throwable exception) {
 		rootLogger.warn(getBELogEvent(LoggerEnum.WARN.name(), message, data, exception));
 	}
 
-	private static void backendLog(String message,  Object data, Exception e, String logLevel) {
+	private static void backendLog(String message,  Object data, Throwable e, String logLevel) {
 		if (StringUtils.isNotBlank(logLevel)) {
 			switch (logLevel) {
 			case "INFO":
@@ -99,12 +99,12 @@ public class PlatformLogger {
 		return logData;
 	}
 
-	private static String getBELogEvent(String logLevel, String message, Object data, Exception e) {
+	private static String getBELogEvent(String logLevel, String message, Object data, Throwable e) {
 		String logData = getBELog(logLevel, message, data, e);
 		return logData;
 	}
 
-	private static String getBELog(String logLevel, String message, Object data, Exception exception) {
+	private static String getBELog(String logLevel, String message, Object data, Throwable exception) {
 		String mid = "LP." + System.currentTimeMillis() + "." + UUID.randomUUID();
 		TelemetryBEEvent te = new TelemetryBEEvent();
 		long unixTime = System.currentTimeMillis();
