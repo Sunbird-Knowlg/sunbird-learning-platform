@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
+import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -36,7 +37,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 	}
 
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics) {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) {
 
 		Object index = message.get("index");
 		Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());

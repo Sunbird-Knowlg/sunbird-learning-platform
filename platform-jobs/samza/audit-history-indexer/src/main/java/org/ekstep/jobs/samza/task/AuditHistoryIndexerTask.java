@@ -30,7 +30,7 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
-			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics);
+			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

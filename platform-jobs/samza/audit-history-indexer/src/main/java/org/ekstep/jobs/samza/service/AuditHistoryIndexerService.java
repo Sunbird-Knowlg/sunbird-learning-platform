@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
+import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -61,7 +62,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics) {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) {
 		Object audit = message.get("audit");
 		Boolean shouldAudit = BooleanUtils.toBoolean(null == audit ? "true" : audit.toString());
 		if (message != null && message.get("operationType") != null && null == message.get("syncMessage")
