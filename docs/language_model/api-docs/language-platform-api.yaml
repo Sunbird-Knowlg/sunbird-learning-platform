@@ -8,6 +8,8 @@ info:
   license:
     name: EkStep License
     url: www.ektep.in
+basePath: /language
+host: api.ekstep.in
 tags:
   - name: Word
     description: APIs for CRUD and search of word objects and to flag word object
