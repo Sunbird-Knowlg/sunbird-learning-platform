@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.controller;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -212,16 +213,19 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id whose hierarchy needs to be fetched
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/getbyid/{id:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/getById/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> getById(@PathVariable(value = "id") String contentId,
+	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
+			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "mode", required = false) String mode) {
-		String apiId = "content.getById";
+		String apiId = "ekstep.content.find";
 		Response response;
-		PlatformLogger.log("Content GetById | Content Id : " + contentId);
+		PlatformLogger.log("Content Find | Content Id : " + contentId);
 		try {
 			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]", contentId);
-			response = contentManager.getById(graphId, contentId, mode);
+			if (null != fields && fields.length > 0)
+				{}
+			response = contentManager.find(graphId, contentId, mode, Arrays.asList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

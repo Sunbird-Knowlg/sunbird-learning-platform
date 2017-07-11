@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.mgr;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import com.ilimi.common.dto.Request;
@@ -178,9 +179,6 @@ public interface IContentManager {
 	 * This method returns the content.
 	 * 
 	 * A subclass must provide an implementation of this method.
-	 *
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
 	 * @param contentId
 	 *            the content <code>identifier</code> whose hierarchy needs to
 	 *            be returned
@@ -188,10 +186,14 @@ public interface IContentManager {
 	 *            if edit, returns the content's Draft version, else
 	 *            returns the content's Live version. If Live version
 	 *            does not exist, Draft version is returned
+	 * @param fields TODO
+	 * @param taxonomyId
+	 *            the <code>graph id</code> of the content.
+	 *
 	 * @return the response contains the <code>content</code>
 	 *         in its Result Set.
 	 */
-	Response getById(String graphId, String contentId, String mode);
+	Response find(String graphId, String contentId, String mode, List<String> fields);
 	
 	Response createContent(Map<String, Object> map);
 	

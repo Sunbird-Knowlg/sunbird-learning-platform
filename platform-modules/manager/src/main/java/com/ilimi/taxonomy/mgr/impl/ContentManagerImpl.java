@@ -53,6 +53,7 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.taxonomy.common.LanguageCodeMap;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
@@ -78,7 +79,6 @@ import scala.concurrent.Future;
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The logger. */
-	
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -141,7 +141,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	public Response upload(String contentId, String taxonomyId, File uploadedFile) {
 		PlatformLogger.log("Content ID: " + contentId);
 		PlatformLogger.log("Graph ID: " + taxonomyId);
-		PlatformLogger.log("Uploaded File: " , uploadedFile.getAbsolutePath());
+		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
@@ -164,7 +164,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 
-		PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+		PlatformLogger
+				.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 		Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
 		if (null != uploadedFile && uploadedFile.exists()) {
@@ -172,17 +173,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				PlatformLogger.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId);
 				uploadedFile.delete();
 			} catch (Exception e) {
-				PlatformLogger.log("Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
+				PlatformLogger.log(
+						"Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
 						e.getMessage(), e);
 			}
 		}
 
 		PlatformLogger.log("Returning Response.");
-		if(StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")){
-			 String identifier = (String)res.getResult().get("node_id");
-			 String new_identifier = identifier.replace(".img", "");
-			 PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
-			 res.getResult().replace("node_id", identifier, new_identifier);
+		if (StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")) {
+			String identifier = (String) res.getResult().get("node_id");
+			String new_identifier = identifier.replace(".img", "");
+			PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
+			res.getResult().replace("node_id", identifier, new_identifier);
 		}
 		return res;
 	}
@@ -203,7 +205,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		String bundleFileName = (String) request.get("file_name");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
 		PlatformLogger.log("Bundle File Name: " + bundleFileName);
-		PlatformLogger.log("Total No. of Contents: " , contentIds.size());
+		PlatformLogger.log("Total No. of Contents: ", contentIds.size());
 		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
 					"ECAR file name should not be blank");
@@ -291,8 +293,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				requests.add(req);
 			}
 		}
-		Response response = getResponse(requests, GraphDACParams.node_list.name(),
-				ContentAPIParams.contents.name());
+		Response response = getResponse(requests, GraphDACParams.node_list.name(), ContentAPIParams.contents.name());
 		return response;
 	}
 
@@ -366,8 +367,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		return response;
 	}
-	
-	
+
 	public Response preSignedURL(String taxonomyId, String contentId, String fileName) {
 		// TODO: Check content exist or not.
 		Response response = new Response();
@@ -479,15 +479,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		} catch (ServerException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), "Error occured during content publish");
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+					"Error occured during content publish");
 		}
 
 		PlatformLogger.log("Returning 'Response' Object.");
-		if(StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")){
-			 String identifier = (String)response.getResult().get("node_id");
-			 String new_identifier = identifier.replace(".img", "");
-			 PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
-			 response.getResult().replace("node_id", identifier, new_identifier);
+		if (StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")) {
+			String identifier = (String) response.getResult().get("node_id");
+			String new_identifier = identifier.replace(".img", "");
+			PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
+			response.getResult().replace("node_id", identifier, new_identifier);
 		}
 		return response;
 	}
@@ -544,8 +545,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public Response getById(String graphId, String contentId, String mode) {
+	public Response find(String graphId, String contentId, String mode, List<String> fields) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Content Id: ", contentId);
 		Response response = new Response();
@@ -554,7 +556,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		PlatformLogger.log("Fetching the Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
+		if (null != fields && fields.contains(TaxonomyAPIParams.body.name()))
+			contentMap.put(TaxonomyAPIParams.body.name(), getContentBody(contentId));
+		List<String> languages = (List<String>) node.getMetadata().get(TaxonomyAPIParams.language.name());
+		
+		// Get all the languages for a given Content
+		List<String> languageCodes = new ArrayList<String>();
+		for (String language : languages)
+			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
+		if (null != languageCodes && languageCodes.size() == 1)
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
+		contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
 
 		response.put("content", contentMap);
 		response.setParams(getSucessStatus());
@@ -570,7 +583,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition, String mode) {
+	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
+			String mode) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 		if (null != children && !children.isEmpty()) {
@@ -579,7 +593,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
 				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
 				childMap.put("index", dto.getIndex());
-				Map<String,Object> childData = contentCleanUp(childMap);
+				Map<String, Object> childData = contentCleanUp(childMap);
 				childList.add(childData);
 			}
 			contentMap.put("children", childList);
@@ -589,14 +603,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return contentMap;
 	}
 
-	private Map<String, Object> contentCleanUp(Map<String,Object> map){
-		if(map.containsKey("identifier")){
-			String identifier = (String)map.get("identifier");
+	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
+		if (map.containsKey("identifier")) {
+			String identifier = (String) map.get("identifier");
 			PlatformLogger.log("Checking if identifier ends with .img" + identifier);
-			if(StringUtils.endsWithIgnoreCase(identifier, ".img")){
-				 String new_identifier = identifier.replace(".img", "");
-				 PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
-				 map.replace("identifier", identifier, new_identifier);
+			if (StringUtils.endsWithIgnoreCase(identifier, ".img")) {
+				String new_identifier = identifier.replace(".img", "");
+				PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
+				map.replace("identifier", identifier, new_identifier);
 			}
 		}
 		return map;
@@ -734,13 +748,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
 					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 				node = createContentImageNode(taxonomyId, contentImageId, node);
-		} else{
+		} else {
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
 			PlatformLogger.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
 		}
 		// Assigning the original 'identifier' to the Node
-		//node.setIdentifier(contentId);
+		// node.setIdentifier(contentId);
 
 		PlatformLogger.log("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
@@ -766,7 +780,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							+ "]");
 		Response resp = getDataNode(taxonomyId, contentImageId);
 		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
-		PlatformLogger.log("Returning Content Image Node Identifier"+ nodeData.getIdentifier());
+		PlatformLogger.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
 		return nodeData;
 	}
 
@@ -810,7 +824,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.plugin-archive", mimeType.toString())) {
 				Object code = map.get("code");
 				if (null == code || StringUtils.isBlank(code.toString()))
-					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins", ResponseCode.CLIENT_ERROR);
+					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins",
+							ResponseCode.CLIENT_ERROR);
 				map.put("identifier", map.get("code"));
 			}
 
@@ -834,7 +849,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				return ERROR("ERR_CONTENT_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR);
 			}
 		} else {
-			return ERROR("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", "Mime Type cannot be empty", ResponseCode.CLIENT_ERROR);
+			return ERROR("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", "Mime Type cannot be empty",
+					ResponseCode.CLIENT_ERROR);
 		}
 	}
 
@@ -890,7 +906,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (null != inputStatus) {
 			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus.toString());
 			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus.toString());
-			if ( (updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
+			if ((updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
 				map.put("lastSubmittedOn", DateUtils.format(new Date()));
 			if (!StringUtils.equalsIgnoreCase(status, inputStatus.toString()))
 				logEvent = true;
@@ -915,7 +931,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					Response bodyResponse = getContentProperties(contentId, externalPropsList);
 					checkError = checkError(bodyResponse);
 					if (!checkError) {
-						Map<String, Object> extValues = (Map<String, Object>) bodyResponse.get(ContentStoreParams.values.name());
+						Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+								.get(ContentStoreParams.values.name());
 						if (null != extValues && !extValues.isEmpty()) {
 							updateContentProperties(contentImageId, extValues);
 						}

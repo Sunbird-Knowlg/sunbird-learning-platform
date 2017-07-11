@@ -212,7 +212,7 @@ public class ContentV2Controller extends BaseController {
 		PlatformLogger.log("Content GetById | Content Id : " + contentId);
 		try {
 			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
-			response = contentManager.getById(graphId, contentId, mode);
+			response = contentManager.find(graphId, contentId, mode, null);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
