@@ -22,7 +22,7 @@ import com.ilimi.common.dto.TelemetryBEEvent;
 public class PlatformLogger {
 
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static Logger rootLogger = (Logger) LogManager.getLogger();
+	private static Logger rootLogger = (Logger) LogManager.getLogger("DefaultPlatformLogger");
 
 	/**
 	 * To log only message.

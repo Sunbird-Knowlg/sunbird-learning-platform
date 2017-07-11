@@ -4,7 +4,7 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="SearchLogAppender" fileName="/data/logs/search_service.log"
+		<RollingFile name="DefaultLogAppender" fileName="/data/logs/search_service.log"
 			filePattern="/data/logs/search_service-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
@@ -58,8 +58,8 @@
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
-		<Root level="INFO">
-			<AppenderRef ref="SearchLogAppender" />
-		</Root>
+		<Logger name="DefaultPlatformLogger" level="INFO" additivity="false">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Logger>
 	</Loggers>
 </Configuration>
