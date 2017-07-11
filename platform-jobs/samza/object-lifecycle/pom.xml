@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>com.ilimi</groupId>
-		<artifactId>platform-jobs</artifactId>
+		<groupId>org.ekstep</groupId>
+		<artifactId>samza</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 	<properties>
@@ -12,23 +12,14 @@
 		<scala.version>2.11</scala.version>
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
-	<groupId>org.ekstep</groupId>
-	<artifactId>samza</artifactId>
-	<packaging>pom</packaging>
-	<name>EkStep Platform Samza Jobs</name>
-	<description>This Project Contains all the backend jobs, they may be the Pipeline Consumers.</description>
-	<modules>
-		<module>common</module>
-		<module>audit-history-indexer</module>
-		<module>composite-search-indexer</module>
-		<module>content-enrichment</module>
-		<module>publish-pipeline</module>
-		<module>upload-content</module>
-		<module>image-tagging</module>
-		<module>object-lifecycle</module>
-		<module>word-enrichment</module>
-		<module>distribution</module>
-  	</modules>
+	<artifactId>object-lifecycle</artifactId>
+	<dependencies>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>samza-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>
@@ -39,6 +30,24 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<!-- plugin to build the tar.gz file filled with examples -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/src.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
