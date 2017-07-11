@@ -3,6 +3,7 @@ package com.ilimi.graph.common.mgr;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -54,5 +55,13 @@ public class Configuration {
     public static void registerNewGraph(String graphId){
     	graphIds.add(graphId);
     }
+    
+    public static void loadProperties(Map<String, Object> properties) {
+    	props.putAll(properties);
+	}
+	
+	public static void loadProperties(Properties properties) {
+		props.putAll(properties);
+	}
 
 }

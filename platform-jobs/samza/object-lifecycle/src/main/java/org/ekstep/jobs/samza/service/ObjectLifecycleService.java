@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -19,6 +20,7 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
@@ -33,6 +35,11 @@ public class ObjectLifecycleService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
+		Map<String, Object> props = new HashMap<String, Object>();
+		for (Entry<String, String> entry : config.entrySet()) {
+			props.put(entry.getKey(), entry.getValue());
+		}
+		Configuration.loadProperties(props);
 		digest = MessageDigest.getInstance("MD5");
 		LearningRequestRouterPool.init();
 	}

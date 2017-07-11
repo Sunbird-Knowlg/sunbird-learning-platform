@@ -41,6 +41,11 @@
 			<outputDirectory>config</outputDirectory>
 			<filtered>true</filtered>
 		</file>
+		<file>
+			<source>${basedir}/src/main/config/local.object-lifecycle.properties</source>
+			<outputDirectory>config</outputDirectory>
+			<filtered>true</filtered>
+		</file>
 	</files>
 	<dependencySets>
 		<dependencySet>
@@ -55,7 +60,7 @@
 			<outputDirectory>lib</outputDirectory>
 			<includes>
 				<include>org.apache.samza:samza-api</include>
-				<include>org.ekstep:audit-history-job</include>
+				<include>org.ekstep:object-lifecycle</include>
 				<include>org.apache.samza:samza-core_2.11</include>
 				<include>org.apache.samza:samza-kafka_2.11</include>
 				<include>org.apache.samza:samza-yarn_2.11</include>
