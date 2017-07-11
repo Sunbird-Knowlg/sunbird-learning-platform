@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.searchindex.processor.IMessageProcessor;
 import org.ekstep.searchindex.util.ConsumerUtil;
 
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
+
 public class ConsumerThread implements Runnable {
     private KafkaStream<byte[], byte[]> m_stream;
     private int m_threadNumber;
@@ -37,7 +40,7 @@ public class ConsumerThread implements Runnable {
             }
             System.out.println("Shutting down Thread: " + m_threadNumber);
         } catch (Exception e) {
-            LOGGER.log("Error process message", e.getMessage, LoggerEnum.ERROR.name);
+            PlatformLogger.log("Error process message", e.getMessage(), LoggerEnum.ERROR.name());
         } finally {
             
         }
