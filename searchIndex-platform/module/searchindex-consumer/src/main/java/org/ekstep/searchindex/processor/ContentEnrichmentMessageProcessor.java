@@ -85,7 +85,7 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 					processMessage(message);
 			}
 		} catch (Exception e) {
-			e.printStacktrace();
+			e.printStackTrace();
 		}
 	}
 
