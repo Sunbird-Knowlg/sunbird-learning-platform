@@ -208,7 +208,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public void handleException(Throwable e, ActorRef parent) {
-        PlatformLogger.log("Exception", e.getMessage(), LoggerEnum.ERROR.name());
+        PlatformLogger.log("Exception occured in class:"+ e.getClass().getName(), null, e, LoggerEnum.ERROR.name());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());
@@ -218,7 +218,6 @@ public abstract class BaseGraphManager extends UntypedActor {
         } else {
             params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        PlatformLogger.log("Exception occured in class :"+ e.getClass().getName(), e.getMessage(), LoggerEnum.ERROR.name());
         params.setErrmsg(setErrMessage(e));
         response.setParams(params);
         setResponseCode(response, e);

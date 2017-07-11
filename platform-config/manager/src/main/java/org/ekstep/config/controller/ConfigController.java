@@ -67,7 +67,7 @@ public class ConfigController extends BaseController {
 			PlatformLogger.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			PlatformLogger.log("getAllResources | Exception" + e.getMessage(), e, LoggerEnum.WARN.name());
+			PlatformLogger.log("getAllResources | Exception" + e.getMessage(), null, e, LoggerEnum.WARN.name());
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
