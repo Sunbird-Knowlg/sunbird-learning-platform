@@ -31,6 +31,7 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 			LOGGER.info("Task initialized");
 		} catch(Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
+			throw ex;
 		}
 	}
 

@@ -145,9 +145,10 @@ public class AuditHistoryIndexerService implements ISamzaService {
 
 		transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
 		for (Map.Entry<String, Object> entry : transactionMap.entrySet()) {
-			List<Object> list = (List) entry.getValue();
+			List<Object> list = null;
 			switch (entry.getKey()) {
 			case "addedRelations":
+				list = (List) entry.getValue();
 				if (null != list && !list.isEmpty()) {
 					relations.put("addedRelations", list.size());
 				} else {
@@ -156,6 +157,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				summaryData.put("relations", relations);
 				break;
 			case "removedRelations":
+				list = (List) entry.getValue();
 				if (null != list && !list.isEmpty()) {
 					relations.put("removedRelations", list.size());
 				} else {
@@ -164,6 +166,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				summaryData.put("relations", relations);
 				break;
 			case "addedTags":
+				list = (List) entry.getValue();
 				if (null != list && !list.isEmpty()) {
 					tags.put("addedTags", list.size());
 				} else {
@@ -172,6 +175,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				summaryData.put("tags", tags);
 				break;
 			case "removedTags":
+				list = (List) entry.getValue();
 				if (null != list && !list.isEmpty()) {
 					tags.put("removedTags", list.size());
 				} else {

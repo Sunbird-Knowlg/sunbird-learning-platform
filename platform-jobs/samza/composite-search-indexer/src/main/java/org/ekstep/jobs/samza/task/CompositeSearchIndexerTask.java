@@ -31,6 +31,7 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 			LOGGER.info("Task initialized");
 		} catch (Exception ex) {
 			LOGGER.error("Task initialization failed", ex);
+			throw ex;
 		}
 	}
 	
