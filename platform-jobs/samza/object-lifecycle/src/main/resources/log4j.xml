@@ -11,7 +11,7 @@
 		</layout>
   	</appender>
   	<root>
-    	<priority value="info" />
+    	<priority value="debug" />
     	<appender-ref ref="RollingAppender"/>
     	<appender-ref ref="jmx" />
   	</root>
