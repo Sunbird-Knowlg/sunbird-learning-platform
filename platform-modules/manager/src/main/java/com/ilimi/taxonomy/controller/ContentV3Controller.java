@@ -1,9 +1,10 @@
 package com.ilimi.taxonomy.controller;
 
 import java.io.File;
-import java.util.Arrays;
+import java.net.URL;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -42,13 +44,15 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 @RequestMapping("/v3/content")
 public class ContentV3Controller extends BaseController {
 
-	
-
 	@Autowired
 	private IContentManager contentManager;
 
 	/** The graph id. */
 	private String graphId = "domain";
+
+	private String UNDERSCORE = "_";
+
+	private String DOT = ".";
 
 	/**
 	 * This method carries all the tasks related to 'Upload' operation of
@@ -69,24 +73,40 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = false) MultipartFile file,
-			@RequestParam(value = "fileUrl", required = false) MultipartFile fileUrl) {
-		System.out.println("File Url: " + fileUrl);
+			@RequestParam(value = "fileUrl", required = false) String fileUrl) {
 		String apiId = "ekstep.learning.content.upload";
 		PlatformLogger.log("Upload Content | Content Id: " + contentId);
-		PlatformLogger.log("Uploaded File Name: " + file.getName());
+		PlatformLogger.log("Uploaded File Name: ");
+		PlatformLogger.log("Uploaded File Url: " + fileUrl);
 		PlatformLogger.log("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
-        try {
-            String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
-                    + FilenameUtils.getExtension(file.getOriginalFilename());
-            File uploadedFile = new File(name);
-            file.transferTo(uploadedFile);
-            Response response = contentManager.upload(contentId, "domain", uploadedFile);
-            PlatformLogger.log("Upload | Response: " , response.getResponseCode());
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
+		try {
+
+			if (null == file && StringUtils.isBlank(fileUrl))
+				throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_File.name(),
+						"Error ! Either attached file or 'artifactUrl' is needed for Upload Operation.");
+
+			File uploadedFile = null;
+			String name = "";
+			if (null != file) {
+				name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE + System.currentTimeMillis()
+						+ DOT + FilenameUtils.getExtension(file.getOriginalFilename());
+				uploadedFile = new File(name);
+				file.transferTo(uploadedFile);
+				uploadedFile = new File(name);
+			} else {
+				URL url = new URL(fileUrl);
+				name = FilenameUtils.getBaseName(url.getPath()) + UNDERSCORE + System.currentTimeMillis() + DOT
+						+ FilenameUtils.getExtension(url.getPath());
+				uploadedFile = new File(name);
+				FileUtils.copyURLToFile((URL) new URL(fileUrl), uploadedFile);
+			}
+			Response response = contentManager.upload(contentId, "domain", uploadedFile);
+			PlatformLogger.log("Upload | Response: ", response.getResponseCode());
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Upload | Exception: ", e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**
@@ -114,13 +134,13 @@ public class ContentV3Controller extends BaseController {
 
 			PlatformLogger.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			PlatformLogger.log("Archive | Response: " , response.getResponseCode());
+			PlatformLogger.log("Archive | Response: ", response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method carries all the tasks related to 'Publish' operation of
 	 * content work-flow.
@@ -142,20 +162,25 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		PlatformLogger.log("Publish content | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]", contentId);
+			PlatformLogger.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]",
+					contentId);
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			if(null==requestMap.get("lastPublishedBy") || StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())){
-				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(), "Publisher User Id is blank"), apiId, null);
+			if (null == requestMap.get("lastPublishedBy")
+					|| StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())) {
+				return getExceptionResponseEntity(
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(),
+								"Publisher User Id is blank"),
+						apiId, null);
 			}
-			
+
 			response = contentManager.publish(graphId, contentId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method carries all the tasks related to 'Review' operation of
 	 * content work-flow.
@@ -165,8 +190,7 @@ public class ContentV3Controller extends BaseController {
 	 * @param userId
 	 *            Unique 'id' of the user mainly for authentication purpose, It
 	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id in its Result
-	 *         Set.
+	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
@@ -176,7 +200,8 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		PlatformLogger.log("Review content | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]",contentId);
+			PlatformLogger.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]",
+					contentId);
 			Request request = getRequest(map);
 			response = contentManager.review(graphId, contentId, request);
 			return getResponseEntity(response, apiId, null);
@@ -184,7 +209,7 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method fetches the hierarchy of a given content
 	 *
@@ -200,14 +225,15 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		PlatformLogger.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]", contentId);
+			PlatformLogger.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]",
+					contentId);
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method fetches the Content by Content Id
 	 *
@@ -224,14 +250,15 @@ public class ContentV3Controller extends BaseController {
 		Response response;
 		PlatformLogger.log("Content Find | Content Id : " + contentId);
 		try {
-			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]", contentId);
+			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]",
+					contentId);
 			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
@@ -243,8 +270,10 @@ public class ContentV3Controller extends BaseController {
 		try {
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			if(null==requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())){
-				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"), apiId, null);
+			if (null == requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())) {
+				return getExceptionResponseEntity(
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"),
+						apiId, null);
 			}
 			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
 			return getResponseEntity(response, apiId, null);
@@ -257,4 +286,3 @@ public class ContentV3Controller extends BaseController {
 		return API_VERSION_3;
 	}
 }
-
