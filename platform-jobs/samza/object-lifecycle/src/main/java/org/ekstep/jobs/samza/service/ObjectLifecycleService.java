@@ -56,18 +56,18 @@ public class ObjectLifecycleService implements ISamzaService {
 			LOGGER.debug("State change identified - creating lifecycle event");
 			try {
 				Node node = getNode(message);
-				LOGGER.debug("Node fetched from graph");
+				LOGGER.info("Node fetched from graph");
 				Event event = generateLifecycleEvent(stateChangeEvent, node);
-				LOGGER.debug("Event generated");
+				LOGGER.info("Event generated");
 				publishEvent(event, collector);
-				LOGGER.debug("Event published");
+				LOGGER.info("Event published");
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
 				metrics.incFailedCounter();
 				LOGGER.error("Failed to process message", message, ex);
 			}
 		} else {
-			LOGGER.debug("Learning event not qualified for lifecycle event");
+			LOGGER.info("Learning event not qualified for lifecycle event");
 			metrics.incSkippedCounter();
 		}
 	}
