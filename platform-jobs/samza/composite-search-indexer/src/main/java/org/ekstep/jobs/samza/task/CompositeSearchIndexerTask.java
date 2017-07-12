@@ -13,8 +13,11 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.CompositeSearchIndexerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JobLogger;
 
 public class CompositeSearchIndexerTask implements StreamTask, InitableTask, WindowableTask {
+	
+	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerTask.class);
 	
 	private JobMetrics metrics;
 	
@@ -22,7 +25,13 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 	
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
-		metrics = new JobMetrics(context);
+		try {
+			metrics = new JobMetrics(context);
+			service.initialize(config);
+			LOGGER.info("Task initialized");
+		} catch (Exception ex) {
+			LOGGER.error("Task initialization failed", ex);
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -32,7 +41,8 @@ public class CompositeSearchIndexerTask implements StreamTask, InitableTask, Win
 		try {
 			service.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
-			e.printStackTrace();
+			metrics.incFailedCounter();
+			LOGGER.error("Message processing failed", outgoingMap, e);
 		}
 	}
 	

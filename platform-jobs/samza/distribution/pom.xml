@@ -12,21 +12,21 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>1.0</version>
+			<version>0.0.1</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>1.0</version>
+			<version>0.0.1</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>object-lifecycle</artifactId>
-			<version>1.0</version>
+			<version>0.0.1</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

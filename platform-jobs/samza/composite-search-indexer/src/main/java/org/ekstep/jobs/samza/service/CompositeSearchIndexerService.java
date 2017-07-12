@@ -14,12 +14,15 @@ import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 public class CompositeSearchIndexerService implements ISamzaService {
+
+	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerService.class);
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -32,23 +35,29 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		PropertiesUtil.loadProperties(props);
+		LOGGER.info("Service config initialized");
 		esUtil = new ElasticSearchUtil();
 		createCompositeSearchIndex();
+		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
 	}
 
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 
 		Object index = message.get("index");
 		Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
 		if (!BooleanUtils.isFalse(shouldindex)) {
+			LOGGER.debug("Indexing event into ES");
 			try {
 				processMessage(message);
+				LOGGER.debug("Composite record added/updated");
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
+				LOGGER.error("Failed to process message", message, ex);
 				metrics.incFailedCounter();
 			}
 		} else {
+			LOGGER.debug("Learning event not qualified for indexing");
 			metrics.incSkippedCounter();
 		}
 	}

@@ -13,16 +13,25 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JobLogger;
 
 public class AuditHistoryIndexerTask implements StreamTask, InitableTask, WindowableTask {
+	
+	static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerTask.class);
 
 	private JobMetrics metrics;
 	ISamzaService auditHistoryMsgProcessor = new AuditHistoryIndexerService();
 
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
-		metrics = new JobMetrics(context);
-		auditHistoryMsgProcessor.initialize(config);
+
+		try {
+			metrics = new JobMetrics(context);
+			auditHistoryMsgProcessor.initialize(config);
+			LOGGER.info("Task initialized");
+		} catch(Exception ex) {
+			LOGGER.error("Task initialization failed", ex);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -32,7 +41,8 @@ public class AuditHistoryIndexerTask implements StreamTask, InitableTask, Window
 		try {
 			auditHistoryMsgProcessor.processMessage(outgoingMap, metrics, collector);
 		} catch (Exception e) {
-			e.printStackTrace();
+			metrics.incFailedCounter();
+			LOGGER.error("Message processing failed", outgoingMap, e);
 		}
 	}
 

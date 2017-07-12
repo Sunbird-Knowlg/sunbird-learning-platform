@@ -15,6 +15,7 @@ import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
@@ -23,14 +24,16 @@ import com.ilimi.dac.enums.AuditHistoryConstants;
 import com.ilimi.graph.common.DateUtils;
 
 /**
- * The Class AuditHistoryService provides implementations of the core operations defined in the
- * IMessageProcessor along with the methods to getAuditLogs and their properties
+ * The Class AuditHistoryService provides implementations of the core operations defined in the IMessageProcessor along
+ * with the methods to getAuditLogs and their properties
  * 
  * @author Santhosh Vasabhaktula
  * 
  * @see ISamzaService
  */
 public class AuditHistoryIndexerService implements ISamzaService {
+
+	static JobLogger LOGGER = new JobLogger(AuditHistoryIndexerService.class);
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -47,6 +50,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		PropertiesUtil.loadProperties(props);
+		LOGGER.info("Service config initialized");
 		esUtil = new ElasticSearchUtil();
 		// Create index if not found
 		String settings = "{\"settings\":{\"index\":{\"index\":\""
@@ -58,25 +62,31 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				+ AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE
 				+ "\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"ah_index_analyzer\",            \"search_analyzer\": \"ah_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"ah_index_analyzer\",        \"search_analyzer\": \"ah_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
 		esUtil.addIndex(AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, settings, mappings);
+		LOGGER.info(AuditHistoryConstants.AUDIT_HISTORY_INDEX + " created");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		Object audit = message.get("audit");
 		Boolean shouldAudit = BooleanUtils.toBoolean(null == audit ? "true" : audit.toString());
 		if (message != null && message.get("operationType") != null && null == message.get("syncMessage")
 				&& !BooleanUtils.isFalse(shouldAudit)) {
+			LOGGER.debug("Audit learning event received");
 			try {
 				AuditHistoryRecord record = getAuditHistory(message);
+				LOGGER.debug("Audit record created");
 				Map<String, Object> entity_map = mapper.convertValue(record, Map.class);
 				String document = mapper.writeValueAsString(entity_map);
+				LOGGER.debug("Saving the record into ES");
 				esUtil.addDocument(AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE, document);
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
+				LOGGER.error("Failed to process message", message, ex);
 				metrics.incFailedCounter();
 			}
 		} else {
+			LOGGER.debug("Learning event not qualified for audit");
 			metrics.incSkippedCounter();
 		}
 	}
@@ -89,31 +99,27 @@ public class AuditHistoryIndexerService implements ISamzaService {
 	 * 
 	 * @return AuditHistoryRecord that can be saved to elastic search DB
 	 */
-	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) {
+	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) throws Exception {
 		AuditHistoryRecord record = new AuditHistoryRecord();
-		try {
-			record.setUserId((String) transactionDataMap.get("userId"));
-			record.setRequestId((String) transactionDataMap.get("requestId"));
-			String nodeUniqueId = (String) transactionDataMap.get("nodeUniqueId");
-			if (StringUtils.endsWith(nodeUniqueId, ".img")) {
-				nodeUniqueId = StringUtils.replace(nodeUniqueId, ".img", "");
-				record.setObjectId(nodeUniqueId);
-			}
+		record.setUserId((String) transactionDataMap.get("userId"));
+		record.setRequestId((String) transactionDataMap.get("requestId"));
+		String nodeUniqueId = (String) transactionDataMap.get("nodeUniqueId");
+		if (StringUtils.endsWith(nodeUniqueId, ".img")) {
+			nodeUniqueId = StringUtils.replace(nodeUniqueId, ".img", "");
 			record.setObjectId(nodeUniqueId);
-			record.setObjectType((String) transactionDataMap.get("objectType"));
-			record.setGraphId((String) transactionDataMap.get("graphId"));
-			record.setOperation((String) transactionDataMap.get("operationType"));
-			record.setLabel((String) transactionDataMap.get("label"));
-			String transactionDataStr = mapper.writeValueAsString(transactionDataMap.get("transactionData"));
-			record.setLogRecord(transactionDataStr);
-			String summary = setSummaryData(transactionDataMap);
-			record.setSummary(summary);
-			String createdOn = (String) transactionDataMap.get("createdOn");
-			Date date = DateUtils.parse(createdOn);
-			record.setCreatedOn(null == date ? new Date() : date);
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
+		record.setObjectId(nodeUniqueId);
+		record.setObjectType((String) transactionDataMap.get("objectType"));
+		record.setGraphId((String) transactionDataMap.get("graphId"));
+		record.setOperation((String) transactionDataMap.get("operationType"));
+		record.setLabel((String) transactionDataMap.get("label"));
+		String transactionDataStr = mapper.writeValueAsString(transactionDataMap.get("transactionData"));
+		record.setLogRecord(transactionDataStr);
+		String summary = setSummaryData(transactionDataMap);
+		record.setSummary(summary);
+		String createdOn = (String) transactionDataMap.get("createdOn");
+		Date date = DateUtils.parse(createdOn);
+		record.setCreatedOn(null == date ? new Date() : date);
 		return record;
 	}
 
@@ -126,7 +132,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 	 * @return summary
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public String setSummaryData(Map<String, Object> transactionDataMap) {
+	public String setSummaryData(Map<String, Object> transactionDataMap) throws Exception {
 
 		Map<String, Object> summaryData = new HashMap<String, Object>();
 		Map<String, Integer> relations = new HashMap<String, Integer>();
@@ -193,11 +199,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 				break;
 			}
 		}
-		try {
-			summaryResult = mapper.writeValueAsString(summaryData);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		summaryResult = mapper.writeValueAsString(summaryData);
 		return summaryResult;
 	}
 }

@@ -13,8 +13,11 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.ObjectLifecycleService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JobLogger;
 
 public class ObjectLifecycleTask implements StreamTask, InitableTask, WindowableTask {
+	
+	private JobLogger LOGGER = new JobLogger(ObjectLifecycleTask.class);
 
 	private JobMetrics metrics;
 
@@ -28,8 +31,13 @@ public class ObjectLifecycleTask implements StreamTask, InitableTask, Windowable
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
 
-		metrics = new JobMetrics(context);
-		service.initialize(config);
+		try {
+			metrics = new JobMetrics(context);
+			service.initialize(config);
+			LOGGER.info("Task initialized");
+		} catch(Exception ex) {
+			LOGGER.error("Task initialization failed", ex);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -41,7 +49,7 @@ public class ObjectLifecycleTask implements StreamTask, InitableTask, Windowable
 			service.processMessage(message, metrics, collector);
 		} catch (Exception ex) {
 			metrics.incFailedCounter();
-			ex.printStackTrace();
+			LOGGER.error("Message processing failed", message, ex);
 		}
 	}
 }

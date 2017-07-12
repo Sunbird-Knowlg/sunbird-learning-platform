@@ -21,6 +21,6 @@ public interface ISamzaService {
 	 *
 	 * @param MessageData The messageData
 	 */
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector);
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception;
 	
 }

@@ -16,6 +16,7 @@ import org.ekstep.jobs.samza.model.Event;
 import org.ekstep.jobs.samza.model.LifecycleEvent;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.ConsumerWorkflowEnums;
+import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
@@ -25,6 +26,8 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
 public class ObjectLifecycleService implements ISamzaService {
+	
+	private JobLogger LOGGER = new JobLogger(ObjectLifecycleService.class);
 
 	private MessageDigest digest = null;
 
@@ -40,24 +43,31 @@ public class ObjectLifecycleService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		Configuration.loadProperties(props);
+		LOGGER.info("Service config initialized");
 		digest = MessageDigest.getInstance("MD5");
 		LearningRequestRouterPool.init();
+		LOGGER.info("Learning actors initialized");
 	}
 
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		Map<String, Object> stateChangeEvent = getStateChangeEvent(message);
 		if (stateChangeEvent != null) {
+			LOGGER.debug("State change identified - creating lifecycle event");
 			try {
 				Node node = getNode(message);
+				LOGGER.debug("Node fetched from graph");
 				Event event = generateLifecycleEvent(stateChangeEvent, node);
+				LOGGER.debug("Event generated");
 				publishEvent(event, collector);
+				LOGGER.debug("Event published");
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
-				ex.printStackTrace(); // Add log statement
 				metrics.incFailedCounter();
+				LOGGER.error("Failed to process message", message, ex);
 			}
 		} else {
+			LOGGER.debug("Learning event not qualified for lifecycle event");
 			metrics.incSkippedCounter();
 		}
 	}
