@@ -159,12 +159,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Node: ", node);
 
-		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
 		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
 			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
 					"Operation Denied! | [Cannot Apply 'Upload' Operation on the Content in 'Processing' Status.] ");
 
-		LOGGER.debug("Given Content is not in Processing Status.");
+		PlatformLogger.log("Given Content is not in Processing Status.");
 
 		String mimeType = (String) node.getMetadata().get("mimeType");
 		if (StringUtils.isBlank(mimeType)) {
@@ -236,7 +236,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						nodes.addAll(nodelist);
 				}
 				
-				LOGGER.info("Validating the Input Nodes.");
+				PlatformLogger.log("Validating the Input Nodes.");
 				validateInputNodesForBundling(nodes);
 				
 				for (Node node : nodes) {
@@ -328,12 +328,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Got Node: ", node);
 
-		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
 		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
 			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
 					"Operation Denied! | [Cannot Apply 'Optimize' Operation on the Content in 'Processing' Status.] ");
 
-		LOGGER.debug("Given Content is not in Processing Status.");
+		PlatformLogger.log("Given Content is not in Processing Status.");
 
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		PlatformLogger.log("Content Status: " + status);
@@ -466,12 +466,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Got Node: ", node);
 
-		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
 		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
 			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
 					"Operation Denied! | [Cannot Apply 'Publish' Operation on the Content in 'Processing' Status.] ");
 
-		LOGGER.debug("Given Content is not in Processing Status.");
+		PlatformLogger.log("Given Content is not in Processing Status.");
 
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
@@ -536,12 +536,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Node: ", node);
 
-		LOGGER.debug("Checking For 'Processing' Status of Node: ", node);
+		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
 		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
 			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
 					"Operation Denied! | [Cannot Apply 'Review' Operation on the Content in 'Processing' Status.] ");
 
-		LOGGER.debug("Given Content is not in Processing Status.");
+		PlatformLogger.log("Given Content is not in Processing Status.");
 
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
@@ -849,7 +849,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							TaxonomyAPIParams.Processing.name()))
 				isUnderProcess = true;
 		} catch (Exception e) {
-			LOGGER.error("Something Went Wrong While Checking the is Under Processing Status.", e);
+			PlatformLogger.log("Something Went Wrong While Checking the is Under Processing Status.", null, e);
 		}
 		return isUnderProcess;
 	}

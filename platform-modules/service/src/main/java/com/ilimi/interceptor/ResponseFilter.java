@@ -54,6 +54,7 @@ public class ResponseFilter implements Filter {
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
 	}
+}
 
 	@Override
 	public void destroy() {
