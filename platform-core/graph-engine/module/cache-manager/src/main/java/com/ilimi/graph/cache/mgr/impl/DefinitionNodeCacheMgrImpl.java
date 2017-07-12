@@ -39,6 +39,13 @@ public class DefinitionNodeCacheMgrImpl implements IDefinitionNodeCacheMgr {
         Jedis jedis = getRedisConncetion();
         try {
             String key = RedisKeyGenerator.getDefNodeKey(graphId, objectType);
+			Map<String, Object> metadata = (Map<String, Object>) defNode.get("metadata");
+			if (metadata != null && metadata.get(GraphDACParams.versionCheckMode.name()) != null) {
+				String versionCheckMode =(String) metadata.get(GraphDACParams.versionCheckMode.name());
+				String redisKey = RedisKeyGenerator.getNodePropertyKey(graphId, objectType, GraphDACParams.versionCheckMode.name());
+				jedis.set(redisKey, versionCheckMode);
+			}
+            	
             String defNodeStr = mapper.writeValueAsString(defNode);
             jedis.set(key, defNodeStr);
         } catch (Exception e) {

@@ -8,11 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 public class CachePropertyConfiguration {
 	
 	
-	public static List<String> getProperties(String nodeType){
-		String key = "platform."+ nodeType + ".node.cacheable.properties";
+	public static List<String> getProperties() {
+		String key = "platform.data.node.cacheable.properties";
 		String value = Configuration.getProperty(key);
 		List<String> result = null;
-		if(StringUtils.isNotBlank(value))
+		if (StringUtils.isNotBlank(value))
 			result = Arrays.asList(value.replaceAll("\\s", "").split(","));
 		return result;
 	}

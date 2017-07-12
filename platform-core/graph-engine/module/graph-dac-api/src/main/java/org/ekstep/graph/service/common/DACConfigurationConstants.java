@@ -38,6 +38,8 @@ public class DACConfigurationConstants {
 	
 	public static final boolean IS_USER_AUTHORIZATION_ENABLED = false;
 	
+	public static final String AUTHORIZATION_ENABLED_PROPERTY = "platform.auth.check.enabled";
+	
 	private DACConfigurationConstants() {
 		  throw new AssertionError();
 	}

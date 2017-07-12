@@ -288,6 +288,16 @@ public class GraphCacheActor extends BaseGraphManager {
         }
     }
 
+    public void saveNodeProperties(Request request) {
+    	INodePropertyMgr cacheMgr = new NodePropertyMgrImpl(this);
+        try {
+            cacheMgr.saveNodeProperties(request);
+            OK(getSender());
+        } catch (Exception e) {
+            ERROR(e, getSender());
+        }
+    }
+    
     public void saveNodeProperty(Request request) {
     	INodePropertyMgr cacheMgr = new NodePropertyMgrImpl(this);
         try {

@@ -49,30 +49,11 @@ public class RedisStoreUtil {
 
 		Jedis jedis = getRedisConncetion();
 		try {
-			List<String> cachedProperties = CachePropertyConfiguration.getProperties("data");
+			List<String> cachedProperties = CachePropertyConfiguration.getProperties();
 			Map<String, Object> nodeMetadata = new HashMap<String, Object>();
 
 			for(String property : cachedProperties){
 				String redisKey = RedisKeyGenerator.getNodePropertyKey(graphId, objectId, property);
-				nodeMetadata.put(property, jedis.get(redisKey));
-			}
-			return nodeMetadata;
-		} catch (Exception e) {
-			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_GET_PROPERTY_ERROR.name(), e.getMessage());
-		} finally {
-			returnConnection(jedis);
-		}
-	}
-	
-	public static Map<String, Object> getDefinitionNode(String graphId, String objecttype) {
-
-		Jedis jedis = getRedisConncetion();
-		try {
-			List<String> cachedProperties = CachePropertyConfiguration.getProperties("definition");
-			Map<String, Object> nodeMetadata = new HashMap<String, Object>();
-
-			for(String property : cachedProperties){
-				String redisKey = RedisKeyGenerator.getNodePropertyKey(graphId, objecttype, property);
 				nodeMetadata.put(property, jedis.get(redisKey));
 			}
 			return nodeMetadata;

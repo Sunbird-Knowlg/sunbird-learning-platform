@@ -8,5 +8,5 @@ public interface INodePropertyMgr {
 
     String getNodeProperty(Request request);
 
-    void saveNode(Request request);
+    void saveNodeProperties(Request request);
 }

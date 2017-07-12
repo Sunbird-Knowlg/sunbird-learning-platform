@@ -13,15 +13,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import scala.concurrent.Promise;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -32,6 +23,7 @@ import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
+import com.ilimi.graph.common.mgr.CachePropertyConfiguration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -46,6 +38,15 @@ import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.cache.DefinitionCache;
 import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.relation.RelationHandler;
+
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Promise;
 
 public class DataNode extends AbstractNode {
 
@@ -814,15 +815,28 @@ public class DataNode extends AbstractNode {
 
     @SuppressWarnings("unchecked")
 	private void loadToCache(ActorRef cacheRouter, Request req) {
-        Request cacheReq = new Request(req);
-        cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-        cacheReq.setOperation("saveNodeProperty");
-        cacheReq.put(GraphDACParams.graph_id.name(), getGraphId());
-        cacheReq.put(GraphDACParams.node_id.name(), getNodeId());
-        cacheReq.put(GraphDACParams.propertyName.name(), GraphDACParams.versionKey.name());
-        cacheReq.put(GraphDACParams.value.name(), getVersionKey());
-        cacheRouter.tell(cacheReq, manager.getSelf());
-    }
+		Request cacheReq = new Request(req);
+		cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+		cacheReq.setOperation("saveNodeProperties");
+		cacheReq.put(GraphDACParams.graph_id.name(), getGraphId());
+		cacheReq.put(GraphDACParams.node_id.name(), getNodeId());
+		List<String> properties = CachePropertyConfiguration.getProperties();
+		Map<String, Object> nodeData = new HashMap<String, Object>();
+		for (String property : properties) {
+			if (property.equalsIgnoreCase(GraphDACParams.versionKey.name()))
+				nodeData.put(property, getVersionKey());
+			else if (property.equalsIgnoreCase(GraphDACParams.consumerId.name())
+					&& StringUtils.isNotBlank((String) req.getContext().get(GraphDACParams.CONSUMER_ID.name())))
+				nodeData.put(property, req.getContext().get(GraphDACParams.CONSUMER_ID.name()));
+			else if (getMetadata() != null && StringUtils.isNotBlank((String) getMetadata().get(property)))
+				nodeData.put(property, getMetadata().get(property));
+		}
+
+		if (nodeData.size() == 0)
+			return;
+		cacheReq.put(GraphDACParams.properties.name(), nodeData);
+		cacheRouter.tell(cacheReq, manager.getSelf());
+	}
 
 	private boolean checkRangeValue(List<Object> range, Object value) {
 		boolean found = false;

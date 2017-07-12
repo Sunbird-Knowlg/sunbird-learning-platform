@@ -12,6 +12,7 @@ import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
@@ -76,11 +77,19 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 	private boolean isAuthorizationCheckRequired(Request request) {
 		boolean isCheckRequired = true;
 		if (StringUtils.isBlank((String) request.getContext().get(GraphDACParams.CONSUMER_ID.name()))
-				|| BooleanUtils.isFalse(DACConfigurationConstants.IS_USER_AUTHORIZATION_ENABLED))
+				|| BooleanUtils.isFalse(isAuthEnabled()))
 			isCheckRequired = false;
 
 		LOGGER.info("Authorization Check Required ? " + isCheckRequired);
 		return isCheckRequired;
 	}
 
+	private boolean isAuthEnabled(){
+		String authEnabled = Configuration.getProperty(DACConfigurationConstants.AUTHORIZATION_ENABLED_PROPERTY);
+		
+		if(authEnabled!=null)
+			return Boolean.parseBoolean(authEnabled);
+		
+		return false;
+	}
 }
