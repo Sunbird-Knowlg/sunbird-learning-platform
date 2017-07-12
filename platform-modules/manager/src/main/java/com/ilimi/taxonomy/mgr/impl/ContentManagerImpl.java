@@ -715,11 +715,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	private String getContentImageIdentifier(String contentId) {
 		String contentImageId = "";
-		if (StringUtils.isNotBlank(contentId)) {
+		if (StringUtils.isNotBlank(contentId)) 
 			contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-			// TODO: Put below the Logic to read contentImageId from Cache
-			// (Redis).
-		}
 		return contentImageId;
 	}
 

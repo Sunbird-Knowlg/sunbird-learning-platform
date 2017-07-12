@@ -68,7 +68,9 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "file", required = true) MultipartFile file) {
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "fileUrl", required = false) MultipartFile fileUrl) {
+		System.out.println("File Url: " + fileUrl);
 		String apiId = "ekstep.learning.content.upload";
 		PlatformLogger.log("Upload Content | Content Id: " + contentId);
 		PlatformLogger.log("Uploaded File Name: " + file.getName());

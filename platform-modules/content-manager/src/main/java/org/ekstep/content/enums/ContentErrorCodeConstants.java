@@ -49,7 +49,8 @@ public enum ContentErrorCodeConstants {
 	MANIFEST_FILE_READ(31, "Error while reading Manifest file."), 
 	INVALID_CONTENT(32, "Invalid Content (Node) Object."), 
 	INVALID_OPERATION(33, "Invalid Content Operation."),
-	PUBLISH_ERROR(34, "Publish Error.");
+	PUBLISH_ERROR(34, "Publish Error."),
+	IMAGE_NODE_CREATION_ERROR(35, "Error while Create Content Image Node.");
 
 	private final int code;
 	private final String description;
