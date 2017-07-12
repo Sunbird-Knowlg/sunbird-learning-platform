@@ -9,13 +9,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
-import akka.actor.ActorRef;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
+
+import akka.actor.ActorRef;
 
 public abstract class AbstractDomainObject {
 

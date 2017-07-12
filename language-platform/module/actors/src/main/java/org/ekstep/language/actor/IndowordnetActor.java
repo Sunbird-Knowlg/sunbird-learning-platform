@@ -1,14 +1,13 @@
 package org.ekstep.language.actor;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.IndowordnetUtil;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 
@@ -21,7 +20,7 @@ import akka.actor.ActorRef;
 public class IndowordnetActor extends LanguageBaseActor {
 
     /** The logger. */
-    private static Logger LOGGER = LogManager.getLogger(IndowordnetActor.class.getName());
+    
     
     /** The util. */
     private IndowordnetUtil util = new IndowordnetUtil();
@@ -31,7 +30,7 @@ public class IndowordnetActor extends LanguageBaseActor {
      */
     @Override
     public void onReceive(Object msg) throws Exception {
-        LOGGER.info("Received Command: " + msg);
+        PlatformLogger.log("Received Command: " + msg);
         if (msg instanceof Request) {
             Request request = (Request) msg;
             String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
@@ -53,7 +52,7 @@ public class IndowordnetActor extends LanguageBaseActor {
                 	util.loadWords(languageId, batchSize, maxRecords, offset);
                 	OK(getSender());
                 }else {
-                    LOGGER.info("Unsupported operation: " + operation);
+                    PlatformLogger.log("Unsupported operation: " + operation);
                     unhandled(msg);
                 }
             } catch(Exception e) {
@@ -61,7 +60,7 @@ public class IndowordnetActor extends LanguageBaseActor {
                 handleException(e, getSender());
             }
         } else {
-            LOGGER.info("Unsupported operation!");
+            PlatformLogger.log("Unsupported operation!");
             unhandled(msg);
         }
         

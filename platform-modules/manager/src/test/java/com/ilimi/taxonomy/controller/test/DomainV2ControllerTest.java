@@ -1,8 +1,9 @@
 package com.ilimi.taxonomy.controller.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;

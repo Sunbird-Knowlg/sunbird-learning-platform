@@ -120,7 +120,9 @@ public class CSVGraphReader implements GraphReader {
 						}
 					}
 				}
-				node.setOutRelations(relations);
+				if(null != relHeaders.keySet()&& !relHeaders.keySet().isEmpty()){
+					node.setOutRelations(relations);
+				}
 				dataNodes.add(node);
 				if (tagsIndex != -1) {
 					String tagsData = record.get(tagsIndex);

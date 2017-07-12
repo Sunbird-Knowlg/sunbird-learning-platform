@@ -7,14 +7,10 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.common.optimizr.image.ImageProcessor;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.searchindex.processor.ImageMessageProcessor;
-import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.OptimizerUtil;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

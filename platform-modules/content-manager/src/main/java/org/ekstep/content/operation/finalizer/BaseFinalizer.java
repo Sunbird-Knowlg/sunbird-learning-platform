@@ -20,8 +20,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.ThumbnailGenerator;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
@@ -36,46 +34,54 @@ import org.ekstep.content.util.ECRFToJSONConvertor;
 import org.ekstep.content.util.ECRFToXMLConvertor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 /**
- * The Class BaseFinalizer is a BaseClass for all Finalizers, extends BasePipeline which
- * mainly holds Common Methods and operations of a ContentNode.
- * BaseFinalizer holds Common methods of ContentNode and ContentPackage
+ * The Class BaseFinalizer is a BaseClass for all Finalizers, extends
+ * BasePipeline which mainly holds Common Methods and operations of a
+ * ContentNode. BaseFinalizer holds Common methods of ContentNode and
+ * ContentPackage
  */
 public class BaseFinalizer extends BasePipeline {
-	
+
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(BaseFinalizer.class.getName());
-	
+
 	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
-	
+
 	private static final String s3Artifact = "s3.artifact.folder";
-	
+
 	/**
 	 * Creates Thumbline.
 	 * 
-	 * @param Node the ContentNode
-	 * @param basePath the filePath
-	 * checks if node metadata contains appIcon and downloadFile
-	 * checks if fileIsNotEmpty & fileIsFile and generates thumbline for it
-	 * checks if thumbline isNotEmpty and creates thumbFile
-	 * uploads thumbFile to s3
+	 * @param Node
+	 *            the ContentNode
+	 * @param basePath
+	 *            the filePath checks if node metadata contains appIcon and
+	 *            downloadFile checks if fileIsNotEmpty & fileIsFile and
+	 *            generates thumbline for it checks if thumbline isNotEmpty and
+	 *            creates thumbFile uploads thumbFile to s3
 	 */
 	protected void createThumbnail(String basePath, Node node) {
 		try {
 			if (null != node) {
 				String appIcon = (String) node.getMetadata().get(ContentWorkflowPipelineParams.appIcon.name());
-				
+
 				// checks if node contains appIcon and downloads File
 				if (!StringUtils.isBlank(appIcon)) {
-					LOGGER.info("Content Id: " + node.getIdentifier() + " | App Icon: " + appIcon);
+					PlatformLogger.log("Content Id: " + node.getIdentifier() + " | App Icon: " + appIcon);
 					File appIconFile = HttpDownloadUtility.downloadFile(appIcon, basePath);
-					
-					// checks if file is not empty and isFile nd generates thumbline
+
+					// checks if file is not empty and isFile nd generates
+					// thumbline
 					if (null != appIconFile && appIconFile.exists() && appIconFile.isFile()) {
 						boolean generated = ThumbnailGenerator.generate(appIconFile);
 						if (generated) {
@@ -83,12 +89,13 @@ public class BaseFinalizer extends BasePipeline {
 									+ FilenameUtils.getBaseName(appIconFile.getPath()) + ".thumb."
 									+ FilenameUtils.getExtension(appIconFile.getPath());
 							File thumbFile = new File(thumbnail);
-					
+
 							// uploads thumbfile to s3 and set node metadata
 							if (thumbFile.exists()) {
-								LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
+								PlatformLogger.log("Thumbnail created for Content Id: " + node.getIdentifier());
 								String folderName = S3PropertyReader.getProperty(s3Artifact);
-								String[] urlArray = uploadToAWS(thumbFile, getUploadFolderName(node.getIdentifier(), folderName));
+								String[] urlArray = uploadToAWS(thumbFile,
+										getUploadFolderName(node.getIdentifier(), folderName));
 								if (null != urlArray && urlArray.length >= 2) {
 									String thumbUrl = urlArray[IDX_S3_URL];
 									node.getMetadata().put(ContentWorkflowPipelineParams.appIcon.name(), thumbUrl);
@@ -96,54 +103,63 @@ public class BaseFinalizer extends BasePipeline {
 								}
 								try {
 									thumbFile.delete();
-									LOGGER.info("Deleted local Thumbnail file");
+									PlatformLogger.log("Deleted local Thumbnail file");
 								} catch (Exception e) {
-									LOGGER.error("Error! While deleting the Thumbnail File.", e);
+									PlatformLogger.log("Error! While deleting the Thumbnail File.", thumbFile, e);
 								}
 							}
 						}
 						try {
 							appIconFile.delete();
-							LOGGER.info("Deleted local AppIcon file");
+							PlatformLogger.log("Deleted local AppIcon file");
 						} catch (Exception e) {
-							LOGGER.error("Error! While deleting the App Icon File.", e);
+							PlatformLogger.log("Error! While deleting the App Icon File.", appIcon, e);
 						}
 					}
-				}
-				
-				
-				String[] stageIconsStr = (String[]) node.getMetadata()
-						.get(ContentWorkflowPipelineParams.screenshots.name());
-				List<String> stageIcons = Arrays.asList(stageIconsStr);
-				LOGGER.info("Processing Stage Icons"+ stageIcons);
-				String path = basePath + File.separator + ContentWorkflowPipelineParams.screenshots.name();
-				if (null != stageIcons && !stageIcons.isEmpty()) {
-					List<String> stageIconsS3Url = new ArrayList<>();
-					for (String stageIcon : stageIcons) {
-						if(!isS3Url(stageIcon)){
-							stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
-						} else {
-							stageIconsS3Url.add(stageIcon);
-						}
-					}
-					node.getMetadata().put(ContentWorkflowPipelineParams.screenshots.name(), stageIconsS3Url);
 				}
 
+				try {
+					String[] stageIconsStr = (String[]) node.getMetadata()
+							.get(ContentWorkflowPipelineParams.screenshots.name());
+					if (null != stageIconsStr) {
+						List<String> stageIcons = Arrays.asList(stageIconsStr);
+						PlatformLogger.log("Processing Stage Icons" + stageIcons);
+						String path = basePath + File.separator + ContentWorkflowPipelineParams.screenshots.name();
+						if (null != stageIcons && !stageIcons.isEmpty()) {
+							List<String> stageIconsS3Url = new ArrayList<>();
+							for (String stageIcon : stageIcons) {
+								if (!isS3Url(stageIcon)) {
+									stageIconsS3Url.add(getThumbnailFiles(path, node, stageIcon));
+								} else {
+									stageIconsS3Url.add(stageIcon);
+								}
+							}
+							node.getMetadata().put(ContentWorkflowPipelineParams.screenshots.name(), stageIconsS3Url);
+						}
+					}
+				} catch (Exception e) {
+					PlatformLogger.log("Error!Unable to downnload Stage Icon for Content Id:", e.getMessage(), e);
+					throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
+							ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR
+									+ " | [Unable to download Stage Icon for Content Id: '" + node.getIdentifier()
+									+ "' ]",
+							e);
+				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage());
+			PlatformLogger.log("Error! Unable to download appIcon for content Id", e.getMessage(), e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.APP_ICON_DOWNLOAD_ERROR
 							+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]",
 					e);
 		}
 	}
-	
-	private boolean isS3Url(String url){
+
+	private boolean isS3Url(String url) {
 		if (null != url) {
 			try {
 				new URL(url.toString());
-				if(StringUtils.containsIgnoreCase(url, "s3") && StringUtils.containsIgnoreCase(url, "ekstep-public")){
+				if (StringUtils.containsIgnoreCase(url, "s3") && StringUtils.containsIgnoreCase(url, "ekstep-public")) {
 					return true;
 				}
 			} catch (MalformedURLException e) {
@@ -154,18 +170,18 @@ public class BaseFinalizer extends BasePipeline {
 			return false;
 		}
 	}
-	
+
 	private File downloadStageIconFiles(String basePath, String stageIconFile, String stageIconId) {
 		File file = null;
 		try {
-			LOGGER.info("Downloading stageIcons");
+			PlatformLogger.log("Downloading stageIcons");
 			String base64Image = stageIconFile.split(",")[1];
 			String mimeType = stageIconFile.split(";")[0];
-			mimeType = mimeType.split(":")[1]; 
+			mimeType = mimeType.split(":")[1];
 			mimeType = mimeType.split("/")[1];
 			byte[] imageBytes = Base64.decodeBase64(base64Image);
 			BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
-			if(null == stageIconId){
+			if (null == stageIconId) {
 				stageIconId = "stage.png";
 				mimeType = ".png";
 			} else {
@@ -176,11 +192,11 @@ public class BaseFinalizer extends BasePipeline {
 				saveFile.mkdirs();
 			}
 			file = new File(basePath + File.separator + stageIconId);
-			
-			ImageIO.write(bufferedImage, mimeType , file);
-			LOGGER.info("StageIcon Downloaded File " + stageIconId);
+
+			ImageIO.write(bufferedImage, mimeType, file);
+			PlatformLogger.log("StageIcon Downloaded File ", stageIconId);
 		} catch (Exception e) {
-			LOGGER.error("Something went wrong when downloading base64 image" + e.getMessage());
+			PlatformLogger.log("Something went wrong when downloading base64 image", e.getMessage(), e);
 			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(),
 					ContentErrorMessageConstants.STAGE_ICON_DOWNLOAD_ERROR + " | [Unable to Upload File.]");
 		}
@@ -198,16 +214,16 @@ public class BaseFinalizer extends BasePipeline {
 				stageIconId = stageIconFile.substring((stageIconFile.indexOf("/stage") + 7), stageIconFile.length());
 			}
 			HttpURLConnection httpConn = null;
-			LOGGER.info("Start Downloading for File: " + stageIconId);
+			PlatformLogger.log("Start Downloading for File: " + stageIconId);
 
 			URL url = new URL(stageIconFile);
 			httpConn = (HttpURLConnection) url.openConnection();
 			int responseCode = httpConn.getResponseCode();
-			LOGGER.info("Response Code: " + responseCode);
+			PlatformLogger.log("Response Code: " + responseCode);
 
 			// always check HTTP response code first
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				LOGGER.info("Response is OK.");
+				PlatformLogger.log("Response is OK.");
 				BufferedReader br = new BufferedReader(new InputStreamReader((httpConn.getInputStream())));
 				StringBuilder sb = new StringBuilder();
 				String output;
@@ -215,37 +231,41 @@ public class BaseFinalizer extends BasePipeline {
 					sb.append(output);
 				}
 				String result = sb.toString();
-				Map<String,Object> dataMap = mapper.readValue(result, Map.class);
+				Map<String, Object> dataMap = mapper.readValue(result, Map.class);
 				dataMap = (Map<String, Object>) dataMap.get("result");
 				String base64Data = (String) dataMap.get("result");
 				File stageIcon = downloadStageIconFiles(basePath, base64Data, stageIconId);
 				if (stageIcon.exists()) {
-					LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
-					String folderName = S3PropertyReader.getProperty(s3Artifact) + "/" + ContentWorkflowPipelineParams.screenshots.name();
+					PlatformLogger.log("Thumbnail created for Content Id: " + node.getIdentifier());
+					String folderName = S3PropertyReader.getProperty(s3Artifact) + "/"
+							+ ContentWorkflowPipelineParams.screenshots.name();
 					String[] urlArray = uploadToAWS(stageIcon, getUploadFolderName(node.getIdentifier(), folderName));
 					if (null != urlArray && urlArray.length >= 2) {
 						thumbUrl = urlArray[IDX_S3_URL];
 					}
 					stageIcon.delete();
-					LOGGER.info("Deleted local Thumbnail file");
+					PlatformLogger.log("Deleted local Thumbnail file");
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error! While Processing the StageIcon File.", e);
+			PlatformLogger.log("Error! While Processing the StageIcon File.", e.getMessage(), e);
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR + " | [Unable to Upload File.]");
 		}
 		return thumbUrl;
 	}
-	
+
 	/**
 	 * writes ECML to File.
 	 * 
-	 * @param ecml the string ECML
-	 * @param type the EcmlType
-	 * @param basePath the filePath
-	 * checks if ecml string or ecmlType is empty, throws ClientException
-	 * else creates a File and writes the ecml to file
+	 * @param ecml
+	 *            the string ECML
+	 * @param type
+	 *            the EcmlType
+	 * @param basePath
+	 *            the filePath checks if ecml string or ecmlType is empty,
+	 *            throws ClientException else creates a File and writes the ecml
+	 *            to file
 	 */
 	protected void writeECMLFile(String basePath, String ecml, String ecmlType) {
 		try {
@@ -257,29 +277,31 @@ public class BaseFinalizer extends BasePipeline {
 						ContentErrorMessageConstants.INVALID_ECML_TYPE
 								+ " | [System is in a fix between (XML & JSON) ECML Type.]");
 
-			LOGGER.info("ECML File Type: " + ecmlType);
+			PlatformLogger.log("ECML File Type: " + ecmlType);
 			File file = new File(basePath + File.separator + ContentConfigurationConstants.DEFAULT_ECML_FILE_NAME
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ecmlType);
-			LOGGER.info("Creating ECML File With Name: " + file.getAbsolutePath());
+			PlatformLogger.log("Creating ECML File With Name: " + file.getAbsolutePath());
 			FileUtils.writeStringToFile(file, ecml);
 		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodeConstants.ECML_FILE_WRITE.name(),
 					ContentErrorMessageConstants.ECML_FILE_WRITE_ERROR + " | [Unable to Write ECML File.]");
 		}
 	}
+
 	/**
 	 * gets the ECML string from ECRF Object.
 	 * 
-	 * @param ecrf the ECRF
-	 * @param type the EcmlType
-	 * checks if ecmlType is JSON/ECML
-	 * converts ECRF to ecml
+	 * @param ecrf
+	 *            the ECRF
+	 * @param type
+	 *            the EcmlType checks if ecmlType is JSON/ECML converts ECRF to
+	 *            ecml
 	 * @return ecml
 	 */
 	protected String getECMLString(Plugin ecrf, String ecmlType) {
 		String ecml = "";
 		if (null != ecrf) {
-			LOGGER.info("Converting ECML From ECRF Object.");
+			PlatformLogger.log("Converting ECML From ECRF Object.");
 			if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.ecml.name())) {
 				ECRFToXMLConvertor convertor = new ECRFToXMLConvertor();
 				ecml = convertor.getContentXmlString(ecrf);
@@ -290,21 +312,106 @@ public class BaseFinalizer extends BasePipeline {
 		}
 		return ecml;
 	}
-	
+
 	/**
 	 * Creates ZipPackage.
 	 * 
 	 * @param ZipFileName
-	 * @param basePath the filePath
-	 * creates zipPackage from the filePath
+	 * @param basePath
+	 *            the filePath creates zipPackage from the filePath
 	 */
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
-			LOGGER.info("Creating Zip File: " + zipFileName);
+			PlatformLogger.log("Creating Zip File: ", zipFileName);
 			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
 			appZip.generateFileList(new File(basePath));
 			appZip.zipIt(zipFileName);
 		}
+	}
+
+	protected Node getNodeForOperation(String taxonomyId, Node node) {
+		PlatformLogger.log("Taxonomy Id: " + taxonomyId);
+		PlatformLogger.log("Content Node: " + node);
+		Node nodeForOperation = new Node();
+		if (null != node && null != node.getMetadata() && StringUtils.isNotBlank(taxonomyId)) {
+			String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
+
+			if (StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name())
+					|| (!StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Flagged.name())
+					|| !StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Live.name())))
+				nodeForOperation = node;
+			else {
+				String contentImageId = getContentImageIdentifier(node.getIdentifier());
+				PlatformLogger.log("Fetching the Content Node. | [Content ID: " + node.getIdentifier() + "]");
+
+				PlatformLogger.log("Fetching the Content Image Node for Content Id: " + node.getIdentifier());
+				Response response = getDataNode(taxonomyId, contentImageId);
+				if (!checkError(response)) {
+					// Content Image Node is Available so assigning it as node
+					nodeForOperation = (Node) response.get(GraphDACParams.node.name());
+					PlatformLogger.log(
+							"Getting Content Image Node and assigning it as node" + nodeForOperation.getIdentifier());
+				} else {
+					nodeForOperation = createContentImageNode(taxonomyId, contentImageId, node);
+				}
+			}
+		}
+		return nodeForOperation;
+
+	}
+
+	protected String getContentImageIdentifier(String contentId) {
+		String contentImageId = "";
+		if (StringUtils.isNotBlank(contentId))
+			contentImageId = contentId + ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		return contentImageId;
+	}
+
+	protected Response getDataNode(String taxonomyId, String id) {
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+				GraphDACParams.node_id.name(), id);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response getNodeRes = getResponse(request);
+		return getNodeRes;
+	}
+
+	protected Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
+		PlatformLogger.log("Taxonomy Id: " + taxonomyId);
+		PlatformLogger.log("Content Id: " + contentImageId);
+		PlatformLogger.log("Node: ", node);
+
+		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(),
+				ContentConfigurationConstants.CONTENT_IMAGE_OBJECT_TYPE);
+		imageNode.setGraphId(taxonomyId);
+		imageNode.setIdentifier(contentImageId);
+		imageNode.setMetadata(node.getMetadata());
+		imageNode.setInRelations(node.getInRelations());
+		imageNode.setOutRelations(node.getOutRelations());
+		imageNode.setTags(node.getTags());
+		imageNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+				ContentWorkflowPipelineParams.Draft.name());
+		Response response = createDataNode(imageNode);
+		if (checkError(response))
+			throw new ServerException(ContentErrorCodeConstants.IMAGE_NODE_CREATION_ERROR.name(),
+					"Error! Something went wrong while performing the operation. | [Content Id: " + node.getIdentifier()
+							+ "]");
+		Response resp = getDataNode(taxonomyId, contentImageId);
+		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
+		PlatformLogger.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
+		return nodeData;
+	}
+
+	protected Response createDataNode(Node node) {
+		PlatformLogger.log("Node :", node);
+		Response response = new Response();
+		if (null != node) {
+			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
+			request.put(GraphDACParams.node.name(), node);
+
+			PlatformLogger.log("Creating the Node ID: " + node.getIdentifier());
+			response = getResponse(request);
+		}
+		return response;
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.dto.SearchDTO;
@@ -13,7 +14,7 @@ import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import io.searchbox.core.CountResult;
@@ -25,7 +26,7 @@ public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
-	private static LogHelper LOGGER = LogHelper.getInstance(SearchProcessor.class.getName());
+	
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
@@ -43,7 +44,7 @@ public class SearchProcessor {
 				response.put("results", results);
 			}
 		}
-		LOGGER.info(response.toString());
+		PlatformLogger.log(response.toString());
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
 				.getValue("aggregations");
 		if (aggregations != null && !aggregations.isEmpty()) {
@@ -867,9 +868,9 @@ public class SearchProcessor {
 		Map<String, Object> res_map = new HashMap<String, Object>();
 		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		LOGGER.info("AuditHistory search query: " + query);
+		PlatformLogger.log("AuditHistory search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
-		LOGGER.info("search result from elastic search" + searchResult);
+		PlatformLogger.log("search result from elastic search" + searchResult);
 		Map<String, Object> result_map = (Map) searchResult.getValue("hits");
 		List<Map<String, Object>> result = (List) result_map.get("hits");
 		for (Map<String, Object> map : result) {
@@ -881,7 +882,7 @@ public class SearchProcessor {
 
 			}
 		}
-		LOGGER.info("search response size: " + response.size());
+		PlatformLogger.log("search response size: " + response.size());
 		return response;
 	}
 
@@ -899,7 +900,7 @@ public class SearchProcessor {
 			object = Arrays.asList();
 		}
 		}catch (Exception e) {
-			LOGGER.error(e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
 		builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).object()
 				.key("query").array();

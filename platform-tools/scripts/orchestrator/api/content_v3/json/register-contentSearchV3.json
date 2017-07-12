@@ -61,5 +61,7 @@
         "type": "POST",
         "url": "/v3/content/adv/search"
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.learning.content.adv.search",
+    "version":"3.0"
 }

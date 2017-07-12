@@ -14,5 +14,6 @@
         "url": "/v2/content/list"
     },
     "body": "",
-    "apiId": "ekstep.content.list"
+    "apiId": "ekstep.learning.content.list",
+    "version": "2.0"
 }

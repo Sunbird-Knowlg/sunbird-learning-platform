@@ -16,5 +16,7 @@
     "type":"POST",
     "url":"/v2/language/tools/rhymingWords/"
   },
-  "body": ""
+  "body": "",
+  "apiId":"ekstep.language.rhymingWords.list",
+  "version":"2.0"
 }

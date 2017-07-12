@@ -17,18 +17,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.collections.*;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.enums.Enums.ObjectType;
 import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
 
+import com.ilimi.common.logger.PlatformLogger;
+
 public class ImportDictionary {
 
-	private static Logger LOGGER = LogManager.getLogger(ImportDictionary.class.getName());
+	
 
 	private static final String CSV_SEPARATOR = ",";
 
@@ -191,7 +192,7 @@ public class ImportDictionary {
 				if (null != reader)
 					reader.close();
 			} catch (IOException e) {
-				LOGGER.error("Error! While Closing the Input Stream.", e);
+				PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 			}
 		}
 
@@ -299,11 +300,11 @@ public class ImportDictionary {
 			}
 			bw.flush();
 		} catch (UnsupportedEncodingException e) {
-			LOGGER.error("Error! Unsupported File Encoding.", e);
+			PlatformLogger.log("Error! Unsupported File Encoding.", e.getMessage(), e);
 		} catch (FileNotFoundException e) {
-			LOGGER.error("Error! File Does not Exist.", e);
+			PlatformLogger.log("Error! File Does not Exist.", e.getMessage(), e);
 		} catch (IOException e) {
-			LOGGER.error("Error! While Handling the File.", e);
+			PlatformLogger.log("Error! While Handling the File.", e.getMessage(), e);
 		}
 	}
 

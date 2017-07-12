@@ -3,8 +3,6 @@ package org.ekstep.language.actor;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.cache.GradeComplexityCache;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -14,6 +12,7 @@ import org.ekstep.language.util.GradeLevelComplexityUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 import akka.actor.ActorRef;
@@ -27,7 +26,7 @@ import akka.actor.ActorRef;
 public class LanguageCacheActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(LanguageCacheActor.class.getName());
+	
 
 	/** The util. */
 	private GradeLevelComplexityUtil util = new GradeLevelComplexityUtil();
@@ -38,11 +37,10 @@ public class LanguageCacheActor extends LanguageBaseActor {
 	 * @see
 	 * com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		// TODO Auto-generated method stub
-		LOGGER.info("Received Command: " + msg);
+		PlatformLogger.log("Received Command: " + msg);
 		Request request = (Request) msg;
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
@@ -63,12 +61,12 @@ public class LanguageCacheActor extends LanguageBaseActor {
 				util.validateComplexityRange(languageId, gradeLevelComplexity);
 				OK(getSender());
 			} else {
-				LOGGER.info("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error in enrich actor", e);
+			PlatformLogger.log("Error in enrich actor", e.getMessage(), e);
 			handleException(e, getSender());
 		}
 

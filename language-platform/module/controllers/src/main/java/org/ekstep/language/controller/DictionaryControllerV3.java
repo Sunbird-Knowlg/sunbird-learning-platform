@@ -2,6 +2,7 @@ package org.ekstep.language.controller;
 
 import java.util.Map;
 
+import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 
 
 /**
@@ -26,6 +28,13 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	@Autowired
 	private WordControllerV2 wordController;
 
+	/** The dictionary manager. */
+	@Autowired
+	private IDictionaryManager dictionaryManager;
+	
+	/** The logger. */
+	
+	
 	/**
 	 * Finds and returns the word.
 	 *
@@ -45,7 +54,16 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 			@PathVariable(value = "objectId") String objectId,
 			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestHeader(value = "user-id") String userId) {
-		return wordController.find(languageId, objectId, fields, userId, API_VERSION_3);
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".info";
+		try {
+			Response response = dictionaryManager.getWordV3(languageId, objectId);
+			PlatformLogger.log("Find | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Find | Exception: " , e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**
@@ -61,7 +79,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            the user id
 	 * @return the response entity
 	 */
-	@RequestMapping(value = "/list/", method = RequestMethod.GET)
+	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAll(@RequestParam(value = "language_id", required = true) String languageId,
 			@RequestParam(value = "fields", required = false) String[] fields,
@@ -83,8 +101,7 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            User making the request
 	 * @return the response entity
 	 */
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/create/", method = RequestMethod.POST)
+	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestParam(value = "language_id", required = true) String languageId,
 			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
@@ -107,7 +124,6 @@ public abstract class DictionaryControllerV3 extends BaseLanguageController {
 	 *            User making the request
 	 * @return the response entity
 	 */
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/update/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> partialUpdate(@RequestParam(value = "language_id", required = true) String languageId,

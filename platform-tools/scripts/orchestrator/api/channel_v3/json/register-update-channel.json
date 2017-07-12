@@ -22,6 +22,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.channel.update",
+    "apiId": "ekstep.learning.channel.update",
     "version": "3.0"
 }

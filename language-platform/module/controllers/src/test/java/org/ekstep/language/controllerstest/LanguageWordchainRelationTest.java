@@ -12,9 +12,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.test.web.servlet.ResultActions;
 

@@ -2,10 +2,6 @@ package com.ilimi.graph.engine.loadtest;
 
 import java.io.InputStream;
 
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -13,6 +9,10 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.mgr.impl.GraphMgrTest;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.importer.InputStreamValue;
+
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Future;
 
 public class ImportGraphTest {
     ActorRef reqRouter = null;

@@ -20,5 +20,7 @@
         "pathParams": ["synset_id"],
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.synset.update",
+    "version":"3.0"
 }

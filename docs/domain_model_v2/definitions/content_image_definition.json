@@ -142,7 +142,7 @@
         },
         {
           "required": false,
-          "dataType": "Select",
+          "dataType": "List",
           "propertyName": "audience",
           "title": "Audience",
           "description": "The target audience of the Content",
@@ -756,6 +756,7 @@
             "Creative Commons Attribution-NoDerivs (CC-BY-ND)",
             "Creative Commons Attribution (CC BY)",
             "Creative Commons Attribution-ShareAlike (CC BY-SA)",
+            "Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)",
             "Creative Commons Zero (CC0)",
             "Free Art License",
             "Open Audio License",
@@ -888,6 +889,12 @@
             "Grade 3",
             "Grade 4",
             "Grade 5",
+            "Grade 6",
+            "Grade 7",
+            "Grade 8",
+            "Grade 9",
+            "Grade 10",
+            "Grade 11",
             "Grade 12",
             "Other"
           ],
@@ -936,7 +943,9 @@
 		    "ContentTemplate",
 		    "ItemTemplate",
 		    "TextBook",
-		    "TextBookUnit"
+		    "TextBookUnit",
+        "Course",
+        "CourseUnit"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
@@ -1193,19 +1202,6 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
-        },
-        {
-          "propertyName": "screenshots",
-          "title": "Property to store screenShots",
-          "description": "",
-          "category": "General",
-          "dataType": "List",
-          "range": [],
-          "required": false,
-          "indexed": true,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{}"
         },
         {
           "required": false,

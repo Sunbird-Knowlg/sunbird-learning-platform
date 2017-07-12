@@ -3,10 +3,9 @@ package org.ekstep.content.mimetype.mgr.impl;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
@@ -15,8 +14,10 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -30,7 +31,7 @@ import com.ilimi.graph.dac.model.Node;
 public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	/** Logger */
-	private static Logger LOGGER = LogManager.getLogger(YoutubeMimeTypeManager.class.getName());
+	
 
 	/*
 	 * (non-Javadoc)
@@ -60,32 +61,30 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
 
-		LOGGER.debug("Node: ", node);
 		Response response = new Response();
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + contentId);
+		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
 			response.put(ContentAPIParams.publishStatus.name(), "Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		}
 		else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + node.getIdentifier());
+			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , node.getIdentifier());
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
-
 	}
 
 	/*
@@ -97,15 +96,14 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	 */
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
 
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 }

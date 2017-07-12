@@ -6,5 +6,6 @@
         "url": "/v1/language"
     },
     "body": "",
-    "apiId": "ekstep.language.list"
+    "apiId": "ekstep.language.list",
+    "version":"1.0"
 }

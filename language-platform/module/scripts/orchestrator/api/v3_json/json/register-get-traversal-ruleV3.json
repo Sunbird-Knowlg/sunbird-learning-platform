@@ -16,5 +16,7 @@
         "pathParams": ["rule_id"],
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.traversalRules.read",
+    "version":"3.0"
 }

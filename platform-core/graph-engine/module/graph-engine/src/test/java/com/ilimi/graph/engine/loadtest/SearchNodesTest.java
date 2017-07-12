@@ -4,11 +4,6 @@ import java.util.Arrays;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.annotations.BeforeTest;
-
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.pattern.Patterns;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -19,6 +14,10 @@ import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+
+import akka.actor.ActorRef;
+import akka.pattern.Patterns;
+import scala.concurrent.Future;
 
 public class SearchNodesTest {
     ActorRef reqRouter = null;

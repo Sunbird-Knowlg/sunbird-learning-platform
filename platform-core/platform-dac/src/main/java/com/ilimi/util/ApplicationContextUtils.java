@@ -17,11 +17,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * @author ravitejagarlapati
@@ -30,7 +30,6 @@ import org.springframework.context.ApplicationContextAware;
 
 public class ApplicationContextUtils implements ApplicationContextAware {
 
-	private static Logger logger = LoggerFactory.getLogger(ApplicationContextUtils.class);
 	private static ApplicationContext ctx;
 	private static ApplicationContextUtils applicationContextUtils; 
 	private static Map<String, Object> globalObjects = new HashMap<String, Object>();
@@ -73,7 +72,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 
 	public static Properties getAppProperties() {
 		if (applicationContextUtils.appProperties == null) {
-			logger.debug("loading app.properties at ApplicationContextUtils...");
+			PlatformLogger.log("loading app.properties at ApplicationContextUtils...");
 			ApplicationContext appCtx = ApplicationContextUtils.getApplicationContext();
 			Properties props = (Properties) appCtx.getBean("appProperties");
 			applicationContextUtils.appProperties = props;

@@ -1,8 +1,6 @@
 package org.ekstep.language.router;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -17,6 +15,8 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
@@ -31,7 +31,7 @@ import scala.concurrent.Future;
 
 public class LanguageRequestRouter extends UntypedActor {
 
-    private static Logger LOGGER = LogManager.getLogger(LanguageRequestRouter.class.getName());
+    
 
     protected long timeout = 30000;
 
@@ -87,7 +87,7 @@ public class LanguageRequestRouter extends UntypedActor {
                 parent.tell(arg0, getSelf());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                LOGGER.info(
+                PlatformLogger.log(
                         request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
             }
         }, getContext().dispatcher());
@@ -101,7 +101,7 @@ public class LanguageRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
+        PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , e.getMessage(), LoggerEnum.WARN.name());
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

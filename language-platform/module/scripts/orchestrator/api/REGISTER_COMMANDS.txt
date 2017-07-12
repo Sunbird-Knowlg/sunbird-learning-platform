@@ -56,3 +56,8 @@ node registerScript.js api/composite-search.tcl api/json/register-composite-sear
 
 node registerScript.js api/get-transliterate.tcl api/json/register-get-transliterate.json update
 
+node registerScript.js api/create-translation.tcl api/json/register-create-translation-async.json update
+
+node registerScript.js api/bulkCreateTranslations.tcl api/json/register-bulkCreateTranslations.json update
+
+node registerScript.js api/bulkCreateTags.tcl api/json/register-bulkCreateTags.json register

@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "2.0",
+    "version": "3.0",
     "title": "Config-Service",
     "description": "The Config-Service of EkStep Platform provides details of Config resourcebundles of languages supported by the platform",
     "license": {
@@ -9,6 +9,7 @@
       "url": "http:www.EkStep.in"
     }
   },
+  "basePath":"/meta/v3",
    "host": "api.ekstep.in",
   "securityDefinitions": {},
    "schemes": [
@@ -21,14 +22,14 @@
     "application/json"
   ],
   "paths": {
-    "/v3/resourcebundles/list": {
+    "/resourcebundles/list": {
       "get": {
         "summary": "Gets All resourcebundles",
         "description": "This API returns all the resourcebundles for languages supported by the EkStep Platform",
         "tags": [
           "ResourceBundle"
         ],
-        "operationId": "resourebundles.list",
+        "operationId": "ekstep.config.resourebundles.list",
         "produces": [
           "application/json"
         ],
@@ -55,14 +56,14 @@
         "security": []
       }
     },
-    "/v3/resourcebundles/read{languageId}": {
+    "/resourcebundles/read/{languageId}": {
       "get": {
         "summary": "Gets Specific resourcebundle",
         "description": "This API returns specific resourcebundle based on the specified language",
         "tags": [
           "ResourceBundle"
         ],
-        "operationId": "resourcebundles.find",
+        "operationId": "ekstep.config.resourcebundles.find",
         "produces": [
           "application/json"
         ],
@@ -98,14 +99,14 @@
         "security": []
       }
     },
-    "/v3/ordinals/list": {
+    "/ordinals/list": {
       "get": {
         "summary": "Gets Config ordianls",
         "description": "This API returns list of config ordinals supported by the platform",
         "tags": [
           "Ordinals"
         ],
-        "operationId": "ordinals.list",
+        "operationId": "ekstep.config.ordinals.list",
         "produces": [
           "application/json"
         ],

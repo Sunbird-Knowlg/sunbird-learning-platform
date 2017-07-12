@@ -3,8 +3,6 @@ package org.ekstep.language.controller;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -22,13 +20,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 
 @Controller
 @RequestMapping("v3/tools")
 public class ToolsV3Controller extends BaseLanguageController {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ToolsV3Controller.class.getName());
+	
 
 	/** The parser manger. */
 	@Autowired
@@ -47,7 +46,7 @@ public class ToolsV3Controller extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> parseContent(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "parser";
+		String apiId = "ekstep.language.parser";
 		Request request = getRequest(map);
 		try {
 			String languageId = (String) request.get(LanguageParams.language_id.name());
@@ -63,11 +62,11 @@ public class ToolsV3Controller extends BaseLanguageController {
 			Integer limit = (Integer) request.get("limit");
 			Response response = parserManger.parseContent(languageId, content, wordSuggestions, false, translations,
 					equivalentWords, limit);
-			LOGGER.info("Parser | Response: " + response);
+			PlatformLogger.log("Parser | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("Parser | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Parser | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -83,21 +82,21 @@ public class ToolsV3Controller extends BaseLanguageController {
 	@RequestMapping(value = "/complexity", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> getComplexity(@RequestBody Map<String, Object> map) {
-		String apiId = "language.complexity";
+		String apiId = "ekstep.language.complexity.info";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		// TODO: return error response if language value is blank
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.computeComplexity.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -113,20 +112,20 @@ public class ToolsV3Controller extends BaseLanguageController {
 	@RequestMapping(value = "/text/analysis", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> computeTextComplexity(@RequestBody Map<String, Object> map) {
-		String apiId = "text.complexity";
+		String apiId = "ekstep.language.text.complexity.info";
 		Request request = getRequest(map);
 		String language = (String) request.get(LanguageParams.language_id.name());
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.computeTextComplexity.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

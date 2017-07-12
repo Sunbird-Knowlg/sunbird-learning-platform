@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" packages="">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="SearchLogAppender" fileName="/data/logs/search.log"
-			filePattern="/data/logs/search-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="DefaultLogAppender" fileName="/data/logs/search_service.log"
+			filePattern="/data/logs/search_service-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
-				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
-				</Pattern>
+				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="24"
 					modulate="true" />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="search_service-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/search_perf.log"
 			filePattern="/data/logs/search_perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -23,6 +28,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="search_perf-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/search_event.log"
 			filePattern="/data/logs/search_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -32,6 +43,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="search_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 	</Appenders>
 	<Loggers>
@@ -41,8 +58,8 @@
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
-		<Root level="INFO">
-			<AppenderRef ref="SearchLogAppender" />
-		</Root>
+		<Logger name="DefaultPlatformLogger" level="INFO" additivity="false">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Logger>
 	</Loggers>
 </Configuration>

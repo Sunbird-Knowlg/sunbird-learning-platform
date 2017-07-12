@@ -1,10 +1,18 @@
 {
   "name": "cleanupDuplicateWords",
-  "parameters": [
+  "parameters": [{
+      "name":"graph_id",
+      "index": 0,
+      "routingParam": true
+    }
   ],
   "requestPath": {
     "type":"POST",
-    "url":"/v2/language/tools/cleanupDuplicateWords/"
+    "url":"/v2/language/tools/*/cleanupDuplicateWords/",
+     "pathParams": ["graph_id"]
   },
-  "body": ""
+  "body": "",
+  "apiId":"ekstep.language.cleanupDuplicateWords",
+  "version":"2.0"
+
 }

@@ -3,10 +3,6 @@ package com.ilimi.graph.engine.mgr.impl;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.OnComplete;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
@@ -25,6 +21,10 @@ import com.ilimi.graph.model.collection.Sequence;
 import com.ilimi.graph.model.collection.Set;
 import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.node.DataNode;
+
+import akka.actor.ActorRef;
+import akka.dispatch.OnComplete;
+import scala.concurrent.Future;
 
 public class CollectionManagerImpl extends BaseGraphManager implements ICollectionManager {
 

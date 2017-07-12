@@ -27,5 +27,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.translations.get"
+    "apiId": "ekstep.language.translations.read",
+    "version":"3.0"
 }

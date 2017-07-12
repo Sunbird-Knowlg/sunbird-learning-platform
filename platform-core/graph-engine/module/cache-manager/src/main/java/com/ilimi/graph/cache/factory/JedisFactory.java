@@ -5,14 +5,14 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.common.mgr.Configuration;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 public class JedisFactory {
 

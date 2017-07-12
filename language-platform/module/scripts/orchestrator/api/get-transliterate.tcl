@@ -4,9 +4,19 @@ java::import -package java.util HashMap Map
 
 set transliterate [java::new HashMap]
 
+puts "test $languages #lemma"
 java::for {String language} $languages {
 
-set transliterateResponse [transliterate $language [java::new Boolean true] $lemma]
+if {$language == "en"} {
+	continue
+}
+
+set transliterateResponse [transliterate $language [java::new Boolean "true"] $lemma]
+
+set get_node_response_error [check_response_error $transliterateResponse]
+if {$get_node_response_error} {
+	continue
+}
 set transliterateResultMap [$transliterateResponse getResult]
 set transliterateResultMap [java::cast Map $transliterateResultMap]
 set outputText [$transliterateResultMap get "output"]

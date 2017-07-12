@@ -20,5 +20,7 @@
         "pathParams": ["varna_id"],
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.varnas.update",
+    "version":"3.0"
 }

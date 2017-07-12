@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.ekstep.searchindex.processor.AuditHistoryMessageProcessor;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
@@ -19,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.dac.enums.CommonDACParams;

@@ -8,8 +8,6 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -26,6 +24,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -33,19 +32,18 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
-	private static Logger LOGGER = LogManager.getLogger(PluginMimeTypeMgrImpl.class.getName());
+	
 
 	/* (non-Javadoc)
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
-		LOGGER.debug("Uploaded File: " + uploadFile.getName());
+		PlatformLogger.log("Uploaded File: " , uploadFile.getName());
 
 		ContentValidator validator = new ContentValidator();
 		if (validator.isValidPluginPackage(uploadFile)) {
-			LOGGER.info("Calling Upload Content For Node ID: " + contentId);
+			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId);
 			String basePath = getBasePath(contentId);
 			// Extract the ZIP File 
 			extractContentPackage(uploadFile, basePath);
@@ -53,7 +51,6 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			// read manifest json
 			File jsonFile = new File(basePath + File.separator + "manifest.json");
 			try {
-				LOGGER.info("Reading ECML File.");
 				if (jsonFile.exists()) {
 					String manifest = FileUtils.readFileToString(jsonFile);
 					String version = getVersion(contentId, manifest);
@@ -66,7 +63,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			try {
 				FileUtils.deleteDirectory(new File(basePath));
 			} catch (Exception e) {
-				LOGGER.error("Error deleting directory: " + basePath, e);
+				PlatformLogger.log("Error deleting directory: " , basePath, e);
 			}
 			return uploadContentArtifact(contentId, node, uploadFile);
 		} else {
@@ -87,7 +84,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
 		}
-		LOGGER.info("pluginId:" + pluginId + "ManifestId:" + id);
+		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id);
 		if (!StringUtils.equals(pluginId, id))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);
@@ -104,30 +101,28 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	 */
 	@Override
 	public Response publish(String contentId, Node node, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
-
 		Response response = new Response();
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 		
-		LOGGER.debug("Adding 'isPublishOperation' Flag to 'true'");
+		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node Id: " + contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " , contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		LOGGER.info("Review Operation Finished Successfully for Node ID: " + contentId);
+		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			LOGGER.info("Publish Operation Started Successfully in 'Async Mode' for Node Id: " + contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			LOGGER.info("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " + contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
 
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
@@ -137,15 +132,14 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		LOGGER.debug("Node: ", node);
 
-		LOGGER.info("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " + contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		parameterMap.put(ContentAPIParams.ecmlType.name(), false);
 
-		LOGGER.info("Calling the 'Review' Initializer for Node ID: " + contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node ID: " , contentId);
 		return pipeline.init(ContentAPIParams.review.name(), parameterMap);
 	}
 

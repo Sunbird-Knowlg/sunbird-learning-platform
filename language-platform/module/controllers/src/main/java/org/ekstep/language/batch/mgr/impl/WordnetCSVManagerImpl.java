@@ -16,8 +16,6 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.batch.mgr.IWordnetCSVManager;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -42,7 +40,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 	private static final String NEW_LINE_SEPARATOR = "\n";
 	
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(IWordnetCSVManager.class.getName());
+	
 
 	/*
 	 * (non-Javadoc)
@@ -207,7 +205,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.addCitationIndex.name());
 				langReq.put(LanguageParams.citations.name(), list);
-				getLanguageResponse(langReq, LOGGER);
+				getLanguageResponse(langReq);
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -247,7 +245,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.addWordIndex.name());
 				langReq.put(LanguageParams.words.name(), list);
-				getLanguageResponse(langReq, LOGGER);
+				getLanguageResponse(langReq);
 				start += 100;
 				batch += 100;
 				if (batch > words.size())
@@ -291,7 +289,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.getIndexInfo.name());
 				langReq.put(LanguageParams.words.name(), list);
-				Response langRes = getLanguageResponse(langReq, LOGGER);
+				Response langRes = getLanguageResponse(langReq);
 				if (!checkError(langRes)) {
 					Map<String, Object> map = (Map<String, Object>) langRes.get(LanguageParams.index_info.name());
 					if (null != map && !map.isEmpty())

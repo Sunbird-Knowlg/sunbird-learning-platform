@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
 /**
@@ -31,7 +31,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryController extends BaseController {
 
 	/** The Logger */
-	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryController.class.getName());
+	
 	private String versionId = getAPIVersion();
 	
 	@Autowired
@@ -57,16 +57,16 @@ public class AuditHistoryController extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getAll";
+		String apiId = "ekstep.learning.audit_history.list";
 
-		LOGGER.info("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
+		PlatformLogger.log("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
 				+ endTime);
 		try {
 			Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime, versionId);
-			LOGGER.info("Find Item | Response: " + response);
+			PlatformLogger.log("Find Item | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -96,16 +96,16 @@ public class AuditHistoryController extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getById";
+		String apiId = "ekstep.learning.audit_history.info";
 
-		LOGGER.info("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
+		PlatformLogger.log("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			LOGGER.info("Find Item | Response: " + response);
+			PlatformLogger.log("Find Item | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -134,16 +134,16 @@ public class AuditHistoryController extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getByType";
+		String apiId = "ekstep.learning.audit_history.info";
 
-		LOGGER.info("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
+		PlatformLogger.log("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime, versionId);
-			LOGGER.info("Find Item | Response: " + response);
+			PlatformLogger.log("Find Item | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

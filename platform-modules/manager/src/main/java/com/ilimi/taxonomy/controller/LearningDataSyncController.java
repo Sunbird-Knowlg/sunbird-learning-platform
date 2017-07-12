@@ -2,8 +2,6 @@ package com.ilimi.taxonomy.controller;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,13 +14,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 
 @Controller
 @RequestMapping("v2/composite-search")
 public class LearningDataSyncController extends BaseController {
 
-	private static Logger LOGGER = LogManager.getLogger(LearningDataSyncController.class.getName());
+	
 	
 	@Autowired
 	private ICompositeSearchManager compositeSearchManager;
@@ -35,13 +34,13 @@ public class LearningDataSyncController extends BaseController {
 			@RequestParam(name = "total", required = false) Integer total,
 			@RequestParam(name = "delete", required = false, defaultValue = "false") boolean delete,
 			@RequestBody Map<String, Object> map) {
-		String apiId = "composite-search.sync";
-		LOGGER.info(apiId + " | Graph : " + graphId + " | ObjectType: " + objectType);
+		String apiId = "ekstep.composite-search.sync";
+		PlatformLogger.log(apiId + " | Graph : " + graphId , " | ObjectType: " + objectType);
 		try {
 			Response response = compositeSearchManager.sync(graphId, objectType, start, total, delete);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Error: " + apiId, e);
+			PlatformLogger.log("Error: " , apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -51,13 +50,13 @@ public class LearningDataSyncController extends BaseController {
 	public ResponseEntity<Response> syncObject(@PathVariable(value = "graphId") String graphId,
 			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestBody Map<String, Object> map) {
-		String apiId = "composite-search.sync-object";
-		LOGGER.info(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
+		String apiId = "ekstep.composite-search.sync-object";
+		PlatformLogger.log(apiId + " | Graph : " + graphId , " | Identifier: " + identifiers);
 		try {
 			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Error: " + apiId, e);
+			PlatformLogger.log("Error: " , apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

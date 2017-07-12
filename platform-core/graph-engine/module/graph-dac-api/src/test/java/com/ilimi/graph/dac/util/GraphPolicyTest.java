@@ -6,14 +6,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.factory.GraphServiceFactory;
-import org.junit.AfterClass;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runners.MethodSorters;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -24,8 +25,6 @@ import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
-
-import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.DEFAULT)
 public class GraphPolicyTest {

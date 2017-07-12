@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.enums.ImportType;
@@ -35,7 +35,7 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @RequestMapping("/v3/system")
 public class GraphV3Controller extends BaseController {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(GraphV3Controller.class.getName());
+	
 
 	@Autowired
 	private ITaxonomyManager taxonomyManager;
@@ -45,34 +45,36 @@ public class GraphV3Controller extends BaseController {
 	public ResponseEntity<Response> create(@PathVariable(value = "id") String id,
 			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse resp) {
-		String apiId = "taxonomy.import";
-		LOGGER.info("Create | Id: " + id + " | File: " + file + " | user-id: " + userId);
+		String apiId = "ekstep.graph.import";
+		PlatformLogger.log("Create | Id: " + id + " | File: " + file + " | user-id: " + userId);
 		InputStream stream = null;
 		try {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = taxonomyManager.create(id, stream);
-			LOGGER.info("Create | Response: " + response);
+			PlatformLogger.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			if (null != stream)
 				try {
 					stream.close();
 				} catch (IOException e) {
-					LOGGER.error("Error1 While Closing the Stream.", e);
+					PlatformLogger.log("Error1 While Closing the Stream.", e.getMessage(), e);
 				}
 		}
 	}
 
+	@SuppressWarnings("unused")
 	@RequestMapping(value = "/export/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public void export(@PathVariable(value = "id") String id, @RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String format = ImportType.CSV.name();
-		LOGGER.info("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
+		String apiId = "ekstep.graph.export";
+		PlatformLogger.log("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
 		try {
 			Request req = getRequest(map);
 			try {
@@ -95,9 +97,9 @@ public class GraphV3Controller extends BaseController {
 					resp.getOutputStream().close();
 				}
 			}
-			LOGGER.info("Export | Response: " + response);
+			PlatformLogger.log("Export | Response: " , response);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
 		}
 	}
 
@@ -105,14 +107,14 @@ public class GraphV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> updateDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.update";
-		LOGGER.info("update Definition | Id: " + id + " | user-id: " + userId);
+		String apiId = "ekstep.definition.update";
+		PlatformLogger.log("update Definition | Id: " + id + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.updateDefinition(id, json);
-			LOGGER.info("update Definition | Response: " + response);
+			PlatformLogger.log("update Definition | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("update Definition | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("update Definition | Exception: " , e.getMessage(), e);
 			e.printStackTrace();
 			return getExceptionResponseEntity(e, apiId, null);
 		}
@@ -123,14 +125,14 @@ public class GraphV3Controller extends BaseController {
 	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String objectType,
 			 @RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
 			 @RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.find";
-		LOGGER.info("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
+		String apiId = "ekstep.definition.read";
+		PlatformLogger.log("Find Definition | Id: " + graphId + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findDefinition(graphId, objectType);
-			LOGGER.info("Find Definition | Response: " + response);
+			PlatformLogger.log("Find Definition | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Definition | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Definition | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -140,14 +142,14 @@ public class GraphV3Controller extends BaseController {
 	public ResponseEntity<Response> findAllDefinitions(
 			@RequestParam(value = "graphId", required = true, defaultValue = "domain") String graphId,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "definition.list";
-		LOGGER.info("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
+		String apiId = "ekstep.definition.list";
+		PlatformLogger.log("Find All Definitions | Id: " + graphId + " | user-id: " + userId);
 		try {
 			Response response = taxonomyManager.findAllDefinitions(graphId);
-			LOGGER.info("Find All Definitions | Response: " + response);
+			PlatformLogger.log("Find All Definitions | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find All Definitions | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find All Definitions | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

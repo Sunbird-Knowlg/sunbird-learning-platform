@@ -4,19 +4,19 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.Neo4JOperation;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
+
 import iot.jcypher.query.JcQuery;
 import iot.jcypher.query.api.IClause;
 import iot.jcypher.query.factories.clause.CREATE;
@@ -28,16 +28,14 @@ import iot.jcypher.util.Util;
 
 public class JCypherUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(JCypherUtil.class.getName());
-
 	public static String getQuery(Neo4JOperation operation, Node node) {
 
-		LOGGER.debug("Validating Database (Neo4J) Operation against 'null'.");
+		PlatformLogger.log("Validating Database (Neo4J) Operation against 'null'.");
 		if (null == operation)
 			throw new ClientException(DACErrorCodeConstants.INVALID_OPERATION.name(),
 					DACErrorMessageConstants.INVALID_OPERATION + " | [Query Generation Failed.]");
 
-		LOGGER.debug("Validating Graph Engine Node against 'null'.");
+		PlatformLogger.log("Validating Graph Engine Node against 'null'.");
 		if (null == node)
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
 					DACErrorMessageConstants.INVALID_NODE + " | [Query Generation Failed.]");
@@ -99,11 +97,11 @@ public class JCypherUtil {
 	}
 	
 	private static IClause getClause(iot.jcypher.query.api.pattern.Node patternNode, Node node) {
-		LOGGER.debug("JCypher Pattern Node: ", patternNode);
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("JCypher Pattern Node: ", patternNode);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		String date = DateUtils.formatCurrentDate();
-		LOGGER.debug("Date: " + date);
+		PlatformLogger.log("Date: " + date);
 
 		if (null == patternNode)
 			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
@@ -124,19 +122,19 @@ public class JCypherUtil {
 
 	private static iot.jcypher.query.api.pattern.Node addSystemMetadata(iot.jcypher.query.api.pattern.Node patternNode,
 			Node node, String date) {
-		LOGGER.debug("Pattern Node: ", patternNode);
-		LOGGER.debug("Graph Engine Node: ", node);
-		LOGGER.debug("Date: ", date);
+		PlatformLogger.log("Pattern Node: ", patternNode);
+		PlatformLogger.log("Graph Engine Node: ", node);
+		PlatformLogger.log("Date: ", date);
 
 		try {
 			if (null != patternNode && null != node && null != date) {
 				// Setting Identifier
-				LOGGER.debug("Setting System Metadata.");
+				PlatformLogger.log("Setting System Metadata.");
 				if (StringUtils.isBlank(node.getIdentifier()))
 					node.setIdentifier(Identifier.getIdentifier(node.getGraphId(), Identifier.getUniqueIdFromTimestamp()));
 
 				// Setting Identifier and Node Type
-				LOGGER.debug("Setting System Properties.");
+				PlatformLogger.log("Setting System Properties.");
 				patternNode.property(SystemProperties.IL_UNIQUE_ID.name()).value(node.getIdentifier());
 				patternNode.property(SystemProperties.IL_SYS_NODE_TYPE.name()).value(node.getNodeType());
 
@@ -154,14 +152,14 @@ public class JCypherUtil {
 	@SuppressWarnings("unused")
 	private static iot.jcypher.query.api.pattern.Node addAuditMetadata(iot.jcypher.query.api.pattern.Node patternNode,
 			Node node, String date, boolean isUpdateOnly) {
-		LOGGER.debug("Pattern Node: ", patternNode);
-		LOGGER.debug("Graph Engine Node: ", node);
-		LOGGER.debug("Date: ", date);
-		LOGGER.debug("Is Update Opertion ? ", isUpdateOnly);
+		PlatformLogger.log("Pattern Node: ", patternNode);
+		PlatformLogger.log("Graph Engine Node: ", node);
+		PlatformLogger.log("Date: ", date);
+		PlatformLogger.log("Is Update Opertion ? ", isUpdateOnly);
 
 		try {
 			// Setting Audit Properties
-			LOGGER.debug("Setting Audit Properties.");
+			PlatformLogger.log("Setting Audit Properties.");
 			if (BooleanUtils.isFalse(isUpdateOnly))
 				patternNode.property(AuditProperties.createdOn.name()).value(date);
 			patternNode.property(AuditProperties.lastUpdatedOn.name()).value(date);
@@ -176,14 +174,14 @@ public class JCypherUtil {
 	@SuppressWarnings("unused")
 	private static iot.jcypher.query.api.pattern.Node addVersionKey(iot.jcypher.query.api.pattern.Node patternNode,
 			Node node, String date) {
-		LOGGER.debug("Pattern Node: ", patternNode);
-		LOGGER.debug("Graph Engine Node: ", node);
-		LOGGER.debug("Date: ", date);
+		PlatformLogger.log("Pattern Node: ", patternNode);
+		PlatformLogger.log("Graph Engine Node: ", node);
+		PlatformLogger.log("Date: ", date);
 
 		try {
 			if (StringUtils.isNotBlank(date)) {
 				// Setting Version Key
-				LOGGER.debug("Setting 'versionKey'.");
+				PlatformLogger.log("Setting 'versionKey'.");
 				patternNode.property(GraphDACParams.versionKey.name())
 						.value(Long.toString(DateUtils.parse(date).getTime()));
 

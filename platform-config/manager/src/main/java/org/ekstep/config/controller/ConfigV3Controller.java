@@ -23,7 +23,8 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 
 @Controller
 @RequestMapping("/v3/")
@@ -32,7 +33,7 @@ public class ConfigV3Controller extends BaseController {
 	public static final String folderName = "resources";
 	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
 
-	private static LogHelper LOGGER = LogHelper.getInstance(ConfigController.class.getName());
+	
 	
 	@RequestMapping(value = "/resourcebundles/list", method = RequestMethod.GET)
 	@ResponseBody
@@ -52,7 +53,7 @@ public class ConfigV3Controller extends BaseController {
 					});
 					resourcebundles.put(langId, map);
 				} catch (Exception e) {
-					LOGGER.error("Error in fetching all ResourceBundles from s3"+ e.getMessage(), e);
+					PlatformLogger.log("Error in fetching all ResourceBundles from s3" , e.getMessage(), e);
 				}
 			}
 			response.put("resourcebundles", resourcebundles);
@@ -62,10 +63,10 @@ public class ConfigV3Controller extends BaseController {
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("ttl", 24.0);
-			LOGGER.info("get All ResourceBundles | Response: " + response + "Id" + apiId);
+			PlatformLogger.log("get All ResourceBundles | Response: " , response + "Id" + apiId);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("getAllResources | Exception" + e.getMessage(), e);
+			PlatformLogger.log("getAllResources | Exception" , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -73,10 +74,10 @@ public class ConfigV3Controller extends BaseController {
 	@RequestMapping(value = "/resourcebundles/read/{languageId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundle(@PathVariable(value = "languageId") String languageId) {
-		String apiId = "ekstep.config.resourebundles.find";
+		String apiId = "ekstep.config.resourebundles.read";
 
 		try {
-			LOGGER.info("ResourceBundle | GET | languageId" + languageId);
+			PlatformLogger.log("ResourceBundle | GET | languageId" , languageId);
 			Response response = new Response();
 			String data = HttpDownloadUtility
 					.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
@@ -91,9 +92,9 @@ public class ConfigV3Controller extends BaseController {
 					Map<String, Object> map = mapper.readValue(data, new TypeReference<Map<String, Object>>() {
 					});
 					response.put(languageId, map);
-					LOGGER.info("getResourceBundle | successResponse" + response);
+					PlatformLogger.log("getResourceBundle | successResponse" , response.getResponseCode());
 				} catch (Exception e) {
-					LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
+					PlatformLogger.log("getResourceBundle | Exception" + e.getMessage(), e, LoggerEnum.WARN.name());
 				}
 				return getResponseEntity(response, apiId, null);
 			} else {
@@ -104,11 +105,11 @@ public class ConfigV3Controller extends BaseController {
 				response.setParams(params);
 				response.getResponseCode();
 				response.setResponseCode(ResponseCode.RESOURCE_NOT_FOUND);
-				LOGGER.info("getResourceBundle | FailureResponse" + response);
+				PlatformLogger.log("getResourceBundle | FailureResponse" , response);
 				return getResponseEntity(response, apiId, null);
 			}
 		} catch (Exception e) {
-			LOGGER.error("getResourceBundle | Exception" + e.getMessage(), e);
+			PlatformLogger.log("getResourceBundle | Exception" , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -132,12 +133,12 @@ public class ConfigV3Controller extends BaseController {
 				});
 				response.put("ordinals", map);
 			} catch (Exception e) {
-				LOGGER.error("Get Ordinals | Exception" + e.getMessage(), e);
+				PlatformLogger.log("Get Ordinals | Exception" , e.getMessage(), e, LoggerEnum.WARN.name());
 			}
-			LOGGER.info("Get Ordinals | Response" + response);
+			PlatformLogger.log("Get Ordinals | Response" , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			PlatformLogger.log("getOrdinalsException" , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -146,6 +147,7 @@ public class ConfigV3Controller extends BaseController {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(folderName);
+		PlatformLogger.log("ResourceBundle Urls fetched from s3" , res.size());
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
 				apiUrl = baseUrl + data;

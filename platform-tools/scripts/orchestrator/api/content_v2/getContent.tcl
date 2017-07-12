@@ -142,9 +142,7 @@ if {$check_error} {
 	if {$isEditMode == 1 && $isLiveState == 1} {
 		$resp_object put "status" "Draft"
 	}
-    if {$isEditMode == 1 && $isFlaggedState == 1} {
-		$resp_object put "status" "FlagDraft"
-    }
+   	
 	set result_map [java::new HashMap]
 	$result_map put "content" $resp_object
 	set response_list [create_response $result_map]

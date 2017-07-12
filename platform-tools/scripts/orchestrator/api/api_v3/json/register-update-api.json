@@ -22,6 +22,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.api.update",
+    "apiId": "ekstep.learning.api.update",
     "version": "3.0"
 }

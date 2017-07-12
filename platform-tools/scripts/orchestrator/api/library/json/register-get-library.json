@@ -11,5 +11,7 @@
         "url": "/v2/library/*",
         "pathParams": ["library_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.learning.library.info",
+    "version":"2.0"
 }

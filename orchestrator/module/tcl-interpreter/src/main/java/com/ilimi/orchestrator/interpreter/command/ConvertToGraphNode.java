@@ -7,11 +7,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -29,7 +28,7 @@ import tcl.pkg.java.ReflectObject;
 public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, Command {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private static Logger LOGGER = LogManager.getLogger(ConvertToGraphNode.class.getName());
+    
 
     @Override
     public String getCommandName() {
@@ -189,7 +188,7 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                     	if (!map.containsKey(value)) {
                     		if (null == inRelations)
                     			inRelations = new ArrayList<Relation>();
-                    		LOGGER.info("adding " + value + " to inRelations");
+                    		PlatformLogger.log("adding " + value + " to inRelations");
                     		inRelations.add(inRel);
                     	}
                     }
@@ -203,7 +202,7 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                     	if (!map.containsKey(value)) {
                     		if (null == outRelations)
                     			outRelations = new ArrayList<Relation>();
-                    		LOGGER.info("adding " + value + " to outRelations");
+                    		PlatformLogger.log("adding " + value + " to outRelations");
                     		outRelations.add(outRel);
                     	}
                     }

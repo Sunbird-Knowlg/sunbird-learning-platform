@@ -1,2473 +1,2615 @@
----
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "Language Platform API provides the resources to manage & access dictionaries\
-    \ of multiple languages, and to use tools provided by the platform"
-  version: "2.0"
-  title: "Language Platform - API"
+  description: >-
+    Language Platform API provides the resources to manage & access dictionaries
+    of multiple languages, and to use tools provided by the platform
+  version: '2.0'
+  title: Language Platform - API
   license:
-    name: "EkStep License"
-    url: "www.ektep.in"
+    name: EkStep License
+    url: www.ektep.in
+basePath: /language
+host: api.ekstep.in
 tags:
-- name: "Word"
-  description: "APIs for CRUD and search of word objects and to flag word object"
-- name: "Synset"
-  description: "APIs for CRUD of synset objects"
-- name: "Varna"
-  description: "APIs for CRUD of varna objects"
-- name: "WordList"
-  description: "APIs for CRUD of wordlist objects"
-- name: "Traversal Rule"
-  description: "APIs for CRUD of Traversal Rule objects"
-- name: "Tools"
-  description: "APIs to access language tools"
+  - name: Word
+    description: APIs for CRUD and search of word objects and to flag word object
+  - name: Synset
+    description: APIs for CRUD of synset objects
+  - name: Varna
+    description: APIs for CRUD of varna objects
+  - name: WordList
+    description: APIs for CRUD of wordlist objects
+  - name: Traversal Rule
+    description: APIs for CRUD of Traversal Rule objects
+  - name: Tools
+    description: APIs to access language tools
 schemes:
-- "https"
+  - https
 consumes:
-- "application/json"
+  - application/json
 produces:
-- "application/json"
+  - application/json
 paths:
   /v3/search:
     post:
       tags:
-      - "Word"
-      summary: "Searches for Words in the specified language"
-      description: "This endpoint searches a word in the specified language using\
-        \ the search criteria provided in the request body"
-      operationId: "language.search"
+        - Word
+      summary: Searches for Words in the specified language
+      description: >-
+        This endpoint searches a word in the specified language using the search
+        criteria provided in the request body
+      operationId: language.search
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/searchWordRequestBody"
-        x-is-map: false
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/searchWordRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Word search successful"
+        '200':
+          description: Word search successful
           schema:
-            $ref: "#/definitions/searchResponse"
-        400:
-          description: "Error While searching Words! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/searchResponse'
+        '400':
+          description: >-
+            Error While searching Words! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While searching Words! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While searching Words! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/synsets/create?language_id=###:
+  '/v3/synsets/create?language_id=###':
     post:
       tags:
-      - "Synset"
-      summary: "Creates a synset in the specified language"
-      description: "This endpoint creates a synset using the data in the request body"
-      operationId: "synsets.create"
+        - Synset
+      summary: Creates a synset in the specified language
+      description: This endpoint creates a synset using the data in the request body
+      operationId: synsets.create
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the synset should be created"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createSynsetRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the synset should be created
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createSynsetRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Synset Created Successfully"
+        '200':
+          description: Synset Created Successfully
           schema:
-            $ref: "#/definitions/createSynsetResponse"
-        400:
-          description: "Error While creating Synset! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createSynsetResponse'
+        '400':
+          description: >-
+            Error While creating Synset! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While Creating Synset! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Creating Synset! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/synsets/list?language_id=###:
+  '/v3/synsets/list?language_id=###':
     get:
       tags:
-      - "Synset"
-      summary: "Gets all sysnets in the specified language"
-      description: "This endpoint returns all the synsets available in the specified\
-        \ language. Each synset object in the response contains details of its meanings."
-      operationId: "synsets.list"
+        - Synset
+      summary: Gets all sysnets in the specified language
+      description: >-
+        This endpoint returns all the synsets available in the specified
+        language. Each synset object in the response contains details of its
+        meanings.
+      operationId: synsets.list
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language for which all synsets are returned"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language for which all synsets are returned
+          required: true
+          type: string
       responses:
-        200:
-          description: "All Synsets Returned Successfully"
+        '200':
+          description: All Synsets Returned Successfully
           schema:
-            $ref: "#/definitions/getAllSynsetsResponse"
-        400:
-          description: "Error While fetching all synsets! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/getAllSynsetsResponse'
+        '400':
+          description: >-
+            Error While fetching all synsets! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching all synsets! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all synsets! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/synsets/read/{synsetId}?language_id=###:
+  '/v3/synsets/read/{synsetId}?language_id=###':
     get:
       tags:
-      - "Synset"
-      summary: "Gets the synset object for the given synset identifier in the specified\
-        \ language"
-      description: "This endpoint returns a synset object from the EkStep language\
-        \ platform."
-      operationId: "synsets.find"
+        - Synset
+      summary: >-
+        Gets the synset object for the given synset identifier in the specified
+        language
+      description: This endpoint returns a synset object from the EkStep language platform.
+      operationId: synsets.find
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the synset is searched\
-          \ for"
-        required: true
-        type: "string"
-      - name: "synsetId"
-        in: "path"
-        description: "Identifier of the synset to be fetched"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the synset is searched for
+          required: true
+          type: string
+        - name: synsetId
+          in: path
+          description: Identifier of the synset to be fetched
+          required: true
+          type: string
       responses:
-        200:
-          description: "Synset object found and returned successfully"
+        '200':
+          description: Synset object found and returned successfully
           schema:
-            $ref: "#/definitions/getSynsetResponse"
-        400:
-          description: "Error While fetching synset for the specified synset identifier!\
-            \ | Error occurred while operation, mostly because of the input given\
-            \ by client, In general it is 'Client Exception'"
+            $ref: '#/definitions/getSynsetResponse'
+        '400':
+          description: >-
+            Error While fetching synset for the specified synset identifier! |
+            Error occurred while operation, mostly because of the input given by
+            client, In general it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching synset for the specified synset identifier!\
-            \ | Error occurred when synset is not found in the specified language,\
-            \ In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching synset for the specified synset identifier! |
+            Error occurred when synset is not found in the specified language,
+            In general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching synset for the specified synset identifier!\
-            \ | Error occurred while operation, mostly because of erroneous condition\
-            \ on server, In general it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching synset for the specified synset identifier! |
+            Error occurred while operation, mostly because of erroneous
+            condition on server, In general it is 'Server Exception' or
+            'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/synsets/update/{synsetId}?language_id=###:
+  '/v3/synsets/update/{synsetId}?language_id=###':
     patch:
       tags:
-      - "Synset"
-      summary: "Updates a Synset in the specified language"
-      description: "This endpoint updates a synset using the data in the request body"
-      operationId: "synsets.update"
+        - Synset
+      summary: Updates a Synset in the specified language
+      description: This endpoint updates a synset using the data in the request body
+      operationId: synsets.update
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the synset exists"
-        required: true
-        type: "string"
-      - name: "synsetId"
-        in: "path"
-        description: "Identifier of the synset to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createSynsetRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the synset exists
+          required: true
+          type: string
+        - name: synsetId
+          in: path
+          description: Identifier of the synset to be updated
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createSynsetRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Synset Updated Successfully"
+        '200':
+          description: Synset Updated Successfully
           schema:
-            $ref: "#/definitions/createSynsetResponse"
-        400:
-          description: "Error While updating Synset! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createSynsetResponse'
+        '400':
+          description: >-
+            Error While updating Synset! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching synset for the specified synset identifier!\
-            \ | Error occurred when synset is not found in the specified language,\
-            \ In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching synset for the specified synset identifier! |
+            Error occurred when synset is not found in the specified language,
+            In general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While updating Synset! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While updating Synset! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
   /v3/tools/complexity:
     post:
       tags:
-      - "Tools"
-      summary: "Computes complexity measures for given list of words"
-      description: "This endpoint takes a list of words as input and computes the\
-        \ orthographic and phonological complexity of those words."
-      operationId: "tools.complexityMeasures"
+        - Tools
+      summary: Computes complexity measures for given list of words
+      description: >-
+        This endpoint takes a list of words as input and computes the
+        orthographic and phonological complexity of those words.
+      operationId: tools.complexityMeasures
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/complexityMeasuresRequestBody"
-        x-is-map: false
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/complexityMeasuresRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Complexity measures computed successfully"
+        '200':
+          description: Complexity measures computed successfully
           schema:
-            $ref: "#/definitions/complexityMeasuresResponse"
-        400:
-          description: "Error While computing complexity measures! | Error occurred\
-            \ while operation, mostly because of the input given by client, In general\
-            \ it is 'Client Exception'"
+            $ref: '#/definitions/complexityMeasuresResponse'
+        '400':
+          description: >-
+            Error While computing complexity measures! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While computing complexity measures! | Error occurred\
-            \ while operation, mostly because of erroneous condition on server, In\
-            \ general it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While computing complexity measures! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
   /v3/tools/parser:
     post:
       tags:
-      - "Tools"
-      summary: "Parser API"
-      description: "This endpoint parses a given text and returns available information\
-        \ in EkStep language platform about that word"
-      operationId: "tools.parser"
+        - Tools
+      summary: Parser API
+      description: >-
+        This endpoint parses a given text and returns available information in
+        EkStep language platform about that word
+      operationId: tools.parser
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/parserRequestBody"
-        x-is-map: false
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/parserRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Text parsing completed successfully"
+        '200':
+          description: Text parsing completed successfully
           schema:
-            $ref: "#/definitions/parserResponse"
-        400:
-          description: "Error during text parsing! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/parserResponse'
+        '400':
+          description: >-
+            Error during text parsing! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error during text parsing! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error during text parsing! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
   /v3/tools/text/analysis:
     post:
       tags:
-      - "Tools"
-      summary: "Text analysis API"
-      description: "This endpoint performs analysis of the input text in specified\
-        \ language id and returns the following information: counts of words and syllables,\
-        \ total and average complexities, and complexity measures of each word in\
-        \ the text"
-      operationId: "tools.textAnalysis"
+        - Tools
+      summary: Text analysis API
+      description: >-
+        This endpoint performs analysis of the input text in specified language
+        id and returns the following information: counts of words and syllables,
+        total and average complexities, and complexity measures of each word in
+        the text
+      operationId: tools.textAnalysis
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/textAnalysisRequestBody"
-        x-is-map: false
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/textAnalysisRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Text analysis completed successfully"
+        '200':
+          description: Text analysis completed successfully
           schema:
-            $ref: "#/definitions/textAnalyisResponse"
-        400:
-          description: "Error during text analysis! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/textAnalyisResponse'
+        '400':
+          description: >-
+            Error during text analysis! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error during text analysis! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error during text analysis! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/tools/translate?language_id=###&lemma=###&languages=###:
+  '/v3/tools/translate?language_id=###&lemma=###&languages=###':
     post:
       tags:
-      - "Tools"
-      summary: "Translate API"
-      description: "This endpoint takes a lemma  with its language_id  and other languages\
-        \ as input and finds translation of it to other specified languages"
-      operationId: "tools.translate"
+        - Tools
+      summary: Translate API
+      description: >-
+        This endpoint takes a lemma  with its language_id  and other languages
+        as input and finds translation of it to other specified languages
+      operationId: tools.translate
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language for which lemma is given for translation"
-        required: true
-        type: "string"
-      - name: "lemma"
-        in: "query"
-        description: "lemma text of the given language which needs translation for\
-          \ other languages"
-        required: true
-        type: "string"
-      - name: "languages"
-        in: "query"
-        description: "list of languages for which translation required"
-        required: true
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "multi"
+        - name: language_id
+          in: query
+          description: Unique code of the language for which lemma is given for translation
+          required: true
+          type: string
+        - name: lemma
+          in: query
+          description: >-
+            lemma text of the given language which needs translation for other
+            languages
+          required: true
+          type: string
+        - name: languages
+          in: query
+          description: comma seperated language ids for which translation required
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Successfully transliterated into the specified language"
+        '200':
+          description: Successfully translated into the specified language
           schema:
-            $ref: "#/definitions/transliterateResponse"
-        400:
-          description: "Error during transliteration! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/translationResponse'
+        '400':
+          description: >-
+            Error during translation! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error during transliteration! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error during translation! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/tools/transliterate?language_id=###&addClosingVirama=###:
+  '/v3/tools/transliterate?lemma=###&languages=###':
     post:
       tags:
-      - "Tools"
-      summary: "Transliteration API"
-      description: "This endpoint takes an english text as input and transliterates\
-        \ it into the specified language"
-      operationId: "tools.transliterate"
+        - Tools
+      summary: Transliteration API
+      description: >-
+        This endpoint takes an english text as input and transliterates it into
+        the specified language
+      operationId: tools.transliterate
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language into which the given english text\
-          \ should be transliterated"
-        required: true
-        type: "string"
-      - name: "addClosingVirama"
-        in: "query"
-        description: "Parameter to specify if the transliterated word should end with\
-          \ a virama if there is no ending vowel"
-        required: false
-        type: "boolean"
-        default: false
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/transliterateRequestBody"
-        x-is-map: false
+        - name: lemma
+          in: query
+          description: any english text for which transliteration required
+          required: true
+          type: string
+        - name: languages
+          in: query
+          description: comma seperated language ids for which transliteration required
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Successfully transliterated into the specified language"
+        '200':
+          description: Successfully transliterated into the specified language
           schema:
-            $ref: "#/definitions/transliterateResponse"
-        400:
-          description: "Error during transliteration! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/transliterateResponse'
+        '400':
+          description: >-
+            Error during transliteration! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error during transliteration! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error during transliteration! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/traversals/create?language_id=###:
+  '/v3/traversals/create?language_id=###':
     post:
       tags:
-      - "Traversal Rule"
-      summary: "Creates a traversal rule in the specified language"
-      description: "This endpoint creates a traversal rule using the data in the request\
-        \ body"
-      operationId: "traversals.create"
+        - Traversal Rule
+      summary: Creates a traversal rule in the specified language
+      description: >-
+        This endpoint creates a traversal rule using the data in the request
+        body
+      operationId: traversals.create
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the traversal rule should\
-          \ be created"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createTraversalRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: >-
+            Unique code of the language in which the traversal rule should be
+            created
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createTraversalRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Traversal Rule Created Successfully"
+        '200':
+          description: Traversal Rule Created Successfully
           schema:
-            $ref: "#/definitions/createTraversalResponse"
-        400:
-          description: "Error While creating Traversal Rule! | Error occurred while\
-            \ operation, mostly because of the input given by client, In general it\
-            \ is 'Client Exception'"
+            $ref: '#/definitions/createTraversalResponse'
+        '400':
+          description: >-
+            Error While creating Traversal Rule! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While Creating Traversal Rule! | Error occurred while\
-            \ operation, mostly because of erroneous condition on server, In general\
-            \ it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Creating Traversal Rule! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/traversals/list?language_id=###:
+  '/v3/traversals/list?language_id=###':
     get:
       tags:
-      - "Traversal Rule"
-      summary: "Gets all traversal rules in the specified language"
-      description: "This endpoint returns all the traversal rules available in the\
-        \ specified language. Each traversal rule object in the response contains\
-        \ information regading traversal."
-      operationId: "traversals.list"
+        - Traversal Rule
+      summary: Gets all traversal rules in the specified language
+      description: >-
+        This endpoint returns all the traversal rules available in the specified
+        language. Each traversal rule object in the response contains
+        information regading traversal.
+      operationId: traversals.list
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language for which all wordlists are returned"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language for which all wordlists are returned
+          required: true
+          type: string
       responses:
-        200:
-          description: "All Traversal Rules Returned Successfully"
+        '200':
+          description: All Traversal Rules Returned Successfully
           schema:
-            $ref: "#/definitions/getAllTraversalsResponse"
-        400:
-          description: "Error While fetching all Traversal Rules! | Error occurred\
-            \ while operation, mostly because of the input given by client, In general\
-            \ it is 'Client Exception'"
+            $ref: '#/definitions/getAllTraversalsResponse'
+        '400':
+          description: >-
+            Error While fetching all Traversal Rules! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching all Traversal Rules! | Error occurred\
-            \ while operation, mostly because of erroneous condition on server, In\
-            \ general it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all Traversal Rules! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/traversals/read/{traversalRuleId}?language_id=###:
+  '/v3/traversals/read/{traversalRuleId}?language_id=###':
     get:
       tags:
-      - "Traversal Rule"
-      summary: "Gets the Traversal Rule object for the given Traversal Rule identifier\
-        \ in the specified language"
-      description: "This endpoint returns a Traversal Rule object from the EkStep\
-        \ language platform."
-      operationId: "traversals.find"
+        - Traversal Rule
+      summary: >-
+        Gets the Traversal Rule object for the given Traversal Rule identifier
+        in the specified language
+      description: >-
+        This endpoint returns a Traversal Rule object from the EkStep language
+        platform.
+      operationId: traversals.find
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the Traversal Rule is searched\
-          \ for"
-        required: true
-        type: "string"
-      - name: "traversalRuleId"
-        in: "path"
-        description: "Identifier of the traversal rule to be fetched"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: >-
+            Unique code of the language in which the Traversal Rule is searched
+            for
+          required: true
+          type: string
+        - name: traversalRuleId
+          in: path
+          description: Identifier of the traversal rule to be fetched
+          required: true
+          type: string
       responses:
-        200:
-          description: "Traversal Rule object found and returned successfully"
+        '200':
+          description: Traversal Rule object found and returned successfully
           schema:
-            $ref: "#/definitions/getTraversalResponse"
-        400:
-          description: "Error While fetching Traversal Rule for the specified traversal\
-            \ rule identifier! | Error occurred while operation, mostly because of\
-            \ the input given by client, In general it is 'Client Exception'"
+            $ref: '#/definitions/getTraversalResponse'
+        '400':
+          description: >-
+            Error While fetching Traversal Rule for the specified traversal rule
+            identifier! | Error occurred while operation, mostly because of the
+            input given by client, In general it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching Traversal Rule for the specified traversal\
-            \ rule identifier! | Error occurred when traversal rule is not found in\
-            \ the specified language, In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching Traversal Rule for the specified traversal rule
+            identifier! | Error occurred when traversal rule is not found in the
+            specified language, In general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching Traversal Rule for the specified traversal\
-            \ rule identifier! | Error occurred while operation, mostly because of\
-            \ erroneous condition on server, In general it is 'Server Exception' or\
-            \ 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching Traversal Rule for the specified traversal rule
+            identifier! | Error occurred while operation, mostly because of
+            erroneous condition on server, In general it is 'Server Exception'
+            or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/traversals/update/{traversalRuleId}?language_id=###:
+  '/v3/traversals/update/{traversalRuleId}?language_id=###':
     patch:
       tags:
-      - "Traversal Rule"
-      summary: "Updates a Traversal Rule in the specified language"
-      description: "This endpoint updates a Traversal Rule using the data in the request\
-        \ body"
-      operationId: "traversals.update"
+        - Traversal Rule
+      summary: Updates a Traversal Rule in the specified language
+      description: >-
+        This endpoint updates a Traversal Rule using the data in the request
+        body
+      operationId: traversals.update
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the traversal rule  exists"
-        required: true
-        type: "string"
-      - name: "traversalRuleId"
-        in: "path"
-        description: "Identifier of the traversal rule to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createTraversalRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the traversal rule  exists
+          required: true
+          type: string
+        - name: traversalRuleId
+          in: path
+          description: Identifier of the traversal rule to be updated
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createTraversalRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Traversal Rule Updated Successfully"
+        '200':
+          description: Traversal Rule Updated Successfully
           schema:
-            $ref: "#/definitions/createTraversalResponse"
-        400:
-          description: "Error While updating Traversal Rule! | Error occurred while\
-            \ operation, mostly because of the input given by client, In general it\
-            \ is 'Client Exception'"
+            $ref: '#/definitions/createTraversalResponse'
+        '400':
+          description: >-
+            Error While updating Traversal Rule! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching Traversal Rule for the specified traversal\
-            \ rule identifier! | Error occurred when traversal rule is not found in\
-            \ the specified language, In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching Traversal Rule for the specified traversal rule
+            identifier! | Error occurred when traversal rule is not found in the
+            specified language, In general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While updating Traversal Rule! | Error occurred while\
-            \ operation, mostly because of erroneous condition on server, In general\
-            \ it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While updating Traversal Rule! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/varnas/create?language_id=###:
+  '/v3/varnas/create?language_id=###':
     post:
       tags:
-      - "Varna"
-      summary: "Creates a varna in the specified language"
-      description: "This endpoint creates a varna using the data in the request body"
-      operationId: "varnas.create"
+        - Varna
+      summary: Creates a varna in the specified language
+      description: This endpoint creates a varna using the data in the request body
+      operationId: varnas.create
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the varna should be created"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createVarnaRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the varna should be created
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createVarnaRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Varna Created Successfully"
+        '200':
+          description: Varna Created Successfully
           schema:
-            $ref: "#/definitions/createVarnaResponse"
-        400:
-          description: "Error While creating Varna! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createVarnaResponse'
+        '400':
+          description: >-
+            Error While creating Varna! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While Creating Varna! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Creating Varna! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/varnas/list?language_id=###:
+  '/v3/varnas/list?language_id=###':
     get:
       tags:
-      - "Varna"
-      summary: "Gets all varnas in the specified language"
-      description: "This endpoint returns all the varna available in the specified\
-        \ language."
-      operationId: "varnas.list"
+        - Varna
+      summary: Gets all varnas in the specified language
+      description: This endpoint returns all the varna available in the specified language.
+      operationId: varnas.list
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language for which all varnas are returned"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language for which all varnas are returned
+          required: true
+          type: string
       responses:
-        200:
-          description: "All Varnas Returned Successfully"
+        '200':
+          description: All Varnas Returned Successfully
           schema:
-            $ref: "#/definitions/getAllVarnasResponse"
-        400:
-          description: "Error While fetching all Varnas! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/getAllVarnasResponse'
+        '400':
+          description: >-
+            Error While fetching all Varnas! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching all Varnas! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all Varnas! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/varnas/read/{varnaId}?language_id=###:
+  '/v3/varnas/read/{varnaId}?language_id=###':
     get:
       tags:
-      - "Varna"
-      summary: "Gets the Varna object for the given Varna identifier in the specified\
-        \ language"
-      description: "This endpoint returns a Varna object from the EkStep language\
-        \ platform."
-      operationId: "varnas.find"
+        - Varna
+      summary: >-
+        Gets the Varna object for the given Varna identifier in the specified
+        language
+      description: This endpoint returns a Varna object from the EkStep language platform.
+      operationId: varnas.find
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the Varna is searched for"
-        required: true
-        type: "string"
-      - name: "varnaId"
-        in: "path"
-        description: "Identifier of the Varna to be fetched"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the Varna is searched for
+          required: true
+          type: string
+        - name: varnaId
+          in: path
+          description: Identifier of the Varna to be fetched
+          required: true
+          type: string
       responses:
-        200:
-          description: "Varna object found and returned successfully"
+        '200':
+          description: Varna object found and returned successfully
           schema:
-            $ref: "#/definitions/getVarnaResponse"
-        400:
-          description: "Error While fetching Varna for the specified varna identifier!\
-            \ | Error occurred while operation, mostly because of the input given\
-            \ by client, In general it is 'Client Exception'"
+            $ref: '#/definitions/getVarnaResponse'
+        '400':
+          description: >-
+            Error While fetching Varna for the specified varna identifier! |
+            Error occurred while operation, mostly because of the input given by
+            client, In general it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching Varna for the specified varna identifier!\
-            \ | Error occurred when varna is not found in the specified language,\
-            \ In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching Varna for the specified varna identifier! |
+            Error occurred when varna is not found in the specified language, In
+            general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching Varna for the specified varna identifier!\
-            \ | Error occurred while operation, mostly because of erroneous condition\
-            \ on server, In general it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching Varna for the specified varna identifier! |
+            Error occurred while operation, mostly because of erroneous
+            condition on server, In general it is 'Server Exception' or
+            'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/varnas/update/{varnaId}?language_id=###:
+  '/v3/varnas/update/{varnaId}?language_id=###':
     patch:
       tags:
-      - "Varna"
-      summary: "Updates a Varna in the specified language"
-      description: "This endpoint updates a Varna using the data in the request body"
-      operationId: "varnas.update"
+        - Varna
+      summary: Updates a Varna in the specified language
+      description: This endpoint updates a Varna using the data in the request body
+      operationId: varnas.update
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the Varna exists"
-        required: true
-        type: "string"
-      - name: "varnaId"
-        in: "path"
-        description: "Identifier of the Varna to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createVarnaRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the Varna exists
+          required: true
+          type: string
+        - name: varnaId
+          in: path
+          description: Identifier of the Varna to be updated
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createVarnaRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Varna Updated Successfully"
+        '200':
+          description: Varna Updated Successfully
           schema:
-            $ref: "#/definitions/createVarnaResponse"
-        400:
-          description: "Error While updating Varna! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createVarnaResponse'
+        '400':
+          description: >-
+            Error While updating Varna! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching Varna for the specified varna identifier!\
-            \ | Error occurred when varna is not found in the specified language,\
-            \ In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching Varna for the specified varna identifier! |
+            Error occurred when varna is not found in the specified language, In
+            general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While updating Varna! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While updating Varna! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/wordlists/create?language_id=###:
+  '/v3/wordlists/create?language_id=###':
     post:
       tags:
-      - "WordList"
-      summary: "Creates a WordList in the specified language"
-      description: "This endpoint creates a WordList using the data in the request\
-        \ body"
-      operationId: "wordlists.create"
+        - WordList
+      summary: Creates a WordList in the specified language
+      description: This endpoint creates a WordList using the data in the request body
+      operationId: wordlists.create
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the wordlist should be\
-          \ created"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createWordlistRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the wordlist should be created
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createWordlistRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "WordList Created Successfully"
+        '200':
+          description: WordList Created Successfully
           schema:
-            $ref: "#/definitions/createWordlistResponse"
-        400:
-          description: "Error While creating WordList! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createWordlistResponse'
+        '400':
+          description: >-
+            Error While creating WordList! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While Creating WordList! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Creating WordList! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/wordlists/list?language_id=###:
+  '/v3/wordlists/list?language_id=###':
     get:
       tags:
-      - "WordList"
-      summary: "Gets all wordlists in the specified language"
-      description: "This endpoint returns all the wordlists available in the specified\
-        \ language. Each WordList object in the response contains list of words."
-      operationId: "wordlists.list"
+        - WordList
+      summary: Gets all wordlists in the specified language
+      description: >-
+        This endpoint returns all the wordlists available in the specified
+        language. Each WordList object in the response contains list of words.
+      operationId: wordlists.list
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language for which all wordlists are returned"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language for which all wordlists are returned
+          required: true
+          type: string
       responses:
-        200:
-          description: "All Wordlists Returned Successfully"
+        '200':
+          description: All Wordlists Returned Successfully
           schema:
-            $ref: "#/definitions/getAllWordListsResponse"
-        400:
-          description: "Error While fetching all wordlists! | Error occurred while\
-            \ operation, mostly because of the input given by client, In general it\
-            \ is 'Client Exception'"
+            $ref: '#/definitions/getAllWordListsResponse'
+        '400':
+          description: >-
+            Error While fetching all wordlists! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching all wordlists! | Error occurred while\
-            \ operation, mostly because of erroneous condition on server, In general\
-            \ it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all wordlists! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/wordlists/read/{wordlistId}?language_id=###:
+  '/v3/wordlists/read/{wordlistId}?language_id=###':
     get:
       tags:
-      - "WordList"
-      summary: "Gets the WordList object for the given WordList identifier in the\
-        \ specified language"
-      description: "This endpoint returns a WordList object from the EkStep language\
-        \ platform."
-      operationId: "wordlists.find"
+        - WordList
+      summary: >-
+        Gets the WordList object for the given WordList identifier in the
+        specified language
+      description: >-
+        This endpoint returns a WordList object from the EkStep language
+        platform.
+      operationId: wordlists.find
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the wordlist is searched\
-          \ for"
-        required: true
-        type: "string"
-      - name: "wordlistId"
-        in: "path"
-        description: "Identifier of the wordlist to be fetched"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the wordlist is searched for
+          required: true
+          type: string
+        - name: wordlistId
+          in: path
+          description: Identifier of the wordlist to be fetched
+          required: true
+          type: string
       responses:
-        200:
-          description: "WordList object found and returned successfully"
+        '200':
+          description: WordList object found and returned successfully
           schema:
-            $ref: "#/definitions/getWordlistResponse"
-        400:
-          description: "Error While fetching wordlist for the specified wordlist identifier!\
-            \ | Error occurred while operation, mostly because of the input given\
-            \ by client, In general it is 'Client Exception'"
+            $ref: '#/definitions/getWordlistResponse'
+        '400':
+          description: >-
+            Error While fetching wordlist for the specified wordlist identifier!
+            | Error occurred while operation, mostly because of the input given
+            by client, In general it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching wordlist for the specified wordlist identifier!\
-            \ | Error occurred when wordlist is not found in the specified language,\
-            \ In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching wordlist for the specified wordlist identifier!
+            | Error occurred when wordlist is not found in the specified
+            language, In general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching wordlist for the specified wordlist identifier!\
-            \ | Error occurred while operation, mostly because of erroneous condition\
-            \ on server, In general it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching wordlist for the specified wordlist identifier!
+            | Error occurred while operation, mostly because of erroneous
+            condition on server, In general it is 'Server Exception' or
+            'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/wordlists/update/{wordlistId}?language_id=###:
+  '/v3/wordlists/update/{wordlistId}?language_id=###':
     patch:
       tags:
-      - "WordList"
-      summary: "Updates a WordList in the specified language"
-      description: "This endpoint updates a wordlist using the data in the request\
-        \ body"
-      operationId: "wordlists.update"
+        - WordList
+      summary: Updates a WordList in the specified language
+      description: This endpoint updates a wordlist using the data in the request body
+      operationId: wordlists.update
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the wordlist exists"
-        required: true
-        type: "string"
-      - name: "wordlistId"
-        in: "path"
-        description: "Identifier of the wordlist to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createWordlistRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the wordlist exists
+          required: true
+          type: string
+        - name: wordlistId
+          in: path
+          description: Identifier of the wordlist to be updated
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createWordlistRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "WordList Updated Successfully"
+        '200':
+          description: WordList Updated Successfully
           schema:
-            $ref: "#/definitions/createWordlistResponse"
-        400:
-          description: "Error While updating WordList! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createWordlistResponse'
+        '400':
+          description: >-
+            Error While updating WordList! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching WordList for the specified wordlist identifier!\
-            \ | Error occurred when wordlist is not found in the specified language,\
-            \ In general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching WordList for the specified wordlist identifier!
+            | Error occurred when wordlist is not found in the specified
+            language, In general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While updating WordList! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While updating WordList! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/words/create?language_id=###:
+  '/v3/words/create?language_id=###':
     post:
       tags:
-      - "Word"
-      summary: "Creates a Word in the specified language"
-      description: "This endpoint creates a word using the data in the request body"
-      operationId: "words.create"
+        - Word
+      summary: Creates a Word in the specified language
+      description: This endpoint creates a word using the data in the request body
+      operationId: words.create
       consumes:
-      - "application/json"
+        - application/json
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the word should be created"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/createWordRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the word should be created
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/createWordRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Word Created Successfully"
+        '200':
+          description: Word Created Successfully
           schema:
-            $ref: "#/definitions/createWordResponse"
-        400:
-          description: "Error While creating Word! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createWordResponse'
+        '400':
+          description: >-
+            Error While creating Word! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While Creating Word! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Creating Word! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/words/flag/{wordId}?language_id=###:
+  '/v3/words/flag/{wordId}?language_id=###':
     post:
       tags:
-      - "Word"
-      summary: "flags a Word in the specified language"
-      description: "This endpoint returns a word object from the EkStep language platform."
-      operationId: "words.flag"
+        - Word
+      summary: flags a Word in the specified language
+      description: This endpoint returns a word object from the EkStep language platform.
+      operationId: words.flag
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the word is searched for"
-        required: true
-        type: "string"
-      - name: "wordId"
-        in: "path"
-        description: "Identifier of the word to be fetched"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/flagWordRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the word is searched for
+          required: true
+          type: string
+        - name: wordId
+          in: path
+          description: Identifier of the word to be fetched
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/flagWordRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Word flagged Successfully"
+        '200':
+          description: Word flagged Successfully
           schema:
-            $ref: "#/definitions/createWordResponse"
-        400:
-          description: "Error While flagging Word! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createWordResponse'
+        '400':
+          description: >-
+            Error While flagging Word! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching word for the specified word identifier!\
-            \ | Error occurred when word is not found in the specified language, In\
-            \ general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching word for the specified word identifier! | Error
+            occurred when word is not found in the specified language, In
+            general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While flagging Word! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While flagging Word! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/words/list?language_id=###:
+  '/v3/words/list?language_id=###':
     get:
       tags:
-      - "Word"
-      summary: "Gets all words in the specified language"
-      description: "This endpoint returns all the words available in the specified\
-        \ language. Each word object in the response contains the word metadata and\
-        \ details of all its meanings."
-      operationId: "words.list"
+        - Word
+      summary: Gets all words in the specified language
+      description: >-
+        This endpoint returns all the words available in the specified language.
+        Each word object in the response contains the word metadata and details
+        of all its meanings.
+      operationId: words.list
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language for which all words are returned"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language for which all words are returned
+          required: true
+          type: string
       responses:
-        200:
-          description: "All Words Returned Successfully"
+        '200':
+          description: All Words Returned Successfully
           schema:
-            $ref: "#/definitions/getAllWordsResponse"
-        400:
-          description: "Error While fetching all words! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/getAllWordsResponse'
+        '400':
+          description: >-
+            Error While fetching all words! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching all words! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all words! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/words/read/{wordId}?language_id=###:
+  '/v3/words/read/{wordId}?language_id=###':
     get:
       tags:
-      - "Word"
-      summary: "Gets the word object for the given word identifier in the specified\
-        \ language"
-      description: "This endpoint returns a word object from the EkStep language platform."
-      operationId: "words.find"
+        - Word
+      summary: >-
+        Gets the word object for the given word identifier in the specified
+        language
+      description: This endpoint returns a word object from the EkStep language platform.
+      operationId: words.find
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the word is searched for"
-        required: true
-        type: "string"
-      - name: "wordId"
-        in: "path"
-        description: "Identifier of the word to be fetched"
-        required: true
-        type: "string"
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the word is searched for
+          required: true
+          type: string
+        - name: wordId
+          in: path
+          description: Identifier of the word to be fetched
+          required: true
+          type: string
       responses:
-        200:
-          description: "Word object found and returned successfully"
+        '200':
+          description: Word object found and returned successfully
           schema:
-            $ref: "#/definitions/getWordResponse"
-        400:
-          description: "Error While fetching word for the specified word identifier!\
-            \ | Error occurred while operation, mostly because of the input given\
-            \ by client, In general it is 'Client Exception'"
+            $ref: '#/definitions/getWordResponse'
+        '400':
+          description: >-
+            Error While fetching word for the specified word identifier! | Error
+            occurred while operation, mostly because of the input given by
+            client, In general it is 'Client Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching word for the specified word identifier!\
-            \ | Error occurred when word is not found in the specified language, In\
-            \ general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching word for the specified word identifier! | Error
+            occurred when word is not found in the specified language, In
+            general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While fetching word for the specified word identifier!\
-            \ | Error occurred while operation, mostly because of erroneous condition\
-            \ on server, In general it is 'Server Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching word for the specified word identifier! | Error
+            occurred while operation, mostly because of erroneous condition on
+            server, In general it is 'Server Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /v3/words/update/{wordId}?language_id=###:
+  '/v3/words/update/{wordId}?language_id=###':
     patch:
       tags:
-      - "Word"
-      summary: "Updates a Word in the specified language"
-      description: "This endpoint updates a word using the data in the request body"
-      operationId: "words.update"
+        - Word
+      summary: Updates a Word in the specified language
+      description: This endpoint updates a word using the data in the request body
+      operationId: words.update
       produces:
-      - "application/json"
+        - application/json
       parameters:
-      - name: "language_id"
-        in: "query"
-        description: "Unique code of the language in which the word exists"
-        required: true
-        type: "string"
-      - name: "wordId"
-        in: "path"
-        description: "Identifier of the word to be updated"
-        required: true
-        type: "string"
-      - in: "body"
-        name: "Body"
-        required: true
-        schema:
-          $ref: "#/definitions/updateWordRequestBody"
-        x-is-map: false
+        - name: language_id
+          in: query
+          description: Unique code of the language in which the word exists
+          required: true
+          type: string
+        - name: wordId
+          in: path
+          description: Identifier of the word to be updated
+          required: true
+          type: string
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/updateWordRequestBody'
+          x-is-map: false
       responses:
-        200:
-          description: "Word Updated Successfully"
+        '200':
+          description: Word Updated Successfully
           schema:
-            $ref: "#/definitions/createWordResponse"
-        400:
-          description: "Error While updating Word! | Error occurred while operation,\
-            \ mostly because of the input given by client, In general it is 'Client\
-            \ Exception'"
+            $ref: '#/definitions/createWordResponse'
+        '400':
+          description: >-
+            Error While updating Word! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        404:
-          description: "Error While fetching word for the specified word identifier!\
-            \ | Error occurred when word is not found in the specified language, In\
-            \ general it is 'Resource Not Found Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '404':
+          description: >-
+            Error While fetching word for the specified word identifier! | Error
+            occurred when word is not found in the specified language, In
+            general it is 'Resource Not Found Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
-        500:
-          description: "Error While updating Word! | Error occurred while operation,\
-            \ mostly because of erroneous condition on server, In general it is 'Server\
-            \ Exception' or 'Exception'"
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While updating Word! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
           schema:
-            $ref: "#/definitions/FailedResponseHeader"
+            $ref: '#/definitions/FailedResponseHeader'
       security: []
 securityDefinitions: {}
 definitions:
   createWordRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/createWordObject"
-    title: "Create Word Request Body"
+        $ref: '#/definitions/createWordObject'
+    title: Create Word Request Body
   updateWordRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/updateWordObject"
-    title: "Update Word Request Body"
+        $ref: '#/definitions/updateWordObject'
+    title: Update Word Request Body
+  RequestBody:
+    type: object
+    required:
+      - request
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/emptyRequestObject'
+    title: Update Word Request Body
   flagWordRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/flagReqObject"
-    title: "Update Word Request Body"
+        $ref: '#/definitions/flagReqObject'
+    title: Update Word Request Body
   searchWordRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/searchWordObject"
-    title: "Search Word Request Body"
+        $ref: '#/definitions/searchWordObject'
+    title: Search Word Request Body
   complexityMeasuresRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/complexityMeasuresReqObject"
-    title: "Complexity Measures Request Body"
+        $ref: '#/definitions/complexityMeasuresReqObject'
+    title: Complexity Measures Request Body
   textAnalysisRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/textAnalysisReqObject"
-    title: "Text Analysis Request Body"
+        $ref: '#/definitions/textAnalysisReqObject'
+    title: Text Analysis Request Body
   parserRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/parserReqObject"
-    title: "Text Analysis Request Body"
-  transliterateRequestBody:
-    type: "object"
-    required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
-    properties:
-      id:
-        type: "string"
-      ver:
-        type: "string"
-      ts:
-        type: "string"
-      params:
-        $ref: "#/definitions/RequestParams"
-      request:
-        $ref: "#/definitions/transliterateReqObject"
-    title: "Transliterate Request Body"
+        $ref: '#/definitions/parserReqObject'
+    title: Text Analysis Request Body
   createSynsetRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/meaningObject"
-    title: "synset Request Body"
+        $ref: '#/definitions/meaningObject'
+    title: synset Request Body
   createWordlistRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/wordlistObject"
-    title: "wordlist Request Body"
+        $ref: '#/definitions/wordlistObject'
+    title: wordlist Request Body
   createTraversalRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/traversalObject"
-    title: "wordlist Request Body"
+        $ref: '#/definitions/traversalObject'
+    title: wordlist Request Body
   createVarnaRequestBody:
-    type: "object"
+    type: object
     required:
-    - "id"
-    - "params"
-    - "request"
-    - "ts"
-    - "ver"
+      - id
+      - params
+      - request
+      - ts
+      - ver
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/RequestParams"
+        $ref: '#/definitions/RequestParams'
       request:
-        $ref: "#/definitions/varnaObject"
-    title: "wordlist Request Body"
+        $ref: '#/definitions/varnaObject'
+    title: wordlist Request Body
   getAllWordsResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/wordsResponse"
-    title: "result"
+        $ref: '#/definitions/wordsResponse'
+    title: result
   getWordResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/wordResponse"
+        $ref: '#/definitions/wordResponse'
   createWordResponse:
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/nodeIdsObject"
+        $ref: '#/definitions/nodeIdsObject'
   getAllSynsetsResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/synsetsResponse"
-    title: "result"
+        $ref: '#/definitions/synsetsResponse'
+    title: result
   getSynsetResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/synsetResponse"
+        $ref: '#/definitions/synsetResponse'
   createSynsetResponse:
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/nodeIdsObject"
+        $ref: '#/definitions/nodeIdsObject'
   getAllWordListsResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/wordlistsResponse"
-    title: "result"
+        $ref: '#/definitions/wordlistsResponse'
+    title: result
   getWordlistResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/wordlistResponse"
+        $ref: '#/definitions/wordlistResponse'
   createWordlistResponse:
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/createWordlistResponse_result"
+        $ref: '#/definitions/createWordlistResponse_result'
   getAllTraversalsResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/traversalsResponse"
-    title: "result"
+        $ref: '#/definitions/traversalsResponse'
+    title: result
   getTraversalResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/traversalResponse"
-    title: "result"
+        $ref: '#/definitions/traversalResponse'
+    title: result
   createTraversalResponse:
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/createTraversalResponse_result"
+        $ref: '#/definitions/createTraversalResponse_result'
   getAllVarnasResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/getAllVarnasResponse_result"
-    title: "result"
+        $ref: '#/definitions/getAllVarnasResponse_result'
+    title: result
   getVarnaResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/varnaObject"
-    title: "result"
+        $ref: '#/definitions/varnaObject'
+    title: result
   createVarnaResponse:
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/createVarnaResponse_result"
+        $ref: '#/definitions/createVarnaResponse_result'
   searchResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/searchResult"
-    title: "result"
+        $ref: '#/definitions/searchResult'
+    title: result
   complexityMeasuresResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/complexityMeasuresObject"
-    title: "Complexity Measures API result"
+        $ref: '#/definitions/complexityMeasuresObject'
+    title: Complexity Measures API result
   textAnalyisResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/textAnalysisObject"
-    title: "Text Analysis API result"
+        $ref: '#/definitions/textAnalysisObject'
+    title: Text Analysis API result
   parserResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/parserObject"
-    title: "Parser API result"
+        $ref: '#/definitions/parserObject'
+    title: Parser API result
   transliterateResponse:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
       ver:
-        type: "string"
+        type: string
       ts:
-        type: "string"
+        type: string
       params:
-        $ref: "#/definitions/ResponseParams"
+        $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: "string"
+        type: string
       result:
-        $ref: "#/definitions/transliteratedObject"
-    title: "Transliterate API result"
+        $ref: '#/definitions/transliteratedObject'
+    title: Transliterate API result
+  translationResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+      result:
+        $ref: '#/definitions/translateObject'
+    title: Translate API result
   nodeIdsObject:
     properties:
       node_ids:
-        type: "array"
-        description: "list of word identifiers"
+        type: array
+        description: list of word identifiers
         items:
-          type: "string"
+          type: string
   createWordObject:
     properties:
       words:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/wordObject"
+          $ref: '#/definitions/wordObject'
   updateWordObject:
     properties:
       word:
-        $ref: "#/definitions/wordObject"
+        $ref: '#/definitions/wordObject'
   flagReqObject:
     properties:
       flagReasons:
-        type: "array"
-        description: "List of user given reasons for flagging"
+        type: array
+        description: List of user given reasons for flagging
         items:
-          type: "string"
+          type: string
       flaggedBy:
-        type: "array"
-        description: "List of user name"
+        type: array
+        description: List of user name
         items:
-          type: "string"
+          type: string
   searchWordObject:
     properties:
       query:
-        type: "string"
-        description: "Text query string to match"
+        type: string
+        description: Text query string to match
       filters:
-        $ref: "#/definitions/searchWordObject_filters"
+        $ref: '#/definitions/searchWordObject_filters'
       exists:
-        type: "array"
-        description: "Filter to match objects which contains a given field"
+        type: array
+        description: Filter to match objects which contains a given field
         items:
-          type: "string"
+          type: string
       not_exists:
-        type: "array"
-        description: "Filter to match objects which does not contain a given field"
+        type: array
+        description: Filter to match objects which does not contain a given field
         items:
-          type: "string"
+          type: string
       limit:
-        type: "number"
-        description: "Maximum number of objects to be returned"
+        type: number
+        description: Maximum number of objects to be returned
       sort_by:
-        $ref: "#/definitions/searchWordObject_sort_by"
+        $ref: '#/definitions/searchWordObject_sort_by'
   complexityMeasuresReqObject:
     properties:
       language_id:
-        type: "string"
-        description: "Unique code of the language of the input words"
+        type: string
+        description: Unique code of the language of the input words
       words:
-        type: "array"
-        description: "List of words whose complexity needs to be computed"
+        type: array
+        description: List of words whose complexity needs to be computed
         items:
-          type: "string"
+          type: string
   textAnalysisReqObject:
     properties:
       language_id:
-        type: "string"
-        description: "Unique code of the language of the input text"
+        type: string
+        description: Unique code of the language of the input text
       text:
-        type: "string"
-        description: "Text to be analyzed"
+        type: string
+        description: Text to be analyzed
   parserReqObject:
     properties:
       language_id:
-        type: "string"
-        description: "Unique code of the language of the input text"
+        type: string
+        description: Unique code of the language of the input text
       content:
-        type: "string"
-        description: "Text to be parsed"
+        type: string
+        description: Text to be parsed
       equivalentWords:
-        type: "boolean"
-        description: "if equivalent words, for each word in the input text, should\
-          \ be returned or not"
+        type: boolean
+        description: >-
+          if equivalent words, for each word in the input text, should be
+          returned or not
       limit:
-        type: "number"
-        description: "Maximum number of equivalent words, per word in the input text,\
-          \ to be returned"
-  transliterateReqObject:
-    properties:
-      text:
-        type: "string"
-        description: "English text that needs to be transliterated into the specified\
-          \ language"
+        type: number
+        description: >-
+          Maximum number of equivalent words, per word in the input text, to be
+          returned
   wordResponse:
     properties:
       word:
-        $ref: "#/definitions/wordObject"
+        $ref: '#/definitions/wordObject'
   wordsResponse:
     properties:
       words:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/wordObject"
+          $ref: '#/definitions/wordObject'
   synsetResponse:
     properties:
       node:
-        $ref: "#/definitions/synsetNodeObject"
+        $ref: '#/definitions/synsetNodeObject'
   synsetsResponse:
     properties:
       synsets:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/synsetObject"
+          $ref: '#/definitions/synsetObject'
   wordlistsResponse:
     properties:
       wordlists:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/wordlistNodeObjects"
+          $ref: '#/definitions/wordlistNodeObjects'
   wordlistResponse:
     properties:
       wordlists:
-        $ref: "#/definitions/wordlistNodeObject"
+        $ref: '#/definitions/wordlistNodeObject'
   traversalsResponse:
     properties:
       rules:
-        type: "array"
+        type: array
         items:
-          $ref: "#/definitions/traversalObject"
+          $ref: '#/definitions/traversalObject'
   traversalResponse:
     properties:
       rule:
-        $ref: "#/definitions/traversalObject"
+        $ref: '#/definitions/traversalObject'
   searchResult:
     properties:
       count:
-        type: "number"
-        description: ""
+        type: number
+        description: ''
       words:
-        type: "array"
-        description: "list of object matching the search criteria, grouped by object\
-          \ type"
+        type: array
+        description: 'list of object matching the search criteria, grouped by object type'
         items:
-          $ref: "#/definitions/wordSearchObject"
+          $ref: '#/definitions/wordSearchObject'
   wordObject:
     properties:
       identifier:
-        type: "string"
-        description: "Unique identifier of the word"
+        type: string
+        description: Unique identifier of the word
       lemma:
-        type: "string"
-        description: "Lemma of the word"
+        type: string
+        description: Lemma of the word
       primaryMeaningId:
-        type: "string"
-        description: "Identifier of the primary meaning of the word"
+        type: string
+        description: Identifier of the primary meaning of the word
       status:
-        type: "string"
-        description: "Status of the word: Draft, Live or Retired"
+        type: string
+        description: 'Status of the word: Draft, Live or Retired'
       variants:
-        type: "array"
-        description: "Variants of the word"
+        type: array
+        description: Variants of the word
         items:
-          type: "string"
+          type: string
       pronunciations:
-        type: "array"
-        description: "Pronunciations of the word"
+        type: array
+        description: Pronunciations of the word
         items:
-          type: "string"
+          type: string
       orthographic_complexity:
-        type: "number"
-        format: "double"
-        description: "Orthographic complexity of the word"
+        type: number
+        format: double
+        description: Orthographic complexity of the word
       phonologic_complexity:
-        type: "number"
-        format: "double"
-        description: "Phonological complexity of the word"
+        type: number
+        format: double
+        description: Phonological complexity of the word
       word_complexity:
-        type: "number"
-        format: "double"
-        description: "Word complexity"
+        type: number
+        format: double
+        description: Word complexity
       primaryMeaning:
-        $ref: "#/definitions/meaningObject"
+        $ref: '#/definitions/meaningObject'
       otherMeanings:
-        type: "array"
-        description: "List of other meanings of the word"
+        type: array
+        description: List of other meanings of the word
         items:
-          $ref: "#/definitions/meaningObject"
+          $ref: '#/definitions/meaningObject'
   wordSearchObject:
     properties:
       identifier:
-        type: "string"
-        description: "Unique identifier of the word"
+        type: string
+        description: Unique identifier of the word
       lemma:
-        type: "string"
-        description: "Lemma of the word"
+        type: string
+        description: Lemma of the word
       primaryMeaningId:
-        type: "string"
-        description: "Identifier of the primary meaning of the word"
+        type: string
+        description: Identifier of the primary meaning of the word
       status:
-        type: "string"
-        description: "Status of the word: Draft, Live or Retired"
+        type: string
+        description: 'Status of the word: Draft, Live or Retired'
       variants:
-        type: "array"
-        description: "Variants of the word"
+        type: array
+        description: Variants of the word
         items:
-          type: "string"
+          type: string
       pronunciations:
-        type: "array"
-        description: "Pronunciations of the word"
+        type: array
+        description: Pronunciations of the word
         items:
-          type: "string"
+          type: string
       orthographic_complexity:
-        type: "number"
-        format: "double"
-        description: "Orthographic complexity of the word"
+        type: number
+        format: double
+        description: Orthographic complexity of the word
       phonologic_complexity:
-        type: "number"
-        format: "double"
-        description: "Phonological complexity of the word"
+        type: number
+        format: double
+        description: Phonological complexity of the word
       word_complexity:
-        type: "number"
-        format: "double"
-        description: "Word complexity"
+        type: number
+        format: double
+        description: Word complexity
       thresholdLevel:
-        type: "string"
-        description: "Threshold Level of the word"
+        type: string
+        description: Threshold Level of the word
   meaningObject:
     properties:
       identifier:
-        type: "string"
-        description: "Unique identifier of the meaning"
+        type: string
+        description: Unique identifier of the meaning
       gloss:
-        type: "string"
-        description: "Glossary of the meaning"
+        type: string
+        description: Glossary of the meaning
       pos:
-        type: "string"
-        description: "Parts of speech of the meaning"
+        type: string
+        description: Parts of speech of the meaning
       category:
-        type: "string"
-        description: "Category of the meaning"
+        type: string
+        description: Category of the meaning
       pictures:
-        type: "array"
-        description: "Pictures of the meaning"
+        type: array
+        description: Pictures of the meaning
         items:
-          type: "string"
+          type: string
       exampleSentences:
-        type: "array"
-        description: "Example sentences of the word in context of this meaning object"
+        type: array
+        description: Example sentences of the word in context of this meaning object
         items:
-          type: "string"
+          type: string
       tags:
-        type: "array"
-        description: "Tags added to the meaning"
+        type: array
+        description: Tags added to the meaning
         items:
-          type: "string"
+          type: string
       synonyms:
-        type: "array"
-        description: "List of synonyms"
+        type: array
+        description: List of synonyms
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       hypernyms:
-        type: "array"
-        description: "List of hypernyms"
+        type: array
+        description: List of hypernyms
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       hyponyms:
-        type: "array"
-        description: "List of hyponyms"
+        type: array
+        description: List of hyponyms
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       meronyms:
-        type: "array"
-        description: "List of meronyms"
+        type: array
+        description: List of meronyms
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       holonyms:
-        type: "array"
-        description: "List of holonyms"
+        type: array
+        description: List of holonyms
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       tools:
-        type: "array"
-        description: "List of words that are tools used on objects represented by\
-          \ the current meaning"
+        type: array
+        description: >-
+          List of words that are tools used on objects represented by the
+          current meaning
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       objects:
-        type: "array"
-        description: "List of words that are objects of the tool represented by the\
-          \ current meaning"
+        type: array
+        description: >-
+          List of words that are objects of the tool represented by the current
+          meaning
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       actions:
-        type: "array"
-        description: "List of words that are possible actions on words represented\
-          \ by the current meaning"
+        type: array
+        description: >-
+          List of words that are possible actions on words represented by the
+          current meaning
         items:
-          $ref: "#/definitions/relatedWord"
+          $ref: '#/definitions/relatedWord'
       workers:
-        type: "array"
-        description: "List of words that are workers of the action represented by\
-          \ the current meaning"
+        type: array
+        description: >-
+          List of words that are workers of the action represented by the
+          current meaning
         items:
-          $ref: "#/definitions/relatedWord"
-    description: "Meaning object"
+          $ref: '#/definitions/relatedWord'
+    description: Meaning object
   relatedWord:
     properties:
       identifier:
-        type: "string"
-        description: "Identifier of the related word"
+        type: string
+        description: Identifier of the related word
       name:
-        type: "string"
-        description: "Lemma of the related word"
+        type: string
+        description: Lemma of the related word
+  emptyRequestObject:
+    properties: {}
   complexityMeasuresObject:
     properties:
       complexity_measures:
-        $ref: "#/definitions/complexityMeasuresObject_complexity_measures"
+        $ref: '#/definitions/complexityMeasuresObject_complexity_measures'
   synsetObject:
     properties:
       identifier:
-        type: "string"
-        description: "Unique identifier of the synset"
+        type: string
+        description: Unique identifier of the synset
       gloss:
-        type: "string"
-        description: "meaning of a word"
+        type: string
+        description: meaning of a word
       pos:
-        type: "string"
-        description: "parts of speech(pos) is category of words such as  noun, verb,\
-          \ adjective, adverb, pronoun, preposition, conjunction, interjection, etc"
+        type: string
+        description: >-
+          parts of speech(pos) is category of words such as  noun, verb,
+          adjective, adverb, pronoun, preposition, conjunction, interjection,
+          etc
       status:
-        type: "string"
-        description: "status if the synset"
+        type: string
+        description: status if the synset
   synsetNodeObject:
     properties:
       id:
-        type: "string"
-        description: "Unique identifier of the synset in graph database"
+        type: string
+        description: Unique identifier of the synset in graph database
       graphId:
-        type: "string"
-        description: "id of the language"
+        type: string
+        description: id of the language
       identifier:
-        type: "string"
-        description: "Unique identifier of the synset"
+        type: string
+        description: Unique identifier of the synset
       nodeType:
-        type: "string"
-        description: "node type in graph database "
+        type: string
+        description: 'node type in graph database '
       objectType:
-        type: "string"
-        description: "object type in graph database"
+        type: string
+        description: object type in graph database
       metadata:
-        $ref: "#/definitions/synsetObject"
+        $ref: '#/definitions/synsetObject'
       outRelations:
-        type: "array"
-        description: "List of Relations"
+        type: array
+        description: List of Relations
         items:
-          $ref: "#/definitions/synsetRelationObject"
+          $ref: '#/definitions/synsetRelationObject'
       inRelations:
-        type: "array"
-        description: "List of Relations"
+        type: array
+        description: List of Relations
         items:
-          $ref: "#/definitions/synsetRelationObject"
+          $ref: '#/definitions/synsetRelationObject'
       tags:
-        type: "array"
-        description: "Tags added to the meaning"
+        type: array
+        description: Tags added to the meaning
         items:
-          type: "string"
+          type: string
   synsetRelationObject:
     properties:
       id:
-        type: "string"
-        description: "Identifier of the relation"
+        type: string
+        description: Identifier of the relation
       graphId:
-        type: "string"
-        description: "Language id"
+        type: string
+        description: Language id
       relationType:
-        type: "string"
-        description: "Type of the relation between nodes"
+        type: string
+        description: Type of the relation between nodes
       startNodeId:
-        type: "string"
-        description: "Identifier of the start node"
+        type: string
+        description: Identifier of the start node
       startNodeName:
-        type: "string"
-        description: "Node name of the start node"
+        type: string
+        description: Node name of the start node
       startNodeType:
-        type: "string"
-        description: "Node type of the start node"
+        type: string
+        description: Node type of the start node
       startNodeObjectType:
-        type: "string"
-        description: "Node Object Type of the start node"
+        type: string
+        description: Node Object Type of the start node
       endNodeId:
-        type: "string"
-        description: "Identifier of the end node"
+        type: string
+        description: Identifier of the end node
       endNodeName:
-        type: "string"
-        description: "Node name of the end node"
+        type: string
+        description: Node name of the end node
       endNodeType:
-        type: "string"
-        description: "Node type of the end node"
+        type: string
+        description: Node type of the end node
       endNodeObjectType:
-        type: "string"
-        description: "Node Object Type of the end node"
+        type: string
+        description: Node Object Type of the end node
       startNodeMetadata:
-        $ref: "#/definitions/synsetObject"
+        $ref: '#/definitions/synsetObject'
       endNodeMetadata:
-        $ref: "#/definitions/wordSearchObject"
+        $ref: '#/definitions/wordSearchObject'
   textAnalysisObject:
     properties:
       text_complexity:
-        $ref: "#/definitions/textAnalysisObject_text_complexity"
+        $ref: '#/definitions/textAnalysisObject_text_complexity'
   parserObject:
     properties:
       lemma:
-        $ref: "#/definitions/parserObject_lemma"
-    description: "map of results for each word in the input text"
+        $ref: '#/definitions/parserObject_lemma'
+    description: map of results for each word in the input text
+  translateObject:
+    properties:
+      translations:
+        $ref: '#/definitions/translate'
+    description: output of the trasnlate API
+  translate:
+    type: object
+    properties:
+      synset_id:
+        type: object
+        properties:
+          language_id:
+            type: array
+            description: list of word object
+            items:
+              type: object
+              properties:
+                lemma:
+                  type: string
+                  description: lemma of the word in the required language
+                id:
+                  type: string
+                  description: id of the word in the required language
+          gloss:
+            type: string
+            description: meaning of the given word in the given language
+    title: translate
   transliteratedObject:
     properties:
-      output:
-        type: "string"
-        description: "transliteration of the input english text in the specified language"
-    description: "output of the transliterate API"
+      transliterations:
+        $ref: '#/definitions/transliterate'
+    description: output of the transliterate API
+  transliterate:
+    type: object
+    properties:
+      language_id:
+        type: object
+        properties:
+          output:
+            type: string
+            description: transliterated text for the given language_id
+    title: transliterate
   wordlistObject:
     properties:
       words:
-        type: "array"
-        description: "list of word that given wordlist contains"
+        type: array
+        description: list of word that given wordlist contains
         items:
-          type: "string"
+          type: string
       metadata:
-        $ref: "#/definitions/wordlistObject_metadata"
+        $ref: '#/definitions/wordlistObject_metadata'
   wordlistNodeObjects:
     properties:
       identifier:
-        $ref: "#/definitions/wordlistNodeObject"
+        $ref: '#/definitions/wordlistNodeObject'
   wordlistNodeObject:
     properties:
       identifier:
-        type: "string"
-        description: "Unique identifier of the wordlist"
+        type: string
+        description: Unique identifier of the wordlist
       metadata:
-        $ref: "#/definitions/wordlistNodeObject_metadata"
+        $ref: '#/definitions/wordlistNodeObject_metadata'
       words:
-        type: "array"
-        description: "list of word that given wordlist contains"
+        type: array
+        description: list of word that given wordlist contains
         items:
-          type: "string"
+          type: string
   traversalObject:
     properties:
       identifier:
-        type: "string"
-        description: "Unique identifier of the traversal rule"
+        type: string
+        description: Unique identifier of the traversal rule
       description:
-        type: "string"
-        description: "description of the traversal rule"
+        type: string
+        description: description of the traversal rule
       ruleId:
-        type: "string"
-        description: "identifier of the traversal rule"
+        type: string
+        description: identifier of the traversal rule
       ruleScript:
-        type: "string"
-        description: "script name of the traversal rule"
+        type: string
+        description: script name of the traversal rule
       status:
-        type: "string"
-        description: "status of the traversal rule"
+        type: string
+        description: status of the traversal rule
       minChainLength:
-        type: "string"
-        description: "minimum chain length"
+        type: string
+        description: minimum chain length
       maxChainLength:
-        type: "string"
-        description: "maximum chain length"
+        type: string
+        description: maximum chain length
       type:
-        type: "string"
-        description: "type of the traversal rule"
+        type: string
+        description: type of the traversal rule
       name:
-        type: "string"
-        description: "name of the traversal rule"
+        type: string
+        description: name of the traversal rule
       ruleObjectType:
-        type: "string"
-        description: "object type of the traversal rule "
+        type: string
+        description: 'object type of the traversal rule '
       maxWords:
-        type: "string"
-        description: "maximum number of words that traversal rule can return"
+        type: string
+        description: maximum number of words that traversal rule can return
   varnaObject:
     properties:
       varna:
-        type: "string"
-        description: "varna text"
+        type: string
+        description: varna text
       unicode:
-        type: "string"
-        description: "unicode of the varna"
+        type: string
+        description: unicode of the varna
       type:
-        type: "string"
-        description: "type of the varna"
+        type: string
+        description: type of the varna
       isoSymbol:
-        type: "string"
-        description: "isoSymbol of the varna"
+        type: string
+        description: isoSymbol of the varna
       orthoAttribVector:
-        type: "array"
-        description: "vector of orthographic attribute"
+        type: array
+        description: vector of orthographic attribute
         items:
-          type: "string"
+          type: string
       modifierOrthoAttribVector:
-        type: "array"
-        description: "vector of modifier orthographic attribute"
+        type: array
+        description: vector of modifier orthographic attribute
         items:
-          type: "string"
+          type: string
   RequestParams:
-    type: "object"
+    type: object
     required:
-    - "msgid"
+      - msgid
     properties:
       msgid:
-        type: "string"
-    title: "Params"
+        type: string
+    title: Params
   ResponseParams:
-    type: "object"
+    type: object
     properties:
       resmsgid:
-        type: "string"
-        description: "Response Message Id"
+        type: string
+        description: Response Message Id
       msgid:
-        type: "string"
-        description: "Message Id"
+        type: string
+        description: Message Id
       err:
-        type: "string"
-        description: "Error Code"
+        type: string
+        description: Error Code
       status:
-        type: "string"
-        description: "Response Status"
+        type: string
+        description: Response Status
       errmsg:
-        type: "string"
-        description: "Error Message"
-    title: "Response Parameter"
+        type: string
+        description: Error Message
+    title: Response Parameter
   FailedResponseHeader:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
-        description: "API Identifier"
+        type: string
+        description: API Identifier
       ver:
-        type: "string"
-        description: "API version information"
+        type: string
+        description: API version information
       ts:
-        type: "string"
-        description: "API execution timespan"
+        type: string
+        description: API execution timespan
       params:
-        $ref: "#/definitions/FailedResponseParams"
+        $ref: '#/definitions/FailedResponseParams'
       responseCode:
-        type: "string"
-        description: "responseCode"
+        type: string
+        description: responseCode
       result:
-        $ref: "#/definitions/FailedResponseHeader_result"
-    title: "Failure Response"
+        $ref: '#/definitions/FailedResponseHeader_result'
+    title: Failure Response
   FailedResponseParams:
-    type: "object"
+    type: object
     properties:
       resmsgid:
-        type: "string"
-        description: "Response Message Id"
+        type: string
+        description: Response Message Id
       msgid:
-        type: "string"
-        description: "Message Id"
+        type: string
+        description: Message Id
       err:
-        type: "string"
-        description: "Error Code"
+        type: string
+        description: Error Code
       status:
-        type: "string"
-        description: "Response Status"
+        type: string
+        description: Response Status
       errmsg:
-        type: "string"
-        description: "Error Message"
-    title: "Failed Response Parameter"
+        type: string
+        description: Error Message
+    title: Failed Response Parameter
   createWordlistResponse_result:
     properties:
       set_id:
-        type: "string"
-        description: "wordList identifier"
+        type: string
+        description: wordList identifier
   createTraversalResponse_result:
     properties:
       node_id:
-        type: "string"
-        description: "traversal rule identifier"
+        type: string
+        description: traversal rule identifier
   getAllVarnasResponse_result:
     properties:
       result:
-        type: "array"
+        type: array
         items:
-          type: "string"
+          type: string
   createVarnaResponse_result:
     properties:
       node_id:
-        type: "string"
-        description: "varna identifier"
+        type: string
+        description: varna identifier
   searchWordObject_filters:
     properties:
       language_id:
-        type: "array"
-        description: "confines the search to the specified languages"
+        type: array
+        description: confines the search to the specified languages
         items:
-          type: "string"
+          type: string
       objectType:
-        type: "array"
-        description: "type of objects to be searched for, specifying 'Word' will return\
-          \ only words"
+        type: array
+        description: >-
+          type of objects to be searched for, specifying 'Word' will return only
+          words
         items:
-          type: "string"
+          type: string
       lemma:
-        type: "array"
-        description: "if provided, confines the search to words with the specified\
-          \ list of lemmas"
+        type: array
+        description: >-
+          if provided, confines the search to words with the specified list of
+          lemmas
         items:
-          type: "string"
+          type: string
       status:
-        type: "array"
-        description: "if provided, confines the search to the objects having the specified\
-          \ status values. else, the search is confined to Live objects"
+        type: array
+        description: >-
+          if provided, confines the search to the objects having the specified
+          status values. else, the search is confined to Live objects
         items:
-          type: "string"
+          type: string
       filterProperty:
-        type: "string"
-        description: "Search request can contain multiple filters. Each filter has\
-          \ a key, which is one of the properties of object and value can be an array\
-          \ (to do an IN search) or a single value (to do an exact match search) or\
-          \ to check ranges using min/max parameters"
-    description: "Additional filters to apply based on the attributes of the objects"
+        type: string
+        description: >-
+          Search request can contain multiple filters. Each filter has a key,
+          which is one of the properties of object and value can be an array (to
+          do an IN search) or a single value (to do an exact match search) or to
+          check ranges using min/max parameters
+    description: Additional filters to apply based on the attributes of the objects
   searchWordObject_sort_by:
     properties:
       sort_key:
-        type: "string"
-        description: "field on which the result should be sorted - should be one of\
-          \ the properties defined for the object type"
+        type: string
+        description: >-
+          field on which the result should be sorted - should be one of the
+          properties defined for the object type
       sort_order:
-        type: "string"
-        description: "order in which results should be sorted - asc or desc"
-    description: "criteria to sort the results - a map of sort_key and sort_order\
-      \ values"
+        type: string
+        description: order in which results should be sorted - asc or desc
+    description: criteria to sort the results - a map of sort_key and sort_order values
   complexityMeasuresObject_complexity_measures_lemma:
     properties:
       orthographic_complexity:
-        type: "number"
-        format: "double"
-        description: "orthographic complexity of the word"
+        type: number
+        format: double
+        description: orthographic complexity of the word
       phonologic_complexity:
-        type: "number"
-        format: "double"
-        description: "phonological complexity of the word"
-    description: "actual lemma of the input word"
+        type: number
+        format: double
+        description: phonological complexity of the word
+    description: actual lemma of the input word
   complexityMeasuresObject_complexity_measures:
     properties:
       lemma:
-        $ref: "#/definitions/complexityMeasuresObject_complexity_measures_lemma"
-    description: "map of results with lemma of each input word as key and complexity\
-      \ measures as value"
+        $ref: '#/definitions/complexityMeasuresObject_complexity_measures_lemma'
+    description: >-
+      map of results with lemma of each input word as key and complexity
+      measures as value
   textAnalysisObject_text_complexity_wordMeasures_lemma:
     properties:
       orthographic_complexity:
-        type: "number"
-        format: "double"
-        description: "orthographic complexity of the word"
+        type: number
+        format: double
+        description: orthographic complexity of the word
       phonologic_complexity:
-        type: "number"
-        format: "double"
-        description: "phonological complexity of the word"
-    description: "lemma of the word in the input text"
+        type: number
+        format: double
+        description: phonological complexity of the word
+    description: lemma of the word in the input text
   textAnalysisObject_text_complexity_wordMeasures:
     properties:
       lemma:
-        $ref: "#/definitions/textAnalysisObject_text_complexity_wordMeasures_lemma"
-    description: "map with lemma of each word in the text as key and complexity measures\
-      \ as value"
+        $ref: '#/definitions/textAnalysisObject_text_complexity_wordMeasures_lemma'
+    description: >-
+      map with lemma of each word in the text as key and complexity measures as
+      value
   textAnalysisObject_text_complexity:
     properties:
       text:
-        type: "string"
-        description: "input text value"
+        type: string
+        description: input text value
       wordCount:
-        type: "number"
-        description: "number of words in the input text"
+        type: number
+        description: number of words in the input text
       syllableCount:
-        type: "number"
-        description: "number of syllables in the input text"
+        type: number
+        description: number of syllables in the input text
       meanOrthoComplexity:
-        type: "number"
-        format: "double"
-        description: "average orthographic complexity of the input text"
+        type: number
+        format: double
+        description: average orthographic complexity of the input text
       totalOrthoComplexity:
-        type: "number"
-        format: "double"
-        description: "total orthographic complexity of the input text"
+        type: number
+        format: double
+        description: total orthographic complexity of the input text
       meanPhonicComplexity:
-        type: "number"
-        format: "double"
-        description: "average phonological complexity of the input text"
+        type: number
+        format: double
+        description: average phonological complexity of the input text
       totalPhonicComplexity:
-        type: "number"
-        format: "double"
-        description: "total phonological complexity of the input text"
+        type: number
+        format: double
+        description: total phonological complexity of the input text
       wordMeasures:
-        $ref: "#/definitions/textAnalysisObject_text_complexity_wordMeasures"
-    description: "Object containing the analysis information of the input text"
+        $ref: '#/definitions/textAnalysisObject_text_complexity_wordMeasures'
+    description: Object containing the analysis information of the input text
   parserObject_lemma_measures:
     properties:
       orthographic_complexity:
-        type: "number"
-        format: "double"
-        description: "orthographic complexity of the word"
+        type: number
+        format: double
+        description: orthographic complexity of the word
       phonologic_complexity:
-        type: "number"
-        format: "double"
-        description: "phonological complexity of the word"
-    description: "complexity measures of the word"
+        type: number
+        format: double
+        description: phonological complexity of the word
+    description: complexity measures of the word
   parserObject_lemma:
     properties:
       measures:
-        $ref: "#/definitions/parserObject_lemma_measures"
+        $ref: '#/definitions/parserObject_lemma_measures'
       equivalentWords:
-        type: "array"
-        description: "list of words that are synonymous to the current word"
+        type: array
+        description: list of words that are synonymous to the current word
         items:
-          type: "string"
-    description: "lemma of the word in the input text"
+          type: string
+    description: lemma of the word in the input text
   wordlistObject_metadata:
     properties:
       name:
-        type: "string"
-        description: "collection name value"
-    description: "metadata of the wordlist"
+        type: string
+        description: collection name value
+    description: metadata of the wordlist
   wordlistNodeObject_metadata:
     properties:
       SET_OBJECT_TYPE_KEY:
-        type: "string"
-        description: "object type that collection holds"
+        type: string
+        description: object type that collection holds
       name:
-        type: "string"
-        description: "collection name value"
+        type: string
+        description: collection name value
       SET_TYPE:
-        type: "string"
-        description: "Collection type value"
-    description: "metadata of the wordlist"
+        type: string
+        description: Collection type value
+    description: metadata of the wordlist
   FailedResponseHeader_result:
     properties:
       result:
-        type: "string"
-        description: "result"
+        type: string
+        description: result

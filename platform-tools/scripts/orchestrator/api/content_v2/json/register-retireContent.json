@@ -16,5 +16,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.domain.content.retire"
+    "apiId": "ekstep.learning.content.retire",
+    "version": "2.0"
 }

@@ -24,6 +24,16 @@ public class DACConfigurationConstants {
 	
 	public static final String NEO4J_SERVER_DRIVER_TYPE = "simple";
 	
+	public static final String DEFAULT_ROUTE_PROP_PREFIX = "route.bolt.";
+	
+	public static final String DEFAULT_NEO4J_BOLT_ROUTE_ID = "all";
+	
+	public static final String PASSPORT_KEY_BASE_PROPERTY = "graph.passport.key.base";
+	
+	public static final String DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR = ".";
+	
+	public static final String DEFAULT_GRAPH_ID_AND_GRAPH_OPERATION_SEPARATOR = "_";
+	
 	public static final int NEO4J_SERVER_MAX_IDLE_SESSION = 20;
 	
 	public static final boolean IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED = true;
@@ -31,8 +41,6 @@ public class DACConfigurationConstants {
 	public static final boolean IS_SETTING_NEO4J_SERVER_MAX_IDLE_SESSION_ENABLED = true;
 	
 	public static final boolean IS_NEO4J_SERVER_TRUST_STRATEGY_ENABLED = true;
-	
-	public static final String PASSPORT_KEY_BASE_PROPERTY = "graph.passport.key.base";
 	
 	public static final boolean IS_PASSPORT_AUTHENTICATION_ENABLED = true;
 	

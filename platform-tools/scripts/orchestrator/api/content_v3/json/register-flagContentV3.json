@@ -35,5 +35,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.domain.content.flag"
+    "apiId": "ekstep.learning.content.flag",
+    "version":"3.0"
 }

@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Plugin;
@@ -18,6 +16,7 @@ import org.ekstep.content.processor.AbstractProcessor;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class EmbedControllerProcessor.
@@ -36,7 +35,7 @@ import com.ilimi.common.exception.ServerException;
 public class EmbedControllerProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(EmbedControllerProcessor.class.getName());
+	
 
 	/**
 	 * Instantiates a new embed controller processor.
@@ -83,12 +82,12 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 				if (null != controllers) {
 					for (Controller controller : controllers) {
 						if (StringUtils.isBlank(controller.getcData())) {
-							LOGGER.info("There is No Existing In-Line Controller.");
+							PlatformLogger.log("There is No Existing In-Line Controller.");
 							Map<String, Object> data = controller.getData();
 							if (null != data) {
 								String id = (String) data.get(ContentWorkflowPipelineParams.id.name());
 								String type = (String) data.get(ContentWorkflowPipelineParams.type.name());
-								LOGGER.info("Controller Id: " + id + " | type: " + type);
+								PlatformLogger.log("Controller Id: " + id + " | type: " + type);
 								if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(type)) {
 									File file = null;
 									if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), type))
@@ -100,7 +99,7 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 												basePath + File.separator + ContentWorkflowPipelineParams.data.name()
 														+ File.separator + id + ".json");
 									if (null != file && file.exists()) {
-										LOGGER.info("Reading Controller File: " + file.getPath());
+										PlatformLogger.log("Reading Controller File: " + file.getPath());
 										controller.setcData(FileUtils.readFileToString(file));
 									}
 								}

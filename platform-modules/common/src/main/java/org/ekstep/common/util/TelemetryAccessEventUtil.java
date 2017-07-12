@@ -8,12 +8,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 
 public class TelemetryAccessEventUtil {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(TelemetryAccessEventUtil.class.getName());
+	
 	private static ObjectMapper mapper = new ObjectMapper();
 
 	public static void writeTelemetryEventLog(Map<String, Object> data) {
@@ -26,31 +26,40 @@ public class TelemetryAccessEventUtil {
 				accessData.setRid(response.getId());
 				accessData.setUip((String) data.get("RemoteAddress"));
 				accessData.setType("api");
+				accessData.setPath((String)data.get("path"));
 				accessData.setSize((int) data.get("ContentLength"));
 				accessData.setDuration(timeDuration);
 				accessData.setStatus((int) data.get("Status"));
 				accessData.setProtocol((String) data.get("Protocol"));
 				accessData.setMethod((String) data.get("Method"));
-				String did = null, cid = null, uid = null, sid = null;
+				String did = "", cid = "", uid = "", sid = "";
 				if (null != data.get("X-Session-ID")) {
 					sid = (String) data.get("X-Session-ID");
 				} else if (null != request && null != request.getParams()) {
-					sid = request.getParams().getSid();
+					if(null != request.getParams().getSid()){
+						sid = request.getParams().getSid();
+					}
 				}
 				if (null != data.get("X-Consumer-ID")) {
 					cid = (String) data.get("X-Consumer-ID");
 				} else if (null != request && null != request.getParams()) {
-					cid = request.getParams().getCid();
+					if(null != request.getParams().getCid()){
+						cid = request.getParams().getCid();
+					}
 				}
 				if (null != data.get("X-Device-ID")) {
 					did = (String) data.get("X-Device-ID");
 				} else if (null != request && null != request.getParams()) {
-					did = request.getParams().getDid();
+					if(null != request.getParams().getDid()){
+						did = request.getParams().getDid();
+					}
 				}
 				if (null != data.get("X-Authenticated-Userid")) {
 					uid = (String) data.get("X-Authenticated-Userid");
 				} else if (null != request && null != request.getParams()) {
-					uid = request.getParams().getUid();
+					if(null != request.getParams().getUid()){
+						uid = request.getParams().getUid();
+					}
 				}
 				Map<String, String> context = new HashMap<String, String>();
 				context.put("did", did);
@@ -64,10 +73,10 @@ public class TelemetryAccessEventUtil {
 				LogTelemetryEventUtil.logAccessEvent(accessData);
 			}
 		} catch (NullPointerException e) {
-			LOGGER.error(e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		} catch (Exception e) {
-			LOGGER.error(e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}
@@ -78,8 +87,19 @@ public class TelemetryAccessEventUtil {
 		try {
 			data.put("StartTime", requestWrapper.getAttribute("startTime"));
 			String body = requestWrapper.getBody();
-			if (body.contains("request") && body.length() > 0) {
+			if (body.contains("request") && body.length() > 0 && !body.contains("SCRIPT")) {
 				request = mapper.readValue(body, Request.class);
+			}else if (null != body) {
+					int index = body.indexOf("filename=");
+					String fileName = "";
+					if (index > 0) {
+						fileName = body.substring(index + 10, body.indexOf("\"", index+10));
+						request = new Request();
+						Map<String, Object> req = new HashMap<String,Object>();
+						req.put("fileName", fileName);
+						request.setRequest(req);
+					}
+					
 			}
 			Response response = null;
 			byte responseContent[] = responseWrapper.getData();
@@ -94,6 +114,7 @@ public class TelemetryAccessEventUtil {
 			data.put("ContentLength", responseContent.length);
 			data.put("Status", responseWrapper.getStatus());
 			data.put("Protocol", requestWrapper.getProtocol());
+			data.put("path", requestWrapper.getRequestURI().toString());
 			data.put("Method", requestWrapper.getMethod());
 			data.put("X-Session-ID", requestWrapper.getHeader("X-Session-ID"));
 			data.put("X-Consumer-ID", requestWrapper.getHeader("X-Consumer-ID"));
@@ -101,8 +122,8 @@ public class TelemetryAccessEventUtil {
 			data.put("X-Authenticated-Userid", requestWrapper.getHeader("X-Authenticated-Userid"));
 			writeTelemetryEventLog(data);
 		} catch (IOException e) {
-			LOGGER.error(e);
-			e.printStackTrace();
+			PlatformLogger.log("Exception", e.getMessage(), e);
+		
 		}
 
 	}

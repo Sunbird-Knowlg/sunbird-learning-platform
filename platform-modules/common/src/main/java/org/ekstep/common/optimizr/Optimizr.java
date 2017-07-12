@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.audio.MonoChannelProcessor;
 import org.ekstep.common.optimizr.image.ResizeImagemagickProcessor;
 import org.ekstep.common.util.HttpDownloadUtility;
 
+import com.ilimi.common.logger.PlatformLogger;
+
 public class Optimizr {
 
-	private static Logger LOGGER = LogManager.getLogger(Optimizr.class.getName());
+	
 	
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
@@ -25,10 +25,10 @@ public class Optimizr {
 	}
 	
 	public File optimizeECAR(String url)  throws Exception{
-		LOGGER.info("optimizeECAR URL"+url);
+		PlatformLogger.log("optimizeECAR URL" , url);
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File ecarFile = HttpDownloadUtility.downloadFile(url, tempFileDwn);
-		LOGGER.info("optimizeECAR ecarFile -"+ecarFile.getPath());
+		PlatformLogger.log("optimizeECAR ecarFile -" ,  ecarFile.getPath());
 		return optimizeECAR(ecarFile);
 	}
 	

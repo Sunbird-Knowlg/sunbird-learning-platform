@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.AWSUploader;
 import org.springframework.stereotype.Component;
 
@@ -21,15 +19,13 @@ import com.ilimi.common.enums.UrlProperties;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.mgr.IAwsUrlUpdateManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.graph.model.node.DefinitionDTO;
-import com.ilimi.graph.model.node.MetadataDefinition;
-import com.ilimi.common.mgr.IAwsUrlUpdateManager;
 
 
 /**
@@ -52,8 +48,9 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 	protected static final String URL_String = "url";
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(AwsUrlUpdateManagerImpl.class.getName());
+	
 
+	@SuppressWarnings("unchecked")
 	public Response updateNodesWithUrl(String objectType, String graphId, String apiId)
 	{
 		if (StringUtils.isBlank(graphId))
@@ -67,7 +64,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 		sc.setObjectType(objectType);
 		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
-		Response findRes = getResponse(req, LOGGER);
+		Response findRes = getResponse(req);
 		if (checkError(findRes))
 			return null;
 		else {
@@ -111,6 +108,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 		return response;
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<String> updateNodes(Node node, List<String> failedNodes){
 		
 		boolean updateFlag = false;
@@ -156,14 +154,15 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-			LOGGER.info("Updating the Node id with AWS url: " + node.getIdentifier());
-			Response updateRes = getResponse(updateReq, LOGGER);
+			PlatformLogger.log("Updating the Node id with AWS url: " + node.getIdentifier());
+			Response updateRes = getResponse(updateReq);
 			if (checkError(updateRes)){
 				failedNodes.add(node.getIdentifier());
 			}
 		}
 		return failedNodes;
 	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Map verifyMapForUrl(Object propertyVal, Node node, String propName){
 		Map propMap = (Map)propertyVal;
 		Map finalMap = new HashMap();
@@ -205,7 +204,7 @@ public class AwsUrlUpdateManagerImpl extends BaseManager implements IAwsUrlUpdat
 	private Node getNode(String graphId, String identifier) {
 		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), identifier);
-		Response listRes = getResponse(req, LOGGER);
+		Response listRes = getResponse(req);
 		if (checkError(listRes))
 			throw new ResourceNotFoundException(
 					CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),

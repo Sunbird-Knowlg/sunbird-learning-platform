@@ -3,9 +3,6 @@ package org.ekstep.language.controller;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IParserManager;
@@ -22,6 +19,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class ParserController, entry point for parser operation
@@ -33,7 +31,7 @@ import com.ilimi.common.exception.ClientException;
 public class ParserController extends BaseController {
 
     /** The logger. */
-    private static Logger LOGGER = LogManager.getLogger(SearchController.class.getName());
+    
 
     /** The parser manger. */
     @Autowired
@@ -50,7 +48,7 @@ public class ParserController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> parseContent(@RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "parser";
+        String apiId = "ekstep.language.parser";
         Request request = getRequest(map);
         try {
             String languageId = (String) request.get(LanguageParams.language_id.name());
@@ -66,11 +64,11 @@ public class ParserController extends BaseController {
             Integer limit = (Integer) request.get("limit");
             Response response = parserManger.parseContent(languageId, content, wordSuggestions, false, translations,
                     equivalentWords, limit);
-            LOGGER.info("Parser | Response: " + response);
+            PlatformLogger.log("Parser | Response: " + response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            LOGGER.error("Parser | Exception: " + e.getMessage(), e);
+            PlatformLogger.log("Parser | Exception: " , e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }

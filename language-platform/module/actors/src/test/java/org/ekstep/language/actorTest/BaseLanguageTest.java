@@ -7,9 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,6 +14,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
@@ -25,17 +23,14 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class BaseLanguageTest {
 
-	private static Logger LOGGER = LogManager.getLogger(BaseLanguageTest.class
-			.getName());
-	private static ObjectMapper mapper = new ObjectMapper();
+	
 	protected static String TEST_LANGUAGE = "hi";
 	protected static String TEST_COMMON_LANGUAGE = "language";
 
 	static{
 		ActorBootstrap.loadConfiguration();
 	}
-	
-	@SuppressWarnings("unused")
+
 	@BeforeClass
 	public static void init() throws Exception {
 		createGraph();
@@ -93,6 +88,7 @@ public class BaseLanguageTest {
 		return jsonContent;
 	}
 		
+	@SuppressWarnings("unused")
 	protected static void createDefinition(String contentString, String graph_id) throws IOException{
 		
 		String apiId = "definition.create";
@@ -106,10 +102,10 @@ public class BaseLanguageTest {
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
 				graph_id);
 		request.put(GraphEngineParams.input_stream.name(), contentString);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " , request);
 		Response response = LanguageCommonTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " , response);
 		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}

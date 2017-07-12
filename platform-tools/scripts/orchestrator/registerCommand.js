@@ -10,7 +10,7 @@ var client = new Client();
 // PROD
 //var host = "https://api.ekstep.in/learning";
 // DEV
-var host = "https://dev.ekstep.in/api/learning";
+ var host = "https://dev.ekstep.in/api/learning";
 // QA
 //var host = "https://qa.ekstep.in/api/learning";
 

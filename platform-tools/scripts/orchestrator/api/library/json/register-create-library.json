@@ -1,5 +1,5 @@
 {
-    "name": "createReference",
+    "name": "createLibrary",
     "parameters": [{
         "name": "library",
         "index": 1,
@@ -10,5 +10,7 @@
         "type": "POST",
         "url": "/v2/library"
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.learning.library.save",
+    "version":"2.0"
 }

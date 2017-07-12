@@ -2,7 +2,6 @@ package org.ekstep.language.controllerstest;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
@@ -10,9 +9,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

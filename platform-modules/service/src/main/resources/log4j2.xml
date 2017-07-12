@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN">
+<Configuration status="WARN" packages="">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="RollingFileAppender" fileName="/data/logs/graph.log"
-			filePattern="/data/logs/graph-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="DefaultLogAppender" fileName="/data/logs/learning_service.log"
+			filePattern="/data/logs/learning_service-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
-				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
-				</Pattern>
+				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="24"
 					modulate="true" />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="learning_service-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/perf.log"
 			filePattern="/data/logs/perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -23,15 +28,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
-		</RollingFile>
-		<RollingFile name="AuditLogAppender" fileName="/data/logs/audit.log"
-			filePattern="/data/logs/audit-%d{MM-dd-yyyy-hh-mm}-%i.log">
-			<PatternLayout>
-				<Pattern>%d [%t] - %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<OnStartupTriggeringPolicy />
-			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="perf-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
 			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -41,6 +43,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="graph_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/telemetry_event.log"
 			filePattern="/data/logs/telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -50,6 +58,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="telemetry_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 		<RollingRandomAccessFile name="ObjectLifecycleEventAppender" fileName="/data/logs/object_lifecycle_event.log"
 			filePattern="/data/logs/object_lifecycle_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
@@ -59,6 +73,12 @@
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
+			<DefaultRolloverStrategy>
+                <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
+                    <IfFileName glob="object_lifecycle_event-*.log" />
+                    <IfLastModified age="7d" />
+                </Delete>
+            </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
 
 	</Appenders>
@@ -69,17 +89,14 @@
 		<Logger name="GraphEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="GraphEventAppender" />
 		</Logger>
-		<Logger name="AuditTestLogger" level="INFO" additivity="false">
-			<AppenderRef ref="AuditLogAppender" />
-		</Logger>
 		<Logger name="ObjectLifecycleLogger" level="INFO" additivity="false">
 			<AppenderRef ref="ObjectLifecycleEventAppender" />
 		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
-		<Root level="INFO">
-			<AppenderRef ref="RollingFileAppender" />
-		</Root>
+		<Logger name="DefaultPlatformLogger" level="INFO" additivity="false">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Logger>
 	</Loggers>
 </Configuration>

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 
 /**
@@ -31,7 +31,7 @@ import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 public class AuditHistoryV2Controller extends BaseController {
 	
 	/** The Logger */
-	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryV2Controller.class.getName());
+	
 	
 	private String versionId = getAPIVersion();
 	
@@ -58,16 +58,16 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getAll";
+		String apiId = "ekstep.audit_history.list";
 
-		LOGGER.info("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
+		PlatformLogger.log("get all AuditHistory | " + " GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: "
 				+ endTime);
 		try {
 			Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime, versionId);
-			LOGGER.info("Find Item | Response: " + response);
+			PlatformLogger.log("Find Item | Response: " , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -97,16 +97,16 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getById";
+		String apiId = "ekstep.audit_history.info";
 
-		LOGGER.info("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
+		PlatformLogger.log("get AuditHistory By ObjectId | " +  "GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectId: " + objectId);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime, versionId);
-			LOGGER.info("Find Item | Response: " + response);
+			PlatformLogger.log("Find Item | Response: " , response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -135,16 +135,16 @@ public class AuditHistoryV2Controller extends BaseController {
 			@RequestParam(value = "start", required = false) String startTime,
 			@RequestParam(value = "end", required = false) String endTime,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getByType";
+		String apiId = "ekstep.audit_history.info";
 
-		LOGGER.info("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
+		PlatformLogger.log("get AuditHistory By ObjectType | " +  " GraphId: " + graphId + " | TimeStamp1: " + startTime
 				+ " | Timestamp2: " + endTime + " | ObjectType: " + objectType);
 		try {
 			Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime, versionId);
-			LOGGER.info("Find Item | Response: " + response);
+			PlatformLogger.log("Find Item | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -171,16 +171,16 @@ public class AuditHistoryV2Controller extends BaseController {
 	public ResponseEntity<Response> getLogRecord(@PathVariable(value = "objectId") String objectId,
 			@RequestParam(value = "timestamp", required = false) String timeStamp,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.getLogRecordById";
+		String apiId = "ekstep.audit_history.info";
 
-		LOGGER.info("get AuditHistory By objectId | TimeStamp1: " + timeStamp
+		PlatformLogger.log("get AuditHistory By objectId | TimeStamp1: " + timeStamp
 				+ " | objectId: " + objectId);
 		try {
 				Response response = auditHistoryManager.getAuditLogRecordById(objectId, timeStamp);
-				LOGGER.info("Find Item | Response: " + response);
+				PlatformLogger.log("Find Item | Response: " , response.getResponseCode());
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -190,16 +190,16 @@ public class AuditHistoryV2Controller extends BaseController {
 	public ResponseEntity<Response> deleteAuditHistory(
 			@RequestParam(value = "start", required = false) String start,
 			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "audit_history.delete";
+		String apiId = "ekstep.audit_history.delete";
 
-		LOGGER.info("delete AuditHistory By date| date: " + start
+		PlatformLogger.log("delete AuditHistory By date| date: " + start
 				+ " | objectId: " + start);
 		try {
 				Response response = auditHistoryManager.deleteAuditHistory(start);
-				LOGGER.info("delete Item | Response: " + response);
+				PlatformLogger.log("delete Item | Response: " , response.getResponseCode());
 				return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Item | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

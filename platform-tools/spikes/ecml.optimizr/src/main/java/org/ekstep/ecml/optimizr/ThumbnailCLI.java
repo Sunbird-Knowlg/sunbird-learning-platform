@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
  * @author feroz
  */
 public class ThumbnailCLI {
-    private static final Logger logger = LogManager.getLogger();
     private static String input = "samples/thumbnails";
     
     public static void main( String[] args ) throws Exception {
@@ -22,7 +21,7 @@ public class ThumbnailCLI {
         int count = ThumbnailGenerator.process(file);
         long end = System.currentTimeMillis();
         
-        logger.info("Generated {} thumbnails in {} ms", count, (end - beg));
+        PlatformLogger.log("Generated {} thumbnails in {} ms", count, (end - beg));
     }
     
     

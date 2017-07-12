@@ -1,0 +1,15 @@
+{
+    "name": "bulkCreateTags",
+    "parameters": [{
+        "name": "words",
+        "index": 0,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/language/bulk/tags"
+    },
+    "body": "",
+    "apiId": "ekstep.tags.bulk.save"
+}

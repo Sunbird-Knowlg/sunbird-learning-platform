@@ -27,3 +27,5 @@ node registerScript.js api/language-search.tcl api/v3_json/json/register-languag
 node registerScript.js api/flag-word.tcl api/v3_json/json/register-flag-wordV3.json register
 
 node registerScript.js api/get-translation.tcl api/v3_json/json/register-get-translationV3.json update
+
+node registerScript.js api/get-transliterate.tcl api/v3_json/json/register-get-transliterateV3.json update

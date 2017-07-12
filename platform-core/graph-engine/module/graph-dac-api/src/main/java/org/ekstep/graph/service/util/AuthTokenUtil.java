@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
@@ -13,16 +11,18 @@ import org.neo4j.driver.v1.AuthToken;
 import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
+import com.ilimi.common.logger.PlatformLogger;
+
 public class AuthTokenUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(AuthTokenUtil.class.getName());
+	
 
 	public static AuthToken getAuthToken() {
 		AuthToken authToken;
 
 		// Fetching Authentication Type for Neo4J
 		String authType = DACConfigurationConstants.NEO4J_SERVER_AUTH_TYPE;
-		LOGGER.info("Neo4J Authentication Type: " + authType);
+		PlatformLogger.log("Neo4J Authentication Type: " + authType);
 
 		if (!isValidConfiguration(authType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_CONFIG.name(),

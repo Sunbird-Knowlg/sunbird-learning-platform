@@ -5,8 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,22 +18,20 @@ import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.ekstep.language.util.ElasticSearchUtil;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class LanguageToolsActorTest {
 
 	private static ObjectMapper mapper = new ObjectMapper();
 	static ElasticSearchUtil util;
 	private static String TEST_LANGUAGE = "hi";
-	private static Logger LOGGER = LogManager.getLogger(LanguageToolsActorTest.class
-			.getName());
+	
 
 	static {
 		LanguageRequestRouterPool.init();
@@ -54,10 +50,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -95,10 +91,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeWordComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -111,6 +107,7 @@ public class LanguageToolsActorTest {
 		Assert.assertEquals(wordComplexity.getPhonologic_complexity(), new Double(14.19));
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void getTextComplexity() throws JsonParseException, JsonMappingException,
 			IOException {
@@ -124,10 +121,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeTextComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -161,10 +158,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.getWordFeatures.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -197,10 +194,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.getWordFeatures.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);
@@ -229,10 +226,10 @@ public class LanguageToolsActorTest {
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.loadLanguageVectors.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		Response response = RequestResponseTestHelper.getResponse(
-				request, LOGGER);
-		LOGGER.info("List | Response: " + response);
+				request);
+		PlatformLogger.log("List | Response: " + response);
 		RequestResponseTestHelper.getResponseEntity(response, apiId,
 				(null != request.getParams()) ? request.getParams().getMsgid()
 						: null);

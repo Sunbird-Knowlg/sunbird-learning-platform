@@ -9,13 +9,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -32,7 +25,13 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
-import com.ilimi.graph.model.cache.DefinitionCache;
+
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+import scala.concurrent.Future;
 
 public class DefinitionNode extends AbstractNode {
 

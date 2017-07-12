@@ -57,7 +57,14 @@ proc proc_getScreenshots {graph_node} {
 					     set urlNotNull [proc_isNotNull $url]
 		 			     if {$urlNotNull} { 
 						$urlSet add $url
-				             }
+				             } else {
+                                                 set downloadUrl [$endNodeMetadata get "downloadUrl"]
+					     	 set url [java::cast String $downloadUrl]
+					     	 set urlNotNull [proc_isNotNull $url]
+		 			     	 if {$urlNotNull} { 
+							$urlSet add $url
+                                                }
+                                             }
 				       }
 				} 
 		         }
@@ -67,12 +74,11 @@ proc proc_getScreenshots {graph_node} {
 		if {$arr_instance == 1} {
 			set existingAsset [java::cast {String[]} $screenshots]
 			set existingData [java::call Arrays asList $existingAsset]
-		                
-		}
-		set screenShotNotNull [proc_isNotNull $existingData]
-		if {$screenShotNotNull} {
-	   	 	$urlSet addAll $existingData
-		}
+			set screenShotNotNull [proc_isNotNull $existingData]
+			if {$screenShotNotNull} {
+	   	 		$urlSet addAll $existingData
+			}
+                }
 		set urls [java::new ArrayList $urlSet]
 		$node_metadata put "screenshots" $urls
 		return $graph_node
@@ -102,19 +108,35 @@ if {$check_error} {
 		if {$relation_isNotEmpty && $node_object_type == $object_type} {
 				proc_getScreenshots $graph_node
 				set create_response [updateDataNode $graph_id $content_id $graph_node]
-		       		set content_image_id ${content_id}.img
-		    		set resp_get_node [getDataNode $graph_id $content_image_id]
-		    		set check_error [check_response_error $resp_get_node]
-				if {$check_error} {
-					return $create_response
-				} else {
-					set image_node [get_resp_value $resp_get_node "node"]
-					proc_getScreenshots $image_node
-					set create_image_response [updateDataNode $graph_id $content_image_id $image_node]         
-		    		}
-                    	return $create_response
-   		 	
+                    		return $create_response	
 		}
+                set content_image_id ${content_id}.img
+		set resp_get_node [getDataNode $graph_id $content_image_id]
+		set check_error [check_response_error $resp_get_node]
+		if {$check_error} {
+		} else {
+                        set image_node [get_resp_value $resp_get_node "node"]
+                        set node_metadata [java::prop $image_node "metadata"]
+			set outRelations [java::prop $image_node "outRelations"]
+                        set node_object_type [java::prop $graph_node "objectType"]
+      			set relation_val_null [java::isnull $outRelations]
+               		set relation_isNotEmpty [isNotEmpty $outRelations]
+                        
+	      		if {$relation_val_null == 1} {
+				set result_map [java::new HashMap]
+				$result_map put "code" "ERR_CONTENT"
+				$result_map put "message" "Content has no relations"
+				$result_map put "responseCode" [java::new Integer 400]
+				set response_list [create_error_response $result_map]
+				return $response_list
+			}
+			if {$relation_isNotEmpty && $node_object_type == $object_type} {
+				set image_node [get_resp_value $resp_get_node "node"]
+				proc_getScreenshots $image_node
+				set create_image_response [updateDataNode $graph_id $content_image_id $image_node] 
+                                return $create_image_response        
+			}
+                }
       
 }
     

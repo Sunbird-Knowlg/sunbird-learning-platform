@@ -150,6 +150,21 @@ if {$object_null == 1} {
 						}
 					}
 				}
+				set audience_val [$metadata get "audience"]
+				set audience_val_null [java::isnull $audience_val]
+                                if {$audience_val_null == 0} {
+					set audience_val_instance [java::instanceof $audience_val {String[]}]                       
+					if {$audience_val_instance == 0} {
+						set audience_list [java::new ArrayList]
+						$audience_list add $audience_val
+						$metadata put "audience" $audience_list
+						set input_audience [$content get "audience"]
+						set input_audience_null [java::isnull $input_audience]
+						if {$input_audience_null == 1} {
+							$content put "audience" $audience_list
+						}
+					}
+				}
 
 				set status_val [$metadata get "status"]
 				set status_val_str [java::new String [$status_val toString]]
@@ -177,11 +192,11 @@ if {$object_null == 1} {
 					if {$isImageObjectCreationNeeded == 1} {
 						java::prop $graph_node "identifier" $content_image_id	
 						java::prop $graph_node "objectType" $content_image_object_type
-						if {$isFlaggedState == 1} {
-							$metadata put "status" "FlagDraft"	
-						} else {
+						#if {$isFlaggedState == 1} {
+							#$metadata put "status" "FlagDraft"	
+						#} else {
 							$metadata put "status" "Draft"
-						}
+						#}
 						set lastUpdatedBy [$content get "lastUpdatedBy"]
 						set isLastUpdateNotNull [proc_isNotNull $lastUpdatedBy]
                         if {$isLastUpdateNotNull} {

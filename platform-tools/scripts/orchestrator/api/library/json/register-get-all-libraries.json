@@ -5,5 +5,7 @@
         "type": "GET",
         "url": "/v2/library"
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.learning.library.list",
+    "version":"2.0"
 }

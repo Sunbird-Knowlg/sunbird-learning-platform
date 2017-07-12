@@ -36,5 +36,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.domain.list"
+    "apiId": "ekstep.learning.domain.list",
+    "version":"2.0"
 }

@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -28,13 +26,15 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import akka.actor.ActorRef;
 
 public class SearchManager extends SearchBaseActor {
 
-	private static Logger LOGGER = LogManager.getLogger(SearchManager.class.getName());
+	
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
@@ -73,13 +73,13 @@ public class SearchManager extends SearchBaseActor {
 				Map<String, Object> lstResult = processor.multiSynsetDocSearch(synsetIdList);
 				OK(lstResult, parent);
 			} else {
-				LOGGER.info("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error("Error in SearchManager actor", e);
+			PlatformLogger.log("Error in SearchManager actor", e.getMessage(), e);
 			handleException(e, getSender());
 		} finally {
 			if (null != processor)
@@ -92,7 +92,7 @@ public class SearchManager extends SearchBaseActor {
 		SearchDTO searchObj = new SearchDTO();
 		try {
 			Map<String, Object> req = request.getRequest();
-			LOGGER.info("Search Request: " + req);
+			PlatformLogger.log("Search Request: " , req);
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
 			int limit = getLimitValue(req.get(CompositeSearchParams.limit.name()));
 			Boolean fuzzySearch = (Boolean) request.get("fuzzy");
@@ -182,7 +182,7 @@ public class SearchManager extends SearchBaseActor {
 
 			if (null != softConstraints && !softConstraints.isEmpty()) {
 				Map<String, Object> softConstraintMap = new HashMap<>();
-				LOGGER.info("SoftConstraints:" + softConstraints);
+				PlatformLogger.log("SoftConstraints:" , softConstraints);
 				try {
 					for (String key : softConstraints.keySet()) {
 						if (filters.containsKey(key) && null != filters.get(key)) {
@@ -203,13 +203,13 @@ public class SearchManager extends SearchBaseActor {
 						}
 					}
 				} catch (Exception e) {
-					LOGGER.error("Invalid soft Constraints", e);
+					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, LoggerEnum.WARN.name());
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
 
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
-			LOGGER.info("Fields: " + fieldsSearch);
+			PlatformLogger.log("Fields: " , fieldsSearch);
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
@@ -227,7 +227,7 @@ public class SearchManager extends SearchBaseActor {
 
 			if (null != req.get(CompositeSearchParams.offset.name())) {
 				int offset = (Integer) req.get(CompositeSearchParams.offset.name());
-				LOGGER.info("Offset: " + offset);
+				PlatformLogger.log("Offset: " + offset);
 				searchObj.setOffset(offset);
 			}
 
@@ -293,6 +293,7 @@ public class SearchManager extends SearchBaseActor {
 		return properties;
 	}
 
+	@SuppressWarnings("unchecked")
 	private List<String> getList(Object param) {
 		List<String> paramList;
 		try {
@@ -492,9 +493,10 @@ public class SearchManager extends SearchBaseActor {
 		return properties;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
-		LOGGER.info("Logging search Response :" + searchResponse.entrySet());
+		PlatformLogger.log("Logging search Response :" , searchResponse.entrySet());
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
@@ -537,7 +539,7 @@ public class SearchManager extends SearchBaseActor {
 				respResult.put(entry.getKey(), entry.getValue());
 			}
 		}
-		LOGGER.info(respResult);
+		PlatformLogger.log("Search Result", respResult);
 		return respResult;
 	}
 
@@ -570,7 +572,7 @@ public class SearchManager extends SearchBaseActor {
 		return null;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unused" })
 	private boolean isEmpty(Object o) {
 		boolean result = false;
 		if (o instanceof String) {

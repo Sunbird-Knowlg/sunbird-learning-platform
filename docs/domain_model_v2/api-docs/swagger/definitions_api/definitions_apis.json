@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "version": "2.0",
+    "version": "3.0",
     "title": "Definitions",
     "description": "The Definitions API of EkStep Learning Platform provides details of definitions of all objectTypes supported by the Platform",
     "license": {
@@ -9,7 +9,7 @@
       "url": "http:www.EkStep.in"
     }
   },
-  "basePath":"/v3",
+  "basePath":"/meta/v3",
    "host": "api.ekstep.in",
   "securityDefinitions": {},
    "schemes": [
@@ -35,7 +35,7 @@
         "tags": [
           "Definitions"
         ],
-        "operationId": "definition.list",
+        "operationId": "ekstep.definitions.list",
         "produces": [
           "application/json"
         ],
@@ -69,7 +69,7 @@
         "tags": [
           "Definitions"
         ],
-        "operationId": "definition.find",
+        "operationId": "ekstep.definition.find",
         "produces": [
           "application/json"
         ],

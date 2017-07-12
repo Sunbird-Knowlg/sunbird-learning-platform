@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.content.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;

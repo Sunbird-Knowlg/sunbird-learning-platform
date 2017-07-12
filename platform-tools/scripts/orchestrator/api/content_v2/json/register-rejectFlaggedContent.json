@@ -16,5 +16,6 @@
         ]
     },
     "body": "",
-    "apiId": "ekstep.domain.content.flag.reject"
+    "apiId": "ekstep.learning.content.rejectFlag",
+    "version": "2.0"
 }

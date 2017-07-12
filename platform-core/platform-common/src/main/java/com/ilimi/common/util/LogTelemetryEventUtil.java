@@ -1,6 +1,7 @@
 package com.ilimi.common.util;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -9,11 +10,11 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
-import java.util.UUID;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class LogTelemetryEventUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(LogTelemetryEventUtil.class.getName());
+	
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -50,7 +51,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event", e.getMessage(), e);
 		}
 		return jsonMessage;
 	}
@@ -70,7 +71,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event", e.getMessage(), e);
 		}
 		return jsonMessage;
 	}
@@ -92,7 +93,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			LOGGER.error("Error logging BE_ACCESS event", e);
+			PlatformLogger.log("Error logging BE_ACCESS event", e.getMessage(),e);
 		}
 		return jsonMessage;
 	}
@@ -122,7 +123,7 @@ public class LogTelemetryEventUtil {
 				if (StringUtils.isNotBlank(jsonMessage))
 					objectLifecycleEventLogger.info(jsonMessage);
 			} catch (Exception e) {
-				LOGGER.error("Error logging OBJECT_LIFECYCLE event", e);
+				PlatformLogger.log("Error logging OBJECT_LIFECYCLE event", e.getMessage(), e);
 			}
 			return jsonMessage;
 	}

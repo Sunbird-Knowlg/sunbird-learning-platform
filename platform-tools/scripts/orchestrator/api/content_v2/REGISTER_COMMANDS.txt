@@ -14,3 +14,7 @@ node registerScript.js api/content_v2/flagContent.tcl api/content_v2/json/regist
 
 node registerScript.js api/content_v2/rejectFlaggedContent.tcl api/content_v2/json/register-rejectFlaggedContent.json register
 
+node registerScript.js api/content_v3/getStageIconsV3.tcl api/content_v2/json/register-getStageIcons.json register
+
+node registerScript.js api/content_v2/getStageIconsList.tcl api/content_v2/json/register-getStageIconsList.json register
+

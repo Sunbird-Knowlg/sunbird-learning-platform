@@ -22,8 +22,6 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.UnzipUtility;
@@ -48,6 +46,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -84,7 +83,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(IImportManager.class.getName());
+	
 
 	/**
 	 * Gets the word list.
@@ -101,7 +100,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			});
 			return list;
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
+			PlatformLogger.log("Exception",e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
@@ -123,7 +122,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					});
 			return list;
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return null;
@@ -195,7 +194,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			}
 			asyncUpdate(nodeIDcache.values(), languageId);
 		} catch (Exception ex) {
-			LOGGER.error(ex.getMessage(), ex);
+			PlatformLogger.log("Exception", ex.getMessage(), ex);
 			errorMessages.append(", ").append(ex.getMessage());
 		} finally {
 			File zipFileDirectory = new File(tempFileDwn);
@@ -205,7 +204,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					delete(zipFileDirectory);
 				} catch (IOException e) {
-					LOGGER.error(e.getMessage(), e);
+					PlatformLogger.log("Exception", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -239,7 +238,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
 			request.setOperation(LanguageOperations.enrichWords.name());
 			request.getContext().put(LanguageParams.language_id.name(), languageId);
-			makeAsyncLanguageRequest(request, LOGGER);
+			makeAsyncLanguageRequest(request);
 		}
 	}
 
@@ -519,12 +518,12 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 		validateReq.put(GraphDACParams.node.name(), node);
 		String lstNodeId = StringUtils.EMPTY;
-		Response validateRes = getResponse(validateReq, LOGGER);
+		Response validateRes = getResponse(validateReq);
 		if (!checkError(validateRes)) {
 			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 			createReq.put(GraphDACParams.node.name(), node);
 			createReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-			Response res = getResponse(createReq, LOGGER);
+			Response res = getResponse(createReq);
 			if (!checkError(res)) {
 				Map<String, Object> result = res.getResult();
 				if (result != null) {
@@ -555,14 +554,14 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		if (null == stream)
 			throw new ClientException(LanguageErrorCodes.ERR_SOURCE_EMPTY_INPUT_STREAM.name(),
 					"Source object is emtpy");
-		LOGGER.info("Import : " + stream);
+		PlatformLogger.log("Import : " + stream);
 		Request request = getLanguageRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(),
 				LanguageOperations.transformWordNetData.name());
 		request.put(LanguageParams.format.name(), LanguageParams.CSVInputStream);
 		request.put(LanguageParams.input_stream.name(), stream);
 		request.put(LanguageParams.source_type.name(), LanguageSourceTypeMap.getSourceType(sourceId));
-		LOGGER.info("Import | Request: " + request);
-		Response importRes = getLanguageResponse(request, LOGGER);
+		PlatformLogger.log("Import | Request: " + request);
+		Response importRes = getLanguageResponse(request);
 		return importRes;
 	}
 
@@ -584,9 +583,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			if (taskId != null) {
 				request.put(LanguageParams.prev_task_id.name(), taskId);
 			}
-			controllerUtil.makeLanguageAsyncRequest(request, LOGGER);
+			controllerUtil.makeLanguageAsyncRequest(request);
 		} catch (IOException e) {
-			LOGGER.error("Error! While Closing the Input Stream.", e);
+			PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 		}
 	}
 
@@ -624,8 +623,8 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Synset object is emtpy");
 		if (null == wordStream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Word object is emtpy");
-		LOGGER.info("Enrich | Synset : " + synsetStream);
-		LOGGER.info("Enrich | Word : " + wordStream);
+		PlatformLogger.log("Enrich | Synset : " + synsetStream);
+		PlatformLogger.log("Enrich | Word : " + wordStream);
 
 		// Indices : Note- Change the value of index if there is change in CSV
 		// File structure
@@ -670,7 +669,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					wordContentBuffer.append(line);
 					wordContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
-					LOGGER.error(e.getMessage(), e);
+					PlatformLogger.log("Exception" + e.getMessage(), e);
 					continue;
 				}
 			}
@@ -706,7 +705,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					synsetContentBuffer.append(line);
 					synsetContentBuffer.append(NEW_LINE);
 				} catch (ArrayIndexOutOfBoundsException e) {
-					LOGGER.error(e.getMessage(), e);
+					PlatformLogger.log("Exception", e.getMessage(), e);
 					continue;
 				}
 			}
@@ -741,7 +740,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			importDataAsync(synsetContent, languageId, taskId);
 			return OK("wordList", wordIdList);
 		} catch (IOException e) {
-			LOGGER.error(e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			e.printStackTrace();
 		} finally {
 			line = "";
@@ -749,7 +748,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					br.close();
 				} catch (IOException e) {
-					LOGGER.error(e.getMessage(), e);
+					PlatformLogger.log("Exception", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -757,7 +756,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				try {
 					reader.close();
 				} catch (IOException e) {
-					LOGGER.error(e.getMessage(), e);
+					PlatformLogger.log("Exception", e.getMessage(), e);
 					e.printStackTrace();
 				}
 			}
@@ -885,7 +884,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.getIndexInfo.name());
 				langReq.put(LanguageParams.words.name(), list);
-				Response langRes = getLanguageResponse(langReq, LOGGER);
+				Response langRes = getLanguageResponse(langReq);
 				if (!checkError(langRes)) {
 					Map<String, Object> map = (Map<String, Object>) langRes.get(LanguageParams.index_info.name());
 					if (null != map && !map.isEmpty()) {
@@ -937,7 +936,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 							break;
 						}
 					} catch (Exception e) {
-						LOGGER.error(e.getMessage(), e);
+						PlatformLogger.log("Exception", e.getMessage(), e);
 						e.printStackTrace();
 						continue;
 					}
@@ -989,11 +988,11 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (null == stream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Input Zip object is emtpy");
-		LOGGER.info("Import language CSV : " + stream);
+		PlatformLogger.log("Import language CSV : " + stream);
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
 		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 		request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(stream));
-		Response createRes = getResponse(request, LOGGER);
+		Response createRes = getResponse(request);
 		if (checkError(createRes)) {
 			return createRes;
 		} else {
@@ -1004,7 +1003,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					String csv = new String(bos.toByteArray());
 					response.put(LanguageParams.response.name(), csv);
 				} catch (IOException e) {
-					LOGGER.error("Error! While Closing the Input Stream.", e);
+					PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(), e);
 				}
 			}
 			return response;
@@ -1025,10 +1024,10 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		if (StringUtils.isBlank(json))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
 					"Definition nodes JSON is empty");
-		LOGGER.info("Update Definition : " + languageId);
+		PlatformLogger.log("Update Definition : " + languageId);
 		Request request = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
 		request.put(GraphEngineParams.input_stream.name(), json);
-		return getResponse(request, LOGGER);
+		return getResponse(request);
 	}
 
 	/*
@@ -1041,9 +1040,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	public Response findAllDefinitions(String id) {
 		if (StringUtils.isBlank(id))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-		LOGGER.info("Get All Definitions : " + id);
+		PlatformLogger.log("Get All Definitions : " + id);
 		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
-		return getResponse(request, LOGGER);
+		return getResponse(request);
 	}
 
 	/*
@@ -1059,9 +1058,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is empty");
-		LOGGER.info("Get Definition : " + id + " : Object Type : " + objectType);
+		PlatformLogger.log("Get Definition : " + id + " : Object Type : " + objectType);
 		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinitionFromCache",
 				GraphDACParams.object_type.name(), objectType);
-		return getResponse(request, LOGGER);
+		return getResponse(request);
 	}
 }

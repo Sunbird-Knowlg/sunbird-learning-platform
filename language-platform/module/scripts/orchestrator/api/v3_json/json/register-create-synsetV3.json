@@ -15,5 +15,7 @@
         "url": "/v3/synsets/create",
         "requestParams": ["language_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.synsets.create",
+    "version":"3.0"
 }

@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.contentstore.util.ContentStoreUtil;
@@ -13,6 +11,7 @@ import org.ekstep.learning.common.enums.LearningErrorCodes;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 
 import akka.actor.ActorRef;
@@ -26,12 +25,12 @@ import akka.actor.ActorRef;
 public class ContentStoreActor extends BaseGraphManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ContentStoreActor.class.getName());
+	
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.info("Received Command: " + msg);
+		PlatformLogger.log("Received Command: " + msg);
 		try {
 			Request request = (Request) msg;
 			String operation = request.getOperation();
@@ -66,13 +65,13 @@ public class ContentStoreActor extends BaseGraphManager {
 				ContentStoreUtil.updateContentProperties(contentId, map);
 				OK(sender());
 			} else {
-				LOGGER.info("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(LearningErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
-			LOGGER.error("Error in ContentStoreActor", e);
+			PlatformLogger.log("Error in ContentStoreActor", e.getMessage(), e);
 			handleException(e, getSender());
 		}
 	}

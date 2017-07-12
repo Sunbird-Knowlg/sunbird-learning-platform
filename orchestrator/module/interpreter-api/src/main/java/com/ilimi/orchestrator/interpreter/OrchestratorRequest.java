@@ -1,6 +1,7 @@
 package com.ilimi.orchestrator.interpreter;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,9 @@ public class OrchestratorRequest implements Serializable {
 	private static final long serialVersionUID = 6662469130673179559L;
 	
 	{   
+		Map<String, Object> currContext = ExecutionContext.getCurrent().getContextValues();
+        context = currContext == null ? new HashMap<String, Object>() : new HashMap<String, Object>(currContext);
+		
         //set request id
         requestId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
         consumerId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CONSUMER_ID.getParamName());
@@ -24,6 +28,7 @@ public class OrchestratorRequest implements Serializable {
 	private Map<String, Object> params;
 	private String requestId;
 	private String consumerId;
+	protected Map<String, Object> context;
 
 	public String getAction() {
 		return action;
@@ -76,5 +81,13 @@ public class OrchestratorRequest implements Serializable {
 	public void setConsumerId(String consumerId) {
 		this.consumerId = consumerId;
 	}
+	
+	public Map<String, Object> getContext() {
+        return context;
+    }
+
+    public void setContext(Map<String, Object> context) {
+        this.context = context;
+    }
 
 }

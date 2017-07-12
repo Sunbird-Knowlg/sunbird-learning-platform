@@ -20,6 +20,7 @@ if {$check_error} {
 		set status_val_str [java::new String [$status_val toString]]
 		set isReviewState [$status_val_str equalsIgnoreCase "Review"]
                 set isLiveState [$status_val_str equalsIgnoreCase "Live"]
+                set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
 		if {$isReviewState == 1} {
 			set request [java::new HashMap]
 			$request put "versionKey" [$node_metadata get "versionKey"]
@@ -64,6 +65,38 @@ if {$check_error} {
 					return $response_list
 				}
 			}
+		}  elseif {$isFlaggedState == 1} {
+			set content_image_id ${content_id}.img
+ 			set resp_get_node [getDataNode $graph_id $content_image_id]
+			set check_error [check_response_error $resp_get_node]
+ 			if {$check_error} {
+                           	set result_map [java::new HashMap]
+				$result_map put "code" "ERR_CONTENT_NOT_IN_REVIEW"
+				$result_map put "message" "Content $content_id is not in review state to reject"
+				$result_map put "responseCode" [java::new Integer 400]
+				set response_list [create_error_response $result_map]
+				return $response_list
+ 			} else {
+ 				set image_node [get_resp_value $resp_get_node "node"]
+ 				set image_metadata [java::prop $image_node "metadata"]
+                                set status_val [$image_metadata get "status"]
+				set status_val_str [java::new String [$status_val toString]]
+				set isReviewState [$status_val_str equalsIgnoreCase "FlagReview"]
+				if {$isReviewState == 1} {
+ 					$image_metadata put "status" "FlagDraft"
+ 					set create_image_response [updateDataNode $graph_id $content_image_id $image_node]
+					set check_error [check_response_error $create_image_response]
+                               		 $create_image_response put "node_id" $original_content_id 
+					return $create_image_response
+                                } else {
+ 					set result_map [java::new HashMap]
+					$result_map put "code" "ERR_CONTENT_NOT_IN_FLAG_REVIEW"
+					$result_map put "message" "Content $content_id is not in flag review state to reject"
+					$result_map put "responseCode" [java::new Integer 400]
+					set response_list [create_error_response $result_map]
+					return $response_list
+				}
+                        }
 		} else {
 			set result_map [java::new HashMap]
 			$result_map put "code" "ERR_CONTENT_NOT_IN_REVIEW"

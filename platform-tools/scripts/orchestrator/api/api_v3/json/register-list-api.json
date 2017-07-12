@@ -14,6 +14,6 @@
         "url": "/v3/api/list"
     },
     "body": "",
-    "apiId": "ekstep.api.list",
+    "apiId": "ekstep.learning.api.list",
     "version": "3.0"
 }
