@@ -4,6 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -259,6 +261,18 @@ public abstract class BaseController {
             throw new MiddlewareException(errorCode, "Invalid request body");
         }
         return request;
+    }
+    
+    protected List<String> convertStringArrayToList(String [] array) {
+    	List<String> list = new ArrayList<String>();
+    	if (null != array) {
+    		try {
+    		list = Arrays.asList(array);
+    		} catch (Exception e) {
+				PlatformLogger.log("Error! Something went wrong while converting array to list.", array, e);
+			}
+    	}
+    	return list;
     }
 
 }

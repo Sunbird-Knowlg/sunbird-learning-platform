@@ -262,5 +262,17 @@ public abstract class BaseManager {
         }
         return valid;
     }
+    
+    protected List<String> convertStringArrayToList(String [] array) {
+    	List<String> list = new ArrayList<String>();
+    	if (null != array) {
+    		try {
+    		list = Arrays.asList(array);
+    		} catch (Exception e) {
+				PlatformLogger.log("Error! Something went wrong while converting array to list.", array, e);
+			}
+    	}
+    	return list;
+    }
 
 }

@@ -545,7 +545,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String graphId, String contentId, String mode, List<String> fields) {
 		PlatformLogger.log("Graph Id: ", graphId);
@@ -558,16 +557,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
 		if (null != fields && fields.contains(TaxonomyAPIParams.body.name()))
-			contentMap.put(TaxonomyAPIParams.body.name(), getContentBody(contentId));
-		List<String> languages = (List<String>) node.getMetadata().get(TaxonomyAPIParams.language.name());
-		
+			contentMap.put(TaxonomyAPIParams.body.name(), getContentBody(contentId, mode));
+		List<String> languages = convertStringArrayToList(
+				(String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
+
 		// Get all the languages for a given Content
 		List<String> languageCodes = new ArrayList<String>();
 		for (String language : languages)
 			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
 		if (null != languageCodes && languageCodes.size() == 1)
 			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
-		contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
+		else
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
 
 		response.put("content", contentMap);
 		response.setParams(getSucessStatus());
@@ -648,6 +649,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
+	private String getContentBody(String contentId, String mode) {
+		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
+			contentId = getContentImageIdentifier(contentId);
+		return getContentBody(contentId);
+	}
+	
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());

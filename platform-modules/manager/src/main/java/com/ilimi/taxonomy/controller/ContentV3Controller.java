@@ -213,7 +213,7 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id whose hierarchy needs to be fetched
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/getById/{id:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "fields", required = false) String[] fields,
@@ -223,15 +223,14 @@ public class ContentV3Controller extends BaseController {
 		PlatformLogger.log("Content Find | Content Id : " + contentId);
 		try {
 			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]", contentId);
-			if (null != fields && fields.length > 0)
-				{}
-			response = contentManager.find(graphId, contentId, mode, Arrays.asList(fields));
+			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
