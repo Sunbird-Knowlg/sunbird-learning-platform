@@ -1080,10 +1080,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Map<String, Object> hierarchy = (Map<String, Object>) data.get("hierarchy");
 			Map<String, String> idMap = new HashMap<String, String>();
 			Map<String, Node> nodeMap = new HashMap<String, Node>();
+			String rootNodeId = null;
 			if (null != modifiedNodes && !modifiedNodes.isEmpty()) {
 				DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
 				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
+					Map<String, Object> map = (Map<String, Object>) entry.getValue();
 					createNodeObject(graphId, entry, idMap, nodeMap, definition);
+					Boolean root = (Boolean) map.get("isNew");
+					if (root)
+						rootNodeId = idMap.get(entry.getKey());
 				}
 			}
 			if (null != hierarchy && !hierarchy.isEmpty()) {
@@ -1096,6 +1101,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				request.put(GraphDACParams.nodes.name(), nodes);
 				PlatformLogger.log("Sending bulk update request | Total nodes: " + nodes.size());
 				Response response = getResponse(request);
+				if (StringUtils.isNotBlank(rootNodeId)) {
+					if (StringUtils.endsWithIgnoreCase(rootNodeId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+						rootNodeId = rootNodeId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+					response.put(ContentAPIParams.content_id.name(), rootNodeId);
+				}
 				return response;
 			}
 		}
