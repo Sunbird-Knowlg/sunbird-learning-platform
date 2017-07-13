@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.util.ControllerUtil;
 
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -36,18 +37,14 @@ public class BaseProcessor {
 		Map<String, Object> edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
 		Node node = null;
-
-		PlatformLogger.log("checking if kafka message contains edata");
 		if (null != message.get("edata")) {
 			edata = (Map) message.get("edata");
 			if (null != edata.get("eks")) {
 				eks = (Map) edata.get("eks");
-				PlatformLogger.log("checking if the content is a live content");
 				if (null != eks.get("state") && StringUtils.equalsIgnoreCase("Live", eks.get("state").toString())) {
-					if (null != eks.get("cid")) {
-						PlatformLogger.log("checking if eks contains cid" , eks);
-						node = util.getNode("domain", eks.get("cid").toString());
-						PlatformLogger.log("node data fetched from cid" , node);
+					if (null != eks.get("id")) {
+						node = util.getNode("domain", eks.get("id").toString());
+						PlatformLogger.log("node data fetched from id" , node);
 						return node;
 					}
 				}
@@ -87,8 +84,6 @@ public class BaseProcessor {
 				for (String str : lang) {
 					String langId = str;
 					String languageCode = languageMap.get(langId.toLowerCase());
-
-					PlatformLogger.log("checking if language is not empty and not english" + languageCode);
 					if (StringUtils.isNotBlank(languageCode) && !StringUtils.equalsIgnoreCase(languageCode, "en")) {
 						return languageCode;
 					}
@@ -119,7 +114,6 @@ public class BaseProcessor {
 						&& StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
 
 					String status = null;
-					PlatformLogger.log("checking for endNode metadata contains status" , rel.getEndNodeMetadata().containsKey("status"));
 					if (null != rel.getEndNodeMetadata().get("status")) {
 						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
 					}
@@ -127,15 +121,10 @@ public class BaseProcessor {
 					if (StringUtils.isBlank(domain) && null != rel.getEndNodeMetadata().get("subject")) {
 						domain = (String) rel.getEndNodeMetadata().get("subject");
 					}
-
-					PlatformLogger.log("checking if status is LIVE and fetching nodeIds from it" , status);
 					if (StringUtils.isNotBlank(status)
 							&& StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)) {
-						PlatformLogger.log("nodeIds fetched form LIVE nodes" , nodeIds);
 						nodeIds.add(rel.getEndNodeId());
 					}
-
-					PlatformLogger.log("checking if concept contains gradeLevel" , rel.getEndNodeMetadata().containsKey("gradeLevel"));
 					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
 						String[] grade_array =  (String[])(rel.getEndNodeMetadata().get("gradeLevel"));
 						for(String garde : grade_array){
@@ -144,23 +133,18 @@ public class BaseProcessor {
 					}
 				}
 			}
-
-			PlatformLogger.log("Adding nodeIds to map" + nodeIds);
 			if (null != nodeIds && !nodeIds.isEmpty()) {
 				result_map.put("conceptIds", nodeIds);
 			}
-
-			PlatformLogger.log("Adding conceptGrades to map" + conceptGrades);
 			if (null != conceptGrades && !conceptGrades.isEmpty()) {
 				result_map.put("conceptGrades", conceptGrades);
 			}
-			
-			PlatformLogger.log("Adding domain to map: " + domain);
+		
 			if (StringUtils.isNotBlank(domain)) {
 				result_map.put("domain", domain);
 			}
 		}
-		PlatformLogger.log("Map of conceptGrades and nodeIds" , result_map.size());
+		PlatformLogger.log("Map of conceptGrades and nodeIds" + result_map.size(), null ,LoggerEnum.INFO.name());
 		return result_map;
 	}
 }

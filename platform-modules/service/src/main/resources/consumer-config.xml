@@ -55,7 +55,7 @@
 	</ConsumerGroups>
 </ConsumerConfig>
 <ConsumerConfig>
-	<ConsumerInit serverURI="localhost:2181" topic="telemetry-event-topic"></ConsumerInit>
+	<ConsumerInit serverURI="localhost:2181" topic="telemetry-raw-topic"></ConsumerInit>
 	<ConsumerGroups>
 		<ConsumerGroup id="lp-content-extraction-group" messageProcessor="org.ekstep.searchindex.processor.ContentEnrichmentMessageProcessor">
 			<Consumers>
@@ -65,7 +65,7 @@
 	</ConsumerGroups>
 </ConsumerConfig>
 <ConsumerConfig>
-	<ConsumerInit serverURI="localhost:2181" topic="telemetry-event-topic"></ConsumerInit>
+	<ConsumerInit serverURI="localhost:2181" topic="telemetry-raw-topic"></ConsumerInit>
 	<ConsumerGroups>
 		<ConsumerGroup id="lp-language-extraction-group" messageProcessor="org.ekstep.searchindex.processor.LanguageEnrichmentMessageProcessor">
 			<Consumers>
