@@ -32,7 +32,8 @@ public enum DACErrorCodeConstants {
 	INVALID_PASSPORT(27, "Invalid Passport Key."), 
 	INVALID_TIMESTAMP(28, "Invalid TimeStamp."),
 	ERR_STALE_VERSION_KEY(29, "Stale Version Key."), 
-	CONVERSION_ERROR(30, "Data Type Conversion Error.");
+	CONVERSION_ERROR(30, "Data Type Conversion Error."),
+	CACHE_ERROR(30, "Redis cache Error."),;
 	
 	private final int code;
 	private final String description;
