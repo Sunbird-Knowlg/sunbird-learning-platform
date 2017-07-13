@@ -25,7 +25,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.enums.GraphEngineParams;
@@ -74,8 +74,6 @@ import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
 
 public class Graph extends AbstractDomainObject {
-
-	private static LogHelper LOGGER = LogHelper.getInstance(Graph.class.getName());
 
 	public static final String ERROR_MESSAGES = "ERROR_MESSAGES";
 	public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
@@ -1111,9 +1109,9 @@ public class Graph extends AbstractDomainObject {
 									if (null != outputStream)
 										outputStream.close();
 								} catch (IOException e1) {
-									LOGGER.error("Error! While Closing the Input Stream.", e);
+									PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
 								}
-								LOGGER.error("Error! While Reading the Data.", e);
+								PlatformLogger.log("Error! While Reading the Data.", null, e);
 							}
 							Response response = new Response();
 							ResponseParams params = new ResponseParams();
@@ -1126,7 +1124,7 @@ public class Graph extends AbstractDomainObject {
 								if (null != outputStream)
 									outputStream.close();
 							} catch (IOException e) {
-								LOGGER.error("Error! While Closing the Input Stream.", e);
+								PlatformLogger.log("Error! While Closing the Input Stream.", null, e);
 							}
 							return response;
 						}
