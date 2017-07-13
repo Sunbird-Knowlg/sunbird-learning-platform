@@ -201,6 +201,6 @@ public interface IContentManager {
 	
 	Response preSignedURL(String taxonomyId, String contentId, String fileName);
 	
-	Response updateHierarchy(String graphId, Map<String, Object> data);
+	Response updateHierarchy(Map<String, Object> data);
 
 }

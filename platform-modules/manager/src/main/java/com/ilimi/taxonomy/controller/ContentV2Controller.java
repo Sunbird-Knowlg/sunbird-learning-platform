@@ -280,7 +280,7 @@ public class ContentV2Controller extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("data");
-			Response response = contentManager.updateHierarchy(apiId, map);
+			Response response = contentManager.updateHierarchy(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception", e.getMessage(), e);

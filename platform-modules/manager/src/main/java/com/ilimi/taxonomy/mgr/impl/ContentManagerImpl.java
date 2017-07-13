@@ -1074,7 +1074,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Response updateHierarchy(String graphId, Map<String, Object> data) {
+	@Override
+	public Response updateHierarchy(Map<String, Object> data) {
+		String graphId = GRAPH_ID;
 		if (null != data && !data.isEmpty()) {
 			Map<String, Object> modifiedNodes = (Map<String, Object>) data.get("nodesModified");
 			Map<String, Object> hierarchy = (Map<String, Object>) data.get("hierarchy");
@@ -1121,7 +1123,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Map<String, Object> map = (Map<String, Object>) entry.getValue();
 		Boolean isNew = (Boolean) map.get("isNew");
 		if (isNew) {
-			id = Identifier.getUniqueIdFromTimestamp();
+			id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
 		} else {
 			Node tmpnode = getNodeForOperation(graphId, id);
 			id = tmpnode.getIdentifier();
@@ -1131,8 +1133,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
 		metadata.put("identifier", id);
 		metadata.put("objectType", objectType);
-		if (isNew)
+		if (isNew) {
 			metadata.put("isNew", true);
+			metadata.put("code", nodeId);
+		}
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
 			node.setGraphId(graphId);
