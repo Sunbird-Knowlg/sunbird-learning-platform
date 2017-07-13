@@ -55,7 +55,7 @@ public class RetireParentContentProcessor implements IMessageProcessor {
 				processMessage(message);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
+			PlatformLogger.log("Error while processing kafka message: "+ e.getMessage(), null, e);
 			e.printStackTrace();
 		}
 	}
@@ -94,7 +94,7 @@ public class RetireParentContentProcessor implements IMessageProcessor {
 										String parentContentId = relation.getStartNodeId();
 										PlatformLogger.log("content id - " + contentId + " has parent - parent content id -"
 												+ parentContentId
-												+ ", to make status as Draft as one of the child is Retired", parentContentId);
+												+ ", to make status as Draft as one of the child is Retired: "+ parentContentId);
 										Map<String, Object> parentNodeMap = GraphUtil.getDataNode("domain",
 												parentContentId);
 										Node parentNode = mapper.convertValue(parentNodeMap, Node.class);
@@ -102,7 +102,7 @@ public class RetireParentContentProcessor implements IMessageProcessor {
 										updateContent(parentContentId, "Draft", versionKey);
 									}
 							} catch (Exception e) {
-								PlatformLogger.log("Error while checking content node ", e.getMessage(), e);
+								PlatformLogger.log("Error while checking content node "+ e.getMessage(), null, e);
 							}
 
 						}

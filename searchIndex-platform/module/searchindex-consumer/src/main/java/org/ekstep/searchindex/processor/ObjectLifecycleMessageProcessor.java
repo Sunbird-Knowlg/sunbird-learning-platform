@@ -54,7 +54,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			if (null != message)
 				processMessage(message);
 		} catch (Exception e) {
-			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
+			PlatformLogger.log("Error while processing kafka message:"+ e.getMessage(), null, e);
 			e.printStackTrace();
 		}
 	}
@@ -149,7 +149,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							}
 							objectMap.put(ConsumerWorkflowEnums.identifier.name(), node_id);
 							objectMap.put(ConsumerWorkflowEnums.objectType.name(), objectType);
-							PlatformLogger.log("Object Map" , objectMap);
+
 							PlatformLogger.log("Checking if node metadata is null");
 							if (null != node.getMetadata()) {
 								Map<String, Object> nodeMap = new HashMap<String, Object>();
@@ -187,14 +187,14 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								setDefaultMetadata(node, objectMap);
 								break;
 							}
-							PlatformLogger.log("Logging Telemetry for BE_OBJECT_LIFECYCLE event" , node_id + objectMap);
+							PlatformLogger.log("Logging Telemetry for BE_OBJECT_LIFECYCLE event: " + node_id + objectMap);
 							LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
 						}
 					}
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Something occured while processing request to generate lifecycle event", e.getMessage(), e);
+			PlatformLogger.log("Something occured while processing request to generate lifecycle event"+ e.getMessage(), null, e);
 		}
 	}
 
@@ -329,7 +329,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								+ nodeMap.containsKey(ConsumerWorkflowEnums.category.name()));
 						if (nodeMap.containsKey(ConsumerWorkflowEnums.category.name())) {
 							String[] category = (String[]) nodeMap.get(ConsumerWorkflowEnums.category.name());
-							PlatformLogger.log("Setting Category as subtype for object_lifecycle_events" , category);
+							PlatformLogger.log("Setting Category as subtype for object_lifecycle_events: "+ category);
 							String subtype = "";
 							for (String str : category) {
 								subtype = str;
@@ -350,7 +350,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 				}
 		}
-		PlatformLogger.log("Checking if objectType content has inRelations" + node.getInRelations());
+		
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
@@ -434,7 +434,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			nodeMap = (Map) node.getMetadata();
 			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
 				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
-					PlatformLogger.log("Setting subType field for type from node" , entry.getKey() + entry.getValue());
+					PlatformLogger.log("Setting subType field for type from node: " + entry.getKey() + entry.getValue());
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), entry.getValue());
 				} else {
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");

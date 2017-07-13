@@ -1,5 +1,6 @@
 package org.ekstep.aws.test;
 
+
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -40,7 +41,7 @@ public class AWSPresignedUrlTest {
 	@Test
 	public void testUploadWithPresignedUrl() {
 		//TODO: Add urlStr before testing.
-		String urlStr = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/awstest/test.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20170710T133335Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3599&X-Amz-Credential=AKIAI3QJF6EBIQEQ56MA%2F20170710%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=0878145777f1a06a59afa0a85eca187a31bd6087a01af652fc2cd2a0388674f7";
+		String urlStr = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/assets/numeracy_369/test_content.zip?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20170713T144746Z&X-Amz-SignedHeaders=host&X-Amz-Expires=599&X-Amz-Credential=AKIAI3QJF6EBIQEQ56MA%2F20170713%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=453d053174f0b098451365904cf35041c51a46260a99f56ae3ecae6a297dffd5";
 		try {
 			URL url = new URL(urlStr);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -48,7 +49,6 @@ public class AWSPresignedUrlTest {
 			connection.setRequestMethod("PUT");
 			OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
 			out.write("This text uploaded as object.");
-			out.close();
 			int responseCode = connection.getResponseCode();
 			System.out.println("Service returned response code " + responseCode);
 		} catch (Exception e) {

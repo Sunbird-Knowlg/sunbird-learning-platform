@@ -44,7 +44,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
-			PlatformLogger.log("Exception", e.getMessage(), e);
+			PlatformLogger.log("Exception"+ e.getMessage(), null, e);
 		}
 	}
 
@@ -133,7 +133,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					switch (operationType) {
 					case CompositeSearchConstants.OPERATION_CREATE: {
 						wordsCount = wordsCount + 1;
-						PlatformLogger.log("Word create operation: " , wordsCount);
+						PlatformLogger.log("Word create operation: " + wordsCount);
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
@@ -175,7 +175,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								}
 							}
 						}
-						PlatformLogger.log("Word update operation: " , liveWordsCount);
+						PlatformLogger.log("Word update operation: " + liveWordsCount);
 						break;
 					}
 					case CompositeSearchConstants.OPERATION_DELETE: {
