@@ -11,7 +11,7 @@ public class Event {
 	private static DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
 
 	private String eid;
-	private long ets;
+	private String ets;
 	private String mid;
 	private String ver;
 	private String channel = "";
@@ -35,11 +35,11 @@ public class Event {
 		this.eid = eid;
 	}
 
-	public long getEts() {
+	public String getEts() {
 		return ets;
 	}
 
-	public void setEts(long ets) {
+	public void setEts(String ets) {
 		this.ets = ets;
 	}
 
@@ -102,7 +102,7 @@ public class Event {
 		map.put("channel", this.channel);
 		map.put("pdata", this.pdata);
 		map.put("edata", this.edata);
-		map.put("@timestamp", dateFormat.print(this.ets));
+		map.put("@timestamp", System.currentTimeMillis());
 		return map;
 	}
 	

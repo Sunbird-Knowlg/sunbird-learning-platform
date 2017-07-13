@@ -58,6 +58,8 @@ public class ObjectLifecycleService implements ISamzaService {
 				Node node = getNode(message);
 				LOGGER.info("Node fetched from graph");
 				Event event = generateLifecycleEvent(stateChangeEvent, node);
+				String ets = (String)message.get("ets");
+				event.setEts(ets);
 				LOGGER.info("Event generated");
 				publishEvent(event, collector);
 				LOGGER.info("Event published");
@@ -78,7 +80,6 @@ public class ObjectLifecycleService implements ISamzaService {
 	}
 
 	private void publishEvent(Event event, MessageCollector collector) throws Exception {
-		event.setEts(System.currentTimeMillis());
 		event.setMid(getMD5Hash(event.toString()));
 		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", config.get("object_lifecycle_topic")), event.getMap()));
 	}

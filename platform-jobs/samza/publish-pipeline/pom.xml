@@ -16,6 +16,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.ekstep</groupId>
+			<artifactId>content-manager</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
 			<artifactId>samza-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
