@@ -23,9 +23,6 @@ import com.ilimi.graph.dac.model.Relation;
  */
 public class FlagParentContentProcessor implements IMessageProcessor {
 
-	/** The logger. */
-	
-
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -46,7 +43,6 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(String messageData) {
 		try {
-			PlatformLogger.log("Reading from kafka consumer");
 			Map<String, Object> message = new HashMap<String, Object>();
 			if (StringUtils.isNotBlank(messageData)) {
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
@@ -56,8 +52,7 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 				processMessage(message);
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
-			e.printStackTrace();
+			PlatformLogger.log("Error while processing kafka message"+ e.getMessage(),null ,e);
 		}
 	}
 
@@ -73,7 +68,6 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
-		PlatformLogger.log("processing kafka message" + message);
 		if (null != message.get("edata")) {
 			edata = (Map) message.get("edata");
 			if (null != edata.get("eks")) {
@@ -83,7 +77,6 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 					String status = (String) eks.get("state");
 					if (null != contentId && null != status) {
 						if (StringUtils.equalsIgnoreCase(status, "Flagged")) {
-							PlatformLogger.log("content id - " + contentId + " status - " + status + " ");
 							try {
 								Map<String, Object> nodeMap = GraphUtil.getDataNode("domain", contentId);
 								Node node = mapper.convertValue(nodeMap, Node.class);
@@ -92,8 +85,6 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 								for (Relation relation : node.getInRelations())
 									if (relation.getRelationType().equalsIgnoreCase("hasSequenceMember")) {
 										String parentContentId = relation.getStartNodeId();
-										PlatformLogger.log("content id - " + contentId + " has parent - parent content id -"
-												+ parentContentId + ", to flag");
 										Map<String, Object> parentNodeMap = GraphUtil.getDataNode("domain",
 												parentContentId);
 										Node parentNode = mapper.convertValue(parentNodeMap, Node.class);
@@ -113,8 +104,7 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 										flagContent(parentContentId, flagReasons, flaggedByUser, versionKey);
 									}
 							} catch (Exception e) {
-								PlatformLogger.log("Error while checking content node ", e.getMessage(), e);
-								e.printStackTrace();
+								PlatformLogger.log("Error while checking content node "+ e.getMessage(),null, e);
 							}
 
 						}

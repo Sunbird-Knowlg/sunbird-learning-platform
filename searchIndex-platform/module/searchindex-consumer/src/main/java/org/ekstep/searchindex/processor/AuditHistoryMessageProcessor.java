@@ -54,14 +54,13 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = new HashMap<String, Object>();
 			if(StringUtils.isNotBlank(messageData)){
-				PlatformLogger.log("Reading from kafka consumer");
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
+				if (null != message)
+					processMessage(message);
 			}
-			if (null != message)
-				processMessage(message);
+			
 		} catch (Exception e) {
-			PlatformLogger.log("Error while processing kafka message", e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}
@@ -78,14 +77,10 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			manager = (IAuditHistoryManager) ApplicationContextUtils.getApplicationContext()
 					.getBean("auditHistoryManager");
 		}
-		PlatformLogger.log("Processing audit history message: Object Type: " + message.get("objectType") + " | Identifier: "
-				+ message.get("nodeUniqueId") + " | Graph: " + message.get("graphId") + " | Operation: "
-				+ message.get("operationType"));
 		Object audit = message.get("audit");
 		Boolean shouldAudit = BooleanUtils.toBoolean(null == audit ? "true" : audit.toString());
 		if (message != null && message.get("operationType") != null && null == message.get("syncMessage") && !BooleanUtils.isFalse(shouldAudit)) {
 				AuditHistoryRecord record = getAuditHistory(message);
-				PlatformLogger.log("Sending AuditHistoryRecord to audit History manager" , record);
 				manager.saveAuditHistory(record);
 		}
 	}
@@ -101,7 +96,6 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	 */
 	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) {
 		AuditHistoryRecord record = new AuditHistoryRecord();
-        PlatformLogger.log("Setting the audit history fields from transactionData" , transactionDataMap.size());
         try {
 			record.setUserId((String) transactionDataMap.get("userId"));
 			record.setRequestId((String) transactionDataMap.get("requestId"));
@@ -124,9 +118,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			String createdOn = (String) transactionDataMap.get("createdOn");
 			Date date = DateUtils.parse(createdOn);
 			record.setCreatedOn(null == date ? new Date() : date);
-			PlatformLogger.log("mapped audit history record from transcationData" , record);
 		} catch (Exception e) {
-			PlatformLogger.log("Error while setting the transactionData to elastic search" , e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return record;
@@ -170,7 +162,6 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		Map<String, Object> transactionMap;
 		String summaryResult = null;
 		try {
-			PlatformLogger.log("setting the summary from transactionData" , transactionDataMap);
 			transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
 			for (Map.Entry<String, Object> entry : transactionMap.entrySet()) {
 				if (StringUtils.equalsIgnoreCase("addedRelations", entry.getKey())) {
@@ -231,9 +222,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 				}
 			}
 		     summaryResult = mapper.writeValueAsString(summaryData);
-			PlatformLogger.log("setting summary field from transaction data" , summaryData);
 		} catch (Exception e) {
-			PlatformLogger.log("Error while setting the summary info to mysql db" + e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return summaryResult;
