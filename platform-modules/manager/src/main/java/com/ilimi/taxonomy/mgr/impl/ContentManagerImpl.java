@@ -1140,7 +1140,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			metadata.put("isNew", true);
 			metadata.put("code", nodeId);
 			Boolean root = (Boolean) map.get("root");
-			if (BooleanUtils.isFalse(root))
+			if (BooleanUtils.isNotTrue(root))
 				metadata.put("visibility", "Parent");
 		}
 		try {
