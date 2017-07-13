@@ -1,4 +1,4 @@
-node registerScript.js api/channel_v3/create-channel.tcl api/channel_v3/json/register-create-channel.json register
+Inode registerScript.js api/channel_v3/create-channel.tcl api/channel_v3/json/register-create-channel.json register
 
 node registerScript.js api/channel_v3/update-channel.tcl api/channel_v3/json/register-update-channel.json register
 
