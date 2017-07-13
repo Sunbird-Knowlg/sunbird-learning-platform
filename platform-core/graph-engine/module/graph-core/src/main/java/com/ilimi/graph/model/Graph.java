@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -1382,7 +1383,7 @@ public class Graph extends AbstractDomainObject {
 			for (Node node : nodes) {
 				Map<String, Object> map = new HashMap<String, Object>();
 				Boolean isNew = (Boolean) node.getMetadata().get("isNew");
-				if (isNew) {
+				if (BooleanUtils.isTrue(isNew)) {
 					node.getMetadata().remove("isNew");
 					map.put(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 					map.put(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());

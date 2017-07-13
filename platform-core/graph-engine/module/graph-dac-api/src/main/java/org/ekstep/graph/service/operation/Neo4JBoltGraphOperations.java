@@ -1006,6 +1006,7 @@ public class Neo4JBoltGraphOperations {
 			addInRelations(tr, graphId, addInRelations);
 			tr.success();
 		} catch (Exception e) {
+			PlatformLogger.log("Bulk update failed in DAC", "Update failed on GraphId: " + graphId, e);
 			if (null != tr)
 				tr.failure();
 			throw new ServerException("ERR_BULK_UPDATE_OPERATION", "Bulk update operation failed: " + e.getMessage());

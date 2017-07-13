@@ -1088,8 +1088,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
 					Map<String, Object> map = (Map<String, Object>) entry.getValue();
 					createNodeObject(graphId, entry, idMap, nodeMap, definition);
-					Boolean root = (Boolean) map.get("isNew");
-					if (root)
+					Boolean root = (Boolean) map.get("root");
+					if (BooleanUtils.isTrue(root))
 						rootNodeId = idMap.get(entry.getKey());
 				}
 			}
@@ -1122,7 +1122,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		String objectType = CONTENT_OBJECT_TYPE;
 		Map<String, Object> map = (Map<String, Object>) entry.getValue();
 		Boolean isNew = (Boolean) map.get("isNew");
-		if (isNew) {
+		if (BooleanUtils.isTrue(isNew)) {
 			id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
 		} else {
 			Node tmpnode = getNodeForOperation(graphId, id);
@@ -1133,7 +1133,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
 		metadata.put("identifier", id);
 		metadata.put("objectType", objectType);
-		if (isNew) {
+		if (BooleanUtils.isTrue(isNew)) {
 			metadata.put("isNew", true);
 			metadata.put("code", nodeId);
 		}
@@ -1168,6 +1168,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
 						Map<String, Object> metadata = new HashMap<String, Object>();
 						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+						index += 1;
 						rel.setMetadata(metadata);
 						outRelations.add(rel);
 					}
