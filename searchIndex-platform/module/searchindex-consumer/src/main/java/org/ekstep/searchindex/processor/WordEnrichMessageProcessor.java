@@ -121,11 +121,10 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 		String requestBody = mapper.writeValueAsString(requestBodyMap);
 		PlatformLogger.log("Updating Word enrich | URL: " + url + " | Request body: " + requestBody);
 		HTTPUtil.makePostRequest(url, requestBody);
-		PlatformLogger.log("Word enriched for the lemma change successfully - wordId :", wordId);
+		PlatformLogger.log("Word enriched for the lemma change successfully - wordId :"+ wordId);
 
 		} catch (Exception e) {
-			PlatformLogger.log("error when calling enrich api Language Id:" + languageId + " word :" + wordId + ",error",
-					e.getMessage(), e);
+			PlatformLogger.log("error when calling enrich api Language Id:" + languageId + " word :" + wordId + ",error",null, e);
 		}
 
 	}
