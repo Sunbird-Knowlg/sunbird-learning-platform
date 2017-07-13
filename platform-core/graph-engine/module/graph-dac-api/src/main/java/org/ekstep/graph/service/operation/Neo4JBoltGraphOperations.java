@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
@@ -16,9 +17,11 @@ import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.enums.GraphEngineParams;
@@ -112,7 +115,7 @@ public class Neo4JBoltGraphOperations {
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
 			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
-			
+
 			for (String indexProperty : indexProperties) {
 				PlatformLogger.log("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -653,9 +656,10 @@ public class Neo4JBoltGraphOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Create Collection' Operation Failed.]");
 
-//		if (null == collection)
-//			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
-//					DACErrorMessageConstants.INVALID_COLLECTION_NODE + " | ['Create Collection' Operation Failed.]");
+		// if (null == collection)
+		// throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
+		// DACErrorMessageConstants.INVALID_COLLECTION_NODE + " | ['Create
+		// Collection' Operation Failed.]");
 
 		if (StringUtils.isBlank(relationType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
@@ -667,7 +671,7 @@ public class Neo4JBoltGraphOperations {
 				collection.setIdentifier(collectionId);
 			nodeOperations.upsertNode(graphId, collection, request);
 		}
-		
+
 		if (null != members && !members.isEmpty())
 			createOutgoingRelations(graphId, collectionId, members, relationType, request);
 	}
@@ -693,7 +697,7 @@ public class Neo4JBoltGraphOperations {
 		if (StringUtils.isBlank(collectionId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
 					DACErrorMessageConstants.INVALID_COLLECTION_NODE_ID + " | ['Create Collection' Operation Failed.]");
-		
+
 		Neo4JBoltNodeOperations nodeOperations = new Neo4JBoltNodeOperations();
 		nodeOperations.deleteNode(graphId, collectionId, request);
 	}
@@ -744,7 +748,7 @@ public class Neo4JBoltGraphOperations {
 		}
 		return messages;
 	}
-	
+
 	private void updateTaskStatus(String graphId, String taskId, Request request) throws Exception {
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
 		com.ilimi.graph.dac.model.Node taskNode = new com.ilimi.graph.dac.model.Node();
@@ -754,10 +758,9 @@ public class Neo4JBoltGraphOperations {
 		taskNode.getMetadata().put(GraphEngineParams.status.name(), GraphEngineParams.Completed.name());
 		nodeOps.upsertNode(graphId, taskNode, request);
 	}
-	
-	private int createNodes(String graphId, Request request, Map<String, com.ilimi.graph.dac.model.Node> existingNodes, 
-			Map<String, Map<String, List<Relation>>> existingRelations,
-			List<com.ilimi.graph.dac.model.Node> nodes) {
+
+	private int createNodes(String graphId, Request request, Map<String, com.ilimi.graph.dac.model.Node> existingNodes,
+			Map<String, Map<String, List<Relation>>> existingRelations, List<com.ilimi.graph.dac.model.Node> nodes) {
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
 		int nodesCount = 0;
@@ -785,7 +788,7 @@ public class Neo4JBoltGraphOperations {
 		}
 		return nodesCount;
 	}
-	
+
 	private Map<String, Map<String, List<Relation>>> getExistingRelations(List<Relation> dbRelations,
 			Map<String, Map<String, List<Relation>>> existingRelations) {
 		if (null != dbRelations && null != dbRelations.iterator()) {
@@ -813,10 +816,11 @@ public class Neo4JBoltGraphOperations {
 		}
 		return existingRelations;
 	}
-	
-	private int createRelations(String graphId, Request request, 
-			Map<String, Map<String, List<Relation>>> existingRelations, Map<String, com.ilimi.graph.dac.model.Node> existingNodes,
-			List<com.ilimi.graph.dac.model.Node> nodes, Map<String, List<String>> messages) {
+
+	private int createRelations(String graphId, Request request,
+			Map<String, Map<String, List<Relation>>> existingRelations,
+			Map<String, com.ilimi.graph.dac.model.Node> existingNodes, List<com.ilimi.graph.dac.model.Node> nodes,
+			Map<String, List<String>> messages) {
 		int relationsCount = 0;
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		for (com.ilimi.graph.dac.model.Node node : nodes) {
@@ -865,9 +869,11 @@ public class Neo4JBoltGraphOperations {
 									relEndNodeIds.remove(endNodeId);
 									Relation relation = relMap.get(endNodeId);
 									request.put(GraphDACParams.metadata.name(), relation.getMetadata());
-									updateRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(), request);
+									updateRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(),
+											rel.getRelationType(), request);
 								} else {
-									deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(), request);
+									deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(),
+											rel.getRelationType(), request);
 									relationsCount--;
 								}
 							}
@@ -876,7 +882,8 @@ public class Neo4JBoltGraphOperations {
 								if (otherNode != null) {
 									Relation relation = relMap.get(endNodeId);
 									request.put(GraphDACParams.metadata.name(), relation.getMetadata());
-									createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(), relType, request);
+									createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(),
+											relType, request);
 									relationsCount++;
 								} else {
 									otherNode = searchOps.getNodeByUniqueId(graphId, endNodeId, true, request);
@@ -892,7 +899,8 @@ public class Neo4JBoltGraphOperations {
 										existingNodes.put(endNodeId, otherNode);
 										Relation relation = relMap.get(endNodeId);
 										request.put(GraphDACParams.metadata.name(), relation.getMetadata());
-										createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(), relType, request);
+										createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(),
+												relType, request);
 										relationsCount++;
 									}
 								}
@@ -900,7 +908,8 @@ public class Neo4JBoltGraphOperations {
 							}
 						} else {
 							for (Relation rel : relationMap.get(relType)) {
-								deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(), request);
+								deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(),
+										request);
 								relationsCount--;
 							}
 						}
@@ -922,9 +931,10 @@ public class Neo4JBoltGraphOperations {
 		return relationsCount;
 	}
 
-	private int createNewRelations(com.ilimi.graph.dac.model.Node neo4jNode, Map<String, List<String>> nodeRelMap, String relType,
-			Map<String, Map<String, Relation>> nodeRelation, String uniqueId, Map<String, com.ilimi.graph.dac.model.Node> existingNodes,
-			Map<String, List<String>> messages, String graphId, Request request) {
+	private int createNewRelations(com.ilimi.graph.dac.model.Node neo4jNode, Map<String, List<String>> nodeRelMap,
+			String relType, Map<String, Map<String, Relation>> nodeRelation, String uniqueId,
+			Map<String, com.ilimi.graph.dac.model.Node> existingNodes, Map<String, List<String>> messages,
+			String graphId, Request request) {
 		int relationsCount = 0;
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		List<String> relEndNodeIds = nodeRelMap.get(relType);
@@ -956,7 +966,7 @@ public class Neo4JBoltGraphOperations {
 		}
 		return relationsCount;
 	}
-	
+
 	private void upsertRootNode(String graphId, Integer nodesCount, Integer relationsCount, Request request) {
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
@@ -969,7 +979,7 @@ public class Neo4JBoltGraphOperations {
 			node.setMetadata(new HashMap<String, Object>());
 		}
 		node.getMetadata().put(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
-		
+
 		Long dbNodesCount = (Long) node.getMetadata().get("nodesCount");
 		if (null == dbNodesCount)
 			dbNodesCount = 0l;
@@ -979,6 +989,120 @@ public class Neo4JBoltGraphOperations {
 		node.getMetadata().put("nodesCount", dbNodesCount + nodesCount);
 		node.getMetadata().put("relationsCount", dbRelationsCount + relationsCount);
 		nodeOps.upsertNode(graphId, node, request);
+	}
+
+	public void bulkUpdateNodes(String graphId, List<Map<String, Object>> newNodes, List<Map<String, Object>> modifiedNodes,
+			List<Map<String, Object>> addOutRelations, List<Map<String, Object>> removeOutRelations,
+			List<Map<String, Object>> addInRelations, List<Map<String, Object>> removeInRelations) {
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
+		Transaction tr = null;
+		try (Session session = driver.session()) {
+			tr = session.beginTransaction();
+			createNodes(tr, graphId, newNodes);
+			updateNodes(tr, graphId, modifiedNodes);
+			removeOutRelations(tr, graphId, removeOutRelations);
+			removeInRelations(tr, graphId, removeInRelations);
+			addOutRelations(tr, graphId, addOutRelations);
+			addInRelations(tr, graphId, addInRelations);
+			tr.success();
+		} catch (Exception e) {
+			if (null != tr)
+				tr.failure();
+			throw new ServerException("ERR_BULK_UPDATE_OPERATION", "Bulk update operation failed: " + e.getMessage());
+		} finally {
+			if (null != tr)
+				tr.close();
+		}
+	}
+	
+	private void createNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			String query = "UNWIND {batch} as row CREATE (n:" + graphId + ") SET n += row";
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("batch", nodes);
+			tr.run(query, params);
+		}
+	}
+
+	private void updateNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			String query = "UNWIND {batch} as row MATCH (n:" + graphId
+					+ "{IL_UNIQUE_ID: row.IL_UNIQUE_ID}) SET n += row.metadata";
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("batch", nodes);
+			tr.run(query, params);
+		}
+	}
+
+	private void addOutRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.from}) MATCH (to:"
+						+ graphId + "{IL_UNIQUE_ID: row.to}) CREATE (from)-[rel:" + entry.getKey()
+						+ "]->(to) SET rel += row.metadata";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+	
+	private void addInRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.from}) MATCH (to:"
+						+ graphId + "{IL_UNIQUE_ID: row.to}) CREATE (from)<-[rel:" + entry.getKey()
+						+ "]-(to) SET rel += row.metadata";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+
+	private void removeOutRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.IL_UNIQUE_ID})-[r:"
+						+ entry.getKey() + "]->(to:" + graphId + " {IL_FUNC_OBJECT_TYPE: row.objectType}) DELETE r";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+
+	private void removeInRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId
+						+ "{IL_FUNC_OBJECT_TYPE: row.objectType})<-[r:" + entry.getKey() + "]-(to:" + graphId
+						+ " {IL_UNIQUE_ID: row.IL_UNIQUE_ID}) DELETE r";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+
+	private static Map<String, List<Map<String, Object>>> getRelationMap(List<Map<String, Object>> relations) {
+		Map<String, List<Map<String, Object>>> relationTypeMap = null;
+		if (null != relations) {
+			relationTypeMap = new HashMap<String, List<Map<String, Object>>>();
+			for (Map<String, Object> relation : relations) {
+				String type = (String) relation.get("type");
+				List<Map<String, Object>> list = relationTypeMap.get(type);
+				if (null == list)
+					list = new ArrayList<Map<String, Object>>();
+				list.add(relation);
+				relationTypeMap.put(type, list);
+			}
+		}
+		return relationTypeMap;
 	}
 
 }

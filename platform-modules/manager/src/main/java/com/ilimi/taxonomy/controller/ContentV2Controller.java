@@ -251,6 +251,7 @@ public class ContentV2Controller extends BaseController {
 //		}
 //	}
 	
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
@@ -267,6 +268,22 @@ public class ContentV2Controller extends BaseController {
 			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> updateHierarchy(@RequestBody Map<String, Object> requestMap) {
+		String apiId = "content.hierarchy.update";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("data");
+			Response response = contentManager.updateHierarchy(apiId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

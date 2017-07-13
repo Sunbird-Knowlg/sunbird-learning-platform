@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -45,11 +46,15 @@ import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
@@ -235,10 +240,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
 				}
-				
+
 				PlatformLogger.log("Validating the Input Nodes.");
 				validateInputNodesForBundling(nodes);
-				
+
 				for (Node node : nodes) {
 					String contentImageId = getContentImageIdentifier(node.getIdentifier());
 					Response getNodeResponse = getDataNode(taxonomyId, contentImageId);
@@ -782,13 +787,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			// Content Image Node is not Available so assigning the original
 			// Content Node as node
 			node = (Node) response.get(GraphDACParams.node.name());
-			
+
 			// Checking if given Content Id is Image Node
 			if (null != node && isContentImageObject(node))
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
 								+ "' does not Exist.]");
-				
 
 			PlatformLogger.log("Fetched Content Node: ", node);
 			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
@@ -1067,6 +1071,102 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 		}
 		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Response updateHierarchy(String graphId, Map<String, Object> data) {
+		if (null != data && !data.isEmpty()) {
+			Map<String, Object> modifiedNodes = (Map<String, Object>) data.get("nodesModified");
+			Map<String, Object> hierarchy = (Map<String, Object>) data.get("hierarchy");
+			Map<String, String> idMap = new HashMap<String, String>();
+			Map<String, Node> nodeMap = new HashMap<String, Node>();
+			if (null != modifiedNodes && !modifiedNodes.isEmpty()) {
+				DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
+				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
+					createNodeObject(graphId, entry, idMap, nodeMap, definition);
+				}
+			}
+			if (null != hierarchy && !hierarchy.isEmpty()) {
+				for (Entry<String, Object> entry : hierarchy.entrySet())
+					updateNodeHierarchyRelations(entry, idMap, nodeMap);
+			}
+			if (null != nodeMap && !nodeMap.isEmpty()) {
+				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
+				Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
+				request.put(GraphDACParams.nodes.name(), nodes);
+				PlatformLogger.log("Sending bulk update request | Total nodes: " + nodes.size());
+				Response response = getResponse(request);
+				return response;
+			}
+		}
+		return new Response();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
+			Map<String, Node> nodeMap, DefinitionDTO definition) {
+		String nodeId = entry.getKey();
+		String id = nodeId;
+		String objectType = CONTENT_OBJECT_TYPE;
+		Map<String, Object> map = (Map<String, Object>) entry.getValue();
+		Boolean isNew = (Boolean) map.get("isNew");
+		if (isNew) {
+			id = Identifier.getUniqueIdFromTimestamp();
+		} else {
+			Node tmpnode = getNodeForOperation(graphId, id);
+			id = tmpnode.getIdentifier();
+			objectType = tmpnode.getObjectType();
+		}
+		idMap.put(nodeId, id);
+		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
+		metadata.put("identifier", id);
+		metadata.put("objectType", objectType);
+		if (isNew)
+			metadata.put("isNew", true);
+		try {
+			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
+			node.setGraphId(graphId);
+			node.setNodeType(SystemNodeTypes.DATA_NODE.name());
+			nodeMap.put(id, node);
+		} catch (Exception e) {
+			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateNodeHierarchyRelations(Entry<String, Object> entry, Map<String, String> idMap,
+			Map<String, Node> nodeMap) {
+		String nodeId = entry.getKey();
+		String id = idMap.get(nodeId);
+		if (StringUtils.isNotBlank(id)) {
+			Node node = nodeMap.get(id);
+			if (null != node) {
+				Map<String, Object> map = (Map<String, Object>) entry.getValue();
+				List<String> children = (List<String>) map.get("children");
+				if (null != children) {
+					List<Relation> outRelations = node.getOutRelations();
+					if (null == outRelations)
+						outRelations = new ArrayList<Relation>();
+					int index = 1;
+					for (String childId : children) {
+						if (idMap.containsKey(childId))
+							childId = idMap.get(childId);
+						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
+						Map<String, Object> metadata = new HashMap<String, Object>();
+						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+						rel.setMetadata(metadata);
+						outRelations.add(rel);
+					}
+					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
+					dummyContentRelation.setEndNodeObjectType(CONTENT_OBJECT_TYPE);
+					outRelations.add(dummyContentRelation);
+					Relation dummyContentImageRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
+					dummyContentImageRelation.setEndNodeObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+					outRelations.add(dummyContentImageRelation);
+					node.setOutRelations(outRelations);
+				}
+			}
+		}
 	}
 
 }

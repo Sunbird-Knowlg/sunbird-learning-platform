@@ -293,5 +293,12 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 		PlatformLogger.log("Calling 'traverseSubGraph' Operation.");
 		return nodeOperations.upsertRootNode(graphId, request);
 	}
+	
+	@Override
+	public void bulkUpdateNodes(String graphId, List<Map<String, Object>> newNodes,
+			List<Map<String, Object>> modifiedNodes, List<Map<String, Object>> addOutRelations,
+			List<Map<String, Object>> removeOutRelations, List<Map<String, Object>> addInRelations,
+			List<Map<String, Object>> removeInRelations) {
+	}
 
 }

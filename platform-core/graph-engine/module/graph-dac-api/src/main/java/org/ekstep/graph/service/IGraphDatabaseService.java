@@ -121,5 +121,9 @@ public interface IGraphDatabaseService {
 	public Graph traverseSubGraph(String graphId, Traverser traverser, Request request);
 
 	public Graph getSubGraph(String graphId, String startNodeId, String relationType, int depth, Request request);
+	
+	public void bulkUpdateNodes(String graphId, List<Map<String, Object>> newNodes, List<Map<String, Object>> modifiedNodes,
+			List<Map<String, Object>> addOutRelations, List<Map<String, Object>> removeOutRelations,
+			List<Map<String, Object>> addInRelations, List<Map<String, Object>> removeInRelations);
 
 }

@@ -186,13 +186,22 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.msword.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 
-		PlatformLogger.log("setting compatability level for course and coure unit", null, LoggerEnum.INFO.name());
+		PlatformLogger.log("setting compatability level for course and course unit", null, LoggerEnum.INFO.name());
 		if (StringUtils.equalsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 				ContentWorkflowPipelineParams.Course.name())
 				|| StringUtils.equalsIgnoreCase(
 						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
 						ContentWorkflowPipelineParams.CourseUnit.name()))
+			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
+		
+		PlatformLogger.log("setting compatability level for lesson plan and lesson plan unit", null, LoggerEnum.INFO.name());
+		if (StringUtils.equalsIgnoreCase(
+				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+				ContentWorkflowPipelineParams.LessonPlan.name())
+				|| StringUtils.equalsIgnoreCase(
+						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
+						ContentWorkflowPipelineParams.LessonPlanUnit.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 
 		PlatformLogger.log("checking is the contentType is Asset", null, LoggerEnum.INFO.name());

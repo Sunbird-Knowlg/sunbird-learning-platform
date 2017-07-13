@@ -1368,4 +1368,89 @@ public class Graph extends AbstractDomainObject {
 					e);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public void bulkUpdateNodes(Request request) {
+		try {
+			List<Node> nodes = (List<Node>) request.get(GraphDACParams.nodes.name());
+			List<Map<String, Object>> newNodes = new ArrayList<Map<String, Object>>();
+			List<Map<String, Object>> modifiedNodes = new ArrayList<Map<String, Object>>();
+			List<Map<String, Object>> addOutRelations = new ArrayList<Map<String, Object>>();
+			List<Map<String, Object>> removeOutRelations = new ArrayList<Map<String, Object>>();
+			List<Map<String, Object>> addInRelations = new ArrayList<Map<String, Object>>();
+			List<Map<String, Object>> removeInRelations = new ArrayList<Map<String, Object>>();
+			for (Node node : nodes) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				Boolean isNew = (Boolean) node.getMetadata().get("isNew");
+				if (isNew) {
+					node.getMetadata().remove("isNew");
+					map.put(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
+					map.put(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
+					map.put(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name());
+					map.putAll(node.getMetadata());
+					newNodes.add(map);
+				} else {
+					if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+						map.put(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
+						map.put("metadata", node.getMetadata());
+						modifiedNodes.add(map);
+					}
+				}
+				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+					for (Relation rel : node.getOutRelations()) {
+						if (StringUtils.isNotBlank(rel.getEndNodeId())) {
+							Map<String, Object> relation = new HashMap<String, Object>();
+							relation.put("from", rel.getStartNodeId());
+							relation.put("to", rel.getEndNodeId());
+							relation.put("type", rel.getRelationType());
+							relation.put("metadata", null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
+							addOutRelations.add(relation);
+						}
+						if (StringUtils.isNotBlank(rel.getEndNodeObjectType())) {
+							Map<String, Object> relation = new HashMap<String, Object>();
+							relation.put(SystemProperties.IL_UNIQUE_ID.name(), rel.getStartNodeId());
+							relation.put("type", rel.getRelationType());
+							relation.put("objectType", rel.getEndNodeObjectType());
+							removeOutRelations.add(relation);
+						}
+					}
+				}
+				if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
+					for (Relation rel : node.getInRelations()) {
+						if (StringUtils.isNotBlank(rel.getStartNodeId())) {
+							Map<String, Object> relation = new HashMap<String, Object>();
+							relation.put("from", rel.getStartNodeId());
+							relation.put("to", rel.getEndNodeId());
+							relation.put("type", rel.getRelationType());
+							relation.put("metadata", null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
+							addInRelations.add(relation);
+						}
+						if (StringUtils.isNotBlank(rel.getStartNodeObjectType())) {
+							Map<String, Object> relation = new HashMap<String, Object>();
+							relation.put(SystemProperties.IL_UNIQUE_ID.name(), rel.getEndNodeId());
+							relation.put("type", rel.getRelationType());
+							relation.put("objectType", rel.getStartNodeObjectType());
+							removeInRelations.add(relation);
+						}
+					}
+				}
+			}
+			
+			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+			request.setOperation("bulkUpdateNodes");
+			request.put(GraphDACParams.newNodes.name(), newNodes);
+			request.put(GraphDACParams.modifiedNodes.name(), modifiedNodes);
+			request.put(GraphDACParams.addedOutRelations.name(), addOutRelations);
+			request.put(GraphDACParams.removedOutRelations.name(), removeOutRelations);
+			request.put(GraphDACParams.addedInRelations.name(), addInRelations);
+			request.put(GraphDACParams.removedInRelations.name(), removeInRelations);
+			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			manager.returnResponse(response, getParent());
+		} catch (Exception e) {
+			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_RELATION_NODE_FAILED.name(),
+					e.getMessage(), e);
+		}
+	}
+
 }

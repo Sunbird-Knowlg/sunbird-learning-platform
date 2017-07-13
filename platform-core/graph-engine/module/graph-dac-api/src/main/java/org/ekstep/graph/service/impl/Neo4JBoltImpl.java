@@ -22,8 +22,6 @@ import com.ilimi.graph.importer.ImportData;
 
 public class Neo4JBoltImpl implements IGraphDatabaseService {
 
-	
-	
 	Neo4JBoltGraphOperations graphOperations = new Neo4JBoltGraphOperations();
 	Neo4JBoltNodeOperations nodeOperations = new Neo4JBoltNodeOperations();
 	Neo4JBoltSearchOperations searchOperations = new Neo4JBoltSearchOperations();
@@ -293,5 +291,15 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 		PlatformLogger.log("Calling 'traverseSubGraph' Operation.");
 		return nodeOperations.upsertRootNode(graphId, request);
 	}
-	
+
+	@Override
+	public void bulkUpdateNodes(String graphId, List<Map<String, Object>> newNodes,
+			List<Map<String, Object>> modifiedNodes, List<Map<String, Object>> addOutRelations,
+			List<Map<String, Object>> removeOutRelations, List<Map<String, Object>> addInRelations,
+			List<Map<String, Object>> removeInRelations) {
+		PlatformLogger.log("Calling 'traverseSubGraph' Operation.");
+		graphOperations.bulkUpdateNodes(graphId, newNodes, modifiedNodes, addOutRelations, removeOutRelations,
+				addInRelations, removeInRelations);
+	}
+
 }

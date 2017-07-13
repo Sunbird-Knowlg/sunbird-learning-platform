@@ -58,6 +58,13 @@ public class DataNode extends AbstractNode {
 		super(manager, graphId, nodeId, metadata);
 		this.objectType = objectType;
 	}
+	
+	public DataNode(BaseGraphManager manager, String graphId, Node node, boolean skipRelationUpdate) {
+		super(manager, graphId, node.getIdentifier(), node.getMetadata());
+		this.objectType = node.getObjectType();
+		this.inRelations = node.getInRelations();
+		this.outRelations = node.getOutRelations();
+	}
 
 	public DataNode(BaseGraphManager manager, String graphId, Node node) {
 		super(manager, graphId, node.getIdentifier(), node.getMetadata());
@@ -598,6 +605,20 @@ public class DataNode extends AbstractNode {
 		} catch (Exception e) {
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
+	}
+	
+	public List<String> validateNode(DefinitionDTO dto) {
+		List<String> messages = new ArrayList<String>();
+		if (StringUtils.isBlank(objectType)) {
+			messages.add("Object type not set for node: " + getNodeId());
+		} else {
+			validateMetadata(dto.getProperties(), messages);
+			List<RelationDefinition> inRelDefs = dto.getInRelations();
+			validateRelations(inRelDefs, "incoming", messages);
+			List<RelationDefinition> outRelDefs = dto.getOutRelations();
+			validateRelations(outRelDefs, "outgoing", messages);
+		}
+		return messages;
 	}
 
 	public List<String> validateNode(Map<String, Node> defNodesMap) {

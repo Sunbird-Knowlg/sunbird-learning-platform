@@ -27,18 +27,16 @@ import akka.actor.ActorRef;
 
 public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACGraphMgr {
 
-	
-
 	static IGraphDatabaseService service;
 	static {
 		String databasePolicy = DACConfigurationConstants.ACTIVE_DATABASE_POLICY;
 
-		PlatformLogger.log("Active Database Policy Id:" , databasePolicy);
+		PlatformLogger.log("Active Database Policy Id:", databasePolicy);
 
 		if (StringUtils.isBlank(databasePolicy))
 			databasePolicy = DACConfigurationConstants.DEFAULT_DATABASE_POLICY;
 
-		PlatformLogger.log("Creating Database Connection Using Policy Id:" , databasePolicy);
+		PlatformLogger.log("Creating Database Connection Using Policy Id:", databasePolicy);
 
 		service = GraphServiceFactory.getDatabaseService(databasePolicy);
 	}
@@ -344,6 +342,29 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 			try {
 				Map<String, List<String>> messages = service.importGraph(graphId, taskId, input, request);
 				OK(GraphDACParams.messages.name(), messages, getSender());
+			} catch (Exception e) {
+				ERROR(e, getSender());
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void bulkUpdateNodes(Request request) {
+		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+		List<Map<String, Object>> newNodes = (List<Map<String, Object>>) request.get(GraphDACParams.newNodes.name());
+		List<Map<String, Object>> modifiedNodes = (List<Map<String, Object>>) request.get(GraphDACParams.modifiedNodes.name());
+		List<Map<String, Object>> addOutRelations = (List<Map<String, Object>>) request.get(GraphDACParams.addedOutRelations.name());
+		List<Map<String, Object>> removeOutRelations = (List<Map<String, Object>>) request.get(GraphDACParams.removedOutRelations.name());
+		List<Map<String, Object>> addInRelations = (List<Map<String, Object>>) request.get(GraphDACParams.addedInRelations.name());
+		List<Map<String, Object>> removeInRelations = (List<Map<String, Object>>) request.get(GraphDACParams.removedInRelations.name());
+		if (StringUtils.isBlank(graphId)) {
+			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
+		} else {
+			try {
+				service.bulkUpdateNodes(graphId, newNodes, modifiedNodes, addOutRelations, removeOutRelations,
+						addInRelations, removeInRelations);
+				OK(getSender());
 			} catch (Exception e) {
 				ERROR(e, getSender());
 			}
