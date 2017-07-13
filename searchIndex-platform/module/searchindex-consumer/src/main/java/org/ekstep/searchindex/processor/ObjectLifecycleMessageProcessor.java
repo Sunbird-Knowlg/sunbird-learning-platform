@@ -110,8 +110,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							}
 							String node_id = node.getIdentifier();
 							String objectType = node.getObjectType();
-							String channel = "";
-							channel = (String)node.getMetadata().get("channel");
+							String channel = (String)node.getMetadata().get("channel");
 							if(StringUtils.isNotBlank(channel)){
 								objectMap.put("channel", channel);
 							}
