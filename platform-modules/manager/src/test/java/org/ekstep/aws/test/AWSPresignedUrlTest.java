@@ -1,13 +1,10 @@
 package org.ekstep.aws.test;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FilterOutputStream;
+
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
-import java.util.zip.ZipOutputStream;
 
 import org.junit.Test;
 
@@ -50,10 +47,8 @@ public class AWSPresignedUrlTest {
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setDoOutput(true);
 			connection.setRequestMethod("PUT");
-			ZipOutputStream zout = new ZipOutputStream(connection.getOutputStream());
-			OutputStreamWriter out = new OutputStreamWriter();
-			out.write
-			out.close();
+			OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+			out.write("This text uploaded as object.");
 			int responseCode = connection.getResponseCode();
 			System.out.println("Service returned response code " + responseCode);
 		} catch (Exception e) {
