@@ -9,7 +9,7 @@ public class TelemetryBEEvent {
 	private long ets;
 	private String mid;
 	private String ver;
-	private String channel;
+	private String channel="";
 	private Map<String, String> pdata;
 	private Map<String, Object> edata;
 	public String getEid() {
