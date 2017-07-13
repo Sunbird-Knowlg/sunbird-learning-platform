@@ -6,6 +6,8 @@ import java.util.List;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
+import com.ilimi.graph.cache.util.RedisStoreUtil;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -215,4 +217,20 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         }
     }
 
+    public void deleteCacheNodesProperty(Request request) {
+        try {
+            String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+            String property = (String) request.get(GraphDACParams.property.name());
+
+            if (!validateRequired(graphId, property)) {
+                throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), "Required parameters are missing...");
+            } else {
+    			RedisStoreUtil.deleteAllNodeProperty(graphId, property);
+            }
+
+            OK(getSender());
+        } catch (Exception e) {
+            ERROR(e, getSender());
+        }
+    }
 }

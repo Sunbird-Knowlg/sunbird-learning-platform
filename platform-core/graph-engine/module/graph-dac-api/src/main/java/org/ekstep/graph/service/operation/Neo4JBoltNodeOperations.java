@@ -12,7 +12,7 @@ import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.Neo4JOperation;
 import org.ekstep.graph.service.request.validator.Neo4JBoltAuthorizationValidator;
-import org.ekstep.graph.service.request.validator.Neo4jBoltGenericValidator;
+import org.ekstep.graph.service.request.validator.Neo4jBoltValidator;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.ekstep.graph.service.util.QueryUtil;
 import org.neo4j.driver.v1.Driver;
@@ -27,6 +27,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.cache.util.RedisStoreUtil;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.AuditProperties;
@@ -38,7 +39,7 @@ import com.ilimi.graph.dac.model.Node;
 public class Neo4JBoltNodeOperations {
 
 	private final static String DEFAULT_CYPHER_NODE_OBJECT = "ee";
-	private Neo4jBoltGenericValidator versionValidator = new Neo4jBoltGenericValidator();
+	private Neo4jBoltValidator versionValidator = new Neo4jBoltValidator();
 	private Neo4JBoltAuthorizationValidator authorizationValidator = new Neo4JBoltAuthorizationValidator();
 
 	@SuppressWarnings("unchecked")
@@ -56,7 +57,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_NODE + " | [Upsert Node Operation Failed.]");
 		
 		PlatformLogger.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
-		node.getMetadata().put(GraphDACParams.channelId.name(), getChannelId(request));
+		node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
 		node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
 		authorizationValidator.validateAuthorization(graphId, node, request);
 		PlatformLogger.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
@@ -96,6 +97,11 @@ public class Neo4JBoltNodeOperations {
 						node.setIdentifier(identifier);
 						if (StringUtils.isNotBlank(versionKey))
 							node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+						try {
+							updateRedisCache(graphId, node);
+						} catch (Exception e) {
+							PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
+						}
 						PlatformLogger.log("Bolt Neo4J Node: ", neo4JNode);
 					} catch (Exception e) {
 						PlatformLogger.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
@@ -129,7 +135,7 @@ public class Neo4JBoltNodeOperations {
 			
 			PlatformLogger.log("Adding Authorization Metadata.");
 			node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
-			node.getMetadata().put(GraphDACParams.channelId.name(), getChannelId(request));
+			node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
 
 			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -157,6 +163,11 @@ public class Neo4JBoltNodeOperations {
 							node.setIdentifier(identifier);
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+							try {
+								updateRedisCache(graphId, node);
+							} catch (Exception e) {
+								PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
+							}
 							PlatformLogger.log("Bolt Neo4J Node: ", neo4JNode);
 						} catch (Exception e) {
 							PlatformLogger.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
@@ -230,6 +241,11 @@ public class Neo4JBoltNodeOperations {
 						node.setIdentifier(identifier);
 						if (StringUtils.isNotBlank(versionKey))
 							node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+						try {
+							updateRedisCache(graphId, node);
+						} catch (Exception e) {
+							PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
+						}
 						PlatformLogger.log("Bolt Neo4J Node: ", neo4JNode);
 					} catch (Exception e) {
 						PlatformLogger.log("Error! While Fetching 'versionKey' From Neo4J Node.", null, e);
@@ -433,6 +449,13 @@ public class Neo4JBoltNodeOperations {
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_NODE, parameterMap));
 			for (Record record : result.list())
 				PlatformLogger.log("Delete Node Operation | ", record);
+
+			try {
+				RedisStoreUtil.deleteNodeProperties(graphId, nodeId);
+			} catch (Exception e) {
+				PlatformLogger.log("Error! While deleting redis cache From Neo4J Node.", null, e);
+			}
+
 		}
 	}
 
@@ -504,7 +527,7 @@ public class Neo4JBoltNodeOperations {
 		return consumerId;
 	}
 	
-	private String getChannelId(Request request) {
+	private String getChannel(Request request) {
 		String consumerId = "";
 		try {
 		if (null != request && null != request.getContext()) {
@@ -515,5 +538,18 @@ public class Neo4JBoltNodeOperations {
 		}
 		return consumerId;
 	}
+	
+	private void updateRedisCache(String graphId, Node node) {
 
+		if (!node.getNodeType().equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name()))
+			return;
+
+		Map<String, Object> cacheMap = new HashMap<>();
+		if (node.getMetadata().get(GraphDACParams.versionKey.name()) != null)
+			cacheMap.put(GraphDACParams.versionKey.name(), node.getMetadata().get(GraphDACParams.versionKey.name()));
+		if (node.getMetadata().get(GraphDACParams.consumerId.name()) != null)
+			cacheMap.put(GraphDACParams.consumerId.name(), node.getMetadata().get(GraphDACParams.consumerId.name()));
+		if (cacheMap.size() > 0)
+			RedisStoreUtil.saveNodeProperties(graphId, node.getIdentifier(), cacheMap);
+	}
 }

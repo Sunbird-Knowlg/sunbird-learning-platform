@@ -38,6 +38,10 @@ public class RedisKeyGenerator {
     	return graphId + KEY_SEPARATOR + removeSpaces(objectId) + KEY_SEPARATOR + removeSpaces(propertyName);
     }
     
+    public static String getAllNodePropertyKeysPattern(String graphId, String propertyName) {
+    	return graphId + KEY_SEPARATOR + "*" + KEY_SEPARATOR + removeSpaces(propertyName);
+    }
+    
     public static String getAllGraphKeysPattern(String graphId) {
         return graphId + KEY_SEPARATOR + "*";
     }

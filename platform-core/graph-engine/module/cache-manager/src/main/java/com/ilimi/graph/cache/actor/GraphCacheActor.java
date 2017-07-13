@@ -7,12 +7,10 @@ import java.util.Map;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.cache.mgr.IDefinitionNodeCacheMgr;
-import com.ilimi.graph.cache.mgr.INodePropertyMgr;
 import com.ilimi.graph.cache.mgr.ISequenceCacheMgr;
 import com.ilimi.graph.cache.mgr.ISetCacheMgr;
 import com.ilimi.graph.cache.mgr.ITagCacheMgr;
 import com.ilimi.graph.cache.mgr.impl.DefinitionNodeCacheMgrImpl;
-import com.ilimi.graph.cache.mgr.impl.NodePropertyMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SetCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.TagCacheMgrImpl;
@@ -283,36 +281,6 @@ public class GraphCacheActor extends BaseGraphManager {
         try {
             Boolean isMember = cacheMgr.isTagMember(request);
             OK(GraphDACParams.is_member.name(), isMember, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void saveNodeProperties(Request request) {
-    	INodePropertyMgr cacheMgr = new NodePropertyMgrImpl(this);
-        try {
-            cacheMgr.saveNodeProperties(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-    
-    public void saveNodeProperty(Request request) {
-    	INodePropertyMgr cacheMgr = new NodePropertyMgrImpl(this);
-        try {
-            cacheMgr.saveNodeProperty(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getNodeProperty(Request request) {
-        INodePropertyMgr cacheMgr = new NodePropertyMgrImpl(this);
-        try {
-        	String value = cacheMgr.getNodeProperty(request);
-            OK(GraphDACParams.value.name(), value, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
         }

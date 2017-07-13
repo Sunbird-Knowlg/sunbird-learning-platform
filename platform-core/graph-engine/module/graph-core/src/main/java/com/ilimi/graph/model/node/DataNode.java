@@ -23,7 +23,6 @@ import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
-import com.ilimi.graph.common.mgr.CachePropertyConfiguration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -513,8 +512,6 @@ public class DataNode extends AbstractNode {
 	                        if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
 	                            setNodeId(identifier);
 	                            setVersionKey(versionKey);
-	                            ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-	                            loadToCache(cacheRouter, req);
 	                        } else {
 	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
 	                        			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
@@ -556,8 +553,6 @@ public class DataNode extends AbstractNode {
 	                        if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
 	                            setNodeId(identifier);
 	                            setVersionKey(versionKey);
-	                            ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-	                            loadToCache(cacheRouter, req);
 	                        } else {
 	                        	return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), 
 	                        			"Error updating node in the graph", ResponseCode.SERVER_ERROR);
@@ -811,31 +806,6 @@ public class DataNode extends AbstractNode {
 				// TODO need to implement the xml validation.
 			}
 		}
-	}
-
-    @SuppressWarnings("unchecked")
-	private void loadToCache(ActorRef cacheRouter, Request req) {
-		Request cacheReq = new Request(req);
-		cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-		cacheReq.setOperation("saveNodeProperties");
-		cacheReq.put(GraphDACParams.graph_id.name(), getGraphId());
-		cacheReq.put(GraphDACParams.node_id.name(), getNodeId());
-		List<String> properties = CachePropertyConfiguration.getProperties();
-		Map<String, Object> nodeData = new HashMap<String, Object>();
-		for (String property : properties) {
-			if (property.equalsIgnoreCase(GraphDACParams.versionKey.name()))
-				nodeData.put(property, getVersionKey());
-			else if (property.equalsIgnoreCase(GraphDACParams.consumerId.name())
-					&& StringUtils.isNotBlank((String) req.getContext().get(GraphDACParams.CONSUMER_ID.name())))
-				nodeData.put(property, req.getContext().get(GraphDACParams.CONSUMER_ID.name()));
-			else if (getMetadata() != null && StringUtils.isNotBlank((String) getMetadata().get(property)))
-				nodeData.put(property, getMetadata().get(property));
-		}
-
-		if (nodeData.size() == 0)
-			return;
-		cacheReq.put(GraphDACParams.properties.name(), nodeData);
-		cacheRouter.tell(cacheReq, manager.getSelf());
 	}
 
 	private boolean checkRangeValue(List<Object> range, Object value) {
