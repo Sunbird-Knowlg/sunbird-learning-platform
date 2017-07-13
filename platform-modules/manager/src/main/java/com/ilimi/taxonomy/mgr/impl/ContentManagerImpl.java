@@ -39,6 +39,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
@@ -1110,6 +1111,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 				return response;
 			}
+		} else {
+			throw new ClientException("ERR_INVALID_HIERARCHY_DATA", "Hierarchy data is empty");
 		}
 		return new Response();
 	}
@@ -1136,6 +1139,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (BooleanUtils.isTrue(isNew)) {
 			metadata.put("isNew", true);
 			metadata.put("code", nodeId);
+			Boolean root = (Boolean) map.get("root");
+			if (BooleanUtils.isFalse(root))
+				metadata.put("visibility", "Parent");
 		}
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
