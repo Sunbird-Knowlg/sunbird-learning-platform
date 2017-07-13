@@ -32,6 +32,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.BasePipeline;
 import org.ekstep.content.util.ECRFToJSONConvertor;
 import org.ekstep.content.util.ECRFToXMLConvertor;
+import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
@@ -356,6 +357,9 @@ public class BaseFinalizer extends BasePipeline {
 				}
 			}
 		}
+		String body = getContentBody(nodeForOperation.getIdentifier());
+		nodeForOperation.getMetadata().put(ContentAPIParams.body.name(), body);
+		PlatformLogger.log("Body fetched from content store");
 		return nodeForOperation;
 
 	}

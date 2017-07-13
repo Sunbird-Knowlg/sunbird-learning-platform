@@ -80,8 +80,6 @@ public class OptimizerUtil {
 
 				String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
 				File originalFile = HttpDownloadUtility.downloadFile(originalURL, tempFolder);
-				PlatformLogger.log("optimiseImage | originalURL=" + originalURL + " | uploadedFile="
-						+ originalFile.getAbsolutePath());
 
 				// run for each resolution
 				for (Map.Entry<String, Object> entry : variants.entrySet()) {
@@ -103,7 +101,6 @@ public class OptimizerUtil {
 
 						if (null != optimisedFile && optimisedFile.exists()) {
 							try {
-								PlatformLogger.log("Cleanup - Deleting optimised File");
 								optimisedFile.delete();
 							} catch (Exception e) {
 								PlatformLogger.log("Something Went Wrong While Deleting the optimised File.", e.getMessage(), e);

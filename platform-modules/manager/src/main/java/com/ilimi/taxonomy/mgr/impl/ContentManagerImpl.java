@@ -603,7 +603,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		else
 			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
 
-		response.put("content", contentMap);
+		response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
 		response.setParams(getSucessStatus());
 		return response;
 	}
@@ -638,13 +638,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
-		if (map.containsKey("identifier")) {
-			String identifier = (String) map.get("identifier");
+		if (map.containsKey(TaxonomyAPIParams.identifier.name())) {
+			String identifier = (String) map.get(TaxonomyAPIParams.identifier.name());
 			PlatformLogger.log("Checking if identifier ends with .img" + identifier);
-			if (StringUtils.endsWithIgnoreCase(identifier, ".img")) {
-				String new_identifier = identifier.replace(".img", "");
-				PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
-				map.replace("identifier", identifier, new_identifier);
+			if (StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				PlatformLogger.log("replacing image id with content id in response " + identifier + newIdentifier);
+				map.replace(TaxonomyAPIParams.identifier.name(), identifier, newIdentifier);
 			}
 		}
 		return map;
@@ -683,11 +683,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	private String getContentBody(String contentId, String mode) {
+		String body = "";
 		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
-			contentId = getContentImageIdentifier(contentId);
-		return getContentBody(contentId);
+			body = getContentBody(getContentImageIdentifier(contentId));
+		if (StringUtils.isBlank(body))
+			body = getContentBody(contentId);
+		return body;
 	}
-	
+
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
@@ -748,7 +751,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	private String getContentImageIdentifier(String contentId) {
 		String contentImageId = "";
-		if (StringUtils.isNotBlank(contentId)) 
+		if (StringUtils.isNotBlank(contentId))
 			contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		return contentImageId;
 	}

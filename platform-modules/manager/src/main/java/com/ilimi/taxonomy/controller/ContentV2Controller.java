@@ -219,37 +219,37 @@ public class ContentV2Controller extends BaseController {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
-		String apiId = "content.create.java";
-		Request request = getRequest(requestMap);
-		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.createContent(map);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
+//	@SuppressWarnings("unchecked")
+//	@RequestMapping(value = "/create", method = RequestMethod.POST)
+//	@ResponseBody
+//	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
+//		String apiId = "content.create.java";
+//		Request request = getRequest(requestMap);
+//		try {
+//			Map<String, Object> map = (Map<String, Object>) request.get("content");
+//			Response response = contentManager.createContent(map);
+//			return getResponseEntity(response, apiId, null);
+//		} catch (Exception e) {
+//			return getExceptionResponseEntity(e, apiId, null);
+//		}
+//	}
 
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
-	@ResponseBody
-	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> requestMap) {
-		String apiId = "content.update.java";
-		Request request = getRequest(requestMap);
-		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.updateContent(contentId, map);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
+//	@SuppressWarnings("unchecked")
+//	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
+//	@ResponseBody
+//	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
+//			@RequestBody Map<String, Object> requestMap) {
+//		String apiId = "content.update.java";
+//		Request request = getRequest(requestMap);
+//		try {
+//			Map<String, Object> map = (Map<String, Object>) request.get("content");
+//			Response response = contentManager.updateContent(contentId, map);
+//			return getResponseEntity(response, apiId, null);
+//		} catch (Exception e) {
+//			PlatformLogger.log("Exception", e.getMessage(), e);
+//			return getExceptionResponseEntity(e, apiId, null);
+//		}
+//	}
 	
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
