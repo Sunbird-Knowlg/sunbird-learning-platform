@@ -105,14 +105,16 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 									node = getItemSetNode(node_id);
 								}
 							} else {
-								PlatformLogger.log("Fetching Node metadata from graph"
-										+ message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
 								node = util.getNode(ConsumerWorkflowEnums.domain.name(),
 										(String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
 							}
 							String node_id = node.getIdentifier();
 							String objectType = node.getObjectType();
-							
+							String channel = "";
+							channel = (String)node.getMetadata().get("channel");
+							if(StringUtils.isNotBlank(channel)){
+								objectMap.put("channel", channel);
+							}
 							PlatformLogger.log("Checking if prevState is null "+ prevstate);
 							if (null == prevstate) {
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), "");
@@ -150,7 +152,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							objectMap.put(ConsumerWorkflowEnums.identifier.name(), node_id);
 							objectMap.put(ConsumerWorkflowEnums.objectType.name(), objectType);
 
-							PlatformLogger.log("Checking if node metadata is null");
 							if (null != node.getMetadata()) {
 								Map<String, Object> nodeMap = new HashMap<String, Object>();
 								nodeMap = (Map) node.getMetadata();

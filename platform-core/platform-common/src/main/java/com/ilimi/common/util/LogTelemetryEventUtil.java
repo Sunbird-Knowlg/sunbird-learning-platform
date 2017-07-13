@@ -106,6 +106,7 @@ public class LogTelemetryEventUtil {
 			te.setEts(unixTime);
 			te.setVer("2.0");
 			te.setMid(mid);
+			te.setChannel((String)metadata.get("channel"));
 			te.setPdata("org.ekstep.platform", "", "1.0", "");
 			data.put("id", objectId);
 			data.put("parentid", metadata.get("parentid"));
