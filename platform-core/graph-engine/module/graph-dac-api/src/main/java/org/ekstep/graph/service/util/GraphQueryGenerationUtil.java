@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
+import org.ekstep.graph.service.common.DACParams;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.common.RelationshipDirection;
 import org.neo4j.driver.v1.Driver;
@@ -20,6 +21,7 @@ import org.neo4j.driver.v1.exceptions.ClientException;
 import org.neo4j.driver.v1.types.Relationship;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -74,7 +76,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 								+ " | ['Create Graph Index' Operation Failed.]");
 
 			query.append("CREATE INDEX ON :" + graphId + "(" + indexProperty + ")")
-						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 		}
 
 		PlatformLogger.log("Returning Create Node Cypher Query: " + query);
@@ -107,66 +109,80 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
-		if (null != parameterMap) {
-			PlatformLogger.log("Fetching the Parameters From Parameter Map");
-			String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
-			if (StringUtils.isBlank(graphId))
-				throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
-						DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Create Relation' Query Generation Failed.]");
+		try {
+			if (null != parameterMap) {
+				PlatformLogger.log("Fetching the Parameters From Parameter Map");
+				String graphId = (String) parameterMap.get(GraphDACParams.graphId.name());
+				if (StringUtils.isBlank(graphId))
+					throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
+							DACErrorMessageConstants.INVALID_GRAPH_ID
+									+ " | ['Create Relation' Query Generation Failed.]");
 
-			String startNodeId = (String) parameterMap.get(GraphDACParams.startNodeId.name());
-			if (StringUtils.isBlank(startNodeId))
-				throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
-						DACErrorMessageConstants.INVALID_START_NODE_ID
-								+ " | ['Create Relation' Query Generation Failed.]");
+				String startNodeId = (String) parameterMap.get(GraphDACParams.startNodeId.name());
+				if (StringUtils.isBlank(startNodeId))
+					throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
+							DACErrorMessageConstants.INVALID_START_NODE_ID
+									+ " | ['Create Relation' Query Generation Failed.]");
 
-			String endNodeId = (String) parameterMap.get(GraphDACParams.endNodeId.name());
-			if (StringUtils.isBlank(endNodeId))
-				throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
-						DACErrorMessageConstants.INVALID_END_NODE_ID
-								+ " | ['Create Relation' Query Generation Failed.]");
+				String endNodeId = (String) parameterMap.get(GraphDACParams.endNodeId.name());
+				if (StringUtils.isBlank(endNodeId))
+					throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
+							DACErrorMessageConstants.INVALID_END_NODE_ID
+									+ " | ['Create Relation' Query Generation Failed.]");
 
-			String relationType = (String) parameterMap.get(GraphDACParams.relationType.name());
-			if (StringUtils.isBlank(relationType))
-				throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
-						DACErrorMessageConstants.INVALID_RELATION_TYPE
-								+ " | ['Create Relation' Query Generation Failed.]");
-
-			Request request = (Request) parameterMap.get(GraphDACParams.request.name());
-			Integer index = null;
-			Map<String, Object> metadata = new HashMap<String, Object>();
-			if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {
-				index = 0;
-				PlatformLogger.log("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
-				// Fetch all the Relationships
-				List<Integer> allottedIndices = new ArrayList<Integer>();
-				allottedIndices.add(0);
-				List<Relationship> relationships = getAllRelationships(graphId, startNodeId,
-						RelationshipDirection.OUTGOING);
-				PlatformLogger.log("Fetched Relationships: ", relationships);
-				for (Relationship relationship : relationships) {
-					if (StringUtils.equalsIgnoreCase(relationship.type(),
-							RelationTypes.SEQUENCE_MEMBERSHIP.relationName())) {
-						try {
-							Object strIndex = relationship.get(SystemProperties.IL_SEQUENCE_INDEX.name()).asObject();
-							if (null != strIndex)
-								allottedIndices.add(Integer.parseInt(strIndex.toString()));
-						} catch (Exception e) {
+				String relationType = (String) parameterMap.get(GraphDACParams.relationType.name());
+				if (StringUtils.isBlank(relationType))
+					throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
+							DACErrorMessageConstants.INVALID_RELATION_TYPE
+									+ " | ['Create Relation' Query Generation Failed.]");
+				Integer index = null;
+				Request request = (Request) parameterMap.get(GraphDACParams.request.name());
+				Map<String, Object> reqMetadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
+				String reqIndex = (String) reqMetadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+				try {
+					index = Integer.parseInt(reqIndex);
+				} catch (NumberFormatException e) {
+					PlatformLogger.log("Error! While Converting Number to String.", null, e);
+				}
+				Map<String, Object> metadata = new HashMap<String, Object>();
+				if (StringUtils.isBlank(reqIndex) && StringUtils
+						.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {
+					index = 0;
+					PlatformLogger.log("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
+					// Fetch all the Relationships
+					List<Integer> allottedIndices = new ArrayList<Integer>();
+					allottedIndices.add(0);
+					List<Relationship> relationships = getAllRelationships(graphId, startNodeId,
+							RelationshipDirection.OUTGOING);
+					PlatformLogger.log("Fetched Relationships: ", relationships);
+					for (Relationship relationship : relationships) {
+						if (StringUtils.equalsIgnoreCase(relationship.type(),
+								RelationTypes.SEQUENCE_MEMBERSHIP.relationName())) {
+							try {
+								Object strIndex = relationship.get(SystemProperties.IL_SEQUENCE_INDEX.name())
+										.asObject();
+								if (null != strIndex)
+									allottedIndices.add(Integer.parseInt(strIndex.toString()));
+							} catch (Exception e) {
+							}
 						}
 					}
+					PlatformLogger.log("Allotted Indices So Far: ", allottedIndices);
+					index = Collections.max(allottedIndices) + 1;
 				}
-				PlatformLogger.log("Allotted Indices So Far: ", allottedIndices);
-				index = Collections.max(allottedIndices) + 1;
-			}
-			
-			if (null != request)
-				metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
-			PlatformLogger.log("Recieved Relation Metadata: ", metadata);
 
-			query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
-					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
-					CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
-					RelationshipDirection.OUTGOING, index, parameterMap));
+				if (null != request)
+					metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
+				PlatformLogger.log("Recieved Relation Metadata: ", metadata);
+
+				query.append(getCreateRelationCypherQuery(graphId, startNodeId, endNodeId, relationType,
+						CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT,
+						CypherQueryConfigurationConstants.DEFAULT_CYPHER_NODE_OBJECT_II, metadata,
+						RelationshipDirection.OUTGOING, index, parameterMap));
+			}
+		} catch (Exception e) {
+			throw new ServerException(DACErrorCodeConstants.SERVER_ERROR.name(),
+					"Error! Something went wrong wile generating the query for relation creation.", e);
 		}
 
 		return query.toString();
@@ -692,9 +708,9 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 		}
 		return "";
 	}
-	
-	private static String getCreateRelationCypherQueryForCollection(String graphId, String startNodeId, String endNodeId,
-			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
+
+	private static String getCreateRelationCypherQueryForCollection(String graphId, String startNodeId,
+			String endNodeId, String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Integer index) {
 		PlatformLogger.log("Graph Id: ", graphId);
 		PlatformLogger.log("Start Node Id: ", startNodeId);
@@ -725,7 +741,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 			if (null == metadata)
 				metadata = new HashMap<String, Object>();
-			
+
 			// ON CREATE clause
 			Map<String, Object> createMetadata = new HashMap<String, Object>();
 			if (null != index)
@@ -733,8 +749,8 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 			createMetadata.putAll(metadata);
 			if (null != createMetadata && !createMetadata.isEmpty())
 				query.append("ON CREATE SET ").append(getMetadataStringForCypherQuery("r", createMetadata))
-					.append(CypherQueryConfigurationConstants.BLANK_SPACE);
-				
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+
 			// ON MATCH CLAUSE
 			if (null != metadata && !metadata.isEmpty()) {
 				query.append("ON MATCH SET ").append(getMetadataStringForCypherQuery("r", metadata))
@@ -743,7 +759,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 		}
 		return query.toString();
 	}
-	
+
 	private static String getUpdateRelationCypherQuery(String graphId, String startNodeId, String endNodeId,
 			String relationType, String startNodeObjectVariableName, String endNodeObjectVariableName,
 			Map<String, Object> metadata, RelationshipDirection direction, Map<String, Object> parameterMap) {
@@ -770,18 +786,21 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				relationship = "-[r:" + relationType + "]-";
 
 			query.append("MATCH (" + startNodeObjectVariableName + ":" + graphId + " { "
-					+ SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId + "' })" + relationship + "(" + endNodeObjectVariableName
-					+ ":" + graphId + " { " + SystemProperties.IL_UNIQUE_ID.name() + ": '" + endNodeId + "' }) ");
+					+ SystemProperties.IL_UNIQUE_ID.name() + ": '" + startNodeId + "' })" + relationship + "("
+					+ endNodeObjectVariableName + ":" + graphId + " { " + SystemProperties.IL_UNIQUE_ID.name() + ": '"
+					+ endNodeId + "' }) ");
 
 			// SET CLAUSE
 			if (null != metadata && !metadata.isEmpty()) {
-				//query.append("SET ").append(getMetadataStringForCypherQuery("r", metadata))
-						//.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+				// query.append("SET
+				// ").append(getMetadataStringForCypherQuery("r", metadata))
+				// .append(CypherQueryConfigurationConstants.BLANK_SPACE);
 				Map<String, Object> metadataQueryMap = getMetadataCypherQueryMap("r", metadata);
 				query.append("SET ").append(metadataQueryMap.get(GraphDACParams.query.name()))
-				.append(CypherQueryConfigurationConstants.BLANK_SPACE);
-				
-				parameterMap.put(GraphDACParams.paramValueMap.name(), metadataQueryMap.get(GraphDACParams.paramValueMap.name()));
+						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
+
+				parameterMap.put(GraphDACParams.paramValueMap.name(),
+						metadataQueryMap.get(GraphDACParams.paramValueMap.name()));
 			}
 			parameterMap.put(GraphDACParams.query.name(), query.toString());
 			PlatformLogger.log("'Update Relation' Cypher Query: " + query);
