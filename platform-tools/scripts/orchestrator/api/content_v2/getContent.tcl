@@ -102,7 +102,6 @@ if {$check_error} {
         set status_val_str [java::new String [$status_val toString]]
         set isLiveState [$status_val_str equalsIgnoreCase "Live"]
 	set isFlaggedState [$status_val_str equalsIgnoreCase "Flagged"]
-	set isRetiredState [$status_val_str equalsIgnoreCase "FlRetiredagged"]
 	set resp_def_node [getDefinition $graph_id $object_type]
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	if {$returnFields} {
@@ -142,9 +141,6 @@ if {$check_error} {
 
 	if {$isEditMode == 1 && $isLiveState == 1} {
 		$resp_object put "status" "Draft"
-	}
-	if ($isRetiredState == 1) {
-		$resp_object put "status" "Draft"	
 	}
    	
 	set result_map [java::new HashMap]

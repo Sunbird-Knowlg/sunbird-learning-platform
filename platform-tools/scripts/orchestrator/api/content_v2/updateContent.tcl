@@ -225,7 +225,6 @@ if {$object_null == 1} {
 					set content_id $content_image_id
 				} elseif {$imageObjectExists == 1} {
 					set content_id $content_image_id
-					$content put "status" "Draft"
 				}
 				if {$check_error} {
 					return $create_response
