@@ -1169,6 +1169,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Node tmpnode = getNodeForOperation(graphId, nodeId);
 			if (null != tmpnode) {
 				id = tmpnode.getIdentifier();
+				tmpnode.setOutRelations(null);
+				tmpnode.setInRelations(null);
 				idMap.put(nodeId, id);
 				nodeMap.put(id, tmpnode);
 			} else {
