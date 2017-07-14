@@ -84,12 +84,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							.get(ConsumerWorkflowEnums.properties.name());
 
 					PlatformLogger.log("Checking if propertiesMap contains status"
-							+ propertiesMap.containsKey(ConsumerWorkflowEnums.status.name()));
+							+ propertiesMap.containsKey(ConsumerWorkflowEnums.status.name()),null, LoggerEnum.INFO.name());
 					if (propertiesMap.containsKey(ConsumerWorkflowEnums.status.name())) {
 						Map<String, Object> statusMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.status.name());
 
 						String prevstate = (String) statusMap.get("ov");
 						String state = (String) statusMap.get("nv");
+						PlatformLogger.log("Prevstate and CurrentState" + prevstate + state, null , LoggerEnum.INFO.name());
 						Map<String, Object> createdOnMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.createdOn.name());
 					
 						String createdOn = (String)createdOnMap.get("nv");
