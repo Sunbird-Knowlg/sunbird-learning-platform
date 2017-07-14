@@ -350,6 +350,7 @@ public class BaseFinalizer extends BasePipeline {
 				if (!checkError(response)) {
 					// Content Image Node is Available so assigning it as node
 					nodeForOperation = (Node) response.get(GraphDACParams.node.name());
+					nodeForOperation.getMetadata().put(GraphDACParams.status.name(), ContentWorkflowPipelineParams.Draft.name());
 					PlatformLogger.log(
 							"Getting Content Image Node and assigning it as node" + nodeForOperation.getIdentifier());
 				} else {

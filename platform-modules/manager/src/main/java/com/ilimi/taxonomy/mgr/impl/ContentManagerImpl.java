@@ -663,6 +663,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Response responseNode = getDataNode(graphId, contentImageId);
 			if (!checkError(responseNode)) {
 				Node content = (Node) responseNode.get(GraphDACParams.node.name());
+				if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Retired.name(),
+						(String) content.getMetadata().get(GraphDACParams.status.name())))
+					content.getMetadata().put(GraphDACParams.status.name(), ContentWorkflowPipelineParams.Draft.name());
 				PlatformLogger.log("Got draft version of node: ", content);
 				return content;
 			}
@@ -803,6 +806,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		} else {
 			// Content Image Node is Available so assigning it as node
 			node = (Node) response.get(GraphDACParams.node.name());
+			node.getMetadata().put(GraphDACParams.status.name(), ContentWorkflowPipelineParams.Draft.name());
 			PlatformLogger.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
 		}
 		// Assigning the original 'identifier' to the Node
@@ -1133,7 +1137,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				id = tmpnode.getIdentifier();
 				objectType = tmpnode.getObjectType();
 			} else {
-				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
 			}
 		}
 		idMap.put(nodeId, id);
@@ -1174,7 +1179,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				idMap.put(nodeId, id);
 				nodeMap.put(id, tmpnode);
 			} else {
-				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
 			}
 		}
 		if (StringUtils.isNotBlank(id)) {
@@ -1197,10 +1203,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						rel.setMetadata(metadata);
 						outRelations.add(rel);
 					}
-					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
+					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+							null);
 					dummyContentRelation.setEndNodeObjectType(CONTENT_OBJECT_TYPE);
 					outRelations.add(dummyContentRelation);
-					Relation dummyContentImageRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
+					Relation dummyContentImageRelation = new Relation(id,
+							RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
 					dummyContentImageRelation.setEndNodeObjectType(CONTENT_IMAGE_OBJECT_TYPE);
 					outRelations.add(dummyContentImageRelation);
 					node.setOutRelations(outRelations);

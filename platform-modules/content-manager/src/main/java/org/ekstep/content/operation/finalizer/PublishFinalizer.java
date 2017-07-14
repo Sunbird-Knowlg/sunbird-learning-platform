@@ -25,7 +25,6 @@ import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -35,7 +34,6 @@ import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.rits.cloning.Cloner;
 
 /**
@@ -308,11 +306,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		newNode.getMetadata().put(GraphDACParams.versionKey.name(), graphPassportKey);
 
-		// Setting the Status of Content Image Node as 'Retired' since it's a
-		// last Node Update in Publishing
-		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-				ContentWorkflowPipelineParams.Retired.name());
-
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
 		newNode.setTags(node.getTags());
@@ -321,13 +314,12 @@ public class PublishFinalizer extends BaseFinalizer {
 				LoggerEnum.INFO.name());
 		Response response = migrateContentImageObjectData(contentId, newNode);
 
-		// delete image..
-		Request request = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
-				"deleteDataNode");
-		request.put(ContentWorkflowPipelineParams.node_id.name(), contentId + ".img");
-
-		getResponse(request);
-
+		// retire image node..
+		// Setting the Status of Content Image Node as 'Retired' 
+		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
+				ContentWorkflowPipelineParams.Retired.name());
+		updateNode(newNode);
+		
 		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
 		PlatformLogger.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.prevState.name(),
@@ -429,11 +421,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (null != contentImage && StringUtils.isNotBlank(contentId)) {
 			String contentImageId = contentId + ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 			
-			PlatformLogger.log("Fetching the Content Image Node for actual state . | [Content Id: " + contentImageId + "]", null,
-					LoggerEnum.INFO.name());
-			Response getDataNodeResponse = getDataNode(contentImage.getGraphId(), contentImageId);
-			Node dbNode = (Node) getDataNodeResponse.get(ContentWorkflowPipelineParams.node.name());
-			
 			PlatformLogger.log("Setting the Metatdata for Image Node . | [Content Id: " + contentImageId + "]", null,
 					LoggerEnum.INFO.name());
 			// Setting the Appropriate Metadata
@@ -441,10 +428,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
-			if (null != dbNode) {
-				contentImage.setInRelations(dbNode.getInRelations());
-				contentImage.setOutRelations(dbNode.getOutRelations());
-			}
 				
 			PlatformLogger.log("Migrating the Content Body. | [Content Id: " + contentId + "]", null,
 					LoggerEnum.INFO.name());
