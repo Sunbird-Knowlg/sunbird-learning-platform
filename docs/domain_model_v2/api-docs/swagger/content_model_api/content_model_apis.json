@@ -47,6 +47,10 @@
         {
           "name": "Flag",
           "description": "Everything related to Change in state of Content and its availability for further usage" 
+        },
+        {
+          "name": "Reject",
+          "description": "Everythhing related to Rejection of a Content which is in Review/FlagReview state"
         }
     ],
     "paths": {
@@ -476,13 +480,13 @@
               "security": []
           }
       },
-       "/flag/{contentId}": {
+      "/flag/{contentId}": {
           "get": {
               "tags": [
                 "Flag"
               ],
               "summary": "Flags a particular Content",
-              "description": "The '/flag/{content_id}' endpoint flags a particular content and makes it unavailbale for future usage. It consumes the content identifier as request path variable with falg request body. In response it returns the message that particular content has been flagged",
+              "description": "The '/flag/{content_id}' endpoint flags a particular content and makes it unavailbale for future usage. It consumes the content identifier as request path variable with flag request body. In response it returns the message that particular content has been flagged",
               "operationId": "ekstep.learning.content.flag",
               "produces": [
                   "application/json"
@@ -517,10 +521,60 @@
               },
               "security": []
           }
+        },
+        "/reject/{contentId}": {
+           "post": {
+              "tags": [
+                "Reject"
+              ],
+              "summary": "Rejects a particular Content in Review State.",
+              "description": "The '/reject/{content_id}' endpoint rejects a particular content which is in review state and pushes it to draft state. It consumes the content identifier as request path variable with reject request body. In response it returns the message that particular content has been rejected",
+              "operationId": "ekstep.learning.content.reject",
+              "produces": [
+                  "application/json"
+              ],
+              "parameters": [
+                 {
+                  "$ref": "#/parameters/ContentId"
+                  },
+                  {
+                  "$ref": "#/parameters/RejectRequestBody"
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Content Rejected Successfully",
+                      "schema": {
+                          "$ref": "#/definitions/ContentRejectResponse"
+                      }
+                  },
+                  "400": {
+                      "description": "Error While Rejecting a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception",
+                      "schema": {
+                          "$ref": "#/definitions/ContentRejectErrorResponse"
+                      }
+                  },
+                  "500": {
+                      "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception",
+                      "schema": {
+                          "$ref": "#/definitions/ContentRejectErrorResponse"
+                      }
+                  }
+              },
+              "security": []
+          }
         }
     },
-    
     "parameters": {
+      "RejectRequestBody": {
+          "name": "Request",
+            "in": "body",
+            "description": "Content Request Object which contains the request data",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/ContentRejectRequestObject"
+            }
+        },
         "ContentRequestObject": {
             "name": "Request",
             "in": "body",
@@ -575,6 +629,37 @@
         }
     },
     "definitions": {
+       "ContentRejectRequestObject":{
+          "properties":{
+              "request":{
+                   
+                }
+              }
+        },
+       "ContentRejectResponse": {
+            "title": "Content Reject Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+      "ContentRejectErrorResponse": {
+            "title": "Reject Content Error Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
         "Content": {
             "title": "Content Metadata",
             "type": "object",
