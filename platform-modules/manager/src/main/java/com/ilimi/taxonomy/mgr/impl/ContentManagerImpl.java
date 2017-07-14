@@ -39,7 +39,6 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
@@ -48,6 +47,7 @@ import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
+import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -1096,7 +1096,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			if (null != hierarchy && !hierarchy.isEmpty()) {
 				for (Entry<String, Object> entry : hierarchy.entrySet())
-					updateNodeHierarchyRelations(entry, idMap, nodeMap);
+					updateNodeHierarchyRelations(graphId, entry, idMap, nodeMap);
 			}
 			if (null != nodeMap && !nodeMap.isEmpty()) {
 				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
@@ -1129,8 +1129,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
 		} else {
 			Node tmpnode = getNodeForOperation(graphId, id);
-			id = tmpnode.getIdentifier();
-			objectType = tmpnode.getObjectType();
+			if (null != tmpnode) {
+				id = tmpnode.getIdentifier();
+				objectType = tmpnode.getObjectType();
+			} else {
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
+			}
 		}
 		idMap.put(nodeId, id);
 		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
@@ -1139,10 +1143,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (BooleanUtils.isTrue(isNew)) {
 			metadata.put("isNew", true);
 			metadata.put("code", nodeId);
+			metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis());
+			metadata.put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
 			Boolean root = (Boolean) map.get("root");
 			if (BooleanUtils.isNotTrue(root))
 				metadata.put("visibility", "Parent");
 		}
+		metadata.put(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
 			node.setGraphId(graphId);
@@ -1154,10 +1161,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateNodeHierarchyRelations(Entry<String, Object> entry, Map<String, String> idMap,
+	private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
 			Map<String, Node> nodeMap) {
 		String nodeId = entry.getKey();
 		String id = idMap.get(nodeId);
+		if (StringUtils.isBlank(id)) {
+			Node tmpnode = getNodeForOperation(graphId, nodeId);
+			if (null != tmpnode) {
+				id = tmpnode.getIdentifier();
+				idMap.put(nodeId, id);
+				nodeMap.put(id, tmpnode);
+			} else {
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
+			}
+		}
 		if (StringUtils.isNotBlank(id)) {
 			Node node = nodeMap.get(id);
 			if (null != node) {

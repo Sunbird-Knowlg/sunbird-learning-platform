@@ -1,10 +1,8 @@
 package com.ilimi.taxonomy.controller;
 
 import java.io.File;
-import java.net.URL;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
@@ -23,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -72,34 +69,17 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "file", required = false) MultipartFile file,
-			@RequestParam(value = "fileUrl", required = false) String fileUrl) {
+			@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "ekstep.learning.content.upload";
 		PlatformLogger.log("Upload Content | Content Id: " + contentId);
 		PlatformLogger.log("Uploaded File Name: ");
-		PlatformLogger.log("Uploaded File Url: " + fileUrl);
 		PlatformLogger.log("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
 		try {
-
-			if (null == file && StringUtils.isBlank(fileUrl))
-				throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_File.name(),
-						"Error ! Either attached file or 'artifactUrl' is needed for Upload Operation.");
-
-			File uploadedFile = null;
-			String name = "";
-			if (null != file) {
-				name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE + System.currentTimeMillis()
-						+ DOT + FilenameUtils.getExtension(file.getOriginalFilename());
-				uploadedFile = new File(name);
-				file.transferTo(uploadedFile);
-				uploadedFile = new File(name);
-			} else {
-				URL url = new URL(fileUrl);
-				name = FilenameUtils.getBaseName(url.getPath()) + UNDERSCORE + System.currentTimeMillis() + DOT
-						+ FilenameUtils.getExtension(url.getPath());
-				uploadedFile = new File(name);
-				FileUtils.copyURLToFile((URL) new URL(fileUrl), uploadedFile);
-			}
+			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE + System.currentTimeMillis()
+					+ DOT + FilenameUtils.getExtension(file.getOriginalFilename());
+			File uploadedFile = new File(name);
+			file.transferTo(uploadedFile);
+			uploadedFile = new File(name);
 			Response response = contentManager.upload(contentId, "domain", uploadedFile);
 			PlatformLogger.log("Upload | Response: ", response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
