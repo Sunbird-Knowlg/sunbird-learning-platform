@@ -9,7 +9,8 @@ import com.ilimi.graph.common.mgr.Configuration;
 
 /**
  * The Class LocalCache, is used to cache any object in current java instance
- * local heap until the cached object time to live(ttl) expired as per configured ttl
+ * local heap until the cached object time to live(ttl) expired as per
+ * configured ttl
  *
  * @author karthik
  */
@@ -19,7 +20,7 @@ public class LocalCache {
 	private static Map<String, CacheObject> cacheMap = null;
 
 	/** The ttl. */
-	private static long ttl = 36000000; //default 10 hour
+	private static long ttl = 36000000; // default 10 hour
 
 	/**
 	 * The Class CacheObject.
@@ -91,7 +92,11 @@ public class LocalCache {
 	 *            the value
 	 */
 	public static void set(String key, Object value) {
-		cacheMap.put(key, new CacheObject(value));
+
+		CacheObject cacheObj = new CacheObject(value);
+		cacheMap.put(key, cacheObj);
+		PlatformLogger.log("Local cache object value=" + cacheObj.value.toString() + "cacheObj.createOn="
+				+ cacheObj.createOn + " is set now");
 	}
 
 	/**

@@ -42,6 +42,8 @@ public class Neo4jBoltValidator extends Neo4JBoltDataVersionKeyValidator {
 				// Redis or graph
 				// store versionCheckMode in local cache
 				LocalCache.setDefNodeProperty(graphId, nodeObjType, GraphDACParams.versionCheckMode.name(), versionCheckMode);
+				PlatformLogger.log(
+						"setting Version Check Mode in Local Cache: " + versionCheckMode + " for Object Type: " + node.getObjectType());
 				if (!StringUtils.equalsIgnoreCase(NodeUpdateMode.OFF.name(), versionCheckMode)) {
 					String storedVersionKey = RedisStoreUtil.getNodeProperty(graphId, nodeId,
 							GraphDACParams.versionKey.name());

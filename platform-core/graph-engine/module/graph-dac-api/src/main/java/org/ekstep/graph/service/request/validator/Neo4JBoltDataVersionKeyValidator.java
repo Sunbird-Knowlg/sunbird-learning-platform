@@ -37,13 +37,17 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 				versionCheckMode = NodeUpdateMode.OFF.name();
 			RedisStoreUtil.saveNodeProperty(graphId, node.getObjectType(), GraphDACParams.versionCheckMode.name(),
 					versionCheckMode);
+			PlatformLogger.log("Saving " + versionCheckMode + "for object type" + node.getObjectType() + ", graphId "
+					+ graphId + " into Redis cache");
+
 		}
 
 		// Checking of Node Update Version Checking is either 'STRICT'
 		// or 'LENIENT'.
 		// If Number of Modes are increasing then the Condition should
 		// be checked for 'OFF' Mode Only.
-		PlatformLogger.log(versionCheckMode);
+		PlatformLogger.log("versionCheckMode " + versionCheckMode + "for object type" + node.getObjectType()
+				+ ", object id" + node.getIdentifier());
 		if (StringUtils.equalsIgnoreCase(NodeUpdateMode.STRICT.name(), versionCheckMode)
 				|| StringUtils.equalsIgnoreCase(NodeUpdateMode.LENIENT.name(), versionCheckMode)) {
 
@@ -97,7 +101,8 @@ public class Neo4JBoltDataVersionKeyValidator extends Neo4JBoltBaseValidator {
 
 		boolean isValidVersionKey = false;
 		String versionKey = (String) node.getMetadata().get(GraphDACParams.versionKey.name());
-		PlatformLogger.log("Data Node Version Key Value: " + versionKey + " | [Node Id: '" + node.getIdentifier() + "']");
+		PlatformLogger
+				.log("Data Node Version Key Value: " + versionKey + " | [Node Id: '" + node.getIdentifier() + "']");
 		if (StringUtils.isBlank(versionKey))
 			throw new ClientException(DACErrorCodeConstants.BLANK_VERSION.name(),
 					DACErrorMessageConstants.BLANK_VERSION_KEY_ERROR + " | [Node Id: " + node.getIdentifier() + "]");
