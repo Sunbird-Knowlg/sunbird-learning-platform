@@ -1,4 +1,6 @@
 package com.ilimi.common.util;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,9 +26,9 @@ public class LogTelemetryEventUtil {
 		long unixTime = System.currentTimeMillis();
 		Map<String,Object> data = new HashMap<String,Object>();
 		te.setEid("BE_CONTENT_LIFECYCLE");
-		te.setEts(unixTime);
 		te.setVer("2.0");
 		te.setMid(mid);
+		te.setEts(unixTime);
 		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
 		data.put("cid", contentId);
 		data.put("size", metadata.get("size"));
@@ -47,9 +49,9 @@ public class LogTelemetryEventUtil {
 		
 		String jsonMessage = null;
 		try {
-			jsonMessage = mapper.writeValueAsString(te);
-			if (StringUtils.isNotBlank(jsonMessage))
-				telemetryEventLogger.info(jsonMessage);
+//			jsonMessage = mapper.writeValueAsString(te);
+//			if (StringUtils.isNotBlank(jsonMessage))
+////				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
 			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event", e.getMessage(), e);
 		}
@@ -71,7 +73,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event", e.getMessage(), e);
+			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event" + e.getMessage(),null, e);
 		}
 		return jsonMessage;
 	}
@@ -93,19 +95,18 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			PlatformLogger.log("Error logging BE_ACCESS event", e.getMessage(),e);
+			PlatformLogger.log("Error logging BE_ACCESS event" + e.getMessage(),null,e);
 		}
 		return jsonMessage;
 	}
 	
 	public static String logObjectLifecycleEvent(String objectId, Map<String, Object> metadata){
 			TelemetryBEEvent te = new TelemetryBEEvent();
-			long unixTime = System.currentTimeMillis();
 			Map<String,Object> data = new HashMap<String,Object>();
 			te.setEid("BE_OBJECT_LIFECYCLE");
-			te.setEts(unixTime);
+			String ets = (String) metadata.get("ets");
+			te.setEts(Long.parseLong(ets));
 			te.setVer("2.0");
-			te.setMid(mid);
 			te.setChannel((String)metadata.get("channel"));
 			te.setPdata("org.ekstep.platform", "", "1.0", "");
 			data.put("id", objectId);
@@ -117,15 +118,38 @@ public class LogTelemetryEventUtil {
 			data.put("name", metadata.get("name"));
 			data.put("state", metadata.get("state"));
 			data.put("prevstate", metadata.get("prevstate"));
-			te.setEdata(data);		
+			te.setEdata(data);
+			String mid = getMD5Hash(te, data);
+			te.setMid(mid);
 			String jsonMessage = null;
 			try {
 				jsonMessage = mapper.writeValueAsString(te);
 				if (StringUtils.isNotBlank(jsonMessage))
 					objectLifecycleEventLogger.info(jsonMessage);
 			} catch (Exception e) {
-				PlatformLogger.log("Error logging OBJECT_LIFECYCLE event", e.getMessage(), e);
+				PlatformLogger.log("Error logging OBJECT_LIFECYCLE event: " +e.getMessage(),null, e);
 			}
 			return jsonMessage;
+	}
+	
+	public static String getMD5Hash(TelemetryBEEvent event, Map<String,Object> data){
+		MessageDigest digest = null;
+		try {
+			String id = (String)data.get("id");
+			String state = (String)data.get("state");
+			String prevstate = (String)data.get("prevstate");
+			String val = event.getEid()+event.getEts()+id+state+prevstate;
+			digest = MessageDigest.getInstance("MD5");
+			digest.update(val.getBytes());
+			byte[] digestMD5 = digest.digest();
+			StringBuffer mid_val = new StringBuffer();
+			for(byte bytes : digestMD5){
+				mid_val.append(String.format("%02x", bytes & 0xff));
+			}
+			return mid_val.toString();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

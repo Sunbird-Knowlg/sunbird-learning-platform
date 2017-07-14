@@ -70,14 +70,11 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> objectMap = new HashMap<String, Object>();
 		try {
-			PlatformLogger.log("Checking if kafka message contains transactionData"
-					+ message.containsKey(ConsumerWorkflowEnums.transactionData.name()));
+			String ets = (String)message.get("ets");
+			objectMap.put("ets", ets);
 			if (message.containsKey(ConsumerWorkflowEnums.transactionData.name())) {
 				Map<String, Object> transactionMap = (Map<String, Object>) message
 						.get(ConsumerWorkflowEnums.transactionData.name());
-
-				PlatformLogger.log("Checking tarnsactionData contains propertiesMap"
-						+ transactionMap.containsKey(ConsumerWorkflowEnums.properties.name()));
 				if (transactionMap.containsKey(ConsumerWorkflowEnums.properties.name())) {
 					Map<String, Object> propertiesMap = (Map<String, Object>) transactionMap
 							.get(ConsumerWorkflowEnums.properties.name());
@@ -87,12 +84,9 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 					if (propertiesMap.containsKey(ConsumerWorkflowEnums.status.name())) {
 						Map<String, Object> statusMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.status.name());
 
-						PlatformLogger.log("Setting prevState and current state for event generation");
 						String prevstate = (String) statusMap.get("ov");
 						String state = (String) statusMap.get("nv");
 
-						PlatformLogger.log("Checking if node_id is blank"
-								+ message.get(ConsumerWorkflowEnums.nodeUniqueId.name()));
 						if (StringUtils.isNotBlank((String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()))) {
 							Node node = new Node();
 							if (message.get(ConsumerWorkflowEnums.nodeType.name())
@@ -114,7 +108,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							if(StringUtils.isNotBlank(channel)){
 								objectMap.put("channel", channel);
 							}
-							PlatformLogger.log("Checking if prevState is null "+ prevstate);
 							if (null == prevstate) {
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), "");
 							} else {
@@ -122,12 +115,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							}
 							objectMap.put(ConsumerWorkflowEnums.state.name(), state);
 							
-							
-							PlatformLogger.log("prevstate of object:" + prevstate + "currentstate of object:" , state + objectType);
 							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
-								PlatformLogger.log("Setting status for content Image created" + prevstate + state);
+								
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
 										ConsumerWorkflowEnums.Live.name());
 								objectMap.put(ConsumerWorkflowEnums.state.name(),
@@ -135,7 +126,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							} else if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.FlagDraft.name())){
-								PlatformLogger.log("Setting status for content Flag Image created" + prevstate + state);
+								
 									objectMap.put(ConsumerWorkflowEnums.prevstate.name(),
 											ConsumerWorkflowEnums.Flagged.name());
 									objectMap.put(ConsumerWorkflowEnums.state.name(),
@@ -144,7 +135,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							
 							if (StringUtils.endsWithIgnoreCase(node_id, ".img")
 									&& StringUtils.endsWithIgnoreCase(objectType, ConsumerWorkflowEnums.Image.name())) {
-								PlatformLogger.log("Setting nodeId and objectType" + node_id + objectType);
 								node_id = StringUtils.replace(node_id, ".img", "");
 								objectType = StringUtils.replace(objectType, ConsumerWorkflowEnums.Image.name(), "");
 							}
@@ -249,8 +239,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Concept.name())
 						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
-					PlatformLogger.log("Setting parentid for concept - outRelations of type concepts"
-							+ rel.getEndNodeObjectType() + rel.getEndNodeId());
 					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
 					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
 				} else {
@@ -320,13 +308,10 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			nodeMap = (Map) node.getMetadata();
 			if(null != nodeMap && nodeMap.containsKey("contentType")){
 					if (nodeMap.containsValue("Asset")) {
-						PlatformLogger.log("Setting subtype field from mediaType" + nodeMap.get("contentType"));
 						objectMap.put(ConsumerWorkflowEnums.objectType.name(),nodeMap.get("contentType"));
 						objectMap.put(ConsumerWorkflowEnums.subtype.name(),
 								nodeMap.get(ConsumerWorkflowEnums.mediaType.name()));
 					} else if (nodeMap.containsValue("Plugin")) {
-						PlatformLogger.log("Checking if node contains category in it"
-								+ nodeMap.containsKey(ConsumerWorkflowEnums.category.name()));
 						if (nodeMap.containsKey(ConsumerWorkflowEnums.category.name())) {
 							String[] category = (String[]) nodeMap.get(ConsumerWorkflowEnums.category.name());
 							PlatformLogger.log("Setting Category as subtype for object_lifecycle_events: "+ category);
@@ -334,19 +319,15 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							for (String str : category) {
 								subtype = str;
 							}
-							PlatformLogger.log("Setting contentType and objectType for as plugin and category" + subtype);
 							objectMap.put(ConsumerWorkflowEnums.objectType.name(), ConsumerWorkflowEnums.Plugin.name());
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), subtype);
 						} else {
-							PlatformLogger.log("Setting empty subType for plugins without category " + nodeMap.get("contentType"));
 							objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 						}
 					} else {
-						PlatformLogger.log("Setting subType field form contentType " + nodeMap.get("contentType"));
 						objectMap.put(ConsumerWorkflowEnums.subtype.name(), nodeMap.get("contentType"));
 					}
 				} else {
-					PlatformLogger.log("Setting subType as empty as contentType is null");
 					objectMap.put(ConsumerWorkflowEnums.subtype.name(), "");
 				}
 		}
@@ -355,7 +336,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals("Content") && rel.getRelationType().equals("hasSequenceMember")) {
-					PlatformLogger.log("Setting parentid for Content with inRelations" + rel.getEndNodeId());
 					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
 					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
 				} else {
@@ -368,7 +348,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 			for (Relation rel : relations) {
 				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Content.name())
 						&& rel.getRelationType().equals("hasSequenceMember")) {
-					PlatformLogger.log("Setting parentid for Content with outRelations" + rel.getEndNodeId());
 					objectMap.put(ConsumerWorkflowEnums.parentid.name(), rel.getEndNodeId());
 					objectMap.put(ConsumerWorkflowEnums.parenttype.name(), rel.getEndNodeObjectType());
 				} else {
@@ -401,7 +380,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 				}
 			}
 		}
-		PlatformLogger.log("Getting relations from AssessmentItem");
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
