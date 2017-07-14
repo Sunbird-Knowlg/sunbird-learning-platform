@@ -22,8 +22,6 @@ import com.ilimi.common.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
 
-	
-
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 
@@ -43,10 +41,10 @@ public class ResponseFilter implements Filter {
 		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
 		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
 		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
-		if (!isMultipart) {			
+		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-			PlatformLogger.log("Path: " + requestWrapper.getServletPath() , " | Remote Address: " + request.getRemoteAddr()
-					+ " | Params: " + request.getParameterMap());
+			PlatformLogger.log("Path: " + requestWrapper.getServletPath(),
+					" | Remote Address: " + request.getRemoteAddr() + " | Params: " + request.getParameterMap());
 
 			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
 			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
@@ -55,8 +53,12 @@ public class ResponseFilter implements Filter {
 
 			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
 			response.getOutputStream().write(responseWrapper.getData());
+		} else {
+			PlatformLogger.log("Path: " + httpRequest.getServletPath(),
+					" | Remote Address: " + request.getRemoteAddr() + " | Params: " + request.getParameterMap());
+			chain.doFilter(httpRequest, response);
+		}
 	}
-}
 
 	@Override
 	public void destroy() {
