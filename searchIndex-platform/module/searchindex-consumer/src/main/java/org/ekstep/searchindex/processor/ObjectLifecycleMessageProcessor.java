@@ -85,21 +85,21 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 					PlatformLogger.log("Checking if propertiesMap contains status"
 							+ propertiesMap.containsKey(ConsumerWorkflowEnums.status.name()),null, LoggerEnum.INFO.name());
-					if (propertiesMap.containsKey(ConsumerWorkflowEnums.status.name())) {
-						Map<String, Object> statusMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.status.name());
-
-						String prevstate = (String) statusMap.get("ov");
-						String state = (String) statusMap.get("nv");
-						PlatformLogger.log("Prevstate and CurrentState" + prevstate + state, null , LoggerEnum.INFO.name());
-						Map<String, Object> createdOnMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.createdOn.name());
-					
-						String createdOn = (String)createdOnMap.get("nv");
+					if(null != message.get("createdOn")){
+						String createdOn = (String)message.get("createdOn");
 						if(StringUtils.isNotBlank(createdOn)){
 							Date date = (Date)df.parse(createdOn);
 							long ets = date.getTime();
 							objectMap.put("ets", ets);
 							PlatformLogger.log("Setting createdOn as ets"+ createdOn + ets, LoggerEnum.INFO.name());
 						}
+					}
+					if (propertiesMap.containsKey(ConsumerWorkflowEnums.status.name())) {
+						Map<String, Object> statusMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.status.name());
+
+						String prevstate = (String) statusMap.get("ov");
+						String state = (String) statusMap.get("nv");
+						PlatformLogger.log("Prevstate and CurrentState" + prevstate + state, null , LoggerEnum.INFO.name());
 						
 						if (StringUtils.isNotBlank((String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()))) {
 							Node node = new Node();
