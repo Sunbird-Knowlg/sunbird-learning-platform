@@ -1143,7 +1143,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (BooleanUtils.isTrue(isNew)) {
 			metadata.put("isNew", true);
 			metadata.put("code", nodeId);
-			metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis());
+			metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis() + "");
 			metadata.put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
 			Boolean root = (Boolean) map.get("root");
 			if (BooleanUtils.isNotTrue(root))
@@ -1156,7 +1156,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			node.setNodeType(SystemNodeTypes.DATA_NODE.name());
 			nodeMap.put(id, node);
 		} catch (Exception e) {
-			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId);
+			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
 		}
 	}
 
