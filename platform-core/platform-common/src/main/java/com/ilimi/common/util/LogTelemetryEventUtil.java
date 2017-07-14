@@ -138,7 +138,7 @@ public class LogTelemetryEventUtil {
 			String id = (String)data.get("id");
 			String state = (String)data.get("state");
 			String prevstate = (String)data.get("prevstate");
-			String val = "LP"+event.getEid()+event.getEts()+id+state+prevstate;
+			String val = event.getEid()+event.getEts()+id+state+prevstate;
 			digest = MessageDigest.getInstance("MD5");
 			digest.update(val.getBytes());
 			byte[] digestMD5 = digest.digest();
@@ -146,11 +146,11 @@ public class LogTelemetryEventUtil {
 			for(byte bytes : digestMD5){
 				mid_val.append(String.format("%02x", bytes & 0xff));
 			}
-			return mid_val.toString();
+			String messageId = "LP:"+mid_val;
+			return messageId;
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-
 }
