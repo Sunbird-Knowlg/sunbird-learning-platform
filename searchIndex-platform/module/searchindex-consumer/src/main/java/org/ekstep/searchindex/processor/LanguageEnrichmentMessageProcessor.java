@@ -75,13 +75,10 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
-	@SuppressWarnings("unused")
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
-
 		Node node = filterMessage(message);
 		if (null != node) {
-			String languageId = null;
 			String language = getLanguage(node);
 
 			if (StringUtils.isNotBlank(language)) {

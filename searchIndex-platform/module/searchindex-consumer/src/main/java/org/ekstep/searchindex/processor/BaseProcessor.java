@@ -85,6 +85,7 @@ public class BaseProcessor {
 					String langId = str;
 					String languageCode = languageMap.get(langId.toLowerCase());
 					if (StringUtils.isNotBlank(languageCode) && !StringUtils.equalsIgnoreCase(languageCode, "en")) {
+						PlatformLogger.log("Returning language code", null, LoggerEnum.INFO.name());
 						return languageCode;
 					}
 				}
