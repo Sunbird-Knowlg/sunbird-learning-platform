@@ -32,7 +32,6 @@ import com.ilimi.common.logger.PlatformLogger;
 
 public abstract class BaseController {
 
-    private static final String API_ID_PREFIX = "ekstep";
     public static final String API_VERSION = "1.0";
     public static final String API_VERSION_2 = "2.0";
     public static final String API_VERSION_3 = "3.0";
@@ -192,7 +191,7 @@ public abstract class BaseController {
 
     private void setResponseEnvelope(Response response, String apiId, String msgId) {
         if (null != response) {
-            response.setId(API_ID_PREFIX + "." + apiId);
+            response.setId(apiId);
             response.setVer(getAPIVersion());
             response.setTs(getResponseTimestamp());
             ResponseParams params = response.getParams();
@@ -211,7 +210,7 @@ public abstract class BaseController {
     
     private void setResponseEnvelope(Response response, String apiId, String msgId, String resMsgId) {
         if (null != response) {
-            response.setId(API_ID_PREFIX + "." + apiId);
+            response.setId(apiId);
             response.setVer(getAPIVersion());
             response.setTs(getResponseTimestamp());
             ResponseParams params = response.getParams();
@@ -274,5 +273,4 @@ public abstract class BaseController {
     	}
     	return list;
     }
-
 }
