@@ -13,6 +13,7 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.enums.ConsumerWorkflowEnums;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
@@ -90,11 +91,14 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 						String prevstate = (String) statusMap.get("ov");
 						String state = (String) statusMap.get("nv");
 						Map<String, Object> createdOnMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.createdOn.name());
-						
+					
 						String createdOn = (String)createdOnMap.get("nv");
-						Date date = (Date)df.parse(createdOn);
-						long ets = date.getTime();
-						objectMap.put("ets", ets);
+						if(StringUtils.isNotBlank(createdOn)){
+							Date date = (Date)df.parse(createdOn);
+							long ets = date.getTime();
+							objectMap.put("ets", ets);
+							PlatformLogger.log("Setting createdOn as ets"+ createdOn + ets, LoggerEnum.INFO.name());
+						}
 						
 						if (StringUtils.isNotBlank((String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()))) {
 							Node node = new Node();
@@ -123,7 +127,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 								objectMap.put(ConsumerWorkflowEnums.prevstate.name(), prevstate);
 							}
 							objectMap.put(ConsumerWorkflowEnums.state.name(), state);
-							
+							PlatformLogger.log("Setting state and prevstate"+ prevstate+ state, null, LoggerEnum.INFO.name());
 							if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
 									&& StringUtils.equalsIgnoreCase(prevstate, null)
 									&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
