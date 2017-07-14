@@ -22,7 +22,7 @@
     ],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/content/read/*",
+        "url": "/v3/content/read/deprecated/*",
         "pathParams": [
           "content_id"
         ],

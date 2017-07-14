@@ -143,7 +143,7 @@ if {$check_error} {
 	if {$isEditMode == 1 && $isLiveState == 1} {
 		$resp_object put "status" "Draft"
 	}
-	if ($isRetiredState == 1) {
+	if {$isRetiredState == 1} {
 		$resp_object put "status" "Draft"	
 	}
    	

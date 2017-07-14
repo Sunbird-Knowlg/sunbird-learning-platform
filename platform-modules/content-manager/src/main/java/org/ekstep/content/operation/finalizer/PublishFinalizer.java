@@ -310,15 +310,15 @@ public class PublishFinalizer extends BaseFinalizer {
 		newNode.setOutRelations(node.getOutRelations());
 		newNode.setTags(node.getTags());
 
-		PlatformLogger.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]", null,
-				LoggerEnum.INFO.name());
-		Response response = migrateContentImageObjectData(contentId, newNode);
-
 		// retire image node..
 		// Setting the Status of Content Image Node as 'Retired' 
 		newNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				ContentWorkflowPipelineParams.Retired.name());
 		updateNode(newNode);
+		
+		PlatformLogger.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]", null,
+				LoggerEnum.INFO.name());
+		Response response = migrateContentImageObjectData(contentId, newNode);
 		
 		PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Live.name(), null);
 		PlatformLogger.log("Generating Telemetry Event. | [Content ID: " + contentId + "]");
