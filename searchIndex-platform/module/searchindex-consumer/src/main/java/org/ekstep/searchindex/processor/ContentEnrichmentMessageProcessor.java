@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -40,7 +39,7 @@ import com.ilimi.graph.enums.CollectionTypes;
  * 
  * @see IMessageProcessor
  */
-public class ContentEnrichmentMessageProcessor extends BaseProcessor implements IMessageProcessor {
+public class ContentEnrichmentMessageProcessor extends BaseProcessor {
 
 	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
 
@@ -66,35 +65,9 @@ public class ContentEnrichmentMessageProcessor extends BaseProcessor implements 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String,
-	 * java.lang.String, java.io.File, java.lang.String)
-	 */
-	@Override
-	public void processMessage(String messageData) {
-		try {
-			Map<String, Object> message = new HashMap<String, Object>();
-
-			if (StringUtils.isNotBlank(messageData)) {
-				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
-				});
-				if (null != message) {
-					String eid = (String) message.get("eid");
-					if (StringUtils.isNotBlank(eid) && StringUtils.equals("BE_OBJECT_LIFECYCLE", eid))
-						processMessage(message);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.ekstep.searchindex.processor #processMessage(java.lang.String
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
-	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
 
 		Node node = filterMessage(message);

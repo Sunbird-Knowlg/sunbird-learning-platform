@@ -17,7 +17,6 @@ import com.ilimi.graph.dac.model.Relation;
 public class BaseProcessor {
 
 	/** The logger. */
-	
 
 	/** The Controller Utility */
 	private static ControllerUtil util = new ControllerUtil();
@@ -32,22 +31,13 @@ public class BaseProcessor {
 	 * 
 	 * @throws Exception
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Node filterMessage(Map<String, Object> message) throws Exception {
-		Map<String, Object> edata = new HashMap<String, Object>();
-		Map<String, Object> eks = new HashMap<String, Object>();
 		Node node = null;
-		if (null != message.get("edata")) {
-			edata = (Map) message.get("edata");
-			if (null != edata.get("eks")) {
-				eks = (Map) edata.get("eks");
-				if (null != eks.get("state") && StringUtils.equalsIgnoreCase("Live", eks.get("state").toString())) {
-					if (null != eks.get("id")) {
-						node = util.getNode("domain", eks.get("id").toString());
-						PlatformLogger.log("node data fetched from id" , node);
-						return node;
-					}
-				}
+		if (null != message.get("state") && StringUtils.equalsIgnoreCase("Live", message.get("state").toString())) {
+			if (null != message.get("identifier")) {
+				node = util.getNode("domain", message.get("identifier").toString());
+				PlatformLogger.log("node data fetched from id", node);
+				return node;
 			}
 		}
 		return null;
@@ -118,7 +108,7 @@ public class BaseProcessor {
 					if (null != rel.getEndNodeMetadata().get("status")) {
 						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
 					}
-					
+
 					if (StringUtils.isBlank(domain) && null != rel.getEndNodeMetadata().get("subject")) {
 						domain = (String) rel.getEndNodeMetadata().get("subject");
 					}
@@ -127,8 +117,8 @@ public class BaseProcessor {
 						nodeIds.add(rel.getEndNodeId());
 					}
 					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
-						String[] grade_array =  (String[])(rel.getEndNodeMetadata().get("gradeLevel"));
-						for(String garde : grade_array){
+						String[] grade_array = (String[]) (rel.getEndNodeMetadata().get("gradeLevel"));
+						for (String garde : grade_array) {
 							conceptGrades.add(garde);
 						}
 					}
@@ -140,12 +130,12 @@ public class BaseProcessor {
 			if (null != conceptGrades && !conceptGrades.isEmpty()) {
 				result_map.put("conceptGrades", conceptGrades);
 			}
-		
+
 			if (StringUtils.isNotBlank(domain)) {
 				result_map.put("domain", domain);
 			}
 		}
-		PlatformLogger.log("Map of conceptGrades and nodeIds" + result_map.size(), null ,LoggerEnum.INFO.name());
+		PlatformLogger.log("Map of conceptGrades and nodeIds" + result_map.size(), null, LoggerEnum.INFO.name());
 		return result_map;
 	}
 }

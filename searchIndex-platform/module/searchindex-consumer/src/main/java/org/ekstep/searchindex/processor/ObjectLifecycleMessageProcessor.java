@@ -37,6 +37,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	/** The controllerUtil */
 	private ControllerUtil util = new ControllerUtil();
 
+	ContentEnrichmentMessageProcessor processor = new ContentEnrichmentMessageProcessor();
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -179,6 +181,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 							}
 							PlatformLogger.log("Logging Telemetry for BE_OBJECT_LIFECYCLE event: " + node_id + objectMap);
 							LogTelemetryEventUtil.logObjectLifecycleEvent(node_id, objectMap);
+							processor.processMessage(objectMap);
 						}
 					}
 				}

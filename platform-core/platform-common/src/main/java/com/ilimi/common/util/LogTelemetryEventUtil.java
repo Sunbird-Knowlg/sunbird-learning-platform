@@ -138,7 +138,7 @@ public class LogTelemetryEventUtil {
 			String id = (String)data.get("id");
 			String state = (String)data.get("state");
 			String prevstate = (String)data.get("prevstate");
-			String val = event.getEid()+event.getEts()+id+state+prevstate;
+			String val = "LP"+event.getEid()+event.getEts()+id+state+prevstate;
 			digest = MessageDigest.getInstance("MD5");
 			digest.update(val.getBytes());
 			byte[] digestMD5 = digest.digest();
