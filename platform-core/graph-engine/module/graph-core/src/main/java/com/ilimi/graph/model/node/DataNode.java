@@ -109,7 +109,7 @@ public class DataNode extends AbstractNode {
 					}
 					if (null == idx) {
 						idx = index++;
-						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
+//						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
 						relation.setMetadata(metadata);
 					}
 				}

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
@@ -59,6 +60,7 @@ public class Neo4JBoltNodeOperations {
 		PlatformLogger.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
 		node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
 		node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
+		node.getMetadata().put(GraphDACParams.appId.name(), getAppId(request));
 		authorizationValidator.validateAuthorization(graphId, node, request);
 		PlatformLogger.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
 
@@ -137,6 +139,7 @@ public class Neo4JBoltNodeOperations {
 			PlatformLogger.log("Adding Authorization Metadata.");
 			node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
 			node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
+			node.getMetadata().put(GraphDACParams.appId.name(), getAppId(request));
 
 			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -211,6 +214,10 @@ public class Neo4JBoltNodeOperations {
 		versionValidator.validateUpdateOperation(graphId, node);
 		node.getMetadata().remove(GraphDACParams.versionKey.name());
 		PlatformLogger.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
+		
+		// Adding Channel and App Id
+		node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
+		node.getMetadata().put(GraphDACParams.appId.name(), getAppId(request));
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
@@ -528,15 +535,29 @@ public class Neo4JBoltNodeOperations {
 	}
 
 	private String getChannel(Request request) {
-		String consumerId = "";
+		String channelId = "";
 		try {
 			if (null != request && null != request.getContext()) {
-				consumerId = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
+				channelId = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
+				if (StringUtils.isBlank(channelId))
+					channelId = DACConfigurationConstants.DEFAULT_CHANNEL_ID;
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Error! While Fetching the Channel Id From Request.", e.getMessage(), e);
 		}
-		return consumerId;
+		return channelId;
+	}
+	
+	private String getAppId(Request request) {
+		String appId = "";
+		try {
+			if (null != request && null != request.getContext()) {
+				appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
+			}
+		} catch (Exception e) {
+			PlatformLogger.log("Error! While Fetching the App Id From Request.", e.getMessage(), e);
+		}
+		return appId;
 	}
 
 	private void updateRedisCache(String graphId, Node node) {

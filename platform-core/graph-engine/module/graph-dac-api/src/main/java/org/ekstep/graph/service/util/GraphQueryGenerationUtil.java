@@ -137,16 +137,12 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 									+ " | ['Create Relation' Query Generation Failed.]");
 				Integer index = null;
 				Request request = (Request) parameterMap.get(GraphDACParams.request.name());
-				Map<String, Object> reqMetadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
-				String reqIndex = (String) reqMetadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
-				try {
-					index = Integer.parseInt(reqIndex);
-				} catch (NumberFormatException e) {
-					PlatformLogger.log("Error! While Converting Number to String.", null, e);
-				}
+				Map<String, Object> requestMetadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
+				if (null != requestMetadata)
+					index = (Integer) requestMetadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
 				Map<String, Object> metadata = new HashMap<String, Object>();
-				if (StringUtils.isBlank(reqIndex) && StringUtils
-						.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {
+				if (null == index && StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+						relationType)) {
 					index = 0;
 					PlatformLogger.log("Given Relation: " + "'SEQUENCE_MEMBERSHIP' | [Graph Id: " + graphId + "]");
 					// Fetch all the Relationships
@@ -679,7 +675,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				// ").append(getMetadataStringForCypherQuery("r",
 				// createMetadata))
 				// .append(CypherQueryConfigurationConstants.BLANK_SPACE);
-				Map<String, Object> metadataQueryMap = getMetadataCypherQueryMap("r", metadata);
+				Map<String, Object> metadataQueryMap = getMetadataCypherQueryMap("r", createMetadata);
 				query.append("ON CREATE SET ").append(metadataQueryMap.get(GraphDACParams.query.name()))
 						.append(CypherQueryConfigurationConstants.BLANK_SPACE);
 
