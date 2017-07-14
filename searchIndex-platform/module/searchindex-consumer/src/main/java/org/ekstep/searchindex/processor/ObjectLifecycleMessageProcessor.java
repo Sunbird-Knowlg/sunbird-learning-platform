@@ -1,5 +1,8 @@
 package org.ekstep.searchindex.processor;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +12,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.enums.ConsumerWorkflowEnums;
-
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.util.LogTelemetryEventUtil;
@@ -38,7 +40,8 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	private ControllerUtil util = new ControllerUtil();
 
 	ContentEnrichmentMessageProcessor processor = new ContentEnrichmentMessageProcessor();
-	
+	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -72,8 +75,6 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> objectMap = new HashMap<String, Object>();
 		try {
-			long ets = (long)message.get("ets");
-			objectMap.put("ets", ets);
 			if (message.containsKey(ConsumerWorkflowEnums.transactionData.name())) {
 				Map<String, Object> transactionMap = (Map<String, Object>) message
 						.get(ConsumerWorkflowEnums.transactionData.name());
@@ -88,7 +89,13 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 
 						String prevstate = (String) statusMap.get("ov");
 						String state = (String) statusMap.get("nv");
-
+						Map<String, Object> createdOnMap = (Map) propertiesMap.get(ConsumerWorkflowEnums.createdOn.name());
+						
+						String createdOn = (String)createdOnMap.get("nv");
+						Date date = (Date)df.parse(createdOn);
+						long ets = date.getTime();
+						objectMap.put("ets", ets);
+						
 						if (StringUtils.isNotBlank((String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name()))) {
 							Node node = new Node();
 							if (message.get(ConsumerWorkflowEnums.nodeType.name())
