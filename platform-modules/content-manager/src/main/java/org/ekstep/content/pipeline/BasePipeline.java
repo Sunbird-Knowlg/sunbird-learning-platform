@@ -112,6 +112,8 @@ public class BasePipeline extends BaseManager {
 	protected Response updateNode(Node node) {
 		Response response = new Response();
 		if (null != node) {
+			PlatformLogger.log("Update Node " + node.getIdentifier() + ".", node,
+					null, LoggerEnum.INFO.name());
 			Cloner cloner = new Cloner();
 			Node clonedNode = cloner.deepClone(node);
 			Request updateReq = getRequest(clonedNode.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
@@ -119,6 +121,8 @@ public class BasePipeline extends BaseManager {
 			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq);
 		}
+		PlatformLogger.log("Returning Response For Update Node", response,
+				null, LoggerEnum.INFO.name());
 		return response;
 	}
 
@@ -132,6 +136,8 @@ public class BasePipeline extends BaseManager {
 	 * @return response of updatedContentBody request
 	 */
 	protected Response updateContentBody(String contentId, String body) {
+		PlatformLogger.log("Update Content Body For Content Id: " + contentId + ".", null,
+				null, LoggerEnum.INFO.name());
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
 		request.setOperation(ContentStoreOperations.updateContentBody.name());

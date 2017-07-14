@@ -371,6 +371,8 @@ public class PublishFinalizer extends BaseFinalizer {
 	private void publishChild(Node node) {
 		if (null != node && null != node.getMetadata()) {
 			PlatformLogger.log("Checking Node Id: " + node.getIdentifier());
+			String contentId = node.getIdentifier();
+			node = getNodeForOperation(ContentConfigurationConstants.GRAPH_ID, node);
 			if ((StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Draft.name(),
 					(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name()))
 					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Review.name(),
@@ -387,8 +389,8 @@ public class PublishFinalizer extends BaseFinalizer {
 				PlatformLogger.log("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
 
 				PlatformLogger.log("Publishing Content Id: " + node.getIdentifier(), null, LoggerEnum.INFO.name());
-				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(node.getIdentifier(),
-						getNodeForOperation(ContentConfigurationConstants.GRAPH_ID, node), false);
+				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(contentId,
+						node, false);
 			}
 		}
 	}
@@ -426,13 +428,24 @@ public class PublishFinalizer extends BaseFinalizer {
 		Response response = new Response();
 		if (null != contentImage && StringUtils.isNotBlank(contentId)) {
 			String contentImageId = contentId + ContentConfigurationConstants.DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-
+			
+			PlatformLogger.log("Fetching the Content Image Node for actual state . | [Content Id: " + contentImageId + "]", null,
+					LoggerEnum.INFO.name());
+			Response getDataNodeResponse = getDataNode(contentImage.getGraphId(), contentImageId);
+			Node dbNode = (Node) getDataNodeResponse.get(ContentWorkflowPipelineParams.node.name());
+			
+			PlatformLogger.log("Setting the Metatdata for Image Node . | [Content Id: " + contentImageId + "]", null,
+					LoggerEnum.INFO.name());
 			// Setting the Appropriate Metadata
 			contentImage.setIdentifier(contentId);
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
-
+			if (null != dbNode) {
+				contentImage.setInRelations(dbNode.getInRelations());
+				contentImage.setOutRelations(dbNode.getOutRelations());
+			}
+				
 			PlatformLogger.log("Migrating the Content Body. | [Content Id: " + contentId + "]", null,
 					LoggerEnum.INFO.name());
 			String imageBody = getContentBody(contentImageId);

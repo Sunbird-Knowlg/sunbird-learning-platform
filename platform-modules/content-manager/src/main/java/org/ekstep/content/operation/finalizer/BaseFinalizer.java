@@ -339,7 +339,7 @@ public class BaseFinalizer extends BasePipeline {
 
 			if (StringUtils.equalsIgnoreCase(node.getObjectType(), ContentWorkflowPipelineParams.ContentImage.name())
 					|| (!StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Flagged.name())
-					|| !StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Live.name())))
+					&& !StringUtils.equalsIgnoreCase(status, ContentWorkflowPipelineParams.Live.name())))
 				nodeForOperation = node;
 			else {
 				String contentImageId = getContentImageIdentifier(node.getIdentifier());

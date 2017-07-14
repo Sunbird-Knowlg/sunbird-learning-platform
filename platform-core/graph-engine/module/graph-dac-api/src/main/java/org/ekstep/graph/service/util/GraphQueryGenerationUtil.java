@@ -138,8 +138,15 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 				Integer index = null;
 				Request request = (Request) parameterMap.get(GraphDACParams.request.name());
 				Map<String, Object> requestMetadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
-				if (null != requestMetadata)
-					index = (Integer) requestMetadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+				if (null != requestMetadata) {
+					try {
+						Object obj = requestMetadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+						if (null != obj)
+							index = Integer.parseInt(obj.toString());
+					} catch (Exception e) {
+					}
+				}
+					
 				Map<String, Object> metadata = new HashMap<String, Object>();
 				if (null == index && StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
 						relationType)) {
