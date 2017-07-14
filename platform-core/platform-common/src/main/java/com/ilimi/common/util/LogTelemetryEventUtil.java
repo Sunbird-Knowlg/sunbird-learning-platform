@@ -104,8 +104,8 @@ public class LogTelemetryEventUtil {
 			TelemetryBEEvent te = new TelemetryBEEvent();
 			Map<String,Object> data = new HashMap<String,Object>();
 			te.setEid("BE_OBJECT_LIFECYCLE");
-			String ets = (String) metadata.get("ets");
-			te.setEts(Long.parseLong(ets));
+			long ets = (long)metadata.get("ets");
+			te.setEts(ets);
 			te.setVer("2.0");
 			te.setChannel((String)metadata.get("channel"));
 			te.setPdata("org.ekstep.platform", "", "1.0", "");
@@ -152,4 +152,5 @@ public class LogTelemetryEventUtil {
 		}
 		return null;
 	}
+
 }

@@ -72,7 +72,7 @@ public class ObjectLifecycleMessageProcessor implements IMessageProcessor {
 	public void processMessage(Map<String, Object> message) throws Exception {
 		Map<String, Object> objectMap = new HashMap<String, Object>();
 		try {
-			String ets = (String)message.get("ets");
+			long ets = (long)message.get("ets");
 			objectMap.put("ets", ets);
 			if (message.containsKey(ConsumerWorkflowEnums.transactionData.name())) {
 				Map<String, Object> transactionMap = (Map<String, Object>) message
