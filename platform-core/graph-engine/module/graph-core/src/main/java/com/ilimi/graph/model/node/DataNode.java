@@ -799,11 +799,8 @@ public class DataNode extends AbstractNode {
 					}
 				}
 			} else if (StringUtils.equalsIgnoreCase("list", dataType)) {
-				try {
-					Array.getLength(value);
-				} catch (Exception e) {
+				if (!(value instanceof Object[]) && !(value instanceof List))
 					messages.add("Metadata " + propName + " should be a list");
-				}
 			} else if (StringUtils.equalsIgnoreCase("json", dataType)) {
 				ObjectMapper mapper = new ObjectMapper();
 				try {
