@@ -72,7 +72,9 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
 
-			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
+			// Making all the assets by default 'Live' since we have discontinued the image Processor for time being
+//			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
+			node.getMetadata().put(ContentAPIParams.status.name(), ContentAPIParams.Live.name());
 			response = updateContentNode(contentId, node, urlArray[1]);
 			String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 			if (!checkError(response)) {
