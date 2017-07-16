@@ -4,11 +4,10 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="SearchLogAppender" fileName="/data/logs/search.log"
-			filePattern="/data/logs/search-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="DefaultLogAppender" fileName="/data/logs/search_service.log"
+			filePattern="/data/logs/search_service-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
-				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
-				</Pattern>
+				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="24"
@@ -16,7 +15,7 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="search-*.log" />
+                    <IfFileName glob="search_service-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>
@@ -59,8 +58,8 @@
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
-		<Root level="INFO">
-			<AppenderRef ref="SearchLogAppender" />
-		</Root>
+		<Logger name="DefaultPlatformLogger" level="INFO" additivity="false">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Logger>
 	</Loggers>
 </Configuration>

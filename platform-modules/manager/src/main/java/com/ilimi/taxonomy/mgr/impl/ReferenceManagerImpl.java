@@ -1,8 +1,6 @@
 package com.ilimi.taxonomy.mgr.impl;
 import java.io.File;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -23,7 +21,7 @@ import com.ilimi.taxonomy.mgr.IReferenceManager;
 @Component
 public class ReferenceManagerImpl extends BaseManager implements IReferenceManager {
 
-    private static Logger LOGGER = LogManager.getLogger(ReferenceManagerImpl.class.getName());
+    
     
     private static final String s3Content = "s3.content.folder";
     private static final String s3Artifacts = "s3.artifact.folder";
@@ -48,7 +46,7 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
         
         Request getReferenceRequest = getRequest(V2_GRAPH_ID, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
         getReferenceRequest.put(GraphDACParams.node_id.name(), referenceId);
-		Response res = getResponse(getReferenceRequest, LOGGER);
+		Response res = getResponse(getReferenceRequest);
 		
 		if(checkError(res)){
 			return res;
@@ -60,7 +58,7 @@ public class ReferenceManagerImpl extends BaseManager implements IReferenceManag
 		Request createReq = getRequest(V2_GRAPH_ID, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		createReq.put(GraphDACParams.node.name(), referenceNode);
 		createReq.put(GraphDACParams.node_id.name(), referenceId);
-		Response createRes = getResponse(createReq, LOGGER);
+		Response createRes = getResponse(createReq);
 		
 		if(checkError(createRes)){
 			return createRes;

@@ -1,10 +1,5 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import java.util.Map;
-
-import org.ekstep.language.util.LogWordEventUtil;
-
-import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
@@ -15,6 +10,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
+//this command class is deprecated, no more in use
 public class LogTranslationLifecycleEvent extends BaseSystemCommand implements ICommand, Command {
 	
     @Override
@@ -35,7 +31,7 @@ public class LogTranslationLifecycleEvent extends BaseSystemCommand implements I
                     String wordId = tclObject1.toString();
                     Object obj2 = ReflectObject.get(interp, tclObject2);
                     Node node = (Node) obj2;
-                    LogWordEventUtil.logWordLifecycleEvent(wordId, node.getMetadata());
+//                    LogWordEventUtil.logWordLifecycleEvent(wordId, node.getMetadata());
                     interp.setResult(true);
                 }
             } catch (Exception e) {

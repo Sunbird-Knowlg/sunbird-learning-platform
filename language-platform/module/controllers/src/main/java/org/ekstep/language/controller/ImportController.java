@@ -14,8 +14,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -37,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class ImportController.Entry point for all import related API
@@ -56,9 +55,6 @@ public class ImportController extends BaseLanguageController {
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
-	
-	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
 
 	/**
 	 * Import wordnet data from JSON.
@@ -79,24 +75,24 @@ public class ImportController extends BaseLanguageController {
 			@RequestParam("zipFile") MultipartFile zipFile, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse resp) {
 		String apiId = "ekstep.language.fixAssociation";
-		LOGGER.info("Import | Language Id: " + languageId + " Synset File: " + zipFile + "| user-id: " + userId);
+		PlatformLogger.log("Import | Language Id: " + languageId + " Synset File: " + zipFile + "| user-id: " + userId);
 		InputStream synsetsStreamInZIP = null;
 		try {
 			if (null != zipFile || null != zipFile) {
 				synsetsStreamInZIP = zipFile.getInputStream();
 			}
 			Response response = importManager.importJSON(languageId, synsetsStreamInZIP);
-			LOGGER.info("Import | Response: " + response);
+			PlatformLogger.log("Import | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Import | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Import | Exception: " ,e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != synsetsStreamInZIP)
 					synsetsStreamInZIP.close();
 			} catch (IOException e) {
-				LOGGER.error("Error! While Closing the Input Stream.", e);
+				PlatformLogger.log("Error! While Closing the Input Stream.",e.getMessage(), e);
 			}
 		}
 	}
@@ -122,24 +118,24 @@ public class ImportController extends BaseLanguageController {
 			@PathVariable(value = "sourceId") String sourceId, @RequestParam("file") MultipartFile file,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "ekstep.language.transform";
-		LOGGER.info("Import | Language Id: " + languageId + " Source Id: " + sourceId + " | File: " + file
+		PlatformLogger.log("Import | Language Id: " + languageId + " Source Id: " + sourceId + " | File: " + file
 				+ " | user-id: " + userId);
 		InputStream stream = null;
 		try {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = importManager.transformData(languageId, sourceId, stream);
-			LOGGER.info("Import | Response: " + response);
+			PlatformLogger.log("Import | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Import | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Import | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != stream)
 					stream.close();
 			} catch (IOException e) {
-				LOGGER.error("Error! While Closing the Input Stream.", e);
+				PlatformLogger.log("Error! While Closing the Input Stream.",e.getMessage(), e);
 			}
 		}
 	}
@@ -165,7 +161,7 @@ public class ImportController extends BaseLanguageController {
 			@RequestParam("synsetFile") MultipartFile synsetFile, @RequestParam("wordFile") MultipartFile wordFile,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "ekstep.language.fixAssociation";
-		LOGGER.info("Import | Language Id: " + " | Synset File: " + synsetFile + " Synset File: " + wordFile
+		PlatformLogger.log("Import | Language Id: " + " | Synset File: " + synsetFile + " Synset File: " + wordFile
 				+ "| user-id: " + userId);
 		InputStream synsetStream = null;
 		InputStream wordStream = null;
@@ -175,7 +171,7 @@ public class ImportController extends BaseLanguageController {
 				wordStream = wordFile.getInputStream();
 			}
 			Response response = importManager.importData(languageId, synsetStream, wordStream);
-			LOGGER.info("Import | Response: " + response);
+			PlatformLogger.log("Import | Response: " + response);
 			String csv = (String) response.getResult().get("wordList");
 			if (StringUtils.isNotBlank(csv)) {
 				resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
@@ -186,7 +182,7 @@ public class ImportController extends BaseLanguageController {
 			}
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Import | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
@@ -195,7 +191,7 @@ public class ImportController extends BaseLanguageController {
 				if (null != wordStream)
 					wordStream.close();
 			} catch (IOException e) {
-				LOGGER.error("Error! While Closing the Input Stream.", e);
+				PlatformLogger.log("Error! While Closing the Input Stream.",e.getMessage(), e);
 			}
 		}
 	}
@@ -221,15 +217,15 @@ public class ImportController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.INDOWORDNET_ACTOR.name());
 		request.setOperation(LanguageOperations.importIndowordnet.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			controllerUtil.makeAsyncLanguageRequest(request, LOGGER);
+			controllerUtil.makeAsyncLanguageRequest(request);
 			Response response = new Response();
-			LOGGER.info("List | Response: " + response);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -295,14 +291,14 @@ public class ImportController extends BaseLanguageController {
 			Response response = new Response();
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Import | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Import | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != wordListStream)
 					wordListStream.close();
 			} catch (IOException e) {
-				LOGGER.error("Error! While Closing the Input Stream.", e);
+				PlatformLogger.log("Error! While Closing the Input Stream.",e.getMessage(), e);
 			}
 		}
 	}
@@ -323,23 +319,23 @@ public class ImportController extends BaseLanguageController {
 	public ResponseEntity<Response> importCSV(@PathVariable(value = "id") String id,
 			@RequestParam("file") MultipartFile file, HttpServletResponse resp) {
 		String apiId = "language.importCSV";
-		LOGGER.info("Create | Id: " + id + " | File: " + file);
+		PlatformLogger.log("Create | Id: " + id + " | File: " + file);
 		InputStream stream = null;
 		try {
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = importManager.importCSV(id, stream);
-			LOGGER.info("Create | Response: " + response);
+			PlatformLogger.log("Create | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != stream)
 					stream.close();
 			} catch (IOException e) {
-				LOGGER.error("Error! While Closing the Input Stream.", e);
+				PlatformLogger.log("Error! While Closing the Input Stream.",e.getMessage(), e);
 			}
 		}
 	}
@@ -357,13 +353,13 @@ public class ImportController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> importDefinition(@PathVariable(value = "id") String id, @RequestBody String json) {
 		String apiId = "definition.import";
-		LOGGER.info("Import Definition | Id: " + id);
+		PlatformLogger.log("Import Definition | Id: " + id);
 		try {
 			Response response = importManager.updateDefinition(id, json);
-			LOGGER.info("Import Definition | Response: " + response);
+			PlatformLogger.log("Import Definition | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Create Definition | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -379,13 +375,13 @@ public class ImportController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id) {
 		String apiId = "definition.list";
-		LOGGER.info("Find All Definitions | Id: " + id);
+		PlatformLogger.log("Find All Definitions | Id: " + id);
 		try {
 			Response response = importManager.findAllDefinitions(id);
-			LOGGER.info("Find All Definitions | Response: " + response);
+			PlatformLogger.log("Find All Definitions | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find All Definitions | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find All Definitions | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -406,13 +402,13 @@ public class ImportController extends BaseLanguageController {
 	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
 			@PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
 		String apiId = "definition.find";
-		LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
+		PlatformLogger.log("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
 		try {
 			Response response = importManager.findDefinition(id, objectType);
-			LOGGER.info("Find Definitions | Response: " + response);
+			PlatformLogger.log("Find Definitions | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find Definitions | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find Definitions | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -422,7 +418,7 @@ public class ImportController extends BaseLanguageController {
 	public ResponseEntity<Response> importExampleSentecesCSV(@PathVariable(value = "id") String id,
 			@RequestParam("file") MultipartFile file, HttpServletResponse resp) {
 		String apiId = "language.importExampleSentencesCSV";
-		LOGGER.info("Create | Id: " + id + " | File: " + file);
+		PlatformLogger.log("Create | Id: " + id + " | File: " + file);
 		InputStream stream = null;
 		try {
 			if (null != file)
@@ -430,17 +426,17 @@ public class ImportController extends BaseLanguageController {
 			List<String> wordIds = wordUtil.importExampleSentencesfor(id, stream);
 			enrichWords(wordIds, id);
 			Response response = new Response();
-			LOGGER.info("importExampleSentecesCSV | wordList: " + wordIds.toString());
+			PlatformLogger.log("importExampleSentecesCSV | wordList: " + wordIds.toString());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("importExampleSentecesCSV | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("importExampleSentecesCSV | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		} finally {
 			try {
 				if (null != stream)
 					stream.close();
 			} catch (IOException e) {
-				LOGGER.error("Error! While Closing the Input Stream.", e);
+				PlatformLogger.log("Error! While Closing the Input Stream.", e.getMessage(),e);
 			}
 		}
 	}
@@ -462,7 +458,7 @@ public class ImportController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
 		request.setOperation(LanguageOperations.enrichWords.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		makeAsyncRequest(request, LOGGER);
+		makeAsyncRequest(request);
 	}
 
 	/**
@@ -481,6 +477,6 @@ public class ImportController extends BaseLanguageController {
 		addWordIndexRequest.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
 		addWordIndexRequest.setOperation(LanguageOperations.addWordIndex.name());
 		addWordIndexRequest.getContext().put(LanguageParams.language_id.name(), languageId);
-		makeAsyncRequest(addWordIndexRequest, LOGGER);
+		makeAsyncRequest(addWordIndexRequest);
 	}
 }

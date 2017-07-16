@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.HttpMethod;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -22,10 +22,12 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * arguments - operation: createStorage, uploadFiles - storageName: name of the
@@ -37,7 +39,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
  */
 public class AWSUploader {
 
-	private static Logger LOGGER = LogManager.getLogger(AWSUploader.class.getName());
+	
 
 	private static final String s3Bucket = "s3.bucket";
 	private static final String s3Environment = "s3.env";
@@ -47,6 +49,8 @@ public class AWSUploader {
 	private static final String dotOper = ".";
 	private static final String hyphen = "-";
 	private static final String forwardSlash = "/";
+	private static final String s3AssetFolder = "s3.asset.folder";
+	private static final String s3UploadURLExpiry = "s3.upload.url.expiry";
 
 	public static String getBucketName() {
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
@@ -60,14 +64,14 @@ public class AWSUploader {
 		String key = file.getName();
 		String env = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = S3PropertyReader.getProperty(s3Bucket, env);
-		LOGGER.info("Fetching bucket name:" + bucketName);
+		PlatformLogger.log("Fetching bucket name:" , bucketName);
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3.setRegion(region);
 		s3.putObject(new PutObjectRequest(bucketName + "/" + folderName, key, file));
 		s3.setObjectAcl(bucketName + "/" + folderName, key, CannedAccessControlList.PublicRead);
 		URL url = s3.getUrl(bucketName, folderName + "/" + key);
-		LOGGER.info("AWS Upload '" + file.getName() + "' complete");
+		PlatformLogger.log("AWS Upload '" + file.getName() + "' complete", file.getName());
 		return new String[] { folderName + "/" + key, url.toURI().toString() };
 	}
 
@@ -90,14 +94,12 @@ public class AWSUploader {
 
 	public static List<String> getObjectList(String prefix) {
 		AmazonS3 s3 = new AmazonS3Client();
-		LOGGER.info("Reading s3 BucketRegion : " + s3Environment);
-		LOGGER.info("Reading s3 Bucket" + s3Bucket);
+		PlatformLogger.log("Reading s3 Bucket and Region" , s3Bucket + s3Environment);
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
-		LOGGER.info("fetching s3 objectList from bucket: " + bucketName + prefix);
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
-		LOGGER.info("SummaryData returned from s3 object Listing" + summaries);
+		PlatformLogger.log("SummaryData returned from s3 object Listing" , summaries.size());
 		List<String> fileList = new ArrayList<String>();
 		while (listing.isTruncated()) {
 			listing = s3.listNextBatchOfObjects(listing);
@@ -106,7 +108,7 @@ public class AWSUploader {
 		for (S3ObjectSummary data : summaries) {
 			fileList.add(data.getKey());
 		}
-		LOGGER.info("resource bundles fileList returned from s3" + fileList);
+		PlatformLogger.log("resource bundles fileList returned from s3" , fileList);
 		return fileList;
 	}
 
@@ -114,8 +116,8 @@ public class AWSUploader {
 		String s3Region = Regions.AP_SOUTHEAST_1.name();
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
 		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
-		LOGGER.info("Existing url:" + url);
-		LOGGER.info("Fetching bucket name for updating urls:" + bucketName);
+		PlatformLogger.log("Existing url:" + url);
+		PlatformLogger.log("Fetching bucket name for updating urls:" + bucketName);
 		if (bucketRegion != null && bucketName != null) {
 			String oldPublicStringV1 = oldPublicBucketName + dotOper + s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws;
 			String oldPublicStringV2 = s3 + hyphen + Regions.AP_SOUTHEAST_1 + aws + forwardSlash + oldPublicBucketName;
@@ -129,7 +131,7 @@ public class AWSUploader {
 			url = url.replaceAll(oldPublicStringV2, newString);
 			url = url.replaceAll(oldConfigStringV1, newString);
 			url = url.replaceAll(oldConfigStringV2, newString);
-			LOGGER.info("Updated bucket url:" + url);
+			PlatformLogger.log("Updated bucket url:" , url);
 		}
 		return url;
 	}
@@ -142,22 +144,22 @@ public class AWSUploader {
 			// Copying object
 			CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucketName, sourceKey, destinationBucketName,
 					destinationKey);
-			LOGGER.info("[AWS UPLOADER UTILITY | Copy Objects] : Copying object.");
+			PlatformLogger.log("[AWS UPLOADER UTILITY | Copy Objects] : Copying object.");
 			s3client.copyObject(copyObjRequest);
 			s3client.setObjectAcl(destinationBucketName, destinationKey, CannedAccessControlList.PublicRead);
 		} catch (AmazonServiceException ase) {
-			LOGGER.error("Caught an AmazonServiceException, " + "which means your request made it "
+			PlatformLogger.log("Caught an AmazonServiceException, " + "which means your request made it "
 					+ "to Amazon S3, but was rejected with an error " + "response for some reason.");
-			LOGGER.error("Error Message:    " + ase.getMessage());
-			LOGGER.error("HTTP Status Code: " + ase.getStatusCode());
-			LOGGER.error("AWS Error Code:   " + ase.getErrorCode());
-			LOGGER.error("Error Type:       " + ase.getErrorType());
-			LOGGER.error("Request ID:       " + ase.getRequestId());
+			PlatformLogger.log("Error Message:    " + ase.getMessage());
+			PlatformLogger.log("HTTP Status Code: " + ase.getStatusCode());
+			PlatformLogger.log("AWS Error Code:   " + ase.getErrorCode());
+			PlatformLogger.log("Error Type:       " + ase.getErrorType());
+			PlatformLogger.log("Request ID:       " + ase.getRequestId());
 		} catch (AmazonClientException ace) {
-			LOGGER.error("Caught an AmazonClientException, " + "which means the client encountered "
+			PlatformLogger.log("Caught an AmazonClientException, " + "which means the client encountered "
 					+ "an internal error while trying to " + " communicate with S3, "
 					+ "such as not being able to access the network.");
-			LOGGER.error("Error Message: " + ace.getMessage());
+			PlatformLogger.log("Error Message: " , ace.getMessage(), ace);
 		}
 		return isCopied;
 	}
@@ -170,15 +172,15 @@ public class AWSUploader {
 			ObjectListing objectListing = s3client
 					.listObjects(new ListObjectsRequest().withBucketName(sourceBucketName).withPrefix(sourcePrefix));
 			for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-				LOGGER.info("[AWS UPLOADER UTILITY | Copying By Prefix]: " + objectSummary.getKey());
+				PlatformLogger.log("[AWS UPLOADER UTILITY | Copying By Prefix]: " + objectSummary.getKey());
 
 				// Source Key
 				String source = objectSummary.getKey();
-				LOGGER.info("[AWS UPLOADER UTILITY | Source]: " + source);
+				PlatformLogger.log("[AWS UPLOADER UTILITY | Source]: " + source);
 
 				// Destination Key
 				String destination = source.replace(sourcePrefix, destinationPrefix);
-				LOGGER.info("[AWS UPLOADER UTILITY | Destination]: " + destination);
+				PlatformLogger.log("[AWS UPLOADER UTILITY | Destination]: " + destination);
 
 				// Copying the Objects
 				CopyObjectRequest copyObjRequest = new CopyObjectRequest(sourceBucketName, source,
@@ -190,22 +192,41 @@ public class AWSUploader {
 				map.put(source, destination);
 			}
 		} catch (AmazonServiceException ase) {
-			LOGGER.error("Caught an AmazonServiceException, " + "which means your request made it "
+			PlatformLogger.log("Caught an AmazonServiceException, " + "which means your request made it "
 					+ "to Amazon S3, but was rejected with an error " + "response for some reason.");
-			LOGGER.error("Error Message:    " + ase.getMessage());
-			LOGGER.error("HTTP Status Code: " + ase.getStatusCode());
-			LOGGER.error("AWS Error Code:   " + ase.getErrorCode());
-			LOGGER.error("Error Type:       " + ase.getErrorType());
-			LOGGER.error("Request ID:       " + ase.getRequestId());
+			PlatformLogger.log("Error Message:    " + ase.getMessage());
+			PlatformLogger.log("HTTP Status Code: " + ase.getStatusCode());
+			PlatformLogger.log("AWS Error Code:   " + ase.getErrorCode());
+			PlatformLogger.log("Error Type:       " + ase.getErrorType());
+			PlatformLogger.log("Request ID:       " + ase.getRequestId());
 		} catch (AmazonClientException ace) {
-			LOGGER.error("Caught an AmazonClientException, " + "which means the client encountered "
+			PlatformLogger.log("Caught an AmazonClientException, " + "which means the client encountered "
 					+ "an internal error while trying to " + " communicate with S3, "
-					+ "such as not being able to access the network.");
-			LOGGER.error("Error Message: " + ace.getMessage());
+					+ "such as not being able to access the network.", ace.getMessage(), ace);
+			PlatformLogger.log("Error Message: " , ace.getMessage(), ace);
 		}
 		return map;
 	}
 
+	public static String preSignedURL(String contentId, String fileName) {
+		AmazonS3Client s3 = new AmazonS3Client();
+		String env = S3PropertyReader.getProperty(s3Environment);
+		String bucketName = S3PropertyReader.getProperty(s3Bucket, env);
+		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
+		s3.setRegion(region);
+		Date expiration = new Date();
+		long milliSeconds = expiration.getTime();
+		int SECONDS = Integer.parseInt(S3PropertyReader.getProperty(s3UploadURLExpiry));
+		milliSeconds += 1000 * SECONDS;
+		expiration.setTime(milliSeconds);
+		String objectKey = S3PropertyReader.getProperty(s3AssetFolder)+"/"+contentId+"/"+fileName;
+		GeneratePresignedUrlRequest presignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
+		presignedUrlRequest.setMethod(HttpMethod.PUT);
+		presignedUrlRequest.setExpiration(expiration);
+		URL url = s3.generatePresignedUrl(presignedUrlRequest);
+		return url.toString();
+	}
+	
 	private static Region getS3Region(String name) {
 		if (StringUtils.isNotBlank(name)) {
 			if (StringUtils.equalsIgnoreCase(Regions.AP_SOUTH_1.name(), name))

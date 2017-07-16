@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -20,6 +18,7 @@ import org.neo4j.graphdb.event.TransactionData;
 
 import com.ilimi.common.dto.ExecutionContext;
 import com.ilimi.common.dto.HeaderParam;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -28,7 +27,7 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 
 public class ProcessTransactionData {
 
-	private static Logger LOGGER = LogManager.getLogger(ProcessTransactionData.class.getName());
+	
 	protected String graphId;
 	protected GraphDatabaseService graphDb;
 
@@ -38,13 +37,13 @@ public class ProcessTransactionData {
 	}
 
 	public void processTxnData(TransactionData data) {
-		LOGGER.debug("Txn Data : " + data.toString());
+		PlatformLogger.log("Txn Data : ");
 		try {
 			List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 			if (kafkaMessages != null && !kafkaMessages.isEmpty())
 				LogAsyncGraphEvent.pushMessageToLogger(kafkaMessages);
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
 	}
 	
@@ -82,7 +81,7 @@ public class ProcessTransactionData {
 
 	private List<Map<String, Object>> getCretedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
-		LOGGER.info("getting neo4j transaction data" + data);
+		PlatformLogger.log("getting neo4j transaction data" , data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> createdNodeIds = getCreatedNodeIds(data);
@@ -119,15 +118,15 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error building created nodes message", e);
+			PlatformLogger.log("Error building created nodes message", e.getMessage(),e);
 		}
-		LOGGER.info("returning processed transaction data" + lstMessageMap);
+		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
 	private List<Map<String, Object>> getUpdatedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
-		LOGGER.info("Getting neo4j transaction data" + data);
+		PlatformLogger.log("Getting neo4j transaction data" , data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> updatedNodeIds = getUpdatedNodeIds(data);
@@ -162,16 +161,16 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error building updated nodes message", e);
+			PlatformLogger.log("Error building updated nodes message", e.getMessage(), e);
 		}
-		LOGGER.info("returning processed transaction data" + lstMessageMap);
+		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
 	@SuppressWarnings("rawtypes")
 	private List<Map<String, Object>> getDeletedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
-		LOGGER.info("Getting neo4j transaction data" + data);
+		PlatformLogger.log("Getting neo4j transaction data" , data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> deletedNodeIds = getDeletedNodeIds(data);
@@ -207,14 +206,14 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error building deleted nodes message", e);
+			PlatformLogger.log("Error building deleted nodes message", e.getMessage(), e);
 		}
-		LOGGER.info("returning processed transaction data" + lstMessageMap);
+		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
 	private Map<String, Object> getAllPropertyEntry(Long nodeId, TransactionData data) {
-		LOGGER.info("Getting neo4j transaction data" + data);
+		PlatformLogger.log("Getting neo4j transaction data" , data);
 		Map<String, Object> map = getAssignedNodePropertyEntry(nodeId, data);
 		map.putAll(getRemovedNodePropertyEntry(nodeId, data));
 		return map;
@@ -226,7 +225,7 @@ public class ProcessTransactionData {
 	}
 	
 	private String getLastUpdatedByValue(Long nodeId, TransactionData data) {
-		LOGGER.info("Getting neo4j transaction data" + data);
+		PlatformLogger.log("Getting neo4j transaction data" , data);
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (nodeId == pe.entity().getId()) {
@@ -379,7 +378,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error building added tags message", e);
+			PlatformLogger.log("Error building added tags message", e);
 		}
 		return lstMessageMap;
 	}
@@ -432,7 +431,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error building removed tags message", e);
+			PlatformLogger.log("Error building removed tags message", e.getMessage(), e);
 		}
 		return lstMessageMap;
 	}
@@ -566,7 +565,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error building updated relations message", e);
+			PlatformLogger.log("Error building updated relations message", e.getMessage(), e);
 		}
 		return lstMessageMap;
 	}

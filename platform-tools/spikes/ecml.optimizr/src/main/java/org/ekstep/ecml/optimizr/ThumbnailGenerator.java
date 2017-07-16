@@ -18,8 +18,6 @@ public class ThumbnailGenerator {
 
     // Constant - thumbnail size (150px in max dimension)
     private static final int THUMBNAIL_SIZE = 150;
-    private static final Logger logger = LogManager.getLogger();
-
     /**
      * Recursively traverses the given directory and generates thumbnails for all
      * the images in the directory. Returns the count of thumbnails generated. 
@@ -71,7 +69,7 @@ public class ThumbnailGenerator {
      */
     public static boolean generate(String inFile) {
         if (inFile == null) {
-            logger.warn("Input for thumbnail generation is null");
+            PlatformLogger.log("Input for thumbnail generation is null");
             return false;
         }
 
@@ -80,7 +78,7 @@ public class ThumbnailGenerator {
             boolean success = generate(file);
             return success;
         } catch (Exception ex) {
-            logger.warn("Failed to generate thumbnail for " + inFile, ex);
+            PlatformLogger.log("Failed to generate thumbnail for " + inFile, ex.getMessage(), LoggerEnum.warn.name);
             return false;
         }
     }
@@ -95,7 +93,7 @@ public class ThumbnailGenerator {
      */
     public static boolean generate(File inFile) {
         if (inFile == null) {
-            logger.warn("Input for thumbnail generation is null");
+            PlatformLogger.log("Input for thumbnail generation is null");
             return false;
         }
 
@@ -105,7 +103,7 @@ public class ThumbnailGenerator {
             boolean success = generate(inFile, outFile);
             return success;
         } catch (Exception ex) {
-            logger.warn("Failed to generate thumbnail for " + inFile.getName(), ex);
+            PlatformLogger.log("Failed to generate thumbnail for " + inFile.getName(), ex.getMessage(),LoggerEnum.warn.name);
             return false;
         }
     }

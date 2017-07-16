@@ -22,7 +22,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 /**
@@ -41,13 +41,15 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 @RequestMapping("/v3/content")
 public class ContentV3Controller extends BaseController {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(ContentV3Controller.class.getName());
-
 	@Autowired
 	private IContentManager contentManager;
 
 	/** The graph id. */
 	private String graphId = "domain";
+
+	private String UNDERSCORE = "_";
+
+	private String DOT = ".";
 
 	/**
 	 * This method carries all the tasks related to 'Upload' operation of
@@ -69,21 +71,22 @@ public class ContentV3Controller extends BaseController {
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "ekstep.learning.content.upload";
-		LOGGER.debug("Upload Content | Content Id: " + contentId);
-		LOGGER.info("Uploaded File Name: " + file.getName());
-		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
-        try {
-            String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
-                    + FilenameUtils.getExtension(file.getOriginalFilename());
-            File uploadedFile = new File(name);
-            file.transferTo(uploadedFile);
-            Response response = contentManager.upload(contentId, "domain", uploadedFile);
-            LOGGER.info("Upload | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Upload | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
+		PlatformLogger.log("Upload Content | Content Id: " + contentId);
+		PlatformLogger.log("Uploaded File Name: ");
+		PlatformLogger.log("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
+		try {
+			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE + System.currentTimeMillis()
+					+ DOT + FilenameUtils.getExtension(file.getOriginalFilename());
+			File uploadedFile = new File(name);
+			file.transferTo(uploadedFile);
+			uploadedFile = new File(name);
+			Response response = contentManager.upload(contentId, "domain", uploadedFile);
+			PlatformLogger.log("Upload | Response: ", response.getResponseCode());
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Upload | Exception: ", e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
 	}
 
 	/**
@@ -104,20 +107,20 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.archive";
-		LOGGER.info("Create Content Bundle");
+		PlatformLogger.log("Create Content Bundle");
 		try {
 			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
 			request.put(ContentAPIParams.version.name(), "v2");
 
-			LOGGER.info("Calling the Manager for 'Bundle' Operation");
+			PlatformLogger.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			LOGGER.info("Archive | Response: " + response);
+			PlatformLogger.log("Archive | Response: ", response.getResponseCode());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method carries all the tasks related to 'Publish' operation of
 	 * content work-flow.
@@ -137,22 +140,27 @@ public class ContentV3Controller extends BaseController {
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.publish";
 		Response response;
-		LOGGER.info("Publish content | Content Id : " + contentId);
+		PlatformLogger.log("Publish content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]",
+					contentId);
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			if(null==requestMap.get("lastPublishedBy") || StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())){
-				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(), "Publisher User Id is blank"), apiId, null);
+			if (null == requestMap.get("lastPublishedBy")
+					|| StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())) {
+				return getExceptionResponseEntity(
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(),
+								"Publisher User Id is blank"),
+						apiId, null);
 			}
-			
+
 			response = contentManager.publish(graphId, contentId, requestMap);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method carries all the tasks related to 'Review' operation of
 	 * content work-flow.
@@ -162,8 +170,7 @@ public class ContentV3Controller extends BaseController {
 	 * @param userId
 	 *            Unique 'id' of the user mainly for authentication purpose, It
 	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id in its Result
-	 *         Set.
+	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
@@ -171,9 +178,10 @@ public class ContentV3Controller extends BaseController {
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.review";
 		Response response;
-		LOGGER.info("Review content | Content Id : " + contentId);
+		PlatformLogger.log("Review content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for 'Review' Operation | [Content Id " + contentId + "]",
+					contentId);
 			Request request = getRequest(map);
 			response = contentManager.review(graphId, contentId, request);
 			return getResponseEntity(response, apiId, null);
@@ -181,7 +189,7 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method fetches the hierarchy of a given content
 	 *
@@ -195,16 +203,17 @@ public class ContentV3Controller extends BaseController {
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
-		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
+		PlatformLogger.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]",
+					contentId);
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	/**
 	 * This method fetches the Content by Content Id
 	 *
@@ -212,18 +221,59 @@ public class ContentV3Controller extends BaseController {
 	 *            The Content Id whose hierarchy needs to be fetched
 	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/getbyid/{id:.+}", method = RequestMethod.GET)
+	@RequestMapping(value = "/read/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> getById(@PathVariable(value = "id") String contentId,
+	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
+			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "mode", required = false) String mode) {
-		String apiId = "content.getById";
+		String apiId = "ekstep.content.find";
 		Response response;
-		LOGGER.info("Content GetById | Content Id : " + contentId);
+		PlatformLogger.log("Content Find | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
-			response = contentManager.getById(graphId, contentId, mode);
+			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]",
+					contentId);
+			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "ekstep.learning.content.upload.url";
+		Response response;
+		PlatformLogger.log("Upload URL content | Content Id : " + contentId);
+		try {
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			if (null == requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())) {
+				return getExceptionResponseEntity(
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"),
+						apiId, null);
+			}
+			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> updateHierarchy(@RequestBody Map<String, Object> requestMap) {
+		String apiId = "content.hierarchy.update";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("data");
+			Response response = contentManager.updateHierarchy(map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -232,4 +282,3 @@ public class ContentV3Controller extends BaseController {
 		return API_VERSION_3;
 	}
 }
-

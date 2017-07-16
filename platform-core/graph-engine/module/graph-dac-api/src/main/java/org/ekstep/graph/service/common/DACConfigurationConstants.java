@@ -34,6 +34,8 @@ public class DACConfigurationConstants {
 	
 	public static final String DEFAULT_GRAPH_ID_AND_GRAPH_OPERATION_SEPARATOR = "_";
 	
+	public static final String DEFAULT_CHANNEL_ID = "in.ekstep";
+	
 	public static final int NEO4J_SERVER_MAX_IDLE_SESSION = 20;
 	
 	public static final boolean IS_NEO4J_SERVER_CONNECTION_ENCRYPTION_ALLOWED = true;
@@ -43,6 +45,10 @@ public class DACConfigurationConstants {
 	public static final boolean IS_NEO4J_SERVER_TRUST_STRATEGY_ENABLED = true;
 	
 	public static final boolean IS_PASSPORT_AUTHENTICATION_ENABLED = true;
+	
+	public static final boolean IS_USER_AUTHORIZATION_ENABLED = false;
+	
+	public static final String AUTHORIZATION_ENABLED_PROPERTY = "platform.auth.check.enabled";
 	
 	private DACConfigurationConstants() {
 		  throw new AssertionError();

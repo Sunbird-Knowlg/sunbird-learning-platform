@@ -1,8 +1,7 @@
 package org.ekstep.content.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
@@ -13,12 +12,12 @@ import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
 
 import com.ilimi.common.dto.CoverageIgnore;
-import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ContentMimeTypeFactoryUtil {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ContentMimeTypeFactoryUtil.class.getName());
+	
 
 	static IMimeTypeManager ecmlMimeTypeMgr = new ECMLMimeTypeMgrImpl();
 	static IMimeTypeManager htmlMimeTypeMgr = new HTMLMimeTypeMgrImpl();
@@ -31,7 +30,7 @@ public class ContentMimeTypeFactoryUtil {
     
 	@CoverageIgnore
     public static IMimeTypeManager getImplForService(String mimeType) {
-		LOGGER.debug("MimeType: " + mimeType);
+		PlatformLogger.log("MimeType: " + mimeType);
     	IMimeTypeManager manager = assetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
 			case "application/vnd.ekstep.ecml-archive":

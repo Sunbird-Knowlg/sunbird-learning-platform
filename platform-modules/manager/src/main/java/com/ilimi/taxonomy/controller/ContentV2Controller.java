@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 /**
@@ -40,7 +42,7 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 public class ContentV2Controller extends BaseController {
 
 	/** The Class Logger. */
-	private static LogHelper LOGGER = LogHelper.getInstance(ContentV2Controller.class.getName());
+	
 
 	@Autowired
 	private IContentManager contentManager;
@@ -68,19 +70,19 @@ public class ContentV2Controller extends BaseController {
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "ekstep.learning.content.upload";
-		LOGGER.debug("Upload Content | Content Id: " + contentId);
-		LOGGER.info("Uploaded File Name: " + file.getName());
-		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
+		PlatformLogger.log("Upload Content | Content Id: " + contentId);
+		PlatformLogger.log("Uploaded File Name: " + file.getName());
+		PlatformLogger.log("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
 		try {
 			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
 			File uploadedFile = new File(name);
 			file.transferTo(uploadedFile);
 			Response response = contentManager.upload(contentId, "domain", uploadedFile);
-			LOGGER.info("Upload | Response: " + response);
+			PlatformLogger.log("Upload | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
@@ -101,9 +103,9 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.learning.content.publish";
-		LOGGER.info("Publish content | Content Id : " + contentId);
+		PlatformLogger.log("Publish content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
 			Response response = contentManager.publish(graphId, contentId, null);
 
 			return getResponseEntity(response, apiId, null);
@@ -127,9 +129,9 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.learning.content.optimize";
-		LOGGER.info("Optimize content | Content Id : " + contentId);
+		PlatformLogger.log("Optimize content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
 			Response response = contentManager.optimize(graphId, contentId);
 
 			return getResponseEntity(response, apiId, null);
@@ -156,14 +158,14 @@ public class ContentV2Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.archive";
-		LOGGER.info("Create Content Bundle");
+		PlatformLogger.log("Create Content Bundle");
 		try {
 			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
 			request.put(ContentAPIParams.version.name(), "v2");
 
-			LOGGER.info("Calling the Manager for 'Bundle' Operation");
+			PlatformLogger.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			LOGGER.info("Archive | Response: " + response);
+			PlatformLogger.log("Archive | Response: " + response);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -184,9 +186,9 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
-		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
+		PlatformLogger.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -207,44 +209,81 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "content.getById";
 		Response response;
-		LOGGER.info("Content GetById | Content Id : " + contentId);
+		PlatformLogger.log("Content GetById | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
-			response = contentManager.getById(graphId, contentId, mode);
+			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
+			response = contentManager.find(graphId, contentId, mode, null);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
+//	@SuppressWarnings("unchecked")
+//	@RequestMapping(value = "/create", method = RequestMethod.POST)
+//	@ResponseBody
+//	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
+//		String apiId = "content.create.java";
+//		Request request = getRequest(requestMap);
+//		try {
+//			Map<String, Object> map = (Map<String, Object>) request.get("content");
+//			Response response = contentManager.createContent(map);
+//			return getResponseEntity(response, apiId, null);
+//		} catch (Exception e) {
+//			return getExceptionResponseEntity(e, apiId, null);
+//		}
+//	}
+
+//	@SuppressWarnings("unchecked")
+//	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
+//	@ResponseBody
+//	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
+//			@RequestBody Map<String, Object> requestMap) {
+//		String apiId = "content.update.java";
+//		Request request = getRequest(requestMap);
+//		try {
+//			Map<String, Object> map = (Map<String, Object>) request.get("content");
+//			Response response = contentManager.updateContent(contentId, map);
+//			return getResponseEntity(response, apiId, null);
+//		} catch (Exception e) {
+//			PlatformLogger.log("Exception", e.getMessage(), e);
+//			return getExceptionResponseEntity(e, apiId, null);
+//		}
+//	}
+	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
+	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
-		String apiId = "content.create.java";
-		Request request = getRequest(requestMap);
+	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "ekstep.learning.content.upload.url";
+		Response response;
+		PlatformLogger.log("Upload URL content | Content Id : " + contentId);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.createContent(map);
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			if(null==requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())){
+				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"), apiId, null);
+			}
+			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
+	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> requestMap) {
-		String apiId = "content.update.java";
+	public ResponseEntity<Response> updateHierarchy(@RequestBody Map<String, Object> requestMap) {
+		String apiId = "content.hierarchy.update";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.updateContent(contentId, map);
+			Map<String, Object> map = (Map<String, Object>) request.get("data");
+			Response response = contentManager.updateHierarchy(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error(e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

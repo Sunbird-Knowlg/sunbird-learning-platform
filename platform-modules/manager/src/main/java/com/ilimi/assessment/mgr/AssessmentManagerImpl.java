@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.common.enums.ContentAPIParams;
@@ -27,6 +25,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -50,7 +49,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 	private static final String ITEM_SET_OBJECT_TYPE = "ItemSet";
 	private static final String ITEM_SET_MEMBERS_TYPE = "AssessmentItem";
 
-	private static Logger LOGGER = LogManager.getLogger(IAssessmentManager.class.getName());
+	
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -82,7 +81,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (!skipValidation) {
 			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), item);
-			validateRes = getResponse(validateReq, LOGGER);
+			validateRes = getResponse(validateReq);
 			assessmentErrors = validator.validateAssessmentItem(item);
 		}
 		if (checkError(validateRes) && !skipValidation) {
@@ -101,7 +100,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 				createReq.put(GraphDACParams.node.name(), item);
 				createReq.put(GraphDACParams.skip_validations.name(), skipValidation);
-				Response createRes = getResponse(createReq, LOGGER);
+				Response createRes = getResponse(createReq);
 				if (checkError(createRes)) {
 					return createRes;
 				} else {
@@ -112,7 +111,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 								"updateDefinition");
 						defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
 						defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
-						Response defResponse = getResponse(defRequest, LOGGER);
+						Response defResponse = getResponse(defRequest);
 						if (checkError(defResponse)) {
 							return defResponse;
 						}
@@ -150,7 +149,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (!skipValidation) {
 			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), item);
-			validateRes = getResponse(validateReq, LOGGER);
+			validateRes = getResponse(validateReq);
 			assessmentErrors = validator.validateAssessmentItem(item);
 		}
 		if (checkError(validateRes) && !skipValidation) {
@@ -171,7 +170,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				updateReq.put(GraphDACParams.node.name(), item);
 				updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
 				updateReq.put(GraphDACParams.skip_validations.name(), skipValidation);
-				Response updateRes = getResponse(updateReq, LOGGER);
+				Response updateRes = getResponse(updateReq);
 				if (checkError(updateRes)) {
 					return updateRes;
 				} else {
@@ -182,7 +181,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 								"updateDefinition");
 						defRequest.put(GraphDACParams.object_type.name(), item.getObjectType());
 						defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
-						Response defResponse = getResponse(defRequest, LOGGER);
+						Response defResponse = getResponse(defRequest);
 						if (checkError(defResponse)) {
 							return defResponse;
 						}
@@ -214,7 +213,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		 */
 		Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
-		Response response = getResponse(req, LOGGER);
+		Response response = getResponse(req);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
 			return response;
@@ -244,7 +243,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					"AssessmentItem Id is blank");
 		Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode",
 				GraphDACParams.node_id.name(), id);
-		return getResponse(request, LOGGER);
+		return getResponse(request);
 	}
 
 	@Override
@@ -258,7 +257,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request, LOGGER);
+		Response getNodeRes = getResponse(request);
 		Response response = copyResponse(getNodeRes);
 		if (checkError(response)) {
 			return response;
@@ -345,7 +344,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers");
 		setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
 		setReq.put(GraphDACParams.collection_id.name(), setId);
-		Response setRes = getResponse(setReq, LOGGER);
+		Response setRes = getResponse(setReq);
 		List<String> members = (List<String>) setRes.get(GraphDACParams.members.name());
 		return members;
 	}
@@ -374,7 +373,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		if (!skipValidation) {
 			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), node);
-			validateRes = getResponse(validateReq, LOGGER);
+			validateRes = getResponse(validateReq);
 			assessmentErrors = validator.validateAssessmentItemSet(node);
 		}
 		if (checkError(validateRes) && !skipValidation) {
@@ -395,7 +394,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				setReq.put(GraphDACParams.node.name(), node);
 				setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
 				setReq.put(GraphDACParams.member_type.name(), ITEM_SET_MEMBERS_TYPE);
-				return getResponse(setReq, LOGGER);
+				return getResponse(setReq);
 			}
 		}
 	}
@@ -421,7 +420,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					"AssessmentItemSet Object is blank");
 		Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 		validateReq.put(GraphDACParams.node.name(), node);
-		Response validateRes = getResponse(validateReq, LOGGER);
+		Response validateRes = getResponse(validateReq);
 		List<String> assessmentErrors = validator.validateAssessmentItemSet(node);
 		if (checkError(validateRes)) {
 			if (assessmentErrors.size() > 0) {
@@ -442,7 +441,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				setReq.put(GraphDACParams.node.name(), node);
 				setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
 				setReq.put(GraphDACParams.member_type.name(), ITEM_SET_MEMBERS_TYPE);
-				return getResponse(setReq, LOGGER);
+				return getResponse(setReq);
 			}
 		}
 	}
@@ -490,7 +489,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					"ItemSet Id is blank");
 		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getSet",
 				GraphDACParams.collection_id.name(), id);
-		Response getNodeRes = getResponse(request, LOGGER);
+		Response getNodeRes = getResponse(request);
 		Response response = copyResponse(getNodeRes);
 		if (checkError(response)) {
 			return response;
@@ -568,7 +567,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				requests.add(req);
 			}
 		}
-		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
+		Response response = getResponse(requests, GraphDACParams.node_list.name(),
 				AssessmentAPIParams.assessment_items.name());
 		return response;
 	}
@@ -587,7 +586,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					"ItemSet Search Criteria Object is blank");
 		Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
-		Response response = getResponse(req, LOGGER);
+		Response response = getResponse(req);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
 			return response;
@@ -619,13 +618,13 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "dropCollection",
 				GraphDACParams.collection_id.name(), id);
 		request.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
-		return getResponse(request, LOGGER);
+		return getResponse(request);
 	}
 
 	private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
 			return definition;
@@ -678,9 +677,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(
+			PlatformLogger.log(
 					"error in replaceMediaItemsWithLowVariants while checking media for replacing with low variants, message= "
-							+ e.getMessage());
+							, e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}
@@ -698,7 +697,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), contentId);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request, LOGGER);
+		Response getNodeRes = getResponse(request);
 		Response response = copyResponse(getNodeRes);
 		if (checkError(response)) {
 			return null;

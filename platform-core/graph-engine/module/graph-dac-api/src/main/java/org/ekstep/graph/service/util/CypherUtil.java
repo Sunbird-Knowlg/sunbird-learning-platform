@@ -1,27 +1,27 @@
 package org.ekstep.graph.service.util;
 
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.Neo4JOperation;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
+
 public class CypherUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(CypherUtil.class.getName());
-
 	public static String getQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
-		LOGGER.debug("Neo4J Operation: ", operation);
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Neo4J Operation: ", operation);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
-		LOGGER.debug("Validating Database (Neo4J) Operation against 'null'.");
+		PlatformLogger.log("Validating Database (Neo4J) Operation against 'null'.");
 		if (null == operation)
 			throw new ClientException(DACErrorCodeConstants.INVALID_OPERATION.name(),
 					DACErrorMessageConstants.INVALID_OPERATION + " | [Query Generation Failed.]");
 
-		LOGGER.debug("Validating Graph Engine Node against 'null'.");
+		PlatformLogger.log("Validating Graph Engine Node against 'null'.");
 		if (null == parameterMap)
 			throw new ClientException(DACErrorCodeConstants.INVALID_PARAMETER.name(),
 					DACErrorMessageConstants.INVALID_PARAMETER_MAP + " | [Query Generation Failed.]");
@@ -33,20 +33,20 @@ public class CypherUtil {
 	}
 
 	private static String generateQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
-		LOGGER.debug("Neo4J Operation: ", operation);
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Neo4J Operation: ", operation);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		String query = "";
 		if (null != operation && null != parameterMap && !parameterMap.isEmpty())
 			query = getCypherQuery(operation, parameterMap);
 
-		LOGGER.debug("Returning Generated Cypher Query: " + query);
+		PlatformLogger.log("Returning Generated Cypher Query: " + query);
 		return query;
 	}
 
 	private static String getCypherQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
-		LOGGER.debug("Neo4J Operation: ", operation);
-		LOGGER.debug("Parameter Map: ", parameterMap);
+		PlatformLogger.log("Neo4J Operation: ", operation);
+		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		String query = "";
 		if (null != operation && null != parameterMap) {
@@ -177,12 +177,12 @@ public class CypherUtil {
 				break;
 
 			default:
-				LOGGER.warn("Invalid Neo4J Operation !");
+				PlatformLogger.log("Invalid Neo4J Operation !", null, LoggerEnum.WARN.name());
 				break;
 			}
 		}
 
-		LOGGER.debug("Returning Cypher Query For Operation - " + operation.name() + " | Query - " + query);
+		PlatformLogger.log("Returning Cypher Query For Operation - " + operation.name() + " | Query - " + query);
 		return query;
 	}
 

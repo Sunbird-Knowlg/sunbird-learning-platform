@@ -3,7 +3,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.searchindex.consumer.ConsumerRunner;
 import org.ekstep.searchindex.processor.AuditHistoryMessageProcessor;
 import org.junit.FixMethodOrder;
 import org.junit.runner.RunWith;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
 import com.ilimi.dac.impl.IAuditHistoryEsService;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)

@@ -8,16 +8,15 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  *
  * @author feroz
  */
 public class RecursiveProcessor implements Processor {
-    
-	private static Logger LOGGER = LogManager.getLogger(RecursiveProcessor.class.getName());
+
     protected List<Processor> processors = new ArrayList<Processor>();
     protected Statistics stats = null;
     
@@ -44,16 +43,16 @@ public class RecursiveProcessor implements Processor {
                 long rawSize = file.length();
                 long redSize = 0;
                 
-                for (Processor proc : processors) {    
+                for (Processor proc : processors) {
                     if (proc.isApplicable(type)) {
                         try {
-                        	LOGGER.debug("Processing file: " + file.getName());
+                        	PlatformLogger.log("Processing file: " + file.getName());
                             File output = proc.process(file);
                             if (output != null) redSize = output.length();
                             stats.update(type, rawSize, redSize);
                         }
                         catch (Exception ex) {
-                        	LOGGER.warn("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName());
+                        	PlatformLogger.log("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName(), null, LoggerEnum.WARN.name());
                         }
                     }
                 }

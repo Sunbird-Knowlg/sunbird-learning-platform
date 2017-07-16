@@ -7,13 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.common.util.AWSUploader;
+import org.json.simple.JSONObject;
+
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.ilimi.common.dto.CoverageIgnore;
-
-import org.ekstep.common.util.AWSUploader;
-import org.json.simple.JSONObject;
 
 public class ContentOrdinals {
 	

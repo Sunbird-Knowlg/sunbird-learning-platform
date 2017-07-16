@@ -9,8 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -24,6 +22,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class AssetCreatorProcessor.
@@ -42,7 +41,7 @@ import com.ilimi.common.exception.ServerException;
 public class AssetCreatorProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(AssetCreatorProcessor.class.getName());
+	
 
 	/** The Constant URL_REGEX is the Pattern to verify the Web Address. */
 	private static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
@@ -239,7 +238,7 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 				mimeType = tika.detect(file);
 			}
 		} catch (IOException e) {
-			LOGGER.error(ContentErrorMessageConstants.FILE_READ_ERROR, e);
+			PlatformLogger.log(ContentErrorMessageConstants.FILE_READ_ERROR, file.getName(), e);
 		}
 		return mimeType;
 	}

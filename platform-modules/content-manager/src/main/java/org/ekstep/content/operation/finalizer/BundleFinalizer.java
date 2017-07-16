@@ -7,8 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
@@ -22,6 +20,7 @@ import org.ekstep.content.util.ContentBundle;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -32,7 +31,7 @@ import com.ilimi.graph.dac.model.Node;
 public class BundleFinalizer extends BaseFinalizer {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(BaseFinalizer.class.getName());
+	
 	
 	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
@@ -116,10 +115,10 @@ public class BundleFinalizer extends BaseFinalizer {
 		
 		List<Node> nodes = new ArrayList<Node>();
 		List<File> zipPackages = new ArrayList<File>();
-		LOGGER.info("Fetching the Parameters From BundleFinalizer.");
+		PlatformLogger.log("Fetching the Parameters From BundleFinalizer.");
 		for (Map<String, Object> contentMap : contents) {
 			String contentId = (String) contentMap.get(ContentWorkflowPipelineParams.identifier.name());
-			LOGGER.info("Processing Content Id: " + contentId);
+			PlatformLogger.log("Processing Content Id: " + contentId);
 			Map<String, Object> nodeMap = (Map<String, Object>) bundleMap.get(contentId);
 			if (null == nodeMap)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -127,7 +126,7 @@ public class BundleFinalizer extends BaseFinalizer {
 								+ " | [All the Content for Bundling should be Valid, Invalid or null Content Cannnot be Bundled (Content Id - "
 								+ contentId + ").]");
 
-			LOGGER.info("Fetching the Parameters For Content Id: " + contentId);
+			PlatformLogger.log("Fetching the Parameters For Content Id: " + contentId);
 			Plugin ecrf = (Plugin) nodeMap.get(ContentWorkflowPipelineParams.ecrf.name());
 			Node node = (Node) nodeMap.get(ContentWorkflowPipelineParams.node.name());
 			boolean isCompressionApplied = (boolean) nodeMap
@@ -150,8 +149,8 @@ public class BundleFinalizer extends BaseFinalizer {
 			// Setting Attribute Value
 			this.basePath = path;
 			this.contentId = node.getIdentifier();
-			LOGGER.info("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
-			LOGGER.info("Is Compression Applied ? " + isCompressionApplied);
+			PlatformLogger.log("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
+			PlatformLogger.log("Is Compression Applied ? " + isCompressionApplied);
 
 			// Download 'appIcon'
 			String appIcon = (String) node.getMetadata().get(ContentWorkflowPipelineParams.appIcon.name());
@@ -174,7 +173,7 @@ public class BundleFinalizer extends BaseFinalizer {
 				String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 						+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 						+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
-				LOGGER.info("Zip File Name: " + zipFileName);
+				PlatformLogger.log("Zip File Name: " + zipFileName);
 				createZipPackage(basePath, zipFileName);
 				zipPackages.add(new File(zipFileName));
 
@@ -211,7 +210,7 @@ public class BundleFinalizer extends BaseFinalizer {
 		
 		// Get Content Bundle Expiry Date
 		String expiresOn = getDateAfter(ContentConfigurationConstants.DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS);
-		LOGGER.info("Bundle Will Expire On: " + expiresOn);
+		PlatformLogger.log("Bundle Will Expire On: " + expiresOn);
 		
 		// Update Content data with relative paths
 		ContentBundle contentBundle = new ContentBundle();
@@ -234,12 +233,11 @@ public class BundleFinalizer extends BaseFinalizer {
 			response.put(ContentWorkflowPipelineParams.ECAR_URL.name(), urlArray[IDX_S3_URL]);
 
 		try {
-			LOGGER.info("Deleting the temporary folder: " + basePath);
+			PlatformLogger.log("Deleting the temporary folder: " + basePath);
 			delete(new File(basePath));
 		} catch (Exception e) {
-			LOGGER.error("Error deleting the temporary folder: " + basePath, e);
+			PlatformLogger.log("Error deleting the temporary folder: " , basePath, e);
 		}
-		
 		return response;
 	}
 }

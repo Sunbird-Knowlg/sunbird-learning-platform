@@ -120,14 +120,6 @@ java::for {String translationKey} [$translations keySet] {
 		}
 }
 
-set get_node_response [getDataNode $language_id $node_id]
-set get_node_response_error [check_response_error $get_node_response]
-if {$get_node_response_error} {
-	return $get_node_response
-}
-
-set word_node [get_resp_value $get_node_response "node"]
-set eventResp [log_translation_lifecycle_event $word_id $word_node]
 set resultlistSize [$resultlist size] 
 if {$resultlistSize > 0} {
 	$result_map put "set_list" $resultlist

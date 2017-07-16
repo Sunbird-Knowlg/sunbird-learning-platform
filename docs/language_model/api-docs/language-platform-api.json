@@ -9,6 +9,8 @@
             "url": "www.ektep.in"
         }
     },
+    "basePath": "/language",
+    "host": "api.ekstep.in",
     "tags": [
         {
             "name": "Word",

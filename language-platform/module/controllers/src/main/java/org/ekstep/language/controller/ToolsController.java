@@ -2,8 +2,6 @@ package org.ekstep.language.controller;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class ToolsController is the entry point for computing and fetching the
@@ -29,7 +28,7 @@ import com.ilimi.common.dto.Response;
 public class ToolsController extends BaseLanguageController {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ToolsController.class.getName());
+	
 
 	/**
 	 * Computes and returns the complexity measures of a word or a text.
@@ -48,14 +47,14 @@ public class ToolsController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.computeComplexity.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -77,14 +76,14 @@ public class ToolsController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.computeTextComplexity.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -107,14 +106,14 @@ public class ToolsController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.analyseTextsCSV.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getBulkOperationResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getBulkOperationResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -136,14 +135,14 @@ public class ToolsController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.analyseTexts.name());
 		request.getContext().put(LanguageParams.language_id.name(), language);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getBulkOperationResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getBulkOperationResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -167,14 +166,14 @@ public class ToolsController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.getWordComplexities.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -199,14 +198,14 @@ public class ToolsController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
 		request.setOperation(LanguageOperations.syncDefinition.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
@@ -221,14 +220,14 @@ public class ToolsController extends BaseLanguageController {
 		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
 		request.setOperation(LanguageOperations.enrichWord.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		LOGGER.info("List | Request: " + request);
+		PlatformLogger.log("List | Request: " + request);
 		try {
-			Response response = getResponse(request, LOGGER);
-			LOGGER.info("List | Response: " + response);
+			Response response = getResponse(request);
+			PlatformLogger.log("List | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("List | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

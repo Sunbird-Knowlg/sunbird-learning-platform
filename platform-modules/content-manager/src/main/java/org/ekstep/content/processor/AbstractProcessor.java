@@ -3,7 +3,15 @@ package org.ekstep.content.processor;
 import java.io.File;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.content.concrete.processor.AssessmentItemCreatorProcessor;
+import org.ekstep.content.concrete.processor.AssetCreatorProcessor;
+import org.ekstep.content.concrete.processor.AssetsValidatorProcessor;
 import org.ekstep.content.concrete.processor.BaseConcreteProcessor;
+import org.ekstep.content.concrete.processor.EmbedControllerProcessor;
+import org.ekstep.content.concrete.processor.GlobalizeAssetProcessor;
+import org.ekstep.content.concrete.processor.LocalizeAssetProcessor;
+import org.ekstep.content.concrete.processor.MissingAssetValidatorProcessor;
+import org.ekstep.content.concrete.processor.MissingControllerValidatorProcessor;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;

@@ -13,15 +13,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import scala.concurrent.Promise;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -47,6 +38,15 @@ import com.ilimi.graph.model.cache.DefinitionCache;
 import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.relation.RelationHandler;
 
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Promise;
+
 public class DataNode extends AbstractNode {
 
 	private String objectType;
@@ -57,6 +57,13 @@ public class DataNode extends AbstractNode {
 			Map<String, Object> metadata) {
 		super(manager, graphId, nodeId, metadata);
 		this.objectType = objectType;
+	}
+	
+	public DataNode(BaseGraphManager manager, String graphId, Node node, boolean skipRelationUpdate) {
+		super(manager, graphId, node.getIdentifier(), node.getMetadata());
+		this.objectType = node.getObjectType();
+		this.inRelations = node.getInRelations();
+		this.outRelations = node.getOutRelations();
 	}
 
 	public DataNode(BaseGraphManager manager, String graphId, Node node) {
@@ -102,7 +109,7 @@ public class DataNode extends AbstractNode {
 					}
 					if (null == idx) {
 						idx = index++;
-						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
+//						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
 						relation.setMetadata(metadata);
 					}
 				}
@@ -599,6 +606,20 @@ public class DataNode extends AbstractNode {
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
 	}
+	
+	public List<String> validateNode(DefinitionDTO dto) {
+		List<String> messages = new ArrayList<String>();
+		if (StringUtils.isBlank(objectType)) {
+			messages.add("Object type not set for node: " + getNodeId());
+		} else {
+			validateMetadata(dto.getProperties(), messages);
+			List<RelationDefinition> inRelDefs = dto.getInRelations();
+			validateRelations(inRelDefs, "incoming", messages);
+			List<RelationDefinition> outRelDefs = dto.getOutRelations();
+			validateRelations(outRelDefs, "outgoing", messages);
+		}
+		return messages;
+	}
 
 	public List<String> validateNode(Map<String, Node> defNodesMap) {
 		try {
@@ -778,11 +799,8 @@ public class DataNode extends AbstractNode {
 					}
 				}
 			} else if (StringUtils.equalsIgnoreCase("list", dataType)) {
-				try {
-					Array.getLength(value);
-				} catch (Exception e) {
+				if (!(value instanceof Object[]) && !(value instanceof List))
 					messages.add("Metadata " + propName + " should be a list");
-				}
 			} else if (StringUtils.equalsIgnoreCase("json", dataType)) {
 				ObjectMapper mapper = new ObjectMapper();
 				try {

@@ -4,14 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class JSONUtils {
-
-	private static Logger LOGGER = LogManager.getLogger(JSONUtils.class.getName());
 
 	@SuppressWarnings("unchecked")
 	public static Object convertJSONString(String value) {
@@ -25,8 +22,7 @@ public class JSONUtils {
 					List<Object> list = mapper.readValue(value, List.class);
 					return list;
 				} catch (Exception ex) {
-					LOGGER.error("Something Went Wrong While Converting JSON String ('" + value + "') to JSON Object.",
-							e);
+					PlatformLogger.log("Something Went Wrong While Converting JSON String ('" + value + "') to JSON Object.", null, e);
 				}
 			}
 		}

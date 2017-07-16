@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -31,6 +29,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.content.common.BaseTest;
 
 /**
@@ -44,7 +43,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
 public class ContentV2ControllerTest extends BaseTest {
 
 	/** The Class Logger. */
-	private static Logger LOGGER = LogManager.getLogger(ContentV2ControllerTest.class.getName());
+	
 
 	/** The context. */
 	@Autowired
@@ -137,7 +136,7 @@ public class ContentV2ControllerTest extends BaseTest {
 		String url = "";
 		try {
 			if (null == file) {
-				LOGGER.info("Error! Upload File Package Cannot be 'null'.");
+				PlatformLogger.log("Error! Upload File Package Cannot be 'null'.");
 			} else {
 				String folder = S3PropertyReader.getProperty(s3Content);
             	folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(s3Artifact);
@@ -146,7 +145,7 @@ public class ContentV2ControllerTest extends BaseTest {
 					url = result[1];
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error! Upload File Package Cannot be 'null'.", e);
+			PlatformLogger.log("Error! Upload File Package Cannot be 'null'.", e.getMessage(), e);
 		}
 		return url;
 	}
@@ -156,6 +155,7 @@ public class ContentV2ControllerTest extends BaseTest {
 		return file;
 	}
 
+	@SuppressWarnings("unused")
 	private static Map<String, Object> getContentNodeMetadata(String identifier) {
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata.put(ContentAPIParams.identifier.name(), identifier);

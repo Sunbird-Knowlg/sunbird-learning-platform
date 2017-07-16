@@ -5,18 +5,16 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
+import com.ilimi.graph.common.mgr.Configuration;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LogHelper;
-import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
-import com.ilimi.graph.common.mgr.Configuration;
-
 public class JedisFactory {
-
-	private static LogHelper LOGGER = LogHelper.getInstance(JedisFactory.class.getName());
 
 	private static JedisPool jedisPool;
 
@@ -56,7 +54,7 @@ public class JedisFactory {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error! While Loading Graph Properties.", e);
+			PlatformLogger.log("Error! While Loading Graph Properties.", null, e);
 		}
 		JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(maxConnections);

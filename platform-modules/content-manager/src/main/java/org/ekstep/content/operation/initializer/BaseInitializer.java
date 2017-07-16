@@ -1,8 +1,6 @@
 package org.ekstep.content.operation.initializer;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
@@ -12,6 +10,7 @@ import org.ekstep.content.util.JSONContentParser;
 import org.ekstep.content.util.XMLContentParser;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -23,7 +22,7 @@ import com.ilimi.graph.dac.model.Node;
 public class BaseInitializer extends BasePipeline {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(BaseInitializer.class.getName());
+	
 
 	/**
 	 * isCompressRequired()
@@ -36,7 +35,7 @@ public class BaseInitializer extends BasePipeline {
 	protected boolean isCompressRequired(Node node) {
 		boolean required = false;
 		if (null != node && null != node.getMetadata()) {
-			LOGGER.info("Compression Required Check For Content Id: " + node.getIdentifier());
+			PlatformLogger.log("Compression Required Check For Content Id: " + node.getIdentifier());
 			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
 			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 			if (StringUtils.isBlank(artifactUrl) && StringUtils.isBlank(contentBody))
@@ -96,7 +95,7 @@ public class BaseInitializer extends BasePipeline {
 			else
 				throw new ClientException(ContentErrorCodeConstants.INVALID_BODY.name(),
 						ContentErrorMessageConstants.INVALID_CONTENT_BODY);
-			LOGGER.info("ECML Type: " + type);
+			PlatformLogger.log("ECML Type: " + type);
 		}
 		return type;
 	}

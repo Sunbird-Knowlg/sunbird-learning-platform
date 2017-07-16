@@ -95,6 +95,8 @@ public class ContentConfigurationConstants {
 	public static final String DEFAULT_ECAR_EXTENSION = "ecar";
 	
 	public static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
+	
+	public static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
 
 	/**
 	 * The Constant AWS_UPLOAD_RESULT_URL_INDEX is value of array index where

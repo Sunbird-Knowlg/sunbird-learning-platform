@@ -4,6 +4,8 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -12,8 +14,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +28,10 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 
 public abstract class BaseController {
 
-    private static final String API_ID_PREFIX = "ekstep";
     public static final String API_VERSION = "1.0";
     public static final String API_VERSION_2 = "2.0";
     public static final String API_VERSION_3 = "3.0";
@@ -41,7 +41,7 @@ public abstract class BaseController {
     private static final String default_err_msg = "Something went wrong in server while processing the request";
     
     protected ObjectMapper mapper = new ObjectMapper();
-    private static Logger LOGGER = LogManager.getLogger(BaseController.class.getName());
+    
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();
@@ -78,11 +78,11 @@ public abstract class BaseController {
     protected String setMessage(Exception e){
     	Class<? extends Exception> className = e.getClass();
         if(className.getName().contains(ekstep) || className.getName().contains(ilimi)){
-        	LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+        	PlatformLogger.log("Setting error message sent from class " + className , e.getMessage(), e);
         	return e.getMessage();
         }
         else if(className.getName().startsWith(java)){
-        	LOGGER.error("Setting default err msg " + className + e.getMessage());
+        	PlatformLogger.log("Setting default err msg " + className , e.getMessage(), e);
         	return default_err_msg;
         }
         return "";
@@ -191,7 +191,7 @@ public abstract class BaseController {
 
     private void setResponseEnvelope(Response response, String apiId, String msgId) {
         if (null != response) {
-            response.setId(API_ID_PREFIX + "." + apiId);
+            response.setId(apiId);
             response.setVer(getAPIVersion());
             response.setTs(getResponseTimestamp());
             ResponseParams params = response.getParams();
@@ -210,7 +210,7 @@ public abstract class BaseController {
     
     private void setResponseEnvelope(Response response, String apiId, String msgId, String resMsgId) {
         if (null != response) {
-            response.setId(API_ID_PREFIX + "." + apiId);
+            response.setId(apiId);
             response.setVer(getAPIVersion());
             response.setTs(getResponseTimestamp());
             ResponseParams params = response.getParams();
@@ -261,5 +261,16 @@ public abstract class BaseController {
         }
         return request;
     }
-
+    
+    protected List<String> convertStringArrayToList(String [] array) {
+    	List<String> list = new ArrayList<String>();
+    	if (null != array) {
+    		try {
+    		list = Arrays.asList(array);
+    		} catch (Exception e) {
+				PlatformLogger.log("Error! Something went wrong while converting array to list.", array, e);
+			}
+    	}
+    	return list;
+    }
 }

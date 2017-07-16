@@ -13,12 +13,12 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.WordTranslationConstants;
 
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 
 
 public class WordTranslationMessageProcessor implements IMessageProcessor {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(WordTranslationMessageProcessor.class.getName());
+	
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -33,10 +33,11 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER.error(e.getMessage(), e);
+			PlatformLogger.log("Exception" + e.getMessage(), null, e);
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("eid") != null && StringUtils.equalsIgnoreCase((String)message.get("eid"),"BE_WORD_LIFECYCLE")) {
 			if(message.get("edata") != null){
@@ -53,7 +54,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 						String languageId = (String) data.get("languageId");
 						Map<String,String> finalDocumentMap = getIndexDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 								CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id, lemma, languageId);
-						LOGGER.info("Adding/Updating translation index document");
+						PlatformLogger.log("Adding/Updating translation index document:"+ languageId);
 						if(finalDocumentMap!=null && finalDocumentMap.size()>0)
 						{
 							addOrUpdateIndex(id, finalDocumentMap);
@@ -66,9 +67,9 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 	}
 
 	private void addOrUpdateIndex(String uniqueId,Map<String, String> indexesMap) throws Exception {
-		LOGGER.info("Translation index created: Identifier: " + uniqueId);
+		PlatformLogger.log("Translation index created: Identifier: " + uniqueId);
 		if(indexesMap!=null && indexesMap.size()>0){
-			LOGGER.info("Translation index size " + indexesMap.size());
+			PlatformLogger.log("Translation index size " + indexesMap.size());
 			elasticSearchUtil.bulkIndexWithIndexId(WordTranslationConstants.TRANSLATION_INDEX,
 					WordTranslationConstants.TRANSLATION_INDEX_TYPE, indexesMap);
 		}
@@ -81,8 +82,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		elasticSearchUtil.addIndex(WordTranslationConstants.TRANSLATION_INDEX,
 				WordTranslationConstants.TRANSLATION_INDEX_TYPE, settings, mappings);
 	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	
 	private Map<String,String> getIndexDocument(String index,String type, String uniqueId,String lemma, String languageId) throws IOException {
 		Map<String,String> finalDocumentMap = new HashMap<String,String>();
 		try
@@ -109,7 +109,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 			Map<String, Object> indexDocument = new HashMap<String, Object>();
 			String documentJson = elasticSearchUtil.getDocumentAsStringById(index,type, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
-				LOGGER.info("Document exists for " + uniqueId);
+				PlatformLogger.log("Document exists for " + uniqueId);
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
 				Object synsets = indexDocument.get("synonyms");
@@ -125,6 +125,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		return synsetIds;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Map<String, String> getTranslationSetFromComposite(List<String> synsetIds, String index, String type,String id, String lemma)
 	{
 		Map<String, String> indexesMap = new HashMap<String, String>();
@@ -187,7 +188,7 @@ public class WordTranslationMessageProcessor implements IMessageProcessor {
 		String documentJson = elasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, 
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, id);
 		if (documentJson != null && !documentJson.isEmpty()) {
-			LOGGER.info("Document exists for " + id);
+			PlatformLogger.log("Document exists for " + id);
 			indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 			});
 			Object words = indexDocument.get("synonyms");

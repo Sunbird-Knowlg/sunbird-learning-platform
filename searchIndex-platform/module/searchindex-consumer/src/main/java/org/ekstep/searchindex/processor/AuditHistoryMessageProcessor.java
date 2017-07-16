@@ -6,16 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import com.ilimi.common.logger.LogHelper;
+
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.graph.common.DateUtils;
-import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 import com.ilimi.util.ApplicationContextUtils;
 
@@ -31,7 +30,7 @@ import com.ilimi.util.ApplicationContextUtils;
 public class AuditHistoryMessageProcessor implements IMessageProcessor {
 
 	/** The LOGGER */
-	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryMessageProcessor.class.getName());
+	
 
 	/** The ObjectMapper */
 	private ObjectMapper mapper = new ObjectMapper();
@@ -55,14 +54,13 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = new HashMap<String, Object>();
 			if(StringUtils.isNotBlank(messageData)){
-				LOGGER.info("Reading from kafka consumer" + messageData);
 				message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 				});
+				if (null != message)
+					processMessage(message);
 			}
-			if (null != message)
-				processMessage(message);
+			
 		} catch (Exception e) {
-			LOGGER.error("Error while processing kafka message", e);
 			e.printStackTrace();
 		}
 	}
@@ -79,14 +77,10 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			manager = (IAuditHistoryManager) ApplicationContextUtils.getApplicationContext()
 					.getBean("auditHistoryManager");
 		}
-		LOGGER.info("Processing audit history message: Object Type: " + message.get("objectType") + " | Identifier: "
-				+ message.get("nodeUniqueId") + " | Graph: " + message.get("graphId") + " | Operation: "
-				+ message.get("operationType"));
 		Object audit = message.get("audit");
 		Boolean shouldAudit = BooleanUtils.toBoolean(null == audit ? "true" : audit.toString());
 		if (message != null && message.get("operationType") != null && null == message.get("syncMessage") && !BooleanUtils.isFalse(shouldAudit)) {
 				AuditHistoryRecord record = getAuditHistory(message);
-				LOGGER.info("Sending AuditHistoryRecord to audit History manager" + record);
 				manager.saveAuditHistory(record);
 		}
 	}
@@ -102,7 +96,6 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 	 */
 	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) {
 		AuditHistoryRecord record = new AuditHistoryRecord();
-        LOGGER.info("Setting the audit history fields from transactionData" + transactionDataMap);
         try {
 			record.setUserId((String) transactionDataMap.get("userId"));
 			record.setRequestId((String) transactionDataMap.get("requestId"));
@@ -125,9 +118,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 			String createdOn = (String) transactionDataMap.get("createdOn");
 			Date date = DateUtils.parse(createdOn);
 			record.setCreatedOn(null == date ? new Date() : date);
-			LOGGER.info("mapped audit history record from transcationData" + record);
 		} catch (Exception e) {
-			LOGGER.error("Error while setting the transactionData to elastic search" + e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return record;
@@ -137,10 +128,10 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 //	private Map<String,Object> setLogRecordData(Map<String, Object> transactionDataMap) {
 //		Map<String,Object> newPropertiesMap = new HashMap<String,Object>();
 //		Map<String,Object> transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
-//		LOGGER.info("Fetching transactionData from transactionMap");
+//		PlatformLogger.log("Fetching transactionData from transactionMap");
 //		Map<String,Object> propertiesMap = (Map<String, Object>) transactionMap.get("properties");
 //		for(Entry <String, Object> entry: propertiesMap.entrySet()){
-//			LOGGER.info("Checking if entry is a systemProperty :" + entry.getKey());
+//			PlatformLogger.log("Checking if entry is a systemProperty :" + entry.getKey());
 //			if(!SystemProperties.isSystemProperty(entry.getKey())){
 //				newPropertiesMap.put(entry.getKey(), entry.getValue());
 //			}
@@ -171,7 +162,6 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 		Map<String, Object> transactionMap;
 		String summaryResult = null;
 		try {
-			LOGGER.info("setting the summary from transactionData" + transactionDataMap);
 			transactionMap = (Map<String, Object>) transactionDataMap.get("transactionData");
 			for (Map.Entry<String, Object> entry : transactionMap.entrySet()) {
 				if (StringUtils.equalsIgnoreCase("addedRelations", entry.getKey())) {
@@ -232,9 +222,7 @@ public class AuditHistoryMessageProcessor implements IMessageProcessor {
 				}
 			}
 		     summaryResult = mapper.writeValueAsString(summaryData);
-			LOGGER.info("setting summary field from transaction data" + summaryData);
 		} catch (Exception e) {
-			LOGGER.error("Error while setting the summary info to mysql db"+ e.getMessage(), e);
 			e.printStackTrace();
 		}
 		return summaryResult;

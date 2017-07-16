@@ -1,7 +1,5 @@
 package org.ekstep.content.client;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+	
 import org.ekstep.content.concrete.processor.AssetsValidatorProcessor;
 import org.ekstep.content.concrete.processor.EmbedControllerProcessor;
 import org.ekstep.content.concrete.processor.GlobalizeAssetProcessor;
@@ -11,9 +9,11 @@ import org.ekstep.content.concrete.processor.MissingControllerValidatorProcessor
 import org.ekstep.content.processor.AbstractProcessor;
 import org.ekstep.content.processor.ContentPipelineProcessor;
 
+import com.ilimi.common.logger.PlatformLogger;
+
 public class PipelineRequestorClient {
 	
-	private static Logger LOGGER = LogManager.getLogger(PipelineRequestorClient.class.getName());
+	
 	
 	public static AbstractProcessor getPipeline(String operation, String basePath, String contentId) {
 		ContentPipelineProcessor contentPipeline = new ContentPipelineProcessor();
@@ -28,14 +28,14 @@ public class PipelineRequestorClient {
 		switch (operation) {
 		case "compress":
 		case "COMPRESS":
-			LOGGER.info("Registering the Processors for 'COMPRESS' Operation.");
+			PlatformLogger.log("Registering the Processors for 'COMPRESS' Operation.");
 			contentPipeline.registerProcessor(localizeAssetProcessor);
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			break;
 			
 		case "extract":
 		case "EXTRACT":
-			LOGGER.info("Registering the Processors for 'EXTRACT' Operation.");
+			PlatformLogger.log("Registering the Processors for 'EXTRACT' Operation.");
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			contentPipeline.registerProcessor(assetsValidatorProcessor);
 			contentPipeline.registerProcessor(missingCtrlValidatorProcessor);
@@ -45,7 +45,7 @@ public class PipelineRequestorClient {
 			
 		case "validate":
 		case "VALIDATE":
-			LOGGER.info("Registering the Processors for 'VALIDATE' Operation.");
+			PlatformLogger.log("Registering the Processors for 'VALIDATE' Operation.");
 			contentPipeline.registerProcessor(localizeAssetProcessor);
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			contentPipeline.registerProcessor(assetsValidatorProcessor);
@@ -53,7 +53,7 @@ public class PipelineRequestorClient {
 			break;
 
 		default:
-			LOGGER.warn("Invalid Pipeline Operation.");
+			PlatformLogger.log("Invalid Pipeline Operation.");
 			break;
 		}
 		
@@ -73,7 +73,7 @@ public class PipelineRequestorClient {
 		switch (operation) {
 		case "compress":
 		case "COMPRESS":
-			LOGGER.info("Initialising the Processor's Chain for 'COMPRESS' Operation.");
+			PlatformLogger.log("Initialising the Processor's Chain for 'COMPRESS' Operation.");
 			localizeAssetProcessor.setNextProcessor(embedControllerProcessor);
 			embedControllerProcessor.setNextProcessor(missingAssetValidatorProcessor);
 			head = localizeAssetProcessor;
@@ -81,7 +81,7 @@ public class PipelineRequestorClient {
 			
 		case "extract":
 		case "EXTRACT":
-			LOGGER.info("Initialising the Processor's Chain for 'EXTRACT' Operation.");
+			PlatformLogger.log("Initialising the Processor's Chain for 'EXTRACT' Operation.");
 			missingAssetValidatorProcessor.setNextProcessor(assetsValidatorProcessor);
 			assetsValidatorProcessor.setNextProcessor(missingCtrlValidatorProcessor);
 			missingCtrlValidatorProcessor.setNextProcessor(globalizeAssetProcessor);
@@ -91,14 +91,14 @@ public class PipelineRequestorClient {
 			
 		case "validate":
 		case "VALIDATE":
-			LOGGER.info("Initialising the Processor's Chain for 'VALIDATE' Operation.");
+			PlatformLogger.log("Initialising the Processor's Chain for 'VALIDATE' Operation.");
 			missingAssetValidatorProcessor.setNextProcessor(assetsValidatorProcessor);
 			assetsValidatorProcessor.setNextProcessor(missingCtrlValidatorProcessor);
 			head = missingAssetValidatorProcessor;
 			break;
 
 		default:
-			LOGGER.warn("Invalid Pipeline Operation.");
+			PlatformLogger.log("Invalid Pipeline Operation.");
 			break;
 		}
 		

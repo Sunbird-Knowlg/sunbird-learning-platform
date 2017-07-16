@@ -13,10 +13,9 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.CypherQueryConfigurationConstants;
 
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.AuditProperties;
@@ -26,10 +25,8 @@ import com.ilimi.graph.dac.model.Node;
 
 public class BaseQueryGenerationUtil {
 
-	protected static Logger LOGGER = LogManager.getLogger(BaseQueryGenerationUtil.class.getName());
-
 	protected static String getPropertyObject(Node node, String date, boolean isUpdateOperation) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -48,7 +45,7 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static String getPropertyObjectAttributeString(Node node) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && null != node.getMetadata() && !node.getMetadata().isEmpty()) {
@@ -61,13 +58,13 @@ public class BaseQueryGenerationUtil {
 		}
 		query.append(StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 
-		LOGGER.debug("Returning Property Object Attribute String: " + query.toString());
+		PlatformLogger.log("Returning Property Object Attribute String: " + query.toString());
 		return query.toString();
 	}
 
 	protected static String getMatchCriteriaString(String graphId, Node node) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		String matchCriteria = "";
 		if (StringUtils.isNotBlank(graphId) && null != node) {
@@ -86,7 +83,7 @@ public class BaseQueryGenerationUtil {
 	}
 
 	protected static Map<String, Object> getMetadataCypherQueryMap(Node node) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
@@ -96,24 +93,24 @@ public class BaseQueryGenerationUtil {
 			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
 				query.append(entry.getKey() + ": { MD_" + entry.getKey() + " }, ");
 
-				LOGGER.debug("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				PlatformLogger.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
-				LOGGER.debug("Populating ParamMap:", paramValuesMap);
+				PlatformLogger.log("Populating ParamMap:", paramValuesMap);
 			}
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 			queryMap.put(GraphDACParams.query.name(),
 					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 		}
 
-		LOGGER.debug("Returning Property Object Attribute String: " + query.toString());
+		PlatformLogger.log("Returning Property Object Attribute String: " + query.toString());
 		return queryMap;
 	}
 
 	protected static Map<String, Object> getMetadataCypherQueryMap(String objectVariableName,
 			Map<String, Object> metadata) {
-		LOGGER.debug("Graph Engine metadata: ", metadata);
+		PlatformLogger.log("Graph Engine metadata: ", metadata);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
@@ -124,11 +121,11 @@ public class BaseQueryGenerationUtil {
 				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
 						+ entry.getKey() + " }, ");
 
-				LOGGER.debug("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				PlatformLogger.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
-				LOGGER.debug("Populating ParamMap:", paramValuesMap);
+				PlatformLogger.log("Populating ParamMap:", paramValuesMap);
 			}
 
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
@@ -136,12 +133,12 @@ public class BaseQueryGenerationUtil {
 					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 		}
 
-		LOGGER.debug("Returning Property Object Attribute String: " + query.toString());
+		PlatformLogger.log("Returning Property Object Attribute String: " + query.toString());
 		return queryMap;
 	}
 	
 	protected static String getSystemPropertyString(Node node, String date) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -169,12 +166,12 @@ public class BaseQueryGenerationUtil {
 						.append(CypherQueryConfigurationConstants.COMMA);
 		}
 
-		LOGGER.debug("Returning System Property String: " + query.toString());
+		PlatformLogger.log("Returning System Property String: " + query.toString());
 		return StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA);
 	}
 
 	protected static Map<String, Object> getSystemPropertyQueryMap(Node node, String date) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
@@ -204,12 +201,12 @@ public class BaseQueryGenerationUtil {
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 		}
 
-		LOGGER.debug("Returning System Property String: " + query.toString());
+		PlatformLogger.log("Returning System Property String: " + query.toString());
 		return queryMap;
 	}
 
 	protected static String getAuditPropertyString(Node node, String date, boolean isUpdateOnly) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -228,12 +225,12 @@ public class BaseQueryGenerationUtil {
 						.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 		}
 
-		LOGGER.debug("Returning Audit Property String: " + query.toString());
+		PlatformLogger.log("Returning Audit Property String: " + query.toString());
 		return query.toString();
 	}
 
 	protected static Map<String, Object> getAuditPropertyQueryMap(Node node, String date, boolean isUpdateOnly) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
@@ -256,12 +253,12 @@ public class BaseQueryGenerationUtil {
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 		}
 
-		LOGGER.debug("Returning Audit Property Query Map: ", queryMap);
+		PlatformLogger.log("Returning Audit Property Query Map: ", queryMap);
 		return queryMap;
 	}
 
 	protected static String getVersionKeyPropertyString(Node node, String date, boolean isUpdateOnly) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
 			// Adding 'versionKey' Property
@@ -271,12 +268,12 @@ public class BaseQueryGenerationUtil {
 					.append(CypherQueryConfigurationConstants.SINGLE_QUOTE);
 		}
 
-		LOGGER.debug("Returning 'versionKey' Property String: " + query.toString());
+		PlatformLogger.log("Returning 'versionKey' Property String: " + query.toString());
 		return query.toString();
 	}
 
 	protected static Map<String, Object> getVersionKeyPropertyQueryMap(Node node, String date, boolean isUpdateOnly) {
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Graph Engine Node: ", node);
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(date)) {
@@ -291,14 +288,14 @@ public class BaseQueryGenerationUtil {
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 		}
 
-		LOGGER.debug("Returning 'versionKey' Property Query Map: ", queryMap);
+		PlatformLogger.log("Returning 'versionKey' Property Query Map: ", queryMap);
 		return queryMap;
 	}
 
 	protected static String getOnCreateSetString(String objectVariableName, String date, Node node) {
-		LOGGER.debug("Cypher Query Node Object Variable Name: ", objectVariableName);
-		LOGGER.debug("Date: ", date);
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Cypher Query Node Object Variable Name: ", objectVariableName);
+		PlatformLogger.log("Date: ", date);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
@@ -350,14 +347,14 @@ public class BaseQueryGenerationUtil {
 
 		}
 
-		LOGGER.debug("Returning 'ON_CREATE_SET' Query Part String: " + query.toString());
+		PlatformLogger.log("Returning 'ON_CREATE_SET' Query Part String: " + query.toString());
 		return query.toString();
 	}
 
 	protected static Map<String, Object> getOnCreateSetQueryMap(String objectVariableName, String date, Node node) {
-		LOGGER.debug("Cypher Query Node Object Variable Name: ", objectVariableName);
-		LOGGER.debug("Date: ", date);
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Cypher Query Node Object Variable Name: ", objectVariableName);
+		PlatformLogger.log("Date: ", date);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
@@ -376,11 +373,11 @@ public class BaseQueryGenerationUtil {
 				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
 						+ entry.getKey() + " }, ");
 
-				LOGGER.debug("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				PlatformLogger.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
-				LOGGER.debug("Populating ParamMap:", paramValuesMap);
+				PlatformLogger.log("Populating ParamMap:", paramValuesMap);
 			}
 
 			// Adding 'IL_UNIQUE_ID' Property
@@ -435,14 +432,14 @@ public class BaseQueryGenerationUtil {
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 		}
 
-		LOGGER.debug("Returning 'ON_CREATE_SET' Query Map: ", queryMap);
+		PlatformLogger.log("Returning 'ON_CREATE_SET' Query Map: ", queryMap);
 		return queryMap;
 	}
 
 	protected static String getOnMatchSetString(String objectVariableName, String date, Node node) {
-		LOGGER.debug("Cypher Query Node Object Variable Name: ", objectVariableName);
-		LOGGER.debug("Date: ", date);
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Cypher Query Node Object Variable Name: ", objectVariableName);
+		PlatformLogger.log("Date: ", date);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		StringBuilder query = new StringBuilder();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
@@ -485,15 +482,15 @@ public class BaseQueryGenerationUtil {
 
 		}
 
-		LOGGER.debug("Returning 'ON_MATCH_SET' Query Part String: " + query.toString());
+		PlatformLogger.log("Returning 'ON_MATCH_SET' Query Part String: " + query.toString());
 		return query.toString();
 	}
 
 	protected static Map<String, Object> getOnMatchSetQueryMap(String objectVariableName, String date, Node node,
 			boolean merge) {
-		LOGGER.debug("Cypher Query Node Object Variable Name: ", objectVariableName);
-		LOGGER.debug("Date: ", date);
-		LOGGER.debug("Graph Engine Node: ", node);
+		PlatformLogger.log("Cypher Query Node Object Variable Name: ", objectVariableName);
+		PlatformLogger.log("Date: ", date);
+		PlatformLogger.log("Graph Engine Node: ", node);
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		if (null != node && StringUtils.isNotBlank(objectVariableName) && StringUtils.isNotBlank(date)) {
@@ -514,11 +511,11 @@ public class BaseQueryGenerationUtil {
 				query.append(objectVariableName + CypherQueryConfigurationConstants.DOT + entry.getKey() + " =  { MD_"
 						+ entry.getKey() + " }, ");
 
-				LOGGER.debug("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
+				PlatformLogger.log("Adding Entry: " + entry.getKey() + "Value: ", entry.getValue());
 
 				// Populating Param Map
 				paramValuesMap.put("MD_" + entry.getKey(), entry.getValue());
-				LOGGER.debug("Populating ParamMap:", paramValuesMap);
+				PlatformLogger.log("Populating ParamMap:", paramValuesMap);
 			}
 
 			if (null != node.getMetadata()
@@ -542,7 +539,7 @@ public class BaseQueryGenerationUtil {
 					StringUtils.removeEnd(query.toString(), CypherQueryConfigurationConstants.COMMA));
 			queryMap.put(GraphDACParams.paramValueMap.name(), paramValuesMap);
 		}
-		LOGGER.debug("Returning 'ON_MATCH_SET' Query Map: ", queryMap);
+		PlatformLogger.log("Returning 'ON_MATCH_SET' Query Map: ", queryMap);
 		return queryMap;
 	}
 

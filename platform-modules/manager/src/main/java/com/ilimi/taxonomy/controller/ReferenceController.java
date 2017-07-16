@@ -15,14 +15,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IReferenceManager;
 
 @Controller
 @RequestMapping("/v2/reference")
 public class ReferenceController extends BaseController {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(ReferenceController.class.getName());
+	
 
 	@Autowired
 	private IReferenceManager referenceManager;
@@ -32,17 +32,17 @@ public class ReferenceController extends BaseController {
 	public ResponseEntity<Response> uploadReferenceDocument(@PathVariable(value = "referenceId") String referenceId,
 			@RequestParam(value = "file", required = true) MultipartFile file) {
 		String apiId = "media.upload";
-		LOGGER.info("Upload | File: " + file);
+		PlatformLogger.log("Upload | File: " + file);
 		try {
 			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
 					+ FilenameUtils.getExtension(file.getOriginalFilename());
 			File uploadedFile = new File(name);
 			file.transferTo(uploadedFile);
 			Response response = referenceManager.uploadReferenceDocument(uploadedFile, referenceId);
-			LOGGER.info("Upload | Response: " + response);
+			PlatformLogger.log("Upload | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

@@ -10,10 +10,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Direction;
 
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.OnComplete;
-
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -32,6 +28,10 @@ import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.Graph;
+
+import akka.actor.ActorRef;
+import akka.dispatch.OnComplete;
+import scala.concurrent.Future;
 
 public class SearchManagerImpl extends BaseGraphManager implements ISearchManager {
 

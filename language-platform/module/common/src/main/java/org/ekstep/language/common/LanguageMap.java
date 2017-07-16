@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.util.PropertiesUtil;
+
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class LanguageMap loads the language graph Id to language name mappings
@@ -33,13 +33,13 @@ public class LanguageMap {
 	private static InputStream input = null;
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(PropertiesUtil.class.getName());
+	
 
 	static {
 		String filename = "language-map.properties";
 		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
 		if (input == null) {
-			LOGGER.error("Unable to find " + filename);
+			PlatformLogger.log("Unable to find " + filename);
 		}
 		try {
 			// loads the data from the properties file into two maps. One with
@@ -54,6 +54,7 @@ public class LanguageMap {
 				languageGraphMap.put(value, key);
 			}
 		} catch (IOException e) {
+			PlatformLogger.log("Exception!", e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}

@@ -1,8 +1,8 @@
 package com.ilimi.dac;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
+
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * Helper to wrap commonly used utility functions in model mapping and
@@ -13,7 +13,7 @@ import org.modelmapper.ModelMapper;
 public class TransformationHelper {
 
     /** The Constant logger. */
-    private static final Logger LOGGGER = LogManager.getLogger(TransformationHelper.class);
+    
 
     /**
      * Registers a type map between a given pair of classes(bi-directional) with
@@ -59,7 +59,7 @@ public class TransformationHelper {
         try {
             modelMapper.createTypeMap(source, destination);
         } catch (Exception ex) {
-            LOGGGER.debug("Failed to register type map", ex);
+            PlatformLogger.log("Failed to register type map", ex);
         }
     }
 }

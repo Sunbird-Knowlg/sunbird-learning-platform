@@ -2,8 +2,6 @@ package org.ekstep.language.controller;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class SearchControllerV2, is entry point for search operation
@@ -35,7 +34,7 @@ public class SearchControllerV2 extends BaseController {
 	private IDictionaryManager dictionaryManager;
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ParserController.class.getName());
+	
 
 	/**
 	 * List all words based on the filters and populates primary meanings and
@@ -58,11 +57,11 @@ public class SearchControllerV2 extends BaseController {
 		Request request = getRequest(map);
 		try {
 			Response response = dictionaryManager.list(languageId, LanguageObjectTypes.Word.name(), request, version);
-			LOGGER.info("Search | Response: " + response);
+			PlatformLogger.log("Search | Response: " + response);
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
-			LOGGER.error("Search | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Search | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}

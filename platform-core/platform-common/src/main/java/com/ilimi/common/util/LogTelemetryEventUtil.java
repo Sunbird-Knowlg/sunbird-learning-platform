@@ -1,6 +1,9 @@
 package com.ilimi.common.util;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -9,11 +12,11 @@ import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
-import java.util.UUID;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class LogTelemetryEventUtil {
 
-	private static Logger LOGGER = LogManager.getLogger(LogTelemetryEventUtil.class.getName());
+	
 	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static final Logger objectLifecycleEventLogger = LogManager.getLogger("ObjectLifecycleLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
@@ -23,9 +26,9 @@ public class LogTelemetryEventUtil {
 		long unixTime = System.currentTimeMillis();
 		Map<String,Object> data = new HashMap<String,Object>();
 		te.setEid("BE_CONTENT_LIFECYCLE");
-		te.setEts(unixTime);
 		te.setVer("2.0");
 		te.setMid(mid);
+		te.setEts(unixTime);
 		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
 		data.put("cid", contentId);
 		data.put("size", metadata.get("size"));
@@ -46,11 +49,11 @@ public class LogTelemetryEventUtil {
 		
 		String jsonMessage = null;
 		try {
-			jsonMessage = mapper.writeValueAsString(te);
-			if (StringUtils.isNotBlank(jsonMessage))
-				telemetryEventLogger.info(jsonMessage);
+//			jsonMessage = mapper.writeValueAsString(te);
+//			if (StringUtils.isNotBlank(jsonMessage))
+////				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event", e.getMessage(), e);
 		}
 		return jsonMessage;
 	}
@@ -70,7 +73,7 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+			PlatformLogger.log("Error logging BE_CONTENT_LIFECYCLE event" + e.getMessage(),null, e);
 		}
 		return jsonMessage;
 	}
@@ -92,19 +95,19 @@ public class LogTelemetryEventUtil {
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
 		} catch (Exception e) {
-			LOGGER.error("Error logging BE_ACCESS event", e);
+			PlatformLogger.log("Error logging BE_ACCESS event" + e.getMessage(),null,e);
 		}
 		return jsonMessage;
 	}
 	
 	public static String logObjectLifecycleEvent(String objectId, Map<String, Object> metadata){
 			TelemetryBEEvent te = new TelemetryBEEvent();
-			long unixTime = System.currentTimeMillis();
 			Map<String,Object> data = new HashMap<String,Object>();
 			te.setEid("BE_OBJECT_LIFECYCLE");
-			te.setEts(unixTime);
+			long ets = (long)metadata.get("ets");
+			te.setEts(ets);
 			te.setVer("2.0");
-			te.setMid(mid);
+			te.setChannel((String)metadata.get("channel"));
 			te.setPdata("org.ekstep.platform", "", "1.0", "");
 			data.put("id", objectId);
 			data.put("parentid", metadata.get("parentid"));
@@ -115,15 +118,39 @@ public class LogTelemetryEventUtil {
 			data.put("name", metadata.get("name"));
 			data.put("state", metadata.get("state"));
 			data.put("prevstate", metadata.get("prevstate"));
-			te.setEdata(data);		
+			te.setEdata(data);
+			String mid = getMD5Hash(te, data);
+			te.setMid(mid);
 			String jsonMessage = null;
 			try {
 				jsonMessage = mapper.writeValueAsString(te);
 				if (StringUtils.isNotBlank(jsonMessage))
 					objectLifecycleEventLogger.info(jsonMessage);
 			} catch (Exception e) {
-				LOGGER.error("Error logging OBJECT_LIFECYCLE event", e);
+				PlatformLogger.log("Error logging OBJECT_LIFECYCLE event: " +e.getMessage(),null, e);
 			}
 			return jsonMessage;
+	}
+	
+	public static String getMD5Hash(TelemetryBEEvent event, Map<String,Object> data){
+		MessageDigest digest = null;
+		try {
+			String id = (String)data.get("id");
+			String state = (String)data.get("state");
+			String prevstate = (String)data.get("prevstate");
+			String val = event.getEid()+event.getEts()+id+state+prevstate;
+			digest = MessageDigest.getInstance("MD5");
+			digest.update(val.getBytes());
+			byte[] digestMD5 = digest.digest();
+			StringBuffer mid_val = new StringBuffer();
+			for(byte bytes : digestMD5){
+				mid_val.append(String.format("%02x", bytes & 0xff));
+			}
+			String messageId = "LP:"+mid_val;
+			return messageId;
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

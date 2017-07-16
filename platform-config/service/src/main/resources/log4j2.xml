@@ -4,11 +4,10 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="RollingFileAppender" fileName="/data/logs/config.log"
-			filePattern="/data/logs/config-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="DefaultLogAppender" fileName="/data/logs/config_service.log"
+			filePattern="/data/logs/config_service-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
-				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
-				</Pattern>
+				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="24"
@@ -16,7 +15,7 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="config-*.log" />
+                    <IfFileName glob="config_service-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>
@@ -38,9 +37,9 @@
 		</RollingRandomAccessFile>
 	</Appenders>
 	<Loggers>
-		<Root level="INFO">
-			<AppenderRef ref="RollingFileAppender" />
-		</Root>
+		<Logger name="DefaultPlatformLogger" level="INFO" additivity="false">
+			<AppenderRef ref="DefaultLogAppender" />
+		</Logger>
 		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="TelemetryEventAppender" />
 		</Logger>

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -16,6 +15,7 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -49,9 +49,6 @@ public abstract class BaseWordSet extends BaseManager {
 	/** The existing word set relatios. */
 	protected List<Relation> existingWordSetRelatios;
 
-	/** The logger. */
-	private Logger LOGGER;
-
 	/**
 	 * Instantiates a new base word set.
 	 *
@@ -66,9 +63,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 * @param LOGGER
 	 *            the logger
 	 */
-	public BaseWordSet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordSetRelatios,
-			Logger LOGGER) {
-		this.LOGGER = LOGGER;
+	public BaseWordSet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordSetRelatios) {
 		this.languageId = languageId;
 		this.wordNode = wordNode;
 		this.existingWordSetRelatios = existingWordSetRelatios;
@@ -84,8 +79,9 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the type
 	 * @return the word set
 	 */
+	@SuppressWarnings("unchecked")
 	protected String getWordSet(String lemma, String type) {
-		LOGGER.info("get Word Set (" + type + ") lemma " + lemma);
+		PlatformLogger.log("get Word Set (" + type + ") lemma " + lemma);
 
 		Node node = null;
 		SearchCriteria sc = new SearchCriteria();
@@ -100,17 +96,17 @@ public abstract class BaseWordSet extends BaseManager {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response findRes = getResponse(request, LOGGER);
+		Response findRes = getResponse(request);
 		if (checkError(findRes))
 			return null;
 		else {
 			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && nodes.size() > 0) {
 				node = nodes.get(0);
-				LOGGER.info("got  WordSet id " + node.getIdentifier());
+				PlatformLogger.log("got  WordSet id " , node.getIdentifier());
 				return node.getIdentifier();
 			}
-			LOGGER.info("WordSet is not found");
+			PlatformLogger.log("WordSet is not found");
 			return null;
 		}
 	}
@@ -126,7 +122,7 @@ public abstract class BaseWordSet extends BaseManager {
 	 */
 	protected String createWordSetCollection(String setLemma, String setType) {
 
-		LOGGER.info("creating Word Set (" + setType + ") lemma " + setLemma);
+		PlatformLogger.log("creating Word Set (" + setType + ") lemma " + setLemma);
 
 		Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
 		Map<String, Object> metadata = new HashMap<String, Object>();
@@ -142,7 +138,7 @@ public abstract class BaseWordSet extends BaseManager {
 		setReq.put(GraphDACParams.node.name(), wordSet);
 		setReq.put(GraphDACParams.object_type.name(), LanguageObjectTypes.WordSet.name());
 		setReq.put(GraphDACParams.member_type.name(), LanguageObjectTypes.Word.name());
-		Response res = getResponse(setReq, LOGGER);
+		Response res = getResponse(setReq);
 		if (checkError(res))
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(), getErrorMessage(res));
 		String setId = (String) res.get(GraphDACParams.set_id.name());
@@ -156,14 +152,14 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the collection id
 	 */
 	protected void addMemberToSet(String collectionId) {
-		LOGGER.info("adding word " + wordNode.getIdentifier() + "as member to wordSet " + collectionId);
+		PlatformLogger.log("adding word " + wordNode.getIdentifier() + "as member to wordSet " , collectionId);
 
 		Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "addMember");
 
 		setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
 		setReq.put(GraphDACParams.collection_id.name(), collectionId);
 		setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
-		Response res = getResponse(setReq, LOGGER);
+		Response res = getResponse(setReq);
 		if (checkError(res))
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(), getErrorMessage(res));
 	}
@@ -179,13 +175,13 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the relation type
 	 */
 	protected void createRelation(String startNodeId, String endNodeId, String relationType) {
-		LOGGER.info("createRelation " + relationType + " between sets " + startNodeId + " and " + endNodeId);
+		PlatformLogger.log("createRelation " , relationType + " between sets " + startNodeId + " and " + endNodeId);
 
 		Request req = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
 		req.put(GraphDACParams.start_node_id.name(), startNodeId);
 		req.put(GraphDACParams.end_node_id.name(), endNodeId);
 		req.put(GraphDACParams.relation_type.name(), relationType);
-		Response res = getResponse(req, LOGGER);
+		Response res = getResponse(req);
 		if (checkError(res)) {
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(), getErrorMessage(res));
 		}
@@ -276,12 +272,12 @@ public abstract class BaseWordSet extends BaseManager {
 	 *            the set id
 	 */
 	protected void removeWordFromWordSet(String setId){
-		LOGGER.info("Deleting relation : " + setId + " --> " + wordNode.getIdentifier());
+		PlatformLogger.log("Deleting relation : " , setId + " --> " + wordNode.getIdentifier());
         Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
         setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);
         setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
-        Response res = getResponse(setReq, LOGGER);
+        Response res = getResponse(setReq);
 		if (checkError(res))
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(), getErrorMessage(res));
 	}

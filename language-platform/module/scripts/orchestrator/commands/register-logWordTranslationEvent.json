@@ -1,5 +1,0 @@
-{
-    "name": "log_translation_lifecycle_event",
-    "type": "COMMAND",
-    "cmdClass": "com.ilimi.orchestrator.interpreter.command.LogTranslationLifecycleEvent"
-}

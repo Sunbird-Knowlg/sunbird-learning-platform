@@ -9,6 +9,7 @@ public class TelemetryBEEvent {
 	private long ets;
 	private String mid;
 	private String ver;
+	private String channel;
 	private Map<String, String> pdata;
 	private Map<String, Object> edata;
 	public String getEid() {
@@ -84,5 +85,17 @@ public class TelemetryBEEvent {
 	}
 	public void setMid(String mid) {
 		this.mid = mid;
+	}
+	public String getChannel() {
+		if(null == channel) {
+			channel="";
+		}
+		return channel;
+	}
+	public void setChannel(String channel) {
+		if(null == channel) {
+			channel="";
+		}
+		this.channel=channel;
 	}
 }

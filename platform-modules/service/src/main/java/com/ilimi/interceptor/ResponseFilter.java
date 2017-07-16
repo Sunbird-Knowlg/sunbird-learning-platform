@@ -17,11 +17,10 @@ import org.ekstep.common.util.ResponseWrapper;
 import org.ekstep.common.util.TelemetryAccessEventUtil;
 
 import com.ilimi.common.dto.ExecutionContext;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.dto.HeaderParam;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
-
-	private static LogHelper LOGGER = LogHelper.getInstance(ResponseFilter.class.getName());
 
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
@@ -34,17 +33,31 @@ public class ResponseFilter implements Filter {
 		String requestId = getUUID();
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		ExecutionContext.setRequestId(requestId);
-		RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
-		LOGGER.info("Path: " + requestWrapper.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
-				+ " | Params: " + request.getParameterMap());
+		boolean isMultipart = (httpRequest.getHeader("content-type") != null
+				&& httpRequest.getHeader("content-type").indexOf("multipart/form-data") != -1);
+		String consumerId = httpRequest.getHeader("X-Consumer-ID");
+		String channelId = httpRequest.getHeader("X-Channel-Id");
+		String appId = httpRequest.getHeader("X-App-Id");
+		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
+		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
+		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
+		if (!isMultipart) {
+			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
+			PlatformLogger.log("Path: " + requestWrapper.getServletPath(),
+					" | Remote Address: " + request.getRemoteAddr() + " | Params: " + request.getParameterMap());
 
-		ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
-		requestWrapper.setAttribute("startTime", System.currentTimeMillis());
+			ResponseWrapper responseWrapper = new ResponseWrapper((HttpServletResponse) response);
+			requestWrapper.setAttribute("startTime", System.currentTimeMillis());
 
-		chain.doFilter(requestWrapper, responseWrapper);
+			chain.doFilter(requestWrapper, responseWrapper);
 
-		TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
-		response.getOutputStream().write(responseWrapper.getData());
+			TelemetryAccessEventUtil.writeTelemetryEventLog(requestWrapper, responseWrapper);
+			response.getOutputStream().write(responseWrapper.getData());
+		} else {
+			PlatformLogger.log("Path: " + httpRequest.getServletPath(),
+					" | Remote Address: " + request.getRemoteAddr() + " | Params: " + request.getParameterMap());
+			chain.doFilter(httpRequest, response);
+		}
 	}
 
 	@Override

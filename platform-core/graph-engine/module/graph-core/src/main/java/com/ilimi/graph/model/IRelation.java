@@ -3,9 +3,9 @@ package com.ilimi.graph.model;
 import java.util.List;
 import java.util.Map;
 
-import scala.concurrent.Future;
-
 import com.ilimi.common.dto.Request;
+
+import scala.concurrent.Future;
 
 /**
  * @author rayulu

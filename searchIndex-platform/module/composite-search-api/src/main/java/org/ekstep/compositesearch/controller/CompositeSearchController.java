@@ -19,14 +19,11 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.logger.LogHelper;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 
 @Controller
 @RequestMapping("v2/search")
 public class CompositeSearchController extends BaseCompositeSearchController {
-
-	private static LogHelper LOGGER = LogHelper.getInstance(CompositeSearchController.class.getName());
 	
 	private CompositeSearchManager compositeSearchManager = new CompositeSearchManager();
 
@@ -35,7 +32,7 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 	public ResponseEntity<Response> search(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "composite-search.search";
-		LOGGER.info(apiId + " | Request : " + map);
+		PlatformLogger.log(apiId + " | Request : " + map);
 		Response  response;
 		int count = 0;
 		
@@ -74,7 +71,7 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 	public ResponseEntity<Response> count(@RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "composite-search.count";
-		LOGGER.info(apiId + " | Request : " + map);
+		PlatformLogger.log(apiId + " | Request : " + map);
 		Request request = getRequest(map);
 		Response response = compositeSearchManager.count(request);
 		return getResponseEntity(response, apiId, null);

@@ -8,11 +8,10 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class Configuration {
-	
-	private static LogHelper LOGGER = LogHelper.getInstance(Configuration.class.getName());
 
     public static long TIMEOUT = 30000;
     public static List<String> graphIds = new ArrayList<String>();
@@ -40,7 +39,7 @@ public class Configuration {
             	}
             }
         } catch (Exception e) {
-        	LOGGER.error("Error! While Loading Graph Properties.", e);
+        	PlatformLogger.log("Error! While Loading Graph Properties.", e.getMessage(),LoggerEnum.ERROR.name());
         }
     }
     

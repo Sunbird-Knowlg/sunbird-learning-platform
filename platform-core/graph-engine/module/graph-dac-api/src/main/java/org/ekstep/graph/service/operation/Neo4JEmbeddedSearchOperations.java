@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Relationship;
@@ -22,6 +20,7 @@ import org.neo4j.graphdb.traversal.Evaluators;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -43,9 +42,6 @@ import com.ilimi.graph.dac.util.RelationType;
  */
 public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 
-	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedSearchOperations.class.getName());
-
 	/**
 	 * Gets the node by id.
 	 *
@@ -57,7 +53,7 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 	 */
 	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
-		LOGGER.debug("Transaction Started For 'upsertNode' Operation. | [Graph ID: '" + graphId + "']");
+		PlatformLogger.log("Transaction Started For 'upsertNode' Operation. | [Graph ID: '" + graphId + "']");
 		try (Transaction tx = graphDb.beginTx()) {
 			org.neo4j.graphdb.Node neo4jNode = graphDb.getNodeById(nodeId);
 			tx.success();

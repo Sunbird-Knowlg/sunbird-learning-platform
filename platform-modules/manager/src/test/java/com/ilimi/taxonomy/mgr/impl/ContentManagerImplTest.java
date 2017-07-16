@@ -7,8 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +24,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.mgr.IContentManager;
+import com.ilimi.common.logger.PlatformLogger;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -36,7 +34,7 @@ public class ContentManagerImplTest {
 	private WebApplicationContext context;
 	//private ContentManagerImpl contentManager = new ContentManagerImpl();
 	private ResultActions actions;
-	private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
+	
 	private static String contentId = "";
 	private static String TAXONOMY_ID = "numeracy";
 	private static String OBJECT_TYPE = "Story";
@@ -50,10 +48,10 @@ public class ContentManagerImplTest {
 					.contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes())
 					.header("user-id", "ilimi"));
 		} catch (Exception e) {
-			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		LOGGER.info("Create | Response: " + resp);
+		PlatformLogger.log("Create | Response: " + resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		return (String) resp.getResult().get("node_id");
 	}
@@ -68,10 +66,10 @@ public class ContentManagerImplTest {
 					.header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
-			LOGGER.error("Delete | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Delete | Exception: " + e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		LOGGER.info("Delete | Response: " + resp);
+		PlatformLogger.log("Delete | Response: " + resp);
 		System.out.println("Deletion Done");
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
@@ -91,10 +89,10 @@ public class ContentManagerImplTest {
 					.file(mockMultipartFile).header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
-			LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		LOGGER.info("Upload | Response: " + resp);
+		PlatformLogger.log("Upload | Response: " + resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		String actualArtifactUrl = (String)(((Map<String,Object>)((Map<String,Object>)resp.getResult().get("updated_node")).get("metadata")).get("artifactUrl"));
 		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/.*";
@@ -115,10 +113,10 @@ public class ContentManagerImplTest {
 			Assert.assertEquals(200, actions.andReturn().getResponse()
 					.getStatus());
 		} catch (Exception e) {
-			LOGGER.error("Publish | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Publish | Exception: " , e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		LOGGER.info("Publish | Response: " + resp);
+		PlatformLogger.log("Publish | Response: " + resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		deleteDefinition(contentId);
 	}
@@ -135,10 +133,10 @@ public class ContentManagerImplTest {
 			Assert.assertEquals(200, actions.andReturn().getResponse()
 					.getStatus());
 		} catch (Exception e) {
-			LOGGER.error("Extract | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Extract | Exception: " , e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		LOGGER.info("Extract | Response: " +resp);
+		PlatformLogger.log("Extract | Response: " +resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		deleteDefinition(contentId);
 	}
@@ -161,10 +159,10 @@ public class ContentManagerImplTest {
 			Assert.assertEquals(200, actions.andReturn().getResponse()
 					.getStatus());
 		} catch (Exception e) {
-			LOGGER.error("Bundle | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Bundle | Exception: " , e.getMessage(), e);
 		}
 		Response resp = jsonToObject(actions);
-		LOGGER.info("Bundle | Response: " + resp);
+		PlatformLogger.log("Bundle | Response: " + resp);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		deleteDefinition(contentIdOne);
 		deleteDefinition(contentIdTwo);

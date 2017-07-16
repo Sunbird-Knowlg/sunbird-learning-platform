@@ -2,14 +2,13 @@ package org.ekstep.learning.util;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -24,7 +23,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class ControllerUtil extends BaseLearningManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ControllerUtil.class.getName());
+	
 
 	private static ObjectMapper mapper = new ObjectMapper();
 
@@ -41,7 +40,7 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), contentId);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request, LOGGER);
+		Response getNodeRes = getResponse(request);
 		Response response = copyResponse(getNodeRes);
 		if (checkError(response)) {
 			return null;
@@ -61,7 +60,7 @@ public class ControllerUtil extends BaseLearningManager {
 		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
+		Response updateRes = getResponse(updateReq);
 		return updateRes;
 	}
 
@@ -77,7 +76,7 @@ public class ControllerUtil extends BaseLearningManager {
 	public DefinitionDTO getDefinition(String taxonomyId, String objectType) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
 			return definition;
@@ -108,7 +107,7 @@ public class ControllerUtil extends BaseLearningManager {
 				GraphDACParams.start_node_id.name(), startNodeId);
 		request.put(GraphDACParams.relation_type.name(), relationType);
 		request.put(GraphDACParams.end_node_id.name(), endNodeIds);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			return response;
 		}
@@ -131,7 +130,7 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers",
 				GraphDACParams.collection_id.name(), collectionId);
 		request.put(GraphDACParams.collection_type.name(), collectionType);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			return response;
 		}
@@ -142,7 +141,7 @@ public class ControllerUtil extends BaseLearningManager {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getSet",
 				GraphDACParams.collection_id.name(), collectionId);
 		request.put(GraphDACParams.collection_type.name(), taxonomyId);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			return response;
 		}
@@ -162,7 +161,7 @@ public class ControllerUtil extends BaseLearningManager {
 	public Response getDataNodes(String taxonomyId, List<String> nodes) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
 				GraphDACParams.node_ids.name(), nodes);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			return response;
 		}
@@ -176,7 +175,7 @@ public class ControllerUtil extends BaseLearningManager {
 			String result = HTTPUtil.makeGetRequest(url);
 			hirerachyRes = mapper.readValue(result, Response.class);
 		} catch (Exception e) {
-			LOGGER.error(" Error while getting the Hirerachy of the node " + e);
+			PlatformLogger.log(" Error while getting the Hirerachy of the node " ,e.getMessage(),  e);
 		}
 		return hirerachyRes;
 	}
