@@ -757,6 +757,7 @@ public class DataNode extends AbstractNode {
 		return value;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void checkDataType(Object value, MetadataDefinition def, List<String> messages) {
 		if (null != value) {
 			String propName = def.getPropertyName();
@@ -786,16 +787,26 @@ public class DataNode extends AbstractNode {
 				if (null == range || range.isEmpty()) {
 					messages.add("Metadata " + propName + " should be one of: " + range);
 				} else {
-					try {
-						int length = Array.getLength(value);
-						for (int i = 0; i < length; i++) {
-							if (!checkRangeValue(range, Array.get(value, i))) {
-								messages.add("Metadata " + propName + " should be one of: " + range);
-								break;
+					if (!(value instanceof Object[]) && !(value instanceof List))
+						messages.add("Metadata " + propName + " should be a list of values from: " + range);
+					else {
+						if (value instanceof Object[]) {
+							int length = Array.getLength(value);
+							for (int i = 0; i < length; i++) {
+								if (!checkRangeValue(range, Array.get(value, i))) {
+									messages.add("Metadata " + propName + " should be one of: " + range);
+									break;
+								}
+							}
+						} else if (value instanceof List) {
+							List list = (List) value;
+							for (Object object : list) {
+								if (!checkRangeValue(range, object)) {
+									messages.add("Metadata " + propName + " should be one of: " + range);
+									break;
+								}
 							}
 						}
-					} catch (Exception e) {
-						messages.add("Metadata " + propName + " should be a list of values from: " + range);
 					}
 				}
 			} else if (StringUtils.equalsIgnoreCase("list", dataType)) {

@@ -1095,8 +1095,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 			}
 			if (null != hierarchy && !hierarchy.isEmpty()) {
-				for (Entry<String, Object> entry : hierarchy.entrySet())
+				for (Entry<String, Object> entry : hierarchy.entrySet()) {
 					updateNodeHierarchyRelations(graphId, entry, idMap, nodeMap);
+					if (StringUtils.isBlank(rootNodeId)) {
+						Map<String, Object> map = (Map<String, Object>) entry.getValue();
+						Boolean root = (Boolean) map.get("root");
+						if (BooleanUtils.isTrue(root))
+							rootNodeId = idMap.get(entry.getKey());
+					}
+				}
 			}
 			if (null != nodeMap && !nodeMap.isEmpty()) {
 				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
@@ -1109,6 +1116,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						rootNodeId = rootNodeId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
 					response.put(ContentAPIParams.content_id.name(), rootNodeId);
 				}
+				if (null != idMap && !idMap.isEmpty())
+					response.put(ContentAPIParams.identifiers.name(), idMap);
 				return response;
 			}
 		} else {
