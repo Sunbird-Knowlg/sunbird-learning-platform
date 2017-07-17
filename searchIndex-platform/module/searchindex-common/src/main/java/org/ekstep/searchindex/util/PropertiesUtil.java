@@ -3,6 +3,7 @@ package org.ekstep.searchindex.util;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -20,6 +21,14 @@ public class PropertiesUtil {
 
 	public static String getProperty(String key) {
 		return prop.getProperty(key);
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
 	}
 	
 	public static void loadProperties(String filename) {
