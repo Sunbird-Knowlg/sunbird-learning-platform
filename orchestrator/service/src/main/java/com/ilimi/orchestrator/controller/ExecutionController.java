@@ -86,7 +86,6 @@ public class ExecutionController extends BaseOrchestratorController {
 				Map<String, Object> params = getParams(request, script, path, map);
 				PlatformLogger.log(script.getName() + "," + params);
 				if (null != params) {
-					PlatformLogger.log("URL: " + getEnvBaseUrl());
 					params.put("server_env", getEnvBaseUrl());
 				}
 				Response resp = executor.execute(script, params);
