@@ -53,8 +53,21 @@ public class BaseTest
 	public RequestSpecification getRequestSpec(String content_type,String user_id)
 	{
 		RequestSpecBuilder builderreq = new RequestSpecBuilder();
+		builderreq.addHeader("Authorization", "");
 		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("user-id", user_id);
+		RequestSpecification requestSpec = builderreq.build();
+		return requestSpec;
+	}
+	
+	public RequestSpecification getRequestSpecWithHeaderExceptChannelId(String content_type,String user_id)
+	{
+		RequestSpecBuilder builderreq = new RequestSpecBuilder();
+		builderreq.addHeader("Authorization", "");
+		builderreq.addHeader("Content-Type", content_type);
+		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeader("X-Consumer-ID", "FT_DEMO_CONSUMER_ID");
+		builderreq.addHeader("X-App-Id", "FT_DEMO_APP_ID");
 		RequestSpecification requestSpec = builderreq.build();
 		return requestSpec;
 	}
