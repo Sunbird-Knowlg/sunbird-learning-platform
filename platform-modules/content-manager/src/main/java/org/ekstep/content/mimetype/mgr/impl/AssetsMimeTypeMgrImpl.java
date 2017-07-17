@@ -71,43 +71,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-
-			// Making all the assets by default 'Live' since we have discontinued the image Processor for time being
-//			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
-			node.getMetadata().put(ContentAPIParams.status.name(), ContentAPIParams.Live.name());
+			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
 			response = updateContentNode(contentId, node, urlArray[1]);
-			String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
-			if (!checkError(response)) {
-					if ((StringUtils.equalsIgnoreCase(node.getMetadata().get("contentType").toString(), "Asset"))
-						&& (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image"))) {
-								Map<String, String> variantsMap = new HashMap<String, String>();
-								node.getMetadata().put(ContentAPIParams.variants.name(), variantsMap);
-								node.getMetadata().put("prevState", prevState);
-
-								PlatformLogger.log("Generating Telemetry Event. | [Content ID: " , node.getIdentifier());
-								LogTelemetryEventUtil.logContentLifecycleEvent(node.getIdentifier(), node.getMetadata());
-					}
-					else {
-						PlatformLogger.log("Updating status to Live for mimeTypes other than image", node.getMetadata().get("contentType").toString());
-						node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-					}
-			}
-
-			PlatformLogger.log("Calling 'updateContentNode' for Node ID: " + node.getIdentifier());
-			response = updateContentNode(contentId, node, urlArray[1]);
-
-//			FileType type = FileUtils.getFileType(uploadFile);
-//			// Call async image optimiser for configured resolutions if asset
-//			// type is image
-//			if (type == FileType.Image) {
-//				// make async request to image optimiser actor
-//				Request request = getLearningRequest(LearningActorNames.OPTIMIZER_ACTOR.name(),
-//						LearningOperations.optimizeImage.name());
-//				request.put(ContentAPIParams.content_id.name(), node.getIdentifier());
-//				makeAsyncLearningRequest(request);
-//			}
-
-
 		} catch (IOException e) {
 			throw new ServerException(ContentAPIParams.FILE_ERROR.name(),
 					"Error! While Reading the MimeType of Uploaded File. | [Node Id: " + node.getIdentifier() + "]");

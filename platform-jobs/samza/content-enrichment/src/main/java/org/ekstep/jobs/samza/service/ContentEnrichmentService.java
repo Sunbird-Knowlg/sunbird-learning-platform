@@ -80,6 +80,7 @@ public class ContentEnrichmentService implements ISamzaService {
 				}
 			}
 		} catch (Exception e) {
+			LOGGER.error("content enrichment failed" + e.getMessage(), e);
 			e.printStackTrace();
 		}
 	}
@@ -804,20 +805,14 @@ public class ContentEnrichmentService implements ISamzaService {
 		Map<String, Object> edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
 		Node node = null;
-		if (null != message.get("eid")) {
-			String eid = (String) message.get("eid");
-			if (StringUtils.equalsIgnoreCase(eid, "BE_OBJECT_LIFECYCLE")) {
-				if (null != message.get("edata")) {
-					edata = (Map) message.get("edata");
-					if (null != edata.get("eks")) {
-						eks = (Map) edata.get("eks");
-						if (null != eks.get("state")
-								&& StringUtils.equalsIgnoreCase("Live", eks.get("state").toString())) {
-							if (null != eks.get("id")) {
-								node = util.getNode("domain", eks.get("id").toString());
-								return node;
-							}
-						}
+		if (null != message.get("edata")) {
+			edata = (Map) message.get("edata");
+			if (null != edata.get("eks")) {
+				eks = (Map) edata.get("eks");
+				if (null != eks.get("state") && StringUtils.equalsIgnoreCase("Live", eks.get("state").toString())) {
+					if (null != eks.get("id")) {
+						node = util.getNode("domain", eks.get("id").toString());
+						return node;
 					}
 				}
 			}

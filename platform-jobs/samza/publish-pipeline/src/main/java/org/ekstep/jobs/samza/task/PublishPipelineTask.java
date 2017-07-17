@@ -41,7 +41,7 @@ public class PublishPipelineTask implements StreamTask, InitableTask, Windowable
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
-			if(null != outgoingMap){
+			if(null != outgoingMap.get("eid")){
 				String eid = (String)outgoingMap.get("eid");
 				if(StringUtils.equalsIgnoreCase(eid, "BE_OBJECT_LIFECYCLE")){
 					service.processMessage(outgoingMap, metrics, collector);

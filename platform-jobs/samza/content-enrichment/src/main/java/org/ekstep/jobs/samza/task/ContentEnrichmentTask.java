@@ -2,6 +2,7 @@ package org.ekstep.jobs.samza.task;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.task.InitableTask;
@@ -38,12 +39,17 @@ public class ContentEnrichmentTask implements StreamTask, InitableTask, Windowab
 	@SuppressWarnings("unchecked")
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
-		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
+		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
-			service.processMessage(message, metrics, collector);
+			if(null != outgoingMap.get("eid")){
+				String eid = (String)outgoingMap.get("eid");
+				if(StringUtils.equalsIgnoreCase(eid, "BE_OBJECT_LIFECYCLE")){
+					service.processMessage(outgoingMap, metrics, collector);
+				}
+			}
 		} catch (Exception e) {
 			metrics.incFailedCounter();
-			LOGGER.error("Message processing failed", message, e);
+			LOGGER.error("Message processing failed", outgoingMap, e);
 		}
 	}
 	
