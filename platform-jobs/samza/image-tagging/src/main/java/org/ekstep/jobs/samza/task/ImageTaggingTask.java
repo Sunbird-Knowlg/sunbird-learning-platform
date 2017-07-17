@@ -14,6 +14,7 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.ImageTaggingService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.ImageWorkflowEnums;
 import org.ekstep.jobs.samza.util.JobLogger;
 
 public class ImageTaggingTask implements StreamTask, InitableTask, WindowableTask {
@@ -47,9 +48,9 @@ public class ImageTaggingTask implements StreamTask, InitableTask, WindowableTas
 			throws Exception {
 		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
-			if(null != outgoingMap.get("eid")){
-				String eid = (String)outgoingMap.get("eid");
-				if(StringUtils.equalsIgnoreCase(eid, "BE_OBJECT_LIFECYCLE")){
+			if(null != outgoingMap.get(ImageWorkflowEnums.eid.name())){
+				String eid = (String)outgoingMap.get(ImageWorkflowEnums.eid.name());
+				if(StringUtils.equalsIgnoreCase(eid, ImageWorkflowEnums.BE_OBJECT_LIFECYCLE.name())){
 					service.processMessage(outgoingMap, metrics, collector);
 				}
 			}
