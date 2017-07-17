@@ -32,6 +32,7 @@ public abstract class BaseOrchestratorController {
     private static final String ilimi = "com.ilimi.";
     private static final String java = "java.";
     private static final String default_err_msg = "Something went wrong in server while processing the request";
+    private static String envUrl = "";
     
     protected ObjectMapper mapper = new ObjectMapper();
     
@@ -156,9 +157,15 @@ public abstract class BaseOrchestratorController {
     }
     
     protected String getEnvBaseUrl(){
+    	if(StringUtils.isBlank(envUrl)){
+    		getProperty();
+    	}
+        return envUrl;
+    }
+    
+    private static void getProperty(){
     	Properties prop = new Properties();
     	InputStream input = null;
-    	String envURL = null;
     	String filename = "OrchestratorEnv.properties";
 		try {
 			input = BaseOrchestratorController.class.getClassLoader().getResourceAsStream(filename);
@@ -166,10 +173,9 @@ public abstract class BaseOrchestratorController {
 				PlatformLogger.log("Unable to find " + filename);
 			}
 			prop.load(input);
-			envURL = prop.getProperty("env");
+			envUrl = prop.getProperty("env");
 		} catch (IOException e) {
 			PlatformLogger.log("Exception", e.getMessage(), e);
 		}
-    	return envURL;
     }
 }
