@@ -23,7 +23,6 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class ControllerUtil extends BaseLearningManager {
 
 	/** The logger. */
-	
 
 	private static ObjectMapper mapper = new ObjectMapper();
 
@@ -175,8 +174,21 @@ public class ControllerUtil extends BaseLearningManager {
 			String result = HTTPUtil.makeGetRequest(url);
 			hirerachyRes = mapper.readValue(result, Response.class);
 		} catch (Exception e) {
-			PlatformLogger.log(" Error while getting the Hirerachy of the node " ,e.getMessage(),  e);
+			PlatformLogger.log(" Error while getting the Hirerachy of the node ", e.getMessage(), e);
 		}
 		return hirerachyRes;
 	}
+	
+	public Response createDataNode(Node node){
+		Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		request.put(GraphDACParams.node.name(), node);
+		Response response = getResponse(request);
+		if (!checkError(response)) {
+			return response;
+		}
+		return null;
+		
+	}
+
 }
+

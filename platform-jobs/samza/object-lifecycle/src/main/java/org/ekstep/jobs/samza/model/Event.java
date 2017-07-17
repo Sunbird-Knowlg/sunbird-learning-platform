@@ -8,10 +8,11 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class Event {
 	
+	@SuppressWarnings("unused")
 	private static DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
 
 	private String eid;
-	private String ets;
+	private long ets;
 	private String mid;
 	private String ver;
 	private String channel = "";
@@ -35,11 +36,11 @@ public class Event {
 		this.eid = eid;
 	}
 
-	public String getEts() {
+	public long getEts() {
 		return ets;
 	}
 
-	public void setEts(String ets) {
+	public void setEts(long ets) {
 		this.ets = ets;
 	}
 
