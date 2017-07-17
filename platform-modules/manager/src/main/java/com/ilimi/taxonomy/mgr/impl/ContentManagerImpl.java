@@ -1082,13 +1082,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Map<String, Object> modifiedNodes = (Map<String, Object>) data.get("nodesModified");
 			Map<String, Object> hierarchy = (Map<String, Object>) data.get("hierarchy");
 			Map<String, String> idMap = new HashMap<String, String>();
+			Map<String, String> newIdMap = new HashMap<String, String>();
 			Map<String, Node> nodeMap = new HashMap<String, Node>();
 			String rootNodeId = null;
 			if (null != modifiedNodes && !modifiedNodes.isEmpty()) {
 				DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
 				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
 					Map<String, Object> map = (Map<String, Object>) entry.getValue();
-					createNodeObject(graphId, entry, idMap, nodeMap, definition);
+					createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition);
 					Boolean root = (Boolean) map.get("root");
 					if (BooleanUtils.isTrue(root))
 						rootNodeId = idMap.get(entry.getKey());
@@ -1116,8 +1117,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						rootNodeId = rootNodeId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
 					response.put(ContentAPIParams.content_id.name(), rootNodeId);
 				}
-				if (null != idMap && !idMap.isEmpty())
-					response.put(ContentAPIParams.identifiers.name(), idMap);
+				if (null != newIdMap && !newIdMap.isEmpty())
+					response.put(ContentAPIParams.identifiers.name(), newIdMap);
 				return response;
 			}
 		} else {
@@ -1128,7 +1129,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	@SuppressWarnings("unchecked")
 	private void createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
-			Map<String, Node> nodeMap, DefinitionDTO definition) {
+			Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition) {
 		String nodeId = entry.getKey();
 		String id = nodeId;
 		String objectType = CONTENT_OBJECT_TYPE;
@@ -1136,6 +1137,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Boolean isNew = (Boolean) map.get("isNew");
 		if (BooleanUtils.isTrue(isNew)) {
 			id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
+			newIdMap.put(nodeId, id);
 		} else {
 			Node tmpnode = getNodeForOperation(graphId, id);
 			if (null != tmpnode) {
