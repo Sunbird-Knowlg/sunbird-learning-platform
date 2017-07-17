@@ -37,9 +37,6 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	
-	
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -58,7 +55,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			Tika tika = new Tika(new MimeTypes());
 			String mimeType = tika.detect(uploadFile);
 			String nodeMimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-			PlatformLogger.log("Uploaded Asset MimeType: " , mimeType);
+			PlatformLogger.log("Uploaded Asset MimeType: ", mimeType);
 			if (!StringUtils.equalsIgnoreCase(mimeType, nodeMimeType))
 				PlatformLogger.log("Uploaded File MimeType is not same as Node (Object) MimeType. [Uploaded MimeType: "
 						+ mimeType + " | Node (Object) MimeType: " + nodeMimeType + "]");
@@ -66,13 +63,19 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			PlatformLogger.log("Calling Upload Content Node For Node ID: " + node.getIdentifier());
 			String[] urlArray = uploadArtifactToAWS(uploadFile, node.getIdentifier());
 
-			PlatformLogger.log("Updating the Content Node for Node ID: " , node.getIdentifier());
+			PlatformLogger.log("Updating the Content Node for Node ID: ", node.getIdentifier());
 			node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 			node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-			node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
-			response = updateContentNode(contentId, node, urlArray[1]);
+			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image")) {
+				node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
+				response = updateContentNode(contentId, node, urlArray[1]);
+			} else {
+				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+				response = updateContentNode(contentId, node, urlArray[1]);
+			}
+
 		} catch (IOException e) {
 			throw new ServerException(ContentAPIParams.FILE_ERROR.name(),
 					"Error! While Reading the MimeType of Uploaded File. | [Node Id: " + node.getIdentifier() + "]");
@@ -109,19 +112,18 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		PlatformLogger.log("Adding 'isPublishOperation' Flag to 'true'");
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 
-		
-		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " , contentId);
+		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: ", contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		PlatformLogger.log("Review Operation Finished Successfully for Node ID: ", contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: ", contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: ", contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 		return response;
@@ -129,7 +131,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 	@Override
 	public Response review(String contentId, Node node, boolean isAsync) {
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: " , contentId);
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", contentId);
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
