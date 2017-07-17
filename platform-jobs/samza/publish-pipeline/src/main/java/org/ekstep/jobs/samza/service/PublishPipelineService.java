@@ -16,6 +16,7 @@ import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -87,8 +88,8 @@ public class PublishPipelineService implements ISamzaService {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Map<String,Object> getMap(Map<String, Object> message){
-		Map<String,Object> edata = (Map)message.get("edata"); 
-		Map<String,Object> eks = (Map)edata.get("eks");
+		Map<String,Object> edata = (Map)message.get(PublishPipelineParams.edata.name()); 
+		Map<String,Object> eks = (Map)edata.get(PublishPipelineParams.eks.name());
 		return eks;
 	}
 	

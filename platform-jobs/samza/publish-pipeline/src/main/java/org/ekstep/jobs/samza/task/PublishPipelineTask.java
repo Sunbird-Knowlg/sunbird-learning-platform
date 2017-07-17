@@ -15,6 +15,7 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.PublishPipelineService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.jobs.samza.util.PublishPipelineParams;
 
 public class PublishPipelineTask implements StreamTask, InitableTask, WindowableTask {
 
@@ -41,9 +42,9 @@ public class PublishPipelineTask implements StreamTask, InitableTask, Windowable
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
-			if(null != outgoingMap.get("eid")){
-				String eid = (String)outgoingMap.get("eid");
-				if(StringUtils.equalsIgnoreCase(eid, "BE_OBJECT_LIFECYCLE")){
+			if(null != outgoingMap.get(PublishPipelineParams.eid.name())){
+				String eid = (String)outgoingMap.get(PublishPipelineParams.eid.name());
+				if(StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name())){
 					service.processMessage(outgoingMap, metrics, collector);
 				}
 			}

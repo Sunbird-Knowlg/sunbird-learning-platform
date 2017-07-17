@@ -20,7 +20,7 @@ import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.ContentWorkflowPipelineParams;
+import org.ekstep.jobs.samza.util.ContentEnrichmentParams;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
@@ -66,15 +66,15 @@ public class ContentEnrichmentService implements ISamzaService {
 		try {
 			Node node = filterMessage(message);
 			if (null != node) {
-				if (node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name())
-						.equals(ContentWorkflowPipelineParams.Collection.name())) {
+				if (node.getMetadata().get(ContentEnrichmentParams.contentType.name())
+						.equals(ContentEnrichmentParams.Collection.name())) {
 					LOGGER.info("Processing Collection :" + node.getIdentifier());
 					processCollection(node);
 				} else {
 					LOGGER.info("calling processData to fetch node metadata" + node);
 					processData(node);
 				}
-				if (node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())
+				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name())
 						.equals("application/vnd.ekstep.content-collection")) {
 					processCollectionForTOC(node);
 				}
@@ -108,16 +108,16 @@ public class ContentEnrichmentService implements ISamzaService {
 			result = getOutRelationsMap(outRelations);
 		}
 
-		LOGGER.info("fetching conceptIds from result" + result.containsKey("conceptIds"));
-		if (null != result.get("conceptIds")) {
-			List list = (List) result.get("conceptIds");
+		LOGGER.info("fetching conceptIds from result" + result.containsKey(ContentEnrichmentParams.conceptIds.name()));
+		if (null != result.get(ContentEnrichmentParams.conceptIds.name())) {
+			List list = (List) result.get(ContentEnrichmentParams.conceptIds.name());
 			if (null != list && !list.isEmpty())
 				conceptIds.addAll(list);
 		}
 
-		LOGGER.info("fetching conceptGrades from result" + result.containsKey("conceptGrades"));
-		if (null != result.get("conceptGrades")) {
-			List list = (List) result.get("conceptGrades");
+		LOGGER.info("fetching conceptGrades from result" + result.containsKey(ContentEnrichmentParams.conceptGrades.name()));
+		if (null != result.get(ContentEnrichmentParams.conceptGrades.name())) {
+			List list = (List) result.get(ContentEnrichmentParams.conceptGrades.name());
 			if (null != list && !list.isEmpty())
 				conceptGrades.addAll(list);
 		}
@@ -268,7 +268,7 @@ public class ContentEnrichmentService implements ISamzaService {
 		LOGGER.info("In getChildren");
 		List<String> children = new ArrayList<>();
 		for (Relation rel : node.getOutRelations()) {
-			if (ContentWorkflowPipelineParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+			if (ContentEnrichmentParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
 				children.add(rel.getEndNodeId());
 			}
 		}
@@ -293,45 +293,45 @@ public class ContentEnrichmentService implements ISamzaService {
 			language = new HashSet<Object>(Arrays.asList(langData));
 			result.put("language", language);
 		}
-		if (null != node.getMetadata().get("domain")) {
-			String[] domainData = (String[]) node.getMetadata().get("domain");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.domain.name())) {
+			String[] domainData = (String[]) node.getMetadata().get(ContentEnrichmentParams.domain.name());
 			domain = new HashSet<Object>(Arrays.asList(domainData));
 			result.put("domain", domain);
 		}
-		if (null != node.getMetadata().get("gradeLevel")) {
-			String[] gradeData = (String[]) node.getMetadata().get("gradeLevel");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
+			String[] gradeData = (String[]) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 			grade = new HashSet<Object>(Arrays.asList(gradeData));
 			result.put("gradeLevel", grade);
 		}
-		if (null != node.getMetadata().get("ageGroup")) {
-			String[] ageData = (String[]) node.getMetadata().get("ageGroup");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.ageGroup.name())) {
+			String[] ageData = (String[]) node.getMetadata().get(ContentEnrichmentParams.ageGroup.name());
 			age = new HashSet<Object>(Arrays.asList(ageData));
-			result.put("ageGroup", age);
+			result.put(ContentEnrichmentParams.ageGroup.name(), age);
 		}
-		if (null != node.getMetadata().get("medium")) {
-			String mediumData = (String) node.getMetadata().get("medium");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.medium.name())) {
+			String mediumData = (String) node.getMetadata().get(ContentEnrichmentParams.medium.name());
 			medium = new HashSet<Object>(Arrays.asList(mediumData));
-			result.put("medium", medium);
+			result.put(ContentEnrichmentParams.medium.name(), medium);
 		}
-		if (null != node.getMetadata().get("subject")) {
-			String subjectData = (String) node.getMetadata().get("subject");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.subject.name())) {
+			String subjectData = (String) node.getMetadata().get(ContentEnrichmentParams.subject.name());
 			subject = new HashSet<Object>(Arrays.asList(subjectData));
-			result.put("subject", subject);
+			result.put(ContentEnrichmentParams.subject.name(), subject);
 		}
-		if (null != node.getMetadata().get("genre")) {
-			String[] genreData = (String[]) node.getMetadata().get("genre");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.genre.name())) {
+			String[] genreData = (String[]) node.getMetadata().get(ContentEnrichmentParams.genre.name());
 			genre = new HashSet<Object>(Arrays.asList(genreData));
-			result.put("genre", genre);
+			result.put(ContentEnrichmentParams.genre.name(), genre);
 		}
-		if (null != node.getMetadata().get("theme")) {
-			String[] themeData = (String[]) node.getMetadata().get("theme");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.theme.name())) {
+			String[] themeData = (String[]) node.getMetadata().get(ContentEnrichmentParams.theme.name());
 			theme = new HashSet<Object>(Arrays.asList(themeData));
-			result.put("theme", theme);
+			result.put(ContentEnrichmentParams.theme.name(), theme);
 		}
-		if (null != node.getMetadata().get("keywords")) {
-			String[] keyData = (String[]) node.getMetadata().get("keywords");
+		if (null != node.getMetadata().get(ContentEnrichmentParams.keywords.name())) {
+			String[] keyData = (String[]) node.getMetadata().get(ContentEnrichmentParams.keywords.name());
 			keywords = new HashSet<Object>(Arrays.asList(keyData));
-			result.put("keywords", keywords);
+			result.put(ContentEnrichmentParams.keywords.name(), keywords);
 		}
 		for (Relation rel : node.getOutRelations()) {
 			if ("Concept".equalsIgnoreCase(rel.getEndNodeObjectType())) {
@@ -340,7 +340,7 @@ public class ContentEnrichmentService implements ISamzaService {
 			}
 		}
 		if (null != concepts && !concepts.isEmpty()) {
-			result.put("concepts", concepts);
+			result.put(ContentEnrichmentParams.concepts.name(), concepts);
 		}
 		LOGGER.info("Concept in resultMap->" + result.get("concepts"));
 		return result;
@@ -487,8 +487,8 @@ public class ContentEnrichmentService implements ISamzaService {
 				for (Node node : item_nodes) {
 
 					LOGGER.info("Checking if item node contains gradeLevel");
-					if (null != node.getMetadata().get("gradeLevel")) {
-						String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
+					if (null != node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
+						String[] grade_array = (String[]) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 						for (String grade : grade_array) {
 							LOGGER.info("adding item grades" + grade);
 							itemGrades.add(grade);
@@ -500,8 +500,8 @@ public class ContentEnrichmentService implements ISamzaService {
 					Map<String, Object> result = getOutRelationsMap(outRelations);
 
 					LOGGER.info("fetching conceptIds from result" + result);
-					if (null != result.get("conceptIds")) {
-						List list = (List) result.get("conceptIds");
+					if (null != result.get(ContentEnrichmentParams.conceptIds.name())) {
+						List list = (List) result.get(ContentEnrichmentParams.conceptIds.name());
 						if (null != list && !list.isEmpty())
 							existingConceptIds.addAll(list);
 					}
@@ -587,11 +587,11 @@ public class ContentEnrichmentService implements ISamzaService {
 		LOGGER.info("checking if node contains gradeLevel");
 		if (null == node.getMetadata().get("gradeLevel")) {
 			List<String> gradeLevel = new ArrayList(grades);
-			node.getMetadata().put("gradeLevel", gradeLevel);
+			node.getMetadata().put(ContentEnrichmentParams.gradeLevel.name(), gradeLevel);
 
 		} else {
 			LOGGER.info("fetching grade levels from node");
-			String[] grade_array = (String[]) node.getMetadata().get("gradeLevel");
+			String[] grade_array = (String[]) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 
 			LOGGER.info("checking if grade levels obtained are empty ");
 			if (null != grade_array) {
@@ -602,7 +602,7 @@ public class ContentEnrichmentService implements ISamzaService {
 					LOGGER.info("checking if grade already exists" + grade);
 					grades.add(grade);
 					List gradeLevel = new ArrayList(grades);
-					node.getMetadata().put("gradeLevel", gradeLevel);
+					node.getMetadata().put(ContentEnrichmentParams.gradeLevel.name(), gradeLevel);
 					LOGGER.info("updating node metadata with additional grades" + node);
 				}
 			}
@@ -626,9 +626,9 @@ public class ContentEnrichmentService implements ISamzaService {
 		Node data = null;
 		Set<String> ageSet = new HashSet<String>();
 
-		if (null != node.getMetadata().get("gradeLevel")) {
+		if (null != node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
 			LOGGER.info("fetching gradeLevel from node metadata" + node);
-			List<String> grades = (List) node.getMetadata().get("gradeLevel");
+			List<String> grades = (List) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 			if (null != grades) {
 
 				for (String grade : grades) {
@@ -671,13 +671,13 @@ public class ContentEnrichmentService implements ISamzaService {
 	private Node setAgeGroup(Node node, Set<String> ageSet) {
 
 		LOGGER.info("Checking if node contains ageGroup in it");
-		if (null == node.getMetadata().get("ageGroup")) {
+		if (null == node.getMetadata().get(ContentEnrichmentParams.ageGroup.name())) {
 
 			LOGGER.info("adding ageSet to node if it doesnt have ageGroup in it");
 			if (null != ageSet) {
 				LOGGER.info("adding age metadata to node" + ageSet);
 				List<String> ageGroup = new ArrayList(ageSet);
-				node.getMetadata().put("ageGroup", ageGroup);
+				node.getMetadata().put(ContentEnrichmentParams.ageGroup.name(), ageGroup);
 			}
 
 		} else {
@@ -691,7 +691,7 @@ public class ContentEnrichmentService implements ISamzaService {
 					}
 					LOGGER.info("adding age metadata to node" + ageSet);
 					List<String> ageGroup = new ArrayList(ageSet);
-					node.getMetadata().put("ageGroup", ageGroup);
+					node.getMetadata().put(ContentEnrichmentParams.ageGroup.name(), ageGroup);
 				}
 			}
 		}
@@ -831,12 +831,12 @@ public class ContentEnrichmentService implements ISamzaService {
 				if (null != rel.getEndNodeObjectType()
 						&& StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
 					String status = null;
-					if (null != rel.getEndNodeMetadata().get("status")) {
+					if (null != rel.getEndNodeMetadata().get(ContentEnrichmentParams.status.name())) {
 						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
 					}
 
-					if (StringUtils.isBlank(domain) && null != rel.getEndNodeMetadata().get("subject")) {
-						domain = (String) rel.getEndNodeMetadata().get("subject");
+					if (StringUtils.isBlank(domain) && null != rel.getEndNodeMetadata().get(ContentEnrichmentParams.subject.name())) {
+						domain = (String) rel.getEndNodeMetadata().get(ContentEnrichmentParams.subject.name());
 					}
 
 					if (StringUtils.isNotBlank(status)
@@ -844,8 +844,8 @@ public class ContentEnrichmentService implements ISamzaService {
 						nodeIds.add(rel.getEndNodeId());
 					}
 
-					if (null != rel.getEndNodeMetadata().get("gradeLevel")) {
-						String[] grade_array = (String[]) (rel.getEndNodeMetadata().get("gradeLevel"));
+					if (null != rel.getEndNodeMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
+						String[] grade_array = (String[]) (rel.getEndNodeMetadata().get(ContentEnrichmentParams.gradeLevel.name()));
 						for (String garde : grade_array) {
 							conceptGrades.add(garde);
 						}

@@ -14,6 +14,7 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ContentEnrichmentService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.ContentEnrichmentParams;
 import org.ekstep.jobs.samza.util.JobLogger;
 
 public class ContentEnrichmentTask implements StreamTask, InitableTask, WindowableTask {
@@ -22,7 +23,6 @@ public class ContentEnrichmentTask implements StreamTask, InitableTask, Windowab
 	
 	private JobMetrics metrics;
 	ISamzaService service = new ContentEnrichmentService();
-	
 	
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
@@ -35,15 +35,15 @@ public class ContentEnrichmentTask implements StreamTask, InitableTask, Windowab
 			throw ex;
 		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
-			if(null != outgoingMap.get("eid")){
-				String eid = (String)outgoingMap.get("eid");
-				if(StringUtils.equalsIgnoreCase(eid, "BE_OBJECT_LIFECYCLE")){
+			if(null != outgoingMap.get(ContentEnrichmentParams.eid.name())){
+				String eid = (String)outgoingMap.get(ContentEnrichmentParams.eid.name());
+				if(StringUtils.equalsIgnoreCase(eid, ContentEnrichmentParams.BE_OBJECT_LIFECYCLE.name())){
 					service.processMessage(outgoingMap, metrics, collector);
 				}
 			}
