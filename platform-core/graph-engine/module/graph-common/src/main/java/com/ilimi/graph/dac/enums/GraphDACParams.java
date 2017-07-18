@@ -14,5 +14,5 @@ public enum GraphDACParams {
     lastUpdatedOn, ON, MATCH, SET, request, MERGE, nodes, RETURN, keys, nodesCount, relationsCount, rootNode, nodeId, WHERE, indexProperties, startNodeId, endNodeId, 
     relationType, startNodeIds, endNodeIds, collectionId, collection, indexProperty, taskId, input, getTags, searchCriteria, paramMap, traverser, cypherQuery, createdOn, 
     lastUpdatedBy, paramValueMap, QUERY_TEMPLATES, queryStatementMap, SYS_INTERNAL_LAST_UPDATED_ON, CONSUMER_ID, consumerId, CHANNEL_ID, channel, newNodes, 
-    modifiedNodes, addedOutRelations, removedOutRelations, addedInRelations, removedInRelations, APP_ID, appId;
+    modifiedNodes, addedOutRelations, removedOutRelations, addedInRelations, removedInRelations, APP_ID, appId, createdBy;
 }

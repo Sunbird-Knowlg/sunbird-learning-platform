@@ -100,7 +100,7 @@ public class Neo4JBoltNodeOperations {
 						if (StringUtils.isNotBlank(versionKey))
 							node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
 						try {
-							updateRedisCache(graphId, node);
+							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 						} catch (Exception e) {
 							PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
 							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
@@ -168,7 +168,7 @@ public class Neo4JBoltNodeOperations {
 							if (StringUtils.isNotBlank(versionKey))
 								node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
 							try {
-								updateRedisCache(graphId, node);
+								updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 							} catch (Exception e) {
 								PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
 								throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
@@ -252,7 +252,7 @@ public class Neo4JBoltNodeOperations {
 						if (StringUtils.isNotBlank(versionKey))
 							node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
 						try {
-							updateRedisCache(graphId, node);
+							updateRedisCache(graphId, neo4JNode, node.getIdentifier(), node.getNodeType());
 						} catch (Exception e) {
 							PlatformLogger.log("Error! While updating redis cache From Neo4J Node.", null, e);
 							throw new ServerException(DACErrorCodeConstants.CACHE_ERROR.name(),
@@ -560,17 +560,24 @@ public class Neo4JBoltNodeOperations {
 		return appId;
 	}
 
-	private void updateRedisCache(String graphId, Node node) {
+	private void updateRedisCache(String graphId, org.neo4j.driver.v1.types.Node neo4JNode, String nodeId, String nodeType) {
 
-		if (!node.getNodeType().equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name()))
+		if (!nodeType.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name()))
 			return;
 
 		Map<String, Object> cacheMap = new HashMap<>();
-		if (node.getMetadata().get(GraphDACParams.versionKey.name()) != null)
-			cacheMap.put(GraphDACParams.versionKey.name(), node.getMetadata().get(GraphDACParams.versionKey.name()));
-		if (node.getMetadata().get(GraphDACParams.consumerId.name()) != null)
-			cacheMap.put(GraphDACParams.consumerId.name(), node.getMetadata().get(GraphDACParams.consumerId.name()));
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.versionKey.name()).asString()))
+			cacheMap.put(GraphDACParams.versionKey.name(), neo4JNode.get(GraphDACParams.versionKey.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.consumerId.name()).asString()))
+			cacheMap.put(GraphDACParams.consumerId.name(), neo4JNode.get(GraphDACParams.consumerId.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString()))
+			cacheMap.put(GraphDACParams.lastUpdatedOn.name(), neo4JNode.get(GraphDACParams.lastUpdatedOn.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.createdBy.name()).asString()))
+			cacheMap.put(GraphDACParams.createdBy.name(), neo4JNode.get(GraphDACParams.createdBy.name()).asString());
+		if (StringUtils.isNotBlank(neo4JNode.get(GraphDACParams.status.name()).asString()))
+			cacheMap.put(GraphDACParams.status.name(), neo4JNode.get(GraphDACParams.status.name()).asString());
+
 		if (cacheMap.size() > 0)
-			RedisStoreUtil.saveNodeProperties(graphId, node.getIdentifier(), cacheMap);
+			RedisStoreUtil.saveNodeProperties(graphId, nodeId, cacheMap);
 	}
 }
