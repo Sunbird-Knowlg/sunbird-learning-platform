@@ -15,6 +15,7 @@ import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.jobs.samza.task.ImageTaggingTask;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.util.ControllerUtil;
@@ -34,8 +35,8 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class OptimizerUtil {
 	/** The logger. */
 
-	private static Logger LOGGER = LogManager.getLogger(OptimizerUtil.class.getName());
-
+	static JobLogger LOGGER = new JobLogger(OptimizerUtil.class);
+	
 	/** The ekstep optimizr. */
 	private static Optimizr ekstepOptimizr = new Optimizr();
 
