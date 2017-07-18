@@ -1,0 +1,16 @@
+{
+    "name": "getVowelsList_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/varnas/vowels/list/",
+        "requestParams": ["language_id"]
+    },
+    "body": "",
+    "apiId":"ekstep.language.varnas.vowels.list",
+    "version":"3.0"
+}

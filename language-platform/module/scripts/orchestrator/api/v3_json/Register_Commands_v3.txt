@@ -29,3 +29,7 @@ node registerScript.js api/flag-word.tcl api/v3_json/json/register-flag-wordV3.j
 node registerScript.js api/get-translation.tcl api/v3_json/json/register-get-translationV3.json update
 
 node registerScript.js api/get-transliterate.tcl api/v3_json/json/register-get-transliterateV3.json update
+
+node registerScript.js api/getRhymingWords.tcl api/v3_json/json/register-get-rhymingwords-listV3.json update
+
+node registerScript.js api/get-top-words.tcl api/v3_json/json/register-get-words-curate-listV3.json update

@@ -1,0 +1,16 @@
+{
+    "name": "getConsonantsList_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v3/varnas/consonants/list/",
+        "requestParams": ["language_id"]
+    },
+    "body": "",
+    "apiId":"ekstep.language.varnas.consonants.list",
+    "version":"3.0"
+}

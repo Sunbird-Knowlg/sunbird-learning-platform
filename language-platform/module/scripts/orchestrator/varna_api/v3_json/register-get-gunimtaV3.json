@@ -1,15 +1,17 @@
 {
     "name": "getGunimta_v3",
     "parameters": [{
-    	"name":"unicode",
-    	"index": 0,
-    	"routingParam": false,
-		"datatype": "java.lang.String"
+        "name":"unicode",
+        "index": 0,
+        "routingParam": false,
+        "datatype": "java.lang.String"
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v3/public/dictionary/varna/gunimta/*",
-		"pathParams": ["unicode"]
+        "url": "/v3/varnas/gunimta/list",
+        "requestParams": ["unicode"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.varnas.gunimta.list",
+    "version":"3.0"
 }

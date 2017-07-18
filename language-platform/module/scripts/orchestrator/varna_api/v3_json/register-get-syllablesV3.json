@@ -8,8 +8,10 @@
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/public/dictionary/varna/word/syllables/*",
+        "url": "/v3/varnas/syllables/list",
         "pathParams": ["word"]
     },
-    "body": ""
+    "body": "",
+    "apiId":"ekstep.language.varnas.syllables.list",
+    "version":"3.0"
 }

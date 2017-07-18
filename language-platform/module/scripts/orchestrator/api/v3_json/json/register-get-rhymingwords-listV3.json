@@ -1,0 +1,22 @@
+{
+  "name": "getRhymingWords_listV3",
+  "parameters": [
+    {
+      "name": "language_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+      "name": "lemma",
+      "index": 1,
+      "routingParam": false
+    }
+  ],
+  "requestPath": {
+    "type":"POST",
+    "url":"/v3/tools/rhymingwords/list"
+  },
+  "body": "",
+  "apiId":"ekstep.language.rhymingWords.list",
+  "version":"3.0"
+}
