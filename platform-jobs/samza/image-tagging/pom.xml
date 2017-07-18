@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>image-tagging</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 	<dependencies>
 		<dependency>
 			<groupId>com.ilimi</groupId>
