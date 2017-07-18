@@ -26,7 +26,7 @@ import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 /**
- * The Class ContentV2Controller, is the main entry point for the High Level
+ * The Class ContentV3Controller, is the main entry point for the High Level
  * Content Operations, mostly it holds the API Method related to Content
  * Workflow Management such as 'Upload', 'Publish' 'Optimize', 'Extract' and
  * 'Bundle'. Other that these operation the Content can have other basic CRUD

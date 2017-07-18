@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -584,6 +585,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String graphId, String contentId, String mode, List<String> fields) {
 		PlatformLogger.log("Graph Id: ", graphId);
@@ -594,13 +596,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		PlatformLogger.log("Fetching the Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
+		List<String> externalPropsList = getExternalPropsList(definition);
+		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
-		if (null != fields && fields.contains(TaxonomyAPIParams.body.name()))
-			contentMap.put(TaxonomyAPIParams.body.name(), getContentBody(contentId, mode));
+
+		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
+			Response getContentPropsRes = getContentProperties(contentId, externalPropsToFetch, mode);
+			if (!checkError(getContentPropsRes))
+				contentMap.putAll((Map<String, Object>) getContentPropsRes.get(TaxonomyAPIParams.values.name()));
+		}
+
+		// Get all the languages for a given Content
 		List<String> languages = convertStringArrayToList(
 				(String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
 
-		// Get all the languages for a given Content
+		// Eval the language code for all Content Languages
 		List<String> languageCodes = new ArrayList<String>();
 		for (String language : languages)
 			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
@@ -688,6 +698,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
 	private String getContentBody(String contentId, String mode) {
 		String body = "";
 		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
@@ -705,6 +716,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Response response = makeLearningRequest(request);
 		String body = (String) response.get(ContentStoreParams.body.name());
 		return body;
+	}
+
+	private Response getContentProperties(String contentId, List<String> properties, String mode) {
+		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
+			contentId = getContentImageIdentifier(contentId);
+		return getContentProperties(contentId, properties);
 	}
 
 	private Response getContentProperties(String contentId, List<String> properties) {
@@ -939,6 +956,26 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
+	public Response update(String contentId, Map<String, Object> requestMap) {
+		PlatformLogger.log("Content Id: " + contentId);
+		PlatformLogger.log("Request Map: " + requestMap);
+
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(TaxonomyErrorCodes.INVALID_CONTENT_ID.name(),
+					"Error! Invalid Content Identifier. | [Invalid or 'null' Content Identifier]");
+		if (null == requestMap || requestMap.isEmpty())
+			throw new ClientException(TaxonomyErrorCodes.INVALID_REQUEST.name(),
+					"Error! Invalid Request Body. | [Invalid or 'null' Request Body]");
+
+		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		String contentStatus = "";
+		String contentImageStatus = "";
+
+		Response response = new Response();
+
+		return response;
+	}
+
 	@SuppressWarnings("unchecked")
 	public Response updateContent(String contentId, Map<String, Object> map) throws Exception {
 		if (null == map)
@@ -1144,7 +1181,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				id = tmpnode.getIdentifier();
 				objectType = tmpnode.getObjectType();
 			} else {
-				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
 			}
 		}
 		idMap.put(nodeId, id);
@@ -1185,7 +1223,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				idMap.put(nodeId, id);
 				nodeMap.put(id, tmpnode);
 			} else {
-				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
 			}
 		}
 		if (StringUtils.isNotBlank(id)) {
@@ -1208,10 +1247,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						rel.setMetadata(metadata);
 						outRelations.add(rel);
 					}
-					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
+					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+							null);
 					dummyContentRelation.setEndNodeObjectType(CONTENT_OBJECT_TYPE);
 					outRelations.add(dummyContentRelation);
-					Relation dummyContentImageRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
+					Relation dummyContentImageRelation = new Relation(id,
+							RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
 					dummyContentImageRelation.setEndNodeObjectType(CONTENT_IMAGE_OBJECT_TYPE);
 					outRelations.add(dummyContentImageRelation);
 					node.setOutRelations(outRelations);
