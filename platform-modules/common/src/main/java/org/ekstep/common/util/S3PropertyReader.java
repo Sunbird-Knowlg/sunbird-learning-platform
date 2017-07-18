@@ -1,6 +1,5 @@
 package org.ekstep.common.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
@@ -21,7 +20,7 @@ public class S3PropertyReader {
 		}
 		try {
 			prop.load(input);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			PlatformLogger.log("Error", e.getMessage(), LoggerEnum.ERROR.name());
 		}
 	}
