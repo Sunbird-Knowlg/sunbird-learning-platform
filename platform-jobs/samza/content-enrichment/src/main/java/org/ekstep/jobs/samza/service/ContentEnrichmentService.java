@@ -71,7 +71,6 @@ public class ContentEnrichmentService implements ISamzaService {
 					LOGGER.info("Processing Collection :" + node.getIdentifier());
 					processCollection(node);
 				} else {
-					LOGGER.info("calling processData to fetch node metadata" + node);
 					processData(node);
 				}
 				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name())
@@ -108,14 +107,12 @@ public class ContentEnrichmentService implements ISamzaService {
 			result = getOutRelationsMap(outRelations);
 		}
 
-		LOGGER.info("fetching conceptIds from result" + result.containsKey(ContentEnrichmentParams.conceptIds.name()));
 		if (null != result.get(ContentEnrichmentParams.conceptIds.name())) {
 			List list = (List) result.get(ContentEnrichmentParams.conceptIds.name());
 			if (null != list && !list.isEmpty())
 				conceptIds.addAll(list);
 		}
 
-		LOGGER.info("fetching conceptGrades from result" + result.containsKey(ContentEnrichmentParams.conceptGrades.name()));
 		if (null != result.get(ContentEnrichmentParams.conceptGrades.name())) {
 			List list = (List) result.get(ContentEnrichmentParams.conceptGrades.name());
 			if (null != list && !list.isEmpty())
@@ -150,19 +147,12 @@ public class ContentEnrichmentService implements ISamzaService {
 		}
 
 		List<String> items = getItemsMap(node, graphId, contentId);
-
-		LOGGER.info("null and empty check for items" + items.isEmpty());
 		if (null != items && !items.isEmpty()) {
 			getConceptsFromItems(graphId, contentId, items, node, conceptIds, conceptGrades);
 
 		} else if (null != conceptGrades && !conceptGrades.isEmpty()) {
-
-			LOGGER.info("calling process grades method to fetch and update grades");
 			Node content_node = processGrades(node, null, conceptGrades);
-
-			LOGGER.info("calling processAgeGroup method to process ageGroups from gradeLevels");
 			Node contentNode = processAgeGroup(content_node);
-
 			util.updateNode(contentNode);
 		}
 	}
@@ -212,14 +202,11 @@ public class ContentEnrichmentService implements ISamzaService {
 				node.getMetadata().put("keywords", keywordsList);
 			}
 			util.updateNode(node);
-			LOGGER.info("Keywords ->" + node.getMetadata().get("keywords"));
 			List<String> concepts = new ArrayList<>();
-			LOGGER.info("Concepts DataMap " + dataMap.get("concepts"));
 			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
 			if (null != concepts && !concepts.isEmpty()) {
 				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
 			}
-			LOGGER.info("Updated Concepts ->" + concepts);
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
@@ -369,10 +356,7 @@ public class ContentEnrichmentService implements ISamzaService {
 			if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 				List<Relation> outRelations = node.getOutRelations();
 
-				LOGGER.info("outRelations fetched from each item" + outRelations);
 				if (null != outRelations && !outRelations.isEmpty()) {
-
-					LOGGER.info("Iterating through relations");
 					for (Relation rel : outRelations) {
 
 						LOGGER.info("Get item sets associated with the content: " + contentId);
@@ -382,27 +366,15 @@ public class ContentEnrichmentService implements ISamzaService {
 					}
 				}
 			}
-			LOGGER.info("checking if itemSets are empty" + itemSets);
 			if (null != itemSets && !itemSets.isEmpty()) {
-
-				LOGGER.info("Number of item sets: " + itemSets.size());
 				Set<String> itemIds = new HashSet<String>();
-
-				LOGGER.info("Iterating through itemSet map" + itemSets);
 				for (String itemSet : itemSets) {
-
-					LOGGER.info("calling getItemSetMembers methods to get items from itemSets");
 					List<String> members = getItemSetMembers(graphId, itemSet);
-
-					LOGGER.info("getting item memebers from item set" + members);
 					if (null != members && !members.isEmpty())
 						itemIds.addAll(members);
 				}
-				LOGGER.info("Total number of items: " + itemIds.size());
 				if (!itemIds.isEmpty()) {
 					items = new ArrayList<String>(itemIds);
-					LOGGER.info("getting items associated with itemsets" + items);
-
 				}
 			}
 		} catch (Exception e) {
@@ -427,15 +399,11 @@ public class ContentEnrichmentService implements ISamzaService {
 	private List<String> getItemSetMembers(String graphId, String itemSetId) {
 
 		List<String> members = new ArrayList<String>();
-		LOGGER.info("Get members of items set: " + itemSetId);
 		Response response = util.getCollectionMembers(graphId, itemSetId, CollectionTypes.SET.name());
-
-		LOGGER.info("checking if response is null" + response);
 		if (null != response) {
 			LOGGER.info("getting members from response");
 			members = (List<String>) response.get(GraphDACParams.members.name());
 		}
-		LOGGER.info("item members fetched from itemSets" + members);
 		return members;
 	}
 
@@ -466,27 +434,15 @@ public class ContentEnrichmentService implements ISamzaService {
 			Set<String> existingConceptIds, Set<String> existingConceptGrades) {
 		Response response = null;
 		Set<String> itemGrades = new HashSet<String>();
-
-		LOGGER.info("checking if itemsList is empty" + items);
 		if (null != items && !items.isEmpty()) {
-			LOGGER.debug("getting all items Data from itemIds" + items);
-
 			response = util.getDataNodes(graphId, items);
 			LOGGER.info("response from getDataNodes" + response);
 		}
-
-		LOGGER.info("checking if response is null" + response);
 		if (null != response) {
 
 			List<Node> item_nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-
-			LOGGER.info("List of nodes retrieved from response" + item_nodes.size());
 			if (null != item_nodes && !item_nodes.isEmpty()) {
-
-				LOGGER.info("Iterating through item_nodes");
 				for (Node node : item_nodes) {
-
-					LOGGER.info("Checking if item node contains gradeLevel");
 					if (null != node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
 						String[] grade_array = (String[]) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 						for (String grade : grade_array) {
@@ -496,10 +452,7 @@ public class ContentEnrichmentService implements ISamzaService {
 					}
 
 					List<Relation> outRelations = node.getOutRelations();
-					LOGGER.info("calling getOutRelationsMap" + outRelations);
 					Map<String, Object> result = getOutRelationsMap(outRelations);
-
-					LOGGER.info("fetching conceptIds from result" + result);
 					if (null != result.get(ContentEnrichmentParams.conceptIds.name())) {
 						List list = (List) result.get(ContentEnrichmentParams.conceptIds.name());
 						if (null != list && !list.isEmpty())
@@ -513,20 +466,13 @@ public class ContentEnrichmentService implements ISamzaService {
 		if (null != existingConceptIds && !existingConceptIds.isEmpty()) {
 			totalConceptIds.addAll(existingConceptIds);
 		}
-
-		LOGGER.info("calling process grades method to fetch and update grades");
 		Node node = processGrades(content, itemGrades, existingConceptGrades);
-
-		LOGGER.info("calling processAgeGroup method to process ageGroups from gradeLevels");
 		Node content_node = processAgeGroup(node);
-
-		LOGGER.info("updating node with extracted features" + content_node);
 		node.setOutRelations(null);
 		node.setInRelations(null);
 		util.updateNode(content_node);
 
 		if (null != totalConceptIds && !totalConceptIds.isEmpty()) {
-			LOGGER.info("result node after adding required metadata" + node);
 			util.addOutRelations(graphId, contentId, totalConceptIds, RelationTypes.ASSOCIATED_TO.relationName());
 		}
 	}
@@ -552,19 +498,16 @@ public class ContentEnrichmentService implements ISamzaService {
 	private Node processGrades(Node node, Set<String> itemGrades, Set<String> existingConceptGrades) {
 		Node content_node = null;
 		try {
-
-			LOGGER.info("checking if concept grades exist" + existingConceptGrades);
 			if (null != existingConceptGrades && !existingConceptGrades.isEmpty()) {
 				content_node = setGradeLevels(existingConceptGrades, node);
 			} else {
-				LOGGER.info("checking if item grades exist" + itemGrades);
 				if (null != itemGrades && !itemGrades.isEmpty()) {
 					content_node = setGradeLevels(itemGrades, node);
 				}
 			}
 
 		} catch (Exception e) {
-			LOGGER.error("Exception occured while setting age group from grade level", e);
+			LOGGER.error("Exception occured while setting age group from grade level" + e.getMessage(), e);
 		}
 		return content_node;
 	}
@@ -584,26 +527,17 @@ public class ContentEnrichmentService implements ISamzaService {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Node setGradeLevels(Set<String> grades, Node node) {
 
-		LOGGER.info("checking if node contains gradeLevel");
 		if (null == node.getMetadata().get("gradeLevel")) {
 			List<String> gradeLevel = new ArrayList(grades);
 			node.getMetadata().put(ContentEnrichmentParams.gradeLevel.name(), gradeLevel);
 
 		} else {
-			LOGGER.info("fetching grade levels from node");
 			String[] grade_array = (String[]) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
-
-			LOGGER.info("checking if grade levels obtained are empty ");
 			if (null != grade_array) {
-
-				LOGGER.info("adding grades which doesnt exist in node" + grades);
 				for (String grade : grade_array) {
-
-					LOGGER.info("checking if grade already exists" + grade);
 					grades.add(grade);
 					List gradeLevel = new ArrayList(grades);
 					node.getMetadata().put(ContentEnrichmentParams.gradeLevel.name(), gradeLevel);
-					LOGGER.info("updating node metadata with additional grades" + node);
 				}
 			}
 		}
@@ -627,12 +561,11 @@ public class ContentEnrichmentService implements ISamzaService {
 		Set<String> ageSet = new HashSet<String>();
 
 		if (null != node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
-			LOGGER.info("fetching gradeLevel from node metadata" + node);
+			LOGGER.info("fetching gradeLevel from node metadata");
 			List<String> grades = (List) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 			if (null != grades) {
 
 				for (String grade : grades) {
-					LOGGER.info("mapping age group based on grades");
 					if ("Kindergarten".equalsIgnoreCase(grade)) {
 						ageSet.add("<5");
 					} else if ("Grade 1".equalsIgnoreCase(grade)) {
@@ -669,11 +602,7 @@ public class ContentEnrichmentService implements ISamzaService {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Node setAgeGroup(Node node, Set<String> ageSet) {
-
-		LOGGER.info("Checking if node contains ageGroup in it");
 		if (null == node.getMetadata().get(ContentEnrichmentParams.ageGroup.name())) {
-
-			LOGGER.info("adding ageSet to node if it doesnt have ageGroup in it");
 			if (null != ageSet) {
 				LOGGER.info("adding age metadata to node" + ageSet);
 				List<String> ageGroup = new ArrayList(ageSet);
@@ -681,15 +610,12 @@ public class ContentEnrichmentService implements ISamzaService {
 			}
 
 		} else {
-
-			LOGGER.info("fetching ageGroup from node");
 			String[] age_array = (String[]) node.getMetadata().get("ageGroup");
 			if (null != ageSet) {
 				if (null != age_array) {
 					for (String age : age_array) {
 						ageSet.add(age);
 					}
-					LOGGER.info("adding age metadata to node" + ageSet);
 					List<String> ageGroup = new ArrayList(ageSet);
 					node.getMetadata().put(ContentEnrichmentParams.ageGroup.name(), ageGroup);
 				}
@@ -738,7 +664,6 @@ public class ContentEnrichmentService implements ISamzaService {
 				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 				node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
 				util.updateNode(node);
-				LOGGER.info("Updating Node MetaData");
 			}
 		} catch (Exception e) {
 			LOGGER.error("Error while processing the collection ", e);
