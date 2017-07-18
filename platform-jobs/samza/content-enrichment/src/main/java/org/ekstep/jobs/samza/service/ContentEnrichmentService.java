@@ -27,6 +27,7 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -56,6 +57,7 @@ public class ContentEnrichmentService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		S3PropertyReader.loadProperties(props);
+		Configuration.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 	}

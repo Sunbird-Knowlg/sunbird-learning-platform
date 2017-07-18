@@ -24,6 +24,7 @@ import org.ekstep.jobs.samza.util.OptimizerUtil;
 import org.ekstep.jobs.samza.util.VisionApi;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 
 public class ImageTaggingService implements ISamzaService {
@@ -44,6 +45,7 @@ public class ImageTaggingService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		S3PropertyReader.loadProperties(props);
+		Configuration.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 	}
