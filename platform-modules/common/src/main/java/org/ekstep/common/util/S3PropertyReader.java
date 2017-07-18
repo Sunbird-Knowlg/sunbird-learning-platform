@@ -2,6 +2,7 @@ package org.ekstep.common.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import com.ilimi.common.logger.LoggerEnum;
@@ -23,6 +24,14 @@ public class S3PropertyReader {
 		} catch (IOException e) {
 			PlatformLogger.log("Error", e.getMessage(), LoggerEnum.ERROR.name());
 		}
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
 	}
 	
 	public static String getProperty(String key){

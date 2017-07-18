@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.ImageWorkflowEnums;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -23,8 +24,6 @@ import org.ekstep.jobs.samza.util.OptimizerUtil;
 import org.ekstep.jobs.samza.util.VisionApi;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 
 public class ImageTaggingService implements ISamzaService {
@@ -44,7 +43,7 @@ public class ImageTaggingService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		Configuration.loadProperties(props);
+		S3PropertyReader.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 	}

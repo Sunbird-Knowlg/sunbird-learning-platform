@@ -25,7 +25,6 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -56,7 +55,7 @@ public class ContentEnrichmentService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		PropertiesUtil.loadProperties(props);
+		S3PropertyReader.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 	}
