@@ -37,9 +37,9 @@ import com.ilimi.graph.enums.CollectionTypes;
 
 public class ContentEnrichmentService implements ISamzaService {
 
-	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
-
 	static JobLogger LOGGER = new JobLogger(ContentEnrichmentService.class);
+
+	private Config config = null;
 
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
@@ -53,6 +53,7 @@ public class ContentEnrichmentService implements ISamzaService {
 
 	@Override
 	public void initialize(Config config) throws Exception {
+		this.config = config;
 		Map<String, Object> props = new HashMap<String, Object>();
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
@@ -62,39 +63,75 @@ public class ContentEnrichmentService implements ISamzaService {
 		PropertiesUtil.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
+		LOGGER.info("Actors initialized...");
 	}
 
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
+
+		Map<String, Object> eks = getStateChangeData(message);
+		if (null == eks) {
+			metrics.incSkippedCounter();
+			return;
+		}
 		try {
-			Node node = filterMessage(message);
+			Node node = getNode(eks);
 			if (null != node) {
-				if (node.getMetadata().get(ContentEnrichmentParams.contentType.name())
-						.equals(ContentEnrichmentParams.Collection.name())) {
-					LOGGER.info("Processing Collection :" + node.getIdentifier());
+				if (node.getMetadata().get(ContentEnrichmentParams.contentType.name()).equals(ContentEnrichmentParams.Collection.name())) {
 					processCollection(node);
 				} else {
-					processData(node);
+					// processData(node);
 				}
-				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name())
-						.equals("application/vnd.ekstep.content-collection")) {
+				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name()).equals("application/vnd.ekstep.content-collection")) {
 					processCollectionForTOC(node);
 				}
+			} else {
+				metrics.incSkippedCounter();
 			}
 		} catch (Exception e) {
-			LOGGER.error("content enrichment failed" + e.getMessage(), e);
-			e.printStackTrace();
+			LOGGER.error("Failed to process message. Content enrichment failed", message, e);
+			metrics.incFailedCounter();
 		}
 	}
 
+	@SuppressWarnings({ "unchecked" })
+	private Map<String, Object> getStateChangeData(Map<String, Object> message) throws Exception {
+
+		String eid = (String) message.get("eid");
+		if (null == eid || !StringUtils.equalsIgnoreCase(eid, ContentEnrichmentParams.BE_OBJECT_LIFECYCLE.name())) {
+			return null;
+		}
+
+		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
+		if (null == edata) {
+			return null;
+		}
+
+		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
+		if (null == eks) {
+			return null;
+		}
+
+		if (StringUtils.equalsIgnoreCase("Live", (String) eks.get("state"))) {
+			return eks;
+		}
+
+		return null;
+	}
+
+	private Node getNode(Map<String, Object> eks) throws Exception {
+		if (null != eks.get("id")) {
+			return util.getNode("domain", eks.get("id").toString());
+		}
+		return null;
+	}
+
 	/**
-	 * This method holds logic to fetch conceptIds and conceptGrades from the
-	 * out relations
+	 * This method holds logic to fetch conceptIds and conceptGrades from the out relations
 	 * 
-	 * @param node
-	 *            The content node
+	 * @param node The content node
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	private void processData(Node node) {
 
 		Set<String> conceptIds = new HashSet<String>();
@@ -161,63 +198,59 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void processCollection(Node node) {
+	private void processCollection(Node node) throws Exception {
+
 		String graphId = node.getGraphId();
 		String contentId = node.getIdentifier();
-		try {
-			Map<String, Object> dataMap = new HashMap<>();
-			dataMap = processChildren(node, graphId, dataMap);
-			LOGGER.info("Processed Child nodes");
-			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
-				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
-					continue;
-				} else if ("subject".equalsIgnoreCase(entry.getKey())) {
-					Set<Object> subject = (HashSet<Object>) entry.getValue();
-					if (null != subject.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
-					}
-				} else if ("medium".equalsIgnoreCase(entry.getKey())) {
-					Set<Object> medium = (HashSet<Object>) entry.getValue();
-					if (null != medium.iterator().next()) {
-						node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
-					}
-				} else {
-					Set<String> valueSet = (HashSet<String>) entry.getValue();
-					String[] value = valueSet.toArray(new String[valueSet.size()]);
-					node.getMetadata().put(entry.getKey(), value);
-					LOGGER.info("Updating property" + entry.getKey() + ":" + value);
+		LOGGER.info("Enrich collection node - " + contentId);
+		Map<String, Object> dataMap = new HashMap<>();
+		dataMap = processChildren(node, graphId, dataMap);
+		LOGGER.info("Children nodes process for collection - " + contentId);
+		for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+			if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
+				continue;
+			} else if ("subject".equalsIgnoreCase(entry.getKey())) {
+				Set<Object> subject = (HashSet<Object>) entry.getValue();
+				if (null != subject.iterator().next()) {
+					node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
 				}
-			}
-			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
-			if (null != keywords && !keywords.isEmpty()) {
-				if (null != node.getMetadata().get("keywords")) {
-					Object object = node.getMetadata().get("keywords");
-					if (object instanceof String[]) {
-						String[] stringArray = (String[]) node.getMetadata().get("keywords");
-						keywords.addAll(Arrays.asList(stringArray));
-					} else if (object instanceof String) {
-						String keyword = (String) node.getMetadata().get("keywords");
-						keywords.add(keyword);
-					}
+			} else if ("medium".equalsIgnoreCase(entry.getKey())) {
+				Set<Object> medium = (HashSet<Object>) entry.getValue();
+				if (null != medium.iterator().next()) {
+					node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
 				}
-				List<String> keywordsList = new ArrayList<>();
-				keywordsList.addAll(keywords);
-				node.getMetadata().put("keywords", keywordsList);
+			} else {
+				Set<String> valueSet = (HashSet<String>) entry.getValue();
+				String[] value = valueSet.toArray(new String[valueSet.size()]);
+				node.getMetadata().put(entry.getKey(), value);
 			}
-			util.updateNode(node);
-			List<String> concepts = new ArrayList<>();
-			concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
-			if (null != concepts && !concepts.isEmpty()) {
-				util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
-			}
-		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
 		}
+		Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
+		if (null != keywords && !keywords.isEmpty()) {
+			if (null != node.getMetadata().get("keywords")) {
+				Object object = node.getMetadata().get("keywords");
+				if (object instanceof String[]) {
+					String[] stringArray = (String[]) node.getMetadata().get("keywords");
+					keywords.addAll(Arrays.asList(stringArray));
+				} else if (object instanceof String) {
+					String keyword = (String) node.getMetadata().get("keywords");
+					keywords.add(keyword);
+				}
+			}
+			List<String> keywordsList = new ArrayList<>();
+			keywordsList.addAll(keywords);
+			node.getMetadata().put("keywords", keywordsList);
+		}
+		util.updateNode(node);
+		List<String> concepts = new ArrayList<>();
+		concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
+		if (null != concepts && !concepts.isEmpty()) {
+			util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
+		}
+
 	}
 
-	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap)
-			throws Exception {
-		LOGGER.info("In processChildren");
+	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) throws Exception {
 		List<String> children;
 		children = getChildren(node);
 		for (String child : children) {
@@ -229,9 +262,7 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap)
-			throws Exception {
-		LOGGER.info("In mergeMap");
+	private Map<String, Object> mergeMap(Map<String, Object> dataMap, Map<String, Object> childDataMap) throws Exception {
 		if (dataMap.isEmpty()) {
 			dataMap.putAll(childDataMap);
 		} else {
@@ -255,7 +286,6 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	private List<String> getChildren(Node node) throws Exception {
-		LOGGER.info("In getChildren");
 		List<String> children = new ArrayList<>();
 		for (Relation rel : node.getOutRelations()) {
 			if (ContentEnrichmentParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
@@ -266,7 +296,7 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	private Map<String, Object> processChild(Node node) throws Exception {
-		LOGGER.info("In processChild");
+
 		Map<String, Object> result = new HashMap<>();
 		Set<Object> language = new HashSet<Object>();
 		Set<Object> concepts = new HashSet<Object>();
@@ -332,22 +362,18 @@ public class ContentEnrichmentService implements ISamzaService {
 		if (null != concepts && !concepts.isEmpty()) {
 			result.put(ContentEnrichmentParams.concepts.name(), concepts);
 		}
-		LOGGER.info("Concept in resultMap->" + result.get("concepts"));
 		return result;
 	}
 
 	/**
-	 * This method gets the list of itemsets associated with content node and
-	 * items which are members of item sets used in the content.
+	 * This method gets the list of itemsets associated with content node and items which are members of item sets used
+	 * in the content.
 	 * 
-	 * @param content
-	 *            The Content node
+	 * @param content The Content node
 	 * 
-	 * @param existingConceptGrades
-	 *            The conceptGrades from content node
+	 * @param existingConceptGrades The conceptGrades from content node
 	 * 
-	 * @param existingConceptIds
-	 *            The existingConceptIds from Content node
+	 * @param existingConceptIds The existingConceptIds from Content node
 	 * 
 	 */
 	private List<String> getItemsMap(Node node, String graphId, String contentId) {
@@ -362,9 +388,7 @@ public class ContentEnrichmentService implements ISamzaService {
 				if (null != outRelations && !outRelations.isEmpty()) {
 					for (Relation rel : outRelations) {
 
-						LOGGER.info("Get item sets associated with the content: " + contentId);
-						if (StringUtils.equalsIgnoreCase("ItemSet", rel.getEndNodeObjectType())
-								&& !itemSets.contains(rel.getEndNodeId()))
+						if (StringUtils.equalsIgnoreCase("ItemSet", rel.getEndNodeObjectType()) && !itemSets.contains(rel.getEndNodeId()))
 							itemSets.add(rel.getEndNodeId());
 					}
 				}
@@ -387,14 +411,12 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	/**
-	 * This methods holds logic to get members of givens item set, returns the
-	 * list of identifiers of the items that are members of the given item set.
+	 * This methods holds logic to get members of givens item set, returns the list of identifiers of the items that are
+	 * members of the given item set.
 	 * 
-	 * @param graphId
-	 *            identifier of the domain graph
+	 * @param graphId identifier of the domain graph
 	 * 
-	 * @param itemSetId
-	 *            identifier of the item set
+	 * @param itemSetId identifier of the item set
 	 * 
 	 * @return list of identifiers of member items
 	 */
@@ -404,42 +426,35 @@ public class ContentEnrichmentService implements ISamzaService {
 		List<String> members = new ArrayList<String>();
 		Response response = util.getCollectionMembers(graphId, itemSetId, CollectionTypes.SET.name());
 		if (null != response) {
-			LOGGER.info("getting members from response");
 			members = (List<String>) response.get(GraphDACParams.members.name());
 		}
 		return members;
 	}
 
 	/**
-	 * This method holds logic to map Concepts from the Items, get their
-	 * gradeLevel and age Group and add it as a part of node metadata.
+	 * This method holds logic to map Concepts from the Items, get their gradeLevel and age Group and add it as a part
+	 * of node metadata.
 	 * 
-	 * @param graphId
-	 *            The identifier of the domain graph
+	 * @param graphId The identifier of the domain graph
 	 * 
-	 * @param items
-	 *            The list of assessment item identifiers
+	 * @param items The list of assessment item identifiers
 	 * 
-	 * @param content
-	 *            The Content node
+	 * @param content The Content node
 	 * 
-	 * @param existingConceptIds
-	 *            The existingConceptIds from content node
+	 * @param existingConceptIds The existingConceptIds from content node
 	 * 
-	 * @param existingConceptGrades
-	 *            grades from concepts associated with content node
+	 * @param existingConceptGrades grades from concepts associated with content node
 	 * 
 	 * @return updated node with all metadata
 	 * 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void getConceptsFromItems(String graphId, String contentId, List<String> items, Node content,
-			Set<String> existingConceptIds, Set<String> existingConceptGrades) {
+	private void getConceptsFromItems(String graphId, String contentId, List<String> items, Node content, Set<String> existingConceptIds,
+			Set<String> existingConceptGrades) {
 		Response response = null;
 		Set<String> itemGrades = new HashSet<String>();
 		if (null != items && !items.isEmpty()) {
 			response = util.getDataNodes(graphId, items);
-			LOGGER.info("response from getDataNodes" + response);
 		}
 		if (null != response) {
 
@@ -449,7 +464,6 @@ public class ContentEnrichmentService implements ISamzaService {
 					if (null != node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
 						String[] grade_array = (String[]) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 						for (String grade : grade_array) {
-							LOGGER.info("adding item grades" + grade);
 							itemGrades.add(grade);
 						}
 					}
@@ -465,7 +479,6 @@ public class ContentEnrichmentService implements ISamzaService {
 			}
 		}
 		List<String> totalConceptIds = new ArrayList<String>();
-		LOGGER.info("adding conceptId from content node to list");
 		if (null != existingConceptIds && !existingConceptIds.isEmpty()) {
 			totalConceptIds.addAll(existingConceptIds);
 		}
@@ -481,20 +494,15 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	/**
-	 * This method mainly holds logic to map the content node with concept
-	 * metadata like gradeLevel and ageGroup
+	 * This method mainly holds logic to map the content node with concept metadata like gradeLevel and ageGroup
 	 * 
-	 * @param content
-	 *            The content node
+	 * @param content The content node
 	 * 
-	 * @param itemGrades
-	 *            The itemGrades
+	 * @param itemGrades The itemGrades
 	 * 
-	 * @param conceptGrades
-	 *            The conceptGrades
+	 * @param conceptGrades The conceptGrades
 	 * 
-	 * @param existingConceptGrades
-	 *            The concept grades from content
+	 * @param existingConceptGrades The concept grades from content
 	 * 
 	 * @return updated node with required metadata
 	 */
@@ -516,14 +524,11 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	/**
-	 * This method holds logic to getGrades levels either for itemGrades or
-	 * conceptGrades and add it to node metadata
+	 * This method holds logic to getGrades levels either for itemGrades or conceptGrades and add it to node metadata
 	 * 
-	 * @param grades
-	 *            The grades
+	 * @param grades The grades
 	 * 
-	 * @param node
-	 *            The content node
+	 * @param node The content node
 	 * 
 	 * @return The updated content node
 	 */
@@ -550,11 +555,9 @@ public class ContentEnrichmentService implements ISamzaService {
 	/**
 	 * This method holds logic to map ageGroup from gradeMap
 	 * 
-	 * @param grades
-	 *            The gradeMap
+	 * @param grades The gradeMap
 	 * 
-	 * @param existingAgeGroup
-	 *            The age group from content
+	 * @param existingAgeGroup The age group from content
 	 * 
 	 * @return The ageMap mapped from gradeLevel
 	 */
@@ -564,7 +567,6 @@ public class ContentEnrichmentService implements ISamzaService {
 		Set<String> ageSet = new HashSet<String>();
 
 		if (null != node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name())) {
-			LOGGER.info("fetching gradeLevel from node metadata");
 			List<String> grades = (List) node.getMetadata().get(ContentEnrichmentParams.gradeLevel.name());
 			if (null != grades) {
 
@@ -585,7 +587,6 @@ public class ContentEnrichmentService implements ISamzaService {
 						ageSet.add("Other");
 					}
 				}
-				LOGGER.info("Calling set ageGroup method to set ageGroups" + ageSet);
 				data = setAgeGroup(node, ageSet);
 			}
 		}
@@ -595,11 +596,9 @@ public class ContentEnrichmentService implements ISamzaService {
 	/**
 	 * This method holds logic to set ageGroup based on the grades
 	 * 
-	 * @param node
-	 *            The node
+	 * @param node The node
 	 * 
-	 * @param ageSet
-	 *            The ageSet
+	 * @param ageSet The ageSet
 	 * 
 	 * @return The node
 	 */
@@ -607,7 +606,6 @@ public class ContentEnrichmentService implements ISamzaService {
 	private Node setAgeGroup(Node node, Set<String> ageSet) {
 		if (null == node.getMetadata().get(ContentEnrichmentParams.ageGroup.name())) {
 			if (null != ageSet) {
-				LOGGER.info("adding age metadata to node" + ageSet);
 				List<String> ageGroup = new ArrayList(ageSet);
 				node.getMetadata().put(ContentEnrichmentParams.ageGroup.name(), ageGroup);
 			}
@@ -628,48 +626,45 @@ public class ContentEnrichmentService implements ISamzaService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void processCollectionForTOC(Node node) {
-		try {
+	public void processCollectionForTOC(Node node) throws Exception {
 
-			LOGGER.info("Processing Collection Content :" + node.getIdentifier());
-			Response response = util.getHirerachy(node.getIdentifier());
-			if (null != response && null != response.getResult()) {
-				Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
-				Map<String, Object> mimeTypeMap = new HashMap<>();
-				Map<String, Object> contentTypeMap = new HashMap<>();
-				int leafCount = 0;
-				getTypeCount(content, "mimeType", mimeTypeMap);
-				getTypeCount(content, "contentType", contentTypeMap);
-				content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
-				content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
-				leafCount = getLeafNodeCount(content, leafCount);
-				content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
-				LOGGER.info("Write hirerachy to JSON File :" + node.getIdentifier());
-				String data = mapper.writeValueAsString(content);
-				File file = new File(getBasePath(node.getIdentifier()) + "TOC.json");
-				try {
-					FileUtils.writeStringToFile(file, data);
-					if (file.exists()) {
-						LOGGER.info("Upload File to S3 :" + file.getName());
-						String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(node.getIdentifier()), file);
-						if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
-							String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
-							LOGGER.info("Update S3 url to node" + url);
-							node.getMetadata().put(ContentAPIParams.toc_url.name(), url);
-						}
-						FileUtils.deleteDirectory(file.getParentFile());
-						LOGGER.info("Deleting Uploaded files");
+		String contentId = node.getIdentifier();
+		LOGGER.info("Processing Collection Content :" + contentId);
+		Response response = util.getHirerachy(contentId);
+		if (null != response && null != response.getResult()) {
+			Map<String, Object> content = (Map<String, Object>) response.getResult().get("content");
+			Map<String, Object> mimeTypeMap = new HashMap<>();
+			Map<String, Object> contentTypeMap = new HashMap<>();
+			int leafCount = 0;
+			getTypeCount(content, "mimeType", mimeTypeMap);
+			getTypeCount(content, "contentType", contentTypeMap);
+			content.put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+			content.put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			leafCount = getLeafNodeCount(content, leafCount);
+			content.put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			LOGGER.info("Write hirerachy to JSON File :" + contentId);
+			String data = mapper.writeValueAsString(content);
+			File file = new File(getBasePath(contentId) + "TOC.json");
+			try {
+				FileUtils.writeStringToFile(file, data);
+				if (file.exists()) {
+					LOGGER.info("Upload File to S3 :" + file.getName());
+					String[] uploadedFileUrl = AWSUploader.uploadFile(getAWSPath(contentId), file);
+					if (null != uploadedFileUrl && uploadedFileUrl.length > 1) {
+						String url = uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX];
+						LOGGER.info("Update S3 url to node" + url);
+						node.getMetadata().put(ContentAPIParams.toc_url.name(), url);
 					}
-				} catch (Exception e) {
-					LOGGER.error("Error while uploading file ", e);
+					FileUtils.deleteDirectory(file.getParentFile());
+					LOGGER.info("Deleting Uploaded files");
 				}
-				node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
-				node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
-				node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
-				util.updateNode(node);
+			} catch (Exception e) {
+				LOGGER.error("Error while uploading file ", e);
 			}
-		} catch (Exception e) {
-			LOGGER.error("Error while processing the collection ", e);
+			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
+			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
+			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			util.updateNode(node);
 		}
 	}
 
@@ -714,7 +709,7 @@ public class ContentEnrichmentService implements ISamzaService {
 	private String getBasePath(String contentId) {
 		String path = "";
 		if (!StringUtils.isBlank(contentId))
-			path = TEMP_FILE_LOCATION + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
+			path = this.config.get("lp.tempfile.location") + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
 					+ File.separator + contentId;
 		return path;
 	}
@@ -728,26 +723,6 @@ public class ContentEnrichmentService implements ISamzaService {
 		return folderName;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Node filterMessage(Map<String, Object> message) throws Exception {
-		Map<String, Object> edata = new HashMap<String, Object>();
-		Map<String, Object> eks = new HashMap<String, Object>();
-		Node node = null;
-		if (null != message.get("edata")) {
-			edata = (Map) message.get("edata");
-			if (null != edata.get("eks")) {
-				eks = (Map) edata.get("eks");
-				if (null != eks.get("state") && StringUtils.equalsIgnoreCase("Live", eks.get("state").toString())) {
-					if (null != eks.get("id")) {
-						node = util.getNode("domain", eks.get("id").toString());
-						return node;
-					}
-				}
-			}
-		}
-		return null;
-	}
-
 	protected Map<String, Object> getOutRelationsMap(List<Relation> outRelations) {
 		List<String> nodeIds = new ArrayList<String>();
 		List<String> conceptGrades = new ArrayList<String>();
@@ -756,8 +731,7 @@ public class ContentEnrichmentService implements ISamzaService {
 		if (null != outRelations && !outRelations.isEmpty()) {
 			for (Relation rel : outRelations) {
 
-				if (null != rel.getEndNodeObjectType()
-						&& StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
+				if (null != rel.getEndNodeObjectType() && StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
 					String status = null;
 					if (null != rel.getEndNodeMetadata().get(ContentEnrichmentParams.status.name())) {
 						status = (String) rel.getEndNodeMetadata().get(ContentAPIParams.status.name());
@@ -767,8 +741,7 @@ public class ContentEnrichmentService implements ISamzaService {
 						domain = (String) rel.getEndNodeMetadata().get(ContentEnrichmentParams.subject.name());
 					}
 
-					if (StringUtils.isNotBlank(status)
-							&& StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)) {
+					if (StringUtils.isNotBlank(status) && StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status)) {
 						nodeIds.add(rel.getEndNodeId());
 					}
 

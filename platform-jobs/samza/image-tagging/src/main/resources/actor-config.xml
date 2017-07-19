@@ -1,39 +1,37 @@
 <actor-config>
 	<init system="LearningActorSystem">
 		<init-routers>
-			<init-router name="RequestRouter" count="4"
+			<init-router name="RequestRouter" count="1"
 				class="com.ilimi.graph.engine.router.RequestRouter"></init-router>
-			<init-router name="DACRouter" count="4"
+			<init-router name="DACRouter" count="1"
 				class="com.ilimi.graph.engine.router.DACRequestRouter"></init-router>
-			<init-router name="CacheRouter" count="4"
+			<init-router name="CacheRouter" count="1"
 				class="com.ilimi.graph.engine.router.CacheRequestRouter"></init-router>
-			<init-router name="TclExecutor" count="8"
-				class="com.ilimi.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>
 		<manager classes="com.ilimi.graph.engine.mgr.impl.GraphMgrImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 		<manager classes="com.ilimi.graph.engine.mgr.impl.NodeManagerImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 		<manager classes="com.ilimi.graph.engine.mgr.impl.CollectionManagerImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 		<manager classes="com.ilimi.graph.engine.mgr.impl.SearchManagerImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 	</graph-managers>
 	<dac-managers>
 		<manager
 			classes="com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 	</dac-managers>
 	<cache-managers>
 		<manager classes="com.ilimi.graph.cache.actor.GraphCacheActor">
-			<graph id="*" count="4"></graph>
+			<graph id="*" count="1"></graph>
 		</manager>
 	</cache-managers>
 </actor-config>

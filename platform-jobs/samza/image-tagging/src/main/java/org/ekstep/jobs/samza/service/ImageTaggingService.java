@@ -24,6 +24,7 @@ import org.ekstep.jobs.samza.util.OptimizerUtil;
 import org.ekstep.jobs.samza.util.VisionApi;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 
@@ -34,8 +35,6 @@ public class ImageTaggingService implements ISamzaService {
 	private ControllerUtil util = new ControllerUtil();
 
 	static JobLogger LOGGER = new JobLogger(ImageTaggingService.class);
-	
-	private static final String tempFileLocation = "/data/contentBundle/";
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -48,49 +47,69 @@ public class ImageTaggingService implements ISamzaService {
 		Configuration.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
+		LOGGER.info("Akka actors initialized");
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) {
-		Map<String, Object> edata = new HashMap<String, Object>();
-		Map<String, Object> eks = new HashMap<String, Object>();
-		try{
-		if (null != message.get(ImageWorkflowEnums.edata.name())) {
-			edata = (Map) message.get(ImageWorkflowEnums.edata.name());
-			if (null != edata.get(ImageWorkflowEnums.eks.name())) {
-				eks = (Map) edata.get(ImageWorkflowEnums.eks.name());
-				if (null != eks) {
-					if (null != eks.get(ImageWorkflowEnums.type.name()) && null != eks.get(ImageWorkflowEnums.subtype.name())) {
-						if ((StringUtils.equalsIgnoreCase(eks.get(ImageWorkflowEnums.type.name()).toString(), ImageWorkflowEnums.Asset.name()))
-								&& (StringUtils.equalsIgnoreCase(eks.get(ImageWorkflowEnums.subtype.name()).toString(), ImageWorkflowEnums.image.name()))) {
-							Map<String, String> variantsMap;
-							try {
-								variantsMap = OptimizerUtil.optimiseImage(eks.get(ImageWorkflowEnums.id.name()).toString());
-								String nodeId = (String) eks.get(ImageWorkflowEnums.id.name());
-								Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
-								if (null == variantsMap)
-									variantsMap = new HashMap<String, String>();
-								if (StringUtils.isBlank(variantsMap.get(ImageWorkflowEnums.medium.name()))) {
-									String downloadUrl = (String) node.getMetadata()
-											.get(ImageWorkflowEnums.downloadUrl.name());
-									if (StringUtils.isNotBlank(downloadUrl)) {
-										variantsMap.put(ImageWorkflowEnums.medium.name(), downloadUrl);
-									}
-								}
-								String image_url = variantsMap.get(ImageWorkflowEnums.medium.name());
-								processImage(image_url, variantsMap, node);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-						}
-					}
-				}
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getImageLifecycleData(Map<String, Object> message) {
+		String eid = (String) message.get("eid");
+		if (null == eid || !StringUtils.equalsIgnoreCase(eid, ImageWorkflowEnums.BE_OBJECT_LIFECYCLE.name())) {
+			return null;
+		}
+
+		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
+		if (null == edata) {
+			return null;
+		}
+
+		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
+		if (null == eks) {
+			return null;
+		}
+		if (null != eks.get(ImageWorkflowEnums.type.name()) && null != eks.get(ImageWorkflowEnums.subtype.name())) {
+			if ((StringUtils.equalsIgnoreCase(eks.get(ImageWorkflowEnums.type.name()).toString(), ImageWorkflowEnums.Asset.name()))
+					&& (StringUtils
+							.equalsIgnoreCase(eks.get(ImageWorkflowEnums.subtype.name()).toString(), ImageWorkflowEnums.image.name()))) {
+				return eks;
 			}
 		}
-		}catch(Exception e){
-			e.printStackTrace();
+		return null;
+	}
+
+	@Override
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
+
+		Map<String, Object> eks = getImageLifecycleData(message);
+
+		if (null == eks) {
+			metrics.incSkippedCounter();
+			return;
 		}
+
+		try {
+			imageEnrichment(eks);
+			metrics.incSuccessCounter();
+		} catch (Exception e) {
+			LOGGER.error("Failed to process message", message, e);
+			metrics.incFailedCounter();
+		}
+	}
+
+	private void imageEnrichment(Map<String, Object> eks) throws Exception {
+		Map<String, String> variantsMap = OptimizerUtil.optimizeImage(eks.get(ImageWorkflowEnums.id.name()).toString(),
+				this.config.get("lp.tempfile.location"));
+		String nodeId = (String) eks.get(ImageWorkflowEnums.id.name());
+		Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
+		if (null == variantsMap)
+			variantsMap = new HashMap<String, String>();
+		if (StringUtils.isBlank(variantsMap.get(ImageWorkflowEnums.medium.name()))) {
+			String downloadUrl = (String) node.getMetadata().get(ImageWorkflowEnums.downloadUrl.name());
+			if (StringUtils.isNotBlank(downloadUrl)) {
+				variantsMap.put(ImageWorkflowEnums.medium.name(), downloadUrl);
+			}
+		}
+		String image_url = variantsMap.get(ImageWorkflowEnums.medium.name());
+		processImage(image_url, variantsMap, node);
 	}
 
 	private void processImage(String image_url, Map<String, String> variantsMap, Node node) {
@@ -100,11 +119,11 @@ public class ImageTaggingService implements ISamzaService {
 			if ("true".equalsIgnoreCase(key)) {
 				Node data = callVisionService(image_url, node, variantsMap);
 				data.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
-				OptimizerUtil.controllerUtil.updateNode(data);
+				util.updateNode(data);
 			} else {
 				node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Live.name());
 				node.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);
-				OptimizerUtil.controllerUtil.updateNode(node);
+				util.updateNode(node);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -112,9 +131,8 @@ public class ImageTaggingService implements ISamzaService {
 	}
 
 	/**
-	 * The method callVisionService holds the logic to call the google vision
-	 * API get labels and flags for a given image and update the same on the
-	 * node
+	 * The method callVisionService holds the logic to call the google vision API get labels and flags for a given image
+	 * and update the same on the node
 	 * 
 	 * @param image
 	 * @param node
@@ -124,7 +142,7 @@ public class ImageTaggingService implements ISamzaService {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node callVisionService(String image, Node node, Map<String, String> variantsMap) {
 
-		File file = HttpDownloadUtility.downloadFile(image, tempFileLocation);
+		File file = HttpDownloadUtility.downloadFile(image, this.config.get("lp.tempfile.location"));
 		Map<String, Object> labels = new HashMap<String, Object>();
 		List<String> flags = new ArrayList<String>();
 		VisionApi vision;
@@ -178,14 +196,11 @@ public class ImageTaggingService implements ISamzaService {
 	}
 
 	/**
-	 * This method holds logic to set keywords from Vision API with existing
-	 * keywords from the node
+	 * This method holds logic to set keywords from Vision API with existing keywords from the node
 	 * 
-	 * @param keywords
-	 *            The keywords
+	 * @param keywords The keywords
 	 * 
-	 * @param labels
-	 *            The labels
+	 * @param labels The labels
 	 * 
 	 * @return List of keywords
 	 */

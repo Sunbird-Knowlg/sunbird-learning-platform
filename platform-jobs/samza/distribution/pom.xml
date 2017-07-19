@@ -33,17 +33,18 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>content-enrichment</artifactId>
-			<version>0.0.5</version>
+			<version>0.0.1</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-	<!-- <dependency>
+		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
-			<version>0.0.4</version>
+			<version>0.0.1</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
+	<!-- 
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>word-enrichment</artifactId>

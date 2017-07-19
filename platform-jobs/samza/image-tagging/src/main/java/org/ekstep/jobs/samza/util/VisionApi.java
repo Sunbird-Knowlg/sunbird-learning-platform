@@ -28,9 +28,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * The Class Vision API provides image tagging and image flagging for any given
- * image. It internally calls Google Vision API to fetch tags and flags for
- * given set of images
+ * The Class Vision API provides image tagging and image flagging for any given image. It internally calls Google Vision
+ * API to fetch tags and flags for given set of images
  * 
  * @author Rashmi
  * 
@@ -86,18 +85,17 @@ public class VisionApi {
 
 		GoogleCredential credential = GoogleCredential.getApplicationDefault().createScoped(VisionScopes.all());
 		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-		return new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential)
-				.setApplicationName(APPLICATION_NAME).build();
+		return new Vision.Builder(GoogleNetHttpTransport.newTrustedTransport(), jsonFactory, credential).setApplicationName(
+				APPLICATION_NAME).build();
 	}
 
 	/** Calls Google Vision API to fetch labels/tags for a given image */
 	public Map<String, Object> labelImage(Path path) throws IOException {
 
 		byte[] data = Files.readAllBytes(path);
-		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data))
-				.setFeatures(ImmutableList.of(new Feature().setType("LABEL_DETECTION")));
-		Vision.Images.Annotate annotate = vision.images()
-				.annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
+		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data)).setFeatures(
+				ImmutableList.of(new Feature().setType("LABEL_DETECTION")));
+		Vision.Images.Annotate annotate = vision.images().annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
 		annotate.setDisableGZipContent(true);
 		BatchAnnotateImagesResponse batchResponse = annotate.execute();
 		assert batchResponse.getResponses().size() == 1;
@@ -115,10 +113,9 @@ public class VisionApi {
 
 		byte[] data = Files.readAllBytes(path);
 
-		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data))
-				.setFeatures(ImmutableList.of(new Feature().setType("SAFE_SEARCH_DETECTION")));
-		Vision.Images.Annotate annotate = vision.images()
-				.annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
+		AnnotateImageRequest request = new AnnotateImageRequest().setImage(new Image().encodeContent(data)).setFeatures(
+				ImmutableList.of(new Feature().setType("SAFE_SEARCH_DETECTION")));
+		Vision.Images.Annotate annotate = vision.images().annotate(new BatchAnnotateImagesRequest().setRequests(ImmutableList.of(request)));
 		annotate.setDisableGZipContent(true);
 		BatchAnnotateImagesResponse batchResponse = annotate.execute();
 		assert batchResponse.getResponses().size() == 1;
