@@ -20,6 +20,8 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.graph.cache.factory.JedisFactory;
+
 public class CompositeSearchIndexerService implements ISamzaService {
 
 	private JobLogger LOGGER = new JobLogger(CompositeSearchIndexerService.class);
@@ -39,6 +41,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		esUtil = new ElasticSearchUtil();
 		createCompositeSearchIndex();
 		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
+		JedisFactory.initialize(props);
+		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override

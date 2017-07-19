@@ -1,18 +1,21 @@
 package com.ilimi.graph.cache.factory;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.common.mgr.Configuration;
-
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 public class JedisFactory {
 
@@ -60,6 +63,41 @@ public class JedisFactory {
 		config.setMaxTotal(maxConnections);
 		config.setBlockWhenExhausted(true);
 		jedisPool = new JedisPool(config, host, port);
+	}
+
+	private static boolean isConnected() {
+		if (null != jedisPool) {
+			try {
+				jedisPool.getResource();
+				return true;
+			} catch (JedisConnectionException ex) {
+				System.out.println("No connection found");
+			}
+		}
+		return false;
+	}
+
+	public static void initialize(Map<String, Object> props) throws Exception {
+
+		String redisHost = (String) props.get("redis.host");
+		String redisPort = (String) props.get("redis.port");
+		String redisMaxConn = (String) props.get("redis.maxConnections");
+		String dbIndex = (String) props.get("redis.dbIndex");
+		if (!isConnected() && StringUtils.isNotBlank(redisHost) && StringUtils.isNotBlank(redisPort)) {
+			// Seems like redis is not initialized
+			port = NumberUtils.toInt(redisPort);
+			maxConnections = NumberUtils.isNumber(redisMaxConn) ? NumberUtils.toInt(redisMaxConn) : maxConnections;
+			index = NumberUtils.isNumber(dbIndex) ? NumberUtils.toInt(dbIndex) : maxConnections;
+			JedisPoolConfig config = new JedisPoolConfig();
+			config.setMaxTotal(maxConnections);
+			config.setBlockWhenExhausted(true);
+			jedisPool = new JedisPool(config, redisHost, port);
+			try {
+				jedisPool.getResource();
+			} catch (JedisConnectionException ex) {
+				throw ex;
+			}
+		}
 	}
 
 	public static Jedis getRedisConncetion() {

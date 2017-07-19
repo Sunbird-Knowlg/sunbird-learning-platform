@@ -21,6 +21,7 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -47,6 +48,8 @@ public class ObjectLifecycleService implements ISamzaService {
 		digest = MessageDigest.getInstance("MD5");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
+		JedisFactory.initialize(props);
+		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override

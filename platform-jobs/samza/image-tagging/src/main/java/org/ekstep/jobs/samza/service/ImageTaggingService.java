@@ -25,6 +25,7 @@ import org.ekstep.jobs.samza.util.VisionApi;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
+import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 
@@ -48,6 +49,8 @@ public class ImageTaggingService implements ISamzaService {
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
+		JedisFactory.initialize(props);
+		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -87,7 +90,13 @@ public class ImageTaggingService implements ISamzaService {
 		}
 
 		try {
-			imageEnrichment(eks);
+			String nodeId = (String) eks.get(ImageWorkflowEnums.id.name());
+			Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
+			if (null == node) {
+				metrics.incSkippedCounter();
+				return;
+			}
+			imageEnrichment(node);
 			metrics.incSuccessCounter();
 		} catch (Exception e) {
 			LOGGER.error("Failed to process message", message, e);
@@ -95,11 +104,12 @@ public class ImageTaggingService implements ISamzaService {
 		}
 	}
 
-	private void imageEnrichment(Map<String, Object> eks) throws Exception {
-		Map<String, String> variantsMap = OptimizerUtil.optimizeImage(eks.get(ImageWorkflowEnums.id.name()).toString(),
-				this.config.get("lp.tempfile.location"));
-		String nodeId = (String) eks.get(ImageWorkflowEnums.id.name());
-		Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
+	private void imageEnrichment(Node node) throws Exception {
+
+		LOGGER.info("Processing image enrichment for node:" + node.getIdentifier());
+
+		Map<String, String> variantsMap = OptimizerUtil.optimizeImage(node.getIdentifier(), this.config.get("lp.tempfile.location"), node);
+
 		if (null == variantsMap)
 			variantsMap = new HashMap<String, String>();
 		if (StringUtils.isBlank(variantsMap.get(ImageWorkflowEnums.medium.name()))) {

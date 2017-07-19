@@ -52,9 +52,10 @@ public class OptimizerUtil {
 	 * @throws Exception the exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static Map<String, String> optimizeImage(String contentId, String tempFileLocation) throws Exception {
+	public static Map<String, String> optimizeImage(String contentId, String tempFileLocation, Node node) throws Exception {
 
-		LOGGER.info("Optimizing image - " + contentId);
+		String originalURL = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
+		LOGGER.info("Optimizing image - " + contentId + " | URL:" + originalURL);
 		Map<String, String> variantsMap = new HashMap<String, String>();
 		// get content definition to get configured resolution
 		DefinitionDTO contentDefinition = controllerUtil.getDefinition("domain", "Content");
@@ -62,11 +63,6 @@ public class OptimizerUtil {
 		Map<String, Object> variants = mapper.readValue(variantsStr, Map.class);
 
 		if (variants != null && variants.size() > 0) {
-			Node node = controllerUtil.getNode("domain", contentId);
-			if (node == null)
-				throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(), "content is null, contentId=" + contentId);
-
-			String originalURL = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
 
 			String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
 			File originalFile = HttpDownloadUtility.downloadFile(originalURL, tempFolder);

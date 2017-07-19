@@ -28,6 +28,7 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -63,7 +64,9 @@ public class ContentEnrichmentService implements ISamzaService {
 		PropertiesUtil.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
-		LOGGER.info("Actors initialized...");
+		LOGGER.info("Actors initialized");
+		JedisFactory.initialize(props);
+		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override
