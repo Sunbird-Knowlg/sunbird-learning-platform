@@ -41,12 +41,7 @@ public class ContentEnrichmentTask implements StreamTask, InitableTask, Windowab
 	public void process(IncomingMessageEnvelope envelope, MessageCollector collector, TaskCoordinator coordinator) throws Exception {
 		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
-			if(null != outgoingMap.get(ContentEnrichmentParams.eid.name())){
-				String eid = (String)outgoingMap.get(ContentEnrichmentParams.eid.name());
-				if(StringUtils.equalsIgnoreCase(eid, ContentEnrichmentParams.BE_OBJECT_LIFECYCLE.name())){
-					service.processMessage(outgoingMap, metrics, collector);
-				}
-			}
+			service.processMessage(outgoingMap, metrics, collector);			
 		} catch (Exception e) {
 			metrics.incFailedCounter();
 			LOGGER.error("Message processing failed", outgoingMap, e);
