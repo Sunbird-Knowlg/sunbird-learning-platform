@@ -70,9 +70,9 @@ public class ImageTaggingService implements ISamzaService {
 			return null;
 		}
 		if (null != eks.get(ImageWorkflowEnums.type.name()) && null != eks.get(ImageWorkflowEnums.subtype.name())) {
-			if ((StringUtils.equalsIgnoreCase(eks.get(ImageWorkflowEnums.type.name()).toString(), ImageWorkflowEnums.Asset.name()))
-					&& (StringUtils
-							.equalsIgnoreCase(eks.get(ImageWorkflowEnums.subtype.name()).toString(), ImageWorkflowEnums.image.name()))) {
+			if ((StringUtils.equalsIgnoreCase((String) eks.get("type"), "Asset"))
+					&& (StringUtils.equalsIgnoreCase((String) eks.get("subtype"), "image"))
+					&& (StringUtils.equalsIgnoreCase((String) eks.get("state"), "Processing"))) {
 				return eks;
 			}
 		}
