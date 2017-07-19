@@ -82,22 +82,23 @@ public class ContentStoreUtil {
 		BoundStatement bound = ps.bind(contentId);
 		try {
 			ResultSet rs = session.execute(bound);
-			Map<String, Object> map = new HashMap<String, Object>();
 			if (null != rs) {
-				if (rs.iterator().hasNext()) {
+				Map<String, Object> map = new HashMap<String, Object>();
+				while (rs.iterator().hasNext()) {
 					Row row = rs.iterator().next();
 					for (String prop : properties) {
 						String value = row.getString(prop + PROPERTY_SUFFIX);
 						map.put(prop, value);
 					}
+					return map;
 				}
 			}
-			return map;
 		} catch (Exception e) {
 			PlatformLogger.log("Error! Executing Get Content Property.", e.getMessage(), e);
 			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(),
 					"Error fetching property from Content Store.");
 		}
+		return null;
 	}
 	
 	public static void updateContentProperty(String contentId, String property, String value) {
