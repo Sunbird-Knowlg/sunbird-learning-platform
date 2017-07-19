@@ -1,14 +1,10 @@
 package com.ilimi.graph.engine.mgr.impl;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.util.RedisStoreUtil;
@@ -24,9 +20,6 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.Graph;
 import com.ilimi.graph.model.IRelation;
-import com.ilimi.graph.model.cache.DefinitionCache;
-import com.ilimi.graph.model.node.DataNode;
-import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.relation.RelationHandler;
 
 import akka.actor.ActorRef;
@@ -247,33 +240,15 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void bulkUpdateNodes(Request request) {
     	String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
     	List<Node> nodes = (List<Node>) request.get(GraphDACParams.nodes.name());
-    	final ActorRef parent = getSender();
     	if (null != nodes && !nodes.isEmpty()) {
     		try {
-    			Map<String, DefinitionDTO> defMap = new HashMap<String, DefinitionDTO>();
-        		List<String> validationMsgs = new ArrayList<String>();
-        		for (Node node : nodes) {
-        			DefinitionDTO dto = defMap.get(node.getObjectType());
-        			if (null == dto) {
-        				dto = DefinitionCache.getDefinitionNode(graphId, node.getObjectType());
-        				defMap.put(node.getObjectType(), dto);
-        			}
-        			DataNode datanode = new DataNode(this, graphId, node, true);
-        			if (null != dto) {
-        				List<String> msgs = datanode.validateNode(dto);
-        				if (null != msgs && !msgs.isEmpty())
-        					validationMsgs.addAll(msgs);
-        			}
-        		}
-        		if (null != validationMsgs && !validationMsgs.isEmpty()) {
-        			ERROR("ERR_NODE_BULK_UPDATE", "Validation Error", ResponseCode.CLIENT_ERROR, "messages", validationMsgs, parent);
-        		} else {
-        			Graph graph = new Graph(this, graphId);
-                    graph.bulkUpdateNodes(request);
-        		}
+    			Graph graph = new Graph(this, graphId);
+                graph.bulkUpdateNodes(request);
     		} catch (Exception e) {
                 handleException(e, getSender());
             }
+    	} else {
+    		OK(getSender());
     	}
     }
 }
