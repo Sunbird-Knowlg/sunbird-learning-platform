@@ -206,57 +206,62 @@ public class ContentEnrichmentService implements ISamzaService {
 		Map<String, Object> dataMap = new HashMap<>();
 		dataMap = processChildren(node, graphId, dataMap);
 		LOGGER.info("Children nodes process for collection - " + contentId);
-		for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
-			if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
-				continue;
-			} else if ("subject".equalsIgnoreCase(entry.getKey())) {
-				Set<Object> subject = (HashSet<Object>) entry.getValue();
-				if (null != subject.iterator().next()) {
-					node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
-				}
-			} else if ("medium".equalsIgnoreCase(entry.getKey())) {
-				Set<Object> medium = (HashSet<Object>) entry.getValue();
-				if (null != medium.iterator().next()) {
-					node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
-				}
-			} else {
-				Set<String> valueSet = (HashSet<String>) entry.getValue();
-				String[] value = valueSet.toArray(new String[valueSet.size()]);
-				node.getMetadata().put(entry.getKey(), value);
-			}
-		}
-		Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
-		if (null != keywords && !keywords.isEmpty()) {
-			if (null != node.getMetadata().get("keywords")) {
-				Object object = node.getMetadata().get("keywords");
-				if (object instanceof String[]) {
-					String[] stringArray = (String[]) node.getMetadata().get("keywords");
-					keywords.addAll(Arrays.asList(stringArray));
-				} else if (object instanceof String) {
-					String keyword = (String) node.getMetadata().get("keywords");
-					keywords.add(keyword);
+		if(null != dataMap){
+			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
+				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
+					continue;
+				} else if ("subject".equalsIgnoreCase(entry.getKey())) {
+					Set<Object> subject = (HashSet<Object>) entry.getValue();
+					if (null != subject.iterator().next()) {
+						node.getMetadata().put(entry.getKey(), (String) subject.iterator().next());
+					}
+				} else if ("medium".equalsIgnoreCase(entry.getKey())) {
+					Set<Object> medium = (HashSet<Object>) entry.getValue();
+					if (null != medium.iterator().next()) {
+						node.getMetadata().put(entry.getKey(), (String) medium.iterator().next());
+					}
+				} else {
+					Set<String> valueSet = (HashSet<String>) entry.getValue();
+					String[] value = valueSet.toArray(new String[valueSet.size()]);
+					node.getMetadata().put(entry.getKey(), value);
 				}
 			}
-			List<String> keywordsList = new ArrayList<>();
-			keywordsList.addAll(keywords);
-			node.getMetadata().put("keywords", keywordsList);
+			Set<String> keywords = (HashSet<String>) dataMap.get("keywords");
+			if (null != keywords && !keywords.isEmpty()) {
+				if (null != node.getMetadata().get("keywords")) {
+					Object object = node.getMetadata().get("keywords");
+					if (object instanceof String[]) {
+						String[] stringArray = (String[]) node.getMetadata().get("keywords");
+						keywords.addAll(Arrays.asList(stringArray));
+					} else if (object instanceof String) {
+						String keyword = (String) node.getMetadata().get("keywords");
+						keywords.add(keyword);
+					}
+				}
+				List<String> keywordsList = new ArrayList<>();
+				keywordsList.addAll(keywords);
+				node.getMetadata().put("keywords", keywordsList);
+			}
+			util.updateNode(node);
+			List<String> concepts = new ArrayList<>();
+			if(null != dataMap.get("concepts")){
+				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
+				if (null != concepts && !concepts.isEmpty()) {
+					util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
+				}
+			}
 		}
-		util.updateNode(node);
-		List<String> concepts = new ArrayList<>();
-		concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
-		if (null != concepts && !concepts.isEmpty()) {
-			util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
-		}
-
 	}
 
 	private Map<String, Object> processChildren(Node node, String graphId, Map<String, Object> dataMap) throws Exception {
 		List<String> children;
 		children = getChildren(node);
-		for (String child : children) {
-			Node childNode = util.getNode(graphId, child);
-			dataMap = mergeMap(dataMap, processChild(childNode));
-			processChildren(childNode, graphId, dataMap);
+		if(!children.isEmpty()){
+			for (String child : children) {
+				Node childNode = util.getNode(graphId, child);
+				dataMap = mergeMap(dataMap, processChild(childNode));
+				processChildren(childNode, graphId, dataMap);
+			}
 		}
 		return dataMap;
 	}
@@ -287,9 +292,11 @@ public class ContentEnrichmentService implements ISamzaService {
 
 	private List<String> getChildren(Node node) throws Exception {
 		List<String> children = new ArrayList<>();
-		for (Relation rel : node.getOutRelations()) {
-			if (ContentEnrichmentParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
-				children.add(rel.getEndNodeId());
+		if(null != node.getOutRelations()){
+			for (Relation rel : node.getOutRelations()) {
+				if (ContentEnrichmentParams.Content.name().equalsIgnoreCase(rel.getEndNodeObjectType())) {
+					children.add(rel.getEndNodeId());
+				}
 			}
 		}
 		return children;

@@ -2,7 +2,6 @@ package org.ekstep.jobs.samza.task;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.task.InitableTask;
@@ -14,7 +13,6 @@ import org.apache.samza.task.WindowableTask;
 import org.ekstep.jobs.samza.service.ContentEnrichmentService;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.ContentEnrichmentParams;
 import org.ekstep.jobs.samza.util.JobLogger;
 
 public class ContentEnrichmentTask implements StreamTask, InitableTask, WindowableTask {
