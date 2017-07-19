@@ -1401,7 +1401,7 @@ public class Graph extends AbstractDomainObject {
 					for (Relation rel : node.getOutRelations()) {
 						if (StringUtils.isNotBlank(rel.getEndNodeId())) {
 							Map<String, Object> relation = new HashMap<String, Object>();
-							relation.put("from", rel.getStartNodeId());
+							relation.put("from", node.getIdentifier());
 							relation.put("to", rel.getEndNodeId());
 							relation.put("type", rel.getRelationType());
 							relation.put("metadata", null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
@@ -1409,7 +1409,7 @@ public class Graph extends AbstractDomainObject {
 						}
 						if (StringUtils.isNotBlank(rel.getEndNodeObjectType())) {
 							Map<String, Object> relation = new HashMap<String, Object>();
-							relation.put(SystemProperties.IL_UNIQUE_ID.name(), rel.getStartNodeId());
+							relation.put(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 							relation.put("type", rel.getRelationType());
 							relation.put("objectType", rel.getEndNodeObjectType());
 							removeOutRelations.add(relation);
@@ -1421,14 +1421,14 @@ public class Graph extends AbstractDomainObject {
 						if (StringUtils.isNotBlank(rel.getStartNodeId())) {
 							Map<String, Object> relation = new HashMap<String, Object>();
 							relation.put("from", rel.getStartNodeId());
-							relation.put("to", rel.getEndNodeId());
+							relation.put("to", node.getIdentifier());
 							relation.put("type", rel.getRelationType());
 							relation.put("metadata", null == rel.getMetadata() ? new HashMap<String, Object>() : rel.getMetadata());
 							addInRelations.add(relation);
 						}
 						if (StringUtils.isNotBlank(rel.getStartNodeObjectType())) {
 							Map<String, Object> relation = new HashMap<String, Object>();
-							relation.put(SystemProperties.IL_UNIQUE_ID.name(), rel.getEndNodeId());
+							relation.put(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 							relation.put("type", rel.getRelationType());
 							relation.put("objectType", rel.getStartNodeObjectType());
 							removeInRelations.add(relation);

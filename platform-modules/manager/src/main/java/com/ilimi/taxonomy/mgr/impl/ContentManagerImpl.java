@@ -1247,7 +1247,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@SuppressWarnings("unchecked")
 	private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
 			Map<String, Node> nodeMap) {
-		Map<String, Node> tmpNodeMap = new HashMap<String, Node>();
 		String nodeId = entry.getKey();
 		String id = idMap.get(nodeId);
 		if (StringUtils.isBlank(id)) {
@@ -1257,7 +1256,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				tmpnode.setOutRelations(null);
 				tmpnode.setInRelations(null);
 				idMap.put(nodeId, id);
-				tmpNodeMap.put(id, tmpnode);
+				nodeMap.put(id, tmpnode);
 			} else {
 				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
 						"Content not found with identifier: " + id);
@@ -1265,8 +1264,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		if (StringUtils.isNotBlank(id)) {
 			Node node = nodeMap.get(id);
-			if (null == node)
-				node = tmpNodeMap.get(id);
 			if (null != node) {
 				Map<String, Object> map = (Map<String, Object>) entry.getValue();
 				List<String> children = (List<String>) map.get("children");
