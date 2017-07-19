@@ -1126,7 +1126,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
 				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
 					Map<String, Object> map = (Map<String, Object>) entry.getValue();
-					createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition);
+					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition);
+					if (null != nodeResponse)
+						return nodeResponse;
 					Boolean root = (Boolean) map.get("root");
 					if (BooleanUtils.isTrue(root))
 						rootNodeId = idMap.get(entry.getKey());
@@ -1165,19 +1167,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
+	private Response createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
 			Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition) {
 		String nodeId = entry.getKey();
 		String id = nodeId;
 		String objectType = CONTENT_OBJECT_TYPE;
+		Node tmpnode = null;
 		Map<String, Object> map = (Map<String, Object>) entry.getValue();
 		Boolean isNew = (Boolean) map.get("isNew");
 		if (BooleanUtils.isTrue(isNew)) {
 			id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
 			newIdMap.put(nodeId, id);
 		} else {
-			Node tmpnode = getNodeForOperation(graphId, id);
-			if (null != tmpnode) {
+			tmpnode = getNodeForOperation(graphId, id);
+			if (null != tmpnode && StringUtils.isNotBlank(tmpnode.getIdentifier())) {
 				id = tmpnode.getIdentifier();
 				objectType = tmpnode.getObjectType();
 			} else {
@@ -1199,6 +1202,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				metadata.put("visibility", "Parent");
 		}
 		metadata.put(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+		Response validateNodeResponse = validateNode(graphId, nodeId, metadata, tmpnode, definition);
+		if (checkError(validateNodeResponse))
+			return validateNodeResponse;
 		try {
 			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
 			node.setGraphId(graphId);
@@ -1207,11 +1213,45 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		} catch (Exception e) {
 			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
 		}
+		return null;
+	}
+	
+	private Response validateNode(String graphId, String nodeId, Map<String, Object> metadata, Node tmpnode, DefinitionDTO definition) {
+		Node node = null;
+		try {
+			node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
+		} catch (Exception e) {
+			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
+		}
+		if (null == tmpnode) {
+			tmpnode = new Node();
+			tmpnode.setGraphId(graphId);
+			tmpnode.setObjectType(CONTENT_OBJECT_TYPE);
+		}
+		if (null != tmpnode.getMetadata() && !tmpnode.getMetadata().isEmpty()) {
+			if (null == node.getMetadata())
+				node.setMetadata(tmpnode.getMetadata());
+			else {
+				for (Entry<String, Object> entry : tmpnode.getMetadata().entrySet()) {
+					if (!node.getMetadata().containsKey(entry.getKey()))
+						node.getMetadata().put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+		if (null == node.getInRelations())
+			node.setInRelations(tmpnode.getInRelations());
+		if (null == node.getOutRelations())
+			node.setOutRelations(tmpnode.getOutRelations());
+		Request request = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+		request.put(GraphDACParams.node.name(), node);
+		Response response = getResponse(request);
+		return response;
 	}
 
 	@SuppressWarnings("unchecked")
 	private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
 			Map<String, Node> nodeMap) {
+		Map<String, Node> tmpNodeMap = new HashMap<String, Node>();
 		String nodeId = entry.getKey();
 		String id = idMap.get(nodeId);
 		if (StringUtils.isBlank(id)) {
@@ -1221,7 +1261,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				tmpnode.setOutRelations(null);
 				tmpnode.setInRelations(null);
 				idMap.put(nodeId, id);
-				nodeMap.put(id, tmpnode);
+				tmpNodeMap.put(id, tmpnode);
 			} else {
 				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
 						"Content not found with identifier: " + id);
@@ -1229,6 +1269,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		if (StringUtils.isNotBlank(id)) {
 			Node node = nodeMap.get(id);
+			if (null == node)
+				node = tmpNodeMap.get(id);
 			if (null != node) {
 				Map<String, Object> map = (Map<String, Object>) entry.getValue();
 				List<String> children = (List<String>) map.get("children");
