@@ -56,6 +56,10 @@ public class ObjectLifecycleService implements ISamzaService {
 			LOGGER.debug("State change identified - creating lifecycle event");
 			try {
 				Node node = getNode(message);
+				if(null == node) {
+					metrics.incSkippedCounter();
+					return;
+				}
 				LOGGER.info("Node fetched from graph");
 				Event event = generateLifecycleEvent(stateChangeEvent, node);
 				long ets = (long)message.get("ets");
