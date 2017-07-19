@@ -601,7 +601,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
 
 		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
-			Response getContentPropsRes = getContentProperties(contentId, externalPropsToFetch, mode);
+			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
 			if (!checkError(getContentPropsRes))
 				contentMap.putAll((Map<String, Object>) getContentPropsRes.get(TaxonomyAPIParams.values.name()));
 		}
@@ -716,12 +716,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Response response = makeLearningRequest(request);
 		String body = (String) response.get(ContentStoreParams.body.name());
 		return body;
-	}
-
-	private Response getContentProperties(String contentId, List<String> properties, String mode) {
-		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
-			contentId = getContentImageIdentifier(contentId);
-		return getContentProperties(contentId, properties);
 	}
 
 	private Response getContentProperties(String contentId, List<String> properties) {
