@@ -602,8 +602,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
 			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
-			if (!checkError(getContentPropsRes))
-				contentMap.putAll((Map<String, Object>) getContentPropsRes.get(TaxonomyAPIParams.values.name()));
+			if (!checkError(getContentPropsRes)) {
+				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes.get(TaxonomyAPIParams.values.name());
+				if (null != resProps) contentMap.putAll(resProps);
+			}
 		}
 
 		// Get all the languages for a given Content
