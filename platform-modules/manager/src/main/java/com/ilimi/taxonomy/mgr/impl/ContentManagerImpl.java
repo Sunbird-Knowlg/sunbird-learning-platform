@@ -61,6 +61,7 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.graph.model.node.RelationDefinition;
 import com.ilimi.taxonomy.common.LanguageCodeMap;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -603,8 +604,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
 			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
 			if (!checkError(getContentPropsRes)) {
-				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes.get(TaxonomyAPIParams.values.name());
-				if (null != resProps) contentMap.putAll(resProps);
+				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
+						.get(TaxonomyAPIParams.values.name());
+				if (null != resProps)
+					contentMap.putAll(resProps);
 			}
 		}
 
@@ -1120,9 +1123,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			String rootNodeId = null;
 			if (null != modifiedNodes && !modifiedNodes.isEmpty()) {
 				DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
+				Map<String, RelationDefinition> inRelDefMap = new HashMap<String, RelationDefinition>();
+				Map<String, RelationDefinition> outRelDefMap = new HashMap<String, RelationDefinition>();
+				getRelationDefMaps(definition, inRelDefMap, outRelDefMap);
 				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
 					Map<String, Object> map = (Map<String, Object>) entry.getValue();
-					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition);
+					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition, inRelDefMap, outRelDefMap);
 					if (null != nodeResponse)
 						return nodeResponse;
 					Boolean root = (Boolean) map.get("root");
@@ -1164,7 +1170,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	@SuppressWarnings("unchecked")
 	private Response createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
-			Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition) {
+			Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition,
+			Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
 		String nodeId = entry.getKey();
 		String id = nodeId;
 		String objectType = CONTENT_OBJECT_TYPE;
@@ -1205,14 +1212,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
 			node.setGraphId(graphId);
 			node.setNodeType(SystemNodeTypes.DATA_NODE.name());
+			getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
 			nodeMap.put(id, node);
 		} catch (Exception e) {
 			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
 		}
 		return null;
 	}
-	
-	private Response validateNode(String graphId, String nodeId, Map<String, Object> metadata, Node tmpnode, DefinitionDTO definition) {
+
+	private Response validateNode(String graphId, String nodeId, Map<String, Object> metadata, Node tmpnode,
+			DefinitionDTO definition) {
 		Node node = null;
 		try {
 			node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
@@ -1291,6 +1300,64 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					dummyContentImageRelation.setEndNodeObjectType(CONTENT_IMAGE_OBJECT_TYPE);
 					outRelations.add(dummyContentImageRelation);
 					node.setOutRelations(outRelations);
+				}
+			}
+		}
+	}
+
+	private void getRelationsToBeDeleted(Node node, Map<String, Object> metadata,
+			Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
+		if (null != metadata) {
+			List<Relation> inRelations = node.getInRelations();
+			if (null == inRelations)
+				inRelations = new ArrayList<Relation>();
+			List<Relation> outRelations = node.getOutRelations();
+			if (null == outRelations)
+				outRelations = new ArrayList<Relation>();
+			for (Entry<String, Object> entry : metadata.entrySet()) {
+				if (inRelDefMap.containsKey(entry.getKey())) {
+					RelationDefinition rDef = inRelDefMap.get(entry.getKey());
+					List<String> objectTypes = rDef.getObjectTypes();
+					if (null != objectTypes) {
+						for (String objectType : objectTypes) {
+							Relation dummyInRelation = new Relation(null, rDef.getRelationName(), node.getIdentifier());
+							dummyInRelation.setStartNodeObjectType(objectType);
+							inRelations.add(dummyInRelation);
+						}
+					}
+				} else if (outRelDefMap.containsKey(entry.getKey())) {
+					RelationDefinition rDef = outRelDefMap.get(entry.getKey());
+					List<String> objectTypes = rDef.getObjectTypes();
+					if (null != objectTypes) {
+						for (String objectType : objectTypes) {
+							Relation dummyOutRelation = new Relation(node.getIdentifier(), rDef.getRelationName(),
+									null);
+							dummyOutRelation.setEndNodeObjectType(objectType);
+							outRelations.add(dummyOutRelation);
+						}
+					}
+				}
+			}
+			if (!inRelations.isEmpty())
+				node.setInRelations(inRelations);
+			if (!outRelations.isEmpty())
+				node.setOutRelations(outRelations);
+		}
+	}
+
+	private void getRelationDefMaps(DefinitionDTO definition, Map<String, RelationDefinition> inRelDefMap,
+			Map<String, RelationDefinition> outRelDefMap) {
+		if (null != definition) {
+			if (null != definition.getInRelations() && !definition.getInRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getInRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle()) && null != rDef.getObjectTypes())
+						inRelDefMap.put(rDef.getTitle(), rDef);
+				}
+			}
+			if (null != definition.getOutRelations() && !definition.getOutRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getOutRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle()) && null != rDef.getObjectTypes())
+						outRelDefMap.put(rDef.getTitle(), rDef);
 				}
 			}
 		}
