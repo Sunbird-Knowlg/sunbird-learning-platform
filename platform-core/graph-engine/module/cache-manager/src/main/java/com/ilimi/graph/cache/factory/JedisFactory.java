@@ -87,7 +87,7 @@ public class JedisFactory {
 			// Seems like redis is not initialized
 			port = NumberUtils.toInt(redisPort);
 			maxConnections = NumberUtils.isNumber(redisMaxConn) ? NumberUtils.toInt(redisMaxConn) : maxConnections;
-			index = NumberUtils.isNumber(dbIndex) ? NumberUtils.toInt(dbIndex) : maxConnections;
+			index = NumberUtils.isNumber(dbIndex) ? NumberUtils.toInt(dbIndex) : index;
 			JedisPoolConfig config = new JedisPoolConfig();
 			config.setMaxTotal(maxConnections);
 			config.setBlockWhenExhausted(true);
