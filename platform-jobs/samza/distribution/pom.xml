@@ -37,14 +37,14 @@
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-	<!-- <dependency>
+	    <dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
 			<version>0.0.4</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-		<dependency>
+	<!--<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>word-enrichment</artifactId>
 			<version>1.0-SNAPSHOT</version>
