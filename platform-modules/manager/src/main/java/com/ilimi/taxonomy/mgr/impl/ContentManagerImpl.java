@@ -21,6 +21,7 @@ import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
+import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.ContentMimeTypeFactoryUtil;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
@@ -114,6 +115,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
+	
+	private PublishManager publishManager = new PublishManager();
 
 	/**
 	 * Gets the data node.
@@ -498,8 +501,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.lang.String)
 	 */
 	public Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap) {
-		PlatformLogger.log("Graph ID: " + taxonomyId);
-		PlatformLogger.log("Content ID: " + contentId);
+		PlatformLogger.log("Graph ID: " + taxonomyId + " | Content ID: " + contentId);
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
@@ -515,16 +517,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		PlatformLogger.log("Given Content is not in Processing Status.");
 
-		String body = getContentBody(node.getIdentifier());
-		node.getMetadata().put(ContentAPIParams.body.name(), body);
-		PlatformLogger.log("Body fetched from content store");
-
-		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-		if (StringUtils.isBlank(mimeType)) {
-			mimeType = "assets";
-		}
-		PlatformLogger.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
-
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
 			publisher = (String) requestMap.get("lastPublishedBy");
@@ -537,11 +529,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			node.getMetadata().put("lastPublishedBy", null);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), null);
 		}
-		PlatformLogger.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
-
+		
 		try {
-			response = mimeTypeManager.publish(contentId, node, true);
+			response = publishManager.publish(contentId, node);
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
@@ -973,6 +963,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
+	@SuppressWarnings("unused")
 	public Response update(String contentId, Map<String, Object> requestMap) {
 		PlatformLogger.log("Content Id: " + contentId);
 		PlatformLogger.log("Request Map: " + requestMap);

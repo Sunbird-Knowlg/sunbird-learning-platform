@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +19,6 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
-import org.ekstep.content.util.ContentMimeTypeFactoryUtil;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
 import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
@@ -46,8 +44,6 @@ import com.rits.cloning.Cloner;
 public class PublishFinalizer extends BaseFinalizer {
 
 	/** The logger. */
-
-	private static String COLLECTION_MIMETYPE = "application/vnd.ekstep.content-collection";
 
 	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
@@ -215,15 +211,6 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<String> childrenIds = new ArrayList<String>();
 			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
 
-			PlatformLogger.log("Publishing the Un-Published Children.", null, LoggerEnum.INFO.name());
-			publishChildren(nodes.stream().filter(n -> !n.getIdentifier().equalsIgnoreCase(node.getIdentifier()))
-					.collect(Collectors.toList()));
-
-			// TODO: Refactor this part since it is being called twice and
-			// cloned
-			contents = new ArrayList<Map<String, Object>>();
-			childrenIds = new ArrayList<String>();
-			getContentBundleData(node.getGraphId(), nodes, contents, childrenIds);
 			// Cloning contents to spineContent
 			Cloner cloner = new Cloner();
 			List<Map<String, Object>> spineContents = cloner.deepClone(contents);
@@ -334,65 +321,6 @@ public class PublishFinalizer extends BaseFinalizer {
 				ContentWorkflowPipelineParams.Processing.name());
 		LogTelemetryEventUtil.logContentLifecycleEvent(contentId, newNode.getMetadata());
 		return response;
-	}
-
-	private void publishChildren(List<Node> nodes) {
-		if (null != nodes && !nodes.isEmpty()) {
-			PlatformLogger.log("Node is not Empty.");
-
-			PlatformLogger.log("Fetching the Non-Collection Content Nodes.");
-			List<Node> nonCollectionNodes = new ArrayList<Node>();
-			List<Node> collectionNodes = new ArrayList<Node>();
-			for (Node node : nodes) {
-				if (null != node && null != node.getMetadata()) {
-					PlatformLogger.log(
-							"Content Id: " + node.getIdentifier() + " has MimeType: "
-									+ node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
-							null, LoggerEnum.INFO.name());
-					if (StringUtils.equalsIgnoreCase(
-							(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
-							COLLECTION_MIMETYPE))
-						collectionNodes.add(node);
-					else
-						nonCollectionNodes.add(node);
-				}
-			}
-
-			// Publishing all Non-Collection nodes
-			for (Node node : nonCollectionNodes)
-				publishChild(node);
-
-			// Publishing all Collection nodes
-			for (Node node : collectionNodes)
-				publishChild(node);
-		}
-	}
-
-	private void publishChild(Node node) {
-		if (null != node && null != node.getMetadata()) {
-			PlatformLogger.log("Checking Node Id: " + node.getIdentifier());
-			String contentId = node.getIdentifier();
-			node = getNodeForOperation(ContentConfigurationConstants.GRAPH_ID, node);
-			if ((StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Draft.name(),
-					(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name()))
-					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Review.name(),
-							(String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name())))
-					&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Parent.name(),
-							(String) node.getMetadata().get(ContentWorkflowPipelineParams.visibility.name()))) {
-				PlatformLogger.log("Fetching 'MimeType' for Content Id: " + node.getIdentifier(), null,
-						LoggerEnum.INFO.name());
-				String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
-				if (StringUtils.isBlank(mimeType))
-					throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(),
-							ContentErrorMessageConstants.INVALID_CONTENT_MIMETYPE
-									+ " | [Invalid or 'null' MimeType for Content Id: " + node.getIdentifier() + "]");
-				PlatformLogger.log("MimeType: " + mimeType + " | [Content Id: " + node.getIdentifier() + "]");
-
-				PlatformLogger.log("Publishing Content Id: " + node.getIdentifier(), null, LoggerEnum.INFO.name());
-				ContentMimeTypeFactoryUtil.getImplForService(mimeType).publish(contentId,
-						node, false);
-			}
-		}
 	}
 
 	private String getS3KeyFromUrl(String s3Url) {
