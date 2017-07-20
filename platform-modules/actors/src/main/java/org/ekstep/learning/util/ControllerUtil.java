@@ -212,8 +212,8 @@ public class ControllerUtil extends BaseLearningManager {
 		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			PlatformLogger.log("Query result:", list, LoggerEnum.INFO.name());
 			if (null != list && !list.isEmpty()) {
-				PlatformLogger.log("Query result:", list, LoggerEnum.INFO.name());
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, Object> properties = list.get(i);
 					NodeDTO obj = new NodeDTO((String)properties.get("identifier"), (String) properties.get("name"), null);
@@ -225,6 +225,7 @@ public class ControllerUtil extends BaseLearningManager {
 				}
 			}
 		}
+		PlatformLogger.log("Node children count:"+ nodes.size(), null, LoggerEnum.INFO.name());
 		return nodes;
 	}
 
