@@ -196,7 +196,7 @@ public class ControllerUtil extends BaseLearningManager {
 		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
 		String nodeId = node.getIdentifier();
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String query = "MATCH p=(n:domain{contentType:'Collection',IL_UNIQUE_ID:'"+nodeId+"'})-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility ORDER BY depth DESC;";
+		String query = "MATCH p=(n:domain{IL_UNIQUE_ID:'"+nodeId+"'})-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility ORDER BY depth DESC;";
         request.put(GraphDACParams.query.name(), query);
         List<String> props = new ArrayList<String>();
         props.add("identifier");
