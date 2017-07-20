@@ -14,6 +14,8 @@ public class NodeDTO implements Serializable {
     private String relation;
     private String description;
     private Integer index;
+    private String status;
+    private Integer depth;
 
     public NodeDTO() {
 
@@ -104,4 +106,20 @@ public class NodeDTO implements Serializable {
     public void setDescription(String description) {
         this.description = description;
     }
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Integer getDepth() {
+		return depth;
+	}
+
+	public void setDepth(Integer depth) {
+		this.depth = depth;
+	}
 }

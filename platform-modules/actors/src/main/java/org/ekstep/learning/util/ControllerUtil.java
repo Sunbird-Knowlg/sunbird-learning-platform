@@ -6,6 +6,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
@@ -187,7 +188,11 @@ public class ControllerUtil extends BaseLearningManager {
 			return response;
 		}
 		return null;
+	}
+	
+	public List<NodeDTO> getNodesForPublish(Node node) {
 		
+		return null;
 	}
 
 }
