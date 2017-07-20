@@ -1,6 +1,8 @@
 package org.ekstep.learning.util;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.searchindex.util.HTTPUtil;
@@ -191,8 +193,36 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 	
 	public List<NodeDTO> getNodesForPublish(Node node) {
-		
-		return null;
+		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
+		String nodeId = node.getIdentifier();
+		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
+		String query = "MATCH p=(n:domain{contentType:'Collection',IL_UNIQUE_ID:'"+nodeId+"'})-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility ORDER BY depth DESC;";
+        request.put(GraphDACParams.query.name(), query);
+        List<String> props = new ArrayList<String>();
+        props.add("identifier");
+        props.add("name");
+        props.add("depth");
+        props.add("status");
+        props.add("mimeType");
+        props.add("visibility");
+        request.put(GraphDACParams.property_keys.name(), props);
+        Response response = getResponse(request);
+		if (!checkError(response)) {
+			Map<String, Object> result = response.getResult();
+			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
+			if (null != list && !list.isEmpty()) {
+				for (int i = 0; i < list.size(); i++) {
+					Map<String, Object> properties = list.get(i);
+					NodeDTO obj = new NodeDTO((String)properties.get("identifier"), (String) properties.get("name"), null);
+					obj.setDepth((Integer) properties.get("depth"));
+					obj.setStatus((String) properties.get("status"));
+					obj.setMimeType((String) properties.get("mimeType"));
+					obj.setVisibility((String) properties.get("visibility"));
+					nodes.add(obj);
+				}
+			}
+		}
+		return nodes;
 	}
 
 }
