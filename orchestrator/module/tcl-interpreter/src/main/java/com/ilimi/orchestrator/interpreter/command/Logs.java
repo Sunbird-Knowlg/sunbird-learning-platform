@@ -1,5 +1,6 @@
 package com.ilimi.orchestrator.interpreter.command;
 
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
@@ -20,7 +21,7 @@ public class Logs extends BaseSystemCommand implements ICommand, Command {
                     throw new TclException(interp, "Null arguments to " + getCommandName());
                 } else {
                     String logMessage = tclObject1.toString();
-                    PlatformLogger.log("LogMessage", logMessage);
+                    PlatformLogger.log("TclLogMessage", logMessage, LoggerEnum.ERROR.name());
                     interp.setResult(true);
                 }
             } catch (Exception e) {
