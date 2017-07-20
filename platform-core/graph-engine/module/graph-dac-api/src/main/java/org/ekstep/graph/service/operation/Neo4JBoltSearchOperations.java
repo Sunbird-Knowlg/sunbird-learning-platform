@@ -151,7 +151,7 @@ public class Neo4JBoltSearchOperations {
 					.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_BY_UNIQUE_ID, parameterMap));
 			if (null == result || !result.hasNext())
 				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]");
+						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]: "+ nodeId);
 
 			PlatformLogger.log("Initializing the Result Maps.");
 			Map<Long, Object> nodeMap = new HashMap<Long, Object>();

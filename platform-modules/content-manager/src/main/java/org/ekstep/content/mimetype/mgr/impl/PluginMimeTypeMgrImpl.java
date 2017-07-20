@@ -72,6 +72,14 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		}
 	}
 	
+	@Override
+	public Response upload(Node node, String fileUrl) {
+		File file = copyURLToFile(fileUrl);
+		Response response = upload(node.getIdentifier(), node, file, false);
+		if (null != file && file.exists()) file.delete();
+		return response;
+	}
+	
 	private String getVersion(String pluginId, String manifest) {
 		String id = null;
 		String version = null;

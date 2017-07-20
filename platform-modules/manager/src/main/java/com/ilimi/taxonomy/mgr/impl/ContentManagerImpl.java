@@ -41,7 +41,6 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
@@ -61,6 +60,7 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.graph.model.node.RelationDefinition;
 import com.ilimi.taxonomy.common.LanguageCodeMap;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -84,7 +84,7 @@ import scala.concurrent.Future;
  * @see IContentManager
  */
 @Component
-public class ContentManagerImpl extends BaseManager implements IContentManager {
+public class ContentManagerImpl extends BaseContentManager implements IContentManager {
 
 	/** The logger. */
 
@@ -93,12 +93,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The Default Manifest Version */
 	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
-
-	/**
-	 * The Default 'ContentImage' Object Suffix (Content_Object_Identifier +
-	 * ".img")
-	 */
-	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	/**
 	 * Content Image Object Type
@@ -151,57 +145,104 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		PlatformLogger.log("Graph ID: " + taxonomyId);
 		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
 
-		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
-		if (StringUtils.isBlank(contentId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-					"Content Object Id is blank.");
-		if (null == uploadedFile)
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
-					"Upload file is blank.");
-		if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
-			throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
-					"Invalid Content Identifier. | [Content Identifier does not Exists.]");
+		try {
+			if (StringUtils.isBlank(taxonomyId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
+			if (StringUtils.isBlank(contentId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+						"Content Object Id is blank.");
+			if (null == uploadedFile)
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
+						"Upload file is blank.");
+			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
+						"Invalid Content Identifier. | [Content Identifier does not Exists.]");
 
-		Node node = getNodeForOperation(taxonomyId, contentId);
-		PlatformLogger.log("Node: ", node);
+			Node node = getNodeForOperation(taxonomyId, contentId);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Upload' Operation on the Content in 'Processing' Status.] ");
+			isNodeUnderProcessing(node, "Upload");
 
-		PlatformLogger.log("Given Content is not in Processing Status.");
-
-		String mimeType = (String) node.getMetadata().get("mimeType");
-		if (StringUtils.isBlank(mimeType)) {
-			mimeType = "assets";
-		}
-		PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-
-		PlatformLogger
-				.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
-		if (null != uploadedFile && uploadedFile.exists()) {
-			try {
-				PlatformLogger.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId);
-				uploadedFile.delete();
-			} catch (Exception e) {
-				PlatformLogger.log(
-						"Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
-						e.getMessage(), e);
+			String mimeType = (String) node.getMetadata().get("mimeType");
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = "assets";
 			}
-		}
+			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 
-		PlatformLogger.log("Returning Response.");
-		if (StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")) {
-			String identifier = (String) res.getResult().get("node_id");
-			String new_identifier = identifier.replace(".img", "");
-			PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
-			res.getResult().replace("node_id", identifier, new_identifier);
+			PlatformLogger
+					.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
+			if (null != uploadedFile && uploadedFile.exists()) {
+				try {
+					PlatformLogger.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId);
+					uploadedFile.delete();
+				} catch (Exception e) {
+					PlatformLogger.log(
+							"Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
+							e.getMessage(), e);
+				}
+			}
+
+			PlatformLogger.log("Returning Response.");
+			return checkAndReturnUploadResponse(res);
+		} catch (ClientException e) {
+			throw e;
+		} catch(ServerException e) {
+			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		} catch (Exception e) {
+			String message = "Something went wrong while processing uploaded file.";
+			PlatformLogger.log(message, null, e);
+			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		}
-		return res;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#upload(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
+	@Override
+	public Response upload(String contentId, String taxonomyId, String fileUrl) {
+		PlatformLogger.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:"+ fileUrl);
+		try {
+			if (StringUtils.isBlank(taxonomyId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
+			if (StringUtils.isBlank(contentId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+						"Content Object Id is blank.");
+			if (StringUtils.isBlank(fileUrl))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
+						"fileUrl is blank.");
+			isImageContentId(contentId);
+			Node node = getNodeForOperation(taxonomyId, contentId);
+			isNodeUnderProcessing(node, "Upload");
+			String mimeType = getMimeType(node);
+			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+			Response res = mimeTypeManager.upload(node, fileUrl);
+			PlatformLogger.log("Returning Response.");
+			return checkAndReturnUploadResponse(res);
+		} catch (ClientException e) {
+			throw e;
+		} catch(ServerException e) {
+			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		} catch (Exception e) {
+			String message = "Something went wrong while processing uploaded file.";
+			PlatformLogger.log(message, null, e);
+			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
+		}
+	}
+	
+	private Response checkAndReturnUploadResponse(Response res) {
+		if (checkError(res)) {
+			return res;
+		} else {
+			String nodeId = (String) res.getResult().get("node_id");
+			String returnNodeId = getActualIdentifier(nodeId);
+			res.getResult().replace("node_id", nodeId, returnNodeId);
+			return res;
+		}
 	}
 
 	/*
@@ -335,10 +376,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Got Node: ", node);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Optimize' Operation on the Content in 'Processing' Status.] ");
+		isNodeUnderProcessing(node, "Optimize");
 
 		PlatformLogger.log("Given Content is not in Processing Status.");
 
@@ -473,10 +511,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Got Node: ", node);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Publish' Operation on the Content in 'Processing' Status.] ");
+		isNodeUnderProcessing(node, "Publish");
 
 		PlatformLogger.log("Given Content is not in Processing Status.");
 
@@ -543,10 +578,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Node: ", node);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Review' Operation on the Content in 'Processing' Status.] ");
+		isNodeUnderProcessing(node, "Review");
 
 		PlatformLogger.log("Given Content is not in Processing Status.");
 
@@ -603,8 +635,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
 			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
 			if (!checkError(getContentPropsRes)) {
-				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes.get(TaxonomyAPIParams.values.name());
-				if (null != resProps) contentMap.putAll(resProps);
+				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
+						.get(TaxonomyAPIParams.values.name());
+				if (null != resProps)
+					contentMap.putAll(resProps);
 			}
 		}
 
@@ -862,19 +896,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
-	private boolean isNodeUnderProcessing(Node node) {
-		boolean isUnderProcess = false;
-		try {
-			if (null != node && null != node.getMetadata()
-					&& StringUtils.equalsIgnoreCase((String) node.getMetadata().get(TaxonomyAPIParams.status.name()),
-							TaxonomyAPIParams.Processing.name()))
-				isUnderProcess = true;
-		} catch (Exception e) {
-			PlatformLogger.log("Something Went Wrong While Checking the is Under Processing Status.", null, e);
-		}
-		return isUnderProcess;
-	}
-
 	private void validateInputNodesForBundling(List<Node> nodes) {
 		if (null != nodes && !nodes.isEmpty()) {
 			for (Node node : nodes) {
@@ -1120,9 +1141,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			String rootNodeId = null;
 			if (null != modifiedNodes && !modifiedNodes.isEmpty()) {
 				DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
+				Map<String, RelationDefinition> inRelDefMap = new HashMap<String, RelationDefinition>();
+				Map<String, RelationDefinition> outRelDefMap = new HashMap<String, RelationDefinition>();
+				getRelationDefMaps(definition, inRelDefMap, outRelDefMap);
 				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
 					Map<String, Object> map = (Map<String, Object>) entry.getValue();
-					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition);
+					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition, inRelDefMap, outRelDefMap);
 					if (null != nodeResponse)
 						return nodeResponse;
 					Boolean root = (Boolean) map.get("root");
@@ -1164,7 +1188,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	@SuppressWarnings("unchecked")
 	private Response createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
-			Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition) {
+			Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition,
+			Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
 		String nodeId = entry.getKey();
 		String id = nodeId;
 		String objectType = CONTENT_OBJECT_TYPE;
@@ -1205,14 +1230,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
 			node.setGraphId(graphId);
 			node.setNodeType(SystemNodeTypes.DATA_NODE.name());
+			getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
 			nodeMap.put(id, node);
 		} catch (Exception e) {
 			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
 		}
 		return null;
 	}
-	
-	private Response validateNode(String graphId, String nodeId, Map<String, Object> metadata, Node tmpnode, DefinitionDTO definition) {
+
+	private Response validateNode(String graphId, String nodeId, Map<String, Object> metadata, Node tmpnode,
+			DefinitionDTO definition) {
 		Node node = null;
 		try {
 			node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
@@ -1291,6 +1318,64 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					dummyContentImageRelation.setEndNodeObjectType(CONTENT_IMAGE_OBJECT_TYPE);
 					outRelations.add(dummyContentImageRelation);
 					node.setOutRelations(outRelations);
+				}
+			}
+		}
+	}
+
+	private void getRelationsToBeDeleted(Node node, Map<String, Object> metadata,
+			Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
+		if (null != metadata) {
+			List<Relation> inRelations = node.getInRelations();
+			if (null == inRelations)
+				inRelations = new ArrayList<Relation>();
+			List<Relation> outRelations = node.getOutRelations();
+			if (null == outRelations)
+				outRelations = new ArrayList<Relation>();
+			for (Entry<String, Object> entry : metadata.entrySet()) {
+				if (inRelDefMap.containsKey(entry.getKey())) {
+					RelationDefinition rDef = inRelDefMap.get(entry.getKey());
+					List<String> objectTypes = rDef.getObjectTypes();
+					if (null != objectTypes) {
+						for (String objectType : objectTypes) {
+							Relation dummyInRelation = new Relation(null, rDef.getRelationName(), node.getIdentifier());
+							dummyInRelation.setStartNodeObjectType(objectType);
+							inRelations.add(dummyInRelation);
+						}
+					}
+				} else if (outRelDefMap.containsKey(entry.getKey())) {
+					RelationDefinition rDef = outRelDefMap.get(entry.getKey());
+					List<String> objectTypes = rDef.getObjectTypes();
+					if (null != objectTypes) {
+						for (String objectType : objectTypes) {
+							Relation dummyOutRelation = new Relation(node.getIdentifier(), rDef.getRelationName(),
+									null);
+							dummyOutRelation.setEndNodeObjectType(objectType);
+							outRelations.add(dummyOutRelation);
+						}
+					}
+				}
+			}
+			if (!inRelations.isEmpty())
+				node.setInRelations(inRelations);
+			if (!outRelations.isEmpty())
+				node.setOutRelations(outRelations);
+		}
+	}
+
+	private void getRelationDefMaps(DefinitionDTO definition, Map<String, RelationDefinition> inRelDefMap,
+			Map<String, RelationDefinition> outRelDefMap) {
+		if (null != definition) {
+			if (null != definition.getInRelations() && !definition.getInRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getInRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle()) && null != rDef.getObjectTypes())
+						inRelDefMap.put(rDef.getTitle(), rDef);
+				}
+			}
+			if (null != definition.getOutRelations() && !definition.getOutRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getOutRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle()) && null != rDef.getObjectTypes())
+						outRelDefMap.put(rDef.getTitle(), rDef);
 				}
 			}
 		}

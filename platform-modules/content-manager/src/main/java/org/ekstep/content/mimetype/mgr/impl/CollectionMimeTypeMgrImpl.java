@@ -10,8 +10,10 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -43,9 +45,12 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
-		PlatformLogger.log("Uploaded File: " + uploadFile.getName());
-		return uploadContentArtifact(contentId, node, uploadFile);
+		return ERROR(ContentErrorCodes.ERR_CONTENT_UPLOAD_NO_SUPPORT.name(), "Upload is not supported for collections.", ResponseCode.CLIENT_ERROR);
+	}
+	
+	@Override
+	public Response upload(Node node, String fileUrl) {
+		return ERROR(ContentErrorCodes.ERR_CONTENT_UPLOAD_NO_SUPPORT.name(), "Upload/Update url is not supported for collections.", ResponseCode.CLIENT_ERROR);
 	}
 
 	/*
