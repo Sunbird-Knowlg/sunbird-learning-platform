@@ -61,7 +61,7 @@ proc getInNodeRelationIds {graph_node relationType relationName property} {
 	return $relationIds
 }
 
-proc getSynonym {language_id word_node tags} {
+proc updateWordAndSynonym {language_id word_node tags} {
 	set word_metadata [java::prop $word_node "metadata"]
 	set word_metadata [java::cast Map $word_metadata]
 	set word_id [java::prop $word_node "identifier"]
@@ -102,7 +102,7 @@ proc getSynonym {language_id word_node tags} {
 		}
 
 		#add synsetid as primary meaning in word
-		set addPrimaryMeaningResp [addPrimaryMeaning $language_id $word_id $pmId true]
+		set addPrimaryMeaningResp [addPrimaryMeaning $language_id $word_id $pmId]
 		set addPrimaryMeaningRespNull [java::isnull $addPrimaryMeaningResp]
 		if {$addPrimaryMeaningRespNull == 0} {
 			return $addPrimaryMeaningResp
@@ -116,10 +116,19 @@ proc getSynonym {language_id word_node tags} {
 				return $synsetResponse
 			}
 
-			set enrich [enrichWordAsync $language_id $word_id]
+			#set enrich [enrichWordAsync $language_id $word_id]
+	}
+	
+
+	#logs "updating word $word_id"
+	#update word with tags and primaryMeaningId
+	set wordResponse [updateWordNode $language_id $word_id $pmId $tags]
+	set wordResponseNull [java::isnull $wordResponse]
+	if {$wordResponseNull == 0} {
+		return $wordResponse
 	}
 
-	#puts "primaryMeaningId [$pmId toString]"
+	#logs "primaryMeaningId [$pmId toString]"
 	return $pmId
 }
 
@@ -148,23 +157,25 @@ proc createSynsetNode {language_id gloss tags} {
 	return $response
 }
 
-proc addPrimaryMeaning {language_id wordId synsetId update} {
+proc updateWordNode {language_id wordId synsetId tags} {
 
-	#puts "addPrimaryMeaning $language_id $wordId $synsetId $update"
-	if {$update} {
-		#puts "updating node with primaryMeaningId $synsetId"
-		set graph_node [java::new Node $wordId "DATA_NODE" "Word"]
-		set metadata [java::new HashMap]
-		$metadata put "primaryMeaningId" $synsetId
-		$graph_node setMetadata $metadata
-		#puts "update word $wordId metadata [$metadata toString]"
-		set wordResponse [updateDataNode $language_id $wordId $graph_node]
-		set check_error [check_response_error $wordResponse]
-		if {$check_error} {
-			#puts "error while updating word with primary meaning id"
-			return $wordResponse
-		}
+	#logs "updateWordNode $language_id $wordId $synsetId [$tags toString]"
+
+	set graph_node [java::new Node $wordId "DATA_NODE" "Word"]
+	set metadata [java::new HashMap]
+	$metadata put "primaryMeaningId" $synsetId
+	$metadata put "status" "Live"
+	$graph_node setMetadata $metadata
+	$graph_node setTags $tags
+	set wordResponse [updateDataNode $language_id $wordId $graph_node]
+	set check_error [check_response_error $wordResponse]
+	if {$check_error} {
+		return $wordResponse
 	}
+	return [java::null]
+}
+
+proc addPrimaryMeaning {language_id wordId synsetId} {
 
 	set addRelation_response [addRelation $language_id $synsetId "synonym" $wordId]
 	set check_addRelation_error [check_response_error $addRelation_response]
@@ -173,7 +184,7 @@ proc addPrimaryMeaning {language_id wordId synsetId update} {
 		return $addRelation_response;
 	}
 
-	set enrich [enrichWordAsync $language_id $wordId]
+	#set enrich [enrichWordAsync $language_id $wordId]
 
 	return [java::null]
 }
@@ -220,11 +231,11 @@ proc createTag {wordMap tags} {
 
 	   	} else {
    			#puts "word found - [$word toString]"
-			set synsetId [getSynonym $language_id $word_node $tags]
+			set synsetId [updateWordAndSynonym $language_id $word_node $tags]
 
 			set resp_instance [java::instanceof $synsetId Response]
 			if {$resp_instance == 0} {
-				set synsetId [$synsetId toString]
+
 			} else {
 				set errorMsgMap [java::prop $synsetId "result"]
 				$errors add "error while getting synonym for the word $word_lemma, language_id $language_id, error  [$errorMsgMap toString]"
@@ -244,7 +255,6 @@ proc createTag {wordMap tags} {
 #starts
 set errors [java::new ArrayList]
 set result_map [java::new HashMap]
-
 java::for {Map word} $words {
 		set wordMap [$word get "word"]
 		set wordMap [java::cast Map $wordMap]
