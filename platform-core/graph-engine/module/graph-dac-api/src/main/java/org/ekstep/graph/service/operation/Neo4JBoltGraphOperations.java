@@ -1019,7 +1019,7 @@ public class Neo4JBoltGraphOperations {
 	
 	private void createNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
 		if (null != nodes && !nodes.isEmpty()) {
-			PlatformLogger.log("Bulk update | Creating nodes : " + nodes.size(), LoggerEnum.INFO);
+			PlatformLogger.log("Bulk update | Creating nodes : " + nodes.size(), null, LoggerEnum.INFO.name());
 			String query = "UNWIND {batch} as row CREATE (n:" + graphId + ") SET n += row";
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("batch", nodes);
@@ -1029,7 +1029,7 @@ public class Neo4JBoltGraphOperations {
 
 	private void updateNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
 		if (null != nodes && !nodes.isEmpty()) {
-			PlatformLogger.log("Bulk update | Updating nodes : " + nodes.size(), LoggerEnum.INFO);
+			PlatformLogger.log("Bulk update | Updating nodes : " + nodes.size(), null, LoggerEnum.INFO.name());
 			String query = "UNWIND {batch} as row MATCH (n:" + graphId
 					+ "{IL_UNIQUE_ID: row.IL_UNIQUE_ID}) SET n += row.metadata";
 			Map<String, Object> params = new HashMap<String, Object>();
@@ -1040,7 +1040,7 @@ public class Neo4JBoltGraphOperations {
 
 	private void addOutRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
 		if (null != relations && !relations.isEmpty()) {
-			PlatformLogger.log("Bulk update | Adding out relations : " + relations.size(), LoggerEnum.INFO);
+			PlatformLogger.log("Bulk update | Adding out relations : " + relations.size(), null, LoggerEnum.INFO.name());
 			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
 			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
 				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.from}) MATCH (to:"
@@ -1055,7 +1055,7 @@ public class Neo4JBoltGraphOperations {
 	
 	private void addInRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
 		if (null != relations && !relations.isEmpty()) {
-			PlatformLogger.log("Bulk update | Adding in relations : " + relations.size(), LoggerEnum.INFO);
+			PlatformLogger.log("Bulk update | Adding in relations : " + relations.size(), null, LoggerEnum.INFO.name());
 			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
 			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
 				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.from}) MATCH (to:"
@@ -1070,7 +1070,7 @@ public class Neo4JBoltGraphOperations {
 
 	private void removeOutRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
 		if (null != relations && !relations.isEmpty()) {
-			PlatformLogger.log("Bulk update | Removing out relations : " + relations.size(), LoggerEnum.INFO);
+			PlatformLogger.log("Bulk update | Removing out relations : " + relations.size(), null, LoggerEnum.INFO.name());
 			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
 			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
 				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.IL_UNIQUE_ID})-[r:"
@@ -1084,7 +1084,7 @@ public class Neo4JBoltGraphOperations {
 
 	private void removeInRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
 		if (null != relations && !relations.isEmpty()) {
-			PlatformLogger.log("Bulk update | Removing in relations : " + relations.size(), LoggerEnum.INFO);
+			PlatformLogger.log("Bulk update | Removing in relations : " + relations.size(), null, LoggerEnum.INFO.name());
 			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
 			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
 				String query = "UNWIND {batch} as row MATCH (from:" + graphId

@@ -562,6 +562,9 @@ public class Neo4JBoltNodeOperations {
 
 	private void updateRedisCache(String graphId, org.neo4j.driver.v1.types.Node neo4JNode, String nodeId, String nodeType) {
 
+		if(!graphId.equalsIgnoreCase("domain"))
+			return;
+
 		if (!nodeType.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name()))
 			return;
 
