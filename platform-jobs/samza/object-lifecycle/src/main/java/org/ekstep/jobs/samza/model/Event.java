@@ -1,8 +1,12 @@
 package org.ekstep.jobs.samza.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -10,6 +14,7 @@ public class Event {
 	
 	@SuppressWarnings("unused")
 	private static DateTimeFormatter dateFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ").withZoneUTC();
+	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
 	private String eid;
 	private long ets;
@@ -38,6 +43,23 @@ public class Event {
 
 	public long getEts() {
 		return ets;
+	}
+	
+	public void setEts(Map<String, Object> message) {
+		this.ets = System.currentTimeMillis();
+		try {
+			if(null != message.get("ets")) {
+				this.ets = (long) message.get("ets");
+	        } else if(null != message.get("createdOn")){
+	            String createdOn = (String)message.get("createdOn");
+	            if(StringUtils.isNotBlank(createdOn)){
+	                Date date = (Date) df.parse(createdOn);
+	                this.ets = date.getTime();
+	            }
+	        }
+		} catch (Exception ex) {
+			// Log the exception
+		}
 	}
 
 	public void setEts(long ets) {
