@@ -162,5 +162,9 @@ public interface ISearchManager {
      * @response - STATUS: API call status
      */
     void getProxyNode(Request request);
+    
+    
+    
+    void executeQueryForProps(Request request);
 
 }

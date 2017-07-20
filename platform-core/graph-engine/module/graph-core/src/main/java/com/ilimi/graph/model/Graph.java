@@ -810,6 +810,20 @@ public class Graph extends AbstractDomainObject {
 					e);
 		}
 	}
+	
+	public void executeQueryForProps(Request req) {
+		try {
+			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+			Request request = new Request(req);
+			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+			request.setOperation("executeQueryForProps");
+			request.copyRequestValueObjects(req.getRequest());
+			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			manager.returnResponse(response, getParent());
+		} catch (Exception e) {
+			throw new ServerException(GraphEngineErrorCodes.ERR_EXECUTE_QUERY_FOR_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+		}
+	}
 
 	public void getDefinitionNode(Request req) {
 		try {

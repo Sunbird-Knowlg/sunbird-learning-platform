@@ -96,6 +96,22 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             }
         }
     }
+    
+    public void executeQueryForProps(Request request) {
+    		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+    		String query = (String) request.get(GraphDACParams.query.name());
+    		List<String> propKeys = (List<String>) request.get(GraphDACParams.property_keys.name());
+    		if (!validateRequired(graphId, query, propKeys)) {
+    			throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_QUERY_NOT_FOUND.name(), "Query is missing");
+    		} else {
+    			try {
+                List<Map<String, Object>> nodes = service.executeQueryForProps(graphId, query, propKeys);
+                OK(GraphDACParams.properties.name(), nodes, getSender());
+            } catch (Exception e) {
+                ERROR(e, getSender());
+            }
+    		}
+    }
 
     @Override
     public void getNodesByProperty(Request request) {

@@ -148,6 +148,22 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             }
         }
     }
+    
+    public void executeQueryForProps(Request request) {
+    		String graphId = (String) request.get(GraphDACParams.graph_id.name());
+    		String query = (String) request.get(GraphDACParams.query.name());
+		List<String> props = (List<String>) request.get(GraphDACParams.property_keys.name());
+		if (!validateRequired(graphId, query, props)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_EXECUTE_QUERY_FOR_NODES_UNKNOWN_ERROR.name(), "Required parameters are missing...");        
+		} else {
+	        try {
+	            Graph graph = new Graph(this, graphId);
+	            graph.executeQueryForProps(request);
+	        } catch (Exception e) {
+	            handleException(e, getSender());
+	        }
+		}
+    }
 
     @Override
     public void getChildren(Request request) {

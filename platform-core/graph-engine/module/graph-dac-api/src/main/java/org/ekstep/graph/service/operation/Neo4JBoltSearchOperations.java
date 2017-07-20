@@ -317,6 +317,37 @@ public class Neo4JBoltSearchOperations {
 		return nodes;
 	}
 
+	public List<Map<String, Object>> executeQueryForProps(String graphId, String query, List<String> propKeys) {
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(), DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Execute Query For Nodes' Operation Failed.]");
+		List<Map<String, Object>> propsList = new ArrayList<Map<String, Object>>();
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+		try (Session session = driver.session()) {
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+
+			PlatformLogger.log("Populating Parameter Map.");
+
+			StatementResult result = session.run(query);
+			PlatformLogger.log("Initializing the Result Maps.");
+			if (null != result) {
+				for (Record record : result.list()) {
+					if (null != record) {
+						Map<String, Object> row = new HashMap<String, Object>();
+						for (int i = 0; i < propKeys.size(); i++) {
+							String key = propKeys.get(0);
+							Object value = record.get(key);
+							row.put(key, value);
+						}
+						if (!row.isEmpty())
+							propsList.add(row);
+					}
+				}
+			}
+		}
+		return propsList;
+	}
+	
 	/**
 	 * Gets the node property.
 	 *

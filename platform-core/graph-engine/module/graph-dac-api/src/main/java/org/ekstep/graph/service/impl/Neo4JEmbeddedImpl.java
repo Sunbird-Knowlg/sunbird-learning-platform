@@ -1,5 +1,6 @@
 package org.ekstep.graph.service.impl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -299,6 +300,12 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			List<Map<String, Object>> modifiedNodes, List<Map<String, Object>> addOutRelations,
 			List<Map<String, Object>> removeOutRelations, List<Map<String, Object>> addInRelations,
 			List<Map<String, Object>> removeInRelations) {
+	}
+
+	@Override
+	// Dummy method - we need to remove this file.
+	public List<Map<String, Object>> executeQueryForProps(String graphId, String query, List<String> nodeKey) {
+		return new ArrayList<Map<String, Object>>();
 	}
 
 }

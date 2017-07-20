@@ -255,6 +255,11 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 		PlatformLogger.log("Calling 'executeQuery' Operation.");
 		return searchOperations.executeQuery(graphId, query, paramMap, request);
 	}
+	
+	@Override
+	public List<Map<String, Object>> executeQueryForProps(String graphId, String query, List<String> propKeys) {
+		return searchOperations.executeQueryForProps(graphId, query, propKeys);
+	}
 
 	@Override
 	public List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request) {

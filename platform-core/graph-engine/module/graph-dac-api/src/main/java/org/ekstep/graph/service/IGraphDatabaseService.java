@@ -126,4 +126,6 @@ public interface IGraphDatabaseService {
 			List<Map<String, Object>> addOutRelations, List<Map<String, Object>> removeOutRelations,
 			List<Map<String, Object>> addInRelations, List<Map<String, Object>> removeInRelations);
 
+	public List<Map<String, Object>> executeQueryForProps(String graphId, String query, List<String> propKeys);
+
 }
