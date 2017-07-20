@@ -24,14 +24,12 @@ import com.ilimi.graph.dac.model.Node;
 public class PublishTask implements Runnable {
 
 	private String contentId;
-	private Map<String, String> logData = new HashMap<String, String>();
 	private Map<String, Object> parameterMap;
 
 	private ControllerUtil util = new ControllerUtil();
 
 	public PublishTask(String contentId, Map<String, Object> parameterMap) {
 		this.contentId = contentId;
-		this.logData.put("contentId", this.contentId);
 		this.parameterMap = parameterMap;
 	}
 
@@ -43,7 +41,7 @@ public class PublishTask implements Runnable {
 	}
 
 	private void publishContent(Node node, String mimeType) {
-		PlatformLogger.log("Publish processing start for content", this.logData, LoggerEnum.INFO.name());
+		PlatformLogger.log("Publish processing start for content", this.contentId, LoggerEnum.INFO.name());
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
@@ -57,7 +55,7 @@ public class PublishTask implements Runnable {
 				.stream()
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getMimeType(), "application/vnd.ekstep.content-collection")
 						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
-				.filter(node -> StringUtils.equalsIgnoreCase("visibility", "parent")).sorted(new Comparator<NodeDTO>() {
+				.filter(node -> StringUtils.equalsIgnoreCase(node.getVisibility(), "parent")).sorted(new Comparator<NodeDTO>() {
 					@Override
 					public int compare(NodeDTO o1, NodeDTO o2) {
 						return o2.getDepth().compareTo(o1.getDepth());
@@ -72,10 +70,10 @@ public class PublishTask implements Runnable {
 
 	private void publishNode(Node node, String mimeType) {
 
-		PlatformLogger.log("Publish processing start for node", this.logData, LoggerEnum.INFO.name());
 		if (null == node)
 			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
 					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
+		PlatformLogger.log("Publish processing start for node", node.getIdentifier(), LoggerEnum.INFO.name());
 		try {
 			setContentBody(node, mimeType);
 			this.parameterMap.put(ContentWorkflowPipelineParams.node.name(), node);
