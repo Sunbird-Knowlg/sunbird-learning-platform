@@ -48,9 +48,8 @@ public class PublishTask implements Runnable {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
 			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
-		} else {
-			publishNode(node, mimeType);
 		}
+		publishNode(node, mimeType);
 	}
 
 	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
