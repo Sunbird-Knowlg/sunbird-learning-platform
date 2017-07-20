@@ -11,6 +11,7 @@ import org.ekstep.searchindex.util.PropertiesUtil;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -196,7 +197,8 @@ public class ControllerUtil extends BaseLearningManager {
 		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
 		String nodeId = node.getIdentifier();
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String query = "MATCH p=(n:domain{contentType:'Collection',IL_UNIQUE_ID:'"+nodeId+"'})-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility ORDER BY depth DESC;";
+		String query = "MATCH p=(n:domain{IL_UNIQUE_ID:'"+nodeId+"'})-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility ORDER BY depth DESC;";
+		PlatformLogger.log("Query: "+query, null, LoggerEnum.INFO.name());
         request.put(GraphDACParams.query.name(), query);
         List<String> props = new ArrayList<String>();
         props.add("identifier");
@@ -211,6 +213,7 @@ public class ControllerUtil extends BaseLearningManager {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
 			if (null != list && !list.isEmpty()) {
+				PlatformLogger.log("Query result:", list, LoggerEnum.INFO.name());
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, Object> properties = list.get(i);
 					NodeDTO obj = new NodeDTO((String)properties.get("identifier"), (String) properties.get("name"), null);
