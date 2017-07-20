@@ -14,12 +14,13 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.model.Node;
 
 // TODO: Auto-generated Javadoc
@@ -89,6 +90,28 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		}
 
 		return response;
+	}
+	
+	@Override
+	public Response upload(Node node, String fileUrl) {
+		try {
+			File file = copyURLToFile(fileUrl);
+			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), fileUrl);
+			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), fileUrl);
+			node.getMetadata().put(ContentAPIParams.size.name(), getFileSize(file));
+			Response response;
+			if (StringUtils.equalsIgnoreCase(node.getMetadata().get("mediaType").toString(), "image")) {
+				node.getMetadata().put(ContentAPIParams.status.name(), "Processing");
+				response = updateContentNode(node.getIdentifier(), node, fileUrl);
+			} else {
+				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
+				response = updateContentNode(node.getIdentifier(), node, fileUrl);
+			}
+			if (null != file && file.exists()) file.delete();
+			return response;
+		} catch (IOException e) {
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
+		}
 	}
 
 	/*

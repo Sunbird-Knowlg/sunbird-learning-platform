@@ -45,6 +45,12 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier());
 		return uploadContentArtifact(contentId, node, uploadedFile);
 	}
+	
+	@Override
+	public Response upload(Node node, String fileUrl) {
+		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), fileUrl);
+		return updateContentNode(node.getIdentifier(), node, fileUrl);
+	}
 
 	/*
 	 * (non-Javadoc)

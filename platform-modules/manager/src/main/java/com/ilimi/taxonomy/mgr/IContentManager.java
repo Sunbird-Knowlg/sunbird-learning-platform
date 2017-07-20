@@ -45,6 +45,26 @@ public interface IContentManager {
 	 *         which the content is being uploaded.
 	 */
 	Response upload(String id, String taxonomyId, File uploadedFile);
+	
+	/**
+	 * Upload is High level Content Operation to set the <code>artifactUrl</code> of the
+	 * <code>node</code>.
+	 * 
+	 * 
+	 * <p>
+	 * A subclass must provide an implementation of this method.
+	 *
+	 * @param id
+	 *            the content <code>identifier</code> for which the content
+	 *            package needs to be uploaded.
+	 * @param taxonomyId
+	 *            the <code>graph id</code> of the content.
+	 * @param fileUrl
+	 *            the file URL is the <code>zip content package path</code>.
+	 * @return the response contains the node id as <code>node_id</code> for
+	 *         which the content is being uploaded.
+	 */
+	Response upload(String id, String taxonomyId, String fileUrl);
 
 	/**
 	 * Optimize is High level Content Operation mainly deals with optimizing the

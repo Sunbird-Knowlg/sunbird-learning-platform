@@ -49,6 +49,24 @@ public interface IMimeTypeManager {
 	 *         i.e. the <code>URL</code> where the file is uploaded.
 	 */
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync);
+	
+	/**
+	 * The <code>upload</code> method carries the entire task of Content Upload
+	 * operation using file URL. Other than Preliminary validation it perform all the tasks of
+	 * Content Upload. This Method is directly backed by Content Work-flow
+	 * Pipeline.
+	 * 
+	 *
+	 * @param node
+	 *            the content <code>node</code> for which the content package is
+	 *            being uploaded.
+	 * @param fileUrl
+	 *            <code>URL</code> of the content package file.
+	 * @return the <code>response</code> object contains the node id as
+	 *         <code>node_id</code> and the <code>artifactUrl</code> property
+	 *         i.e. the <code>URL</code> where the file is uploaded.
+	 */
+	public Response upload(Node node, String fileUrl);
 
 	/**
 	 * The <code>publish</code> method is a vital method in Content work-flow

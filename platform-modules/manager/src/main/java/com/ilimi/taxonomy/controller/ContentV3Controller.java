@@ -69,24 +69,37 @@ public class ContentV3Controller extends BaseController {
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "file", required = true) MultipartFile file) {
+			@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam(value = "fileUrl", required = false) String fileUrl) {
 		String apiId = "ekstep.learning.content.upload";
 		PlatformLogger.log("Upload Content | Content Id: " + contentId);
-		PlatformLogger.log("Uploaded File Name: ");
-		PlatformLogger.log("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
-		try {
-			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE + System.currentTimeMillis()
+		if (StringUtils.isBlank(fileUrl) && null == file) {
+			return getExceptionResponseEntity(
+					new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_RESOURCE.name(),
+							"File or fileUrl should be available."), apiId, null);
+		} else {
+			try {
+				if (StringUtils.isNotBlank(fileUrl)) {
+					Response response = contentManager.upload(contentId, graphId, fileUrl);
+					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
+					return getResponseEntity(response, apiId, null);
+				} else {
+					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE + System.currentTimeMillis()
 					+ DOT + FilenameUtils.getExtension(file.getOriginalFilename());
-			File uploadedFile = new File(name);
-			file.transferTo(uploadedFile);
-			uploadedFile = new File(name);
-			Response response = contentManager.upload(contentId, "domain", uploadedFile);
-			PlatformLogger.log("Upload | Response: ", response.getResponseCode());
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			PlatformLogger.log("Upload | Exception: ", e.getMessage(), e);
-			return getExceptionResponseEntity(e, apiId, null);
+					File uploadedFile = new File(name);
+					file.transferTo(uploadedFile);
+					uploadedFile = new File(name);
+					Response response = contentManager.upload(contentId, graphId, uploadedFile);
+					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
+					return getResponseEntity(response, apiId, null);
+				}
+			} catch (Exception e) {
+				PlatformLogger.log("Upload | Exception: ", e.getMessage(), e);
+				return getExceptionResponseEntity(e, apiId, null);
+			}
 		}
+		
+		
+		
 	}
 
 	/**

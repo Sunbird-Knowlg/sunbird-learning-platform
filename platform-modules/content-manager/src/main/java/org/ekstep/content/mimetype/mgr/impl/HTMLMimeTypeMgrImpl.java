@@ -1,17 +1,25 @@
 package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -43,9 +51,20 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
 		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier(), "Uploaded File :" + uploadFile);
-		return uploadContentArtifact(contentId, node, uploadFile);
+		if (hasGivenFile(uploadFile, "index.html")) {
+			return uploadContentArtifact(contentId, node, uploadFile);
+		} else {
+			return ERROR(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Zip file doesn't have required files.", ResponseCode.CLIENT_ERROR);
+		}
 	}
 
+	public Response upload(Node node, String fileUrl) {
+		File file = copyURLToFile(fileUrl);
+		Response response = upload(node.getIdentifier(), node, file, false);
+		if (null != file && file.exists()) file.delete();
+		return response;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -42,11 +42,19 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		PlatformLogger.log("Node: ", node.getIdentifier());
 		PlatformLogger.log("Uploaded File: " + uploadFile.getName());
-
-		PlatformLogger.log("Calling Upload Content For Node ID: ", node.getIdentifier());
-		return uploadContentArtifact(contentId, node, uploadFile);
+		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier());
+		String[] urlArray = uploadArtifactToAWS(uploadFile, contentId);
+		node.getMetadata().put("s3Key", urlArray[0]);
+		String fileUrl = urlArray[1];
+		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), fileUrl);
+		return updateContentNode(node.getIdentifier(), node, fileUrl);
+	}
+	
+	@Override
+	public Response upload(Node node, String fileUrl) {
+		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), fileUrl);
+		return updateContentNode(node.getIdentifier(), node, fileUrl);
 	}
 
 	/*

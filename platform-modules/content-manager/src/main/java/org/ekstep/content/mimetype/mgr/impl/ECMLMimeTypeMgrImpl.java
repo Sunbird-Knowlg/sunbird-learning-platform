@@ -1,6 +1,7 @@
 package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,10 +14,12 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
+import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -158,6 +161,14 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 		PlatformLogger.log("Calling the 'Upload' Initializer for Node ID: " , node.getIdentifier());
 		return pipeline.init(ContentAPIParams.upload.name(), parameterMap);
+	}
+	
+	@Override
+	public Response upload(Node node, String fileUrl) {
+		File file = copyURLToFile(fileUrl);
+		Response response = upload(node.getIdentifier(), node, file, false);
+		if (null != file && file.exists()) file.delete();
+		return response;
 	}
 
 	/*

@@ -41,7 +41,6 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
@@ -84,7 +83,7 @@ import scala.concurrent.Future;
  * @see IContentManager
  */
 @Component
-public class ContentManagerImpl extends BaseManager implements IContentManager {
+public class ContentManagerImpl extends BaseContentManager implements IContentManager {
 
 	/** The logger. */
 
@@ -93,12 +92,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The Default Manifest Version */
 	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
-
-	/**
-	 * The Default 'ContentImage' Object Suffix (Content_Object_Identifier +
-	 * ".img")
-	 */
-	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	/**
 	 * Content Image Object Type
@@ -151,57 +144,104 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		PlatformLogger.log("Graph ID: " + taxonomyId);
 		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
 
-		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
-		if (StringUtils.isBlank(contentId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-					"Content Object Id is blank.");
-		if (null == uploadedFile)
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
-					"Upload file is blank.");
-		if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
-			throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
-					"Invalid Content Identifier. | [Content Identifier does not Exists.]");
+		try {
+			if (StringUtils.isBlank(taxonomyId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
+			if (StringUtils.isBlank(contentId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+						"Content Object Id is blank.");
+			if (null == uploadedFile)
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
+						"Upload file is blank.");
+			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
+						"Invalid Content Identifier. | [Content Identifier does not Exists.]");
 
-		Node node = getNodeForOperation(taxonomyId, contentId);
-		PlatformLogger.log("Node: ", node);
+			Node node = getNodeForOperation(taxonomyId, contentId);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Upload' Operation on the Content in 'Processing' Status.] ");
+			isNodeUnderProcessing(node, "Upload");
 
-		PlatformLogger.log("Given Content is not in Processing Status.");
-
-		String mimeType = (String) node.getMetadata().get("mimeType");
-		if (StringUtils.isBlank(mimeType)) {
-			mimeType = "assets";
-		}
-		PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-
-		PlatformLogger
-				.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
-		if (null != uploadedFile && uploadedFile.exists()) {
-			try {
-				PlatformLogger.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId);
-				uploadedFile.delete();
-			} catch (Exception e) {
-				PlatformLogger.log(
-						"Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
-						e.getMessage(), e);
+			String mimeType = (String) node.getMetadata().get("mimeType");
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = "assets";
 			}
-		}
+			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 
-		PlatformLogger.log("Returning Response.");
-		if (StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")) {
-			String identifier = (String) res.getResult().get("node_id");
-			String new_identifier = identifier.replace(".img", "");
-			PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
-			res.getResult().replace("node_id", identifier, new_identifier);
+			PlatformLogger
+					.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
+			if (null != uploadedFile && uploadedFile.exists()) {
+				try {
+					PlatformLogger.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId);
+					uploadedFile.delete();
+				} catch (Exception e) {
+					PlatformLogger.log(
+							"Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
+							e.getMessage(), e);
+				}
+			}
+
+			PlatformLogger.log("Returning Response.");
+			return checkAndReturnUploadResponse(res);
+		} catch (ClientException e) {
+			throw e;
+		} catch(ServerException e) {
+			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		} catch (Exception e) {
+			String message = "Something went wrong while processing uploaded file.";
+			PlatformLogger.log(message, null, e);
+			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		}
-		return res;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#upload(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
+	@Override
+	public Response upload(String contentId, String taxonomyId, String fileUrl) {
+		PlatformLogger.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:"+ fileUrl);
+		try {
+			if (StringUtils.isBlank(taxonomyId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
+			if (StringUtils.isBlank(contentId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+						"Content Object Id is blank.");
+			if (StringUtils.isBlank(fileUrl))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
+						"fileUrl is blank.");
+			isImageContentId(contentId);
+			Node node = getNodeForOperation(taxonomyId, contentId);
+			isNodeUnderProcessing(node, "Upload");
+			String mimeType = getMimeType(node);
+			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+			Response res = mimeTypeManager.upload(node, fileUrl);
+			PlatformLogger.log("Returning Response.");
+			return checkAndReturnUploadResponse(res);
+		} catch (ClientException e) {
+			throw e;
+		} catch(ServerException e) {
+			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		} catch (Exception e) {
+			String message = "Something went wrong while processing uploaded file.";
+			PlatformLogger.log(message, null, e);
+			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
+		}
+	}
+	
+	private Response checkAndReturnUploadResponse(Response res) {
+		if (checkError(res)) {
+			return res;
+		} else {
+			String nodeId = (String) res.getResult().get("node_id");
+			String returnNodeId = getActualIdentifier(nodeId);
+			res.getResult().replace("node_id", nodeId, returnNodeId);
+			return res;
+		}
 	}
 
 	/*
@@ -335,10 +375,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Got Node: ", node);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Optimize' Operation on the Content in 'Processing' Status.] ");
+		isNodeUnderProcessing(node, "Optimize");
 
 		PlatformLogger.log("Given Content is not in Processing Status.");
 
@@ -473,10 +510,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Got Node: ", node);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Publish' Operation on the Content in 'Processing' Status.] ");
+		isNodeUnderProcessing(node, "Publish");
 
 		PlatformLogger.log("Given Content is not in Processing Status.");
 
@@ -543,10 +577,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = getNodeForOperation(taxonomyId, contentId);
 		PlatformLogger.log("Node: ", node);
 
-		PlatformLogger.log("Checking For 'Processing' Status of Node: ");
-		if (BooleanUtils.isTrue(isNodeUnderProcessing(node)))
-			throw new ClientException(TaxonomyErrorCodes.ERR_NODE_ACCESS_DENIED.name(),
-					"Operation Denied! | [Cannot Apply 'Review' Operation on the Content in 'Processing' Status.] ");
+		isNodeUnderProcessing(node, "Review");
 
 		PlatformLogger.log("Given Content is not in Processing Status.");
 
@@ -860,19 +891,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			response = getResponse(request);
 		}
 		return response;
-	}
-
-	private boolean isNodeUnderProcessing(Node node) {
-		boolean isUnderProcess = false;
-		try {
-			if (null != node && null != node.getMetadata()
-					&& StringUtils.equalsIgnoreCase((String) node.getMetadata().get(TaxonomyAPIParams.status.name()),
-							TaxonomyAPIParams.Processing.name()))
-				isUnderProcess = true;
-		} catch (Exception e) {
-			PlatformLogger.log("Something Went Wrong While Checking the is Under Processing Status.", null, e);
-		}
-		return isUnderProcess;
 	}
 
 	private void validateInputNodesForBundling(List<Node> nodes) {

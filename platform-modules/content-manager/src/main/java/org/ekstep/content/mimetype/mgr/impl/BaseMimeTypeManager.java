@@ -2,18 +2,24 @@ package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +47,9 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -157,6 +166,59 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			}
 		}
 		return node;
+	}
+	
+	protected File copyURLToFile(String fileUrl) {
+		try {
+			String fileName = getFieNameFromURL(fileUrl);
+			File file = new File(fileName);
+			FileUtils.copyURLToFile(new URL(fileUrl), file);
+			return file;
+		} catch (IOException e) {
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
+		}
+	}
+	
+	protected String getFieNameFromURL(String fileUrl) {
+		String fileName = FilenameUtils.getBaseName(fileUrl)+"_"+ System.currentTimeMillis();
+		if (!FilenameUtils.getExtension(fileUrl).isEmpty()) 
+			fileName += "." + FilenameUtils.getExtension(fileUrl);
+		return fileName;
+	}
+	
+	/**
+	 * This return true if at least one member matches from the checkList.
+	 * @param file
+	 * @param checkList
+	 * @return
+	 * @throws IOException
+	 */
+	protected boolean hasGivenFile(File file, String checkFile) {
+		boolean isValidPackage = false;
+		try {
+			if (file.exists()) {
+				PlatformLogger.log("Validating File For Folder Structure: " + file.getName());
+				if (StringUtils.isBlank(checkFile)) {
+					isValidPackage = true;
+				} else {
+					try (ZipFile zipFile = new ZipFile(file)) {
+						Enumeration<? extends ZipEntry> entries = zipFile.entries();
+						while (entries.hasMoreElements()) {
+							ZipEntry entry = entries.nextElement();
+							if (StringUtils.equalsIgnoreCase(entry.getName(), checkFile)) {
+								isValidPackage = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		} catch (ZipException e) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Invalid zip file");
+		} catch (IOException e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Error while validating the content");
+		}
+		return isValidPackage;
 	}
 
 	private void downloadAppIcon(Node node, String tempFolder) {
@@ -387,7 +449,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return bytes;
 	}
 
-	private double getFileSize(File file) throws IOException {
+	protected double getFileSize(File file) throws IOException {
 		double bytes = 0;
 		if (file.exists()) {
 			bytes = file.length();
