@@ -59,10 +59,15 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	}
 
 	public Response upload(Node node, String fileUrl) {
-		File file = copyURLToFile(fileUrl);
-		Response response = upload(node.getIdentifier(), node, file, false);
-		if (null != file && file.exists()) file.delete();
-		return response;
+		File file = null;
+		try {
+			file = copyURLToFile(fileUrl);
+			return upload(node.getIdentifier(), node, file, false);
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (null != file && file.exists()) file.delete();
+		}
 	}
 	
 	/*

@@ -14,7 +14,6 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
-import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
@@ -94,8 +93,9 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	
 	@Override
 	public Response upload(Node node, String fileUrl) {
+		File file = null;
 		try {
-			File file = copyURLToFile(fileUrl);
+			file = copyURLToFile(fileUrl);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), fileUrl);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), fileUrl);
 			node.getMetadata().put(ContentAPIParams.size.name(), getFileSize(file));
@@ -111,6 +111,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			return response;
 		} catch (IOException e) {
 			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
+		} finally {
+			if (null != file && file.exists()) file.delete();
 		}
 	}
 
