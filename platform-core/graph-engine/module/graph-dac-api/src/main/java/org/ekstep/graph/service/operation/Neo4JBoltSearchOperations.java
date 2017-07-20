@@ -335,7 +335,7 @@ public class Neo4JBoltSearchOperations {
 					if (null != record) {
 						Map<String, Object> row = new HashMap<String, Object>();
 						for (int i = 0; i < propKeys.size(); i++) {
-							String key = propKeys.get(0);
+							String key = propKeys.get(i);
 							Object value = record.get(key);
 							row.put(key, value);
 						}
