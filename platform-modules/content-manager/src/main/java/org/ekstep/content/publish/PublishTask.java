@@ -1,7 +1,6 @@
 package org.ekstep.content.publish;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -78,11 +77,11 @@ public class PublishTask implements Runnable {
 			setContentBody(node, mimeType);
 			this.parameterMap.put(ContentWorkflowPipelineParams.node.name(), node);
 			this.parameterMap.put(ContentWorkflowPipelineParams.ecmlType.name(), PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(contentId), this.contentId);
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(node.getIdentifier()), node.getIdentifier());
 			pipeline.init(ContentWorkflowPipelineParams.publish.name(), this.parameterMap);
 		} catch (Exception e) {
 			PlatformLogger.log("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
-					+ contentId + "]", e);
+					+ node.getIdentifier() + "]", e);
 			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());
 			util.updateNode(node);
