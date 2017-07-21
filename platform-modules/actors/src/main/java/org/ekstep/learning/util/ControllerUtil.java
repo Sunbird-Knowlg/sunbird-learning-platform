@@ -212,12 +212,11 @@ public class ControllerUtil extends BaseLearningManager {
 		if (!checkError(response)) {
 			Map<String, Object> result = response.getResult();
 			List<Map<String, Object>> list = (List<Map<String, Object>>) result.get("properties");
-			PlatformLogger.log("Query result:", list, LoggerEnum.INFO.name());
 			if (null != list && !list.isEmpty()) {
 				for (int i = 0; i < list.size(); i++) {
 					Map<String, Object> properties = list.get(i);
 					NodeDTO obj = new NodeDTO((String)properties.get("identifier"), (String) properties.get("name"), null);
-					obj.setDepth((Integer) properties.get("depth"));
+					obj.setDepth(((Long)properties.get("depth")).intValue());
 					obj.setStatus((String) properties.get("status"));
 					obj.setMimeType((String) properties.get("mimeType"));
 					obj.setVisibility((String) properties.get("visibility"));
