@@ -92,12 +92,13 @@ public class ImageTaggingService implements ISamzaService {
 		try {
 			String nodeId = (String) eks.get(ImageWorkflowEnums.id.name());
 			Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
-			if (null == node) {
-				metrics.incSkippedCounter();
-				return;
+			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ImageWorkflowEnums.content.name()))){
+				imageEnrichment(node);
+				metrics.incSuccessCounter();
 			}
-			imageEnrichment(node);
-			metrics.incSuccessCounter();
+			else{
+				metrics.incSkippedCounter();
+			}
 		} catch (Exception e) {
 			LOGGER.error("Failed to process message", message, e);
 			metrics.incFailedCounter();
