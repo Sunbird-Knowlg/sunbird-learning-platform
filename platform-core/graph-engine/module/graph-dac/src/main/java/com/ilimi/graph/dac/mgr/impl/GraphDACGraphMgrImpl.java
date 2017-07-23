@@ -6,12 +6,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.service.IGraphDatabaseService;
-import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.factory.GraphServiceFactory;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -27,19 +25,7 @@ import akka.actor.ActorRef;
 
 public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACGraphMgr {
 
-	static IGraphDatabaseService service;
-	static {
-		String databasePolicy = DACConfigurationConstants.ACTIVE_DATABASE_POLICY;
-
-		PlatformLogger.log("Active Database Policy Id:", databasePolicy);
-
-		if (StringUtils.isBlank(databasePolicy))
-			databasePolicy = DACConfigurationConstants.DEFAULT_DATABASE_POLICY;
-
-		PlatformLogger.log("Creating Database Connection Using Policy Id:", databasePolicy);
-
-		service = GraphServiceFactory.getDatabaseService(databasePolicy);
-	}
+	private static IGraphDatabaseService service = GraphServiceFactory.getDatabaseService();
 
 	protected void invokeMethod(Request request, ActorRef parent) {
 		String methodName = request.getOperation();

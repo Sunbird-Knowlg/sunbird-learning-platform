@@ -16,6 +16,4 @@ quiz-app/www
 .cache-main
 platform-tools/scripts/orchestrator/node_modules/
 coverageReport/
-platform-modules/service/src/main/webapp/WEB-INF/lib/httpclient-4.5.1.jar
-platform-modules/service/src/main/webapp/WEB-INF/lib/httpcore-4.4.4.jar
 language-platform/module/scripts/orchestrator/node_modules/

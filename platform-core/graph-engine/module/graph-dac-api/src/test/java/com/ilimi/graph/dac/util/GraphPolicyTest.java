@@ -29,10 +29,9 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 @FixMethodOrder(MethodSorters.DEFAULT)
 public class GraphPolicyTest {
 	
-	static String databasePolicy = "bolt";
 	static String graphId =  "domain";
 	static String graphId1 =  "123";
-	static IGraphDatabaseService graphDb = GraphServiceFactory.getDatabaseService(databasePolicy);
+	static IGraphDatabaseService graphDb = GraphServiceFactory.getDatabaseService();
 	String relationType = "ASSOCIATED_TO"; 
 	
 	@Rule

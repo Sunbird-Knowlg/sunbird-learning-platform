@@ -2,10 +2,6 @@ package org.ekstep.graph.service.common;
 
 public class DACConfigurationConstants {
 	
-	public static final String DEFAULT_DATABASE_POLICY = "Bolt";
-	
-	public static final String ACTIVE_DATABASE_POLICY = "Bolt";
-	
 	public static final String NEO4J_SERVER_USERNAME = "neo4j";
 	
 	public static final String NEO4J_SERVER_PASSWORD = "neo4j";
