@@ -175,17 +175,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
-			if (null != uploadedFile && uploadedFile.exists()) {
-				try {
-					PlatformLogger.log("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]", contentId);
-					uploadedFile.delete();
-				} catch (Exception e) {
-					PlatformLogger.log(
-							"Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
-							e.getMessage(), e);
-				}
-			}
-
 			PlatformLogger.log("Returning Response.");
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
@@ -196,6 +185,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String message = "Something went wrong while processing uploaded file.";
 			PlatformLogger.log(message, null, e);
 			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
+		} finally {
+			if (null != uploadedFile && uploadedFile.exists())
+				uploadedFile.delete();
 		}
 	}
 

@@ -5,6 +5,7 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.DefaultMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.DocumentMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
@@ -27,9 +28,10 @@ public class ContentMimeTypeFactoryUtil {
 	static IMimeTypeManager pluginMimeTypeMgrImpl = new PluginMimeTypeMgrImpl();
     static IMimeTypeManager youtubeMimeTypeMgr = new YoutubeMimeTypeManager();
     static IMimeTypeManager documentMimeTypeMgr = new DocumentMimeTypeManager();
+    static IMimeTypeManager defaultMimeTypeMgr = new DefaultMimeTypeMgrImpl();
     
 	@CoverageIgnore
-    public static IMimeTypeManager getImplForService(String mimeType) {
+    public static IMimeTypeManager getImplForService(String mimeType, String contentType) {
 		PlatformLogger.log("MimeType: " + mimeType);
     	IMimeTypeManager manager = assetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
@@ -61,7 +63,7 @@ public class ContentMimeTypeFactoryUtil {
 				manager = documentMimeTypeMgr;
 				break;
 			default:
-				manager = assetsMimeTypeMgr;
+				manager = defaultMimeTypeMgr;
 				break;
 		}
        return manager;
