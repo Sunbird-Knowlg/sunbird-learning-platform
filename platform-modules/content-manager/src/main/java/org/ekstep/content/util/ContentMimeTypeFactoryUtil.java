@@ -31,7 +31,7 @@ public class ContentMimeTypeFactoryUtil {
     static IMimeTypeManager defaultMimeTypeMgr = new DefaultMimeTypeMgrImpl();
     
 	@CoverageIgnore
-    public static IMimeTypeManager getImplForService(String mimeType, String contentType) {
+    public static IMimeTypeManager getImplForService(String mimeType) {
 		PlatformLogger.log("MimeType: " + mimeType);
     	IMimeTypeManager manager = assetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
