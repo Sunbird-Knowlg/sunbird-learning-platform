@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.factory.GraphServiceFactory;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,6 +27,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
 
+@Ignore
 @FixMethodOrder(MethodSorters.DEFAULT)
 public class GraphPolicyTest {
 	

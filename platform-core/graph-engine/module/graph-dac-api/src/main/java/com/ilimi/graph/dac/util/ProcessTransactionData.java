@@ -37,7 +37,6 @@ public class ProcessTransactionData {
 	}
 
 	public void processTxnData(TransactionData data) {
-		PlatformLogger.log("Txn Data : ");
 		try {
 			List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 			if (kafkaMessages != null && !kafkaMessages.isEmpty())
@@ -81,7 +80,6 @@ public class ProcessTransactionData {
 
 	private List<Map<String, Object>> getCretedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
-		PlatformLogger.log("getting neo4j transaction data" , data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> createdNodeIds = getCreatedNodeIds(data);
@@ -126,7 +124,6 @@ public class ProcessTransactionData {
 
 	private List<Map<String, Object>> getUpdatedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
-		PlatformLogger.log("Getting neo4j transaction data" , data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> updatedNodeIds = getUpdatedNodeIds(data);
@@ -170,7 +167,6 @@ public class ProcessTransactionData {
 	@SuppressWarnings("rawtypes")
 	private List<Map<String, Object>> getDeletedNodeMessages(TransactionData data, GraphDatabaseService graphDb,
 			String userId, String requestId) {
-		PlatformLogger.log("Getting neo4j transaction data" , data);
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			List<Long> deletedNodeIds = getDeletedNodeIds(data);
@@ -213,7 +209,6 @@ public class ProcessTransactionData {
 	}
 
 	private Map<String, Object> getAllPropertyEntry(Long nodeId, TransactionData data) {
-		PlatformLogger.log("Getting neo4j transaction data" , data);
 		Map<String, Object> map = getAssignedNodePropertyEntry(nodeId, data);
 		map.putAll(getRemovedNodePropertyEntry(nodeId, data));
 		return map;
@@ -225,7 +220,6 @@ public class ProcessTransactionData {
 	}
 	
 	private String getLastUpdatedByValue(Long nodeId, TransactionData data) {
-		PlatformLogger.log("Getting neo4j transaction data" , data);
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (nodeId == pe.entity().getId()) {

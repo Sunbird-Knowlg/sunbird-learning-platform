@@ -21,8 +21,8 @@
 	</properties>
 
 	<modules>
-		<module>graph-engine</module>
 		<module>platform-common</module>
+		<module>graph-engine</module>
 		<module>platform-dac</module>
 	</modules>
 
