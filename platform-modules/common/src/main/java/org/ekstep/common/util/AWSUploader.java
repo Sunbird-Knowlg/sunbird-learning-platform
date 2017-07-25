@@ -71,7 +71,7 @@ public class AWSUploader {
 		s3.putObject(new PutObjectRequest(bucketName + "/" + folderName, key, file));
 		s3.setObjectAcl(bucketName + "/" + folderName, key, CannedAccessControlList.PublicRead);
 		URL url = s3.getUrl(bucketName, folderName + "/" + key);
-		PlatformLogger.log("AWS Upload '" + file.getName() + "' complete", file.getName());
+		PlatformLogger.log("AWS Upload '" + file.getName() + "' complete");
 		return new String[] { folderName + "/" + key, url.toURI().toString() };
 	}
 

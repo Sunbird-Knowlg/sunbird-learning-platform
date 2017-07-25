@@ -31,10 +31,13 @@ public class ContentMimeTypeFactoryUtil {
     static IMimeTypeManager defaultMimeTypeMgr = new DefaultMimeTypeMgrImpl();
     
 	@CoverageIgnore
-    public static IMimeTypeManager getImplForService(String mimeType) {
-		PlatformLogger.log("MimeType: " + mimeType);
-    	IMimeTypeManager manager = assetsMimeTypeMgr;
-    	switch (StringUtils.lowerCase(mimeType)) {
+    public static IMimeTypeManager getImplForService(String contentType, String mimeType) {
+		PlatformLogger.log("ContentType: " + contentType + " | MimeType: " + mimeType);
+    	IMimeTypeManager manager;
+    	if (StringUtils.equalsIgnoreCase(contentType, "Asset")) {
+    		manager = assetsMimeTypeMgr;
+    	} else {
+    		switch (StringUtils.lowerCase(mimeType)) {
 			case "application/vnd.ekstep.ecml-archive":
 				manager = ecmlMimeTypeMgr;
 				break;
@@ -66,6 +69,10 @@ public class ContentMimeTypeFactoryUtil {
 				manager = defaultMimeTypeMgr;
 				break;
 		}
+    	}
+    		
+    	
+    	
        return manager;
     }
 }

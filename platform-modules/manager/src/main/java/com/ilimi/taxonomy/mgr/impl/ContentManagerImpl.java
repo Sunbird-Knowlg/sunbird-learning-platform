@@ -170,10 +170,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				mimeType = "assets";
 			}
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-
-			PlatformLogger
-					.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			String contentType = (String) node.getMetadata().get("contentType");
+			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(contentType, mimeType);
 			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
 			PlatformLogger.log("Returning Response.");
 			return checkAndReturnUploadResponse(res);
@@ -214,7 +213,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			isNodeUnderProcessing(node, "Upload");
 			String mimeType = getMimeType(node);
 			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+			String contentType = (String) node.getMetadata().get("contentType");
+			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(contentType, mimeType);
 			Response res = mimeTypeManager.upload(node, fileUrl);
 			PlatformLogger.log("Returning Response.");
 			return checkAndReturnUploadResponse(res);
@@ -575,7 +575,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		PlatformLogger.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
 		PlatformLogger.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+		String contentType = (String) node.getMetadata().get("contentType");
+		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(contentType, mimeType);
 
 		response = mimeTypeManager.review(contentId, node, false);
 
@@ -1267,11 +1268,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				id = tmpnode.getIdentifier();
 				tmpnode.setOutRelations(null);
 				tmpnode.setInRelations(null);
-				idMap.put(nodeId, id);
-				nodeMap.put(id, tmpnode);
+				if (StringUtils.equals("application/vnd.ekstep.content-collection", getMimeType(tmpnode))) {
+					idMap.put(nodeId, id);
+					nodeMap.put(id, tmpnode);
+				}
 			} else {
-				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
-						"Content not found with identifier: " + id);
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
 			}
 		}
 		if (StringUtils.isNotBlank(id)) {
