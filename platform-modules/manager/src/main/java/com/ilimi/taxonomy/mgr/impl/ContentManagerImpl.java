@@ -22,7 +22,7 @@ import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
-import org.ekstep.content.util.ContentMimeTypeFactoryUtil;
+import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
@@ -172,7 +172,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
-			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(contentType, mimeType);
+			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
 			PlatformLogger.log("Returning Response.");
 			return checkAndReturnUploadResponse(res);
@@ -214,7 +214,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String mimeType = getMimeType(node);
 			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
-			IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(contentType, mimeType);
+			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(node, fileUrl);
 			PlatformLogger.log("Returning Response.");
 			return checkAndReturnUploadResponse(res);
@@ -576,7 +576,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		PlatformLogger.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
 		String contentType = (String) node.getMetadata().get("contentType");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(contentType, mimeType);
+		IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 
 		response = mimeTypeManager.review(contentId, node, false);
 
