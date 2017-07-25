@@ -1141,24 +1141,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 			if (null != hierarchy && !hierarchy.isEmpty()) {
 				for (Entry<String, Object> entry : hierarchy.entrySet()) {
-					String nodeId = entry.getKey();
-					String id = idMap.get(nodeId);
-					if (StringUtils.isBlank(id)) {
-						Node tmpnode = getNodeForOperation(graphId, nodeId, "update");
-						if (null != tmpnode) {
-							id = tmpnode.getIdentifier();
-							tmpnode.setOutRelations(null);
-							tmpnode.setInRelations(null);
-							idMap.put(nodeId, id);
-							nodeMap.put(id, tmpnode);
-						} else {
-							throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
-									"Content not found with identifier: " + id);
-						}
-					}
-				}
-
-				for (Entry<String, Object> entry : hierarchy.entrySet()) {
 					updateNodeHierarchyRelations(graphId, entry, idMap, nodeMap);
 					if (StringUtils.isBlank(rootNodeId)) {
 						Map<String, Object> map = (Map<String, Object>) entry.getValue();
@@ -1277,7 +1259,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unchecked")
 	private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
 			Map<String, Node> nodeMap) {
-		String id = idMap.get(entry.getKey());
+		String nodeId = entry.getKey();
+		String id = idMap.get(nodeId);
+		if (StringUtils.isBlank(id)) {
+			Node tmpnode = getNodeForOperation(graphId, nodeId, "update");
+			if (null != tmpnode) {
+				id = tmpnode.getIdentifier();
+				tmpnode.setOutRelations(null);
+				tmpnode.setInRelations(null);
+				idMap.put(nodeId, id);
+				nodeMap.put(id, tmpnode);
+			} else {
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
+			}
+		}
 		if (StringUtils.isNotBlank(id)) {
 			Node node = nodeMap.get(id);
 			if (null != node) {
