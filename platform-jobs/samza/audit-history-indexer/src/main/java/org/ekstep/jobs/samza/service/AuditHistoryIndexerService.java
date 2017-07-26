@@ -1,5 +1,6 @@
 package org.ekstep.jobs.samza.service;
-
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,7 +22,6 @@ import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.AuditHistoryConstants;
-import com.ilimi.graph.common.DateUtils;
 
 /**
  * The Class AuditHistoryService provides implementations of the core operations defined in the IMessageProcessor along
@@ -39,9 +39,12 @@ public class AuditHistoryIndexerService implements ISamzaService {
 
 	private ElasticSearchUtil esUtil = null;
 
+	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+	
 	/** The constructor */
 	public AuditHistoryIndexerService() {
 		super();
+		mapper.setDateFormat(df);
 	}
 
 	public void initialize(Config config) throws Exception {
@@ -118,7 +121,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 		String summary = setSummaryData(transactionDataMap);
 		record.setSummary(summary);
 		String createdOn = (String) transactionDataMap.get("createdOn");
-		Date date = DateUtils.parse(createdOn);
+		Date date = df.parse(createdOn);
 		record.setCreatedOn(null == date ? new Date() : date);
 		return record;
 	}
