@@ -1268,13 +1268,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String nodeId = entry.getKey();
 		String id = idMap.get(nodeId);
 		if (StringUtils.isBlank(id)) {
+			Map<String, Object> map = (Map<String, Object>) entry.getValue();
+			Boolean root = (Boolean) map.get("root");
 			Node tmpnode = getNodeForOperation(graphId, nodeId, "update", true);
 			if (null != tmpnode) {
 				id = tmpnode.getIdentifier();
 				tmpnode.setOutRelations(null);
 				tmpnode.setInRelations(null);
 				String visibility = (String) tmpnode.getMetadata().get("visibility");
-				if (StringUtils.equalsIgnoreCase("Parent", visibility)) {
+				if (StringUtils.equalsIgnoreCase("Parent", visibility) || BooleanUtils.isTrue(root)) {
 					idMap.put(nodeId, id);
 					nodeMap.put(id, tmpnode);
 				}
