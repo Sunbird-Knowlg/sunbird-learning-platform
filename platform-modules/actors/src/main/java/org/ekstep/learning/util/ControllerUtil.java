@@ -1,9 +1,11 @@
 package org.ekstep.learning.util;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
@@ -195,9 +197,18 @@ public class ControllerUtil extends BaseLearningManager {
 	
 	public List<NodeDTO> getNodesForPublish(Node node) {
 		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
-		String nodeId = node.getIdentifier();
+		String nodeId = null;
+		String imageNodeId = null;
+		if(StringUtils.endsWith(node.getIdentifier(), ".img")) {
+			imageNodeId = node.getIdentifier();
+			nodeId = node.getIdentifier().replace(".img", "");
+		} else {
+			nodeId = node.getIdentifier();
+			imageNodeId = nodeId + ".img";
+		}
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String query = "MATCH p=(n:domain{IL_UNIQUE_ID:'"+nodeId+"'})-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility ORDER BY depth DESC;";
+		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) WHERE s.visibility <> \"Default\" RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility";
+		String query = MessageFormat.format(queryString, nodeId) + " UNION " + MessageFormat.format(queryString, imageNodeId) + " ORDER BY depth DESC;";
 		PlatformLogger.log("Query: "+query, null, LoggerEnum.INFO.name());
         request.put(GraphDACParams.query.name(), query);
         List<String> props = new ArrayList<String>();

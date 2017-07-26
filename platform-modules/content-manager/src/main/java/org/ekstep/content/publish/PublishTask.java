@@ -1,5 +1,6 @@
 package org.ekstep.content.publish;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ public class PublishTask implements Runnable {
 
 	private String contentId;
 	private Map<String, Object> parameterMap;
+	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
 
@@ -49,8 +51,41 @@ public class PublishTask implements Runnable {
 		publishNode(node, mimeType);
 	}
 
-	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
-		return nodes
+	private List<NodeDTO> dedup(List<NodeDTO> nodes) {
+		List<String> ids = new ArrayList<String>();
+		List<String> addedIds = new ArrayList<String>();
+		List<NodeDTO> list = new ArrayList<NodeDTO>();
+		for (NodeDTO node : nodes) {
+			if(isImageNode(node.getIdentifier()) && !ids.contains(node.getIdentifier())) {
+				ids.add(node.getIdentifier());
+			}
+		}
+		for (NodeDTO node : nodes) {
+			if(!ids.contains(node.getIdentifier()) && !ids.contains(getImageNodeID(node.getIdentifier()))) {
+				ids.add(node.getIdentifier());
+			}
+		}
+		
+		for (NodeDTO node : nodes) {
+			if(ids.contains(node.getIdentifier()) && !addedIds.contains(node.getIdentifier()) && !addedIds.contains(getImageNodeID(node.getIdentifier()))) {
+				list.add(node);
+				addedIds.add(node.getIdentifier());
+			}
+		}
+		
+		return list;
+	}
+
+	private boolean isImageNode(String identifier) {
+		return StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
+	}
+
+	private String getImageNodeID(String identifier) {
+		return identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+	}
+
+	public Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
+		return dedup(nodes)
 				.stream()
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getMimeType(), "application/vnd.ekstep.content-collection")
 						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
@@ -60,6 +95,29 @@ public class PublishTask implements Runnable {
 						return o2.getDepth().compareTo(o1.getDepth());
 					}
 				});
+	}
+
+	public static void main(String[] args) {
+		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
+		nodes.add(new NodeDTO("org.ekstep.lit.haircut.story", "Annual Haircut Day", 3, "Live", "application/vnd.ekstep.ecml-archive",
+				"Default"));
+		nodes.add(new NodeDTO("do_11226563129515212812", "send for review", 3, "Live", "application/vnd.ekstep.ecml-archive", "Default"));
+		nodes.add(new NodeDTO("do_11229278865285120011", "My first story", 2, "Live", "application/vnd.ekstep.ecml-archive", "Default"));
+		nodes.add(new NodeDTO("domain_58339", "The Ghatotkach", 2, "Live", "application/vnd.ekstep.ecml-archive", "Default"));
+		nodes.add(new NodeDTO("domain_58339", "The Ghatotkach", 2, "Live", "application/vnd.ekstep.ecml-archive", "Default"));
+		nodes.add(new NodeDTO("do_11229291440146841611", "Test Collection 1", 2, "Live", "application/vnd.ekstep.content-collection",
+				"Default"));
+		nodes.add(new NodeDTO("do_11229278865285120011", "My first story", 2, "Live", "application/vnd.ekstep.ecml-archive", "Default"));
+		nodes.add(new NodeDTO("do_11229292215258316813", "Chapter 1", 1, "Live", "application/vnd.ekstep.content-collection", "Parent"));
+		nodes.add(new NodeDTO("do_11229292248830771214", "Chapter 2", 1, "Live", "application/vnd.ekstep.content-collection", "Parent"));
+		nodes.add(new NodeDTO("do_11229292248830771214.img", "Chapter 2", 1, "Draft", "application/vnd.ekstep.content-collection", "Parent"));
+		nodes.add(new NodeDTO("do_11229292215258316813.img", "Chapter 1", 1, "Draft", "application/vnd.ekstep.content-collection", "Parent"));
+		nodes.add(new NodeDTO("do_11229292183262822412", "Testbook 5", 0, "Live", "application/vnd.ekstep.content-collection", "Default"));
+		
+		
+		PublishTask task = new PublishTask("", null);
+		Stream<NodeDTO> stream = task.filterAndSortNodes(nodes);
+		stream.forEach(nodeDTO -> System.out.println(nodeDTO.getIdentifier() + "," + nodeDTO.getMimeType()));
 	}
 
 	private void publishCollectionNode(NodeDTO node) {
@@ -81,8 +139,8 @@ public class PublishTask implements Runnable {
 			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId), nodeId);
 			pipeline.init(ContentWorkflowPipelineParams.publish.name(), this.parameterMap);
 		} catch (Exception e) {
-			PlatformLogger.log("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
-					+ nodeId + "]", e);
+			PlatformLogger.log("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: " + nodeId
+					+ "]", e);
 			node.getMetadata().put(ContentWorkflowPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Failed.name());
 			util.updateNode(node);

@@ -1,12 +1,9 @@
 package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
@@ -16,10 +13,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.enums.TaxonomyErrorCodes;
-import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 

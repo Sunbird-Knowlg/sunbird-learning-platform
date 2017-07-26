@@ -5,6 +5,7 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.APKMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.AssetsMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.DefaultMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.DocumentMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
@@ -14,10 +15,7 @@ import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.logger.PlatformLogger;
 
-public class ContentMimeTypeFactoryUtil {
-
-	/** The logger. */
-	
+public class MimeTypeManagerFactory {
 
 	static IMimeTypeManager ecmlMimeTypeMgr = new ECMLMimeTypeMgrImpl();
 	static IMimeTypeManager htmlMimeTypeMgr = new HTMLMimeTypeMgrImpl();
@@ -27,12 +25,16 @@ public class ContentMimeTypeFactoryUtil {
 	static IMimeTypeManager pluginMimeTypeMgrImpl = new PluginMimeTypeMgrImpl();
     static IMimeTypeManager youtubeMimeTypeMgr = new YoutubeMimeTypeManager();
     static IMimeTypeManager documentMimeTypeMgr = new DocumentMimeTypeManager();
+    static IMimeTypeManager defaultMimeTypeMgr = new DefaultMimeTypeMgrImpl();
     
 	@CoverageIgnore
-    public static IMimeTypeManager getImplForService(String mimeType) {
-		PlatformLogger.log("MimeType: " + mimeType);
-    	IMimeTypeManager manager = assetsMimeTypeMgr;
-    	switch (StringUtils.lowerCase(mimeType)) {
+    public static IMimeTypeManager getManager(String contentType, String mimeType) {
+		PlatformLogger.log("ContentType: " + contentType + " | MimeType: " + mimeType);
+    	IMimeTypeManager manager;
+    	if (StringUtils.equalsIgnoreCase(contentType, "Asset")) {
+    		manager = assetsMimeTypeMgr;
+    	} else {
+    		switch (StringUtils.lowerCase(mimeType)) {
 			case "application/vnd.ekstep.ecml-archive":
 				manager = ecmlMimeTypeMgr;
 				break;
@@ -61,9 +63,13 @@ public class ContentMimeTypeFactoryUtil {
 				manager = documentMimeTypeMgr;
 				break;
 			default:
-				manager = assetsMimeTypeMgr;
+				manager = defaultMimeTypeMgr;
 				break;
 		}
+    	}
+    		
+    	
+    	
        return manager;
     }
 }

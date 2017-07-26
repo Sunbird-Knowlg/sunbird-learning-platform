@@ -25,9 +25,10 @@ public class NodeDTO implements Serializable {
 	
 	
 
-	public NodeDTO(String identifier, String status, Integer depth, String mimeType, String visibility, String name) {
+	public NodeDTO(String identifier, String name, Integer depth,  String status, String mimeType, String visibility) {
 		super();
 		this.identifier = identifier;
+		this.name = name;
 		this.status = status;
 		this.depth = depth;
 		this.mimeType = mimeType;

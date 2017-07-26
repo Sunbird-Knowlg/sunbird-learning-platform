@@ -49,7 +49,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
