@@ -41,6 +41,9 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	/** The Constant SYNC_BATCH_SIZE. */
 	private static final int SYNC_BATCH_SIZE = 1000;
 
+	/** The Constant MAX_LIMIT. */
+	private static final int MAX_LIMIT = 5000;
+
 	/**
 	 * Syncs all objects of a given object type or all object types in a given
 	 * graph ID with ES.
@@ -193,6 +196,8 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	private Response genCompositeSearchMessage(String graphId, DefinitionDTO def, Integer startPosition,
 			Integer total) {
 		Response response = OK();
+		if (null == total || total > MAX_LIMIT)
+			total = MAX_LIMIT;
 		int start = 0;
 		if (null != startPosition && startPosition.intValue() > 0)
 			start = startPosition.intValue();
