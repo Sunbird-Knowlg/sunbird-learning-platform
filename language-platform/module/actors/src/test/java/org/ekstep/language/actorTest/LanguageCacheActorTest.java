@@ -12,6 +12,7 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ilimi.common.dto.Request;
@@ -23,6 +24,7 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
+@Ignore
 public class LanguageCacheActorTest extends BaseLanguageTest {
 	
 	

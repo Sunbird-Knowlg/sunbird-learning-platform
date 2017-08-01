@@ -10,6 +10,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import com.ilimi.common.dto.Request;
@@ -21,6 +22,7 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.ActorBootstrap;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
+@Ignore
 public class BaseLanguageTest {
 
 	
