@@ -22,7 +22,6 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.ActorBootstrap;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
-@Ignore
 public class BaseLanguageTest {
 
 	
