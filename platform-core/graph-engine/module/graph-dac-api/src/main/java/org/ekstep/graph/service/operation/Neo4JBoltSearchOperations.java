@@ -174,7 +174,6 @@ public class Neo4JBoltSearchOperations {
 							startNodeMap, endNodeMap);
 			}
 		}
-		PlatformLogger.log("Returning Node By Unique Id: ", node);
 		return node;
 	}
 

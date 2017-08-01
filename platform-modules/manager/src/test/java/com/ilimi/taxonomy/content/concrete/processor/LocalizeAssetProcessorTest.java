@@ -15,6 +15,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFConversionUtility;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -22,6 +23,7 @@ import org.junit.rules.ExpectedException;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.BaseTest;
 
+@Ignore
 public class LocalizeAssetProcessorTest extends BaseTest{
 
 	final static File assetFolder = new File("src/test/resources/Contents/testlocal_01/assets");

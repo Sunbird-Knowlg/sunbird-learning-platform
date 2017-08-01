@@ -22,6 +22,7 @@ import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ import com.ilimi.common.logger.PlatformLogger;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })

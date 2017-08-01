@@ -323,7 +323,7 @@ public class Neo4JBoltGraphOperations {
 		PlatformLogger.log("Start Node Id: ", startNodeId);
 		PlatformLogger.log("End Node Id: ", endNodeId);
 		PlatformLogger.log("Relation Type: ", relationType);
-		PlatformLogger.log("Request: ", request);
+//		PlatformLogger.log("Request: ", request);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),

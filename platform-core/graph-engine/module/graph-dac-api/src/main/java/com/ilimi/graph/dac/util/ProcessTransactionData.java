@@ -118,7 +118,7 @@ public class ProcessTransactionData {
 		} catch (Exception e) {
 			PlatformLogger.log("Error building created nodes message", e.getMessage(),e);
 		}
-		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
+//		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
@@ -160,7 +160,7 @@ public class ProcessTransactionData {
 		} catch (Exception e) {
 			PlatformLogger.log("Error building updated nodes message", e.getMessage(), e);
 		}
-		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
+//		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
@@ -204,7 +204,7 @@ public class ProcessTransactionData {
 		} catch (Exception e) {
 			PlatformLogger.log("Error building deleted nodes message", e.getMessage(), e);
 		}
-		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
+//		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
@@ -372,7 +372,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building added tags message", e);
+			PlatformLogger.log("Error building added tags message", null, e);
 		}
 		return lstMessageMap;
 	}

@@ -42,7 +42,7 @@ public class PropertiesUtil {
 				prop.load(input);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 	}
 	

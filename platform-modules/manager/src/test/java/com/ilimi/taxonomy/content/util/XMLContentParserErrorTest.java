@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.content.util;
 
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.util.XMLContentParser;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -114,6 +115,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 	 * When multiple 'manifest' section is given.
 	 */
 	@Test
+	@Ignore
 	public void parseContentTest_07() {
 		exception.expect(ClientException.class);
 		exception.expectMessage(ContentErrorMessageConstants.MORE_THAN_ONE_MANIFEST_SECTION_ERROR);

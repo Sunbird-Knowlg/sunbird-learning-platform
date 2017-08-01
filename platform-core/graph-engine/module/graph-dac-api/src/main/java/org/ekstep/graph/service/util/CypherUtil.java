@@ -14,7 +14,7 @@ public class CypherUtil {
 
 	public static String getQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
 		PlatformLogger.log("Neo4J Operation: ", operation);
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		PlatformLogger.log("Validating Database (Neo4J) Operation against 'null'.");
 		if (null == operation)
@@ -34,7 +34,7 @@ public class CypherUtil {
 
 	private static String generateQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
 		PlatformLogger.log("Neo4J Operation: ", operation);
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		String query = "";
 		if (null != operation && null != parameterMap && !parameterMap.isEmpty())
@@ -46,7 +46,7 @@ public class CypherUtil {
 
 	private static String getCypherQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
 		PlatformLogger.log("Neo4J Operation: ", operation);
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		String query = "";
 		if (null != operation && null != parameterMap) {

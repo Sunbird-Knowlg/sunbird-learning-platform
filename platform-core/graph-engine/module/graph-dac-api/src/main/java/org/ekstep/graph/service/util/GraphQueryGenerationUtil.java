@@ -32,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
 public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	public static String generateCreateUniqueConstraintCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -58,7 +58,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateCreateIndexCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -84,7 +84,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateDeleteGraphCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -106,7 +106,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		try {
@@ -193,7 +193,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateUpdateRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -237,7 +237,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateDeleteRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -276,7 +276,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateIncomingRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -323,7 +323,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateOutgoingRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -369,7 +369,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateDeleteIncomingRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -410,7 +410,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateDeleteOutgoingRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -450,7 +450,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateRemoveRelationMetadataCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -496,7 +496,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateCreateCollectionCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -584,7 +584,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateDeleteCollectionCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -610,7 +610,7 @@ public class GraphQueryGenerationUtil extends BaseQueryGenerationUtil {
 	}
 
 	public static String generateImportGraphCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {

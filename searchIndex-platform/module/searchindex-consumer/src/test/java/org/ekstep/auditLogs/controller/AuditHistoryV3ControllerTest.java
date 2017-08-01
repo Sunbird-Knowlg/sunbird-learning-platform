@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -49,6 +50,7 @@ public class AuditHistoryV3ControllerTest {
 
 	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	@Test
+	@Ignore
 	public void getAuditLogsByValidObjectId() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -114,6 +116,7 @@ public class AuditHistoryV3ControllerTest {
 	
 	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
 	@Test
+	@Ignore
 	public void getLogRecordByObjectId(){
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();

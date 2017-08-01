@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -37,6 +38,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
  * given criteria, delete the given assessmentitemsets Positive and negative
  * test senarios have been specified for each of the operation
  */
+@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssessmentItemSetTest extends BaseTest {
 

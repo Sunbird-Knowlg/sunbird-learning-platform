@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.JSONContentParser;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -13,6 +14,7 @@ import org.junit.rules.ExpectedException;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.BaseTest;
 
+@Ignore
 public class JSONContentParserTest extends BaseTest {
 	
 	private static final String WELL_FORMED_JSON_FILE_NAME =  "Sample_JSON_1.json";

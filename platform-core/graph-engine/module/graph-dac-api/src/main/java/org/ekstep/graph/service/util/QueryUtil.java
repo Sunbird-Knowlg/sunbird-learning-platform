@@ -10,7 +10,7 @@ public class QueryUtil {
 
 	public static String getQuery(Neo4JOperation operation, Map<String, Object> parameterMap) {
 		PlatformLogger.log("Neo4J Operation: " + operation);
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		String query = "";
 		try {

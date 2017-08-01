@@ -14,6 +14,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,6 +89,7 @@ public class ContentV2ControllerTest extends BaseTest {
 	 * 
 	 */
 	@Test
+	@Ignore
 	public void testUpload_01() {
 		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String validContentId = "CM_TEST_UPLOAD_01";

@@ -45,7 +45,7 @@
 			<artifactId>composite-search-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
-		</dependency>		
+		</dependency>
 	</dependencies>
 
 	<build>

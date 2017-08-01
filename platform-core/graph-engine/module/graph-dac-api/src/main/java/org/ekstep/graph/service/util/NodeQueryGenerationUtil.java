@@ -84,7 +84,6 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateUpsertNodeCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -141,7 +140,7 @@ public class NodeQueryGenerationUtil extends BaseQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateUpdateNodeCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		if (null != parameterMap) {
 			PlatformLogger.log("Fetching the Parameters From Parameter Map");

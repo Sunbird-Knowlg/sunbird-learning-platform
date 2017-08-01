@@ -17,7 +17,7 @@ import com.ilimi.graph.dac.model.Traverser;
 public class SearchQueryGenerationUtil {
 
 	public static String generateGetNodeByIdCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -42,7 +42,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodeByUniqueIdCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -68,7 +68,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodesByPropertyCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -95,7 +95,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodeByUniqueIdsCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -121,7 +121,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodePropertyCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -153,7 +153,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetAllNodesCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -172,7 +172,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetAllRelationsCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -192,7 +192,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetRelationPropertyCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -237,7 +237,7 @@ public class SearchQueryGenerationUtil {
 	}
 	
 	public static String generateGetRelationByIdCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -261,7 +261,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetRelationCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -299,7 +299,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateCheckCyclicLoopCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -340,7 +340,7 @@ public class SearchQueryGenerationUtil {
 
 	@SuppressWarnings("unchecked")
 	public static String generateExecuteQueryCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -368,7 +368,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateSearchNodesCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -394,7 +394,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetNodesCountCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -418,7 +418,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateTraverseCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -439,7 +439,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateTraverseSubGraphCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {
@@ -462,7 +462,7 @@ public class SearchQueryGenerationUtil {
 	}
 
 	public static String generateGetSubGraphCypherQuery(Map<String, Object> parameterMap) {
-		PlatformLogger.log("Parameter Map: ", parameterMap);
+//		PlatformLogger.log("Parameter Map: ", parameterMap);
 
 		StringBuilder query = new StringBuilder();
 		if (null != parameterMap) {

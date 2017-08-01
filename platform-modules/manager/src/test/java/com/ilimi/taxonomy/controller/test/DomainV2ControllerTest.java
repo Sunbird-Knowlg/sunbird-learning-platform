@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		private ResultActions actions;
 		
 		@Test
+		@Ignore
 		public void findDomainTest(){
 			
 			MockMvc mockMvc;
@@ -50,6 +52,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		}
 		
 		@Test
+		@Ignore
 		public void findDomainTestWithInvalidUrl(){
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();

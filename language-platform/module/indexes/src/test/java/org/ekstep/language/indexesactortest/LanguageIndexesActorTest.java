@@ -22,6 +22,7 @@ import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,7 @@ import com.ilimi.common.logger.PlatformLogger;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
+@Ignore
 public class LanguageIndexesActorTest extends BaseLanguageTest{
 
 	private WebApplicationContext context;

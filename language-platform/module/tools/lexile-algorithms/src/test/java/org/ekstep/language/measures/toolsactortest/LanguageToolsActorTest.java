@@ -19,6 +19,7 @@ import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -108,6 +109,7 @@ public class LanguageToolsActorTest {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Ignore
 	@Test
 	public void getTextComplexity() throws JsonParseException, JsonMappingException,
 			IOException {

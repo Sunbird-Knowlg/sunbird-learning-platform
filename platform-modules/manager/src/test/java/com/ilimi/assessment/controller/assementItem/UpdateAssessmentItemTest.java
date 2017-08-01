@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -21,6 +22,7 @@ import cucumber.api.java.en.And;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
+@Ignore
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class UpdateAssessmentItemTest extends BaseCucumberTest{
