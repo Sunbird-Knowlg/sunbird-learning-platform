@@ -222,5 +222,7 @@ public interface IContentManager {
 	Response preSignedURL(String taxonomyId, String contentId, String fileName);
 	
 	Response updateHierarchy(Map<String, Object> data);
+	
+	Response updateContentInternal(String contentId, Map<String, Object> map) throws Exception;
 
 }

@@ -25,6 +25,7 @@ import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
@@ -48,6 +49,7 @@ import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
+import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -1103,7 +1105,32 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		return createResponse;
 	}
+	
+	
+	public Response updateContentInternal(String originalId, Map<String, Object> map) throws Exception {
+		if (null == map)
+			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		map.put("versionKey", graphPassportKey);
+		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+		Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
+		if (checkError(updateResponse)) return updateResponse;
+		updateResponse.put(GraphDACParams.node_id.name(), originalId);
+		
+		Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+		updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+		return updateResponse;
+	}
+	
+	private Response updateNode(String identifier, String objectType, Node domainNode) {
+		domainNode.setGraphId(GRAPH_ID);
+		domainNode.setIdentifier(identifier);
+		domainNode.setObjectType(objectType);
+		return updateDataNode(domainNode);
+	}
+	
 	private List<String> getExternalPropsList(DefinitionDTO definition) {
 		List<String> list = new ArrayList<String>();
 		if (null != definition) {

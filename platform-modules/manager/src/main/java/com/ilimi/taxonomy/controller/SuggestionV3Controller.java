@@ -120,7 +120,7 @@ public class SuggestionV3Controller extends BaseController {
 		PlatformLogger.log("Get | Suggestions: " + " | Request: " + suggestion_id);
 		try {
 			if(StringUtils.isBlank(suggestion_id)){
-				throw new ClientException(SuggestionCodeConstants.MISSING_OBJECT_ID.name(), "Error! Invalid or Missing Object_Id");
+				throw new ClientException(SuggestionCodeConstants.MISSING_OBJECT_ID.name(), "Error! Invalid or Missing Suggestion_Id");
 			}
 			Response response = suggestionManager.approveSuggestion(suggestion_id, map);
 			PlatformLogger.log("Create | Response: " , response);
