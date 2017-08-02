@@ -88,6 +88,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			PlatformLogger.log("Error occured while processing request | Not a valid request", e.getMessage(),e);
 			throw e;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ClientException(SuggestionCodeConstants.INVALID_REQUEST.name(), "Error! Invalid Request");
 		}
 		PlatformLogger.log("Returning response from saveSuggestion" + response.getResponseCode());
@@ -131,14 +132,22 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	@Override
 	public Response approveSuggestion(String suggestion_id, Map<String, Object> map) {
 		Response response = new Response();
-		Map<String, Object> data = new HashMap<String, Object>();
-		Request request = new Request();
 		try {
-			Map<String, Object> requestMap = validateRequest(map, SuggestionConstants.EXPECTED_APPROVE_STATUS);
-			PlatformLogger.log("validated request: " + requestMap);
-			String requestString = mapper.writeValueAsString(requestMap);
+			
+			String suggestionResponse = es.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
+					SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestion_id);
+			PlatformLogger.log("Result of suggestion using Id: " + suggestionResponse);
+			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
+			Map<String, Object> paramsMap = (Map) suggestionObject.get(SuggestionCodeConstants.params.name());
+			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
+			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
 
-			PlatformLogger.log("request for suggestion approval" + requestString);
+			if(SuggestionConstants.EXPECTED_APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.EXPECTED_REJECT_STATUS.equalsIgnoreCase(currentStatus))
+				throw new ClientException(SuggestionCodeConstants.INVALID_ACTION.name(), "Suggestion already "+ currentStatus);
+			
+			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.EXPECTED_APPROVE_STATUS);
+			String requestString = mapper.writeValueAsString(requestMap);
+			PlatformLogger.log("request for suggestion approval: " + requestString);
 			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
 					requestString, suggestion_id);
 			response.setParams(getSucessStatus());
@@ -146,21 +155,14 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			response.put(SuggestionCodeConstants.message.name(),
 					"suggestion accepted successfully! Content Update started successfully");
 			if (checkError(response)) {
-				PlatformLogger.log("Erroneous Response.");
 				return response;
 			}
-			String suggestionResponse = es.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
-					SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestion_id);
-			PlatformLogger.log("Result from getting suggestion from Id" + suggestionResponse);
-			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
-			Map<String, Object> paramsMap = (Map) suggestionObject.get(SuggestionCodeConstants.params.name());
-			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
-            PlatformLogger.log("Content Identifier :" + contentId);
-
+			
+    			Request request = new Request();
+    			Map<String, Object> data = new HashMap<String, Object>();
 			data.put(SuggestionCodeConstants.content.name(), paramsMap);
 			request.setRequest(data);
 			String url = PropertiesUtil.getProperty("platform-api-url") + "/system/content/update/" + contentId;
-
 			PlatformLogger.log("Making HTTP POST call to update content" + url);
 			String requestData = mapper.writeValueAsString(request);
 			String responseData = HTTPUtil.makePatchRequest(url, requestData);
@@ -170,6 +172,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			PlatformLogger.log("throwing exception received" + e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
+			e.printStackTrace();
 			PlatformLogger.log("Server Exception occured while processing request" , e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
@@ -184,11 +187,21 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	 * @see com.ilimi.taxonomy.mgr.ISuggestionManager
 	 * #rejectSuggestion(java.lang.String, java.util.Map)
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response rejectSuggestion(String suggestion_id, Map<String, Object> map) {
 		Response response = new Response();
 		try {
-			Map<String, Object> requestMap = validateRequest(map, SuggestionConstants.EXPECTED_REJECT_STATUS);
+			String suggestionResponse = es.getDocumentAsStringById(SuggestionConstants.SUGGESTION_INDEX,
+					SuggestionConstants.SUGGESTION_INDEX_TYPE, suggestion_id);
+			PlatformLogger.log("Result of suggestion using Id: " + suggestionResponse);
+			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
+			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
+			
+			if(SuggestionConstants.EXPECTED_APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.EXPECTED_REJECT_STATUS.equalsIgnoreCase(currentStatus))
+				throw new ClientException(SuggestionCodeConstants.INVALID_ACTION.name(), "Suggestion already "+ currentStatus);
+			
+			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.EXPECTED_REJECT_STATUS);
 			String results = mapper.writeValueAsString(requestMap);
 			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE, results,
 					suggestion_id);
@@ -203,6 +216,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			PlatformLogger.log("throwing exception received" , e.getMessage(), e);
 			throw e;
 		} catch (Exception e) {
+			e.printStackTrace();
 			PlatformLogger.log("Server Exception occured while processing request" , e.getMessage(), e);
 			throw new ServerException(SuggestionCodeConstants.SERVER_ERROR.name(),
 					"Error! Something went wrong while processing", e);
@@ -522,32 +536,21 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	 * @param requestMap
 	 *            The requestMap
 	 * 
-	 * @param expectedStatus
+	 * @param statusToAdd
 	 *            The expectedStatus
 	 * 
 	 * @return requestMap
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected Map<String, Object> validateRequest(Map<String, Object> requestMap, String expectedStatus) {
-		Map<String, Object> contentMap = new HashMap<String, Object>();
-		try {
-			if (null != requestMap && !requestMap.isEmpty()) {
-				Map<String, Object> requestObj = (Map) requestMap.get(SuggestionCodeConstants.request.name());
-				contentMap = (Map) requestObj.get(SuggestionCodeConstants.content.name());
-				String status = (String) contentMap.get(SuggestionCodeConstants.status.name());
-				PlatformLogger.log("Status check for validations" + status + expectedStatus);
-				if (StringUtils.isNotBlank(status) && StringUtils.equalsIgnoreCase(status, expectedStatus)) {
-					return contentMap;
-				} else {
-					throw new ClientException(SuggestionCodeConstants.MISSING_STATUS.name(), "Error! Invalid status");
-				}
-			}
-		} catch (ClientException e) {
-			throw e;
-		} catch (Exception e) {
-			PlatformLogger.log("ClientException : invalidRequest");
-			throw new ClientException(SuggestionCodeConstants.INVALID_REQUEST.name(), "Error! Invalid Request", e);
+	protected Map<String, Object> dataToUpdate(Map<String, Object> requestMap, String statusToAdd) {
+		Map<String, Object> updatedMessage = new HashMap<String, Object>();
+		Map<String, Object> requestObj = (Map) requestMap.get(SuggestionCodeConstants.request.name());
+		if (null != requestObj && !requestObj.isEmpty()) {
+			Map<String, Object> contentMap = (Map) requestObj.get(SuggestionCodeConstants.content.name());
+			if (null != contentMap && !contentMap.isEmpty())
+				updatedMessage.put(SuggestionCodeConstants.comments.name(), requestMap.get(SuggestionCodeConstants.comments.name()));
 		}
-		return null;
+		updatedMessage.put(SuggestionCodeConstants.status.name(), statusToAdd);
+		return updatedMessage;
 	}
 }
