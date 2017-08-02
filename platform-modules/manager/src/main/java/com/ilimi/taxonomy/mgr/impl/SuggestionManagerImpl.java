@@ -156,26 +156,11 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			Map<String, Object> paramsMap = (Map) suggestionObject.get(SuggestionCodeConstants.params.name());
 			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
             PlatformLogger.log("Content Identifier :" + contentId);
-			// making rest call to get content API
-			String api_url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/" + contentId
-					+ "?mode=edit";
-			
-			PlatformLogger.log("Making HTTP GET call to fetch Content" + api_url);
-			String result = HTTPUtil.makeGetRequest(api_url);
-			PlatformLogger.log("result from get HTTP call to get content" + result);
-			
-			Map<String, Object> resultMap = mapper.readValue(result, Map.class);
-			Map<String, Object> responseMap = (Map) resultMap.get(SuggestionCodeConstants.result.name());
-			Map<String, Object> contentMap = (Map) responseMap.get(SuggestionCodeConstants.content.name());
-			String versionKey = (String) contentMap.get(SuggestionCodeConstants.versionKey.name());
-			PlatformLogger.log("versionKey of content Id" + versionKey);
 
-			// making rest call to content Update
-			paramsMap.put(SuggestionCodeConstants.versionKey.name(), versionKey);
 			data.put(SuggestionCodeConstants.content.name(), paramsMap);
 			request.setRequest(data);
-			String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/" + contentId;
-			
+			String url = PropertiesUtil.getProperty("platform-api-url") + "/system/content/update/" + contentId;
+
 			PlatformLogger.log("Making HTTP POST call to update content" + url);
 			String requestData = mapper.writeValueAsString(request);
 			String responseData = HTTPUtil.makePatchRequest(url, requestData);
