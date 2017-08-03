@@ -41,6 +41,7 @@ public class PublishTask implements Runnable {
 		publishContent(node, mimeType);
 	}
 
+	// TODO: add try catch here.
 	private void publishContent(Node node, String mimeType) {
 		PlatformLogger.log("Publish processing start for content", this.contentId, LoggerEnum.INFO.name());
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {

@@ -109,7 +109,7 @@ public class UploadFinalizer extends BaseFinalizer {
 		
 		// Extract Content Uploaded Package to S3
 		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-		contentPackageExtractionUtil.extractContentPackage(contentId, node, file, ExtractionType.snapshot);
+		contentPackageExtractionUtil.extractContentPackage(contentId, node, file, ExtractionType.snapshot, true);
 
 		// Update Body, Reset Editor State and Update Content Node
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);

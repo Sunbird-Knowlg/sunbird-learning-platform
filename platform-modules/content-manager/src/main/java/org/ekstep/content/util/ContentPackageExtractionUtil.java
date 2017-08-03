@@ -137,7 +137,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	public void extractContentPackage(String contentId, Node node, ExtractionType extractionType) {
+	public void extractContentPackage(String contentId, Node node, ExtractionType extractionType, boolean slugFile) {
 		PlatformLogger.log("Node: ", node);
 		PlatformLogger.log("Extraction Type: ", extractionType);
 
@@ -176,7 +176,7 @@ public class ContentPackageExtractionUtil {
 				unzipUtility.unzip(contentPackageFile.getAbsolutePath(), extractionBasePath);
 
 				// Extract Content Package
-				extractPackage(contentId, node, extractionBasePath, extractionType);
+				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
 				PlatformLogger.log("Error! While Unzipping the Content Package [Content Package Extraction to Storage Space]",
 						e.getMessage(), e);
@@ -207,7 +207,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	public void extractContentPackage(String contentId, Node node, File uploadedFile, ExtractionType extractionType) {
+	public void extractContentPackage(String contentId, Node node, File uploadedFile, ExtractionType extractionType, boolean slugFile) {
 		uploadedFile = Slug.createSlugFile(uploadedFile);
 		PlatformLogger.log("Node: " + node);
 		PlatformLogger.log("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - " + uploadedFile.getAbsolutePath());
@@ -241,7 +241,7 @@ public class ContentPackageExtractionUtil {
 				unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
 
 				// Extract Content Package
-				extractPackage(contentId, node, extractionBasePath, extractionType);
+				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
 				PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
 			} catch (Exception e) {
@@ -260,7 +260,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	private void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType) {
+	private void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType, boolean slugFile) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String awsFolderPath = "";
 		try {
@@ -271,7 +271,7 @@ public class ContentPackageExtractionUtil {
 
 			// Upload All the File to S3 Recursively and Concurrently
 			awsFolderPath = getExtractionPath(contentId, node, extractionType);
-			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, awsFolderPath, basePath);
+			lstUploadedFilesUrl = bulkFileUpload(lstFilesToUpload, awsFolderPath, basePath, slugFile);
 		} catch (InterruptedException e) {
 			cleanUpAWSFolder(awsFolderPath);
 			throw new ServerException(ContentErrorCodes.EXTRACTION_ERROR.name(),
@@ -331,7 +331,7 @@ public class ContentPackageExtractionUtil {
 	 * @throws ExecutionException
 	 *             the execution exception
 	 */
-	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath)
+	private List<String> bulkFileUpload(List<File> files, String AWSFolderPath, String basePath, boolean slugFile)
 			throws InterruptedException, ExecutionException {
 		PlatformLogger.log("Files: ", files);
 		PlatformLogger.log("AWS Folder Path: ", AWSFolderPath);
@@ -362,7 +362,7 @@ public class ContentPackageExtractionUtil {
 						if (StringUtils.isNotBlank(path))
 							folderName += File.separator + path;
 						PlatformLogger.log("Folder Name For Storage Space Extraction: " , folderName);
-						String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file);
+						String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file, slugFile);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
 					}

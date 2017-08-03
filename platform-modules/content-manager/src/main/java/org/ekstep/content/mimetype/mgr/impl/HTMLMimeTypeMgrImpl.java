@@ -46,7 +46,7 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
 		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier(), "Uploaded File :" + uploadFile);
 		if (hasGivenFile(uploadFile, "index.html")) {
-			return uploadContentArtifact(contentId, node, uploadFile);
+			return uploadContentArtifact(contentId, node, uploadFile, false);
 		} else {
 			return ERROR(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Zip file doesn't have required files.", ResponseCode.CLIENT_ERROR);
 		}

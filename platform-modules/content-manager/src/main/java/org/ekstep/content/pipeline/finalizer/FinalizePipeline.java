@@ -24,9 +24,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class FinalizePipeline extends BasePipeline {
 
-	/** The logger. */
-	
-
 	/** The basePath. */
 	protected String basePath;
 	

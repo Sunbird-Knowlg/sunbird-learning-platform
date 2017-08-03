@@ -497,13 +497,13 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return urlArray;
 	}
 
-	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile) {
+	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile, boolean slugFile) {
 		String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 		node.getMetadata().put("s3Key", urlArray[0]);
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 		
 		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-		contentPackageExtractionUtil.extractContentPackage(contentId, node, uploadedFile, ExtractionType.snapshot);
+		contentPackageExtractionUtil.extractContentPackage(contentId, node, uploadedFile, ExtractionType.snapshot, slugFile);
 		
 		return updateContentNode(contentId, node, urlArray[1]);
 	}

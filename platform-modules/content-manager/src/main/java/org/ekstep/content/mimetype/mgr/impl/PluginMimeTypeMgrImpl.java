@@ -65,7 +65,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			} catch (Exception e) {
 				PlatformLogger.log("Error deleting directory: " , basePath, e);
 			}
-			return uploadContentArtifact(contentId, node, uploadFile);
+			return uploadContentArtifact(contentId, node, uploadFile, true);
 		} else {
 			return ERROR(ContentErrorCodeConstants.VALIDATOR_ERROR.name(), 
 					"Invalid plugin package file", ResponseCode.CLIENT_ERROR);

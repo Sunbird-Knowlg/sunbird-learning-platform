@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.slugs.Slug;
 
@@ -60,6 +61,16 @@ public class AWSUploader {
 
 	public static String[] uploadFile(String folderName, File file) throws Exception {
 		file = Slug.createSlugFile(file);
+		return upload(folderName, file);
+	}
+	
+	public static String[] uploadFile(String folderName, File file, boolean slugFile) throws Exception {
+		if (BooleanUtils.isTrue(slugFile))
+			file = Slug.createSlugFile(file);
+		return upload(folderName, file);
+	}
+	
+	private static String[] upload(String folderName, File file) throws Exception {
 		AmazonS3Client s3 = new AmazonS3Client();
 		String key = file.getName();
 		String env = S3PropertyReader.getProperty(s3Environment);
