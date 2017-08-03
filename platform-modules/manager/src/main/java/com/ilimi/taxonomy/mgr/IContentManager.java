@@ -223,6 +223,6 @@ public interface IContentManager {
 	
 	Response updateHierarchy(Map<String, Object> data);
 	
-	Response updateContentInternal(String contentId, Map<String, Object> map) throws Exception;
+	Response updateAllContentNodes(String contentId, Map<String, Object> map) throws Exception;
 
 }

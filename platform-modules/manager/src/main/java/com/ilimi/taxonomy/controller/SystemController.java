@@ -34,7 +34,7 @@ public class SystemController extends BaseController {
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.updateContentInternal(contentId, map);
+			Response response = contentManager.updateAllContentNodes(contentId, map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Exception", e.getMessage(), e);

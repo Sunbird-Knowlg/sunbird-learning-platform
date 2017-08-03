@@ -88,11 +88,12 @@ public class SuggestionV3Controller extends BaseController {
 	public ResponseEntity<Response> read(@PathVariable(value = "id") String object_id,
 			@RequestParam(name = "start", required = false) String startTime,
 			@RequestParam(name = "end", required = false) String endTime,
+			@RequestParam(name = "status", required = false) String status,
 			@RequestHeader(value = "user-id") String userId) {
 		String apiId = "ekstep.learning.content.suggestions.read";
 		PlatformLogger.log("Get | Suggestions: " + " | Request: " + object_id);
 		try {
-			Response response = suggestionManager.readSuggestion(object_id, startTime, endTime);
+			Response response = suggestionManager.readSuggestion(object_id, startTime, endTime, status);
 			PlatformLogger.log("Create | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

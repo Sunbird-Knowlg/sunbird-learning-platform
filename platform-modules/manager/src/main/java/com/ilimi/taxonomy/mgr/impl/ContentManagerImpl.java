@@ -1107,7 +1107,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 	
 	
-	public Response updateContentInternal(String originalId, Map<String, Object> map) throws Exception {
+	public Response updateAllContentNodes(String originalId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 

@@ -16,12 +16,10 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -32,23 +30,25 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.SuggestionCodeConstants;
 import com.ilimi.taxonomy.enums.SuggestionConstants;
+import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.ISuggestionManager;
 
 /**
  * The Class SuggestionManager provides implementations of the various
  * operations defined in the ISuggestionManager
  * 
- * @author Rashmi N
+ * @author Rashmi N, Mahesh Kumar Gangula
  * 
  * @see ISuggestionManager
  */
 @Component
 public class SuggestionManagerImpl extends BaseManager implements ISuggestionManager {
 
+	@Autowired
+	private IContentManager contentManager;
+	
 	/** The ControllerUtil */
 	private ControllerUtil util = new ControllerUtil();
-
-	/** The Class Logger. */
 	
 
 	/** The ElasticSearchUtil */
@@ -102,11 +102,11 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	 * #readSuggestion(java.lang.String,java.util.date)
 	 */
 	@Override
-	public Response readSuggestion(String objectId, String startTime, String endTime) {
+	public Response readSuggestion(String objectId, String startTime, String endTime, String status) {
 		Response response = new Response();
 		try {
 			PlatformLogger.log("Checking if received parameters are empty or not" , objectId);
-			List<Object> result = getSuggestionByObjectId(objectId, startTime, endTime);
+			List<Object> result = getSuggestionByObjectId(objectId, startTime, endTime, status);
 			response.setParams(getSucessStatus());
 			response.put(SuggestionCodeConstants.suggestions.name(), result);
 			PlatformLogger.log("Fetching response from elastic search" + result.size());
@@ -142,10 +142,10 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
 			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
 
-			if(SuggestionConstants.EXPECTED_APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.EXPECTED_REJECT_STATUS.equalsIgnoreCase(currentStatus))
+			if(SuggestionConstants.APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.REJECT_STATUS.equalsIgnoreCase(currentStatus))
 				throw new ClientException(SuggestionCodeConstants.INVALID_ACTION.name(), "Suggestion already "+ currentStatus);
 			
-			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.EXPECTED_APPROVE_STATUS);
+			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.APPROVE_STATUS);
 			String requestString = mapper.writeValueAsString(requestMap);
 			PlatformLogger.log("request for suggestion approval: " + requestString);
 			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE,
@@ -158,16 +158,9 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 				return response;
 			}
 			
-    			Request request = new Request();
-    			Map<String, Object> data = new HashMap<String, Object>();
-			data.put(SuggestionCodeConstants.content.name(), paramsMap);
-			request.setRequest(data);
-			String url = PropertiesUtil.getProperty("platform-api-url") + "/system/content/update/" + contentId;
-			PlatformLogger.log("Making HTTP POST call to update content" + url);
-			String requestData = mapper.writeValueAsString(request);
-			String responseData = HTTPUtil.makePatchRequest(url, requestData);
-			PlatformLogger.log("result from update Content API after updating suggestion metadata" + responseData);
-			
+			if (null != contentId && null != paramsMap)
+				contentManager.updateAllContentNodes(contentId, paramsMap);
+
 		} catch (ClientException e) {
 			PlatformLogger.log("throwing exception received" + e.getMessage(), e);
 			throw e;
@@ -198,10 +191,10 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			Map<String, Object> suggestionObject = mapper.readValue(suggestionResponse, Map.class);
 			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
 			
-			if(SuggestionConstants.EXPECTED_APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.EXPECTED_REJECT_STATUS.equalsIgnoreCase(currentStatus))
+			if(SuggestionConstants.APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.REJECT_STATUS.equalsIgnoreCase(currentStatus))
 				throw new ClientException(SuggestionCodeConstants.INVALID_ACTION.name(), "Suggestion already "+ currentStatus);
 			
-			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.EXPECTED_REJECT_STATUS);
+			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.REJECT_STATUS);
 			String results = mapper.writeValueAsString(requestMap);
 			es.updateDocument(SuggestionConstants.SUGGESTION_INDEX, SuggestionConstants.SUGGESTION_INDEX_TYPE, results,
 					suggestion_id);
@@ -383,9 +376,9 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 	 * 
 	 * @return The List of suggestions for given objectId
 	 */
-	private List<Object> getSuggestionByObjectId(String objectId, String start_date, String end_date) {
+	private List<Object> getSuggestionByObjectId(String objectId, String start_date, String end_date, String status) {
 		SearchDTO search = new SearchDTO();
-		search.setProperties(setSearchFilters(objectId, start_date, end_date, null, null, null));
+		search.setProperties(setSearchFilters(objectId, start_date, end_date, status, null, null));
 		search.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		Map<String, String> sortBy = new HashMap<String, String>();
 		sortBy.put(GraphDACParams.createdOn.name(), "desc");
@@ -548,7 +541,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		if (null != requestObj && !requestObj.isEmpty()) {
 			Map<String, Object> contentMap = (Map) requestObj.get(SuggestionCodeConstants.content.name());
 			if (null != contentMap && !contentMap.isEmpty())
-				updatedMessage.put(SuggestionCodeConstants.comments.name(), requestMap.get(SuggestionCodeConstants.comments.name()));
+				updatedMessage.putAll(contentMap);
 		}
 		updatedMessage.put(SuggestionCodeConstants.status.name(), statusToAdd);
 		return updatedMessage;
