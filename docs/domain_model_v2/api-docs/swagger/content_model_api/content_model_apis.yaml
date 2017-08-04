@@ -477,6 +477,79 @@ paths:
           schema:
             $ref: '#/definitions/ContentFlagErrorResponse'
       security: []
+  '/flag/accept/{contentId}':
+    get:
+      tags:
+        - Flag
+      summary: Accepts a particular Content which is Flagged
+      description: >-
+        The '/flag/accept/{content_id}' endpoint flags a particular content. It
+        consumes the content identifier as request path variable with Accept
+        flag request body. In response it returns the message that particular
+        content which was flagged has been accepted
+      operationId: ekstep.learning.content.acceptFlag
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ContentId'
+        - $ref: '#/parameters/AcceptflagRequestBody'
+      responses:
+        '200':
+          description: Content Flag Accepted Successfully
+          schema:
+            $ref: '#/definitions/ContentFlagAcceptResponse'
+        '400':
+          description: >-
+            Error While Accepting a content which is flagged! | Error occurred
+            while operation, mostly because of the input given by client, In
+            general it is 'Client Exception'.
+          schema:
+            $ref: '#/definitions/ContentAcceptFlagErrorResponse'
+        '500':
+          description: >-
+            Error While Accepting a content which is flagged! | Error occurred
+            while operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/ContentAcceptFlagErrorResponse'
+      security: []
+  '/flag/reject/{contentId}':
+    get:
+      tags:
+        - Flag
+      summary: Rejects a particular Content which is flagged.
+      description: >-
+        The '/flag/reject/{content_id}' endpoint rejects a particular content
+        which is flagged and updates the status back to draft. It consumes the
+        content identifier as request path variable with reject flag request
+        body. In response it returns the message that particular content whcih
+        was flagged has been rejected and the content is back to draft status
+      operationId: ekstep.learning.content.rejectFlag
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ContentId'
+        - $ref: '#/parameters/RejectFlagRequestBody'
+      responses:
+        '200':
+          description: Content Flag Rejected Successfully
+          schema:
+            $ref: '#/definitions/ContentRejectFlagResponse'
+        '400':
+          description: >-
+            Error While rejecting flag of a particular content! | Error occurred
+            while operation, mostly because of the input given by client, In
+            general it is 'Client Exception'.
+          schema:
+            $ref: '#/definitions/ContentFlagErrorResponse'
+        '500':
+          description: >-
+            Error While rejecting flag of a particular content! | Error occurred
+            while operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/ContentFlagErrorResponse'
+      security: []
   '/reject/{contentId}':
     post:
       tags:
@@ -515,6 +588,20 @@ paths:
             $ref: '#/definitions/ContentRejectErrorResponse'
       security: []
 parameters:
+  RejectFlagRequestBody:
+    name: Request
+    in: body
+    description: Content Request Object which contains the request data
+    required: true
+    schema:
+      $ref: '#/definitions/ContentRejectFlagRequestObject'
+  AcceptflagRequestBody:
+    name: Request
+    in: body
+    description: Content Request Object which contains the request data
+    required: true
+    schema:
+      $ref: '#/definitions/ContentAcceptFlagRequestObject'
   RejectRequestBody:
     name: Request
     in: body
@@ -567,16 +654,56 @@ parameters:
     schema:
       $ref: '#/definitions/FlagRequestObject'
 definitions:
+  ContentAcceptFlagRequestObject:
+    properties:
+      request:
+        type: array
+        items:
+          $ref: '#/definitions/FlagAcceptRequestObject'
+  FlagAcceptRequestObject:
+    properties:
+      flaggedBy:
+        type: string
+        description: Name of the flag Approver
+  FlagRejectRequestObject:
+    properties:
+      flaggedBy:
+        type: string
+        description: Name of the flag Rejecter
+  ContentRejectFlagRequestObject:
+    properties:
+      request:
+        type: array
+        items:
+          $ref: '#/definitions/FlagRejectRequestObject'
   ContentRejectRequestObject:
     properties:
-      request: {}
+      request:
+        type: array
+        items:
+          $ref: '#/definitions/FlagAcceptRequestObject'
   ContentRejectResponse:
     title: Content Reject Response
+    type: array
+    items:
+      $ref: '#/definitions/ResultWithNodeId'
+  ContentFlagAcceptResponse:
+    title: Content Accept Flag Response
+    type: array
+    items:
+      $ref: '#/definitions/ResultWithNodeId'
+  ContentRejectFlagResponse:
+    title: Content Reject Flag Response
+    type: array
+    items:
+      $ref: '#/definitions/ResultWithNodeId'
+  ContentRejectErrorResponse:
+    title: Reject Content Error Response
     type: object
     allOf:
-      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/EmptyResult'
       - $ref: '#/definitions/ResponseHeader'
-  ContentRejectErrorResponse:
+  ContentAcceptFlagErrorResponse:
     title: Reject Content Error Response
     type: object
     allOf:

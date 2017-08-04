@@ -25,39 +25,39 @@
     ],
     "tags": [
         {
-          "name": "Core",
-          "description": "Everything related to the CRUD operations"
+            "name": "Core",
+            "description": "Everything related to the CRUD operations"
         },
         {
-          "name": "Search",
-          "description": "Everything related to Search and List operations"
+            "name": "Search",
+            "description": "Everything related to Search and List operations"
         },
         {
-          "name": "Workflow",
-          "description": "Everything related to Content Workflow Operations"
+            "name": "Workflow",
+            "description": "Everything related to Content Workflow Operations"
         },
         {
-          "name": "Bundle",
-          "description": "Everything related to bundling the content into single package"
+            "name": "Bundle",
+            "description": "Everything related to bundling the content into single package"
         },
         {
-          "name": "History",
-          "description": "Everything related to history of modifications with a Content" 
+            "name": "History",
+            "description": "Everything related to history of modifications with a Content"
         },
         {
-          "name": "Flag",
-          "description": "Everything related to Change in state of Content and its availability for further usage" 
+            "name": "Flag",
+            "description": "Everything related to Change in state of Content and its availability for further usage"
         },
         {
-          "name": "Reject",
-          "description": "Everythhing related to Rejection of a Content which is in Review/FlagReview state"
+            "name": "Reject",
+            "description": "Everythhing related to Rejection of a Content which is in Review/FlagReview state"
         }
     ],
     "paths": {
         "/create": {
             "post": {
                 "tags": [
-                  "Core"
+                    "Core"
                 ],
                 "summary": "Creates a Content",
                 "description": "The _content_ endpoint is used to create the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the content into the platfrom, The _content_ endpoint returns the node id as _node_id_ i.e. the identifier of created content.",
@@ -94,147 +94,147 @@
             }
         },
         "/update/{contentId}": {
-          "patch": {
-            "tags": [
-              "Core"
-            ],
-            "summary": "Updates the Content",
-            "description": "The _content/{contentId}_ endpoint with 'PATCH' method is used to update the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to have the content into the platfrom i.e. the mandatory fields cannot be null or empty, The _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the identifier of updated content.",
-            "operationId": "ekstep.learning.content.update",
-            "produces": [
-                "application/json"
-            ],
-            "parameters": [
-                {
-                  "$ref": "#/parameters/ContentId"
-                },
-                {
-                    "$ref": "#/parameters/ContentRequestObject"
-                }
-            ],
-            "responses": {
-                "200": {
-                    "description": "Content Updated Successfully",
-                    "schema": {
-                        "$ref": "#/definitions/ContentUpdateResponse"
+            "patch": {
+                "tags": [
+                    "Core"
+                ],
+                "summary": "Updates the Content",
+                "description": "The _content/{contentId}_ endpoint with 'PATCH' method is used to update the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to have the content into the platfrom i.e. the mandatory fields cannot be null or empty, The _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the identifier of updated content.",
+                "operationId": "ekstep.learning.content.update",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    },
+                    {
+                        "$ref": "#/parameters/ContentRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Updated Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Content Update! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUpdateErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Content Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUpdateErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Update! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUpdateErrorResponse"
+                        }
                     }
                 },
-                "400": {
-                    "description": "Error While Content Update! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentUpdateErrorResponse"
-                    }
-                },
-                "404": {
-                    "description": "Content Id does not exist.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentUpdateErrorResponse"
-                    }
-                },
-                "500": {
-                    "description": "Error While Content Update! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentUpdateErrorResponse"
-                    }
-                }
-            },
-            "security": []
-          }
+                "security": []
+            }
         },
         "/read/{contentId}": {
-          "get": {
-            "tags": [
-              "Core"
-            ],
-            "summary": "Get Content Object",
-            "description": "The _content/{contentId}_ endpoint with 'GET' method is used to fetch the content from the _EkStep Platform_. This endpoint returns the entire Content Object with default fields. The Consumer can get the non-default fields by passing the comma separated list of fields in a query parameter _fields_ For Example: _/content/{contentId}?fields?body,soundCredits_",
-            "operationId": "ekstep.learning.content.read",
-            "produces": [
-                "application/json"
-            ],
-            "parameters": [
-                {
-                  "$ref": "#/parameters/ContentId"
-                }
-            ],
-            "responses": {
-                "200": {
-                    "description": "Content Fetched Successfully",
-                    "schema": {
-                        "$ref": "#/definitions/ContentGetResponse"
+            "get": {
+                "tags": [
+                    "Core"
+                ],
+                "summary": "Get Content Object",
+                "description": "The _content/{contentId}_ endpoint with 'GET' method is used to fetch the content from the _EkStep Platform_. This endpoint returns the entire Content Object with default fields. The Consumer can get the non-default fields by passing the comma separated list of fields in a query parameter _fields_ For Example: _/content/{contentId}?fields?body,soundCredits_",
+                "operationId": "ekstep.learning.content.read",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Content Fetch! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentGetErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Content Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentGetErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Fetch! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentGetErrorResponse"
+                        }
                     }
                 },
-                "400": {
-                    "description": "Error While Content Fetch! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentGetErrorResponse"
-                    }
-                },
-                "404": {
-                    "description": "Content Id does not exist.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentGetErrorResponse"
-                    }
-                },
-                "500": {
-                    "description": "Error While Content Fetch! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentGetErrorResponse"
-                    }
-                }
-            },
-            "security": []
-          }
+                "security": []
+            }
         },
-       "/retire/{contentId}": {
-          "delete": {
-            "tags": [
-              "Core"
-            ],
-            "summary": "Deletes Content Object",
-            "description": "The _content/{contentId}_ endpoint with 'DELETE' method is used to delete (Retire) the content from the _EkStep Platform_. It consumes the Content Identifier as 'contentId' on which the delete (Retire) operation has to be performed.",
-            "operationId": "ekstep.learning.content.retire",
-            "produces": [
-                "application/json"
-            ],
-            "parameters": [
-                {
-                  "$ref": "#/parameters/ContentId"
-                }
-            ],
-            "responses": {
-                "200": {
-                    "description": "Content Retired Successfully",
-                    "schema": {
-                        "$ref": "#/definitions/ContentDeleteResponse"
+        "/retire/{contentId}": {
+            "delete": {
+                "tags": [
+                    "Core"
+                ],
+                "summary": "Deletes Content Object",
+                "description": "The _content/{contentId}_ endpoint with 'DELETE' method is used to delete (Retire) the content from the _EkStep Platform_. It consumes the Content Identifier as 'contentId' on which the delete (Retire) operation has to be performed.",
+                "operationId": "ekstep.learning.content.retire",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Retired Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Content Retire! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentDeleteErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Content Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentDeleteErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentDeleteErrorResponse"
+                        }
                     }
                 },
-                "400": {
-                    "description": "Error While Content Retire! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentDeleteErrorResponse"
-                    }
-                },
-                "404": {
-                    "description": "Content Id does not exist.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentDeleteErrorResponse"
-                    }
-                },
-                "500": {
-                    "description": "Error While Content Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                    "schema": {
-                        "$ref": "#/definitions/ContentDeleteErrorResponse"
-                    }
-                }
-            },
-            "security": []
-          }
+                "security": []
+            }
         },
         "/list": {
             "post": {
                 "tags": [
-                  "Search"
+                    "Search"
                 ],
                 "summary": "List all Contents",
                 "description": "The _content/list_ endpoint is used to list all the content from the _EkStep Platform_. By deafult it returns only 'Live' content But Content belongs to other status can also be queried by explicitly providing the metadata information in the Request body. Apart from this the Request body can have the sorting field information, order of sorting and a particular set of fields you want in output. The only difference between 'search' and 'list' operation is, the 'list' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the 'search' operation will return all the objects of type content.",
@@ -273,7 +273,7 @@
         "/search": {
             "post": {
                 "tags": [
-                  "Search"
+                    "Search"
                 ],
                 "summary": "Search the Content",
                 "description": "The 'content/search' endpoint is used to search the content in the _EkStep Platform_. It makes the search based on the Search Criteria provided in the Request Body. Apart from this the Request body can have the sorting field information, order of sorting and a particular set of fields you want in output.  The only difference between 'search' and 'list' operation is, the 'list' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the 'search' operation will return all the objects of type content.",
@@ -310,264 +310,366 @@
             }
         },
         "/upload/{contentId}": {
-          "post": {
-              "tags": [
-                "Workflow"
-              ],
-              "summary": "Uploads a Content Package",
-              "description": "The '/content/upload/{contentId}' endpoint uploads the Content package for the given 'contentId'. This endpoint is responsible for the Content 'Upload' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter and content package file as file type body parameter. In response it returns the Content Url as 'content_url' which is the address of storage space (S3) where the content is being uploaded and the Content node identifier as 'node_id' for which the upload operation is being performed.",
-              "operationId": "content.upload",
-              "produces": [
-                  "application/json"
-              ],
-              "parameters": [
-                  {
-                      "$ref": "#/parameters/ContentId"
-                  },
-                  {
-                      "$ref": "#/parameters/ContentUploadRequestObject"
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Content Uploaded Successfully",
-                      "schema": {
-                          "$ref": "#/definitions/ContentUploadResponse"
-                      }
-                  },
-                  "400": {
-                      "description": "Error While Content Upload! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentUploadErrorResponse"
-                      }
-                  },
-                  "404": {
-                      "description": "Content Id does not exist.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentUploadErrorResponse"
-                      }
-                  },
-                  "500": {
-                      "description": "Error While Content Upload! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentUploadErrorResponse"
-                      }
-                  }
-              },
-              "security": []
-          }
+            "post": {
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Uploads a Content Package",
+                "description": "The '/content/upload/{contentId}' endpoint uploads the Content package for the given 'contentId'. This endpoint is responsible for the Content 'Upload' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter and content package file as file type body parameter. In response it returns the Content Url as 'content_url' which is the address of storage space (S3) where the content is being uploaded and the Content node identifier as 'node_id' for which the upload operation is being performed.",
+                "operationId": "content.upload",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    },
+                    {
+                        "$ref": "#/parameters/ContentUploadRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Uploaded Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUploadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Content Upload! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUploadErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Content Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUploadErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Upload! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentUploadErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
         },
         "/publish/{contentId}": {
-          "post": {
-              "tags": [
-                "Workflow"
-              ],
-              "summary": "Publishes a Content",
-              "description": "The '/content/publish/{contentId}' endpoint publishes a Content whose Content identifier is given as 'contentId'. This endpoint is responsible for the Content 'Publish' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter. In response it returns the Content Url as 'content_url' which is the address of storage space (S3) where the content ECAR is being uploaded and the Content node identifier as 'node_id' for which the publish operation is being performed.",
-              "operationId": "content.publish",
-              "produces": [
-                  "application/json"
-              ],
-              "parameters": [
-                  {
-                      "$ref": "#/parameters/ContentId"
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Content Published Successfully",
-                      "schema": {
-                          "$ref": "#/definitions/ContentPublishResponse"
-                      }
-                  },
-                  "400": {
-                      "description": "Error While Content Publish! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentPublishErrorResponse"
-                      }
-                  },
-                  "404": {
-                      "description": "Content Id does not exist.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentPublishErrorResponse"
-                      }
-                  },
-                  "500": {
-                      "description": "Error While Content Publish! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentPublishErrorResponse"
-                      }
-                  }
-              },
-              "security": []
-          }
+            "post": {
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Publishes a Content",
+                "description": "The '/content/publish/{contentId}' endpoint publishes a Content whose Content identifier is given as 'contentId'. This endpoint is responsible for the Content 'Publish' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter. In response it returns the Content Url as 'content_url' which is the address of storage space (S3) where the content ECAR is being uploaded and the Content node identifier as 'node_id' for which the publish operation is being performed.",
+                "operationId": "content.publish",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Published Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentPublishResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Content Publish! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentPublishErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Content Id does not exist.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentPublishErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Publish! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentPublishErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
         },
         "/bundle": {
-          "post": {
-              "tags": [
-                "Bundle"
-              ],
-              "summary": "Bundle the Contents",
-              "description": "The '/content/bundle' endpoint bundles the Contents whose identifiers are given. It consumes the list of Content identifiers as 'content_identifiers' and the bundle file name as 'file_name' which is the name of output bundle file. In response it returns the URL of Bundle Package file which is uploaded to storage space (S3). This endpoint performs the 'Bundle' operation for the given contents which is useful for offline access of EkStep Content.",
-              "operationId": "content.bundle",
-              "produces": [
-                  "application/json"
-              ],
-              "parameters": [
-                  {
-                      "$ref": "#/parameters/ContentBundleRequestObject"
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Content Bundle Successfully",
-                      "schema": {
-                          "$ref": "#/definitions/ContentBundleResponse"
-                      }
-                  },
-                  "400": {
-                      "description": "Error While Content Bundling! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentBundleErrorResponse"
-                      }
-                  },
-                  "500": {
-                      "description": "Error While Content Bundling! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentBundleErrorResponse"
-                      }
-                  }
-              },
-              "security": []
-          }
+            "post": {
+                "tags": [
+                    "Bundle"
+                ],
+                "summary": "Bundle the Contents",
+                "description": "The '/content/bundle' endpoint bundles the Contents whose identifiers are given. It consumes the list of Content identifiers as 'content_identifiers' and the bundle file name as 'file_name' which is the name of output bundle file. In response it returns the URL of Bundle Package file which is uploaded to storage space (S3). This endpoint performs the 'Bundle' operation for the given contents which is useful for offline access of EkStep Content.",
+                "operationId": "content.bundle",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentBundleRequestObject"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Bundle Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentBundleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Content Bundling! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentBundleErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Bundling! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentBundleErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
         },
         "/history/{contentId}": {
-          "get": {
-              "tags": [
-                "History"
-              ],
-              "summary": "Returns the history of Contents modified",
-              "description": "The '/history/{content_id}' endpoint returns history of the content_id with its modifications. It consumes the content identifier as request path variable. In response it returns the history of modifications performed on that particular content_id",
-              "operationId": "content.history",
-              "produces": [
-                  "application/json"
-              ],
-              "parameters": [
-                  {
-                  "$ref": "#/parameters/ContentId"
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Content History returned Successfully",
-                      "schema": {
-                          "$ref": "#/definitions/ContentHistoryResponse"
-                      }
-                  },
-                  "400": {
-                      "description": "Error While fetching Content history! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentHistoryErrorResponse"
-                      }
-                  },
-                  "500": {
-                      "description": "Error While fetching Content history! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentHistoryErrorResponse"
-                      }
-                  }
-              },
-              "security": []
-          }
-      },
-      "/flag/{contentId}": {
-          "get": {
-              "tags": [
-                "Flag"
-              ],
-              "summary": "Flags a particular Content",
-              "description": "The '/flag/{content_id}' endpoint flags a particular content and makes it unavailbale for future usage. It consumes the content identifier as request path variable with flag request body. In response it returns the message that particular content has been flagged",
-              "operationId": "ekstep.learning.content.flag",
-              "produces": [
-                  "application/json"
-              ],
-              "parameters": [
-                 {
-                  "$ref": "#/parameters/ContentId"
-                  },
-                  {
-                  "$ref": "#/parameters/flagRequestBody"
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Content Flagged Successfully",
-                      "schema": {
-                          "$ref": "#/definitions/ContentFlagResponse"
-                      }
-                  },
-                  "400": {
-                      "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentFlagErrorResponse"
-                      }
-                  },
-                  "500": {
-                      "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                      "schema": {
-                          "$ref": "#/definitions/ContentFlagErrorResponse"
-                      }
-                  }
-              },
-              "security": []
-          }
+            "get": {
+                "tags": [
+                    "History"
+                ],
+                "summary": "Returns the history of Contents modified",
+                "description": "The '/history/{content_id}' endpoint returns history of the content_id with its modifications. It consumes the content identifier as request path variable. In response it returns the history of modifications performed on that particular content_id",
+                "operationId": "content.history",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content History returned Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentHistoryResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching Content history! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentHistoryErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching Content history! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentHistoryErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/flag/{contentId}": {
+            "get": {
+                "tags": [
+                    "Flag"
+                ],
+                "summary": "Flags a particular Content",
+                "description": "The '/flag/{content_id}' endpoint flags a particular content and makes it unavailbale for future usage. It consumes the content identifier as request path variable with flag request body. In response it returns the message that particular content has been flagged",
+                "operationId": "ekstep.learning.content.flag",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    },
+                    {
+                        "$ref": "#/parameters/flagRequestBody"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Flagged Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentFlagResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentFlagErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentFlagErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/flag/accept/{contentId}": {
+           "get": {
+                "tags": [
+                    "Flag"
+                ],
+                "summary": "Accepts a particular Content which is Flagged",
+                "description": "The '/flag/accept/{content_id}' endpoint flags a particular content. It consumes the content identifier as request path variable with Accept flag request body. In response it returns the message that particular content which was flagged has been accepted",
+                "operationId": "ekstep.learning.content.acceptFlag",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    },
+                    {
+                        "$ref": "#/parameters/AcceptflagRequestBody"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Flag Accepted Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentFlagAcceptResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Accepting a content which is flagged! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentAcceptFlagErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Accepting a content which is flagged! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentAcceptFlagErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/flag/reject/{contentId}":{
+           "get": {
+                "tags": [
+                    "Flag"
+                ],
+                "summary": "Rejects a particular Content which is flagged.",
+                "description": "The '/flag/reject/{content_id}' endpoint rejects a particular content which is flagged and updates the status back to draft. It consumes the content identifier as request path variable with reject flag request body. In response it returns the message that particular content whcih was flagged has been rejected and the content is back to draft status",
+                "operationId": "ekstep.learning.content.rejectFlag",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    },
+                    {
+                        "$ref": "#/parameters/RejectFlagRequestBody"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Flag Rejected Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentRejectFlagResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While rejecting flag of a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentFlagErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While rejecting flag of a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentFlagErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
         },
         "/reject/{contentId}": {
-           "post": {
-              "tags": [
-                "Reject"
-              ],
-              "summary": "Rejects a particular Content in Review State.",
-              "description": "The '/reject/{content_id}' endpoint rejects a particular content which is in review state and pushes it to draft state. It consumes the content identifier as request path variable with reject request body. In response it returns the message that particular content has been rejected",
-              "operationId": "ekstep.learning.content.reject",
-              "produces": [
-                  "application/json"
-              ],
-              "parameters": [
-                 {
-                  "$ref": "#/parameters/ContentId"
-                  },
-                  {
-                  "$ref": "#/parameters/RejectRequestBody"
-                  }
-              ],
-              "responses": {
-                  "200": {
-                      "description": "Content Rejected Successfully",
-                      "schema": {
-                          "$ref": "#/definitions/ContentRejectResponse"
-                      }
-                  },
-                  "400": {
-                      "description": "Error While Rejecting a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception",
-                      "schema": {
-                          "$ref": "#/definitions/ContentRejectErrorResponse"
-                      }
-                  },
-                  "500": {
-                      "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception",
-                      "schema": {
-                          "$ref": "#/definitions/ContentRejectErrorResponse"
-                      }
-                  }
-              },
-              "security": []
-          }
+            "post": {
+                "tags": [
+                    "Reject"
+                ],
+                "summary": "Rejects a particular Content in Review State.",
+                "description": "The '/reject/{content_id}' endpoint rejects a particular content which is in review state and pushes it to draft state. It consumes the content identifier as request path variable with reject request body. In response it returns the message that particular content has been rejected",
+                "operationId": "ekstep.learning.content.reject",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/ContentId"
+                    },
+                    {
+                        "$ref": "#/parameters/RejectRequestBody"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Rejected Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/ContentRejectResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Rejecting a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception",
+                        "schema": {
+                            "$ref": "#/definitions/ContentRejectErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception",
+                        "schema": {
+                            "$ref": "#/definitions/ContentRejectErrorResponse"
+                        }
+                    }
+                },
+                "security": []
+            }
         }
     },
     "parameters": {
-      "RejectRequestBody": {
-          "name": "Request",
+      "RejectFlagRequestBody":{
+        "name": "Request",
+            "in": "body",
+            "description": "Content Request Object which contains the request data",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/ContentRejectFlagRequestObject"
+            }
+      },
+      "AcceptflagRequestBody":{
+            "name": "Request",
+            "in": "body",
+            "description": "Content Request Object which contains the request data",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/ContentAcceptFlagRequestObject"
+            }
+      },
+        "RejectRequestBody": {
+            "name": "Request",
             "in": "body",
             "description": "Content Request Object which contains the request data",
             "required": true,
@@ -603,22 +705,22 @@
             "format": "file"
         },
         "ContentBundleRequestObject": {
-          "name": "Request",
-          "in": "body",
-          "description": "Content Bundle Request Object which contains the list of Content identifiers to bundle and the bundle file name",
-          "required": true,
-          "schema": {
-              "$ref": "#/definitions/ContentBundleRequestObject"
-          }
+            "name": "Request",
+            "in": "body",
+            "description": "Content Bundle Request Object which contains the list of Content identifiers to bundle and the bundle file name",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/ContentBundleRequestObject"
+            }
         },
         "ContentId": {
-          "name": "contentId",
-          "in": "path",
-          "type": "string",
-          "description": "The given Content identifier to perform operation",
-          "required": true
+            "name": "contentId",
+            "in": "path",
+            "type": "string",
+            "description": "The given Content identifier to perform operation",
+            "required": true
         },
-        "flagRequestBody":{
+        "flagRequestBody": {
             "name": "Request",
             "in": "body",
             "description": "Flag request object",
@@ -629,27 +731,87 @@
         }
     },
     "definitions": {
-       "ContentRejectRequestObject":{
-          "properties":{
-              "request":{
-                   
+      "ContentAcceptFlagRequestObject":{
+        "properties": {
+            "request": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FlagAcceptRequestObject"
+                    }
                 }
-              }
+            }
+      },
+      "FlagAcceptRequestObject":{
+        "properties":{
+           "flaggedBy":{
+                    "type":"string",
+                    "description":"Name of the flag Approver" 
+            }
+        }
+      },
+      "FlagRejectRequestObject":{
+        "properties":{
+           "flaggedBy":{
+                    "type":"string",
+                    "description":"Name of the flag Rejecter" 
+            }
+        }
+      },
+      "ContentRejectFlagRequestObject":{
+        "properties": {
+            "request": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FlagRejectRequestObject"
+                    }
+                }
+            }
+      },
+      "ContentRejectRequestObject": {
+        "properties": {
+            "request": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FlagAcceptRequestObject"
+                    }
+                }
+            }
         },
-       "ContentRejectResponse": {
+       "ContentRejectResponse":{
             "title": "Content Reject Response",
+            "type": "array",
+            "items":{
+              "$ref":"#/definitions/ResultWithNodeId"
+            }
+        },
+        "ContentFlagAcceptResponse":{
+          "title": "Content Accept Flag Response",
+            "type": "array",
+            "items":{
+              "$ref":"#/definitions/ResultWithNodeId"
+            }
+        },
+        "ContentRejectFlagResponse": {
+            "title": "Content Reject Flag Response",
+            "type": "array",
+            "items":{
+              "$ref":"#/definitions/ResultWithNodeId"
+            }
+        },
+        "ContentRejectErrorResponse": {
+            "title": "Reject Content Error Response",
             "type": "object",
             "allOf": [
                 {
-                    "$ref": "#/definitions/ResultWithNodeId"
+                    "$ref": "#/definitions/EmptyResult"
                 },
                 {
                     "$ref": "#/definitions/ResponseHeader"
                 }
             ]
         },
-      "ContentRejectErrorResponse": {
-            "title": "Reject Content Error Response",
+        "ContentAcceptFlagErrorResponse":{
+           "title": "Reject Content Error Response",
             "type": "object",
             "allOf": [
                 {
@@ -1187,690 +1349,690 @@
             }
         },
         "ContentResponseObject": {
-          "title": "Response Content Object",
-          "type": "object",
-          "properties": {
-              "content": {
-                  "$ref": "#/definitions/ContentResponse"
-              }
-          }
+            "title": "Response Content Object",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "$ref": "#/definitions/ContentResponse"
+                }
+            }
         },
         "ContentResponseArray": {
-          "title": "Response Content Array",
-          "type": "object",
-          "properties": {
-              "content": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/ContentResponse"
+            "title": "Response Content Array",
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ContentResponse"
+                    }
                 }
-              }
-          }
+            }
         },
         "ContentResponseArrayAndTTL": {
-          "title": "Response Content Array with TTL",
-          "type": "object",
-          "allOf": [
-            {
-              "$ref": "#/definitions/TTL"
-            },
-            {
-              "$ref": "#/definitions/ContentResponseArray"
-            }
-          ]
+            "title": "Response Content Array with TTL",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/TTL"
+                },
+                {
+                    "$ref": "#/definitions/ContentResponseArray"
+                }
+            ]
         },
         "ContentSearch": {
-          "title": "Content Search Metadata",
-          "type": "object",
-          "properties": {
-            "identifier": {
-              "type": "array",
-              "description": "Identifier of the content",
-              "items": {
-                "type": "string"
-              }
-            },
-            "name": {
-              "type": "array",
-              "description": "Name of the content",
-              "items": {
-                "type": "string"
-              }
-            },
-            "code": {
-              "type": "array",
-              "description": "Unique code for the content",
-              "items": {
-                "type": "string"
-              }
-            },
-            "os": {
-              "type": "array",
-              "description": "Supported Operating Systems",
-              "items": {
-                "type": "string"
-              }
-            },
-            "minOsVersion": {
-              "type": "array",
-              "description": "E.g. 4.4",
-              "items": {
-                "type": "string"
-              }
-            },
-            "minGenieVersion": {
-              "type": "array",
-              "description": "E.g. 5.0",
-              "items": {
-                "type": "string"
-              }
-            },
-            "minSupportedVersion": {
-              "type": "array",
-              "description": "Minimum Supported Version of this content",
-              "items": {
-                "type": "string"
-              }
-            },
-            "filter": {
-              "type": "array",
-              "description": "E.g.: Delhi Curriculum",
-              "items": {
-                "type": "string"
-              }
-            },
-            "visibility": {
-              "type": "array",
-              "description": "Visibility (set as 'Parent' to hide this from any other list view)",
-              "items": {
-                "type": "string"
-              }
-            },
-            "posterImage": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "mimeType": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "mediaType": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "appIcon": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "grayScaleAppIcon": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "thumbnail": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "format": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "duration": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "size": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "number"
-              }
-            },
-            "idealScreenSize": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "idealScreenDensity": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "releaseNotes": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "pkgVersion": {
-              "type": "array",
-              "description": "Version number of the package file",
-              "items": {
-                "type": "number"
-              }
-            },
-            "resources": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "downloadUrl": {
-              "type": "array",
-              "description": "URL to download the content",
-              "items": {
-                "type": "string"
-              }
-            },
-            "artifactUrl": {
-              "type": "array",
-              "description": "URL to download the content",
-              "items": {
-                "type": "string"
-              }
-            },
-            "objects": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "developer": {
-              "type": "array",
-              "description": "Content Developer",
-              "items": {
-                "type": "string"
-              }
-            },
-            "source": {
-              "type": "array",
-              "description": "Source of the content (e.g. MangoSense)",
-              "items": {
-                "type": "string"
-              }
-            },
-            "publisher": {
-              "type": "array",
-              "description": "Publisher of the content (e.g. Pratham Books)",
-              "items": {
-                "type": "string"
-              }
-            },
-            "owner": {
-              "type": "array",
-              "description": "Content Owner",
-              "items": {
-                "type": "string"
-              }
-            },
-            "portalOwner": {
-              "type": "array",
-              "description": "Portal Owner",
-              "items": {
-                "type": "string"
-              }
-            },
-            "attributions": {
-              "type": "array",
-              "description": "Attributions/Credits",
-              "items": {
-                "type": "string"
-              }
-            },
-            "collaborators": {
-              "type": "array",
-              "description": "Collaborators",
-              "items": {
-                "type": "string"
-              }
-            },
-            "voiceCredits": {
-              "type": "array",
-              "description": "Voice Credits",
-              "items": {
-                "type": "string"
-              }
-            },
-            "soundCredits": {
-              "type": "array",
-              "description": "Audio and background scores by",
-              "items": {
-                "type": "string"
-              }
-            },
-            "imageCredits": {
-              "type": "array",
-              "description": "Images created by",
-              "items": {
-                "type": "string"
-              }
-            },
-            "copyright": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "license": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "language": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "words": {
-              "type": "array",
-              "description": "Dictionary words in this content",
-              "items": {
-                "type": "string"
-              }
-            },
-            "text": {
-              "type": "array",
-              "description": "Text of the story",
-              "items": {
-                "type": "string"
-              }
-            },
-            "forkable": {
-              "type": "array",
-              "description": "Forkable",
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "translatable": {
-              "type": "array",
-              "description": "Translatable",
-              "items": {
-                "type": "boolean"
-              }
-            },
-            "ageGroup": {
-              "type": "array",
-              "description": "Suggested Age Group",
-              "items": {
-                "type": "string"
-              }
-            },
-            "gradeLevel": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "interactivityLevel": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "curriculum": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "contentType": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "templateType": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "genre": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "theme": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "rating": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "number"
-              }
-            },
-            "rating_a": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "number"
-              }
-            },
-            "quality": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "number"
-              }
-            },
-            "popularity": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "number"
-              }
-            },
-            "downloads": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "number"
-              }
-            },
-            "launchUrl": {
-              "type": "array",
-              "description": "URL to launch the game",
-              "items": {
-                "type": "string"
-              }
-            },
-            "osId": {
-              "type": "array",
-              "description": "Operating System specific Id",
-              "items": {
-                "type": "string"
-              }
-            },
-            "activity_class": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "scaffolding": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "feedback": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "feedbackType": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "teachingMode": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "skills": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "keywords": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "domain": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "status": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "optStatus": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "description": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "body": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "editorState": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "data": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "loadingMessage": {
-              "type": "array",
-              "description": "Loading Message",
-              "items": {
-                "type": "string"
-              }
-            },
-            "checksum": {
-              "type": "array",
-              "description": "Checksum value of the story package file",
-              "items": {
-                "type": "string"
-              }
-            },
-            "learningObjective": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "createdBy": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "createdOn": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "lastUpdatedBy": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "lastUpdatedOn": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "lastSubmittedBy": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "lastSubmittedOn": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "lastPublishedBy": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "lastPublishedOn": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "version": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "number"
-              }
-            },
-            "versionDate": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "origin": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "versionCreatedBy": {
-              "type": "array",
-              "description": "",
-              "items": {
-                "type": "string"
-              }
-            },
-            "sorting": {
-              "type": "array",
-              "description": "The array of valid fields for sorting in the specified order",
-              "items": {
-                "type": "string"
-              }
-            },
-            "order": {
-              "type": "array",
-              "description": "The order of sorting",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "asc",
-                  "desc"
-                ]
-              }
-            },
-            "limit": {
-              "type": "number",
-              "format": "int64",
-              "description": "The limit on number of records to fetch"
+            "title": "Content Search Metadata",
+            "type": "object",
+            "properties": {
+                "identifier": {
+                    "type": "array",
+                    "description": "Identifier of the content",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "array",
+                    "description": "Name of the content",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "code": {
+                    "type": "array",
+                    "description": "Unique code for the content",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "os": {
+                    "type": "array",
+                    "description": "Supported Operating Systems",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "minOsVersion": {
+                    "type": "array",
+                    "description": "E.g. 4.4",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "minGenieVersion": {
+                    "type": "array",
+                    "description": "E.g. 5.0",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "minSupportedVersion": {
+                    "type": "array",
+                    "description": "Minimum Supported Version of this content",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "filter": {
+                    "type": "array",
+                    "description": "E.g.: Delhi Curriculum",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "visibility": {
+                    "type": "array",
+                    "description": "Visibility (set as 'Parent' to hide this from any other list view)",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "posterImage": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mimeType": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "mediaType": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "appIcon": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "grayScaleAppIcon": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "thumbnail": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "format": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "duration": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "size": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "idealScreenSize": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "idealScreenDensity": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "releaseNotes": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkgVersion": {
+                    "type": "array",
+                    "description": "Version number of the package file",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "resources": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "downloadUrl": {
+                    "type": "array",
+                    "description": "URL to download the content",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "artifactUrl": {
+                    "type": "array",
+                    "description": "URL to download the content",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "objects": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "developer": {
+                    "type": "array",
+                    "description": "Content Developer",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "source": {
+                    "type": "array",
+                    "description": "Source of the content (e.g. MangoSense)",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "publisher": {
+                    "type": "array",
+                    "description": "Publisher of the content (e.g. Pratham Books)",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "owner": {
+                    "type": "array",
+                    "description": "Content Owner",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "portalOwner": {
+                    "type": "array",
+                    "description": "Portal Owner",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "attributions": {
+                    "type": "array",
+                    "description": "Attributions/Credits",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "collaborators": {
+                    "type": "array",
+                    "description": "Collaborators",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "voiceCredits": {
+                    "type": "array",
+                    "description": "Voice Credits",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "soundCredits": {
+                    "type": "array",
+                    "description": "Audio and background scores by",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "imageCredits": {
+                    "type": "array",
+                    "description": "Images created by",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "copyright": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "license": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "language": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "words": {
+                    "type": "array",
+                    "description": "Dictionary words in this content",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "text": {
+                    "type": "array",
+                    "description": "Text of the story",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "forkable": {
+                    "type": "array",
+                    "description": "Forkable",
+                    "items": {
+                        "type": "boolean"
+                    }
+                },
+                "translatable": {
+                    "type": "array",
+                    "description": "Translatable",
+                    "items": {
+                        "type": "boolean"
+                    }
+                },
+                "ageGroup": {
+                    "type": "array",
+                    "description": "Suggested Age Group",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "gradeLevel": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "interactivityLevel": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "curriculum": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "contentType": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "templateType": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "genre": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "theme": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "rating": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "rating_a": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "quality": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "popularity": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "downloads": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "launchUrl": {
+                    "type": "array",
+                    "description": "URL to launch the game",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "osId": {
+                    "type": "array",
+                    "description": "Operating System specific Id",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "activity_class": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "scaffolding": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "feedback": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "feedbackType": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "teachingMode": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "skills": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "keywords": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "domain": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "optStatus": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "body": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "editorState": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "data": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "loadingMessage": {
+                    "type": "array",
+                    "description": "Loading Message",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "checksum": {
+                    "type": "array",
+                    "description": "Checksum value of the story package file",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "learningObjective": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "createdBy": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "createdOn": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "lastUpdatedBy": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "lastUpdatedOn": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "lastSubmittedBy": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "lastSubmittedOn": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "lastPublishedBy": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "lastPublishedOn": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "version": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "number"
+                    }
+                },
+                "versionDate": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "origin": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "versionCreatedBy": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "sorting": {
+                    "type": "array",
+                    "description": "The array of valid fields for sorting in the specified order",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "order": {
+                    "type": "array",
+                    "description": "The order of sorting",
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ]
+                    }
+                },
+                "limit": {
+                    "type": "number",
+                    "format": "int64",
+                    "description": "The limit on number of records to fetch"
+                }
             }
-          }
         },
         "ContentUrlAndNodeId": {
-          "title": "Content URL and Node Id",
-          "type": "object",
-          "allOf": [
-              {
-                  "$ref": "#/definitions/NodeId"
-              },
-              {
-                  "$ref": "#/definitions/ContentUrl"
-              }
-          ]
+            "title": "Content URL and Node Id",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/NodeId"
+                },
+                {
+                    "$ref": "#/definitions/ContentUrl"
+                }
+            ]
         },
-        "FlagRequestObject":{
-           "title": "Content Flag Request Object",
+        "FlagRequestObject": {
+            "title": "Content Flag Request Object",
             "type": "object",
             "properties": {
                 "request": {
@@ -1881,23 +2043,23 @@
                 "request"
             ]
         },
-        "FlagObject":{
-          "properties":{
-              "flagReasons":{
-                "type":"array",
-                "items":{
-                   "type":"string"
+        "FlagObject": {
+            "properties": {
+                "flagReasons": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "flaggedBy": {
+                    "type": "string",
+                    "description": "flaggedBy"
+                },
+                "versionKey": {
+                    "type": "string",
+                    "description": "versionKey"
                 }
-              },
-              "flaggedBy":{
-                  "type":"string",
-                  "description":"flaggedBy"
-              },
-              "versionKey":{
-                  "type":"string",
-                  "description":"versionKey"
-              }
-          }
+            }
         },
         "ResponseHeader": {
             "title": "ResponseHeader",
@@ -1954,10 +2116,10 @@
             "title": "Empty Result",
             "type": "object",
             "properties": {
-              "result": {
-                "type": "object",
-                "description": "Empty Result"
-              }
+                "result": {
+                    "type": "object",
+                    "description": "Empty Result"
+                }
             }
         },
         "NodeId": {
@@ -2001,95 +2163,95 @@
                 }
             }
         },
-        "audit_history_record":{
-          "properties":{
-            "audit_history_record":{
-               "type":"array",
-               "items":{
-                  "$ref":"#/definitions/audit_record"
+        "audit_history_record": {
+            "properties": {
+                "audit_history_record": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/audit_record"
+                    }
                 }
             }
-          }
         },
-        "audit_record":{
-            "properties":{
-                "objectId":{
-                    "type":"string",
-                    "description":"content_id"
+        "audit_record": {
+            "properties": {
+                "objectId": {
+                    "type": "string",
+                    "description": "content_id"
                 },
-                "objectType":{
-                    "type":"string",
-                    "description":"objectType"
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
                 },
-                "operation":{
-                     "type":"string",
-                     "description":"operation"
+                "operation": {
+                    "type": "string",
+                    "description": "operation"
                 },
-                "createdOn":{
-                    "type":"string",
-                    "description":"createdOn" 
+                "createdOn": {
+                    "type": "string",
+                    "description": "createdOn"
                 },
-                "userId":{
-                    "type":"string",
-                    "description":"userId"
+                "userId": {
+                    "type": "string",
+                    "description": "userId"
                 },
-                "graphId":{
-                    "type":"string",
-                    "description":"graphId"
+                "graphId": {
+                    "type": "string",
+                    "description": "graphId"
                 },
-                "label":{
-                    "type":"string",
-                    "description":"label"
+                "label": {
+                    "type": "string",
+                    "description": "label"
                 },
-                "requestId":{
-                     "type":"string",
-                    "description":"resquestId"
+                "requestId": {
+                    "type": "string",
+                    "description": "resquestId"
                 },
-                "summary":{
-                    "$ref":"#/definitions/summary"
+                "summary": {
+                    "$ref": "#/definitions/summary"
                 }
-            } 
+            }
         },
-        "summary":{
-           "properties":{
-                "relations":{
-                  "type":"object",
-                    "properties":{
-                        "addedRelations":{
-                           "type":"number",
-                           "description":"added relations"
-                          },
-                          "removedRelations":{
-                              "type":"number",
-                              "description":"removedRelations"
-                          }
+        "summary": {
+            "properties": {
+                "relations": {
+                    "type": "object",
+                    "properties": {
+                        "addedRelations": {
+                            "type": "number",
+                            "description": "added relations"
+                        },
+                        "removedRelations": {
+                            "type": "number",
+                            "description": "removedRelations"
+                        }
                     }
                 },
-                "properties":{
-                   "properties":{
-                        "count":{
-                           "type":"number",
-                           "description":"count"
-                          },
-                          "fields":{
-                              "type":"array",
-                              "items":{
-                                  "description":"fields",
-                                  "type":"string"
-                              }
-                          }
+                "properties": {
+                    "properties": {
+                        "count": {
+                            "type": "number",
+                            "description": "count"
+                        },
+                        "fields": {
+                            "type": "array",
+                            "items": {
+                                "description": "fields",
+                                "type": "string"
+                            }
+                        }
                     }
                 },
-                "tags":{
-                  "properties":{
-                        "removedTags":{
-                           "type":"number",
-                           "description":"removedTags"
-                          },
-                          "addedTags":{
-                              "type":"number",
-                              "description":"addedTags"
-                          }
+                "tags": {
+                    "properties": {
+                        "removedTags": {
+                            "type": "number",
+                            "description": "removedTags"
+                        },
+                        "addedTags": {
+                            "type": "number",
+                            "description": "addedTags"
+                        }
                     }
                 }
             }
@@ -2104,49 +2266,49 @@
             }
         },
         "ResultWithContentResponse": {
-          "title": "Result Containing Content Object",
-          "type": "object",
-          "properties": {
-              "result": {
-                  "$ref": "#/definitions/ContentResponseObject"
-              }
-          }
+            "title": "Result Containing Content Object",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/ContentResponseObject"
+                }
+            }
         },
         "ResultWithContentResponseArray": {
-          "title": "Result Containing Content Object Array",
-          "type": "object",
-          "properties": {
-              "result": {
-                  "$ref": "#/definitions/ContentResponseArray"
-              }
-          }
+            "title": "Result Containing Content Object Array",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/ContentResponseArray"
+                }
+            }
         },
         "ResultWithContentResponseArrayAndTTL": {
-          "title": "Result Containing Content Object",
-          "type": "object",
-          "properties": {
-              "result": {
-                  "$ref": "#/definitions/ContentResponseArrayAndTTL"
-              }
-          }
+            "title": "Result Containing Content Object",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/ContentResponseArrayAndTTL"
+                }
+            }
         },
         "ResultWithContentUrlAndNodeId": {
-          "title": "Result Containing Content URL and Node Id",
-          "type": "object",
-          "properties": {
-              "result": {
-                  "$ref": "#/definitions/ContentUrlAndNodeId"
-              }
-          }
+            "title": "Result Containing Content URL and Node Id",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/ContentUrlAndNodeId"
+                }
+            }
         },
         "ResultWithECARUrl": {
-          "title": "Result Containing ECAR URL",
-          "type": "object",
-          "properties": {
-              "result": {
-                  "$ref": "#/definitions/EcarUrl"
-              }
-          }
+            "title": "Result Containing ECAR URL",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "$ref": "#/definitions/EcarUrl"
+                }
+            }
         },
         "ContentRequestObject": {
             "title": "Content Request Object",
@@ -2185,49 +2347,49 @@
             ]
         },
         "ContentSearchObject": {
-          "title": "Content Search Object",
-          "type": "object",
-          "properties": {
-              "search": {
-                  "$ref": "#/definitions/ContentSearch"
-              }
-          },
-          "required": [
-              "search"
-          ]
+            "title": "Content Search Object",
+            "type": "object",
+            "properties": {
+                "search": {
+                    "$ref": "#/definitions/ContentSearch"
+                }
+            },
+            "required": [
+                "search"
+            ]
         },
         "ContentBundleRequestObject": {
-          "title": "Content Bundle Request Object",
-          "type": "object",
-          "properties": {
-            "request": {
-              "$ref": "#/definitions/ContentBundleObject"
-            }
-          },
-          "required": [
-              "request"
-          ]
+            "title": "Content Bundle Request Object",
+            "type": "object",
+            "properties": {
+                "request": {
+                    "$ref": "#/definitions/ContentBundleObject"
+                }
+            },
+            "required": [
+                "request"
+            ]
         },
         "ContentBundleObject": {
-          "title": "Content Bundle Object",
-          "type": "object",
-          "properties": {
-              "file_name": {
-                "type": "string",
-                "description": "Content Bundle File Name"
-              },
-              "content_identifiers": {
-                "type": "array",
-                "description": "List of Content Identifiers to Bundle",
-                "items": {
-                  "type": "string"
+            "title": "Content Bundle Object",
+            "type": "object",
+            "properties": {
+                "file_name": {
+                    "type": "string",
+                    "description": "Content Bundle File Name"
+                },
+                "content_identifiers": {
+                    "type": "array",
+                    "description": "List of Content Identifiers to Bundle",
+                    "items": {
+                        "type": "string"
+                    }
                 }
-              }
-          },
-          "required": [
-              "content_identifiers",
-              "file_name"
-          ]
+            },
+            "required": [
+                "content_identifiers",
+                "file_name"
+            ]
         },
         "ContentCreateResponse": {
             "description": "Create Content Response",
@@ -2302,69 +2464,69 @@
             ]
         },
         "ContentPublishResponse": {
-          "title": "Content Publish Response",
-          "type": "object",
-          "allOf": [
-              {
-                  "$ref": "#/definitions/ResultWithContentUrlAndNodeId"
-              },
-              {
-                  "$ref": "#/definitions/ResponseHeader"
-              }
-          ]
+            "title": "Content Publish Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithContentUrlAndNodeId"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentBundleResponse": {
-          "title": "Content Bundle Response",
-          "type": "object",
-          "allOf": [
-              {
-                  "$ref": "#/definitions/ResultWithECARUrl"
-              },
-              {
-                  "$ref": "#/definitions/ResponseHeader"
-              }
-          ]
+            "title": "Content Bundle Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResultWithECARUrl"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentDeleteResponse": {
-          "title": "Delete Content Response",
-          "type": "object",
-          "allOf": [
-              {
-                  "$ref": "#/definitions/EmptyResult"
-              },
-              {
-                  "$ref": "#/definitions/ResponseHeader"
-              }
-          ]
-        },
-        "ContentHistoryResponse":{
-           "title": "Content History Response",
-          "type": "object",
-          "allOf": [
-              {
-                  "$ref": "#/definitions/ResponseHeader"
-              },
-              {
-                  "$ref": "#/definitions/audit_history_record"
-              }
-          ]
-        },
-        "ContentFlagResponse":{
-            "title": "Content Flag Response",
-          "type": "object",
-          "allOf": [
-              {
-                  "$ref": "#/definitions/ResponseHeader"
-              },
-              {
-                "properties":{
-                  "result":{
-                    "type" :"string",
-                    "description":"result of Content Flagged"
-                  }
+            "title": "Delete Content Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
                 }
-              }
-          ]
+            ]
+        },
+        "ContentHistoryResponse": {
+            "title": "Content History Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                },
+                {
+                    "$ref": "#/definitions/audit_history_record"
+                }
+            ]
+        },
+        "ContentFlagResponse": {
+            "title": "Content Flag Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                },
+                {
+                    "properties": {
+                        "result": {
+                            "type": "string",
+                            "description": "result of Content Flagged"
+                        }
+                    }
+                }
+            ]
         },
         "ContentCreateErrorResponse": {
             "title": "Create Content Error Response",
