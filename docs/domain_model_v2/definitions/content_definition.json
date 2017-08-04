@@ -947,7 +947,7 @@
         "Course",
         "CourseUnit"
           ],
-          "defaultValue": "",
+          "defaultValue": "Story",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
