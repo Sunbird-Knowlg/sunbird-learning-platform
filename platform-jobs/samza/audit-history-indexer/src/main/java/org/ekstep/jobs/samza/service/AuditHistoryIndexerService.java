@@ -102,7 +102,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 	 * 
 	 * @return AuditHistoryRecord that can be saved to elastic search DB
 	 */
-	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) throws Exception {
+	public AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap) throws Exception {
 		AuditHistoryRecord record = new AuditHistoryRecord();
 		record.setUserId((String) transactionDataMap.get("userId"));
 		record.setRequestId((String) transactionDataMap.get("requestId"));

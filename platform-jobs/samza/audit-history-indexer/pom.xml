@@ -13,12 +13,24 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>audit-history-indexer</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<dependencies>
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>2.3.4</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.ilimi</groupId>
 			<artifactId>platform-dac</artifactId>
 			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
@@ -26,7 +38,6 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
