@@ -1,8 +1,6 @@
 package org.ekstep.jobs.samza.task;
 
 import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.IncomingMessageEnvelope;
 import org.apache.samza.task.InitableTask;
@@ -43,10 +41,7 @@ public class PublishPipelineTask implements StreamTask, InitableTask, Windowable
 		Map<String, Object> outgoingMap = (Map<String, Object>) envelope.getMessage();
 		try {
 			if(null != outgoingMap.get(PublishPipelineParams.eid.name())){
-				String eid = (String)outgoingMap.get(PublishPipelineParams.eid.name());
-				if(StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name())){
 					service.processMessage(outgoingMap, metrics, collector);
-				}
 			}
 		} catch (Exception e) {
 			metrics.incFailedCounter();

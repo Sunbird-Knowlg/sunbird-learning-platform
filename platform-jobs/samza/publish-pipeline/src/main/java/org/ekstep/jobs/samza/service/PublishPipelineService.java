@@ -1,39 +1,44 @@
 package org.ekstep.jobs.samza.service;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
+import org.ekstep.content.publish.PublishManager;
+import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
-import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-
+import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 
 public class PublishPipelineService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(PublishPipelineService.class);
 
-	@SuppressWarnings("unused")
-	private Config config = null;
+	private String contentId;
 
-	private static final String tempFileLocation = "/data/contentBundle/";
+	private Map<String, Object> parameterMap;
+
+	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
 
-	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
-	private static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
+	@SuppressWarnings("unused")
+	private Config config = null;
 
 	@Override
 	public void initialize(Config config) throws Exception {
@@ -42,109 +47,152 @@ public class PublishPipelineService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
+		S3PropertyReader.loadProperties(props);
 		Configuration.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
-		LOGGER.info("Learning actors initialized");
+		LOGGER.info("Akka actors initialized");
+		JedisFactory.initialize(props);
+		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
+		Map<String, Object> eks = getPublishLifecycleData(message);
+
+		if (null == eks) {
+			metrics.incSkippedCounter();
+			return;
+		}
 		try {
-			Map<String,Object> eksMap = getMap(message);
-			Node node = getNode(eksMap);
-			String contentId = (String) eksMap.get(PublishPipelineParams.id.name());
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(ContentAPIParams.node.name(), node);
-			String mimeType = (String) node.getMetadata().get("mimeType");
-			LOGGER.info("Checking if node mimeType is ecml" + mimeType);
-			if (StringUtils.equalsIgnoreCase(mimeType, "application/vnd.ekstep.ecml-archive")) {
-				parameterMap.put(PublishPipelineParams.ecmlType.name(), true);
+			String nodeId = (String) eks.get(PublishPipelineParams.id.name());
+			Node node = util.getNode(PublishPipelineParams.domain.name(), nodeId);
+			String mimeType = (String) node.getMetadata().get(PublishPipelineParams.mimeType.name());
+			if ((null != node) && (node.getObjectType().equalsIgnoreCase(PublishPipelineParams.content.name()))) {
+				publishContent(node, mimeType);
+				metrics.incSuccessCounter();
 			} else {
-				parameterMap.put(PublishPipelineParams.ecmlType.name(), false);
+				metrics.incSkippedCounter();
 			}
-			parameterMap.put(PublishPipelineParams.node.name(), node);
-			LOGGER.info("Start Publish Pipeline | Initiatizing Publish Pipeline");
-			InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
-			pipeline.init(ContentWorkflowPipelineParams.publish.name(), parameterMap);
-			LOGGER.info("Node fetched from graph");
 		} catch (Exception e) {
-			LOGGER.info("Something went wrong while publishing the content" + e.getMessage());
-			e.printStackTrace();
+			LOGGER.error("Failed to process message", message, e);
+			metrics.incFailedCounter();
 		}
 	}
 
-	private Node getNode(Map<String, Object> message) throws Exception {
-		String nodeId = (String) message.get(PublishPipelineParams.id.name());
-		String state = (String) message.get(PublishPipelineParams.State.name());
-		LOGGER.info("Checking if node status is Processing" + state);
-		if (StringUtils.equalsIgnoreCase(PublishPipelineParams.Processing.name(), state)) {
-			LOGGER.info("Fetching Node required for Publish Operation" + nodeId);
-			return getNodeForOperation(PublishPipelineParams.domain.name(), nodeId);
+	private void publishContent(Node node, String mimeType) {
+		LOGGER.info("Publish processing start for content");
+		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
+			List<NodeDTO> nodes = util.getNodesForPublish(node);
+			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
+			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
+		}
+		publishNode(node, mimeType);
+	}
+
+	private List<NodeDTO> dedup(List<NodeDTO> nodes) {
+		List<String> ids = new ArrayList<String>();
+		List<String> addedIds = new ArrayList<String>();
+		List<NodeDTO> list = new ArrayList<NodeDTO>();
+		for (NodeDTO node : nodes) {
+			if (isImageNode(node.getIdentifier()) && !ids.contains(node.getIdentifier())) {
+				ids.add(node.getIdentifier());
+			}
+		}
+		for (NodeDTO node : nodes) {
+			if (!ids.contains(node.getIdentifier()) && !ids.contains(getImageNodeID(node.getIdentifier()))) {
+				ids.add(node.getIdentifier());
+			}
+		}
+
+		for (NodeDTO node : nodes) {
+			if (ids.contains(node.getIdentifier()) && !addedIds.contains(node.getIdentifier())
+					&& !addedIds.contains(getImageNodeID(node.getIdentifier()))) {
+				list.add(node);
+				addedIds.add(node.getIdentifier());
+			}
+		}
+		return list;
+	}
+
+	private boolean isImageNode(String identifier) {
+		return StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
+	}
+
+	private String getImageNodeID(String identifier) {
+		return identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+	}
+
+	public Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
+		return dedup(nodes).stream()
+				.filter(node -> StringUtils.equalsIgnoreCase(node.getMimeType(),
+						"application/vnd.ekstep.content-collection")
+						|| StringUtils.equalsIgnoreCase(node.getStatus(), "Draft"))
+				.filter(node -> StringUtils.equalsIgnoreCase(node.getVisibility(), "parent"))
+				.sorted(new Comparator<NodeDTO>() {
+					@Override
+					public int compare(NodeDTO o1, NodeDTO o2) {
+						return o2.getDepth().compareTo(o1.getDepth());
+					}
+				});
+	}
+
+	private void publishCollectionNode(NodeDTO node) {
+		Node graphNode = util.getNode("domain", node.getIdentifier());
+		publishNode(graphNode, node.getMimeType());
+	}
+
+	private void publishNode(Node node, String mimeType) {
+		String nodeId = node.getIdentifier().replace(".img", "");
+		LOGGER.info("Publish processing start for node", nodeId);
+		try {
+			setContentBody(node, mimeType);
+			parameterMap.put(PublishPipelineParams.node.name(), node);
+			parameterMap.put(PublishPipelineParams.ecmlType.name(),
+					PublishManager.isECMLContent(mimeType));
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId), nodeId);
+			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
+		} catch (Exception e) {
+			LOGGER
+					.info("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
+							+ nodeId + "]", e.getMessage());
+			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
+			node.getMetadata().put(PublishPipelineParams.status.name(),
+					PublishPipelineParams.Failed.name());
+			util.updateNode(node);
+			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
+					e.getMessage());
+		}
+	}
+
+	private void setContentBody(Node node, String mimeType) {
+		if (PublishManager.isECMLContent(mimeType)) {
+			node.getMetadata().put(PublishPipelineParams.body.name(), PublishManager.getContentBody(node.getIdentifier()));
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Object> getPublishLifecycleData(Map<String, Object> message) {
+		String eid = (String) message.get("eid");
+		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name())) {
+			return null;
+		}
+
+		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
+		if (null == edata) {
+			return null;
+		}
+
+		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
+		if (null == eks) {
+			return null;
+		}
+		if (StringUtils.equalsIgnoreCase((String) eks.get("state"), "Processing")) {
+			{
+				return eks;
+			}
 		}
 		return null;
-	}
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Map<String,Object> getMap(Map<String, Object> message){
-		Map<String,Object> edata = (Map)message.get(PublishPipelineParams.edata.name()); 
-		Map<String,Object> eks = (Map)edata.get(PublishPipelineParams.eks.name());
-		return eks;
-	}
-	
-	private Node getNodeForOperation(String taxonomyId, String contentId) {
-		Node node = new Node();
-		String contentImageId = getContentImageIdentifier(contentId);
-
-		LOGGER.info("Fetching the Content Image Node for Content Id: " + contentId);
-		Node imageNode = util.getNode(taxonomyId, contentImageId);
-		if (null == imageNode) {
-			LOGGER.info("Unable to Fetch Content Image Node for Content Id: " + contentId);
-			LOGGER.info("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
-			node = util.getNode(taxonomyId, contentId);
-			if (null != node) {
-				LOGGER.info("Fetched Content Node: "+ node);
-				String status = (String) node.getMetadata().get(PublishPipelineParams.status.name());
-				if (StringUtils.isNotBlank(status)
-						&& (StringUtils.equalsIgnoreCase(PublishPipelineParams.Live.name(), status)
-								|| StringUtils.equalsIgnoreCase(PublishPipelineParams.Flagged.name(), status))) {
-					node = createContentImageNode(taxonomyId, contentImageId, node);
-				}
-			}
-			return node;
-		} else {
-			return imageNode;
-		}
-	}
-
-	private Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
-		imageNode.setGraphId(taxonomyId);
-		imageNode.setIdentifier(contentImageId);
-		imageNode.setMetadata(node.getMetadata());
-		imageNode.setInRelations(node.getInRelations());
-		imageNode.setOutRelations(node.getOutRelations());
-		imageNode.setTags(node.getTags());
-		imageNode.getMetadata().put(PublishPipelineParams.status.name(), PublishPipelineParams.Draft.name());
-		LOGGER.info("Creating Image Node");
-		util.createDataNode(imageNode);
-		Node nodeData = util.getNode(taxonomyId, contentImageId);
-		return nodeData;
-	}
-
-	private static String getBasePath(String contentId) {
-		String path = "";
-		if (!StringUtils.isBlank(contentId))
-			path = tempFileLocation + File.separator + System.currentTimeMillis()
-					+ ContentWorkflowPipelineParams._temp.name() + File.separator + contentId;
-		return path;
-	}
-
-	private String getContentImageIdentifier(String contentId) {
-		String contentImageId = "";
-		if (StringUtils.isNotBlank(contentId))
-			contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-		return contentImageId;
 	}
 }
