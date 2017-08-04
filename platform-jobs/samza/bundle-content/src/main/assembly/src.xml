@@ -37,7 +37,7 @@
 		<!-- filtered=true, so we do variable expansion so the yarn package path 
 			always points to the correct spot on any machine -->
 		<file>
-			<source>${basedir}/src/main/config/audit-history-indexer.properties</source>
+			<source>${basedir}/src/main/config/bundle-content.properties</source>
 			<outputDirectory>config</outputDirectory>
 			<filtered>true</filtered>
 		</file>
@@ -55,7 +55,7 @@
 			<outputDirectory>lib</outputDirectory>
 			<includes>
 				<include>org.apache.samza:samza-api</include>
-				<include>org.ekstep:audit-history-indexer</include>
+				<include>org.ekstep:bundle-content</include>
 				<include>org.apache.samza:samza-core_2.11</include>
 				<include>org.apache.samza:samza-kafka_2.11</include>
 				<include>org.apache.samza:samza-yarn_2.11</include>
