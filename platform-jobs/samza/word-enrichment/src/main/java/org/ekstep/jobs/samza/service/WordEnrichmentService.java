@@ -100,10 +100,10 @@ public class WordEnrichmentService implements ISamzaService {
 		Map<String, Object> properties = (Map<String, Object>) transactionData.get(WordEnrichmentParams.properties.name());
 		if (properties != null && !properties.isEmpty()) {
 			if (isEnrichNeeded(properties))
-				enrichWord(languageId, identifier, false);
+				enrichWord(languageId, identifier, null);
 		}
 		
-		List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData.get(WordEnrichmentParams.addedRelations.name());
+		/*List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData.get(WordEnrichmentParams.addedRelations.name());
 		if (null != addedRelations && !addedRelations.isEmpty()) {
 			for (Map<String, Object> rel : addedRelations) {
 				if(rel.get(WordEnrichmentParams.rel.name())!=null&&rel.get(WordEnrichmentParams.rel.name()).toString().equalsIgnoreCase(WordEnrichmentParams.synonym.name())){
@@ -125,7 +125,7 @@ public class WordEnrichmentService implements ISamzaService {
 						enrichWord(languageId, identifier, false);
 				}
 			}
-		}
+		}*/
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -154,13 +154,13 @@ public class WordEnrichmentService implements ISamzaService {
 		Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 		Map<String, Object> requestMap = new HashMap<String, Object>();
 		requestMap.put(WordEnrichmentParams.word_id.name(), identifier);
-		if(meaningAdded)
+		if(meaningAdded!=null)
 			requestMap.put(WordEnrichmentParams.meaningAdded.name(), meaningAdded);
 		requestBodyMap.put(WordEnrichmentParams.request.name(), requestMap);
-		enrichWord(languageId, identifier, requestBodyMap);
+		enrichWord(languageId, requestBodyMap);
 	}
 
-	public void enrichWord(String languageId, String wordId, Map<String, Object> requestBodyMap) throws Exception {
+	public void enrichWord(String languageId, Map<String, Object> requestBodyMap) throws Exception {
 
 		String url = PropertiesUtil.getProperty(language_url) + "/v1/language/tools/enrich/" + languageId;
 		String requestBody = mapper.writeValueAsString(requestBodyMap);
