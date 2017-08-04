@@ -1,6 +1,7 @@
 package org.ekstep.content.util;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -21,6 +22,14 @@ public class PropertiesUtil {
      */
 	public static String getProperty(String key) {
 		return prop.getProperty(key);
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
 	}
 	
 	/**

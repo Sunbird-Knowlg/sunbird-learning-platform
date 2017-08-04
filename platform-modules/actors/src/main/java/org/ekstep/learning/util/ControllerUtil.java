@@ -7,6 +7,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.contentstore.util.ContentStoreOperations;
+import org.ekstep.contentstore.util.ContentStoreParams;
+import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
@@ -153,6 +156,49 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 
+	public Response copyResponse(Response res) {
+        Response response = new Response();
+        response.setResponseCode(res.getResponseCode());
+        response.setParams(res.getParams());
+        return response;
+    }
+	
+	public String getContentBody(String contentId) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getContentBody.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		Response response = getResponse(request);
+		String body = (String) response.get(ContentStoreParams.body.name());
+		return body;
+	}
+
+	public Response getContentProperties(String contentId, List<String> properties) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.getContentProperties.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		request.put(ContentStoreParams.properties.name(), properties);
+		Response response = getResponse(request);
+		return response;
+	}
+
+	public Response updateContentProperties(String contentId, Map<String, Object> properties) {
+		Request request = new Request();
+		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
+		request.setOperation(ContentStoreOperations.updateContentProperties.name());
+		request.put(ContentStoreParams.content_id.name(), contentId);
+		request.put(ContentStoreParams.properties.name(), properties);
+		Response response = getResponse(request);
+		return response;
+	}
+
+	 public Response copyResponse(Response to, Response from) {
+	        to.setResponseCode(from.getResponseCode());
+	        to.setParams(from.getParams());
+	        return to;
+	    }
+	 
 	/**
 	 * Gets Data nodes.
 	 *
@@ -195,6 +241,7 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<NodeDTO> getNodesForPublish(Node node) {
 		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
 		String nodeId = null;
