@@ -1434,6 +1434,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(),
 								getErrorMessage(updateResponse));
 					}
+					addSynonymRelation(languageId, wordMap.get(LanguageParams.identifier.name()).toString(), primaryMeaningId, new ArrayList<>());
 				} catch (Exception e) {
 					PlatformLogger.log("Error!Exception ", e.getMessage(), e);
 					e.printStackTrace();
@@ -1932,6 +1933,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		request.put(GraphDACParams.start_node_id.name(), synsetId);
 		request.put(GraphDACParams.relation_type.name(), RelationTypes.SYNONYM.relationName());
 		request.put(GraphDACParams.end_node_id.name(), wordId);
+		Map<String, Object> metadata = new HashMap<String, Object>();
+		metadata.put(LanguageParams.isPrimary.name(), true);
+		request.put(GraphDACParams.metadata.name(), metadata);
 		Response response = getResponse(request);
 		if (checkError(response)) {
 			errorMessages.add(getErrorMessage(response));

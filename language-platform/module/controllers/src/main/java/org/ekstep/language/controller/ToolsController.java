@@ -215,7 +215,7 @@ public class ToolsController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> enrichWord(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map) {
-		String apiId = "ekstep.language.word.complexity.info";
+		String apiId = "ekstep.language.word.enrich";
 		Request request = getRequest(map);
 		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
 		request.setOperation(LanguageOperations.enrichWord.name());

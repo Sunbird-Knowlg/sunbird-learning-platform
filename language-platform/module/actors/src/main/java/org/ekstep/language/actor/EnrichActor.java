@@ -85,8 +85,12 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWord.name(), operation)) {
 				String nodeId = (String) request.get(LanguageParams.word_id.name());
+				Boolean meaningAdded = (Boolean) request.get(LanguageParams.meaningAdded.name());
 				Node word = getDataNode(languageId, nodeId, "Word");
-				enrichWord( languageId, word);
+				if(meaningAdded==null)
+					enrichWord( languageId, word);
+				else
+					enrichWord( languageId, word, meaningAdded);
 				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWords.name(), operation)) {
 				List<String> nodeIds = (List<String>) request.get(LanguageParams.node_ids.name());
@@ -208,7 +212,6 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 		}
 		
 		updateLexileMeasures(languageId, word);
-		updatePosList(languageId, word);
 		updateWordComplexity(languageId, word);
 
 		try{
@@ -228,6 +231,88 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 		long diff = System.currentTimeMillis() - startTime;
 		PlatformLogger.log("Time taken for enriching a word , id - " +word.getIdentifier()+ " : " + diff / 1000 + "s");
 	}
+
+	private void enrichWord(String languageId, Node word, Boolean meaningAdded) {
+
+		PlatformLogger.log("updateWordMetadata");
+
+		List<Node> synsets = wordUtil.getSynsets(word);
+		String existingPrimaryMeaningId = (String) word.getMetadata().get(LanguageParams.primaryMeaningId.name());
+		DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+		Map<String, Object> wordMap = ConvertGraphNode.convertGraphNode(word, languageId, definition, null);
+		
+		String primaryMeaningId = wordUtil.updatePrimaryMeaning(languageId, wordMap, synsets);
+		word.getMetadata().put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+		boolean updateNode = false;
+
+		if (meaningAdded && StringUtils.equalsIgnoreCase(primaryMeaningId, existingPrimaryMeaningId)) {
+			if (synsets != null && synsets.size() > 0) {
+				word.getMetadata().put(ATTRIB_SYNSET_COUNT, synsets.size());
+			} else {
+				word.getMetadata().put(ATTRIB_SYNSET_COUNT, 0);
+			}
+
+			if (primaryMeaningId != null) {
+				Node synset = getDataNode(languageId, primaryMeaningId, "Synset");
+				if (wordUtil.getSynonymRelations(synset.getOutRelations()) != null)
+					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, true);
+				else
+					word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
+
+				if (wordUtil.getAntonymRelations(synset.getOutRelations()) != null)
+					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, true);
+				else
+					word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
+
+				if (synset.getMetadata().get(ATTRIB_CATEGORY) != null)
+					word.getMetadata().put(ATTRIB_CATEGORY, synset.getMetadata().get(ATTRIB_CATEGORY));
+				if (synset.getMetadata().get(ATTRIB_PICTURES) != null)
+					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
+				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
+					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
+				List<String> tags = synset.getTags();
+				if (tags != null && tags.size() > 0)
+					word.setTags(tags);
+				updatePosList(languageId, word);
+				updateNode = true;
+			}
+
+		} else {
+			//update node only if primaryMeaningId is null 
+			if (StringUtils.isBlank(primaryMeaningId)) {
+				word.getMetadata().put(ATTRIB_HAS_SYNONYMS, null);
+				word.getMetadata().put(ATTRIB_HAS_ANTONYMS, null);
+				word.getMetadata().put(ATTRIB_CATEGORY, null);
+				word.getMetadata().put(ATTRIB_PICTURES, null);
+				word.getMetadata().put(ATTRIB_MEANING, null);
+				word.setTags(null);
+				updatePosList(languageId, word);
+				updateNode = true;
+			}
+		}
+
+		if (updateNode) {
+			try {
+				PlatformLogger.log("updating word metadata wordId: " + word.getIdentifier() + ", word metadata :"
+						+ word.getMetadata().toString());
+				Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+						"updateDataNode");
+				updateReq.put(GraphDACParams.node.name(), word);
+				updateReq.put(GraphDACParams.node_id.name(), word.getIdentifier());
+				Response updateResponse = controllerUtil.getResponse(updateReq);
+				if (checkError(updateResponse)) {
+					throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+							updateResponse.getParams().getErrmsg());
+				}
+			} catch (Exception e) {
+				PlatformLogger.log("Update error : " + word.getIdentifier(), e.getMessage(), e);
+			}
+		}
+
+
+	}
+
+
 	/**
 	 * Update word metadata.
 	 *
@@ -275,7 +360,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				List<String> tags = synset.getTags();
 				if (tags != null && tags.size() > 0)
 					word.setTags(tags);
-
+				updatePosList(languageId, word);
 			}
 
 			try {
