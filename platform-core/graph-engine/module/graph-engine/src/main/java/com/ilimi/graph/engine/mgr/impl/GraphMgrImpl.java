@@ -2,6 +2,7 @@ package com.ilimi.graph.engine.mgr.impl;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -156,12 +157,13 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
         String relationType = (String) request.get(GraphDACParams.relation_type.name());
         String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
+        Map<String, Object> metadata = (Map<String, Object>)  request.get(GraphDACParams.metadata.name());
         // TODO: get metadata
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
             throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Required parameters are missing...");
         } else {
             try {
-                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId, relationType, endNodeId, null);
+                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId, relationType, endNodeId, metadata);
                 relation.create(request);
             } catch (Exception e) {
                 handleException(e, getSender());
