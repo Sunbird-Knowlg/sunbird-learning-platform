@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +36,10 @@ public class LanugageWordExampleSentencesTest{
 	private WebApplicationContext context;
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
+	
+	static {
+		LanguageRequestRouterPool.init();
+	}
 	
 	@SuppressWarnings("rawtypes")
 	@Test
