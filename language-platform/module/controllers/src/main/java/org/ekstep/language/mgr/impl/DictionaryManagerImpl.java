@@ -1,6 +1,5 @@
 package org.ekstep.language.mgr.impl;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -49,10 +48,13 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.common.JSONUtils;
@@ -3340,58 +3342,250 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		
 	}
 	
-	public Response bulkUpdate(String languageId, InputStream wordStream) {
-		
+	@Override
+	public Response bulkUpdateWordsCSV(String languageId, InputStream wordStream) {
+
 		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (null == wordStream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Word object is emtpy");
-		
-		Reader reader = null;
-		BufferedReader br = null;
-		String line = "";
-		
-		try{
-			reader = new InputStreamReader(wordStream, "UTF8");
-			br = new BufferedReader(reader);
-			while ((line = br.readLine()) != null) {
-				try {
-				} catch (ArrayIndexOutOfBoundsException e) {
-					PlatformLogger.log("Exception" + e.getMessage(), e);
-					continue;
-				}
-			}
 
-			// Cleanup
-			line = "";
-			if (null != reader)
-				reader.close();
-			if (null != br)
-				br.close();
-			
-		} catch (IOException e) {
+		DefinitionDTO synsetDefinition = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
+		DefinitionDTO wordDefinition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+
+		try {
+			List<Map<String, Object>> wordRecords = readWordsFromCSV(languageId, wordStream, wordDefinition,
+					synsetDefinition);
+			List<String> nodeIds = new ArrayList<>();
+			List<String> errorMessages = new ArrayList<>();
+			PlatformLogger.log("Bulk word Update | word count :" + wordRecords.size());
+			for (Map<String, Object> word : wordRecords) {
+				PlatformLogger.log("Bulk word Update | word :" + word.toString());
+				List<String> lstNodeId = new ArrayList<>();
+				Response wordResponse = createOrUpdateWord(languageId, word, lstNodeId, true);
+				if (checkError(wordResponse)) {
+					errorMessages.add(wordUtil.getErrorMessage(wordResponse));
+					PlatformLogger.log("ClientException during bulk word update for word:" + word.toString(),
+							wordUtil.getErrorMessage(wordResponse), null, LoggerEnum.ERROR.name());
+				}
+				String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
+				if (nodeId != null) {
+					lstNodeId.add(nodeId);
+				}
+				nodeIds.addAll(lstNodeId);
+			}
+			asyncUpdate(nodeIds, languageId);
+			Response response = new Response();
+			ResponseParams params = new ResponseParams();
+			response.put(LanguageParams.status.name(), "Bulk Word update Successful!");
+			response.setResponseCode(ResponseCode.OK);
+			response.setParams(params);
+			params.setStatus(CompositeSearchParams.success.name());
+			response.setParams(params);
+
+		} catch (ClientException e) {
+			PlatformLogger.log("ClientException", e.getMessage(), e);
+			return ERROR(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
+		} catch (Exception e) {
 			PlatformLogger.log("Exception", e.getMessage(), e);
-			e.printStackTrace();
-		} finally {
-			line = "";
-			if (br != null) {
-				try {
-					br.close();
-				} catch (IOException e) {
-					PlatformLogger.log("Exception", e.getMessage(), e);
-					e.printStackTrace();
+			return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		}
+
+		return null;
+	}
+
+	private List<Map<String, Object>> readWordsFromCSV(String languageId, InputStream inputStream,
+			DefinitionDTO wordDefinition, DefinitionDTO synsetDefinition)
+			throws JsonProcessingException, IOException, ClientException {
+
+		Map<String, MetadataDefinition> wordPropMap = getDefProperties(wordDefinition);
+		Map<String, MetadataDefinition> synsetPropMap = getDefProperties(synsetDefinition);
+
+		List<Map<String, Object>> records = new ArrayList<Map<String, Object>>();
+		try (InputStreamReader isReader = new InputStreamReader(inputStream, "UTF8");
+				CSVParser csvReader = new CSVParser(isReader, csvFileFormat)) {
+			List<String> headers = new ArrayList<String>();
+			List<CSVRecord> recordsList = csvReader.getRecords();
+			boolean meaningUpdate = false;
+			List<String> wordList = new ArrayList<>();
+			Map<String, Map<String, Object>> wordRecordMap = new HashMap<>();
+			if (null != recordsList && !recordsList.isEmpty()) {
+				for (int i = 0; i < recordsList.size(); i++) {
+					if (i == 0) {
+						CSVRecord headerecord = recordsList.get(i);
+						for (int j = 0; j < headerecord.size(); j++) {
+							String val = headerecord.get(j);
+							if (!val.startsWith("word:") && !val.startsWith("synset:"))
+								throw new ClientException(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(),
+										"invalid format, header fields should start with either word:<property_name> or synset:<property_name>");
+							headers.add(val);
+						}
+						// if(headers.contains("word:lemma"));
+						if (!headers.stream().anyMatch("word:lemma"::equalsIgnoreCase))
+							throw new ClientException(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(),
+									"lemma is mandatory");
+					} else {
+						CSVRecord record = recordsList.get(i);
+						Map<String, Object> word = new HashMap<>();
+						Map<String, Object> synset = new HashMap<>();
+						String wordLemma = "";
+						for (int j = 0; j < record.size(); j++) {
+							String property = headers.get(j);
+							String val = record.get(j);
+							if (StringUtils.equalsIgnoreCase(property, "word:lemma"))
+								wordLemma = val.trim();
+
+							if (property.startsWith("word:")) {
+								property = property.substring(property.indexOf(":") + 1);
+								populateWordMap(word, wordPropMap, property, val);
+							}
+							if (property.startsWith("synset:")) {
+								property = property.substring(property.indexOf(":") + 1);
+								populateSynsetMap(synset, synsetPropMap, property, val);
+							}
+
+						}
+						if (synset.size() > 0) {
+							word.put(LanguageParams.primaryMeaning.name(), synset);
+							meaningUpdate = true;
+						}
+						wordList.add(wordLemma);
+						wordRecordMap.put(wordLemma, word);
+						records.add(word);
+					}
+				}
+				if (records.size() > 0 && meaningUpdate) {
+					List<Node> words = searchWords(languageId, wordList);
+
+					for (Node word : words) {
+						String wordLemma = word.getMetadata().get(LanguageParams.lemma.name()).toString();
+						Map<String, Object> wordRecord = wordRecordMap.get(wordLemma);
+						Map<String, Object> synsetRecord = (Map<String, Object>) wordRecord
+								.get(LanguageParams.primaryMeaning.name());
+						String primaryMeaningId = word.getMetadata().get(LanguageParams.primaryMeaningId.name())
+								.toString();
+						if (StringUtils.isNotBlank(primaryMeaningId))
+							synsetRecord.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+						else
+							synsetRecord.put(LanguageParams.gloss.name(), wordLemma);
+						wordRecordMap.remove(wordLemma);
+					}
+
+					for (Entry<String, Map<String, Object>> entry : wordRecordMap.entrySet()) {
+						Map<String, Object> wordRecord = entry.getValue();
+						Map<String, Object> synsetRecord = (Map<String, Object>) wordRecord
+								.get(LanguageParams.primaryMeaning.name());
+						synsetRecord.put(LanguageParams.gloss.name(), entry.getKey());
+					}
+
 				}
 			}
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (IOException e) {
-					PlatformLogger.log("Exception", e.getMessage(), e);
-					e.printStackTrace();
-				}
+			return records;
+		}
+	}
+
+	private Map<String, MetadataDefinition> getDefProperties(DefinitionDTO wordDefinition) {
+		Map<String, MetadataDefinition> propMap = new HashMap<>();
+		List<MetadataDefinition> wordProperties = wordDefinition.getProperties();
+		if (wordProperties != null) {
+			for (MetadataDefinition propDef : wordProperties) {
+				// propMap.put(propDef.getTitle(), propDef);
+				propMap.put(propDef.getPropertyName(), propDef);
 			}
 		}
-				
-		return null;
+		return propMap;
+	}
+
+	private void populateWordMap(Map<String, Object> word, Map<String, MetadataDefinition> wordPropMap, String property,
+			String val) {
+
+		if (wordPropMap.containsKey(property)) {
+			if (StringUtils.isNotBlank(val))
+				val = val.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+			else
+				val = null;
+			Object value = getMetadataValue(wordPropMap, property, val);
+			word.put(property, value);
+		}
+
+	}
+
+	private void populateSynsetMap(Map<String, Object> synset, Map<String, MetadataDefinition> synsetPropMap,
+			String property, String val) {
+
+		if (wordUtil.getRelations().contains(property)) {
+			if (StringUtils.isNotBlank(val)) {
+				List<String> relatedWords = Arrays.asList(val.trim().split("\\s*,\\s*"));
+				synset.put(property, getRelatedWordMap(relatedWords));
+			}
+		} else if (synsetPropMap.containsKey(property)) {
+			if (StringUtils.isNotBlank(val))
+				val = val.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
+			else
+				val = null;
+			Object value = getMetadataValue(synsetPropMap, property, val);
+			synset.put(property, value);
+		} else if (StringUtils.equalsIgnoreCase(property, "tags")) {
+			List<String> tags;
+			if (StringUtils.isNotBlank(val))
+				tags = Arrays.asList(val.trim().split("\\s*,\\s*"));
+			else
+				tags = new ArrayList<>();
+			synset.put("tags", tags);
+		}
+
+	}
+
+	@SuppressWarnings("rawtypes")
+	private Object getMetadataValue(Map<String, MetadataDefinition> objectPropMap, String property, String val) {
+		if (objectPropMap != null) {
+			MetadataDefinition def = objectPropMap.get(property);
+			if (null != def) {
+				Object value = val;
+				if (StringUtils.isBlank(val) && null != def.getDefaultValue()
+						&& StringUtils.isNotBlank(def.getDefaultValue().toString()))
+					value = def.getDefaultValue();
+				if (null != value) {
+					String datatype = def.getDataType();
+					if (StringUtils.equalsIgnoreCase("list", datatype)
+							|| StringUtils.equalsIgnoreCase("multi-select", datatype)) {
+						/*
+						 * if (value instanceof List) { value = ((List)
+						 * value).toArray(); } else if (!(value instanceof
+						 * Object[])) { value = new String[] { value.toString()
+						 * }; }
+						 */
+						value = Arrays.asList(val.trim().split("\\s*,\\s*"));
+					} else if (StringUtils.equalsIgnoreCase("number", datatype)) {
+						try {
+							BigDecimal bd = new BigDecimal(val.toString());
+							value = bd.doubleValue();
+						} catch (Exception e) {
+						}
+					} else if (StringUtils.equalsIgnoreCase("boolean", datatype)) {
+						try {
+							Boolean b = new Boolean(val.toString());
+							value = b;
+						} catch (Exception e) {
+						}
+					}
+				}
+				return value;
+			}
+		}
+		return val;
+	}
+
+	private List<Map<String, Object>> getRelatedWordMap(List<String> words) {
+
+		// if(words.isEmpty())
+		// return null;
+		List<Map<String, Object>> wordList = new ArrayList<>();
+		for (String word : words) {
+			Map<String, Object> wordMap = new HashMap<>();
+			wordMap.put(LanguageParams.lemma.name(), word);
+			wordList.add(wordMap);
+		}
+		return wordList;
 	}
 }

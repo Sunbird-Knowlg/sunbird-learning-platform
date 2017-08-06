@@ -358,6 +358,34 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * bulk update words in the CSV.
+	 *
+	 * @param languageId
+	 *            Graph Id
+	 * @param file
+	 *            Input CSV with list of lemmas
+	 * @param userId
+	 *            User making the request
+	 * @param response
+	 *            the response
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/bulkUpdateWordsByCSV/{languageId}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> bulkUpdateWordsCSV(@PathVariable(value = "languageId") String languageId,
+			@RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
+			HttpServletResponse response) {
+		String objectType = getObjectType();
+		String apiId = "ekstep.language."+objectType.toLowerCase() + ".bulkUpdateWordsByCSV";
+		try {
+			Response resp = dictionaryManager.bulkUpdateWordsCSV(languageId, file.getInputStream());
+			PlatformLogger.log("bulkUpdateWords CSV | Response");
+			return getResponseEntity(resp, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
