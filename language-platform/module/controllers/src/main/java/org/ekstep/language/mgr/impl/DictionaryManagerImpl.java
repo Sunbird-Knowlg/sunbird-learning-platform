@@ -1,5 +1,6 @@
 package org.ekstep.language.mgr.impl;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -3338,4 +3340,58 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		
 	}
 	
+	public Response bulkUpdate(String languageId, InputStream wordStream) {
+		
+		if (StringUtils.isBlank(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (null == wordStream)
+			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Word object is emtpy");
+		
+		Reader reader = null;
+		BufferedReader br = null;
+		String line = "";
+		
+		try{
+			reader = new InputStreamReader(wordStream, "UTF8");
+			br = new BufferedReader(reader);
+			while ((line = br.readLine()) != null) {
+				try {
+				} catch (ArrayIndexOutOfBoundsException e) {
+					PlatformLogger.log("Exception" + e.getMessage(), e);
+					continue;
+				}
+			}
+
+			// Cleanup
+			line = "";
+			if (null != reader)
+				reader.close();
+			if (null != br)
+				br.close();
+			
+		} catch (IOException e) {
+			PlatformLogger.log("Exception", e.getMessage(), e);
+			e.printStackTrace();
+		} finally {
+			line = "";
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {
+					PlatformLogger.log("Exception", e.getMessage(), e);
+					e.printStackTrace();
+				}
+			}
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					PlatformLogger.log("Exception", e.getMessage(), e);
+					e.printStackTrace();
+				}
+			}
+		}
+				
+		return null;
+	}
 }
