@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
 
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
