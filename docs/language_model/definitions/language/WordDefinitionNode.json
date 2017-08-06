@@ -789,6 +789,18 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{ 'order': 44 }"
+        },
+        {
+          "propertyName": "themes",
+          "title": "Themes",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 45}",
+          "indexed": true
         }
       ],
       "inRelations": [
