@@ -54,29 +54,31 @@ public class ObjectLifecycleService implements ISamzaService {
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-		Map<String, Object> stateChangeEvent = getStateChangeEvent(message);
-		if (stateChangeEvent != null) {
-			LOGGER.debug("State change identified - creating lifecycle event");
-			try {
-				Node node = getNode(message);
-				if(null == node) {
-					metrics.incSkippedCounter();
-					return;
+		if(null == message.get("syncMessage")){
+			Map<String, Object> stateChangeEvent = getStateChangeEvent(message);
+			if (stateChangeEvent != null) {
+				LOGGER.debug("State change identified - creating lifecycle event");
+				try {
+					Node node = getNode(message);
+					if(null == node) {
+						metrics.incSkippedCounter();
+						return;
+					}
+					LOGGER.info("Node fetched from graph");
+					Event event = generateLifecycleEvent(stateChangeEvent, node);
+					event.setEts(message);
+					LOGGER.info("Event generated");
+					publishEvent(event, collector);
+					LOGGER.info("Event published");
+					metrics.incSuccessCounter();
+				} catch (Exception ex) {
+					metrics.incFailedCounter();
+					LOGGER.error("Failed to process message", message, ex);
 				}
-				LOGGER.info("Node fetched from graph");
-				Event event = generateLifecycleEvent(stateChangeEvent, node);
-				event.setEts(message);
-				LOGGER.info("Event generated");
-				publishEvent(event, collector);
-				LOGGER.info("Event published");
-				metrics.incSuccessCounter();
-			} catch (Exception ex) {
-				metrics.incFailedCounter();
-				LOGGER.error("Failed to process message", message, ex);
+			} else {
+				LOGGER.info("Learning event not qualified for lifecycle event");
+				metrics.incSkippedCounter();
 			}
-		} else {
-			LOGGER.info("Learning event not qualified for lifecycle event");
-			metrics.incSkippedCounter();
 		}
 	}
 
