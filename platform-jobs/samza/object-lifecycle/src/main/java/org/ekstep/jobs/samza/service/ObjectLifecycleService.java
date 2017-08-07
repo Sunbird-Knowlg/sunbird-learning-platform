@@ -91,7 +91,7 @@ public class ObjectLifecycleService implements ISamzaService {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getStateChangeEvent(Map<String, Object> message) {
+	public Map<String, Object> getStateChangeEvent(Map<String, Object> message) {
 
 		if (!message.containsKey(ConsumerWorkflowEnums.nodeUniqueId.name()))
 			return null;
@@ -131,7 +131,7 @@ public class ObjectLifecycleService implements ISamzaService {
 		return null;
 	}
 
-	private Event generateLifecycleEvent(Map<String, Object> stateChangeEvent, Node node) {
+	public Event generateLifecycleEvent(Map<String, Object> stateChangeEvent, Node node) {
 
 		Event event = new Event("BE_OBJECT_LIFECYCLE", "2.1", "ObjectLifecycleTask");
 		LifecycleEvent lifecycleEvent = new LifecycleEvent();
@@ -212,6 +212,7 @@ public class ObjectLifecycleService implements ISamzaService {
 				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Concept.name())
 						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
 					event.setParentid(rel.getEndNodeId());
+					event.setParenttype(rel.getEndNodeObjectType());
 				} else if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Dimension.name())
 						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
 					event.setParentid(rel.getEndNodeId());
