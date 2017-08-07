@@ -3429,6 +3429,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						Map<String, Object> word = new HashMap<>();
 						Map<String, Object> synset = new HashMap<>();
 						String wordLemma = "";
+						if(headers.size()!=record.size())
+							throw new ClientException(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(),
+									"records not matched with header provided");
+						
 						for (int j = 0; j < record.size(); j++) {
 							String property = headers.get(j);
 							String val = record.get(j);
@@ -3465,7 +3469,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						String primaryMeaningId = word.getMetadata().get(LanguageParams.primaryMeaningId.name())
 								.toString();
 						if (StringUtils.isNotBlank(primaryMeaningId))
-							synsetRecord.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+							synsetRecord.put(LanguageParams.identifier.name(), primaryMeaningId);
 						else
 							synsetRecord.put(LanguageParams.gloss.name(), wordLemma);
 						wordRecordMap.remove(wordLemma);
