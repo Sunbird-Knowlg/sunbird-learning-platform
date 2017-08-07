@@ -64,6 +64,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.RelationDefinition;
+import com.ilimi.taxonomy.common.ArtifactMimeTypeMap;
 import com.ilimi.taxonomy.common.LanguageCodeMap;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -117,7 +118,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
-	
+
 	private PublishManager publishManager = new PublishManager();
 
 	/**
@@ -152,7 +153,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		try {
 			if (StringUtils.isBlank(taxonomyId))
-				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+						"Taxonomy Id is blank.");
 			if (StringUtils.isBlank(contentId))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 						"Content Object Id is blank.");
@@ -172,7 +174,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				mimeType = "assets";
 			}
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			PlatformLogger.log(
+					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
@@ -180,7 +183,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
 			throw e;
-		} catch(ServerException e) {
+		} catch (ServerException e) {
 			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		} catch (Exception e) {
 			String message = "Something went wrong while processing uploaded file.";
@@ -200,10 +203,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	@Override
 	public Response upload(String contentId, String taxonomyId, String fileUrl) {
-		PlatformLogger.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:"+ fileUrl);
+		PlatformLogger
+				.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:" + fileUrl);
 		try {
 			if (StringUtils.isBlank(taxonomyId))
-				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+						"Taxonomy Id is blank.");
 			if (StringUtils.isBlank(contentId))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 						"Content Object Id is blank.");
@@ -214,7 +219,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
 			isNodeUnderProcessing(node, "Upload");
 			String mimeType = getMimeType(node);
-			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			PlatformLogger.log(
+					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(node, fileUrl);
@@ -222,7 +228,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
 			throw e;
-		} catch(ServerException e) {
+		} catch (ServerException e) {
 			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		} catch (Exception e) {
 			String message = "Something went wrong while processing uploaded file.";
@@ -230,7 +236,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		}
 	}
-	
+
 	private Response checkAndReturnUploadResponse(Response res) {
 		if (checkError(res)) {
 			return res;
@@ -523,7 +529,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			node.getMetadata().put("lastPublishedBy", null);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), null);
 		}
-		
+
 		try {
 			response = publishManager.publish(contentId, node);
 		} catch (ClientException e) {
@@ -827,7 +833,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				// Content Node as node
 				node = (Node) response.get(GraphDACParams.node.name());
 
-				if(!StringUtils.equalsIgnoreCase(operation, "publish") && !StringUtils.equalsIgnoreCase(operation, "review")) {
+				if (!StringUtils.equalsIgnoreCase(operation, "publish")
+						&& !StringUtils.equalsIgnoreCase(operation, "review")) {
 					// Checking if given Content Id is Image Node
 					if (null != node && isContentImageObject(node))
 						throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
@@ -836,8 +843,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 					PlatformLogger.log("Fetched Content Node: ", node);
 					String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
-					if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
-							|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
+					if (StringUtils.isNotBlank(status)
+							&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
+									|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 						node = createContentImageNode(taxonomyId, contentImageId, node);
 				}
 			} else {
@@ -939,6 +947,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 							ResponseCode.CLIENT_ERROR);
 				map.put("identifier", map.get("code"));
 			}
+			
+			if (StringUtils.isNotBlank((String) mimeType)) {
+				map.put(TaxonomyAPIParams.artifactMimeType.name(),
+						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
+			}
 
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
@@ -996,6 +1009,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String objectType = CONTENT_OBJECT_TYPE;
 		map.put("objectType", CONTENT_OBJECT_TYPE);
 		map.put("identifier", contentId);
+
+		if (null != map.get(TaxonomyAPIParams.mimeType.name())) {
+			map.put(TaxonomyAPIParams.artifactMimeType.name(),
+					ArtifactMimeTypeMap.getArtifactMimeType((String) map.get(TaxonomyAPIParams.mimeType.name())));
+		}
 
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
@@ -1105,8 +1123,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		return createResponse;
 	}
-	
-	
+
 	public Response updateAllContentNodes(String originalId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
@@ -1116,21 +1133,22 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		map.put("versionKey", graphPassportKey);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
 		Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
-		if (checkError(updateResponse)) return updateResponse;
+		if (checkError(updateResponse))
+			return updateResponse;
 		updateResponse.put(GraphDACParams.node_id.name(), originalId);
-		
+
 		Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
 		updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
 		return updateResponse;
 	}
-	
+
 	private Response updateNode(String identifier, String objectType, Node domainNode) {
 		domainNode.setGraphId(GRAPH_ID);
 		domainNode.setIdentifier(identifier);
 		domainNode.setObjectType(objectType);
 		return updateDataNode(domainNode);
 	}
-	
+
 	private List<String> getExternalPropsList(DefinitionDTO definition) {
 		List<String> list = new ArrayList<String>();
 		if (null != definition) {
@@ -1164,7 +1182,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				getRelationDefMaps(definition, inRelDefMap, outRelDefMap);
 				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
 					Map<String, Object> map = (Map<String, Object>) entry.getValue();
-					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition, inRelDefMap, outRelDefMap);
+					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition,
+							inRelDefMap, outRelDefMap);
 					if (null != nodeResponse)
 						return nodeResponse;
 					Boolean root = (Boolean) map.get("root");
@@ -1308,7 +1327,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					nodeMap.put(id, tmpnode);
 				}
 			} else {
-				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND", "Content not found with identifier: " + id);
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
 			}
 		}
 		if (StringUtils.isNotBlank(id)) {

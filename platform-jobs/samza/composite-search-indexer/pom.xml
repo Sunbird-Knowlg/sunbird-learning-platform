@@ -13,8 +13,20 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>composite-search-indexer</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.2</version>
 	<dependencies>
+		<dependency>
+			<groupId>org.elasticsearch</groupId>
+			<artifactId>elasticsearch</artifactId>
+			<version>2.3.4</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.ilimi</groupId>
 			<artifactId>platform-dac</artifactId>
