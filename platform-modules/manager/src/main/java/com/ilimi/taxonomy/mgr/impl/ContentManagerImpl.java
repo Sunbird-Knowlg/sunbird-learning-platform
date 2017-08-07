@@ -947,7 +947,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 							ResponseCode.CLIENT_ERROR);
 				map.put("identifier", map.get("code"));
 			}
-			
+
 			if (StringUtils.isNotBlank((String) mimeType)) {
 				map.put(TaxonomyAPIParams.artifactMimeType.name(),
 						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
