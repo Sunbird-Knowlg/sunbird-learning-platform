@@ -125,7 +125,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Map<String, Object> getIndexDocument(Map<String, Object> message, Map<String, Object> definitionNode,
+	public Map<String, Object> getIndexDocument(Map<String, Object> message, Map<String, Object> definitionNode,
 			Map<String, String> relationDefinition, boolean updateRequest) throws IOException {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		String uniqueId = (String) message.get("nodeUniqueId");
