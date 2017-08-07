@@ -953,6 +953,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
 			}
 
+			if (StringUtils.isNotBlank((String) mimeType)) {
+				map.put(TaxonomyAPIParams.artifactMimeType.name(),
+						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
+			}
+
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
 				node.setObjectType(CONTENT_OBJECT_TYPE);
