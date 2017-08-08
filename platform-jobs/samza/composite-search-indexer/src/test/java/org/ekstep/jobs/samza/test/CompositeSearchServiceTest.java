@@ -10,8 +10,6 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.CompositeSearchIndexerService;
-import org.ekstep.jobs.samza.util.ElasticSearchUtil;
-import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
@@ -34,7 +32,6 @@ public class CompositeSearchServiceTest {
     String messageWithRemovedTags = "{\"ets\":1502174143305,\"nodeUniqueId\":\"do_1123058108461793281287\",\"requestId\":null,\"transactionData\":{\"removedTags\":[\"test_Content\"],\"addedTags\":[],\"properties\":{}},\"operationType\":\"UPDATE\",\"nodeGraphId\":110196,\"label\":\"name\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-08T06:35:43.305+0000\",\"objectType\":\"Content\"}";
     Map<String, Object> definitionNode = new HashMap<String, Object>();
 	static Map<String, String> relationDefinition = new HashMap<String, String>();
-	
 	static {
 		relationDefinition.put("OUT_Library_pre-requisite", "libraries");
 		relationDefinition.put("OUT_Concept_associatedTo", "concepts");
@@ -81,9 +78,9 @@ public class CompositeSearchServiceTest {
 		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
 		Client client = server.client();
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
-		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		util.add(event);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.searchById("org.ekstep.jul03.story.test01",CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Map<String, Object> result = util.findById("org.ekstep.jul03.story.test01");
 		assertEquals(result.get("graph_id"), "domain");
 		assertEquals(result.containsKey("ageGroup"), true);
 		assertEquals("EkStep", (String) result.get("owner"));
@@ -96,9 +93,9 @@ public class CompositeSearchServiceTest {
 		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
 		Client client = server.client();
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
-		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		util.add(event);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.searchById("do_112276071067320320114",CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Map<String, Object> result = util.findById("do_112276071067320320114");
 		assertEquals(result.get("graph_id"), "domain");
 		List<String> collection = (List<String>) result.get("collections");
 		assertEquals("do_1123032073439723521148", collection.get(0));
@@ -111,9 +108,9 @@ public class CompositeSearchServiceTest {
 		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
 		Client client = server.client();
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
-		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		util.add(event);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.searchById("do_1123032073439723521148",CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Map<String, Object> result = util.findById("do_1123032073439723521148");
 		assertEquals(result.get("graph_id"), "domain");
 		assertEquals(result.get("identifier"), "do_1123032073439723521148");
 		assertEquals(false,  result.containsKey("children"));
@@ -126,9 +123,9 @@ public class CompositeSearchServiceTest {
 		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
 		Client client = server.client();
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
-		util.add(event, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		util.add(event);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.searchById("do_1123058108461793281287", CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Map<String, Object> result = util.findById("do_1123058108461793281287");
 		assertEquals(result.get("graph_id"), "domain");
 		assertEquals(true, result.containsKey("tags"));
 		List<String> tags = (List)result.get("tags");
@@ -141,9 +138,9 @@ public class CompositeSearchServiceTest {
 		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
 		Client client = server.client();
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
-		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		util.add(event);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.searchById("do_1123058108461793281287", CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Map<String, Object> result = util.findById("do_1123058108461793281287");
 		assertEquals(result.get("graph_id"), "domain");
 		assertEquals(false, result.containsKey("tags"));
 	}	

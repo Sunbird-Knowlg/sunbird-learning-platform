@@ -7,7 +7,6 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 import org.ekstep.jobs.samza.service.AuditHistoryIndexerService;
-import org.ekstep.jobs.samza.util.ElasticSearchUtil;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
-import com.ilimi.dac.enums.AuditHistoryConstants;
 
 import info.aduna.io.FileUtil;
 
@@ -47,6 +45,7 @@ public class AuditHistoryIndexerServiceTest {
 		tempDir = new File(System.getProperty("user.dir") + "/tmp");
 		settings = Settings.builder()
 				.put("path.home", tempDir.getAbsolutePath())
+				.put("transport.tcp.port","9500")
 				.build();
 		server = NodeBuilder.nodeBuilder().settings(settings).build();
 		clusterName = server.settings().get("cluster.name");
@@ -86,7 +85,6 @@ public class AuditHistoryIndexerServiceTest {
 		assertEquals(properties.containsKey("count"), true);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void addRecordToEs() throws Exception {
 		server.start();
@@ -95,11 +93,9 @@ public class AuditHistoryIndexerServiceTest {
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
 		AuditHistoryTest(validMessage);
 		AuditHistoryRecord record = service.getAuditHistory(messageData);
-		Map<String,Object> map = mapper.convertValue(record, Map.class);
-		util.add(map ,AuditHistoryConstants.AUDIT_HISTORY_INDEX, AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE);
+		util.add(record);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.findAuditLogById(AuditHistoryConstants.AUDIT_HISTORY_INDEX,
-				AuditHistoryConstants.AUDIT_HISTORY_INDEX_TYPE);
+		Map<String, Object> result = util.findById("org.ekstep.jul03.story.test01");
 		assertEquals(result.get("graphId"), "domain");
 		assertEquals(result.containsKey("operation"), true);
 		server.close();
