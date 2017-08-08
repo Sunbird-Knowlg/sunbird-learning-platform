@@ -4,8 +4,8 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="DefaultLogAppender" fileName="/data/logs/learning_service.log"
-			filePattern="/data/logs/learning_service-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="DefaultLogAppender" fileName="/data/logs/learning_service_mw.log"
+			filePattern="/data/logs/learning_service_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -15,13 +15,13 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="learning_service-*.log" />
+                    <IfFileName glob="learning_service_mw-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
-		<RollingFile name="PerfLogAppender" fileName="/data/logs/perf.log"
-			filePattern="/data/logs/perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingFile name="PerfLogAppender" fileName="/data/logs/learning_perf_mw.log"
+			filePattern="/data/logs/learning_perf_mw-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] - %msg%n</Pattern>
 			</PatternLayout>
@@ -30,13 +30,13 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="perf-*.log" />
+                    <IfFileName glob="learning_perf_mw-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingFile>
-		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
-			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/learning_graph_event_mw.log"
+			filePattern="/data/logs/learning_graph_event_mw-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -45,13 +45,13 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="graph_event-*.log" />
+                    <IfFileName glob="learning_graph_event_mw-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>
 		</RollingRandomAccessFile>
-		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/telemetry_event.log"
-			filePattern="/data/logs/telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/learning_telemetry_event_mw.log"
+			filePattern="/data/logs/learning_telemetry_event_mw-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -60,7 +60,7 @@
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
-                    <IfFileName glob="telemetry_event-*.log" />
+                    <IfFileName glob="learning_telemetry_event_mw-*.log" />
                     <IfLastModified age="7d" />
                 </Delete>
             </DefaultRolloverStrategy>

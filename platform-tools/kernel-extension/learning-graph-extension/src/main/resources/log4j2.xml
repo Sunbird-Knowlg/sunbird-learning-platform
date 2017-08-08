@@ -4,8 +4,8 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="RollingFileAppender" fileName="/data/logs/graph.log"
-			filePattern="/data/logs/graph-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="RollingFileAppender" fileName="/data/logs/learning_service_neo4j.log"
+			filePattern="/data/logs/learning_service_neo4j-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
 				</Pattern>
@@ -15,8 +15,8 @@
 					modulate="true" />
 			</Policies>
 		</RollingFile>
-		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
-			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/learning_graph_event_neo4j.log"
+			filePattern="/data/logs/learning_graph_event_neo4j-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
