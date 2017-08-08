@@ -10,6 +10,8 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.CompositeSearchIndexerService;
+import org.ekstep.jobs.samza.util.ElasticSearchUtil;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
@@ -26,9 +28,24 @@ public class CompositeSearchServiceTest {
 
 	String validMessage = "{\"nodeUniqueId\":\"org.ekstep.jul03.story.test01\",\"requestId\":\"110dc48a-b0ee-4a64-b822-1053ab7ef276\",\"transactionData\":{\"properties\":{\"owner\":{\"ov\":null,\"nv\":\"EkStep\"},\"code\":{\"ov\":null,\"nv\":\"org.ekstep.jul03.story.test01\"},\"IL_SYS_NODE_TYPE\":{\"ov\":null,\"nv\":\"DATA_NODE\"},\"visibility\":{\"ov\":null,\"nv\":\"Default\"},\"os\":{\"ov\":null,\"nv\":[\"All\"]},\"subject\":{\"ov\":null,\"nv\":\"literacy\"},\"portalOwner\":{\"ov\":null,\"nv\":\"EkStep\"},\"description\":{\"ov\":null,\"nv\":\"शेर का साथी हाथी\"},\"language\":{\"ov\":null,\"nv\":[\"English\"]},\"mediaType\":{\"ov\":null,\"nv\":\"content\"},\"osId\":{\"ov\":null,\"nv\":\"org.ekstep.quiz.app\"},\"mimeType\":{\"ov\":null,\"nv\":\"application/vnd.ekstep.ecml-archive\"},\"ageGroup\":{\"ov\":null,\"nv\":[\"5-6\"]},\"idealScreenSize\":{\"ov\":null,\"nv\":\"normal\"},\"createdOn\":{\"ov\":null,\"nv\":\"2016-07-03T15:39:34.570+0530\"},\"idealScreenDensity\":{\"ov\":null,\"nv\":\"hdpi\"},\"gradeLevel\":{\"ov\":null,\"nv\":[\"Grade 1\"]},\"IL_FUNC_OBJECT_TYPE\":{\"ov\":null,\"nv\":\"Content\"},\"name\":{\"ov\":null,\"nv\":\"शेर का साथी हाथी\"},\"lastUpdatedOn\":{\"ov\":null,\"nv\":\"2016-07-03T15:39:34.570+0530\"},\"developer\":{\"ov\":null,\"nv\":\"EkStep\"},\"IL_UNIQUE_ID\":{\"ov\":null,\"nv\":\"org.ekstep.jul03.story.test01\"},\"contentType\":{\"ov\":null,\"nv\":\"Story\"},\"status\":{\"ov\":null,\"nv\":\"Mock\"}}},\"operationType\":\"CREATE\",\"nodeGraphId\":974,\"label\":\"शेर का साथी हाथी\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2016-07-03T15:39:34.570+0530\",\"objectType\":\"Content\"}";
 	String invalidMessage = "{\"requestId\":\"110dc48a-b0ee-4a64-b822-1053ab7ef276\",\"transactionData\":{\"properties\":{\"owner\":{\"ov\":null,\"nv\":\"EkStep\"},\"code\":{\"ov\":null,\"nv\":\"org.ekstep.jul03.story.test01\"},\"IL_SYS_NODE_TYPE\":{\"ov\":null,\"nv\":\"DATA_NODE\"},\"visibility\":{\"ov\":null,\"nv\":\"Default\"},\"os\":{\"ov\":null,\"nv\":[\"All\"]},\"subject\":{\"ov\":null,\"nv\":\"literacy\"},\"portalOwner\":{\"ov\":null,\"nv\":\"EkStep\"},\"description\":{\"ov\":null,\"nv\":\"शेर का साथी हाथी\"},\"language\":{\"ov\":null,\"nv\":[\"English\"]},\"mediaType\":{\"ov\":null,\"nv\":\"content\"},\"osId\":{\"ov\":null,\"nv\":\"org.ekstep.quiz.app\"},\"mimeType\":{\"ov\":null,\"nv\":\"application/vnd.ekstep.ecml-archive\"},\"ageGroup\":{\"ov\":null,\"nv\":[\"5-6\"]},\"idealScreenSize\":{\"ov\":null,\"nv\":\"normal\"},\"createdOn\":{\"ov\":null,\"nv\":\"2016-07-03T15:39:34.570+0530\"},\"idealScreenDensity\":{\"ov\":null,\"nv\":\"hdpi\"},\"gradeLevel\":{\"ov\":null,\"nv\":[\"Grade 1\"]},\"IL_FUNC_OBJECT_TYPE\":{\"ov\":null,\"nv\":\"Content\"},\"name\":{\"ov\":null,\"nv\":\"शेर का साथी हाथी\"},\"lastUpdatedOn\":{\"ov\":null,\"nv\":\"2016-07-03T15:39:34.570+0530\"},\"developer\":{\"ov\":null,\"nv\":\"EkStep\"},\"IL_UNIQUE_ID\":{\"ov\":null,\"nv\":\"org.ekstep.jul03.story.test01\"},\"contentType\":{\"ov\":null,\"nv\":\"Story\"},\"status\":{\"ov\":null,\"nv\":\"Mock\"}}},\"operationType\":\"CREATE\",\"nodeGraphId\":974,\"label\":\"शेर का साथी हाथी\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2016-07-03T15:39:34.570+0530\",\"objectType\":\"Content\"}";
-	String messageWithRelations = "{\"ets\":1502102183388,\"nodeUniqueId\":\"do_112276071067320320114\",\"requestId\":null,\"transactionData\":{\"removedTags\":[],\"addedRelations\":[{\"rel\":\"hasSequenceMember\",\"id\":\"do_1123032073439723521148\",\"label\":\"Test unit 11\",\"dir\":\"IN\",\"type\":\"Content\"}],\"removedRelations\":[],\"addedTags\":[],\"properties\":{}},\"operationType\":\"UPDATE\",\"nodeGraphId\":105631,\"label\":\"collaborator test\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-07T10:36:23.388+0000\",\"objectType\":\"Content\"}";
-
-	CompositeSearchIndexerService service = new CompositeSearchIndexerService();
+	String messageWithAddedRelations = "{\"ets\":1502102183388,\"nodeUniqueId\":\"do_112276071067320320114\",\"requestId\":null,\"transactionData\":{\"removedTags\":[],\"addedRelations\":[{\"rel\":\"hasSequenceMember\",\"id\":\"do_1123032073439723521148\",\"label\":\"Test unit 11\",\"dir\":\"IN\",\"type\":\"Content\"}],\"removedRelations\":[],\"addedTags\":[],\"properties\":{}},\"operationType\":\"UPDATE\",\"nodeGraphId\":105631,\"label\":\"collaborator test\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-07T10:36:23.388+0000\",\"objectType\":\"Content\"}";
+    String messageWithRemovedRelations = "{\"ets\":1502102183388,\"nodeUniqueId\":\"do_1123032073439723521148\",\"requestId\":null,\"transactionData\":{\"removedTags\":[],\"addedRelations\":[],\"removedRelations\":[{\"rel\":\"hasSequenceMember\",\"id\":\"do_11225638792242790415\",\"label\":\"collabarotor issue\",\"dir\":\"OUT\",\"type\":\"Content\"}],\"addedTags\":[],\"properties\":{}},\"operationType\":\"UPDATE\",\"nodeGraphId\":110067,\"label\":\"Test unit 11\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-07T10:36:23.388+0000\",\"objectType\":\"Content\"}";
+    String messageWithAddedTags = "{\"ets\":1502174143305,\"nodeUniqueId\":\"do_1123058108461793281287\",\"requestId\":null,\"transactionData\":{\"removedTags\":[],\"addedTags\":[\"test_Content\"],\"properties\":{}},\"operationType\":\"UPDATE\",\"nodeGraphId\":110196,\"label\":\"name\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-08T06:35:43.305+0000\",\"objectType\":\"Content\"}";
+    String messageWithRemovedTags = "{\"ets\":1502174143305,\"nodeUniqueId\":\"do_1123058108461793281287\",\"requestId\":null,\"transactionData\":{\"removedTags\":[\"test_Content\"],\"addedTags\":[],\"properties\":{}},\"operationType\":\"UPDATE\",\"nodeGraphId\":110196,\"label\":\"name\",\"graphId\":\"domain\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-08-08T06:35:43.305+0000\",\"objectType\":\"Content\"}";
+    Map<String, Object> definitionNode = new HashMap<String, Object>();
+	static Map<String, String> relationDefinition = new HashMap<String, String>();
+	
+	static {
+		relationDefinition.put("OUT_Library_pre-requisite", "libraries");
+		relationDefinition.put("OUT_Concept_associatedTo", "concepts");
+		relationDefinition.put("OUT_Content_associatedTo", "screenshots");
+		relationDefinition.put("OUT_Content_hasSequenceMember", "children");
+		relationDefinition.put("OUT_ItemSet_associatedTo", "item_sets");
+		relationDefinition.put("OUT_Method_associatedTo", "methods");
+		relationDefinition.put("IN_Content_hasSequenceMember", "collections");
+	}
+    
+    CompositeSearchIndexerService service = new CompositeSearchIndexerService();
 	static File tempDir = null;
 	static Settings settings = null;
 	static Node server = null;
@@ -64,9 +81,9 @@ public class CompositeSearchServiceTest {
 		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
 		Client client = server.client();
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
-		util.add(event);
+		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.findById("org.ekstep.jul03.story.test01");
+		Map<String, Object> result = util.searchById("org.ekstep.jul03.story.test01",CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
 		assertEquals(result.get("graph_id"), "domain");
 		assertEquals(result.containsKey("ageGroup"), true);
 		assertEquals("EkStep", (String) result.get("owner"));
@@ -74,28 +91,60 @@ public class CompositeSearchServiceTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void addRelationsToIndex() throws IOException, InterruptedException {
-		compositeSearchTest(messageWithRelations);
-		Map<String, Object> definitionNode = new HashMap<String, Object>();
-		Map<String, String> relationDefinition = new HashMap<String, String>();
-		relationDefinition.put("OUT_Library_pre-requisite", "libraries");
-		relationDefinition.put("OUT_Concept_associatedTo", "concepts");
-		relationDefinition.put("OUT_Content_associatedTo", "screenshots");
-		relationDefinition.put("OUT_Content_hasSequenceMember", "children");
-		relationDefinition.put("OUT_ItemSet_associatedTo", "item_sets");
-		relationDefinition.put("OUT_Method_associatedTo", "methods");
-		relationDefinition.put("IN_Content_hasSequenceMember", "collections");
-
+	public void processAddedRelationsToIndex() throws IOException, InterruptedException {
+		compositeSearchTest(messageWithAddedRelations);
 		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
 		Client client = server.client();
 		ElasticSearchUtil util = new ElasticSearchUtil(client);
-		util.add(event);
+		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
 		Thread.sleep(2000);
-		Map<String, Object> result = util.findById("do_112276071067320320114");
+		Map<String, Object> result = util.searchById("do_112276071067320320114",CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
 		assertEquals(result.get("graph_id"), "domain");
 		List<String> collection = (List<String>) result.get("collections");
 		assertEquals("do_1123032073439723521148", collection.get(0));
-
 	}
+	
 
+	@Test
+	public void processRemovedRelationsToIndex() throws IOException, InterruptedException {
+		compositeSearchTest(messageWithRemovedRelations);
+		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
+		Client client = server.client();
+		ElasticSearchUtil util = new ElasticSearchUtil(client);
+		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Thread.sleep(2000);
+		Map<String, Object> result = util.searchById("do_1123032073439723521148",CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		assertEquals(result.get("graph_id"), "domain");
+		assertEquals(result.get("identifier"), "do_1123032073439723521148");
+		assertEquals(false,  result.containsKey("children"));
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	public void processAddedTags() throws IOException, InterruptedException {
+		compositeSearchTest(messageWithAddedTags);
+		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
+		Client client = server.client();
+		ElasticSearchUtil util = new ElasticSearchUtil(client);
+		util.add(event, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Thread.sleep(2000);
+		Map<String, Object> result = util.searchById("do_1123058108461793281287", CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		assertEquals(result.get("graph_id"), "domain");
+		assertEquals(true, result.containsKey("tags"));
+		List<String> tags = (List)result.get("tags");
+		assertEquals("test_Content", tags.get(0));
+	}
+	
+	@Test
+	public void processRemovedTagsTags() throws IOException, InterruptedException {
+		compositeSearchTest(messageWithRemovedTags);
+		Map<String, Object> event = service.getIndexDocument(messageData, definitionNode, relationDefinition, false);
+		Client client = server.client();
+		ElasticSearchUtil util = new ElasticSearchUtil(client);
+		util.add(event,CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		Thread.sleep(2000);
+		Map<String, Object> result = util.searchById("do_1123058108461793281287", CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE);
+		assertEquals(result.get("graph_id"), "domain");
+		assertEquals(false, result.containsKey("tags"));
+	}	
 }
