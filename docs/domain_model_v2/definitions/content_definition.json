@@ -2363,7 +2363,8 @@
 					"lastFlaggedOn",
 					"flags",
 					"author",
-					"createdBy"
+					"createdBy",
+					"artifactMimeType"
 				]
 			}
 		}

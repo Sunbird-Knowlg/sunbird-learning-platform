@@ -953,6 +953,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
 			}
 
+			map.remove(TaxonomyAPIParams.artifactMimeType.name());
 			if (StringUtils.isNotBlank((String) mimeType)) {
 				map.put(TaxonomyAPIParams.artifactMimeType.name(),
 						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
@@ -1015,9 +1016,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		map.put("objectType", CONTENT_OBJECT_TYPE);
 		map.put("identifier", contentId);
 
-		if (null != map.get(TaxonomyAPIParams.mimeType.name())) {
+		map.remove(TaxonomyAPIParams.artifactMimeType.name());
+		String mimeType = (String) map.get(TaxonomyAPIParams.mimeType.name());
+		if (StringUtils.isNotBlank(mimeType)) {
 			map.put(TaxonomyAPIParams.artifactMimeType.name(),
-					ArtifactMimeTypeMap.getArtifactMimeType((String) map.get(TaxonomyAPIParams.mimeType.name())));
+					ArtifactMimeTypeMap.getArtifactMimeType(mimeType));
 		}
 
 		boolean isImageObjectCreationNeeded = false;
