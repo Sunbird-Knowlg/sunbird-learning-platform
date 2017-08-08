@@ -575,6 +575,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		PlatformLogger.log("Body Fetched From Content Store.");
+		
+		PlatformLogger.log("Putting the last Submitted On TimeStamp.");
+		node.getMetadata().put(TaxonomyAPIParams.lastSubmittedOn.name(), DateUtils.formatCurrentDate());
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (StringUtils.isBlank(mimeType)) {
