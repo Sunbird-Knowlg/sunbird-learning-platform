@@ -948,11 +948,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				map.put("identifier", map.get("code"));
 			}
 
-			if (StringUtils.isNotBlank((String) mimeType)) {
-				map.put(TaxonomyAPIParams.artifactMimeType.name(),
-						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
-			}
-
 			map.remove(TaxonomyAPIParams.artifactMimeType.name());
 			if (StringUtils.isNotBlank((String) mimeType)) {
 				map.put(TaxonomyAPIParams.artifactMimeType.name(),

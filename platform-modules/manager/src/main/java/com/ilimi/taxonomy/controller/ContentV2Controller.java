@@ -206,62 +206,6 @@ public class ContentV2Controller extends BaseController {
 		}
 	}
 
-	/**
-	 * This method fetches the Content by Content Id
-	 *
-	 * @param contentId
-	 *            The Content Id whose hierarchy needs to be fetched
-	 * @return The Response entity with Content hierarchy in the result set
-	 */
-	@RequestMapping(value = "/getbyid/{id:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> getById(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "fields", required = false) String[] fields,
-			@RequestParam(value = "mode", required = false) String mode) {
-		String apiId = "content.getById";
-		Response response;
-		PlatformLogger.log("Content GetById | Content Id : " + contentId);
-		try {
-			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
-			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
-//	@SuppressWarnings("unchecked")
-//	@RequestMapping(value = "/create", method = RequestMethod.POST)
-//	@ResponseBody
-//	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
-//		String apiId = "content.create.java";
-//		Request request = getRequest(requestMap);
-//		try {
-//			Map<String, Object> map = (Map<String, Object>) request.get("content");
-//			Response response = contentManager.createContent(map);
-//			return getResponseEntity(response, apiId, null);
-//		} catch (Exception e) {
-//			return getExceptionResponseEntity(e, apiId, null);
-//		}
-//	}
-
-//	@SuppressWarnings("unchecked")
-//	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
-//	@ResponseBody
-//	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
-//			@RequestBody Map<String, Object> requestMap) {
-//		String apiId = "content.update.java";
-//		Request request = getRequest(requestMap);
-//		try {
-//			Map<String, Object> map = (Map<String, Object>) request.get("content");
-//			Response response = contentManager.updateContent(contentId, map);
-//			return getResponseEntity(response, apiId, null);
-//		} catch (Exception e) {
-//			PlatformLogger.log("Exception", e.getMessage(), e);
-//			return getExceptionResponseEntity(e, apiId, null);
-//		}
-//	}
-	
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
