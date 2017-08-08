@@ -187,7 +187,7 @@ public class BasePlaySearchManager extends Results {
 		String queryString = (String) request.get(CompositeSearchParams.query.name());
 		Object filters = request.get(CompositeSearchParams.filters.name());
 		Object sort = request.get(CompositeSearchParams.sort_by.name());
-		LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count);
+		LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count,request);
 	}
 
 	public Promise<Result> getSearchResponse(Response searchResult, Request req) {

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.TelemetryBEAccessEvent;
 import com.ilimi.common.dto.TelemetryBEEvent;
 import com.ilimi.common.logger.PlatformLogger;
@@ -58,17 +59,22 @@ public class LogTelemetryEventUtil {
 		return jsonMessage;
 	}
 
-	public static String logContentSearchEvent(String query, Object filters, Object sort, String correlationId, int size) {
+	public static String logContentSearchEvent(String query, Object filters, Object sort, String correlationId, int size, Request req) {
 		TelemetryBEEvent te = new TelemetryBEEvent();
-		long unixTime = System.currentTimeMillis();
-		te.setEid("BE_CONTENT_SEARCH");
-		te.setEts(unixTime);
-		te.setMid(mid);
-		te.setVer("2.0");
-		te.setPdata("org.ekstep.search.platform", "", "1.0", "");
-		te.setEdata(query, filters, sort, correlationId, size);
 		String jsonMessage = null;
 		try {
+			long unixTime = System.currentTimeMillis();
+			te.setEid("BE_CONTENT_SEARCH");
+			te.setEts(unixTime);
+			te.setMid(mid);
+			te.setVer("2.0");
+			if(null != req && null != req.getParams() && !StringUtils.isBlank(req.getParams().getDid())){
+				te.setPdata("org.ekstep.search.platform",req.getParams().getDid() , "1.0", "");
+			}else {
+				te.setPdata("org.ekstep.search.platform","" , "1.0", "");
+			}
+			te.setEdata(query, filters, sort, correlationId, size);
+	
 			jsonMessage = mapper.writeValueAsString(te);
 			if (StringUtils.isNotBlank(jsonMessage))
 				telemetryEventLogger.info(jsonMessage);
@@ -86,7 +92,7 @@ public class LogTelemetryEventUtil {
 		te.setEts(unixTime);
 		te.setMid(mid);
 		te.setVer("2.0");
-		te.setPdata("org.ekstep.content.platform", "", "1.0", "");
+		te.setPdata("org.ekstep.content.platform", accessData.getContext().get("did"), "1.0", "");
 		String jsonMessage = null;
 		try {
 		Map<String, Object> eData = mapper.convertValue(accessData, Map.class);
