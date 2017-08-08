@@ -51,31 +51,68 @@ public class ContentV3Controller extends BaseController {
 
 	private String DOT = ".";
 
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/create", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.create";
+		PlatformLogger.log("Executing Content Create API (Java Version) (API Version V3).", requestMap, "INFO");
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
+			Response response = contentManager.createContent(map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.update";
+		PlatformLogger.log(
+				"Executing Content Update API (Java Version) (API Version V3) For Content Id: " + contentId + ".",
+				requestMap, "INFO");
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
+			Response response = contentManager.updateContent(contentId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Exception", e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
 	/**
-	 * This method carries all the tasks related to 'Upload' operation of
-	 * content work-flow.
+	 * This method carries all the tasks related to 'Upload' operation of content
+	 * work-flow.
 	 * 
 	 *
 	 * @param contentId
-	 *            The Content Id for which the Content Package needs to be
-	 *            Uploaded.
+	 *            The Content Id for which the Content Package needs to be Uploaded.
 	 * @param file
 	 *            The Content Package File
 	 * @param userId
-	 *            Unique id of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique id of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam(value = "fileUrl", required = false) String fileUrl) {
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "fileUrl", required = false) String fileUrl) {
 		String apiId = "ekstep.learning.content.upload";
 		PlatformLogger.log("Upload Content | Content Id: " + contentId);
 		if (StringUtils.isBlank(fileUrl) && null == file) {
 			return getExceptionResponseEntity(
 					new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_RESOURCE.name(),
-							"File or fileUrl should be available."), apiId, null);
+							"File or fileUrl should be available."),
+					apiId, null);
 		} else {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
@@ -83,8 +120,8 @@ public class ContentV3Controller extends BaseController {
 					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
-					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE + System.currentTimeMillis()
-					+ DOT + FilenameUtils.getExtension(file.getOriginalFilename());
+					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + UNDERSCORE
+							+ System.currentTimeMillis() + DOT + FilenameUtils.getExtension(file.getOriginalFilename());
 					File uploadedFile = new File(name);
 					file.transferTo(uploadedFile);
 					uploadedFile = new File(name);
@@ -97,23 +134,21 @@ public class ContentV3Controller extends BaseController {
 				return getExceptionResponseEntity(e, apiId, null);
 			}
 		}
-		
-		
-		
+
 	}
 
 	/**
-	 * This method carries all the tasks related of bundling the contents into
-	 * one package, It includes all the operations valid for the Publish
-	 * operation but without making the status of content as 'Live'. i.e. It
-	 * bundles content of all status with a 'expiry' date.
+	 * This method carries all the tasks related of bundling the contents into one
+	 * package, It includes all the operations valid for the Publish operation but
+	 * without making the status of content as 'Live'. i.e. It bundles content of
+	 * all status with a 'expiry' date.
 	 *
 	 * @param map
 	 *            the map contains the parameter for creating the Bundle e.g.
 	 *            "identifier" List.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with a Bundle URL in its Result Set.
 	 */
 	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
@@ -135,16 +170,15 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Publish' operation of
-	 * content work-flow.
+	 * This method carries all the tasks related to 'Publish' operation of content
+	 * work-flow.
 	 *
 	 * @param contentId
 	 *            The Content Id which needs to be published.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id and ECAR URL in its Result
-	 *         Set.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
+	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
@@ -175,14 +209,14 @@ public class ContentV3Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Review' operation of
-	 * content work-flow.
+	 * This method carries all the tasks related to 'Review' operation of content
+	 * work-flow.
 	 *
 	 * @param contentId
 	 *            The Content Id which needs to be published.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/review/{id:.+}", method = RequestMethod.POST)
@@ -274,7 +308,7 @@ public class ContentV3Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
 	@ResponseBody

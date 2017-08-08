@@ -42,7 +42,6 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 public class ContentV2Controller extends BaseController {
 
 	/** The Class Logger. */
-	
 
 	@Autowired
 	private IContentManager contentManager;
@@ -51,30 +50,93 @@ public class ContentV2Controller extends BaseController {
 	private String graphId = "domain";
 
 	/**
-	 * This method carries all the tasks related to 'Upload' operation of
-	 * content work-flow.
+	 * This method fetches the Content by Content Id
+	 *
+	 * @param contentId
+	 *            The Content Id whose hierarchy needs to be fetched
+	 * @return The Response entity with Content hierarchy in the result set
+	 */
+	@RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
+			@RequestParam(value = "mode", required = false) String mode) {
+		String apiId = "ekstep.learning.content.info";
+		PlatformLogger.log(
+				"Executing Content Get API (Java Version) (API Version V2) For Content Id: " + contentId + ".", null,
+				"INFO");
+		Response response;
+		PlatformLogger.log("Content GetById | Content Id : " + contentId);
+		try {
+			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
+			response = contentManager.find(graphId, contentId, mode, null);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.create";
+		PlatformLogger.log("Executing Content Create API (Java Version) (API Version V2).", requestMap, "INFO");
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
+			Response response = contentManager.createContent(map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.update";
+		PlatformLogger.log(
+				"Executing Content Update API (Java Version) (API Version V2) For Content Id: " + contentId + ".",
+				requestMap, "INFO");
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
+			Response response = contentManager.updateContent(contentId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Exception", e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * This method carries all the tasks related to 'Upload' operation of content
+	 * work-flow.
 	 * 
 	 *
 	 * @param contentId
-	 *            The Content Id for which the Content Package needs to be
-	 *            Uploaded.
+	 *            The Content Id for which the Content Package needs to be Uploaded.
 	 * @param file
 	 *            The Content Package File
 	 * @param userId
-	 *            Unique id of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique id of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "file", required = false) MultipartFile file, @RequestParam(value = "fileUrl", required = false) String fileUrl) {
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "fileUrl", required = false) String fileUrl) {
 		String apiId = "ekstep.learning.content.upload";
 		PlatformLogger.log("Upload Content | Content Id: " + contentId);
 		if (StringUtils.isBlank(fileUrl) && null == file) {
 			return getExceptionResponseEntity(
 					new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_RESOURCE.name(),
-							"File or fileUrl should be available."), apiId, null);
+							"File or fileUrl should be available."),
+					apiId, null);
 		} else {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
@@ -82,32 +144,31 @@ public class ContentV2Controller extends BaseController {
 					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
-					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
-							+ FilenameUtils.getExtension(file.getOriginalFilename());
+					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_"
+							+ System.currentTimeMillis() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
 					File uploadedFile = new File(name);
 					file.transferTo(uploadedFile);
 					Response response = contentManager.upload(contentId, "domain", uploadedFile);
-					PlatformLogger.log("Upload | Response: " , response);
+					PlatformLogger.log("Upload | Response: ", response);
 					return getResponseEntity(response, apiId, null);
 				}
 			} catch (Exception e) {
-				PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
+				PlatformLogger.log("Upload | Exception: ", e.getMessage(), e);
 				return getExceptionResponseEntity(e, apiId, null);
 			}
 		}
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Publish' operation of
-	 * content work-flow.
+	 * This method carries all the tasks related to 'Publish' operation of content
+	 * work-flow.
 	 *
 	 * @param contentId
 	 *            The Content Id which needs to be published.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id and ECAR URL in its Result
-	 *         Set.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
+	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
 	 */
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
@@ -125,14 +186,14 @@ public class ContentV2Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Optimize' operation of
-	 * content work-flow. This includes compressing images, audio and videos.
+	 * This method carries all the tasks related to 'Optimize' operation of content
+	 * work-flow. This includes compressing images, audio and videos.
 	 *
 	 * @param contentId
 	 *            Content Id which needs to be optimized.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
@@ -151,17 +212,17 @@ public class ContentV2Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related of bundling the contents into
-	 * one package, It includes all the operations valid for the Publish
-	 * operation but without making the status of content as 'Live'. i.e. It
-	 * bundles content of all status with a 'expiry' date.
+	 * This method carries all the tasks related of bundling the contents into one
+	 * package, It includes all the operations valid for the Publish operation but
+	 * without making the status of content as 'Live'. i.e. It bundles content of
+	 * all status with a 'expiry' date.
 	 *
 	 * @param map
 	 *            the map contains the parameter for creating the Bundle e.g.
 	 *            "identifier" List.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with a Bundle URL in its Result Set.
 	 */
 	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
@@ -217,8 +278,10 @@ public class ContentV2Controller extends BaseController {
 		try {
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			if(null==requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())){
-				return getExceptionResponseEntity(new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"), apiId, null);
+			if (null == requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())) {
+				return getExceptionResponseEntity(
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"),
+						apiId, null);
 			}
 			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
 			return getResponseEntity(response, apiId, null);
@@ -226,7 +289,7 @@ public class ContentV2Controller extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
 	@ResponseBody
