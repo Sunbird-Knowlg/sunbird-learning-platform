@@ -608,49 +608,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return response;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Response find(String graphId, String contentId, String mode, List<String> fields) {
-		PlatformLogger.log("Graph Id: ", graphId);
-		PlatformLogger.log("Content Id: ", contentId);
-		Response response = new Response();
-
-		Node node = getContentNode(graphId, contentId, mode);
-
-		PlatformLogger.log("Fetching the Data For Content Id: " + node.getIdentifier());
-		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
-		List<String> externalPropsList = getExternalPropsList(definition);
-		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
-
-		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
-			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
-			if (!checkError(getContentPropsRes)) {
-				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
-						.get(TaxonomyAPIParams.values.name());
-				if (null != resProps)
-					contentMap.putAll(resProps);
-			}
-		}
-
-		// Get all the languages for a given Content
-		List<String> languages = convertStringArrayToList(
-				(String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
-
-		// Eval the language code for all Content Languages
-		List<String> languageCodes = new ArrayList<String>();
-		for (String language : languages)
-			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
-		if (null != languageCodes && languageCodes.size() == 1)
-			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
-		else
-			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
-
-		response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
-		response.setParams(getSucessStatus());
-		return response;
-	}
-
 	protected ResponseParams getSucessStatus() {
 		ResponseParams params = new ResponseParams();
 		params.setErr("0");
@@ -949,9 +906,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 
 			map.remove(TaxonomyAPIParams.artifactMimeType.name());
-			if (StringUtils.isNotBlank((String) mimeType))
+			if (StringUtils.isNotBlank((String) mimeType)) {
 				map.put(TaxonomyAPIParams.artifactMimeType.name(),
 						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
+			}
 
 			try {
 				Node node = ConvertToGraphNode.convertToGraphNode(map, definition, null);
@@ -978,27 +936,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	@SuppressWarnings("unused")
-	public Response update(String contentId, Map<String, Object> requestMap) {
-		PlatformLogger.log("Content Id: " + contentId);
-		PlatformLogger.log("Request Map: " + requestMap);
-
-		if (StringUtils.isBlank(contentId))
-			throw new ClientException(TaxonomyErrorCodes.INVALID_CONTENT_ID.name(),
-					"Error! Invalid Content Identifier. | [Invalid or 'null' Content Identifier]");
-		if (null == requestMap || requestMap.isEmpty())
-			throw new ClientException(TaxonomyErrorCodes.INVALID_REQUEST.name(),
-					"Error! Invalid Request Body. | [Invalid or 'null' Request Body]");
-
-		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-		String contentStatus = "";
-		String contentImageStatus = "";
-
-		Response response = new Response();
-
-		return response;
-	}
-
 	@SuppressWarnings("unchecked")
 	public Response updateContent(String contentId, Map<String, Object> map) throws Exception {
 		if (null == map)
@@ -1012,9 +949,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		map.remove(TaxonomyAPIParams.artifactMimeType.name());
 		String mimeType = (String) map.get(TaxonomyAPIParams.mimeType.name());
-		if (StringUtils.isNotBlank(mimeType))
-			map.put(TaxonomyAPIParams.artifactMimeType.name(),
-					ArtifactMimeTypeMap.getArtifactMimeType(mimeType));
+		if (StringUtils.isNotBlank(mimeType)) {
+			map.put(TaxonomyAPIParams.artifactMimeType.name(), ArtifactMimeTypeMap.getArtifactMimeType(mimeType));
+		}
 
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
@@ -1123,6 +1060,51 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				return externalPropsResponse;
 		}
 		return createResponse;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response find(String graphId, String contentId, String mode, List<String> fields) {
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Content Id: ", contentId);
+		Response response = new Response();
+
+		Node node = getContentNode(graphId, contentId, mode);
+
+		PlatformLogger.log("Fetching the Data For Content Id: " + node.getIdentifier());
+		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
+		List<String> externalPropsList = getExternalPropsList(definition);
+		if (null == fields)
+			fields = new ArrayList<String>();
+		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
+
+		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
+			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
+			if (!checkError(getContentPropsRes)) {
+				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
+						.get(TaxonomyAPIParams.values.name());
+				if (null != resProps)
+					contentMap.putAll(resProps);
+			}
+		}
+
+		// Get all the languages for a given Content
+		List<String> languages = convertStringArrayToList(
+				(String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
+
+		// Eval the language code for all Content Languages
+		List<String> languageCodes = new ArrayList<String>();
+		for (String language : languages)
+			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
+		if (null != languageCodes && languageCodes.size() == 1)
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
+		else
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
+
+		response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
+		response.setParams(getSucessStatus());
+		return response;
 	}
 
 	public Response updateAllContentNodes(String originalId, Map<String, Object> map) throws Exception {
