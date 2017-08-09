@@ -809,7 +809,8 @@
           "list": "next_item,correct_response,wrong_response"
         },
         "g": [
-         
+                  {
+            "embed": {        
               "template-name": "retry"
             },
             "x": 30,
