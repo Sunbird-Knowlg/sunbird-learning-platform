@@ -230,6 +230,7 @@
 					"category": "Technical",
 					"displayProperty": "Editable",
 					"range": [
+						"application/vnd.ekstep.ecml-archive+zip",
 						"application/vnd.ekstep.html-archive+zip",
 						"application/vnd.android.package-archive+zip",
 						"application/vnd.ekstep.content-archive+zip",
