@@ -185,6 +185,10 @@
 						"application/vnd.ekstep.content-archive",
 						"application/vnd.ekstep.content-collection",
 						"application/vnd.ekstep.plugin-archive",
+						"application/vnd.ekstep.h5p-archive",
+						"application/epub",
+						"text/x-url",
+						"video/x-youtube",
 						"application/octet-stream",
 						"application/msword",
 						"application/pdf",
@@ -218,7 +222,7 @@
 					"draft": false
 				},
 				{
-					"required": true,
+					"required": false,
 					"dataType": "Select",
 					"propertyName": "artifactMimeType",
 					"title": "Artifact Mime Type",
