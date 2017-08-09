@@ -2778,9 +2778,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		if(words!=null)
 			meaningMap.put(LanguageParams.words.name(), words);
 		
-		// set synset metadata
-		synset.setMetadata(meaningMap);
-
 		Relation mainWordSynRel = getSynonymRelationOf(mainWordId,
 				wordUtil.getSynonymRelations(synset.getOutRelations()));
 		//set primary Meaning flag in synonym relation
@@ -2796,7 +2793,11 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 
 			relMetadata.put(ATTRIB_EXAMPLE_SENTENCES, meaningMap.get(ATTRIB_EXAMPLE_SENTENCES));
+			meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 		}
+		
+		// set synset metadata
+		synset.setMetadata(meaningMap);
 		
 		return synset;
 
@@ -3352,7 +3353,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 
 		DefinitionDTO synsetDefinition = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
 		DefinitionDTO wordDefinition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
-
+		
 		try {
 			List<Map<String, Object>> wordRecords = readWordsFromCSV(languageId, wordStream, wordDefinition,
 					synsetDefinition);
@@ -3374,15 +3375,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 				nodeIds.addAll(lstNodeId);
 			}
-			asyncUpdate(nodeIds, languageId);
-			Response response = new Response();
-			ResponseParams params = new ResponseParams();
-			response.put(LanguageParams.status.name(), "Bulk Word update Successful!");
-			response.setResponseCode(ResponseCode.OK);
-			response.setParams(params);
-			params.setStatus(CompositeSearchParams.success.name());
-			response.setParams(params);
-
+			if(nodeIds.size()>0)
+				asyncUpdate(nodeIds, languageId);
+			return OK("errors", errorMessages);
 		} catch (ClientException e) {
 			PlatformLogger.log("ClientException", e.getMessage(), e);
 			return ERROR(LanguageErrorCodes.ERR_INVALID_UPLOAD_FILE.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
@@ -3391,7 +3386,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		}
 
-		return null;
 	}
 
 	private List<Map<String, Object>> readWordsFromCSV(String languageId, InputStream inputStream,
