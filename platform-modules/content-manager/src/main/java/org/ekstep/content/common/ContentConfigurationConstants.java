@@ -97,7 +97,16 @@ public class ContentConfigurationConstants {
 	public static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 	
 	public static final String CONTENT_IMAGE_OBJECT_TYPE = "ContentImage";
+	
+	public static final String DEFAULT_H5P_JSON_FILE_LOCATION = "h5p.json";
+	
+	public static final String DEFAULT_MAIN_HTML_FILE_NAME = "index.html";
+	
+	public static final String DEFAULT_H5P_LIBRARY_PATH = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/do_1123065453166919681386/artifact/h5plibrary_1502263860287.zip";
 
+	public static final String DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY = "content.h5p.library.path";
+	
+	public static final String DEFAULT_H5P_LIBRARY_LOCAL_LOCATION_NAME = "H_FIVE_P_COMMON_LIBRARY";
 	/**
 	 * The Constant AWS_UPLOAD_RESULT_URL_INDEX is value of array index where
 	 * the S3 URL is loaded.

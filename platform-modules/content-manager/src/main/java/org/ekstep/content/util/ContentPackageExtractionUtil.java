@@ -21,6 +21,7 @@ import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
+import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ExtractionType;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
@@ -38,7 +39,6 @@ import com.ilimi.graph.dac.model.Node;
 public class ContentPackageExtractionUtil {
 
 	/** The logger. */
-	
 
 	/** The Constant AWS_UPLOAD_RESULT_URL_INDEX. */
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
@@ -48,7 +48,7 @@ public class ContentPackageExtractionUtil {
 
 	/** The Constant s3Content. */
 	private static final String S3_CONTENT = "s3.content.folder";
-	
+
 	private static final String S3_BUCKET_PREFIX = "s3.bucket.";
 
 	/** The Constant S3_ENVIRONMENT. */
@@ -60,13 +60,21 @@ public class ContentPackageExtractionUtil {
 	/** The Constant TEMP_FILE_LOCATION. */
 	private static final String TEMP_FILE_LOCATION = "/data/contentBundle/";
 
+	private static final String H5P_MIMETYPE = "application/vnd.ekstep.h5p-archive";
+
 	/** The extractable mime types. */
 	private static Map<String, String> extractableMimeTypes = new HashMap<String, String>();
+	private static Map<String, String> extractablePackageExtensions = new HashMap<String, String>();
 
 	static {
 		extractableMimeTypes.put("application/vnd.ekstep.ecml-archive", "ECML Type Content");
 		extractableMimeTypes.put("application/vnd.ekstep.html-archive", "HTML Type Content");
 		extractableMimeTypes.put("application/vnd.ekstep.plugin-archive", "Plugin Type Content");
+		extractableMimeTypes.put("application/vnd.ekstep.h5p-archive", "H5P Type Content");
+
+		extractablePackageExtensions.put(".zip", "Zip File");
+		extractablePackageExtensions.put(".h5p", "H5P File");
+		extractablePackageExtensions.put(".epub", "EPUB File");
 	}
 
 	public void copyExtractedContentPackage(String contentId, Node node, ExtractionType extractionType) {
@@ -86,28 +94,28 @@ public class ContentPackageExtractionUtil {
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (extractableMimeTypes.containsKey(mimeType)) {
-			
+
 			// Checking if the Snapshost Extraction of Content is in place or not
 			if (!isExtractedSnapshotExist(node, extractionType))
 				throw new ClientException(ContentErrorCodes.INVALID_SNAPSHOT.name(),
 						"Error! Snapshot Type Extraction doesn't Exists.");
-			
+
 			// Fetching Environment Name
 			String s3Environment = S3PropertyReader.getProperty(S3_ENVIRONMENT);
 			PlatformLogger.log("Currently Working Environment: " + s3Environment);
-			
+
 			// Fetching Bucket Name
 			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET_PREFIX + s3Environment);
 			PlatformLogger.log("Current Storage Space Bucket Name: " + s3Bucket);
-			
-			// Fetching Source Prefix For Copy Objects in S3 
+
+			// Fetching Source Prefix For Copy Objects in S3
 			String sourcePrefix = getExtractionPath(contentId, node, ExtractionType.snapshot);
 			PlatformLogger.log("Source Prefix: " + sourcePrefix);
 
 			// Fetching Destination Prefix For Copy Objects in S3
 			String destinationPrefix = getExtractionPath(contentId, node, extractionType);
 			PlatformLogger.log("Source Prefix: " + destinationPrefix);
-			
+
 			// Copying Objects
 			PlatformLogger.log("Copying Objects...STARTED");
 			ExecutorService pool = null;
@@ -178,7 +186,8 @@ public class ContentPackageExtractionUtil {
 				// Extract Content Package
 				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
-				PlatformLogger.log("Error! While Unzipping the Content Package [Content Package Extraction to Storage Space]",
+				PlatformLogger.log(
+						"Error! While Unzipping the Content Package [Content Package Extraction to Storage Space]",
 						e.getMessage(), e);
 			} finally {
 				try {
@@ -187,7 +196,8 @@ public class ContentPackageExtractionUtil {
 					if (dir.exists())
 						dir.delete();
 				} catch (SecurityException e) {
-					PlatformLogger.log("Error! While Deleting the Local Download Directory: " + contentPackageDownloadPath,
+					PlatformLogger.log(
+							"Error! While Deleting the Local Download Directory: " + contentPackageDownloadPath,
 							e.getMessage(), e);
 				} catch (Exception e) {
 					PlatformLogger.log("Error! Something Went Wrong While Deleting the Local Download Directory: "
@@ -207,10 +217,12 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	public void extractContentPackage(String contentId, Node node, File uploadedFile, ExtractionType extractionType, boolean slugFile) {
+	public void extractContentPackage(String contentId, Node node, File uploadedFile, ExtractionType extractionType,
+			boolean slugFile) {
 		uploadedFile = Slug.createSlugFile(uploadedFile);
 		PlatformLogger.log("Node: " + node);
-		PlatformLogger.log("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - " + uploadedFile.getAbsolutePath());
+		PlatformLogger.log("Uploaded File: " + uploadedFile.getName() + " - " + uploadedFile.exists() + " - "
+				+ uploadedFile.getAbsolutePath());
 		PlatformLogger.log("Extraction Type: " + extractionType);
 
 		// Validating the Parameters
@@ -223,7 +235,7 @@ public class ContentPackageExtractionUtil {
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		PlatformLogger.log("Mime Type: " + mimeType);
 		if (!uploadedFile.exists()
-				|| (!StringUtils.endsWithIgnoreCase(uploadedFile.getName(), ContentAPIParams.zip.name())
+				|| (!isValidSnapshotFile(uploadedFile.getName())
 						&& extractableMimeTypes.containsKey(mimeType)))
 			throw new ClientException(ContentErrorCodes.INVALID_FILE.name(), "Error! File doesn't Exist.");
 
@@ -236,18 +248,51 @@ public class ContentPackageExtractionUtil {
 			PlatformLogger.log("Given Content Belongs to Extractable MimeType Category.");
 			String extractionBasePath = getBasePath(contentId);
 			try {
-				// UnZip the Content Package
 				UnzipUtility unzipUtility = new UnzipUtility();
-				unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
+				if (StringUtils.equalsIgnoreCase(H5P_MIMETYPE,
+						(String) node.getMetadata().get(ContentAPIParams.mimeType.name()))) {
+					// Download the H5P Libraries
+					String h5pLibraryDownloadPath = getBasePath(contentId);
+					File h5pLibraryPackageFile = HttpDownloadUtility.downloadFile(getH5PLibraryPath(),
+							h5pLibraryDownloadPath);
+					// Un-Zip the H5P Library Files
+					unzipUtility.unzip(h5pLibraryPackageFile.getAbsolutePath(), extractionBasePath);
+					// Cleanup
+					try {
+						FileUtils.deleteDirectory(new File(h5pLibraryDownloadPath));
+					} catch (Exception e) {
+						PlatformLogger.log("Unable to Delete H5P Library Directory.", null, e);
+					}
+					// UnZip the Content Package
+					unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath + "/content");
+				} else
+				{
+					// UnZip the Content Package
+					unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
+				}
+
+				
 
 				// Extract Content Package
 				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
 			} catch (IOException e) {
 				PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
 			} catch (Exception e) {
-				PlatformLogger.log("Error! Something Went Wrong While Extracting the Content Package File.", e.getMessage(), e);
+				PlatformLogger.log("Error! Something Went Wrong While Extracting the Content Package File.",
+						e.getMessage(), e);
 			}
 		}
+	}
+
+	private String getH5PLibraryPath() {
+		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
+		if (StringUtils.isBlank(path)) {
+			path = ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH;
+			PlatformLogger.log("H5P Library Path is not set in Properties File. So Taking the default value.", path,
+					"INFO");
+		}
+		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
+		return path;
 	}
 
 	/**
@@ -260,7 +305,8 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	private void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType, boolean slugFile) {
+	private void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
+			boolean slugFile) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String awsFolderPath = "";
 		try {
@@ -292,9 +338,11 @@ public class ContentPackageExtractionUtil {
 				if (dir.exists())
 					dir.delete();
 			} catch (SecurityException e) {
-				PlatformLogger.log("Error! While Deleting the Local Extraction Directory: " + basePath, e.getMessage(), e);
+				PlatformLogger.log("Error! While Deleting the Local Extraction Directory: " + basePath, e.getMessage(),
+						e);
 			} catch (Exception e) {
-				PlatformLogger.log("Error! Something Went Wrong While Deleting the Local Extraction Directory: " + basePath,
+				PlatformLogger.log(
+						"Error! Something Went Wrong While Deleting the Local Extraction Directory: " + basePath,
 						e.getMessage(), e);
 			}
 		}
@@ -361,7 +409,7 @@ public class ContentPackageExtractionUtil {
 						String path = getFolderPath(file, basePath);
 						if (StringUtils.isNotBlank(path))
 							folderName += File.separator + path;
-						PlatformLogger.log("Folder Name For Storage Space Extraction: " , folderName);
+						PlatformLogger.log("Folder Name For Storage Space Extraction: ", folderName);
 						String[] uploadedFileUrl = AWSUploader.uploadFile(folderName, file, slugFile);
 						if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 							uploadMap.put(file.getAbsolutePath(), uploadedFileUrl[AWS_UPLOAD_RESULT_URL_INDEX]);
@@ -419,9 +467,12 @@ public class ContentPackageExtractionUtil {
 			path += contentFolder + File.separator + ContentAPIParams.html.name() + File.separator + contentId + DASH
 					+ pathSuffix;
 			break;
+		case "application/vnd.ekstep.h5p-archive":
+			path += contentFolder + File.separator + ContentAPIParams.h5p.name() + File.separator + contentId + DASH
+					+ pathSuffix;
+			break;
 		case "application/vnd.ekstep.plugin-archive":
-			path += S3_CONTENT_PLUGIN_DIRECTORY + File.separator
-					+ contentId + DASH + pathSuffix;
+			path += S3_CONTENT_PLUGIN_DIRECTORY + File.separator + contentId + DASH + pathSuffix;
 			break;
 
 		default:
@@ -467,11 +518,19 @@ public class ContentPackageExtractionUtil {
 	}
 
 	private boolean isExtractedSnapshotExist(Node node, ExtractionType extractionType) {
-		boolean isSnapshotExits = false;
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-		if (StringUtils.isNotBlank(artifactUrl)
-				&& StringUtils.endsWithIgnoreCase(artifactUrl, ContentAPIParams.zip.name()))
-			isSnapshotExits = true;
-		return isSnapshotExits;
+		return isValidSnapshotFile(artifactUrl);
+	}
+
+	private boolean isValidSnapshotFile(String artifactUrl) {
+		boolean isValid = false;
+		if (StringUtils.isNotBlank(artifactUrl)) {
+			for (String key : extractablePackageExtensions.keySet())
+				if (StringUtils.endsWithIgnoreCase(artifactUrl, key)) {
+					isValid = true;
+					break;
+				}
+		}
+		return isValid;
 	}
 }

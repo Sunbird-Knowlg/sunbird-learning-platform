@@ -359,6 +359,18 @@ public class ContentValidator {
 										+ " | [APK file should be uploaded for further processing of APK content '"
 										+ name + "']");
 					break;
+					
+				case "application/vnd.ekstep.h5p-archive":
+					/** 'artifactUrl is needed' */
+					if (StringUtils.isNotBlank(
+							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
+						isValid = true;
+					else
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " | [H5P file should be uploaded for further processing of H5P content '"
+										+ name + "']");
+					break;
 
 				case "application/vnd.ekstep.content-collection":
 					isValid = true;

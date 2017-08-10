@@ -8,6 +8,7 @@ import org.ekstep.content.mimetype.mgr.impl.CollectionMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.DefaultMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.DocumentMimeTypeManager;
 import org.ekstep.content.mimetype.mgr.impl.ECMLMimeTypeMgrImpl;
+import org.ekstep.content.mimetype.mgr.impl.H5PMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.HTMLMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.PluginMimeTypeMgrImpl;
 import org.ekstep.content.mimetype.mgr.impl.YoutubeMimeTypeManager;
@@ -26,6 +27,7 @@ public class MimeTypeManagerFactory {
     static IMimeTypeManager youtubeMimeTypeMgr = new YoutubeMimeTypeManager();
     static IMimeTypeManager documentMimeTypeMgr = new DocumentMimeTypeManager();
     static IMimeTypeManager defaultMimeTypeMgr = new DefaultMimeTypeMgrImpl();
+    static IMimeTypeManager h5pMimeTypeMgr =  new H5PMimeTypeMgrImpl();
     
 	@CoverageIgnore
     public static IMimeTypeManager getManager(String contentType, String mimeType) {
@@ -61,6 +63,9 @@ public class MimeTypeManagerFactory {
 				break;
 			case "application/msword":
 				manager = documentMimeTypeMgr;
+				break;
+			case "application/vnd.ekstep.h5p-archive":
+				manager = h5pMimeTypeMgr;
 				break;
 			default:
 				manager = defaultMimeTypeMgr;

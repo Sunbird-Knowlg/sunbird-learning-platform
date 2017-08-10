@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -43,16 +44,19 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 
+import scala.annotation.meta.field;
+
 /**
  * The Class ContentBundle.
  */
 public class ContentBundle {
 
 	/** The logger. */
-	
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
+
+	private List<File> h5pContentCommonFiles = null;
 
 	/** The Constant URL_FIELD. */
 	protected static final String URL_FIELD = "URL";
@@ -64,7 +68,10 @@ public class ContentBundle {
 	private static final String s3EcarFolder = "s3.ecar.folder";
 
 	/** The default youtube mimeType */
-	private static final String YOUTUBE_MIMETYPE = "video/youtube";
+	private static final String YOUTUBE_MIMETYPE = "video/x-youtube";
+
+	private static final String H5P_MIMETYPE = "application/vnd.ekstep.h5p-archive";
+
 	/**
 	 * Creates the content manifest data.
 	 *
@@ -99,6 +106,15 @@ public class ContentBundle {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
 					if (null != val) {
+						// If the given Content is of H5P Type Download add supporting files also to
+						// download the supporting files
+						if (StringUtils.equalsIgnoreCase(mimeType, H5P_MIMETYPE)) {
+							if (null == h5pContentCommonFiles || h5pContentCommonFiles.isEmpty()) {
+								h5pContentCommonFiles = getH5PCommonFiles();
+							}
+							for (File file : h5pContentCommonFiles)
+								addDownloadUrl(downloadUrls, file, identifier, entry.getKey(), packageType);
+						}
 						if (!StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE)) {
 							if (val instanceof File) {
 								File file = (File) val;
@@ -114,16 +130,18 @@ public class ContentBundle {
 									entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 								}
 
-							} else if(val instanceof List) {
+							} else if (val instanceof List) {
 								List<String> data = (List<String>) val;
 								List<String> id = new ArrayList<>();
 								id.add(identifier.trim() + File.separator + entry.getKey());
 								List<String> screeshot = new ArrayList<>();
-								for(String value : data){
-									if(HttpDownloadUtility.isValidUrl(value)){
+								for (String value : data) {
+									if (HttpDownloadUtility.isValidUrl(value)) {
 										downloadUrls.put(value, id);
 										String file = FilenameUtils.getName(value);
-										screeshot.add(identifier.trim() + File.separator + ContentWorkflowPipelineParams.screenshots.name() + File.separator + Slug.makeSlug(file, true));
+										screeshot.add(identifier.trim() + File.separator
+												+ ContentWorkflowPipelineParams.screenshots.name() + File.separator
+												+ Slug.makeSlug(file, true));
 									}
 								}
 								entry.setValue(screeshot);
@@ -133,9 +151,9 @@ public class ContentBundle {
 									|| entry.getKey().equals(ContentWorkflowPipelineParams.downloadUrl.name())) {
 								entry.setValue(entry.getValue());
 							} else if (HttpDownloadUtility.isValidUrl(val)) {
-										addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-										String file = FilenameUtils.getName(entry.getValue().toString());
-										entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
+								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
+								String file = FilenameUtils.getName(entry.getValue().toString());
+								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 							}
 						}
 					}
@@ -249,7 +267,7 @@ public class ContentBundle {
 								+ " | [Content List is 'null' or Empty.]");
 			if (StringUtils.isBlank(manifestVersion))
 				manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
-			PlatformLogger.log("Manifest Header Version: " , manifestVersion);
+			PlatformLogger.log("Manifest Header Version: ", manifestVersion);
 			StringBuilder header = new StringBuilder();
 			header.append("{ \"id\": \"ekstep.content.archive\", \"ver\": \"").append(manifestVersion);
 			header.append("\", \"ts\": \"").append(getResponseTimestamp()).append("\", \"params\": { \"resmsgid\": \"");
@@ -257,16 +275,16 @@ public class ContentBundle {
 			if (StringUtils.isNotBlank(expiresOn))
 				header.append("\"expires\": \"").append(expiresOn).append("\", ");
 			header.append("\"ttl\": 24, \"items\": ");
-			PlatformLogger.log("Content Items in Manifest JSON: " , contents.size());
+			PlatformLogger.log("Content Items in Manifest JSON: ", contents.size());
 
 			// Updating the 'variant' Property
-			PlatformLogger.log("Contents Before Updating for 'variant' Properties : " , contents);
+			PlatformLogger.log("Contents Before Updating for 'variant' Properties : ", contents);
 
 			PlatformLogger.log("Updating the 'variant' map from JSON string to JSON Object.");
 			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
 					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
 
-			PlatformLogger.log("Contents After Updating for 'variant' Properties : " , contents);
+			PlatformLogger.log("Contents After Updating for 'variant' Properties : ", contents);
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
@@ -410,9 +428,13 @@ public class ContentBundle {
 					if (file.getName().toLowerCase().endsWith("manifest.json")) {
 						fileName = file.getName();
 					} else if (file.getParentFile().getName().toLowerCase().endsWith("screenshots")) {
-						fileName = file.getParent().substring(file.getParentFile().getParent().lastIndexOf(File.separator) + 1)
+						fileName = file.getParent()
+								.substring(file.getParentFile().getParent().lastIndexOf(File.separator) + 1)
 								+ File.separator + file.getName();
-					}else {
+					} else if (file.getName().toLowerCase().endsWith(".h5p")) {
+						fileName = "content" + File.separator + file.getName();
+					}
+					else {
 						fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
 								+ File.separator + file.getName();
 					}
@@ -433,7 +455,7 @@ public class ContentBundle {
 			}
 			IOUtils.closeQuietly(bufferedOutputStream);
 			IOUtils.closeQuietly(byteArrayOutputStream);
-			PlatformLogger.log("Printing Byte Array for Content Bundle" , byteArrayOutputStream.toByteArray());
+			PlatformLogger.log("Printing Byte Array for Content Bundle", byteArrayOutputStream.toByteArray());
 			return byteArrayOutputStream.toByteArray();
 		}
 	}
@@ -470,6 +492,39 @@ public class ContentBundle {
 	private String getUUID() {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
+	}
+
+	private List<File> getH5PCommonFiles() {
+		List<File> files = new ArrayList<File>();
+		try {
+			UnzipUtility unzipUtility = new UnzipUtility();
+			// Download the H5P Libraries
+			String h5pLibraryDownloadPath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
+			File h5pLibraryPackageFile = HttpDownloadUtility.downloadFile(getH5PLibraryPath(), h5pLibraryDownloadPath);
+			createDirectoryIfNeeded(h5pLibraryDownloadPath);
+			// Un-Zip the H5P Library Files
+			unzipUtility.unzip(h5pLibraryPackageFile.getAbsolutePath(), h5pLibraryDownloadPath);
+			File [] libraryFiles = new File(h5pLibraryDownloadPath).listFiles();
+			if (null != libraryFiles)
+				files = Arrays.asList(libraryFiles);
+				
+		} catch (Exception e) {
+			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
+					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR
+							+ " | [Something went wrong while extracting the H5P Library Package]");
+		}
+		return files;
+	}
+
+	private String getH5PLibraryPath() {
+		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
+		if (StringUtils.isBlank(path)) {
+			path = ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH;
+			PlatformLogger.log("H5P Library Path is not set in Properties File. So Taking the default value.", path,
+					"INFO");
+		}
+		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
+		return path;
 	}
 
 }
