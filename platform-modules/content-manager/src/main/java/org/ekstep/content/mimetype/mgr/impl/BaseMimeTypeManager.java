@@ -29,6 +29,7 @@ import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
+import org.ekstep.common.util.ZipUtility;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.EcarPackageType;
 import org.ekstep.content.common.ExtractionType;
@@ -64,6 +65,9 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
+	protected static final int IDX_S3_KEY = 0;
+	
+	protected static final int IDX_S3_URL = 1;
 
 	private static final String s3Content = "s3.content.folder";
 	private static final String s3Artifact = "s3.artifact.folder";
@@ -548,6 +552,15 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
 					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR + " | [ZIP Extraction Failed.]");
+		}
+	}
+	
+	protected void createZipPackage(String basePath, String zipFileName) {
+		if (!StringUtils.isBlank(zipFileName)) {
+			PlatformLogger.log("Creating Zip File: ", zipFileName);
+			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
+			appZip.generateFileList(new File(basePath));
+			appZip.zipIt(zipFileName);
 		}
 	}
 }

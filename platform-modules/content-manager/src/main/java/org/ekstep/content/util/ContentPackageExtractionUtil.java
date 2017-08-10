@@ -305,7 +305,7 @@ public class ContentPackageExtractionUtil {
 	 * @param extractionType
 	 *            the extraction type
 	 */
-	private void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
+	public void extractPackage(String contentId, Node node, String basePath, ExtractionType extractionType,
 			boolean slugFile) {
 		List<String> lstUploadedFilesUrl = new ArrayList<String>();
 		String awsFolderPath = "";

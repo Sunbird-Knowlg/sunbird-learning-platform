@@ -1,11 +1,21 @@
 package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.io.FilenameUtils;
+import java.util.stream.Collectors;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.content.common.ContentConfigurationConstants;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ContentOperations;
@@ -15,6 +25,7 @@ import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.util.AsyncContentOperationUtil;
 import org.ekstep.content.util.ContentPackageExtractionUtil;
+import org.ekstep.content.util.PropertiesUtil;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Response;
@@ -63,16 +74,16 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 		PlatformLogger.log("Calling the 'Review' Initializer for Node Id: " + contentId);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
-		PlatformLogger.log("Review Operation Finished Successfully for Node ID: " , contentId);
+		PlatformLogger.log("Review Operation Finished Successfully for Node ID: ", contentId);
 
 		if (BooleanUtils.isTrue(isAsync)) {
 			AsyncContentOperationUtil.makeAsyncOperation(ContentOperations.PUBLISH, contentId, parameterMap);
-			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: " ,contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Async Mode' for Node Id: ", contentId);
 
 			response.put(ContentAPIParams.publishStatus.name(),
 					"Publish Operation for Content Id '" + contentId + "' Started Successfully!");
 		} else {
-			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: " , contentId);
+			PlatformLogger.log("Publish Operation Started Successfully in 'Sync Mode' for Node Id: ", contentId);
 			response = pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 		}
 
@@ -83,7 +94,8 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	public Response review(String contentId, Node node, boolean isAsync) {
 		PlatformLogger.log("Node: ", node.getIdentifier());
 
-		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ", node.getIdentifier());
+		PlatformLogger.log("Preparing the Parameter Map for Initializing the Pipeline For Node ID: ",
+				node.getIdentifier());
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
@@ -105,16 +117,62 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	private Response uploadH5PContent(String contentId, Node node, File uploadFile) {
 		Response response = new Response();
-		// Upload H5P File to AWS
-		String[] urlArray = uploadArtifactToAWS(uploadFile, contentId);
-		// Update Node with 'artifactUrl'
-		node.getMetadata().put("s3Key", urlArray[0]);
-		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
-		// Extract Content Package
-		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-		contentPackageExtractionUtil.extractContentPackage(contentId, node, uploadFile, ExtractionType.snapshot, false);
-		response = updateContentNode(contentId, node, urlArray[1]);
+		String extractionBasePath = null;
+		File h5pLibraryPackageFile = null;
+		try {
+			extractionBasePath = getBasePath(contentId);
+			// Download the H5P Libraries
+			String h5pLibraryDownloadPath = getBasePath(contentId);
+			h5pLibraryPackageFile = HttpDownloadUtility.downloadFile(getH5PLibraryPath(), h5pLibraryDownloadPath);
+			// Un-Zip the H5P Library Files
+			UnzipUtility unzipUtility = new UnzipUtility();
+			unzipUtility.unzip(h5pLibraryPackageFile.getAbsolutePath(), extractionBasePath);
+			// UnZip the Content Package
+			unzipUtility.unzip(uploadFile.getAbsolutePath(), extractionBasePath + "/content");
+			List<Path> paths = Files.walk(Paths.get(extractionBasePath)).filter(Files::isRegularFile)
+					.collect(Collectors.toList());
+			List<File> files = new ArrayList<File>();
+			for (Path path : paths)
+				files.add(path.toFile());
+			// Create 'ZIP' Package
+			String zipFileName = extractionBasePath + File.separator + System.currentTimeMillis() + "_"
+					+ Slug.makeSlug(contentId) + ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
+					+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
+			createZipPackage(extractionBasePath, zipFileName);
+			String[] urlArray = uploadArtifactToAWS(new File(zipFileName), contentId);
+			node.getMetadata().put("s3Key", urlArray[IDX_S3_KEY]);
+			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
+			// Extract Content Package
+			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
+			contentPackageExtractionUtil.extractPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
+					false);
+			response = updateContentNode(contentId, node, "");
+		} catch (IOException e) {
+			PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
+		} catch (Exception e) {
+			PlatformLogger.log("Error! Something Went Wrong While Extracting the Content Package File.", e.getMessage(),
+					e);
+		} finally {
+			// Cleanup
+			try {
+				FileUtils.deleteDirectory(new File(extractionBasePath));
+				h5pLibraryPackageFile.delete();
+			} catch (Exception e) {
+				PlatformLogger.log("Unable to Delete H5P Library Directory.", null, e);
+			}
+		}
 		return response;
+	}
+
+	private String getH5PLibraryPath() {
+		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
+		if (StringUtils.isBlank(path)) {
+			path = ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH;
+			PlatformLogger.log("H5P Library Path is not set in Properties File. So Taking the default value.", path,
+					"INFO");
+		}
+		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
+		return path;
 	}
 
 }

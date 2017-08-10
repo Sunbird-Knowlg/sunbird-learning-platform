@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,8 +43,6 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 
-import scala.annotation.meta.field;
-
 /**
  * The Class ContentBundle.
  */
@@ -55,8 +52,6 @@ public class ContentBundle {
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
-
-	private List<File> h5pContentCommonFiles = null;
 
 	/** The Constant URL_FIELD. */
 	protected static final String URL_FIELD = "URL";
@@ -69,8 +64,6 @@ public class ContentBundle {
 
 	/** The default youtube mimeType */
 	private static final String YOUTUBE_MIMETYPE = "video/x-youtube";
-
-	private static final String H5P_MIMETYPE = "application/vnd.ekstep.h5p-archive";
 
 	/**
 	 * Creates the content manifest data.
@@ -106,15 +99,6 @@ public class ContentBundle {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
 					if (null != val) {
-						// If the given Content is of H5P Type Download add supporting files also to
-						// download the supporting files
-						if (StringUtils.equalsIgnoreCase(mimeType, H5P_MIMETYPE)) {
-							if (null == h5pContentCommonFiles || h5pContentCommonFiles.isEmpty()) {
-								h5pContentCommonFiles = getH5PCommonFiles();
-							}
-							for (File file : h5pContentCommonFiles)
-								addDownloadUrl(downloadUrls, file, identifier, entry.getKey(), packageType);
-						}
 						if (!StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE)) {
 							if (val instanceof File) {
 								File file = (File) val;
@@ -431,10 +415,7 @@ public class ContentBundle {
 						fileName = file.getParent()
 								.substring(file.getParentFile().getParent().lastIndexOf(File.separator) + 1)
 								+ File.separator + file.getName();
-					} else if (file.getName().toLowerCase().endsWith(".h5p")) {
-						fileName = "content" + File.separator + file.getName();
-					}
-					else {
+					} else {
 						fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
 								+ File.separator + file.getName();
 					}
@@ -492,39 +473,6 @@ public class ContentBundle {
 	private String getUUID() {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
-	}
-
-	private List<File> getH5PCommonFiles() {
-		List<File> files = new ArrayList<File>();
-		try {
-			UnzipUtility unzipUtility = new UnzipUtility();
-			// Download the H5P Libraries
-			String h5pLibraryDownloadPath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
-			File h5pLibraryPackageFile = HttpDownloadUtility.downloadFile(getH5PLibraryPath(), h5pLibraryDownloadPath);
-			createDirectoryIfNeeded(h5pLibraryDownloadPath);
-			// Un-Zip the H5P Library Files
-			unzipUtility.unzip(h5pLibraryPackageFile.getAbsolutePath(), h5pLibraryDownloadPath);
-			File [] libraryFiles = new File(h5pLibraryDownloadPath).listFiles();
-			if (null != libraryFiles)
-				files = Arrays.asList(libraryFiles);
-				
-		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
-					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR
-							+ " | [Something went wrong while extracting the H5P Library Package]");
-		}
-		return files;
-	}
-
-	private String getH5PLibraryPath() {
-		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
-		if (StringUtils.isBlank(path)) {
-			path = ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH;
-			PlatformLogger.log("H5P Library Path is not set in Properties File. So Taking the default value.", path,
-					"INFO");
-		}
-		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
-		return path;
 	}
 
 }
