@@ -11,11 +11,11 @@ public class LanguageCodeMap {
 		languageMap.put("assamese", "as");
 		languageMap.put("bengali", "bn");
 		languageMap.put("english", "en");
-		languageMap.put("gujrati", "gu");
+		languageMap.put("gujarati", "gu");
 		languageMap.put("hindi", "hi");
 		languageMap.put("kannada", "ka");
 		languageMap.put("marathi", "mr");
-		languageMap.put("oriya", "or");
+		languageMap.put("odia", "or");
 		languageMap.put("tamil", "ta");
 		languageMap.put("telugu", "te");
 	}

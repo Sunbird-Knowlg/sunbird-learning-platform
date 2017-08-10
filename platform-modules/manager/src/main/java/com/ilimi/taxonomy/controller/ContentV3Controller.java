@@ -56,7 +56,7 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.create";
-		PlatformLogger.log("Executing Content Create API (Java Version) (API Version V3).", requestMap, "INFO");
+		PlatformLogger.log("Executing Content Create API (Java Version) (API Version V3).", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");
@@ -74,8 +74,7 @@ public class ContentV3Controller extends BaseController {
 			@RequestBody Map<String, Object> requestMap) {
 		String apiId = "ekstep.learning.content.update";
 		PlatformLogger.log(
-				"Executing Content Update API (Java Version) (API Version V3) For Content Id: " + contentId + ".",
-				requestMap, "INFO");
+				"Executing Content Update API (Java Version) (API Version V3) For Content Id: " + contentId + ".", requestMap);
 		Request request = getRequest(requestMap);
 		try {
 			Map<String, Object> map = (Map<String, Object>) request.get("content");

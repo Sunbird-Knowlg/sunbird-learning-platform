@@ -880,16 +880,26 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-		Object mimeType = map.get("mimeType");
-		if (null != mimeType && StringUtils.isNotBlank(mimeType.toString())) {
-			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType.toString()))
+		String mimeType = (String) map.get("mimeType");
+		if (StringUtils.isNotBlank(mimeType)) {
+			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
 				map.put("osId", "org.ekstep.quiz.app");
-			Object contentType = map.get("contentType");
-			if (null != contentType && StringUtils.isNotBlank(contentType.toString())) {
-				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType.toString()))
+			String contentType = (String) map.get("contentType");
+			if (StringUtils.isNotBlank(contentType)) {
+				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType))
 					map.put("visibility", "Parent");
 			}
 
+			if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.plugin-archive", mimeType)) {
+				String code = (String) map.get("code");
+				if (null == code || StringUtils.isBlank(code))
+					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins",
+							ResponseCode.CLIENT_ERROR);
+				map.put("identifier", map.get("code"));
+			}
+			
+			updateArtifactMimeType(map, mimeType);
+			
 			Map<String, Object> externalProps = new HashMap<String, Object>();
 			List<String> externalPropsList = getExternalPropsList(definition);
 			if (null != externalPropsList && !externalPropsList.isEmpty()) {
@@ -898,20 +908,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 						externalProps.put(prop, map.get(prop));
 					map.remove(prop);
 				}
-			}
-
-			if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.plugin-archive", mimeType.toString())) {
-				Object code = map.get("code");
-				if (null == code || StringUtils.isBlank(code.toString()))
-					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins",
-							ResponseCode.CLIENT_ERROR);
-				map.put("identifier", map.get("code"));
-			}
-
-			map.remove(TaxonomyAPIParams.artifactMimeType.name());
-			if (StringUtils.isNotBlank((String) mimeType)) {
-				map.put(TaxonomyAPIParams.artifactMimeType.name(),
-						ArtifactMimeTypeMap.getArtifactMimeType((String) mimeType));
 			}
 
 			try {
@@ -950,11 +946,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		map.put("objectType", CONTENT_OBJECT_TYPE);
 		map.put("identifier", contentId);
 
-		map.remove(TaxonomyAPIParams.artifactMimeType.name());
 		String mimeType = (String) map.get(TaxonomyAPIParams.mimeType.name());
-		if (StringUtils.isNotBlank(mimeType)) {
-			map.put(TaxonomyAPIParams.artifactMimeType.name(), ArtifactMimeTypeMap.getArtifactMimeType(mimeType));
-		}
+		updateArtifactMimeType(map, mimeType);
 
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
@@ -993,13 +986,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
 		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
 		boolean logEvent = false;
-		Object inputStatus = map.get("status");
+		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
-			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus.toString());
-			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus.toString());
+			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus);
+			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus);
 			if ((updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
 				map.put("lastSubmittedOn", DateUtils.format(new Date()));
-			if (!StringUtils.equalsIgnoreCase(status, inputStatus.toString()))
+			if (!StringUtils.equalsIgnoreCase(status, inputStatus))
 				logEvent = true;
 		}
 
@@ -1065,6 +1058,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return createResponse;
 	}
 
+	
+	private void updateArtifactMimeType(Map<String, Object> map, String mimeType) {
+		map.remove(TaxonomyAPIParams.artifactMimeType.name());
+		if (StringUtils.isNotBlank(mimeType)) {
+			map.put(TaxonomyAPIParams.artifactMimeType.name(),
+					ArtifactMimeTypeMap.getArtifactMimeType(mimeType));
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String graphId, String contentId, String mode, List<String> fields) {

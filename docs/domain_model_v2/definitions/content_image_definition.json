@@ -265,7 +265,7 @@
 						"audio/webm",
 						"audio/x-wav"
 					],
-					"defaultValue": "application/vnd.ekstep.ecml-archive",
+					"defaultValue": "application/vnd.ekstep.ecml-archive+zip",
 					"renderingHints": "{ 'inputType': 'select',  'order': 9 }",
 					"indexed": true,
 					"draft": false
