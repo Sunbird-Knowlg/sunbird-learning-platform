@@ -68,28 +68,30 @@ public class WordEnrichmentService implements ISamzaService {
 					LOGGER.info("Word Enrichment for OpertaionType" + operationType);
 					switch (operationType) {
 						case "CREATE": {
-							if (transactionData.containsKey(WordEnrichmentParams.properties.name())) {
+							if (checkPropertyExist(transactionData, WordEnrichmentParams.properties.name())) {
 								enrichWord(transactionData, languageId, identifier);
-								break;
+								
 							} else {
 								metrics.incSkippedCounter();
 							}
+							break;
 						}
 						case "UPDATE": {
-							if (transactionData.containsKey(WordEnrichmentParams.properties.name())) {
+							if (checkPropertyExist(transactionData, WordEnrichmentParams.properties.name())) {
 								enrichWord(transactionData, languageId, identifier);
-								break;
-							} else if (transactionData.containsKey(WordEnrichmentParams.addedRelations.name())
-									|| transactionData.containsKey(WordEnrichmentParams.removedRelations.name())) {
+							} 
+							else if (checkPropertyListExist(transactionData, WordEnrichmentParams.addedRelations.name())
+									|| checkPropertyListExist(transactionData, WordEnrichmentParams.removedRelations.name())) {
 								copyPrimaryMeaningMetadata(transactionData, languageId, identifier);
 							} else {
 								metrics.incSkippedCounter();
 							}
+							break;
 						}
 					}
 				} else if (StringUtils.equalsIgnoreCase(objectType, WordEnrichmentParams.synset.name())
 						&& StringUtils.equalsIgnoreCase(operationType, "UPDATE")
-						&& transactionData.containsKey(WordEnrichmentParams.properties.name())) {
+						&& checkPropertyExist(transactionData, WordEnrichmentParams.properties.name())) {
 					syncWordsMetadata(transactionData, languageId, identifier);
 				} else {
 					metrics.incSkippedCounter();
@@ -112,13 +114,29 @@ public class WordEnrichmentService implements ISamzaService {
 			return null;
         String objectType = (String)message.get(WordEnrichmentParams.objectType.name());
 		if (!StringUtils.equalsIgnoreCase(objectType, WordEnrichmentParams.word.name())
-				|| !StringUtils.equalsIgnoreCase(objectType, WordEnrichmentParams.synset.name()))
+				&& !StringUtils.equalsIgnoreCase(objectType, WordEnrichmentParams.synset.name()))
 			return null;
         String nodeType = (String)message.get(WordEnrichmentParams.nodeType.name());
         if(!StringUtils.equalsIgnoreCase(nodeType, WordEnrichmentParams.DATA_NODE.name()))
         	return null;
 		Map<String, Object> transactionMap = (Map<String, Object>) message.get(WordEnrichmentParams.transactionData.name());
         return transactionMap;   
+	}
+	
+	public boolean checkPropertyExist(Map<String,Object> transactionData, String property) {
+		Map<String, Object> properties = (Map<String, Object>) transactionData.get(property);
+		if (properties != null && !properties.isEmpty()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean checkPropertyListExist(Map<String,Object> transactionData, String property) {
+		List<Map<String, Object>> properties = (List<Map<String, Object>>) transactionData.get(property);
+		if (properties != null && !properties.isEmpty()) {
+			return true;
+		}
+		return false;
 	}
 	
 	@SuppressWarnings("unchecked")
