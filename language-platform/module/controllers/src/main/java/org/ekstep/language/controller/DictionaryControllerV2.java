@@ -102,7 +102,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			if (!checkError(response)) {
 				String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
-				asyncUpdate(nodeIds, languageId);
+				//asyncUpdate(nodeIds, languageId);
 				response.getResult().remove(GraphDACParams.node_ids.name());
 				response.getResult().remove(GraphDACParams.node_id.name());
 				if (StringUtils.isNotBlank(nodeId))
@@ -151,7 +151,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			if (!checkError(response)) {
 				String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
-				asyncUpdate(nodeIds, languageId);
+				//asyncUpdate(nodeIds, languageId);
 				response.getResult().remove(GraphDACParams.node_ids.name());
 				response.getResult().remove(GraphDACParams.node_id.name());
 				if (StringUtils.isNotBlank(nodeId))

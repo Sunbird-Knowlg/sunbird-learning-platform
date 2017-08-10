@@ -1,14 +1,16 @@
 package org.ekstep.jobs.samza.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.Assert.assertEquals;
 
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.jobs.samza.service.WordEnrichmentService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.junit.Test;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;

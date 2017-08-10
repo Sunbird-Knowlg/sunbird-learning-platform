@@ -29,19 +29,9 @@ public class LanguageMap {
 	/** The prop. */
 	private static Properties prop = new Properties();
 
-	/** The input. */
-	private static InputStream input = null;
-
-	/** The logger. */
-	
-
 	static {
 		String filename = "language-map.properties";
-		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
-		if (input == null) {
-			PlatformLogger.log("Unable to find " + filename);
-		}
-		try {
+		try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename)){
 			// loads the data from the properties file into two maps. One with
 			// Graph Id to Language name mapping and one with Language name to
 			// Graph Id mapping.
@@ -53,12 +43,19 @@ public class LanguageMap {
 				languageMap.put(key, value);
 				languageGraphMap.put(value, key);
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			PlatformLogger.log("Exception!", e.getMessage(), e);
-			e.printStackTrace();
 		}
 	}
 
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
+	}
+	
 	/**
 	 * Gets the property.
 	 *

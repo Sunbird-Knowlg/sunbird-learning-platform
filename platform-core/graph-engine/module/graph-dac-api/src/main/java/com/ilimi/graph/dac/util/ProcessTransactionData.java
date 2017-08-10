@@ -450,6 +450,7 @@ public class ProcessTransactionData {
 				for (Relationship rel : relations) {
 					Node startNode = rel.getStartNode();
 					Node endNode = rel.getEndNode();
+					Map<String, Object> relMetadata = rel.getAllProperties();
 					String relationTypeName = rel.getType().name();
 					if (StringUtils.equalsIgnoreCase(
 							startNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(),
@@ -467,6 +468,7 @@ public class ProcessTransactionData {
 					if (endNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
 						startRelation.put("type", endNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
 					startRelation.put("label", getLabel(endNode));
+					startRelation.put("relMetadata", relMetadata);					
 
 					if (StringUtils.isEmpty(userId)) {
 						String startNodeLastUpdate = (String) getPropertyValue(startNode, "lastUpdatedOn");
@@ -525,6 +527,7 @@ public class ProcessTransactionData {
 					if (startNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
 						endRelation.put("type", startNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
 					endRelation.put("label", getLabel(startNode));
+					endRelation.put("relMetadata", relMetadata);
 					List<Map<String, Object>> endRelations = new ArrayList<Map<String, Object>>();
 					endRelations.add(endRelation);
 					transactionData.put(GraphDACParams.properties.name(), new HashMap<String, Object>());
@@ -550,7 +553,7 @@ public class ProcessTransactionData {
 							endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
 					map.put(GraphDACParams.nodeType.name(),
 							endNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
-					if (startNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+					if (endNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
 						map.put(GraphDACParams.objectType.name(),
 								endNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
 

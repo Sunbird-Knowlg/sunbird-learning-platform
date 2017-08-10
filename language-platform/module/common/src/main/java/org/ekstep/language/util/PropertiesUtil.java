@@ -2,6 +2,7 @@ package org.ekstep.language.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import com.ilimi.common.logger.PlatformLogger;
@@ -18,23 +19,14 @@ public class PropertiesUtil {
 	/** The properties object. */
 	private static Properties prop = new Properties();
 
-	/** The input. */
-	private static InputStream input = null;
-
-	/** The logger. */
-	
 
 	//load language-indexes.properties by default
 	static {
 		String filename = "language-indexes.properties";
-		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
-		if (input == null) {
-			PlatformLogger.log("Unable to find " + filename);
-		}
-		try {
+		try(InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename)){
 			prop.load(input);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			PlatformLogger.log("Exception!", e.getMessage(), e);
 		}
 	}
 
@@ -47,5 +39,13 @@ public class PropertiesUtil {
 	 */
 	public static String getProperty(String key) {
 		return prop.getProperty(key);
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
 	}
 }

@@ -631,4 +631,26 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	public void importNodesFromStreamAsync(String synsetContent, String languageId) {
 		importNodesFromStreamAsync(synsetContent, languageId, null);
 	}
+	
+	public void enrichWord(String languageId, String identifier) {
+		Request langReq = getLanguageRequest(languageId, LanguageActorNames.ENRICH_ACTOR.name(),
+				LanguageOperations.enrichWord.name());
+		langReq.put(LanguageParams.word_id.name(), identifier);
+		makeAsyncLanguageRequest(langReq);
+	}
+	
+	public void copyPrimaryMeaningMetadata(String languageId, String identifier, Boolean meaningAdded) {
+		Request langReq = getLanguageRequest(languageId, LanguageActorNames.ENRICH_ACTOR.name(),
+				LanguageOperations.copyPrimaryMeaningMetadata.name());
+		langReq.put(LanguageParams.word_id.name(), identifier);
+		langReq.put(LanguageParams.meaningAdded.name(), meaningAdded);
+		makeAsyncLanguageRequest(langReq);
+	}
+	
+	public void syncWordsMetadata(String languageId, String identifier) {
+		Request langReq = getLanguageRequest(languageId, LanguageActorNames.ENRICH_ACTOR.name(),
+				LanguageOperations.syncWordsMetadata.name());
+		langReq.put(LanguageParams.synsetId.name(), identifier);
+		makeAsyncLanguageRequest(langReq);
+	}
 }
