@@ -1,10 +1,14 @@
 package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.content.common.ContentOperations;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
@@ -29,9 +33,6 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	/** The logger. */
-	
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -43,6 +44,23 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	public Response upload(String contentId, Node node, File uploadedFile, boolean isAsync) {
 		PlatformLogger.log("Uploaded File: " + uploadedFile.getName());
 		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier());
+		String mimeType = (String)node.getMetadata().get("mimeType");
+		File file = null;
+		if(StringUtils.equalsIgnoreCase(mimeType, "application/epub+zip")){
+			if (StringUtils.endsWith(uploadedFile.getName(), ".epub")) {
+				file = new File("index.epub");
+				if(!file.exists()){
+					try {
+						FileUtils.moveFile(uploadedFile,file);
+						return uploadContentArtifact(contentId, node, file);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}else{
+					return uploadContentArtifact(contentId, node, file);
+				}
+			}
+		}
 		return uploadContentArtifact(contentId, node, uploadedFile);
 	}
 	

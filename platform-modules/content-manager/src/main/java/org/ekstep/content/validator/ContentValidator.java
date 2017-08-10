@@ -49,7 +49,9 @@ public class ContentValidator {
 	private static final String PDF_MIMETYPE = "application/pdf";
 	
 	/** The doc mimeType */
-	private static final String DOC_MIMETYPE = "application/msword";
+	private static final String DOC_MIMETYPE =  "application/msword";
+	
+	private static final String EPUB_MIMETYPE = "application/epub+zip";
 	
 	/** The allowed extensions */
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
@@ -409,6 +411,21 @@ public class ContentValidator {
 					}
 					break;
 
+				case "application/epub+zip":
+					if (StringUtils.isNotBlank(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
+						String artifactUrl = (String) node.getMetadata()
+								.get(ContentWorkflowPipelineParams.artifactUrl.name());
+						if (isValidUrl(artifactUrl, mimeType))
+							isValid = true;
+							
+					} else {
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " |Invalid or 'null' operation, Publish Operation Failed '" + name + "']");
+					}
+					break;
+					
 				case "application/msword":
 					if (StringUtils.isNotBlank(
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
@@ -474,6 +491,15 @@ public class ContentValidator {
 					throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
 							ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
 									+ "Uploaded file is not a pdf file");
+				}
+			}
+			if (StringUtils.equalsIgnoreCase(mimeType, EPUB_MIMETYPE)) {
+				if (StringUtils.equalsIgnoreCase(extension, ContentWorkflowPipelineParams.epub.name()) && file_type.equals("application/epub+zip")) {
+					return true;
+				} else {
+					throw new ClientException(ContentErrorCodes.INVALID_FILE.name(),
+							ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR
+									+ "Uploaded file is not a epub file");
 				}
 			}
 			if (StringUtils.equalsIgnoreCase(mimeType, DOC_MIMETYPE)) {

@@ -24,19 +24,19 @@ public class MimeTypeManagerFactory {
 	static IMimeTypeManager collectionMimeTypeMgr = new CollectionMimeTypeMgrImpl();
 	static IMimeTypeManager assetsMimeTypeMgr = new AssetsMimeTypeMgrImpl();
 	static IMimeTypeManager pluginMimeTypeMgrImpl = new PluginMimeTypeMgrImpl();
-    static IMimeTypeManager youtubeMimeTypeMgr = new YoutubeMimeTypeManager();
-    static IMimeTypeManager documentMimeTypeMgr = new DocumentMimeTypeManager();
-    static IMimeTypeManager defaultMimeTypeMgr = new DefaultMimeTypeMgrImpl();
-    static IMimeTypeManager h5pMimeTypeMgr =  new H5PMimeTypeMgrImpl();
-    
+	static IMimeTypeManager youtubeMimeTypeMgr = new YoutubeMimeTypeManager();
+	static IMimeTypeManager documentMimeTypeMgr = new DocumentMimeTypeManager();
+	static IMimeTypeManager defaultMimeTypeMgr = new DefaultMimeTypeMgrImpl();
+	static IMimeTypeManager h5pMimeTypeMgr = new H5PMimeTypeMgrImpl();
+
 	@CoverageIgnore
-    public static IMimeTypeManager getManager(String contentType, String mimeType) {
+	public static IMimeTypeManager getManager(String contentType, String mimeType) {
 		PlatformLogger.log("ContentType: " + contentType + " | MimeType: " + mimeType);
-    	IMimeTypeManager manager;
-    	if (StringUtils.equalsIgnoreCase(contentType, "Asset")) {
-    		manager = assetsMimeTypeMgr;
-    	} else {
-    		switch (StringUtils.lowerCase(mimeType)) {
+		IMimeTypeManager manager;
+		if (StringUtils.equalsIgnoreCase(contentType, "Asset")) {
+			manager = assetsMimeTypeMgr;
+		} else {
+			switch (StringUtils.lowerCase(mimeType)) {
 			case "application/vnd.ekstep.ecml-archive":
 				manager = ecmlMimeTypeMgr;
 				break;
@@ -59,8 +59,7 @@ public class MimeTypeManagerFactory {
 				manager = youtubeMimeTypeMgr;
 				break;
 			case "application/pdf":
-				manager = documentMimeTypeMgr;
-				break;
+			case "application/epub+zip":
 			case "application/msword":
 				manager = documentMimeTypeMgr;
 				break;
@@ -70,11 +69,9 @@ public class MimeTypeManagerFactory {
 			default:
 				manager = defaultMimeTypeMgr;
 				break;
+			}
 		}
-    	}
-    		
-    	
-    	
-       return manager;
-    }
+
+		return manager;
+	}
 }

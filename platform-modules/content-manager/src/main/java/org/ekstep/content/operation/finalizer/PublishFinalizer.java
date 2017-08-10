@@ -170,7 +170,7 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.TextBookUnit.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
 
-		PlatformLogger.log("setting compatability level for youtube, pdf and doc", null, LoggerEnum.INFO.name());
+		PlatformLogger.log("setting compatability level for youtube, pdf and doc and epub", null, LoggerEnum.INFO.name());
 		if (StringUtils.containsIgnoreCase(
 				(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
 				ContentWorkflowPipelineParams.youtube.name())
@@ -179,7 +179,10 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.pdf.name())
 				|| StringUtils.containsIgnoreCase(
 						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
-						ContentWorkflowPipelineParams.msword.name()))
+						ContentWorkflowPipelineParams.msword.name())
+				|| StringUtils.containsIgnoreCase(
+						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
+						ContentWorkflowPipelineParams.epub.name()))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 
 		PlatformLogger.log("setting compatability level for course and course unit", null, LoggerEnum.INFO.name());
