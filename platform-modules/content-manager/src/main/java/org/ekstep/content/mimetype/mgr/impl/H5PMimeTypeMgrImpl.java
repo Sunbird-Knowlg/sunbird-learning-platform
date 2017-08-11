@@ -146,7 +146,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.extractPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
 					false);
-			response = updateContentNode(contentId, node, "");
+			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 		} catch (IOException e) {
 			PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
 		} catch (Exception e) {
