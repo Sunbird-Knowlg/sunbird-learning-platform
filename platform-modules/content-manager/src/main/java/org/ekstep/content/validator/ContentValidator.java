@@ -51,7 +51,7 @@ public class ContentValidator {
 	/** The doc mimeType */
 	private static final String DOC_MIMETYPE =  "application/msword";
 	
-	private static final String EPUB_MIMETYPE = "application/epub+zip";
+	private static final String EPUB_MIMETYPE = "application/epub";
 	
 	/** The allowed extensions */
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
@@ -411,7 +411,7 @@ public class ContentValidator {
 					}
 					break;
 
-				case "application/epub+zip":
+				case "application/epub":
 					if (StringUtils.isNotBlank(
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
 						String artifactUrl = (String) node.getMetadata()

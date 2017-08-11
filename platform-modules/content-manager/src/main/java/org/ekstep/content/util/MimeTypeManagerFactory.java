@@ -59,7 +59,7 @@ public class MimeTypeManagerFactory {
 				manager = youtubeMimeTypeMgr;
 				break;
 			case "application/pdf":
-			case "application/epub+zip":
+			case "application/epub":
 			case "application/msword":
 				manager = documentMimeTypeMgr;
 				break;

@@ -46,7 +46,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier());
 		String mimeType = (String)node.getMetadata().get("mimeType");
 		File file = null;
-		if(StringUtils.equalsIgnoreCase(mimeType, "application/epub+zip")){
+		if(StringUtils.equalsIgnoreCase(mimeType, "application/epub")){
 			if (StringUtils.endsWith(uploadedFile.getName(), ".epub")) {
 				file = new File("index.epub");
 				if(!file.exists()){

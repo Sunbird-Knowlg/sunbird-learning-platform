@@ -15,7 +15,7 @@ private static Map<String, String> artifactMimeTypeMap = new HashMap<String, Str
 		artifactMimeTypeMap.put("application/vnd.ekstep.content-collection", "application/vnd.ekstep.content-collection+zip");
 		artifactMimeTypeMap.put("application/vnd.ekstep.plugin-archive", "application/vnd.ekstep.plugin-archive+zip");
 		artifactMimeTypeMap.put("application/vnd.ekstep.h5p-archive", "application/vnd.ekstep.h5p-archive+zip");
-		artifactMimeTypeMap.put("application/epub+zip", "application/epub+zip");
+		artifactMimeTypeMap.put("application/epub", "application/epub");
 		artifactMimeTypeMap.put("text/x-url", "text/x-url");
 		artifactMimeTypeMap.put("video/youtube", "video/x-youtube");
 		artifactMimeTypeMap.put("application/octet-stream", "application/octet-stream");
