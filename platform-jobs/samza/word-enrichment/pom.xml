@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>word-enrichment</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.7</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.ekstep</groupId>
