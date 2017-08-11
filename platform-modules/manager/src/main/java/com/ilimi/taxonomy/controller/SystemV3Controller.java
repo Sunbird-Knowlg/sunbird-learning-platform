@@ -19,8 +19,8 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 
 
 @Controller
-@RequestMapping("/system")
-public class SystemController extends BaseController {
+@RequestMapping("/v3/system")
+public class SystemV3Controller extends BaseController {
 
 	@Autowired
 	private IContentManager contentManager;
