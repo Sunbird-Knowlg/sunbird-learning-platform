@@ -56,6 +56,7 @@ public class MimeTypeManagerFactory {
 				manager = pluginMimeTypeMgrImpl;
 				break;
 			case "video/youtube":
+			case "video/x-youtube":
 				manager = youtubeMimeTypeMgr;
 				break;
 			case "application/pdf":
