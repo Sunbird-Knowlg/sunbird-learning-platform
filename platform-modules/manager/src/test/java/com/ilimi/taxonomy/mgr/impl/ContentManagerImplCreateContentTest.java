@@ -11,6 +11,7 @@ import org.ekstep.graph.service.common.GraphOperation;
 import org.ekstep.graph.service.util.DriverUtil;
 import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.driver.v1.Driver;
@@ -24,6 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
+@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class ContentManagerImplCreateContentTest {
