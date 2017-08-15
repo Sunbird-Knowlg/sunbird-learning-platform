@@ -2,7 +2,6 @@ package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -146,7 +145,6 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 				node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-				response = updateContentNode(contentId, node, urlArray[1]);
 	
 				PlatformLogger.log("Calling 'updateContentNode' for Node ID: " , contentId);
 				response = updateContentNode(contentId, node, urlArray[1]);
