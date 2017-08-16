@@ -30,6 +30,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -149,9 +150,12 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
 		} catch (IOException e) {
 			PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			throw e;
 		} catch (Exception e) {
-			PlatformLogger.log("Error! Something Went Wrong While Extracting the Content Package File.", e.getMessage(),
-					e);
+			throw e;
 		} finally {
 			// Cleanup
 			try {
@@ -167,7 +171,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	private String getH5PLibraryPath() {
 		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
 		if (StringUtils.isBlank(path))
-			throw new ClientException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
+			throw new ServerException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
 					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
 		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
 		return path;
