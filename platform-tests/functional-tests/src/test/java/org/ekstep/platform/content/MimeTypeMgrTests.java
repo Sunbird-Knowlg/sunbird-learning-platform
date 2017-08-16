@@ -5,6 +5,8 @@ import static com.jayway.restassured.http.ContentType.JSON;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,7 +17,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONException;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.google.gson.Gson;
@@ -65,15 +69,15 @@ public class MimeTypeMgrTests extends BaseTest {
 	static URL url = classLoader.getResource("DownloadedFiles");
 	static File downloadPath;
 	
-//	 @BeforeClass
-//	 public static void setup() throws URISyntaxException{
-//	    downloadPath = new File(url.toURI().getPath());
-//	 }
-//
-//	 @AfterClass
-//	 public static void end() throws IOException{
-//		FileUtils.cleanDirectory(downloadPath);		
-//	 }
+	 @BeforeClass
+	 public static void setup() throws URISyntaxException{
+	    downloadPath = new File(url.toURI().getPath());
+	 }
+
+	 @AfterClass
+	 public static void end() throws IOException{
+		FileUtils.cleanDirectory(downloadPath);		
+	 }
 
 	// Content clean up	
 	public void contentCleanUp(){
@@ -634,12 +638,9 @@ public class MimeTypeMgrTests extends BaseTest {
 					post("/learning/v2/conwsxstent").
 					then().
 //					log().all().
+					spec(get500ResponseSpec()).
 					extract().
 					response();
-
-			// Extracting the JSON path
-			JsonPath jp = R.jsonPath();
-			String node = jp.get("result.node_id");
 	}
 	
 	@SuppressWarnings("unused")
