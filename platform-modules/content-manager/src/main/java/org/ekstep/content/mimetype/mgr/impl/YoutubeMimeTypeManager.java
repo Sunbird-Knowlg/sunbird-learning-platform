@@ -30,9 +30,6 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	/** Logger */
-	
-
 	/*
 	 * (non-Javadoc)
 	 * 

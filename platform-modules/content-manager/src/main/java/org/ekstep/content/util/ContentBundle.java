@@ -63,8 +63,10 @@ public class ContentBundle {
 	private static final String s3EcarFolder = "s3.ecar.folder";
 
 	/** The default youtube mimeType */
-	private static final String YOUTUBE_MIMETYPE = "video/x-youtube";
+	private static final String YOUTUBE_MIMETYPE = "video/youtube";
 
+	private static final String ARTIFACT_YOUTUBE_MIMETYPE = "video/x-youtube";
+	
 	/**
 	 * Creates the content manifest data.
 	 *
@@ -99,7 +101,7 @@ public class ContentBundle {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
 					if (null != val) {
-						if (!StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE)) {
+						if (!StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE)|| !StringUtils.equalsIgnoreCase(mimeType, ARTIFACT_YOUTUBE_MIMETYPE)) {
 							if (val instanceof File) {
 								File file = (File) val;
 								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);

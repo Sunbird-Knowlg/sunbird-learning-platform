@@ -396,6 +396,25 @@ public class ContentValidator {
 								" | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
 					}
 					break;
+				
+				case "video/x-youtube":
+					if (StringUtils.isNotBlank(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
+						Boolean isValidYouTubeUrl = Pattern.matches(YOUTUBE_REGEX,
+								node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()).toString());
+						PlatformLogger.log("Validating if the given youtube url is valid or not" , isValidYouTubeUrl);
+						if (!isValidYouTubeUrl)
+							throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(),
+									ContentErrorMessageConstants.INVALID_YOUTUBE_URL,
+									" | [Invalid or 'null' operation.] Publish Operation Failed");
+						else
+							isValid = true;
+					} else {
+						throw new ClientException(ContentErrorCodes.MISSING_YOUTUBE_URL.name(),
+								ContentErrorMessageConstants.MISSING_YOUTUBE_URL,
+								" | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
+					}
+					break;
 
 				case "application/pdf":
 					if (StringUtils.isNotBlank(
