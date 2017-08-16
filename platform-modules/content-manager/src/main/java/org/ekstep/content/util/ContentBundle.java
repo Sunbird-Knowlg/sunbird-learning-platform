@@ -103,7 +103,7 @@ public class ContentBundle {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
 					if (null != val) {
-						if (!StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE)|| !StringUtils.equalsIgnoreCase(mimeType, ARTIFACT_YOUTUBE_MIMETYPE) ||!StringUtils.equalsIgnoreCase(mimeType, WEB_URL_MIMETYPE)) {
+						if (!isOnlineContent(mimeType)) {
 							if (val instanceof File) {
 								File file = (File) val;
 								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
@@ -155,11 +155,19 @@ public class ContentBundle {
 			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
 			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
 				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
+			if (!isOnlineContent(mimeType) && packageType == EcarPackageType.SPINE)
+				content.put(ContentWorkflowPipelineParams.contentDisposition.name(), "info-package");
+			
 		}
 		return downloadUrls;
 
 	}
 
+	
+	private boolean isOnlineContent(String mimeType) {
+		return StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE) || StringUtils.equalsIgnoreCase(mimeType, ARTIFACT_YOUTUBE_MIMETYPE)  || StringUtils.equalsIgnoreCase(mimeType, WEB_URL_MIMETYPE);
+	}
+	
 	/**
 	 * Creates the content bundle.
 	 *
