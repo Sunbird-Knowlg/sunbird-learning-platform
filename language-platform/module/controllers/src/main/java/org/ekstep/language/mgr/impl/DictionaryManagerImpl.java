@@ -3357,7 +3357,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		try {
 			List<Map<String, Object>> wordRecords = readWordsFromCSV(languageId, wordStream, wordDefinition,
 					synsetDefinition);
-			List<String> nodeIds = new ArrayList<>();
 			List<String> errorMessages = new ArrayList<>();
 			PlatformLogger.log("Bulk word Update | word count :" + wordRecords.size());
 			for (Map<String, Object> word : wordRecords) {
@@ -3371,9 +3370,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 				String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
 				if (nodeId != null) {
-					lstNodeId.add(nodeId);
+					//lstNodeId.add(nodeId);
+					PlatformLogger.log("Bulk word Update | successfull for  word  :" + nodeId);
 				}
-				nodeIds.addAll(lstNodeId);
 			}
 			return OK("errors", errorMessages);
 		} catch (ClientException e) {
