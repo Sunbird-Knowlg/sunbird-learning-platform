@@ -57,6 +57,7 @@ public class MimeTypeManagerFactory {
 				break;
 			case "video/youtube":
 			case "video/x-youtube":
+			case "text/x-url":
 				manager = youtubeMimeTypeMgr;
 				break;
 			case "application/pdf":

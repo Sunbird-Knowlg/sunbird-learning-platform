@@ -415,6 +415,16 @@ public class ContentValidator {
 								" | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
 					}
 					break;
+				
+				case "text/x-url":
+					if (StringUtils.isNotBlank(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())))
+							throw new ClientException(ContentErrorCodes.INVALID_YOUTUBE_URL.name(),
+									ContentErrorMessageConstants.INVALID_YOUTUBE_URL,
+									" | [Invalid or 'null' operation.] Publish Operation Failed");
+						else
+							isValid = true;
+							break;
 
 				case "application/pdf":
 					if (StringUtils.isNotBlank(
