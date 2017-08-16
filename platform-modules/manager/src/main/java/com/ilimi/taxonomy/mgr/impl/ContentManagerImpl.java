@@ -1065,8 +1065,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				else
 					map.put(TaxonomyAPIParams.contentEncoding.name(), "identity");
 			}
-			if (!map.containsKey(TaxonomyAPIParams.contentDisposition.name()))
-				map.put(TaxonomyAPIParams.contentDisposition.name(), "attachment");
+			if (!map.containsKey(TaxonomyAPIParams.contentDisposition.name())) {
+				if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url")) 
+					map.put(TaxonomyAPIParams.contentDisposition.name(), "by-reference");
+				else 
+					map.put(TaxonomyAPIParams.contentDisposition.name(), "attachment");
+			}	
 		}
 	}
 

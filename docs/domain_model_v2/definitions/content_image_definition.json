@@ -248,8 +248,8 @@
 					"displayProperty": "Editable",
 					"range": [
 						"attachment",
-						"online",
-						"offline"
+						"info-package",
+						"by-reference"
 					],
 					"defaultValue": "attachment",
 					"renderingHints": "{ 'inputType': 'text',  'order': 5 }",
