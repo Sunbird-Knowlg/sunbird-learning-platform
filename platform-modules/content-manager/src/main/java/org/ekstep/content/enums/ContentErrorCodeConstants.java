@@ -50,7 +50,8 @@ public enum ContentErrorCodeConstants {
 	INVALID_CONTENT(32, "Invalid Content (Node) Object."), 
 	INVALID_OPERATION(33, "Invalid Content Operation."),
 	PUBLISH_ERROR(34, "Publish Error."),
-	IMAGE_NODE_CREATION_ERROR(35, "Error while Create Content Image Node.");
+	IMAGE_NODE_CREATION_ERROR(35, "Error while Create Content Image Node."), 
+	INVALID_LIBRARY(36, "Error while fetching the library files.");
 
 	private final int code;
 	private final String description;

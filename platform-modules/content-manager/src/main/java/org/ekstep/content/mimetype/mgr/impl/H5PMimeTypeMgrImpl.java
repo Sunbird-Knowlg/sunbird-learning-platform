@@ -166,11 +166,9 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	private String getH5PLibraryPath() {
 		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
-		if (StringUtils.isBlank(path)) {
-			path = ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH;
-			PlatformLogger.log("H5P Library Path is not set in Properties File. So Taking the default value.", path,
-					"INFO");
-		}
+		if (StringUtils.isBlank(path))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
+					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
 		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
 		return path;
 	}
