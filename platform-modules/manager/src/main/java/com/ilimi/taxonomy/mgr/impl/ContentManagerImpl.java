@@ -18,6 +18,7 @@ import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
+import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
@@ -1059,18 +1060,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
 		if (StringUtils.isNotBlank(mimeType)) {
-			if (!map.containsKey(TaxonomyAPIParams.contentEncoding.name())) {
-				if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection"))
-					map.put(TaxonomyAPIParams.contentEncoding.name(), "gzip");
-				else
-					map.put(TaxonomyAPIParams.contentEncoding.name(), "identity");
-			}
-			if (!map.containsKey(TaxonomyAPIParams.contentDisposition.name())) {
-				if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url")) 
-					map.put(TaxonomyAPIParams.contentDisposition.name(), "by-reference");
-				else 
-					map.put(TaxonomyAPIParams.contentDisposition.name(), "attachment");
-			}	
+			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection"))
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
+			else
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
+
+			if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url")) 
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
+			else 
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
 		}
 	}
 

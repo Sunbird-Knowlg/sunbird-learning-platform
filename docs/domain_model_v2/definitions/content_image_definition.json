@@ -247,9 +247,9 @@
 					"category": "Technical",
 					"displayProperty": "Editable",
 					"range": [
-						"attachment",
-						"info-package",
-						"by-reference"
+						"inline",
+						"online",
+						"attachment"
 					],
 					"defaultValue": "attachment",
 					"renderingHints": "{ 'inputType': 'text',  'order': 5 }",

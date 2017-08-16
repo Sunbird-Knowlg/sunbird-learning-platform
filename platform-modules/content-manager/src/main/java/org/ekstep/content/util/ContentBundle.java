@@ -155,9 +155,6 @@ public class ContentBundle {
 			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
 			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
 				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
-			if (!isOnlineContent(mimeType) && packageType == EcarPackageType.SPINE)
-				content.put(ContentWorkflowPipelineParams.contentDisposition.name(), "info-package");
-			
 		}
 		return downloadUrls;
 
