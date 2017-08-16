@@ -3452,18 +3452,19 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (records.size() > 0 && meaningUpdate) {
 					List<Map<String, Object>> words = wordUtil.indexSearch(languageId, wordList);
 
-					for (Map<String, Object> word : words) {
-						String wordLemma = word.get(LanguageParams.lemma.name()).toString();
-						Map<String, Object> wordRecord = wordRecordMap.get(wordLemma);
-						Map<String, Object> synsetRecord = (Map<String, Object>) wordRecord
-								.get(LanguageParams.primaryMeaning.name());
-						String primaryMeaningId = (String)word.get(LanguageParams.primaryMeaningId.name());
-						if (StringUtils.isNotBlank(primaryMeaningId))
-							synsetRecord.put(LanguageParams.identifier.name(), primaryMeaningId);
-						else
-							synsetRecord.put(LanguageParams.gloss.name(), wordLemma);
-						wordRecordMap.remove(wordLemma);
-					}
+					if(words!=null)
+						for (Map<String, Object> word : words) {
+							String wordLemma = word.get(LanguageParams.lemma.name()).toString();
+							Map<String, Object> wordRecord = wordRecordMap.get(wordLemma);
+							Map<String, Object> synsetRecord = (Map<String, Object>) wordRecord
+									.get(LanguageParams.primaryMeaning.name());
+							String primaryMeaningId = (String)word.get(LanguageParams.primaryMeaningId.name());
+							if (StringUtils.isNotBlank(primaryMeaningId))
+								synsetRecord.put(LanguageParams.identifier.name(), primaryMeaningId);
+							else
+								synsetRecord.put(LanguageParams.gloss.name(), wordLemma);
+							wordRecordMap.remove(wordLemma);
+						}
 
 					for (Entry<String, Map<String, Object>> entry : wordRecordMap.entrySet()) {
 						Map<String, Object> wordRecord = entry.getValue();
