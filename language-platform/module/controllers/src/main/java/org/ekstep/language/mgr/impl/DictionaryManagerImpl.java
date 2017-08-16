@@ -3453,14 +3453,14 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					}
 				}
 				if (records.size() > 0 && meaningUpdate) {
-					List<Node> words = searchWords(languageId, wordList);
+					List<Map<String, Object>> words = wordUtil.indexSearch(languageId, wordList);
 
-					for (Node word : words) {
-						String wordLemma = word.getMetadata().get(LanguageParams.lemma.name()).toString();
+					for (Map<String, Object> word : words) {
+						String wordLemma = word.get(LanguageParams.lemma.name()).toString();
 						Map<String, Object> wordRecord = wordRecordMap.get(wordLemma);
 						Map<String, Object> synsetRecord = (Map<String, Object>) wordRecord
 								.get(LanguageParams.primaryMeaning.name());
-						String primaryMeaningId = word.getMetadata().get(LanguageParams.primaryMeaningId.name())
+						String primaryMeaningId = word.get(LanguageParams.primaryMeaningId.name())
 								.toString();
 						if (StringUtils.isNotBlank(primaryMeaningId))
 							synsetRecord.put(LanguageParams.identifier.name(), primaryMeaningId);

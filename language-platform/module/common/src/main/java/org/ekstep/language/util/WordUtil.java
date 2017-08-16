@@ -2802,7 +2802,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		filters.put(LanguageParams.status.name(), new ArrayList());
 
 		searchCriteria.put(CompositeSearchParams.filters.name(), filters);
-		searchCriteria.put(CompositeSearchParams.exists.name(), LanguageParams.tags.name());
+		//searchCriteria.put(CompositeSearchParams.exists.name(), LanguageParams.tags.name());
 
 		List<Map<String, Object>> wordList = searchUtil.searchWords(searchCriteria);
 
