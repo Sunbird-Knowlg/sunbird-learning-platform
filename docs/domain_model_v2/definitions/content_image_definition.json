@@ -2353,7 +2353,8 @@
 					"flags",
 					"author",
 					"createdBy",
-					"artifactMimeType"
+					"contentEncoding",
+					"contentDisposition"
 				]
 			}
 		}
