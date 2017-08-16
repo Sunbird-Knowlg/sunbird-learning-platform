@@ -3457,8 +3457,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						Map<String, Object> wordRecord = wordRecordMap.get(wordLemma);
 						Map<String, Object> synsetRecord = (Map<String, Object>) wordRecord
 								.get(LanguageParams.primaryMeaning.name());
-						String primaryMeaningId = word.get(LanguageParams.primaryMeaningId.name())
-								.toString();
+						String primaryMeaningId = (String)word.get(LanguageParams.primaryMeaningId.name());
 						if (StringUtils.isNotBlank(primaryMeaningId))
 							synsetRecord.put(LanguageParams.identifier.name(), primaryMeaningId);
 						else
