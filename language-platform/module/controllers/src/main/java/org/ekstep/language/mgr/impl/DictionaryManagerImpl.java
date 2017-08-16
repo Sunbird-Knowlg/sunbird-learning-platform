@@ -3375,8 +3375,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 				nodeIds.addAll(lstNodeId);
 			}
-			if(nodeIds.size()>0)
-				asyncUpdate(nodeIds, languageId);
 			return OK("errors", errorMessages);
 		} catch (ClientException e) {
 			PlatformLogger.log("ClientException", e.getMessage(), e);
