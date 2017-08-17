@@ -141,8 +141,11 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			Map<String, Object> paramsMap = (Map) suggestionObject.get(SuggestionCodeConstants.params.name());
 			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
 			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
-
-			if(SuggestionConstants.APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.REJECT_STATUS.equalsIgnoreCase(currentStatus))
+			String suggestedBy = null;
+			if(null != suggestionObject.get(SuggestionCodeConstants.suggestedBy.name()))
+               suggestedBy = (String) suggestionObject.get(SuggestionCodeConstants.suggestedBy);
+			
+            if(SuggestionConstants.APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.REJECT_STATUS.equalsIgnoreCase(currentStatus))
 				throw new ClientException(SuggestionCodeConstants.INVALID_ACTION.name(), "Suggestion already "+ currentStatus);
 			
 			Map<String, Object> requestMap = dataToUpdate(map, SuggestionConstants.APPROVE_STATUS);
@@ -157,10 +160,11 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			if (checkError(response)) {
 				return response;
 			}
-			
-			if (null != contentId && null != paramsMap)
+			if (null != contentId && null != paramsMap){
+				paramsMap.put(SuggestionCodeConstants.lastUpdatedBy.name(), suggestedBy);
 				contentManager.updateAllContentNodes(contentId, paramsMap);
-
+			}
+			
 		} catch (ClientException e) {
 			PlatformLogger.log("throwing exception received" + e.getMessage(), e);
 			throw e;
