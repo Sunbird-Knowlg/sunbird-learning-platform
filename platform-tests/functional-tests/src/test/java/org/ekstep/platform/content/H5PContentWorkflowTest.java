@@ -16,14 +16,26 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
 
 public class H5PContentWorkflowTest extends BaseTest {
 
+	public RequestSpecification getRequestSpecification(String content_type,String user_id, String APIToken)
+	{
+		RequestSpecBuilder builderreq = new RequestSpecBuilder();
+		builderreq.addHeader("Content-Type", content_type);
+		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeader("Authorization", APIToken);
+		RequestSpecification requestSpec = builderreq.build();
+		return requestSpec;
+	}
+	
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_H5PContentWorkflowTest\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_H5PContentWorkflowTest\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.h5p-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT_H5PContentWorkflowTest\"}}";
-	String publishMessage = "Publish Operation for Content Id 'LP_FT_H5PContentWorkflowTest' Started Successfully!";
+	String publishMessage = "Publish Operation for Content Id ‘LP_FT_H5PContentWorkflowTest’ Started Successfully!";
 
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 	static URL url = classLoader.getResource("DownloadedFiles");
@@ -55,7 +67,7 @@ public class H5PContentWorkflowTest extends BaseTest {
 
 		// Content Create
 		setURI();
-		Response r1 = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateValidContent).with()
+		Response r1 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonCreateValidContent).with()
 				.contentType(JSON).when().post("/content/v3/create").then().spec(get200ResponseSpec()).extract()
 				.response();
 
@@ -68,9 +80,9 @@ public class H5PContentWorkflowTest extends BaseTest {
 
 		// Content Upload
 		setURI();
-		Response r2 = given().spec(getRequestSpec(uploadContentType, validuserId))
+		Response r2 = given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
 				.multiPart(new File(path + "/valid_h5p_content.h5p")).when().post("/content/v3/upload/" + nodeId).then()
-				.spec(get200ResponseSpec()).extract().response();
+				.log().all().spec(get200ResponseSpec()).extract().response();
 		JsonPath jp2 = r2.jsonPath();
 		String id = jp2.get("result.node_id");
 		String contentUrl = jp2.get("result.content_url");
@@ -83,7 +95,7 @@ public class H5PContentWorkflowTest extends BaseTest {
 
 		// Content Review
 		setURI();
-		Response r3 = given().spec(getRequestSpec(contentType, validuserId)).body("{\"request\":{\"content\":{}}}")
+		Response r3 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body("{\"request\":{\"content\":{}}}")
 				.when().post("/content/v3/review/" + nodeId).then().log().all().spec(get200ResponseSpec()).extract()
 				.response();
 		JsonPath jP3 = r3.jsonPath();
@@ -95,8 +107,8 @@ public class H5PContentWorkflowTest extends BaseTest {
 
 		// Content Get and Check for Review Status
 		setURI();
-		Response r4 = given().spec(getRequestSpec(contentType, validuserId)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().spec(get200ResponseSpec()).extract()
+		Response r4 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
+				.get("/content/v3/read/"+nodeId).then().log().all().spec(get200ResponseSpec()).extract()
 				.response();
 
 		JsonPath jP4 = r4.jsonPath();
@@ -107,7 +119,7 @@ public class H5PContentWorkflowTest extends BaseTest {
 
 		// Content Publish
 		setURI();
-		Response r5 = given().spec(getRequestSpec(contentType, validuserId)).when()
+		Response r5 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
 				.get("/learning/v2/content/publish/" + nodeId).then().spec(get200ResponseSpec()).extract().response();
 		JsonPath jP5 = r5.jsonPath();
 		id = jP5.get("result.node_id");
@@ -126,8 +138,8 @@ public class H5PContentWorkflowTest extends BaseTest {
 
 		// Content Create
 		setURI();
-		Response r1 = given().spec(getRequestSpec(contentType, validuserId)).body(jsonCreateValidContent).with()
-				.contentType(JSON).when().post("/content/v3/create").then().spec(get200ResponseSpec()).extract()
+		Response r1 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonCreateValidContent).with()
+				.contentType(JSON).when().post("/content/v3/create").then().extract()
 				.response();
 
 		// Extracting the JSON path
@@ -139,8 +151,8 @@ public class H5PContentWorkflowTest extends BaseTest {
 
 		// Content Upload
 		setURI();
-		given().spec(getRequestSpec(uploadContentType, validuserId))
-				.multiPart(new File(path + "/invalid_h5p_content.h5p")).when().post("/content/v3/upload/" + nodeId)
+		given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
+				.multiPart(new File(path + "/invalid_h5p_content.zip")).when().post("/content/v3/upload/" + nodeId)
 				.then().spec(get400ResponseSpec());
 	}
 

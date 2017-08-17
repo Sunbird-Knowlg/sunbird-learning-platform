@@ -24,6 +24,8 @@ public class BaseTest
 	public String liveStatus = "Live";
 	public String contentType = "application/json";
 	public String uploadContentType = "multipart/form-data";
+	public String userId = "ilimi";
+	public String APIToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI1OWFiMmE2MDc1YzI0ODU2YjhiYjIzMjg4ZDdhZGNmNSJ9.RLouNX7RQ0VkVv2BYqNtH12D0IzKnBJ_I46xEORwHsU";
 	public String validuserId = "rayuluv";
 	public String invalidUserId = "abc";
 	
@@ -53,21 +55,8 @@ public class BaseTest
 	public RequestSpecification getRequestSpec(String content_type,String user_id)
 	{
 		RequestSpecBuilder builderreq = new RequestSpecBuilder();
-		builderreq.addHeader("Authorization", "");
 		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("user-id", user_id);
-		RequestSpecification requestSpec = builderreq.build();
-		return requestSpec;
-	}
-	
-	public RequestSpecification getRequestSpecWithHeaderExceptChannelId(String content_type,String user_id)
-	{
-		RequestSpecBuilder builderreq = new RequestSpecBuilder();
-		builderreq.addHeader("Authorization", "");
-		builderreq.addHeader("Content-Type", content_type);
-		builderreq.addHeader("user-id", user_id);
-		builderreq.addHeader("X-Consumer-ID", "FT_DEMO_CONSUMER_ID");
-		builderreq.addHeader("X-App-Id", "FT_DEMO_APP_ID");
 		RequestSpecification requestSpec = builderreq.build();
 		return requestSpec;
 	}
@@ -217,4 +206,3 @@ public class BaseTest
 	}
 
 }
-
