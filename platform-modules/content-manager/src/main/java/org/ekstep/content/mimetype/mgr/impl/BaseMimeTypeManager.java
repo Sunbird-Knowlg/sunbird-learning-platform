@@ -539,6 +539,11 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return path;
 	}
 	
+	protected String getTempDirectoryPath(String contentId) {
+		return tempFileLocation + contentId + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
+		 + File.separator;
+	}
+	
 	/**
 	 * extractContentPackage() 
 	 * extracts the ContentPackageZip file
