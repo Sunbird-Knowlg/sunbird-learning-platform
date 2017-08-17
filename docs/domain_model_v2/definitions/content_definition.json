@@ -251,7 +251,7 @@
 						"online",
 						"attachment"
 					],
-					"defaultValue": "attachment",
+					"defaultValue": "inline",
 					"renderingHints": "{ 'inputType': 'text',  'order': 5 }",
 					"indexed": true,
 					"draft": false
