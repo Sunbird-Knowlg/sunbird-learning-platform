@@ -141,9 +141,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			Map<String, Object> paramsMap = (Map) suggestionObject.get(SuggestionCodeConstants.params.name());
 			String contentId = (String) suggestionObject.get(SuggestionCodeConstants.objectId.name());
 			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
-			String suggestedBy = null;
-			if(null != suggestionObject.get(SuggestionCodeConstants.suggestedBy.name()))
-               suggestedBy = (String) suggestionObject.get(SuggestionCodeConstants.suggestedBy.name());
+            String suggestedBy = (String) suggestionObject.get(SuggestionCodeConstants.suggestedBy.name());
 			
             if(SuggestionConstants.APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.REJECT_STATUS.equalsIgnoreCase(currentStatus))
 				throw new ClientException(SuggestionCodeConstants.INVALID_ACTION.name(), "Suggestion already "+ currentStatus);
@@ -161,7 +159,8 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 				return response;
 			}
 			if (null != contentId && null != paramsMap){
-				paramsMap.put(SuggestionCodeConstants.lastUpdatedBy.name(), suggestedBy);
+				if(StringUtils.isNotBlank(suggestedBy))
+					paramsMap.put(SuggestionCodeConstants.lastUpdatedBy.name(), suggestedBy);
 				contentManager.updateAllContentNodes(contentId, paramsMap);
 			}
 			
