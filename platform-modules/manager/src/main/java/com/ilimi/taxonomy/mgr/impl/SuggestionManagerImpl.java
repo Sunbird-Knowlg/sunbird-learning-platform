@@ -143,7 +143,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 			String currentStatus = (String) suggestionObject.get(SuggestionCodeConstants.status.name());
 			String suggestedBy = null;
 			if(null != suggestionObject.get(SuggestionCodeConstants.suggestedBy.name()))
-               suggestedBy = (String) suggestionObject.get(SuggestionCodeConstants.suggestedBy);
+               suggestedBy = (String) suggestionObject.get(SuggestionCodeConstants.suggestedBy.name());
 			
             if(SuggestionConstants.APPROVE_STATUS.equalsIgnoreCase(currentStatus) || SuggestionConstants.REJECT_STATUS.equalsIgnoreCase(currentStatus))
 				throw new ClientException(SuggestionCodeConstants.INVALID_ACTION.name(), "Suggestion already "+ currentStatus);
