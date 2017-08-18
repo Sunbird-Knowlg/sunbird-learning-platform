@@ -22,7 +22,9 @@ import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.content.common.ContentConfigurationConstants;
+import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.ExtractionType;
+import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
@@ -235,8 +237,7 @@ public class ContentPackageExtractionUtil {
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		PlatformLogger.log("Mime Type: " + mimeType);
 		if (!uploadedFile.exists()
-				|| (!isValidSnapshotFile(uploadedFile.getName())
-						&& extractableMimeTypes.containsKey(mimeType)))
+				|| (!isValidSnapshotFile(uploadedFile.getName()) && extractableMimeTypes.containsKey(mimeType)))
 			throw new ClientException(ContentErrorCodes.INVALID_FILE.name(), "Error! File doesn't Exist.");
 
 		PlatformLogger.log("Validating Extraction Type.");
@@ -265,13 +266,10 @@ public class ContentPackageExtractionUtil {
 					}
 					// UnZip the Content Package
 					unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath + "/content");
-				} else
-				{
+				} else {
 					// UnZip the Content Package
 					unzipUtility.unzip(uploadedFile.getAbsolutePath(), extractionBasePath);
 				}
-
-				
 
 				// Extract Content Package
 				extractPackage(contentId, node, extractionBasePath, extractionType, slugFile);
@@ -286,11 +284,9 @@ public class ContentPackageExtractionUtil {
 
 	private String getH5PLibraryPath() {
 		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
-		if (StringUtils.isBlank(path)) {
-			path = ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH;
-			PlatformLogger.log("H5P Library Path is not set in Properties File. So Taking the default value.", path,
-					"INFO");
-		}
+		if (StringUtils.isBlank(path))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
+					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
 		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
 		return path;
 	}

@@ -154,16 +154,8 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			contentPackageExtractionUtil.extractPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
 					false);
 			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
-		} catch (SecurityException e) {
-			throw new ServerException(ContentErrorCodeConstants.FILE_DELETE_ERROR.name(),
-					ContentErrorMessageConstants.FILE_DELETE_ERROR
-							+ " | [Something went wrong while deleting 'H5P' Content/Library Package.]",
-					e);
 		} catch (IOException e) {
-			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
-					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR
-							+ " | [Something went wrong while extracting 'H5P' Content/Library Package.]",
-					e);
+			PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
@@ -171,9 +163,7 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR
-							+ " | [Something Went Wrong While Uploading the 'H5P' Content.]",
-					e);
-
+							+ " | [Something Went Wrong While Uploading the 'H5P' Content.]");
 		} finally {
 			// Cleanup
 			try {
@@ -188,11 +178,9 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 
 	private String getH5PLibraryPath() {
 		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
-		if (StringUtils.isBlank(path)) {
-			path = ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH;
-			PlatformLogger.log("H5P Library Path is not set in Properties File. So Taking the default value.", path,
-					"INFO");
-		}
+		if (StringUtils.isBlank(path))
+			throw new ServerException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
+					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
 		PlatformLogger.log("Fetched H5P Library Path: " + path, null, "INFO");
 		return path;
 	}

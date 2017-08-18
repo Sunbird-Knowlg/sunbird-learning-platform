@@ -51,7 +51,7 @@ public class ContentValidator {
 	/** The doc mimeType */
 	private static final String DOC_MIMETYPE =  "application/msword";
 	
-	private static final String EPUB_MIMETYPE = "application/epub+zip";
+	private static final String EPUB_MIMETYPE = "application/epub";
 	
 	/** The allowed extensions */
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
@@ -377,7 +377,8 @@ public class ContentValidator {
 				case "application/vnd.ekstep.content-collection":
 					isValid = true;
 					break;
-
+				
+				case "video/x-youtube":
 				case "video/youtube":
 					if (StringUtils.isNotBlank(
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
@@ -396,6 +397,16 @@ public class ContentValidator {
 								" | [Invalid or 'missing' youtube Url.] Publish Operation Failed");
 					}
 					break;
+				
+				case "text/x-url":
+					if (StringUtils.isBlank(
+							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())))
+							throw new ClientException(ContentErrorCodes.INVALID_ARTIFACT.name(),
+									ContentErrorMessageConstants.INVALID_URL,
+									" | [Invalid or 'null' operation.] Publish Operation Failed");
+						else
+							isValid = true;
+							break;
 
 				case "application/pdf":
 					if (StringUtils.isNotBlank(
@@ -411,7 +422,7 @@ public class ContentValidator {
 					}
 					break;
 
-				case "application/epub+zip":
+				case "application/epub":
 					if (StringUtils.isNotBlank(
 							(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))) {
 						String artifactUrl = (String) node.getMetadata()

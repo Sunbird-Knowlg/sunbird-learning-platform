@@ -2,7 +2,6 @@ package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,24 +43,24 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	public Response upload(String contentId, Node node, File uploadedFile, boolean isAsync) {
 		PlatformLogger.log("Uploaded File: " + uploadedFile.getName());
 		PlatformLogger.log("Calling Upload Content For Node ID: " + node.getIdentifier());
-		String mimeType = (String)node.getMetadata().get("mimeType");
 		File file = null;
-		if(StringUtils.equalsIgnoreCase(mimeType, "application/epub+zip")){
-			if (StringUtils.endsWith(uploadedFile.getName(), ".epub")) {
-				file = new File("index.epub");
-				if(!file.exists()){
-					try {
-						FileUtils.moveFile(uploadedFile,file);
-						return uploadContentArtifact(contentId, node, file);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}else{
-					return uploadContentArtifact(contentId, node, file);
+		try {
+			String mimeType = (String)node.getMetadata().get("mimeType");
+			if(StringUtils.equalsIgnoreCase(mimeType, "application/epub") && StringUtils.endsWith(uploadedFile.getName(), ".epub")) {
+				String tempFilePath = getTempDirectoryPath(contentId) + "index.epub";
+				file = new File(tempFilePath);
+				try {
+					FileUtils.moveFile(uploadedFile,file);
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
+				return uploadContentArtifact(contentId, node, file);
 			}
+			return uploadContentArtifact(contentId, node, uploadedFile);
+		} finally {
+			if (null != file)
+				file.delete();
 		}
-		return uploadContentArtifact(contentId, node, uploadedFile);
 	}
 	
 	@Override
@@ -146,7 +145,6 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 				node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
 				node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 				node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
-				response = updateContentNode(contentId, node, urlArray[1]);
 	
 				PlatformLogger.log("Calling 'updateContentNode' for Node ID: " , contentId);
 				response = updateContentNode(contentId, node, urlArray[1]);

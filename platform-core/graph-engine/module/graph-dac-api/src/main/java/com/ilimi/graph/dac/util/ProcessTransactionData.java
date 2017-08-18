@@ -116,9 +116,8 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building created nodes message", e.getMessage(),e);
+			PlatformLogger.log("Error building created nodes message" + e.getMessage(),null, e);
 		}
-//		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
@@ -158,9 +157,8 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building updated nodes message", e.getMessage(), e);
+			PlatformLogger.log("Error building updated nodes message" + e.getMessage(),null, e);
 		}
-//		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
@@ -202,9 +200,8 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building deleted nodes message", e.getMessage(), e);
+			PlatformLogger.log("Error building deleted nodes message" + e.getMessage(),null,  e);
 		}
-//		PlatformLogger.log("returning processed transaction data" , lstMessageMap);
 		return lstMessageMap;
 	}
 
@@ -425,7 +422,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building removed tags message", e.getMessage(), e);
+			PlatformLogger.log("Error building removed tags message"+ e.getMessage(),null, e);
 		}
 		return lstMessageMap;
 	}
@@ -562,7 +559,7 @@ public class ProcessTransactionData {
 				}
 			}
 		} catch (Exception e) {
-			PlatformLogger.log("Error building updated relations message", e.getMessage(), e);
+			PlatformLogger.log("Error building updated relations message" + e.getMessage(),null, e);
 		}
 		return lstMessageMap;
 	}

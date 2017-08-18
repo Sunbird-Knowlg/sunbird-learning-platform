@@ -100,8 +100,6 @@ public class ContentConfigurationConstants {
 	
 	public static final String DEFAULT_H5P_JSON_FILE_LOCATION = "h5p.json";
 	
-	public static final String DEFAULT_H5P_LIBRARY_PATH = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/do_1123065453166919681386/artifact/h5plibrary_1502263860287.zip";
-
 	public static final String DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY = "content.h5p.library.path";
 	
 	/**

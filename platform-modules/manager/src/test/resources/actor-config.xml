@@ -1,5 +1,5 @@
 <actor-config>
-	<init system="ActorSystem">
+	<init system="LearningActorSystem">
 		<init-routers>
 			<init-router name="RequestRouter" count="4"
 				class="com.ilimi.graph.engine.router.RequestRouter"></init-router>
@@ -7,6 +7,8 @@
 				class="com.ilimi.graph.engine.router.DACRequestRouter"></init-router>
 			<init-router name="CacheRouter" count="4"
 				class="com.ilimi.graph.engine.router.CacheRequestRouter"></init-router>
+			<init-router name="TclExecutor" count="8"
+				class="com.ilimi.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>

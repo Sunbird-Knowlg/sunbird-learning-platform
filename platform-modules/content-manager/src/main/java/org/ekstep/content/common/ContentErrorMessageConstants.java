@@ -152,6 +152,10 @@ public class ContentErrorMessageConstants {
 	public static final String MISSING_YOUTUBE_URL = "Error! Missing Youtube Url";
 
 	public static final String MISSING_DOC_LINK = "Error! Missing doc/pdf Link";
+	
+	public static final String INVALID_H5P_LIBRARY = "Error! H5P Library Package File is Invalid.";
+	
+	public static final String INVALID_URL = "Error! Invalid/Missing Url";
 
 	public static final String INVALID_H5P_LIBRARY = "Error! H5P Library Package File is Invalid.";
 

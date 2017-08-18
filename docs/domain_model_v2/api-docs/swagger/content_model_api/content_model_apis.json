@@ -441,7 +441,7 @@
                 "security": []
             }
         },
-        "/history/{contentId}": {
+        "/history/{contentId}?graphId={graphId}": {
             "get": {
                 "tags": [
                     "History"
@@ -455,6 +455,9 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/ContentId"
+                    },
+                    {
+                        "$ref": "#/parameters/graphId"
                     }
                 ],
                 "responses": {
@@ -715,6 +718,13 @@
         },
         "ContentId": {
             "name": "contentId",
+            "in": "path",
+            "type": "string",
+            "description": "The given Content identifier to perform operation",
+            "required": true
+        },
+         "graphId": {
+            "name": "graphId",
             "in": "path",
             "type": "string",
             "description": "The given Content identifier to perform operation",

@@ -18,6 +18,7 @@ import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
+import org.ekstep.content.enums.ContentMetadata;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
@@ -64,7 +65,6 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.RelationDefinition;
-import com.ilimi.taxonomy.common.ArtifactMimeTypeMap;
 import com.ilimi.taxonomy.common.LanguageCodeMap;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -575,7 +575,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
 		PlatformLogger.log("Body Fetched From Content Store.");
-		
+
 		PlatformLogger.log("Putting the last Submitted On TimeStamp.");
 		node.getMetadata().put(TaxonomyAPIParams.lastSubmittedOn.name(), DateUtils.formatCurrentDate());
 
@@ -897,9 +897,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 							ResponseCode.CLIENT_ERROR);
 				map.put("identifier", map.get("code"));
 			}
-			
-			updateArtifactMimeType(map, mimeType);
-			
+
+			updateDefaultValuesByMimeType(map, mimeType);
+
 			Map<String, Object> externalProps = new HashMap<String, Object>();
 			List<String> externalPropsList = getExternalPropsList(definition);
 			if (null != externalPropsList && !externalPropsList.isEmpty()) {
@@ -947,7 +947,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		map.put("identifier", contentId);
 
 		String mimeType = (String) map.get(TaxonomyAPIParams.mimeType.name());
-		updateArtifactMimeType(map, mimeType);
+		updateDefaultValuesByMimeType(map, mimeType);
 
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
@@ -1058,15 +1058,20 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return createResponse;
 	}
 
-	
-	private void updateArtifactMimeType(Map<String, Object> map, String mimeType) {
-		map.remove(TaxonomyAPIParams.artifactMimeType.name());
+	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
 		if (StringUtils.isNotBlank(mimeType)) {
-			map.put(TaxonomyAPIParams.artifactMimeType.name(),
-					ArtifactMimeTypeMap.getArtifactMimeType(mimeType));
+			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection"))
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
+			else
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
+
+			if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url")) 
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
+			else 
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response find(String graphId, String contentId, String mode, List<String> fields) {

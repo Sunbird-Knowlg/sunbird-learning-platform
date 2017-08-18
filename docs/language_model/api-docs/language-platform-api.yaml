@@ -16,7 +16,9 @@ tags:
   - name: Synset
     description: APIs for CRUD of synset objects
   - name: Varna
-    description: APIs for CRUD of varna objects
+    description: >-
+      APIs for CRUD of varna objects and to list down typed varnas, syllables
+      and gunimta
   - name: WordList
     description: APIs for CRUD of wordlist objects
   - name: Traversal Rule
@@ -471,6 +473,82 @@ paths:
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
+  /v3/tools/rhymingwords/list:
+    post:
+      tags:
+        - Tools
+      summary: Rhymingwords API
+      description: This endpoint takes language id and a word to list down rhyming words.
+      operationId: tools.rhymingwords
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/rhymingWordsRequestBody'
+          x-is-map: false
+      responses:
+        '200':
+          description: Rhyming words returned successfully
+          schema:
+            $ref: '#/definitions/rhymingWordsResponse'
+        '400':
+          description: >-
+            Error While returning rhyming words! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While returning rhyming words! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /v3/words/curate/list:
+    post:
+      tags:
+        - Tools
+      summary: >-
+        To list words which need to be curated and it is known as words of the
+        day
+      description: >-
+        This endpoint takes language id to list down words which needs to be
+        curated.
+      operationId: words.curate.list
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/curatableWordsRequestBody'
+          x-is-map: false
+      responses:
+        '200':
+          description: Curatable words returned successfully
+          schema:
+            $ref: '#/definitions/curatableWordsResponse'
+        '400':
+          description: >-
+            Error While getting curatable words! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While getting curatable words! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
   '/v3/traversals/create?language_id=###':
     post:
       tags:
@@ -843,6 +921,153 @@ paths:
             Error While updating Varna! | Error occurred while operation, mostly
             because of erroneous condition on server, In general it is 'Server
             Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /v3/varnas/vowels/list:
+    get:
+      tags:
+        - Varna
+      summary: Gets all vowel varnas in the specified language
+      description: >-
+        This endpoint returns all the vowels available in the specified
+        language.
+      operationId: varnas.vowels.list
+      produces:
+        - application/json
+      parameters:
+        - name: language_id
+          in: query
+          description: Unique code of the language for which all vowels are returned
+          required: true
+          type: string
+      responses:
+        '200':
+          description: All Vowels Returned Successfully
+          schema:
+            $ref: '#/definitions/getTypedVarnasResponse'
+        '400':
+          description: >-
+            Error While fetching all Vowels! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all Vowels! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /v3/varnas/consonants/list:
+    get:
+      tags:
+        - Varna
+      summary: Gets all consonants varnas in the specified language
+      description: >-
+        This endpoint returns all the consonants available in the specified
+        language.
+      operationId: varnas.consonants.list
+      produces:
+        - application/json
+      parameters:
+        - name: language_id
+          in: query
+          description: Unique code of the language for which all consonants are returned
+          required: true
+          type: string
+      responses:
+        '200':
+          description: All Consonants Returned Successfully
+          schema:
+            $ref: '#/definitions/getTypedVarnasResponse'
+        '400':
+          description: >-
+            Error While fetching all Consonants! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all Consonants! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /v3/varnas/syllables/list:
+    post:
+      tags:
+        - Varna
+      summary: Gets the syllables for any given word
+      description: This endpoint returns the  syllables for any given word.
+      operationId: varnas.syllables.list
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: Body
+          required: true
+          schema:
+            $ref: '#/definitions/getSyllablesRequestBody'
+          x-is-map: false
+      responses:
+        '200':
+          description: Syllables Returned Successfully
+          schema:
+            $ref: '#/definitions/getSyllablesResponse'
+        '400':
+          description: >-
+            Error While fetching Syllables! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching Syllables! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /v3/varnas/gunimta/list:
+    get:
+      tags:
+        - Varna
+      summary: Gets the gunimta for any given consonant varna
+      description: This endpoint returns the  syllables for any given consonant varna.
+      operationId: varnas.gunimta.list
+      produces:
+        - application/json
+      parameters:
+        - name: unicode
+          in: query
+          description: the varna of any consonant
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Gunimtas Returned Successfully
+          schema:
+            $ref: '#/definitions/getGunimtasResponse'
+        '400':
+          description: >-
+            Error While fetching Gunimtas! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching Gunimtas! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
@@ -1272,11 +1497,7 @@ definitions:
   createWordRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1292,11 +1513,7 @@ definitions:
   updateWordRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1328,11 +1545,7 @@ definitions:
   flagWordRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1348,11 +1561,7 @@ definitions:
   searchWordRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1368,11 +1577,7 @@ definitions:
   complexityMeasuresRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1385,6 +1590,58 @@ definitions:
       request:
         $ref: '#/definitions/complexityMeasuresReqObject'
     title: Complexity Measures Request Body
+  rhymingWordsRequestBody:
+    type: object
+    required:
+      - request
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        $ref: '#/definitions/rhymingWordsReqObject'
+    title: Rhyming words Request Body
+  curatableWordsRequestBody:
+    type: object
+    required:
+      - request
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        properties:
+          language_id:
+            type: string
+    title: List curatable words Request Body
+  getSyllablesRequestBody:
+    type: object
+    required:
+      - request
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/RequestParams'
+      request:
+        properties:
+          word:
+            type: string
+    title: List curatable words Request Body
   textAnalysisRequestBody:
     type: object
     required:
@@ -1408,11 +1665,7 @@ definitions:
   parserRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1428,11 +1681,7 @@ definitions:
   createSynsetRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1448,11 +1697,7 @@ definitions:
   createWordlistRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1468,11 +1713,7 @@ definitions:
   createTraversalRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1488,11 +1729,7 @@ definitions:
   createVarnaRequestBody:
     type: object
     required:
-      - id
-      - params
       - request
-      - ts
-      - ver
     properties:
       id:
         type: string
@@ -1702,6 +1939,71 @@ definitions:
       result:
         $ref: '#/definitions/getAllVarnasResponse_result'
     title: result
+  getTypedVarnasResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+      result:
+        type: object
+        properties:
+          result:
+            type: array
+            items:
+              $ref: '#/definitions/varnaObject'
+    title: result
+  getSyllablesResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+      result:
+        type: object
+        properties:
+          result:
+            type: array
+            description: list of syllable
+            items:
+              type: string
+    title: result
+  getGunimtasResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+      result:
+        type: object
+        properties:
+          result:
+            type: array
+            description: list of gunimta
+            items:
+              type: string
+    title: result
   getVarnaResponse:
     type: object
     properties:
@@ -1764,6 +2066,38 @@ definitions:
       result:
         $ref: '#/definitions/complexityMeasuresObject'
     title: Complexity Measures API result
+  rhymingWordsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+      result:
+        $ref: '#/definitions/rhymingWordsObject'
+    title: Rhyming words API result
+  curatableWordsResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      ver:
+        type: string
+      ts:
+        type: string
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: string
+      result:
+        $ref: '#/definitions/curatableWordsObject'
+    title: Curatable words API result
   textAnalyisResponse:
     type: object
     properties:
@@ -1889,6 +2223,14 @@ definitions:
         description: List of words whose complexity needs to be computed
         items:
           type: string
+  rhymingWordsReqObject:
+    properties:
+      language_id:
+        type: string
+        description: Unique code of the language of the input word
+      lemma:
+        type: string
+        description: lemma of word
   textAnalysisReqObject:
     properties:
       language_id:
@@ -1918,7 +2260,7 @@ definitions:
   wordResponse:
     properties:
       word:
-        $ref: '#/definitions/wordObject'
+        $ref: '#/definitions/wordV3Object'
   wordsResponse:
     properties:
       words:
@@ -1928,7 +2270,7 @@ definitions:
   synsetResponse:
     properties:
       node:
-        $ref: '#/definitions/synsetNodeObject'
+        $ref: '#/definitions/meaningObject'
   synsetsResponse:
     properties:
       synsets:
@@ -1965,6 +2307,47 @@ definitions:
         description: 'list of object matching the search criteria, grouped by object type'
         items:
           $ref: '#/definitions/wordSearchObject'
+  wordV3Object:
+    properties:
+      identifier:
+        type: string
+        description: Unique identifier of the word
+      lemma:
+        type: string
+        description: Lemma of the word
+      primaryMeaningId:
+        type: string
+        description: Identifier of the primary meaning of the word
+      status:
+        type: string
+        description: 'Status of the word: Draft, Live or Retired'
+      variants:
+        type: array
+        description: Variants of the word
+        items:
+          type: string
+      pronunciations:
+        type: array
+        description: Pronunciations of the word
+        items:
+          type: string
+      orthographic_complexity:
+        type: number
+        format: double
+        description: Orthographic complexity of the word
+      phonologic_complexity:
+        type: number
+        format: double
+        description: Phonological complexity of the word
+      word_complexity:
+        type: number
+        format: double
+        description: Word complexity
+      synsets:
+        type: array
+        description: List of synset metadata object
+        items:
+          $ref: '#/definitions/synsetMetadataObject'
   wordObject:
     properties:
       identifier:
@@ -2047,6 +2430,31 @@ definitions:
       thresholdLevel:
         type: string
         description: Threshold Level of the word
+  synsetMetadataObject:
+    properties:
+      identifier:
+        type: string
+        description: Unique identifier of the meaning
+      gloss:
+        type: string
+        description: Glossary of the meaning
+      pos:
+        type: string
+        description: Parts of speech of the meaning
+      category:
+        type: string
+        description: Category of the meaning
+      pictures:
+        type: array
+        description: Pictures of the meaning
+        items:
+          type: string
+      exampleSentences:
+        type: array
+        description: Example sentences of the word in context of this meaning object
+        items:
+          type: string
+    description: synset object
   meaningObject:
     properties:
       identifier:
@@ -2144,6 +2552,26 @@ definitions:
     properties:
       complexity_measures:
         $ref: '#/definitions/complexityMeasuresObject_complexity_measures'
+  rhymingWordsObject:
+    properties:
+      words:
+        type: array
+        description: list of word
+        items:
+          properties:
+            identifier:
+              type: string
+              description: Unique identifier of the word
+            lemma:
+              type: string
+              description: lemma of a word
+  curatableWordsObject:
+    properties:
+      words:
+        type: array
+        description: list of word objects which needs to be
+        items:
+          $ref: '#/definitions/wordSearchObject'
   synsetObject:
     properties:
       identifier:
@@ -2160,80 +2588,7 @@ definitions:
           etc
       status:
         type: string
-        description: status if the synset
-  synsetNodeObject:
-    properties:
-      id:
-        type: string
-        description: Unique identifier of the synset in graph database
-      graphId:
-        type: string
-        description: id of the language
-      identifier:
-        type: string
-        description: Unique identifier of the synset
-      nodeType:
-        type: string
-        description: 'node type in graph database '
-      objectType:
-        type: string
-        description: object type in graph database
-      metadata:
-        $ref: '#/definitions/synsetObject'
-      outRelations:
-        type: array
-        description: List of Relations
-        items:
-          $ref: '#/definitions/synsetRelationObject'
-      inRelations:
-        type: array
-        description: List of Relations
-        items:
-          $ref: '#/definitions/synsetRelationObject'
-      tags:
-        type: array
-        description: Tags added to the meaning
-        items:
-          type: string
-  synsetRelationObject:
-    properties:
-      id:
-        type: string
-        description: Identifier of the relation
-      graphId:
-        type: string
-        description: Language id
-      relationType:
-        type: string
-        description: Type of the relation between nodes
-      startNodeId:
-        type: string
-        description: Identifier of the start node
-      startNodeName:
-        type: string
-        description: Node name of the start node
-      startNodeType:
-        type: string
-        description: Node type of the start node
-      startNodeObjectType:
-        type: string
-        description: Node Object Type of the start node
-      endNodeId:
-        type: string
-        description: Identifier of the end node
-      endNodeName:
-        type: string
-        description: Node name of the end node
-      endNodeType:
-        type: string
-        description: Node type of the end node
-      endNodeObjectType:
-        type: string
-        description: Node Object Type of the end node
-      startNodeMetadata:
-        $ref: '#/definitions/synsetObject'
-      endNodeMetadata:
-        $ref: '#/definitions/wordSearchObject'
+        description: status of the synset
   textAnalysisObject:
     properties:
       text_complexity:

@@ -403,6 +403,7 @@ public class ElasticSearchUtil {
 
 	@SuppressWarnings("unused")
 	public SearchResult search(String IndexName, String query) throws IOException {
+		PlatformLogger.log("searching in ES index: "+ IndexName);
 		PlatformLogger.log("getting query to search from ES" , query);
 		Search search = new Search.Builder(query).addIndex(IndexName).setParameter("size", resultLimit).setParameter("from", offset).build();
 		long startTime = System.currentTimeMillis();
