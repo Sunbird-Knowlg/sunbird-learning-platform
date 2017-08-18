@@ -130,6 +130,9 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			unzipUtility.unzip(h5pLibraryPackageFile.getAbsolutePath(), extractionBasePath);
 			// UnZip the Content Package
 			unzipUtility.unzip(uploadFile.getAbsolutePath(), extractionBasePath + "/content");
+			// Delete 'H5P' Library Package Zip File after Extraction
+			if (h5pLibraryPackageFile.exists())
+				h5pLibraryPackageFile.delete();
 			List<Path> paths = Files.walk(Paths.get(extractionBasePath)).filter(Files::isRegularFile)
 					.collect(Collectors.toList());
 			List<File> files = new ArrayList<File>();
@@ -143,6 +146,9 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			String[] urlArray = uploadArtifactToAWS(new File(zipFileName), contentId);
 			node.getMetadata().put("s3Key", urlArray[IDX_S3_KEY]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
+			File zipFile = new File(zipFileName);
+			if (zipFile.exists())
+				zipFile.delete();
 			// Extract Content Package
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.extractPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
