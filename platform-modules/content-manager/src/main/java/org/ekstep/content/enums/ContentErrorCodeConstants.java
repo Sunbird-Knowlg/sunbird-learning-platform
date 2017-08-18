@@ -2,17 +2,17 @@ package org.ekstep.content.enums;
 
 import org.ekstep.content.common.ContentErrorMessageConstants;
 
-/** 
+/**
  *  ContentErrorCodeConstants Enum holds all the ErrorCodeConstants
  *  used in the ContentModel
- *  
+ *
  *  @author Mohammad Azharuddin
- *  
+ *
  *  @see ContentErrorMessageConstants
  */
 public enum ContentErrorCodeConstants {
 
-	MULTIPLE_MANIFEST(0, "More than one Manifest Section."), 
+	MULTIPLE_MANIFEST(0, "More than one Manifest Section."),
 	XML_TRANSFORM(1, "Error while xml transformation."),
 	INVALID_MEDIA(2, "Invalid Media Element."),
 	EXPECTED_JSON_OBJECT(3, "Expected JSON Object for the given Element."),
@@ -46,11 +46,13 @@ public enum ContentErrorCodeConstants {
 	MISSING_CONTENT(28, "Missing one or more Content for Bundling."),
 	OPERATION_DENIED(29, "The Content Operation cannot be Performed."),
 	VALIDATOR_ERROR(30, "Invalid Content."),
-	MANIFEST_FILE_READ(31, "Error while reading Manifest file."), 
-	INVALID_CONTENT(32, "Invalid Content (Node) Object."), 
+	MANIFEST_FILE_READ(31, "Error while reading Manifest file."),
+	INVALID_CONTENT(32, "Invalid Content (Node) Object."),
 	INVALID_OPERATION(33, "Invalid Content Operation."),
 	PUBLISH_ERROR(34, "Publish Error."),
-	IMAGE_NODE_CREATION_ERROR(35, "Error while Create Content Image Node.");
+	IMAGE_NODE_CREATION_ERROR(35, "Error while Create Content Image Node."),
+	INVALID_LIBRARY(36, "Error while fetching the library files."),
+	FILE_DELETE_ERROR(36, "Error while deleting the file.");
 
 	private final int code;
 	private final String description;

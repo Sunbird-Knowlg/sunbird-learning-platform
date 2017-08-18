@@ -30,6 +30,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -129,6 +130,9 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			unzipUtility.unzip(h5pLibraryPackageFile.getAbsolutePath(), extractionBasePath);
 			// UnZip the Content Package
 			unzipUtility.unzip(uploadFile.getAbsolutePath(), extractionBasePath + "/content");
+			// Delete 'H5P' Library Package Zip File after Extraction
+			if (h5pLibraryPackageFile.exists())
+				h5pLibraryPackageFile.delete();
 			List<Path> paths = Files.walk(Paths.get(extractionBasePath)).filter(Files::isRegularFile)
 					.collect(Collectors.toList());
 			List<File> files = new ArrayList<File>();
@@ -142,16 +146,34 @@ public class H5PMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 			String[] urlArray = uploadArtifactToAWS(new File(zipFileName), contentId);
 			node.getMetadata().put("s3Key", urlArray[IDX_S3_KEY]);
 			node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
+			File zipFile = new File(zipFileName);
+			if (zipFile.exists())
+				zipFile.delete();
 			// Extract Content Package
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
 			contentPackageExtractionUtil.extractPackage(contentId, node, extractionBasePath, ExtractionType.snapshot,
 					false);
-			response = updateContentNode(contentId, node, "");
-		} catch (IOException e) {
-			PlatformLogger.log("Error! While Unzipping the Content Package File.", e.getMessage(), e);
-		} catch (Exception e) {
-			PlatformLogger.log("Error! Something Went Wrong While Extracting the Content Package File.", e.getMessage(),
+			response = updateContentNode(contentId, node, urlArray[IDX_S3_URL]);
+		} catch (SecurityException e) {
+			throw new ServerException(ContentErrorCodeConstants.FILE_DELETE_ERROR.name(),
+					ContentErrorMessageConstants.FILE_DELETE_ERROR
+							+ " | [Something went wrong while deleting 'H5P' Content/Library Package.]",
 					e);
+		} catch (IOException e) {
+			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
+					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR
+							+ " | [Something went wrong while extracting 'H5P' Content/Library Package.]",
+					e);
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
+					ContentErrorMessageConstants.FILE_UPLOAD_ERROR
+							+ " | [Something Went Wrong While Uploading the 'H5P' Content.]",
+					e);
+
 		} finally {
 			// Cleanup
 			try {
