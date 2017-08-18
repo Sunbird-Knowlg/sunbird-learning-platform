@@ -16,17 +16,20 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
+
 public class HTTPUtil {
 
 	public static String makeGetRequest(String url) throws Exception {
-		System.out.println("URL is " + url);
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(url);
 		request.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
 		request.addHeader("Content-Type", "application/json");
 		HttpResponse response = client.execute(request);
-		System.out.println("Status Code: " + response.getStatusLine().getStatusCode());
 		if (response.getStatusLine().getStatusCode() != 200) {
+			//System.out.println("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode());
+			PlatformLogger.log("URL is " + url + "Status Code: " + response.getStatusLine().getStatusCode(), null, LoggerEnum.INFO.name());
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
 					+ response.getStatusLine().getReasonPhrase());
 		}
