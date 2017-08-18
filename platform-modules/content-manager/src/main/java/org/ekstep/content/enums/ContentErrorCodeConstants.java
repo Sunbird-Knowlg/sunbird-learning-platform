@@ -52,7 +52,7 @@ public enum ContentErrorCodeConstants {
 	PUBLISH_ERROR(34, "Publish Error."),
 	IMAGE_NODE_CREATION_ERROR(35, "Error while Create Content Image Node."),
 	INVALID_LIBRARY(36, "Error while fetching the library files."),
-	FILE_DELETE_ERROR(36, "Error while deleting the file.");
+	FILE_DELETE_ERROR(37, "Error while deleting the file.");
 
 	private final int code;
 	private final String description;
