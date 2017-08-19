@@ -996,7 +996,9 @@
 						"TextBook",
 						"TextBookUnit",
 						"Course",
-						"CourseUnit"
+						"CourseUnit",
+            "LessonPlan",
+            "LessonPlanUnit"
 					],
 					"defaultValue": "Story",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
