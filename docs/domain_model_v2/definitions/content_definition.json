@@ -188,7 +188,6 @@
 						"application/vnd.ekstep.h5p-archive",
 						"application/epub",
 						"text/x-url",
-						"video/youtube",
 						"video/x-youtube",
 						"application/octet-stream",
 						"application/msword",
@@ -997,8 +996,8 @@
 						"TextBookUnit",
 						"Course",
 						"CourseUnit",
-            "LessonPlan",
-            "LessonPlanUnit"
+            			"LessonPlan",
+            			"LessonPlanUnit"
 					],
 					"defaultValue": "Story",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
