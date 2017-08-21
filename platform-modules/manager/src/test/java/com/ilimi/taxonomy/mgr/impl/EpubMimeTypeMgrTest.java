@@ -12,13 +12,10 @@ import java.util.Map;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runners.MethodSorters;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -28,8 +25,8 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.taxonomy.content.common.BaseGraphSpec;
-import com.ilimi.taxonomy.content.common.BaseTest;
 
+@Ignore
 public class EpubMimeTypeMgrTest extends BaseGraphSpec {
 
 	ContentManagerImpl mgr = new ContentManagerImpl();

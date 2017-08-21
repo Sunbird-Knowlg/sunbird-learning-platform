@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFToJSONConvertor;
 import org.ekstep.content.util.JSONContentParser;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ilimi.taxonomy.content.common.BaseTestUtil;

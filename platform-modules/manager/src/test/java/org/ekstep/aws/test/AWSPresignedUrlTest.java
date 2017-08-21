@@ -6,6 +6,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.amazonaws.HttpMethod;
@@ -13,7 +14,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-
+@Ignore
 public class AWSPresignedUrlTest {
 
 	// TODO: Get these details from config or request.

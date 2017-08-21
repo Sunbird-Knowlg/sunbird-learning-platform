@@ -8,6 +8,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -35,6 +36,7 @@ import com.ilimi.taxonomy.content.common.BaseGraphSpec;
  * assessmentitem Positive and negative test senarios have been specified for
  * each of the operation
  */
+@Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssessmentitemTest extends BaseGraphSpec {
 
