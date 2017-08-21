@@ -3204,19 +3204,20 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		wordMap.put("synsets", synsets);
 		wordUtil.updatePrimaryMeaning(languageId, wordMap, wordUtil.getSynsets(node));
 		
-		for (Relation inRelation : node.getInRelations()) {
-			if (inRelation.getRelationType().equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
-					&& inRelation.getStartNodeObjectType().equalsIgnoreCase(LanguageParams.Synset.name())) {
-				Map<String, Object> synsetMap = getMetadata(inRelation.getStartNodeMetadata(), synsetDefinition);
-				if(!synsetMap.containsKey(LanguageParams.identifier.name()))
-					synsetMap.put(LanguageParams.identifier.name(), inRelation.getStartNodeId());
-				//copy word-synset relation metadata like exampleSentence into synset map
-				Map<String, Object> synonymRelMetadata = inRelation.getMetadata();
-				if (synonymRelMetadata != null && synonymRelMetadata.size() > 0)
-					synsetMap.putAll(synonymRelMetadata);
-				synsets.add(synsetMap);
+		if(node.getInRelations()!=null)
+			for (Relation inRelation : node.getInRelations()) {
+				if (inRelation.getRelationType().equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
+						&& inRelation.getStartNodeObjectType().equalsIgnoreCase(LanguageParams.Synset.name())) {
+					Map<String, Object> synsetMap = getMetadata(inRelation.getStartNodeMetadata(), synsetDefinition);
+					if(!synsetMap.containsKey(LanguageParams.identifier.name()))
+						synsetMap.put(LanguageParams.identifier.name(), inRelation.getStartNodeId());
+					//copy word-synset relation metadata like exampleSentence into synset map
+					Map<String, Object> synonymRelMetadata = inRelation.getMetadata();
+					if (synonymRelMetadata != null && synonymRelMetadata.size() > 0)
+						synsetMap.putAll(synonymRelMetadata);
+					synsets.add(synsetMap);
+				}
 			}
-		}
 
 		if(node.getTags()!=null)
 			wordMap.put("tags",node.getTags());
