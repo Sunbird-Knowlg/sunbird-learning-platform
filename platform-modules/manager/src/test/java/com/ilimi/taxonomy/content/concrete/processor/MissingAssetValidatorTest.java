@@ -1,18 +1,18 @@
 package com.ilimi.taxonomy.content.concrete.processor;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFConversionUtility;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.taxonomy.content.common.BaseTest;
 
-public class MissingAssetValidatorTest extends BaseTest {
+public class MissingAssetValidatorTest {
 
 	final static File folder = new File("src/test/resources/Contents/Verbs_III");
 	
@@ -81,5 +81,16 @@ public class MissingAssetValidatorTest extends BaseTest {
 			PipelineRequestorClient
 					.getPipeline("missingAssetValidatorProcessor", "src/test/resources/Contents/testAsset", "test_12")
 					.execute(plugin);
+	}
+	
+	public String getFileString(String fileName) {
+		String fileString = "";
+		File file = new File(getClass().getResource("/Contents/" + fileName).getFile());
+		try {
+			fileString = FileUtils.readFileToString(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fileString;
 	}
 }

@@ -3,7 +3,9 @@ package com.ilimi.taxonomy.content.concrete.processor;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Controller;
 import org.ekstep.content.entity.Plugin;
@@ -11,13 +13,11 @@ import org.ekstep.content.util.ECRFConversionUtility;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.taxonomy.content.common.BaseTest;
 
-public class EmbedControllerProcessorTest extends BaseTest {
+public class EmbedControllerProcessorTest {
 
-	final static File folder = new File("src/test/resources/Contents/Verbs_III");
+	final static File FOLDER = new File("src/test/resources/Contents/Verbs_III");
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -30,7 +30,7 @@ public class EmbedControllerProcessorTest extends BaseTest {
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		PipelineRequestorClient.getPipeline("embedControllerProcessor", folder.getPath(), "").execute(plugin);
+		PipelineRequestorClient.getPipeline("embedControllerProcessor", FOLDER.getPath(), "").execute(plugin);
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class EmbedControllerProcessorTest extends BaseTest {
 			ECRFConversionUtility fixture = new ECRFConversionUtility();
 			String strContent = getFileString("Verbs_III/index.ecml");
 			Plugin plugin = fixture.getECRF(strContent);
-			Plugin result = PipelineRequestorClient.getPipeline("embedControllerProcessor", folder.getPath(), "test_12")
+			Plugin result = PipelineRequestorClient.getPipeline("embedControllerProcessor", FOLDER.getPath(), "test_12")
 					.execute(plugin);
 			String expected = getFileString("Verbs_III/items/assessment.json");
 			for (Controller controller : result.getControllers()) {
@@ -57,5 +57,16 @@ public class EmbedControllerProcessorTest extends BaseTest {
 					assertEquals(expected, controller.getcData());
 				}
 			}
+	}
+	
+	public String getFileString(String fileName) {
+		String fileString = "";
+		File file = new File(getClass().getResource("/Contents/" + fileName).getFile());
+		try {
+			fileString = FileUtils.readFileToString(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fileString;
 	}
 }
