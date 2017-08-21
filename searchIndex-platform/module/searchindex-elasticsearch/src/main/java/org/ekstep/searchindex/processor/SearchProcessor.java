@@ -861,14 +861,14 @@ public class SearchProcessor {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<Object> processSearchAuditHistory(SearchDTO searchDTO, boolean includeResults, String index)
+	public List<Object> processSearchQuery(SearchDTO searchDTO, boolean includeResults, String index)
 			throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		List<Object> response = new ArrayList<Object>();
 		Map<String, Object> res_map = new HashMap<String, Object>();
 		searchDTO.setLimit(elasticSearchUtil.defaultResultLimit);
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
-		PlatformLogger.log("AuditHistory search query: " + query);
+		PlatformLogger.log(" search query: " + query);
 		SearchResult searchResult = elasticSearchUtil.search(index, query);
 		PlatformLogger.log("search result from elastic search" + searchResult);
 		Map<String, Object> result_map = (Map) searchResult.getValue("hits");

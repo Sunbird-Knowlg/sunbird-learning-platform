@@ -15,8 +15,12 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.graph.service.common.GraphOperation;
+import org.ekstep.graph.service.util.DriverUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.neo4j.driver.v1.Driver;
+import org.neo4j.driver.v1.Session;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -58,7 +62,16 @@ public class BaseTest {
 		System.out.println("deleting Graph...!!");
 		deleteGraph(TEST_GRAPH);
 	}
- 
+	
+//	@AfterClass
+//	public static void afterClass() {
+//		Driver driver = DriverUtil.getDriver("domain", GraphOperation.WRITE);
+//		try (Session session = driver.session()) {
+//			session.run("MATCH (n:domain{}) WHERE n.IL_UNIQUE_ID STARTS WITH 'CONTENT_CREATE_TEST' DETACH DELETE n"); 
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 	public static void loadAllNodes(){
 		InputStream in =  csvReader("src/test/resources/literacy/literacy_concepts.csv");
 		create(TEST_GRAPH, in);

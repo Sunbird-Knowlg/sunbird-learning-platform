@@ -516,7 +516,7 @@ public class SuggestionManagerImpl extends BaseManager implements ISuggestionMan
 		List<Object> result = new ArrayList<Object>();
 		try {
 			PlatformLogger.log("sending search request to search processor" + search);
-			result = (List<Object>) processor.processSearchAuditHistory(search, false,
+			result = (List<Object>) processor.processSearchQuery(search, false,
 					SuggestionConstants.SUGGESTION_INDEX);
 			PlatformLogger.log("result from search processor" + result);
 		} catch (Exception e) {

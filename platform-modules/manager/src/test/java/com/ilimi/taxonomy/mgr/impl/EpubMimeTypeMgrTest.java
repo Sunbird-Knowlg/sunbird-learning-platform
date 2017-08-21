@@ -27,16 +27,15 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 import com.ilimi.taxonomy.content.common.BaseTest;
 
-@Ignore
-@FixMethodOrder(MethodSorters.JVM)
-public class EpubMimeTypeMgrTest extends BaseTest{
+public class EpubMimeTypeMgrTest extends BaseGraphSpec {
 
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	String createEpubContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";
-	
 	String requestForReview = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}";
+	
 	ObjectMapper mapper = new ObjectMapper();
 	String node_id = "";
 	

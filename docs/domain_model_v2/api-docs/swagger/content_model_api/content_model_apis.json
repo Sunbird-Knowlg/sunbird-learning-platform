@@ -441,7 +441,7 @@
                 "security": []
             }
         },
-        "/history/{contentId}?graphId={graphId}": {
+        "/history/{contentId}": {
             "get": {
                 "tags": [
                     "History"
@@ -455,9 +455,6 @@
                 "parameters": [
                     {
                         "$ref": "#/parameters/ContentId"
-                    },
-                    {
-                        "$ref": "#/parameters/graphId"
                     }
                 ],
                 "responses": {
@@ -723,13 +720,6 @@
             "description": "The given Content identifier to perform operation",
             "required": true
         },
-         "graphId": {
-            "name": "graphId",
-            "in": "path",
-            "type": "string",
-            "description": "The given Content identifier to perform operation",
-            "required": true
-        },
         "flagRequestBody": {
             "name": "Request",
             "in": "body",
@@ -850,7 +840,13 @@
                 },
                 "os": {
                     "type": "string",
-                    "description": "Supported Operating Systems"
+                    "description": "Supported Operating Systems",
+                    "example": [
+                          "All",
+                          "Android",
+                          "iOS",
+                          "Windows"
+                    ]
                 },
                 "minOsVersion": {
                     "type": "string",
@@ -870,19 +866,115 @@
                 },
                 "visibility": {
                     "type": "string",
-                    "description": "Visibility (set as 'Parent' to hide this from any other list view)"
+                    "description": "Visibility (set as 'Parent' to hide this from any other list view)",
+                    "example":["default/parent"]
                 },
-                "posterImage": {
+                "audience": {
+                    "title": "Audience",
+                    "description": "The target audience of the Content",
+                    "example":["Learner",
+                              "Instructor"]
+                },
+               "posterImage": {
                     "type": "string",
                     "description": ""
                 },
                 "mimeType": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example":[
+                        "application/vnd.ekstep.ecml-archive",
+                        "application/vnd.ekstep.html-archive",
+                        "application/vnd.android.package-archive",
+                        "application/vnd.ekstep.content-archive",
+                        "application/vnd.ekstep.content-collection",
+                        "application/vnd.ekstep.plugin-archive",
+                        "application/vnd.ekstep.h5p-archive",
+                        "application/epub",
+                        "text/x-url",
+                        "video/x-youtube",
+                        "application/octet-stream",
+                        "application/msword",
+                        "application/pdf",
+                        "image/jpeg",
+                        "image/jpg",
+                        "image/png",
+                        "image/tiff",
+                        "image/bmp",
+                        "image/gif",
+                        "image/svg+xml",
+                        "video/avi",
+                        "video/mpeg",
+                        "video/quicktime",
+                        "video/3gpp",
+                        "video/mpeg",
+                        "video/mp4",
+                        "video/ogg",
+                        "video/webm",
+                        "audio/mp3",
+                        "audio/mp4",
+                        "audio/mpeg",
+                        "audio/ogg",
+                        "audio/webm",
+                        "audio/x-wav",
+                        "audio/wav"
+                      ]
+                },
+                "artifactMimeType":{
+                      "type":"string",
+                      "description":"",
+                      "example":[
+                          "application/vnd.ekstep.html-archive+zip",
+                          "application/vnd.android.package-archive+zip",
+                          "application/vnd.ekstep.content-archive+zip",
+                          "application/vnd.ekstep.content-collection+zip",
+                          "application/vnd.ekstep.plugin-archive+zip",
+                          "application/vnd.ekstep.h5p-archive+zip",
+                          "application/epub+zip",
+                          "text/x-url",
+                          "video/x-youtube",
+                          "application/octet-stream",
+                          "application/msword",
+                          "application/pdf",
+                          "image/jpeg",
+                          "image/jpg",
+                          "image/png",
+                          "image/tiff",
+                          "image/bmp",
+                          "image/gif",
+                          "image/svg+xml",
+                          "video/avi",
+                          "video/mpeg",
+                          "video/quicktime",
+                          "video/3gpp",
+                          "video/mpeg",
+                          "video/mp4",
+                          "video/ogg",
+                          "video/webm",
+                          "audio/mp3",
+                          "audio/mp4",
+                          "audio/mpeg",
+                          "audio/ogg",
+                          "audio/webm",
+                          "audio/x-wav"
+                      ]
                 },
                 "mediaType": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example":[
+                          "content",
+                          "collection",
+                          "image",
+                          "video",
+                          "audio",
+                          "voice",
+                          "ecml",
+                          "document",
+                          "pdf",
+                          "text",
+                          "other"
+                    ]
                 },
                 "appIcon": {
                     "type": "string",
@@ -893,14 +985,6 @@
                     "description": ""
                 },
                 "thumbnail": {
-                    "type": "string",
-                    "description": ""
-                },
-                "format": {
-                    "type": "string",
-                    "description": ""
-                },
-                "duration": {
                     "type": "string",
                     "description": ""
                 },
@@ -916,18 +1000,6 @@
                     "type": "string",
                     "description": ""
                 },
-                "releaseNotes": {
-                    "type": "string",
-                    "description": ""
-                },
-                "pkgVersion": {
-                    "type": "number",
-                    "description": "Version number of the package file"
-                },
-                "resources": {
-                    "type": "string",
-                    "description": ""
-                },
                 "downloadUrl": {
                     "type": "string",
                     "description": "URL to download the content"
@@ -935,10 +1007,6 @@
                 "artifactUrl": {
                     "type": "string",
                     "description": "URL to download the content"
-                },
-                "objects": {
-                    "type": "string",
-                    "description": ""
                 },
                 "developer": {
                     "type": "string",
@@ -955,10 +1023,6 @@
                 "owner": {
                     "type": "string",
                     "description": "Content Owner"
-                },
-                "portalOwner": {
-                    "type": "string",
-                    "description": "Portal Owner"
                 },
                 "attributions": {
                     "type": "string",
@@ -1000,25 +1064,47 @@
                     "type": "string",
                     "description": "Text of the story"
                 },
-                "forkable": {
-                    "type": "boolean",
-                    "description": "Forkable"
-                },
-                "translatable": {
-                    "type": "boolean",
-                    "description": "Translatable"
-                },
                 "ageGroup": {
                     "type": "string",
-                    "description": "Suggested Age Group"
+                    "description": "Suggested Age Group",
+                    "example": [
+                      "<5",
+                      "5-6",
+                      "6-7",
+                      "7-8",
+                      "8-10",
+                      ">10",
+                      "Other"
+                    ]
                 },
                 "gradeLevel": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Kindergarten",
+                        "Grade 1",
+                        "Grade 2",
+                        "Grade 3",
+                        "Grade 4",
+                        "Grade 5",
+                        "Grade 6",
+                        "Grade 7",
+                        "Grade 8",
+                        "Grade 9",
+                        "Grade 10",
+                        "Grade 11",
+                        "Grade 12",
+                        "Other"
+                      ]
                 },
                 "interactivityLevel": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                      "High",
+                      "Medium",
+                      "Low"
+                    ]
                 },
                 "curriculum": {
                     "type": "string",
@@ -1026,19 +1112,99 @@
                 },
                 "contentType": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                          "Story",
+                          "Worksheet",
+                          "Game",
+                          "Simulation",
+                          "Puzzle",
+                          "Diagnostic",
+                          "Collection",
+                          "Asset",
+                          "Template",
+                          "Plugin",
+                          "ContentTemplate",
+                          "ItemTemplate",
+                          "TextBook",
+                          "TextBookUnit",
+                          "Course",
+                          "CourseUnit"
+                   ]
+                },
+                "category":{
+                  "type":"string",
+                  "description":"",
+                  "example": [
+                      "core",
+                      "learning",
+                      "literacy",
+                      "math",
+                      "science",
+                      "time",
+                      "wordnet",
+                      "game",
+                      "mcq",
+                      "mtf",
+                      "ftb",
+                      "library"
+                    ]
                 },
                 "templateType": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                      "story",
+                      "worksheet",
+                      "mcq",
+                      "ftb",
+                      "mtf",
+                      "recognition",
+                      "activity",
+                      "widget",
+                      "other"
+                    ]
                 },
                 "genre": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Picture Books",
+                        "Chapter Books",
+                        "Flash Cards",
+                        "Serial Books",
+                        "Alphabet Books",
+                        "Folktales",
+                        "Fiction",
+                        "Non-Fiction",
+                        "Poems/Rhymes",
+                        "Plays",
+                        "Comics",
+                        "Words"
+                   ]
                 },
                 "theme": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "History",
+                        "Adventure",
+                        "Mystery",
+                        "Science",
+                        "Nature",
+                        "Art",
+                        "Music",
+                        "Funny",
+                        "Family",
+                        "Life Skills",
+                        "Scary",
+                        "School Stories",
+                        "Holidays",
+                        "Hobby",
+                        "Geography",
+                        "Rural",
+                        "Urban"
+                      ]
                 },
                 "rating": {
                     "type": "number",
@@ -1074,23 +1240,57 @@
                 },
                 "scaffolding": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Tutorial",
+                        "Help",
+                        "Practice"
+                      ]
                 },
                 "feedback": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Right/Wrong",
+                        "Reflection",
+                        "Guidance",
+                        "Learn from Mistakes",
+                        "Adaptive Feedback",
+                        "Interrupts",
+                        "Rich Feedback"
+                      ]
                 },
                 "feedbackType": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Audio",
+                        "Visual",
+                        "Textual",
+                        "Tactile"
+                      ]
                 },
                 "teachingMode": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                      "Abstract",
+                      "Concrete",
+                      "Pictorial"
+                    ]
                 },
                 "skills": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Listening",
+                        "Speaking",
+                        "Reading",
+                        "Writing",
+                        "Touch",
+                        "Gestures",
+                        "Draw"
+                      ]
                 },
                 "keywords": {
                     "type": "string",
@@ -1098,15 +1298,39 @@
                 },
                 "domain": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "numeracy",
+                        "literacy",
+                        "science"
+                      ]
                 },
                 "status": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Draft",
+                        "Review",
+                        "Redraft",
+                        "Flagged",
+                        "Live",
+                        "Retired",
+                        "Mock",
+                        "Processing",
+                        "FlagDraft",
+                        "FlagReview",
+                        "Failed"
+                      ]
                 },
                 "optStatus": {
                     "type": "string",
-                    "description": ""
+                    "description": "",
+                    "example": [
+                        "Pending",
+                        "Processing",
+                        "Error",
+                        "Complete"
+                      ]
                 },
                 "description": {
                     "type": "string",
@@ -1121,18 +1345,6 @@
                     "description": ""
                 },
                 "data": {
-                    "type": "string",
-                    "description": ""
-                },
-                "loadingMessage": {
-                    "type": "string",
-                    "description": "Loading Message"
-                },
-                "checksum": {
-                    "type": "string",
-                    "description": "Checksum value of the story package file"
-                },
-                "learningObjective": {
                     "type": "string",
                     "description": ""
                 },
@@ -1168,19 +1380,7 @@
                     "type": "string",
                     "description": ""
                 },
-                "version": {
-                    "type": "number",
-                    "description": ""
-                },
-                "versionDate": {
-                    "type": "string",
-                    "description": ""
-                },
                 "origin": {
-                    "type": "string",
-                    "description": ""
-                },
-                "versionCreatedBy": {
                     "type": "string",
                     "description": ""
                 }
@@ -1189,7 +1389,8 @@
                 "name",
                 "code",
                 "mediaType",
-                "mimeType"
+                "mimeType",
+                "contentType"
             ]
         },
         "ContentResponse": {
@@ -1400,14 +1601,16 @@
                     "description": "Identifier of the content",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example":"do_1223"
                 },
                 "name": {
                     "type": "array",
                     "description": "Name of the content",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example":"testContent"
                 },
                 "code": {
                     "type": "array",
@@ -2059,7 +2262,13 @@
                     "type": "array",
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "example": [
+                        "Inappropriate Content",
+                        "Copyright Violation",
+                        "Privacy Violation",
+                        "Other"
+                      ]
                 },
                 "flaggedBy": {
                     "type": "string",

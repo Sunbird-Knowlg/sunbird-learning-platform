@@ -41,7 +41,7 @@ public class AuditHistoryEsDao {
 		List<Object>  result= new ArrayList<Object>();
 			try {
 				PlatformLogger.log("sending search request to search processor" ,search);
-				result = (List<Object>) processor.processSearchAuditHistory(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX);
+				result = (List<Object>) processor.processSearchQuery(search, false, AuditHistoryConstants.AUDIT_HISTORY_INDEX);
 				PlatformLogger.log("result from search processor" , result);
 			} catch (Exception e) {
 				PlatformLogger.log("error while processing the search request", e.getMessage(), e);
