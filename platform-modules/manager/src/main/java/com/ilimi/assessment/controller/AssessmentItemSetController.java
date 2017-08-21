@@ -34,8 +34,6 @@ import com.ilimi.graph.dac.model.Node;
 @RequestMapping("/v1/assessmentitemset")
 public class AssessmentItemSetController extends BaseController {
 
-    
-
     private static final String V2_GRAPH_ID = "domain";
 
     @Autowired

@@ -159,9 +159,7 @@ public class ContentErrorMessageConstants {
 
 	public static final String FILE_DELETE_ERROR = "Error! While Deleting the File";
 
-
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}
-
 }

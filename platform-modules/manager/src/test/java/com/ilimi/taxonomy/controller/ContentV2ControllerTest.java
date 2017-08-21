@@ -43,9 +43,6 @@ import com.ilimi.taxonomy.content.common.BaseTest;
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class ContentV2ControllerTest extends BaseTest {
 
-	/** The Class Logger. */
-	
-
 	/** The context. */
 	@Autowired
 	private WebApplicationContext context;

@@ -48,7 +48,7 @@ public class BaseGraphSpec {
 	@AfterClass
 	public static void afterTest() {
 		System.out.println("deleting Graph...!!");
-		deleteGraph(Configuration.getProperty("testGraph"));
+		deleteGraph(Configuration.getProperty("graphId"));
 	}
 	
 	@Test
@@ -71,11 +71,11 @@ public class BaseGraphSpec {
 	private static void loadAllNodes(){
 		System.out.println("creating sample nodes for test");
 		InputStream in =  csvReader("src/test/resources/literacy/literacy_concepts.csv");
-		create(Configuration.getProperty("testGraph"), in);
+		create(Configuration.getProperty("graphId"), in);
 		InputStream in1 =  csvReader("src/test/resources/literacy/literacy_dimensions.csv");
-		create(Configuration.getProperty("testGraph"), in1);
+		create(Configuration.getProperty("graphId"), in1);
 		InputStream in2 =  csvReader("src/test/resources/literacy/literacy_domain.csv");
-		create(Configuration.getProperty("testGraph"), in2);
+		create(Configuration.getProperty("graphId"), in2);
 	}
 	
 	private static Response create(String graphId,InputStream in) {
@@ -122,7 +122,7 @@ public class BaseGraphSpec {
 				String definition;
 				try {
 					definition = FileUtils.readFileToString(fileEntry);
-					Response resp = createDefinition(Configuration.getProperty("testGraph"), definition);
+					Response resp = createDefinition(Configuration.getProperty("graphId"), definition);
 					definitions.put(fileEntry.getName(), resp.getResponseCode().toString());
 				} catch (IOException e) {
 					e.printStackTrace();

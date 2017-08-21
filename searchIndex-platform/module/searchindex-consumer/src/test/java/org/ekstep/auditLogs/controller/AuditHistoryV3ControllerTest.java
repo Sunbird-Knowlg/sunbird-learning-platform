@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -38,6 +37,7 @@ public class AuditHistoryV3ControllerTest {
 	final private static String graphId = "test";
 	final private String objectId = "test_word_01";
 	final private String InvalidObjectId = "xyz";
+	
 	@Test
 	public void before() {
 		AuditHistoryHelper helper = new AuditHistoryHelper();
@@ -50,7 +50,6 @@ public class AuditHistoryV3ControllerTest {
 
 	@SuppressWarnings({ "unchecked", "rawtypes", "unused" })
 	@Test
-	@Ignore
 	public void getAuditLogsByValidObjectId() {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -68,8 +67,8 @@ public class AuditHistoryV3ControllerTest {
 		assertEquals(false, audit_record.isEmpty());
 		for (Object record : audit_record) {
 			Map<String, Object> map = (Map) record;
-			assertEquals(true, map.containsKey("summary"));
-			Map<String, Object> summary = (Map) map.get("summary");
+			assertEquals(true, map.containsKey("logRecord"));
+			Map<String, Object> logRecord = (Map) map.get("logRecord");
 			assertEquals(graphId, map.get("graphId"));
 			assertEquals(true, map.get("objectId").toString().startsWith(objectId));
 		}
@@ -112,34 +111,8 @@ public class AuditHistoryV3ControllerTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
-	@Test
-	@Ignore
-	public void getLogRecordByObjectId(){
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path =  "/v3/audit/read/"+ objectId;
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Response response = jsonToObject(actions);
-		Assert.assertEquals("successful", response.getParams().getStatus());
-		Map<String, Object> result = response.getResult();
-		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(false, audit_record.isEmpty());
-		for (Object record : audit_record) {
-			Map<String, Object> map = (Map) record;
-			Map<String, Object> summary = (Map) map.get("summary");
-			assertEquals(true, map.containsKey("logRecord"));
-			assertEquals(graphId, map.get("graphId"));
-			assertEquals(true, map.get("objectId").toString().startsWith(objectId));
-		}
     }
+	
 	public static Response jsonToObject(ResultActions actions) {
 		String content = null;
 		Response resp = null;
