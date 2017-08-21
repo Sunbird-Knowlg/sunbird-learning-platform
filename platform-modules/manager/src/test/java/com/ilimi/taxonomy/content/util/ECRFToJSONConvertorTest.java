@@ -8,15 +8,14 @@ import java.io.IOException;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFToJSONConvertor;
 import org.ekstep.content.util.JSONContentParser;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseTestUtil;
 
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
 
-public class ECRFToJSONConvertorTest extends BaseTest {
+public class ECRFToJSONConvertorTest {
 	
 	private static final String WELL_FORMED_JSON_FILE_NAME =  "Sample_JSON_1.json";
 	
@@ -38,10 +37,10 @@ public class ECRFToJSONConvertorTest extends BaseTest {
 		try {
 			ECRFToJSONConvertor fixture = new ECRFToJSONConvertor();
 			JSONContentParser parser = new JSONContentParser();
-			String json = getFileString(WELL_FORMED_JSON_FILE_NAME);
+			String json = BaseTestUtil.getFileString(WELL_FORMED_JSON_FILE_NAME);
 			Plugin ecrf = parser.parseContent(json);
 			String contentJsonString = fixture.getContentJsonString(ecrf);
-			writeStringToFile(TEMP_OUTPUT_FILE_NAME, contentJsonString, false);
+			BaseTestUtil.writeStringToFile(TEMP_OUTPUT_FILE_NAME, contentJsonString, false);
 			assertJsonEquals(contentJsonString, json);
 		} catch (IOException e) {
 			assertTrue("IO Exception while getting differences in JSON.", false);
@@ -55,10 +54,9 @@ public class ECRFToJSONConvertorTest extends BaseTest {
 	public void getContentJsonString_Test02() {
 		ECRFToJSONConvertor fixture = new ECRFToJSONConvertor();
 		JSONContentParser parser = new JSONContentParser();
-		String json = getFileString(WELL_FORMED_JSON_FILE_NAME);
+		String json = BaseTestUtil.getFileString(WELL_FORMED_JSON_FILE_NAME);
 		Plugin ecrf = parser.parseContent(json);
 		String contentJsonString = fixture.getContentJsonString(ecrf);
-		assertTrue(isValidJsonString(contentJsonString));
+		assertTrue(BaseTestUtil.isValidJsonString(contentJsonString));
 	}
-
 }

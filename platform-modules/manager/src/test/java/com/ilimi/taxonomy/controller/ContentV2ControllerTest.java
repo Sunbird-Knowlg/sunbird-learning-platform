@@ -31,8 +31,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.taxonomy.content.common.BaseTest;
-
 /**
  * The Class ContentV2ControllerTest.
  * 
@@ -41,7 +39,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentV2ControllerTest extends BaseTest {
+public class ContentV2ControllerTest {
 
 	/** The context. */
 	@Autowired

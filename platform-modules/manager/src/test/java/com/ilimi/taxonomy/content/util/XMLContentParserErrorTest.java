@@ -6,11 +6,10 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseTestUtil;
 
-public class XMLContentParserErrorTest extends BaseTest {
+public class XMLContentParserErrorTest {
 	
 	private static final String XML_FOR_PARSE_CONFIG_EXCEPTION =  "Sample_XML_1_ERROR_PARSECONFIGEXCEPTION.ecml";
 	
@@ -43,7 +42,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_PARSE_CONFIG_EXCEPTION);
+		String xml = BaseTestUtil.getFileString(XML_FOR_PARSE_CONFIG_EXCEPTION);
 		fixture.parseContent(xml);
 	}
 	
@@ -55,7 +54,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_SAX_EXCEPTION);
+		String xml = BaseTestUtil.getFileString(XML_FOR_SAX_EXCEPTION);
 		fixture.parseContent(xml);
 	}
 	
@@ -67,7 +66,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_IO_EXCEPTION);
+		String xml = BaseTestUtil.getFileString(XML_FOR_IO_EXCEPTION);
 		fixture.parseContent(xml);
 	}
 	
@@ -80,7 +79,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_INVALID_MEDIA_ERROR_1);
+		String xml = BaseTestUtil.getFileString(XML_FOR_INVALID_MEDIA_ERROR_1);
 		fixture.parseContent(xml);
 	}
 	
@@ -93,7 +92,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_INVALID_MEDIA_ERROR_2);
+		String xml = BaseTestUtil.getFileString(XML_FOR_INVALID_MEDIA_ERROR_2);
 		fixture.parseContent(xml);
 	}
 	
@@ -106,7 +105,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_INVALID_MEDIA_ERROR_3);
+		String xml = BaseTestUtil.getFileString(XML_FOR_INVALID_MEDIA_ERROR_3);
 		fixture.parseContent(xml);
 	}
 	
@@ -121,7 +120,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expectMessage(ContentErrorMessageConstants.MORE_THAN_ONE_MANIFEST_SECTION_ERROR);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_MULTIPLE_MANIFEST_ERROR);
+		String xml = BaseTestUtil.getFileString(XML_FOR_MULTIPLE_MANIFEST_ERROR);
 		fixture.parseContent(xml);
 	}
 	
@@ -134,7 +133,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_1);
+		String xml = BaseTestUtil.getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_1);
 		fixture.parseContent(xml);
 	}
 	
@@ -147,7 +146,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_2);
+		String xml = BaseTestUtil.getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_2);
 		fixture.parseContent(xml);
 	}
 	
@@ -160,7 +159,7 @@ public class XMLContentParserErrorTest extends BaseTest {
 		exception.expect(ClientException.class);
 
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_3);
+		String xml = BaseTestUtil.getFileString(XML_FOR_INVALID_CONTROLLER_ERROR_3);
 		fixture.parseContent(xml);
 	}
 

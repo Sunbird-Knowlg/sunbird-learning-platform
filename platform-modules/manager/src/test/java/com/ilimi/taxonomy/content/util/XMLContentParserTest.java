@@ -7,9 +7,9 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.XMLContentParser;
 import org.junit.Test;
 
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseTestUtil;
 
-public class XMLContentParserTest extends BaseTest {
+public class XMLContentParserTest {
 	
 	private static final String WELL_FORMED_XML_FILE_NAME =  "Sample_XML_2.ecml";
 	
@@ -21,7 +21,7 @@ public class XMLContentParserTest extends BaseTest {
 	@Test	
 	public void xmlContentParser_01(){
 		XMLContentParser fixture = new XMLContentParser();
-		String xml = getFileString(WELL_FORMED_XML_FILE_NAME);
+		String xml = BaseTestUtil.getFileString(WELL_FORMED_XML_FILE_NAME);
 		Plugin ecrf = fixture.parseContent(xml);
 		assertNotNull(ecrf.getManifest()); 
 		assertEquals(WELL_FORMED_XML_FILE_CONTROLLER_COUNT, ecrf.getControllers().size());

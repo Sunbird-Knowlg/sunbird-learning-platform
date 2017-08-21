@@ -3,9 +3,6 @@ package com.ilimi.taxonomy.content.validators;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.validator.ContentValidator;
 import org.junit.Rule;
@@ -16,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 
-public class ContentValidatorTest extends BaseTest {
+public class ContentValidatorTest extends BaseGraphSpec {
 	
 	ContentValidator validator = new ContentValidator();
 	
@@ -90,7 +87,7 @@ public class ContentValidatorTest extends BaseTest {
 //	@Test
 	public void createNode(){
 		Request request = new Request();
-		request.setId(TEST_GRAPH);
+		request.setId("domain");
 		request.getContext().put("body", "<theme></theme>");
 		request.getContext().put("code","org.ekstep.mar8.story");
 		request.getContext().put("status", "Mock");
@@ -103,15 +100,5 @@ public class ContentValidatorTest extends BaseTest {
 		request.getContext().put("contentType", "Story");
 		request.getContext().put("osId", "org.ekstep.quiz.app");
 		node.createDataNode(request);
-	}
-	public static String readFileString(String fileName) {
-		String fileString = "";
-		File file = new File("src/test/resources/Contents/" + fileName);
-		try {
-			fileString = FileUtils.readFileToString(file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return fileString;
 	}
 }

@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -40,7 +40,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
  */
 @Ignore
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentItemSetTest extends BaseTest {
+public class AssessmentItemSetTest extends BaseGraphSpec {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -55,14 +55,15 @@ public class AssessmentItemSetTest extends BaseTest {
 	// Create assessmentItemset
 	// expect 200 response
 	@Test
-	public void createItemsetWithValidRequest() {
+	public void createItemsetWithValidRequest() throws InterruptedException {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		nodes = createAssessmentItem(10);
+		nodes = createAssessmentItem(2);
+		Thread.sleep(2000);
 		String str = "\"" + StringUtils.join(nodes.toArray(new String[0]), "\",\"") + "\"";
-		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Akshara Worksheet Grade 5 Item Set\", \"type\": \"materialised\", \"max_score\": 15, \"total_items\": 3, \"description\": \"Akshara Worksheet Grade 5 Item Set\", \"code\": \"akshara.grade5.ws1.test\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"memberIds\": ["
+		String request = "{ \"request\": { \"assessment_item_set\": { \"objectType\": \"ItemSet\", \"metadata\": { \"title\": \"Akshara Worksheet Grade 5 Item Set\", \"type\": \"materialised\", \"max_score\": 2, \"total_items\": 2, \"description\": \"Akshara Worksheet Grade 5 Item Set\", \"code\": \"akshara.grade5.ws1.test\", \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"memberIds\": ["
 				+ str
-				+ "  ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
+				+ "  ] } } } }";
 		try {
 			String path = "/v1/assessmentitemset";
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).header("user-id", "ilimi")

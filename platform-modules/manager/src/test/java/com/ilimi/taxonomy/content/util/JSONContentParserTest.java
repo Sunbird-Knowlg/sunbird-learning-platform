@@ -6,16 +6,14 @@ import static org.junit.Assert.assertNotNull;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.JSONContentParser;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseTestUtil;
 
-@Ignore
-public class JSONContentParserTest extends BaseTest {
+public class JSONContentParserTest {
 	
 	private static final String WELL_FORMED_JSON_FILE_NAME =  "Sample_JSON_1.json";
 	
@@ -32,7 +30,7 @@ public class JSONContentParserTest extends BaseTest {
 	@Test
 	public void parseContent_Test01() {
 		JSONContentParser fixture = new JSONContentParser();
-		String json = getFileString(WELL_FORMED_JSON_FILE_NAME);
+		String json = BaseTestUtil.getFileString(WELL_FORMED_JSON_FILE_NAME);
 		Plugin ecrf = fixture.parseContent(json);
 		assertNotNull(ecrf.getManifest()); 
 		assertEquals(WELL_FORMED_JSON_FILE_CONTROLLER_COUNT, ecrf.getControllers().size());
@@ -40,14 +38,12 @@ public class JSONContentParserTest extends BaseTest {
 		assertEquals(WELL_FORMED_JSON_FILE_TOP_LEVEL_PLUGIN_COUNT, ecrf.getChildrenPlugin().size());
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void parseContent_Test02(){
 		exception.expect(ClientException.class);
-		exception.expectMessage(ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR);
+		exception.expectMessage(ContentErrorMessageConstants.JSON_PARSE_CONFIG_ERROR);
 		JSONContentParser fixture = new JSONContentParser();
-		String json = getFileString(INVALID_JSON_FILE_NAME);
+		String json = BaseTestUtil.getFileString(INVALID_JSON_FILE_NAME);
 		Plugin ecrf = fixture.parseContent(json);
-		
 	}
 }

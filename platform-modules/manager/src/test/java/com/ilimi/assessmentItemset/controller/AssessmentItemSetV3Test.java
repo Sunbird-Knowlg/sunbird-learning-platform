@@ -27,7 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 
 @Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -42,7 +42,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
  * test senarios have been specified for each of the operation
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentItemSetV3Test extends BaseTest {
+public class AssessmentItemSetV3Test extends BaseGraphSpec{
 
 	@Autowired
 	private WebApplicationContext context;
