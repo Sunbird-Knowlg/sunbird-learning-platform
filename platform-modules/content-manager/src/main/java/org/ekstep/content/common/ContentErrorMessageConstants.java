@@ -157,15 +157,9 @@ public class ContentErrorMessageConstants {
 	
 	public static final String INVALID_URL = "Error! Invalid/Missing Url";
 
-	public static final String INVALID_H5P_LIBRARY = "Error! H5P Library Package File is Invalid.";
-
-	public static final String INVALID_URL = "Error! Invalid/Missing Url";
-
 	public static final String FILE_DELETE_ERROR = "Error! While Deleting the File";
-
 
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}
-
 }
