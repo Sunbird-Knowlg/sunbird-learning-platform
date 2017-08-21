@@ -11,6 +11,7 @@ import org.ekstep.common.util.AWSUploader;
 import org.ekstep.searchindex.processor.ImageMessageProcessor;
 import org.ekstep.searchindex.util.OptimizerUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ import com.ilimi.graph.dac.model.Node;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-
+@Ignore
 public class ImageTaggingConsumerTest {
 
 	@Autowired
