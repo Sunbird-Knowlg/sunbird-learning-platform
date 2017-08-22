@@ -48,8 +48,6 @@ import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
@@ -3204,14 +3202,15 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		wordMap.put("synsets", synsets);
 		wordUtil.updatePrimaryMeaning(languageId, wordMap, wordUtil.getSynsets(node));
 		
-		if(node.getInRelations()!=null)
+		if (null != node.getInRelations() && !node.getInRelations().isEmpty())
 			for (Relation inRelation : node.getInRelations()) {
-				if (inRelation.getRelationType().equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
-						&& inRelation.getStartNodeObjectType().equalsIgnoreCase(LanguageParams.Synset.name())) {
+				if (StringUtils.equalsIgnoreCase(inRelation.getRelationType(), RelationTypes.SYNONYM.relationName())
+						&& StringUtils.equalsIgnoreCase(inRelation.getStartNodeObjectType(),
+								LanguageParams.Synset.name())) {
 					Map<String, Object> synsetMap = getMetadata(inRelation.getStartNodeMetadata(), synsetDefinition);
-					if(!synsetMap.containsKey(LanguageParams.identifier.name()))
+					if (!synsetMap.containsKey(LanguageParams.identifier.name()))
 						synsetMap.put(LanguageParams.identifier.name(), inRelation.getStartNodeId());
-					//copy word-synset relation metadata like exampleSentence into synset map
+					// copy word-synset relation metadata like exampleSentence into synset map
 					Map<String, Object> synonymRelMetadata = inRelation.getMetadata();
 					if (synonymRelMetadata != null && synonymRelMetadata.size() > 0)
 						synsetMap.putAll(synonymRelMetadata);
