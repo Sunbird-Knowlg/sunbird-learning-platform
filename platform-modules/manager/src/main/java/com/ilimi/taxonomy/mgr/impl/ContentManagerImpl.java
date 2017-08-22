@@ -968,7 +968,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 		
 		if (map.containsKey(ContentAPIParams.body.name()))
-			map.remove(ContentAPIParams.artifactUrl.name());
+			map.put(ContentAPIParams.artifactUrl.name(), null);
 
 		Map<String, Object> externalProps = new HashMap<String, Object>();
 		List<String> externalPropsList = getExternalPropsList(definition);
