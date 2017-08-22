@@ -59,6 +59,7 @@ public class ContentV2Controller extends BaseController {
 	@RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
+			@RequestParam(value = "fields", required = false) String[] fields,
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.info";
 		PlatformLogger.log(
@@ -68,7 +69,7 @@ public class ContentV2Controller extends BaseController {
 		PlatformLogger.log("Content GetById | Content Id : " + contentId);
 		try {
 			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
-			response = contentManager.find(graphId, contentId, mode, null);
+			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);

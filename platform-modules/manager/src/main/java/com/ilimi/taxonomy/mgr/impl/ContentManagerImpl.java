@@ -966,6 +966,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			PlatformLogger.log("Content not found: " + contentId);
 			return getNodeResponse;
 		}
+		
+		if (map.containsKey(ContentAPIParams.body.name()))
+			map.remove(ContentAPIParams.artifactUrl.name());
 
 		Map<String, Object> externalProps = new HashMap<String, Object>();
 		List<String> externalPropsList = getExternalPropsList(definition);
