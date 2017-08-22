@@ -10,9 +10,9 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.TransactionTerminatedException;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import com.ilimi.common.dto.Response;
@@ -24,13 +24,14 @@ public class BaseGraphSpec {
 	private static File folder = new File("src/test/resources/definitions");
 	private static Map<String, String> definitions = new HashMap<String, String>();
 	private static TaxonomyManagerImpl taxonomyMgr = new TaxonomyManagerImpl();
+	private static GraphDatabaseService graphDb = null;
 	
 	@BeforeClass
 	public static void before(){
 		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector( "0" );
         System.out.println("Starting neo4j in embedded mode");
-       
-		GraphDatabaseService graphDb = new GraphDatabaseFactory()
+        
+		graphDb = new GraphDatabaseFactory()
 		        .newEmbeddedDatabaseBuilder(new File(Configuration.getProperty("graph.dir")))
 		        .setConfig( bolt.type, "BOLT" )
 		        .setConfig( bolt.enabled, "true" )
@@ -42,19 +43,20 @@ public class BaseGraphSpec {
 			System.out.println("Loading All Definitions...!!");
 			definitions = loadAllDefinitions(folder);
 			loadAllNodes();
+			tx.success();
+		}catch (TransactionTerminatedException ignored ){
+			System.out.println("Execption" + ignored);
 		}
 	}
+	
 	
 	@AfterClass
 	public static void afterTest() {
 		System.out.println("deleting Graph...!!");
+		graphDb.shutdown();
 		deleteGraph(Configuration.getProperty("graphId"));
 	}
 	
-	@Test
-	public void test(){
-		System.out.println("test");
-	}
 	private static Response deleteGraph(String graphId) {
 		Response resp = null;
 		try {
