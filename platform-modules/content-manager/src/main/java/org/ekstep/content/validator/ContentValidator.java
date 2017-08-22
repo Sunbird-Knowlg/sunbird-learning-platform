@@ -33,9 +33,6 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class ContentValidator {
 
-	/** The logger. */
-	
-
 	/** The Constant DEF_CONTENT_PACKAGE_MIME_TYPE. */
 	private static final String DEF_CONTENT_PACKAGE_MIME_TYPE = "application/zip";
 
