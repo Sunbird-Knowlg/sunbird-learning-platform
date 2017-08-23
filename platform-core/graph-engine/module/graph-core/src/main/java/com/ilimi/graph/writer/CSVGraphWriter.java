@@ -87,11 +87,6 @@ public class CSVGraphWriter implements GraphWriter {
 				relatedNodes.add(rel.getEndNodeId());
 			}
 		}
-		List<String> tags = node.getTags();
-		if (null != tags && !tags.isEmpty()) {
-			String tag = stringify(tags, CSVGraphReader.LIST_STR_DELIMITER);
-			nodeMap.put(CSVGraphReader.PROPERTY_TAGS, tag);
-		}
 		if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
 			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
 				nodeMap.put(entry.getKey(), getStringValue(entry.getValue()));

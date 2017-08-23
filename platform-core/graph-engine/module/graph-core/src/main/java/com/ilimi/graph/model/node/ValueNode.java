@@ -73,7 +73,7 @@ public class ValueNode extends AbstractIndexNode {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_NODE.name(), "Invalid Value Node");
         this.objectType = objectType;
         this.value = value;
-        this.valueNodeType = SystemNodeTypes.TAG.name();
+//        this.valueNodeType = SystemNodeTypes.TAG.name();
         this.relationType = HasTagRelation.RELATION_NAME;
         this.sourceNodeId = SystemNodeTypes.DEFINITION_NODE.name() + "_" + objectType;
     }
@@ -122,13 +122,13 @@ public class ValueNode extends AbstractIndexNode {
                                     Response addRes = (Response) arg1;
                                     String valueNodeId = (String) addRes.get(GraphDACParams.node_id.name());
                                     setNodeId(valueNodeId);
-                                    if (StringUtils.equalsIgnoreCase(SystemNodeTypes.TAG.name(), getValueNodeType())) {
-                                        IRelation rel = new HasTagRelation(getManager(), getGraphId(), getSourceNodeId(), getNodeId());
-                                        rel.createRelation(req);
-                                    } else {
+//                                    if (StringUtils.equalsIgnoreCase(SystemNodeTypes.TAG.name(), getValueNodeType())) {
+//                                        IRelation rel = new HasTagRelation(getManager(), getGraphId(), getSourceNodeId(), getNodeId());
+//                                        rel.createRelation(req);
+//                                    } else {
                                         IRelation rel = new HasValueRelation(getManager(), getGraphId(), getSourceNodeId(), getNodeId());
                                         rel.createRelation(req);
-                                    }
+//                                    }
                                     Map<String, Object> map = new HashMap<String, Object>();
                                     map.put(GraphDACParams.node_id.name(), getNodeId());
                                     promise.success(map);

@@ -303,9 +303,9 @@ public class GraphPolicyTest {
 		List<String> tags = new ArrayList<String>();
 		tags.add("Language");
 		tags.add("Programming Language");
-		node.setTags(tags);
+//		node.setTags(tags);
 		Node  res = graphDb.updateNode(graphId, node, request);
-		assertEquals(true , CollectionUtils.containsAny(tags, res.getTags()));
+//		assertEquals(true , CollectionUtils.containsAny(tags, res.getTags()));
 	}
 	
 	@Test(expected = ResourceNotFoundException.class)
@@ -320,7 +320,7 @@ public class GraphPolicyTest {
 		node.setMetadata(map);
 		tags.add("Language");
 		tags.add("Programming Language");
-		node.setTags(tags);
+//		node.setTags(tags);
 		node.setGraphId(graphId);
 		node.setIdentifier("Java00122");
 		Node  res = graphDb.updateNode(graphId, node, request);
@@ -339,9 +339,9 @@ public class GraphPolicyTest {
 		scalaMap.put("Title", "Learn Scala Language");
 		node.setMetadata(scalaMap);
 		tags.add("oops");
-		node.setTags(tags);
+//		node.setTags(tags);
 		Node res =  graphDb.upsertNode(graphId, node, request);
-		assertEquals(tags, res.getTags());
+//		assertEquals(tags, res.getTags());
 	}
 	
 	@Test 
@@ -357,9 +357,9 @@ public class GraphPolicyTest {
 		scalaMap.put("Title", "Learn Scala Language");
 		node.setMetadata(scalaMap);
 		tags.add("oops");
-		node.setTags(tags);
+//		node.setTags(tags);
 		Node res =  graphDb.upsertNode(graphId, node, request);
-		assertEquals(tags, res.getTags());
+//		assertEquals(tags, res.getTags());
 	}
 	
 	@Test

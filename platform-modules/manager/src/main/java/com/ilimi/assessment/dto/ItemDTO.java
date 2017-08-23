@@ -49,7 +49,7 @@ public class ItemDTO extends Node {
             }
 //            setInRelations(node.getInRelations());
 //            setOutRelations(node.getOutRelations());
-            setTags(node.getTags());
+//            setTags(node.getTags());
 
             if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
                 this.concepts = new ArrayList<NodeDTO>();

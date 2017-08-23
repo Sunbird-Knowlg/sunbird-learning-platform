@@ -70,7 +70,7 @@ import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
-import com.ilimi.graph.dac.model.TagCriterion;
+//import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -601,10 +601,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					}
 				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
 					List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
-					if (null != tags && !tags.isEmpty()) {
-						TagCriterion tc = new TagCriterion(tags);
-						sc.setTag(tc);
-					}
+//					if (null != tags && !tags.isEmpty()) {
+//						TagCriterion tc = new TagCriterion(tags);
+//						sc.setTag(tc);
+//					}
 				}
 			}
 		}
@@ -681,9 +681,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 			addRelationsData(node, map);
-			if (null != node.getTags() && !node.getTags().isEmpty()) {
-				map.put("tags", node.getTags());
-			}
+//			if (null != node.getTags() && !node.getTags().isEmpty()) {
+//				map.put("tags", node.getTags());
+//			}
 			map.put("identifier", node.getIdentifier());
 			map.put("language", LanguageMap.getLanguage(languageId));
 		}
@@ -996,8 +996,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				} else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
 					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<String> tags = mapper.readValue(objectStr, List.class);
-					if (null != tags && !tags.isEmpty())
-						node.setTags(tags);
+//					if (null != tags && !tags.isEmpty())
+//						node.setTags(tags);
 				} else if (inRelDefMap.containsKey(entry.getKey())) {
 					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<Map> list = mapper.readValue(objectStr, List.class);

@@ -47,7 +47,6 @@ import com.ilimi.graph.importer.ImportData;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
 import com.ilimi.graph.model.cache.DefinitionCache;
-import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.node.DataNode;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.DefinitionNode;
@@ -524,16 +523,16 @@ public class Graph extends AbstractDomainObject {
 													final Map<String, List<String>> importMsgMap = (Map<String, List<String>>) actorResponse
 															.get(GraphDACParams.messages.name());
 													// Create Tag Nodes.
-													Map<String, List<String>> tagMembersMap = importData
-															.getTagMembersMap();
-													if (tagMembersMap != null) {
-														for (String tagName : tagMembersMap.keySet()) {
-															Request tagRequest = new Request(request);
-															Tag tag = new Tag(manager, graphId, tagName, null,
-																	tagMembersMap.get(tagName));
-															tag.createTag(tagRequest);
-														}
-													}
+//													Map<String, List<String>> tagMembersMap = importData
+//															.getTagMembersMap();
+//													if (tagMembersMap != null) {
+//														for (String tagName : tagMembersMap.keySet()) {
+//															Request tagRequest = new Request(request);
+//															Tag tag = new Tag(manager, graphId, tagName, null,
+//																	tagMembersMap.get(tagName));
+//															tag.createTag(tagRequest);
+//														}
+//													}
 													CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(
 															byteInputStream);
 													OutputStream outputStream = msgHandler

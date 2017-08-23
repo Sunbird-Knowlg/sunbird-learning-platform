@@ -11,13 +11,11 @@ import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
-import com.ilimi.graph.dac.model.TagCriterion;
 
 public abstract class AbstractSearchCriteria {
 
     private MetadataCriterion metadata;
     private List<RelationCriterion> relations;
-    private TagCriterion tag;
     private int resultSize = 50;
     private int startPosition = 0;
     private List<Sort> sortOrder = new LinkedList<Sort>();
@@ -36,14 +34,6 @@ public abstract class AbstractSearchCriteria {
 
     public void setRelations(List<RelationCriterion> relations) {
         this.relations = relations;
-    }
-
-    public TagCriterion getTag() {
-        return tag;
-    }
-
-    public void setTag(TagCriterion tag) {
-        this.tag = tag;
     }
 
     public int getResultSize() {

@@ -202,12 +202,12 @@ public class TestGraphImportUsingCSV {
         Transaction tx = graphDb.beginTx();
         int tagsCount = 0;
         ResourceIterator<Node> nodes = graphDb.getAllNodes().iterator();
-        while (nodes.hasNext()) {
-            Node node = nodes.next();
-            if (SystemNodeTypes.TAG.name().equals(node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()))) {
-                tagsCount++;
-            }
-        }
+//        while (nodes.hasNext()) {
+//            Node node = nodes.next();
+//            if (SystemNodeTypes.TAG.name().equals(node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()))) {
+//                tagsCount++;
+//            }
+//        }
         assertEquals(2, tagsCount);
         tx.success();
         tx.close();

@@ -48,9 +48,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
 	private static final String ITEM_SET_OBJECT_TYPE = "ItemSet";
 	private static final String ITEM_SET_MEMBERS_TYPE = "AssessmentItem";
-
-	
-
 	private ObjectMapper mapper = new ObjectMapper();
 
 	@Autowired
@@ -317,9 +314,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 					}
 				}
 			}
-		}
-		if (null != node.getTags() && !node.getTags().isEmpty()) {
-			metadata.put("tags", node.getTags());
 		}
 		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<NodeDTO> concepts = new ArrayList<NodeDTO>();

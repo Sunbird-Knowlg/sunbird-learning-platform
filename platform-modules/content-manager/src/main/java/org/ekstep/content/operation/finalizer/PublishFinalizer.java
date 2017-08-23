@@ -305,7 +305,7 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
-		newNode.setTags(node.getTags());
+//		newNode.setTags(node.getTags());
 
 		PlatformLogger.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]", null,
 				LoggerEnum.INFO.name());

@@ -35,7 +35,6 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.cache.DefinitionCache;
-import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.relation.RelationHandler;
 
 import akka.actor.ActorRef;
@@ -181,10 +180,10 @@ public class DataNode extends AbstractNode {
 			List<Future<String>> tagFutures = new ArrayList<Future<String>>();
 			final List<String> tagIds = new ArrayList<String>();
 			for (String tagName : tags) {
-				Tag tag = new Tag(manager, graphId, tagName, null, null);
-				tagIds.add(tag.getNodeId());
-				Future<String> tagFuture = tag.upsert(req);
-				tagFutures.add(tagFuture);
+//				Tag tag = new Tag(manager, graphId, tagName, null, null);
+//				tagIds.add(tag.getNodeId());
+//				Future<String> tagFuture = tag.upsert(req);
+//				tagFutures.add(tagFuture);
 			}
 			Future<Iterable<String>> tagSequence = Futures.sequence(tagFutures, ec);
 			tagSequence.onComplete(new OnComplete<Iterable<String>>() {
@@ -223,10 +222,11 @@ public class DataNode extends AbstractNode {
 											Response res = (Response) arg1;
 											if (manager.checkError(res)) {
 												messages.add(manager.getErrorMessage(res));
-											} else {
-												for (String tagId : tagIds)
-													updateTagCache(req, tagId, getNodeId());
-											}
+											} 
+//												else {
+//												for (String tagId : tagIds)
+//													updateTagCache(req, tagId, getNodeId());
+//											}
 										} else {
 											messages.add("Error adding tags");
 										}
@@ -252,10 +252,10 @@ public class DataNode extends AbstractNode {
 		if (null != tags && !tags.isEmpty()) {
 			ExecutionContext ec = manager.getContext().dispatcher();
 			final List<String> tagIds = new ArrayList<String>();
-			for (String tagName : tags) {
-				Tag tag = new Tag(manager, graphId, tagName, null, null);
-				tagIds.add(tag.getNodeId());
-			}
+//			for (String tagName : tags) {
+//				Tag tag = new Tag(manager, graphId, tagName, null, null);
+//				tagIds.add(tag.getNodeId());
+//			}
 			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
 			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);

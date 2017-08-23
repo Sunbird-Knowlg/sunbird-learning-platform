@@ -26,8 +26,6 @@ import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
 public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Command {
-
-	
 	
     @Override
     public String getCommandName() {
@@ -155,8 +153,8 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                 }
                 updateReturnMap(map, outRelMap, outRelDefMap);
             }
-            if (null != node.getTags() && !node.getTags().isEmpty())
-                map.put("tags", node.getTags());
+//            if (null != node.getTags() && !node.getTags().isEmpty())
+//                map.put("tags", node.getTags());
             map.put("identifier", node.getIdentifier());
         }
         return map;

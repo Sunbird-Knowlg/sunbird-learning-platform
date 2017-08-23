@@ -257,9 +257,9 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
             transactionData.put(CompositeSearchParams.properties.name(), new HashMap<String, Object>());
         
         // add node tags
-        transactionData.put(CompositeSearchParams.addedTags.name(), null == node.getTags() ? new ArrayList<String>() : node.getTags());
-        transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
-        
+//        transactionData.put(CompositeSearchParams.addedTags.name(), null == node.getTags() ? new ArrayList<String>() : node.getTags());
+//        transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
+//        
         // add IN relations
         List<Map<String, Object>> relations = new ArrayList<Map<String, Object>>();
         if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {

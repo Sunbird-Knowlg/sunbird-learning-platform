@@ -68,7 +68,7 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
-import com.ilimi.graph.dac.model.TagCriterion;
+//import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -273,8 +273,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								rowMap.put("isLoanWord", metadata.get("isLoanWord"));
 								rowMap.put("orthographic_complexity", metadata.get("orthographic_complexity"));
 								rowMap.put("phonologic_complexity", metadata.get("phonologic_complexity"));
-								if (null != node.getTags() && !node.getTags().isEmpty())
-									rowMap.put("tags", node.getTags());
+//								if (null != node.getTags() && !node.getTags().isEmpty())
+//									rowMap.put("tags", node.getTags());
 								getSynsets(languageId, node, rowMap, nodes);
 							}
 						}
@@ -610,10 +610,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
 					Object val = entry.getValue();
 					List<String> tags = getList(mapper, val, true);
-					if (null != tags && !tags.isEmpty()) {
-						TagCriterion tc = new TagCriterion(tags);
-						sc.setTag(tc);
-					}
+//					if (null != tags && !tags.isEmpty()) {
+//						TagCriterion tc = new TagCriterion(tags);
+//						sc.setTag(tc);
+//					}
 				}
 			}
 		}
@@ -751,9 +751,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 			}
 			addRelationsData(languageId, objectType, node, map, synsetMembers);
-			if (null != node.getTags() && !node.getTags().isEmpty()) {
-				map.put("tags", node.getTags());
-			}
+//			if (null != node.getTags() && !node.getTags().isEmpty()) {
+//				map.put("tags", node.getTags());
+//			}
 			map.put("identifier", node.getIdentifier());
 		}
 		return map;
@@ -1276,7 +1276,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 					try {
 						String objectStr = mapper.writeValueAsString(entry.getValue());
 						List<String> tags = mapper.readValue(objectStr, List.class);
-						node.setTags(tags);
+//						node.setTags(tags);
 					} catch (Exception e) {
 						e.printStackTrace();
 						throw e;
@@ -1592,8 +1592,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 				map.putAll(relMap);
 			}
-			if (null != synset.getTags() && !synset.getTags().isEmpty())
-				map.put("tags", synset.getTags());
+//			if (null != synset.getTags() && !synset.getTags().isEmpty())
+//				map.put("tags", synset.getTags());
 			map.put("identifier", synset.getIdentifier());
 		}
 		return map;
@@ -2687,7 +2687,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		// set synset tags
 		List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
 		if (tags != null) {
-			synset.setTags(tags);
+//			synset.setTags(tags);
 			meaningMap.remove(LanguageParams.tags.name());
 		}
 		
@@ -3218,8 +3218,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				}
 			}
 
-		if(node.getTags()!=null)
-			wordMap.put("tags",node.getTags());
+//		if(node.getTags()!=null)
+//			wordMap.put("tags",node.getTags());
 
 		return wordMap;
 	}
@@ -3279,8 +3279,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			synsetMap.putAll(relMap);
 			}
 
-		if(synset.getTags()!=null)
-			synsetMap.put("tags",synset.getTags());
+//		if(synset.getTags()!=null)
+//			synsetMap.put("tags",synset.getTags());
 		return synsetMap;
 	}
 	
