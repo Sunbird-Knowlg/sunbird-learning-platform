@@ -6,6 +6,9 @@ import static org.hamcrest.CoreMatchers.is;
 
 import org.junit.Test;
 
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
+
 public class ItemSetAPITests extends BaseTest 
 {
 	int rn = generateRandomInt(0, 500);
@@ -91,6 +94,7 @@ public class ItemSetAPITests extends BaseTest
 	public void createItemSetWithGivenIdentifierExpectSuccess200()
 	{
 		setURI();
+		Response R =
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 			body(JsonCreateItemSetWithGivenIdentifier).
@@ -99,16 +103,20 @@ public class ItemSetAPITests extends BaseTest
 		when().
 			post("/learning/v1/assessmentitemset").
 		then().
-			//log().all().
-			spec(get200ResponseSpec());
+			log().all().
+			spec(get200ResponseSpec()).
+			extract().response();
+		
+		JsonPath jp = R.jsonPath();
+		String set_id = jp.get("result.set_id");
 		
 		setURI();
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("/learning/v1/assessmentitemset/domain_1000"). 
+			get("/learning/v1/assessmentitemset/"+set_id). 
     	then().
-			//log().all().
+			log().all().
 			spec(get200ResponseSpec());
 	}
 	

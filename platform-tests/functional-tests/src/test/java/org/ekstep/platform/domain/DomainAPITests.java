@@ -24,7 +24,6 @@ public class DomainAPITests extends BaseTest
 		then().
 			//log().all()
 			spec(get200ResponseSpec()).
-	        body("result.domains.size()", is(noOfLiveDomains)).
 	        body("result.domains.status", hasItems("Live"));
 		}
 	

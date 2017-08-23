@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -26,6 +27,16 @@ public class ConceptAPITests extends BaseTest {
 	String jsonBodyForCreateDuplicateConcept = "{\"request\": {\"object\": {\"identifier\": \"TEST_DUPL_CONCEPT_"+rn+"\",\"description\": \"Duplicate Test\",\"name\": \"Duplicate_Test\",\"code\": \"Lit:Dim:Dupl\",\"parent\": [{\"identifier\": \"LD5\",\"name\": \"Reading Comprehension\",\"objectType\": \"Dimension\",\"relation\": \"isParentOf\"}]}}}";
 	String jsonBodyForCreateConceptWithNoDim = "{\"request\": {\"object\": {\"identifier\": \"TEST_NO_DIM_CONCEPT\",\"description\": \"Concept with no Dimension Test\",\"name\": \"Concept_Test\",\"code\": \"Lit:Dim:LD90\",\"parent\": [{\"identifier\": \"LD100\",\"name\": \"Reading Comprehension\",\"objectType\": \"Dimension\",\"relation\": \"isParentOf\"}]}}}";
 	String JsonInPutForConceptSearchWithTag = "{ \"request\": {\"search\": {\"name\": [\"Test\"],\"resultSize\": 5 }}}";
+	
+	@Before
+	public void delay(){
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	// Get list numeracy concepts
 	
@@ -302,7 +313,7 @@ public class ConceptAPITests extends BaseTest {
 			post("/learning/v2/domains/kfqlef/concepts/search").
 		then().
 			log().all().
-			spec(get400ResponseSpec());
+			spec(get200ResponseSpec());
 			
 	}
 }

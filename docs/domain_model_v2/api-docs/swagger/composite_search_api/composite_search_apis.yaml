@@ -10,7 +10,7 @@ info:
   license:
     name: EkStep License
     url: 'http:www.ekstep.in'
-basePath: /search/v3
+basePath: /composite/v3
 host: api.ekstep.in
 securityDefinitions: {}
 consumes:
