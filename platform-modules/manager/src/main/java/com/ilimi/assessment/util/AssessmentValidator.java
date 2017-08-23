@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.assessment.enums.AssessmentItemType;
 import com.ilimi.assessment.enums.QuestionnaireType;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.model.Node;
 
@@ -19,7 +19,6 @@ import com.ilimi.graph.dac.model.Node;
 public class AssessmentValidator extends BaseManager {
 
     private ObjectMapper mapper = new ObjectMapper();
-    private static Logger LOGGER = LogManager.getLogger(AssessmentValidator.class.getName());
 
     public String getAssessmentItemType(Node item) {
         Map<String, Object> metadata = item.getMetadata();
@@ -124,7 +123,7 @@ public class AssessmentValidator extends BaseManager {
     			}
     		}
     	} catch (Exception e) {
-    		LOGGER.error("invalid responses definition.", e);
+    		PlatformLogger.log("invalid responses definition.", e.getMessage(), LoggerEnum.ERROR.name());
     		errorMessages.add("invalid responses definition");
     	}
     }

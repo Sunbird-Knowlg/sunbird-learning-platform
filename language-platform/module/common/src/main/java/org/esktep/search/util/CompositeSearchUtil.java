@@ -3,8 +3,6 @@ package org.esktep.search.util;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -21,7 +19,7 @@ import com.ilimi.common.dto.Response;
 public class CompositeSearchUtil extends BaseSearchManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(CompositeSearchUtil.class.getName());
+	
 	
 	/**
 	 * Search.
@@ -33,11 +31,11 @@ public class CompositeSearchUtil extends BaseSearchManager {
 		Request request=new Request();
 		request.setRequest(searchRequestMap);
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.INDEX_SEARCH.name());
-		Response searchResult= getSearchResponse(request, LOGGER);
+		Response searchResult= getSearchResponse(request);
 		if (!checkError(searchResult)) {
 			request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
 			request.put("searchResult", searchResult.getResult());
-			Response getRes = getSearchResponse(request, LOGGER);
+			Response getRes = getSearchResponse(request);
 			if (!checkError(getRes)) {
 				return getRes.getResult();
 			}
@@ -51,6 +49,7 @@ public class CompositeSearchUtil extends BaseSearchManager {
 	 * @param searchRequestMap the search request map
 	 * @return the list
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Map<String, Object>> searchWords(Map<String, Object> searchRequestMap){
 		Map<String, Object> wordResults = search(searchRequestMap);
 		

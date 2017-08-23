@@ -26,7 +26,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.RequestPath;
 import com.ilimi.orchestrator.dac.model.RequestTypes;
@@ -40,7 +40,7 @@ import com.ilimi.orchestrator.mgr.service.OrchestratorScriptMap;
 @RequestMapping("")
 public class ExecutionController extends BaseOrchestratorController {
 
-	private static LogHelper LOGGER = LogHelper.getInstance(ExecutionController.class.getName());
+	
 
 	@Autowired
 	private IOrchestratorManager manager;
@@ -84,9 +84,8 @@ public class ExecutionController extends BaseOrchestratorController {
 		} else {
 			try {
 				Map<String, Object> params = getParams(request, script, path, map);
-				LOGGER.info(script.getName() + "," + params);
+				PlatformLogger.log(script.getName() + "," + params);
 				if (null != params) {
-					LOGGER.info("URL: " + getEnvBaseUrl());
 					params.put("server_env", getEnvBaseUrl());
 				}
 				Response resp = executor.execute(script, params);
@@ -119,7 +118,7 @@ public class ExecutionController extends BaseOrchestratorController {
 				}
 				return getResponseEntity(resp, script);
 			} catch (Exception e) {
-				LOGGER.error("Error executing script: " + script.getName(), e);
+				PlatformLogger.log("Error executing script: " , script.getName(), e);
 				return getExceptionResponseEntity(e, script);
 			}
 		}

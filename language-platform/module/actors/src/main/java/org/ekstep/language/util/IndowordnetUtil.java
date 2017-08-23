@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.Util.HibernateSessionFactory;
 import org.ekstep.language.Util.IndowordnetConstants;
 import org.ekstep.language.common.LanguageMap;
@@ -19,7 +17,6 @@ import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.ekstep.language.util.WordUtil;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -30,6 +27,7 @@ import com.google.common.base.Charsets;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
 import akka.actor.ActorRef;
@@ -60,10 +58,6 @@ public class IndowordnetUtil {
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
-
-	/** The logger. */
-	// private EmailService emailService = new EmailService();
-	private static Logger LOGGER = LogManager.getLogger(IndowordnetUtil.class.getName());
 
 	/**
 	 * Queries words from the Indowordnet DB for a given language, processes the
@@ -138,7 +132,7 @@ public class IndowordnetUtil {
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
-							LOGGER.error(e.getMessage(), e);
+							PlatformLogger.log(e.getMessage(), null, e);
 							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
@@ -157,7 +151,7 @@ public class IndowordnetUtil {
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
-					LOGGER.error(e.getMessage(), e);
+					PlatformLogger.log(e.getMessage(), null, e);
 					e.printStackTrace();
 					errorMessages.add(e.getMessage());
 				} finally {
@@ -315,7 +309,7 @@ public class IndowordnetUtil {
 		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
 		request.setOperation(LanguageOperations.enrichWords.name());
 		request.getContext().put(LanguageParams.language_id.name(), languageId);
-		makeAsyncRequest(request, LOGGER);
+		makeAsyncRequest(request);
 	}
 
 	/**
@@ -326,12 +320,12 @@ public class IndowordnetUtil {
 	 * @param logger
 	 *            the logger
 	 */
-	public void makeAsyncRequest(Request request, Logger logger) {
+	public void makeAsyncRequest(Request request) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
 		try {
 			router.tell(request, router);
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			PlatformLogger.log(e.getMessage(), null, e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}

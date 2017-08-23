@@ -9,6 +9,8 @@
             "url": "www.ektep.in"
         }
     },
+    "basePath": "/language",
+    "host": "api.ekstep.in",
     "tags": [
         {
             "name": "Word",
@@ -561,6 +563,51 @@
                     },
                     "500": {
                         "description": "Error during transliteration! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/v3/tools/rhymingwords/list": {
+            "post": {
+                "tags": [
+                    "Tools"
+                ],
+                "summary": "lists rhyming words of any given words",
+                "description": "This endpoint takes a language id and a word to list down rhyming words.",
+                "operationId": "tools.rhymingwords",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "Body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/rhymingWordsRequestBody"
+                        },
+                        "x-is-map": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Rhyming words returned successfully",
+                        "schema": {
+                            "$ref": "#/definitions/rhymingWordsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While returning rhyming words! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While returning rhyming words! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
                         "schema": {
                             "$ref": "#/definitions/FailedResponseHeader"
                         }
@@ -1677,6 +1724,34 @@
             },
             "title": "Complexity Measures Request Body"
         },
+        "rhymingWordsRequestBody": {
+            "type": "object",
+            "required": [
+                "id",
+                "params",
+                "request",
+                "ts",
+                "ver"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/RequestParams"
+                },
+                "request": {
+                    "$ref": "#/definitions/rhymingWordsReqObject"
+                }
+            },
+            "title": "Complexity Measures Request Body"
+        },
         "textAnalysisRequestBody": {
             "type": "object",
             "required": [
@@ -2240,6 +2315,30 @@
             },
             "title": "Complexity Measures API result"
         },
+        "rhymingWordsResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "ver": {
+                    "type": "string"
+                },
+                "ts": {
+                    "type": "string"
+                },
+                "params": {
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "string"
+                },
+                "result": {
+                    "$ref": "#/definitions/rhymingWordsObject"
+                }
+            },
+            "title": "Complexity Measures API result"
+        },
         "textAnalyisResponse": {
             "type": "object",
             "properties": {
@@ -2426,6 +2525,18 @@
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "rhymingWordsReqObject": {
+            "properties": {
+                "language_id": {
+                    "type": "string",
+                    "description": "Unique code of the language of the input word"
+                },
+                "lemma": {
+                    "type": "string",
+                    "description": "lemma of word"
                 }
             }
         },
@@ -2780,6 +2891,18 @@
             "properties": {
                 "complexity_measures": {
                     "$ref": "#/definitions/complexityMeasuresObject_complexity_measures"
+                }
+            }
+        },
+        "rhymingWordsObject": {
+          "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "Unique identifier of the word"
+                },
+                "lemma": {
+                    "type": "string",
+                    "description": "lemma of a word"
                 }
             }
         },

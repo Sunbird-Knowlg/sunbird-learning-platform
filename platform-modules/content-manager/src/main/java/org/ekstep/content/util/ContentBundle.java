@@ -25,8 +25,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
@@ -42,6 +40,7 @@ import org.ekstep.learning.common.enums.ContentErrorCodes;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 
 /**
@@ -50,7 +49,6 @@ import com.ilimi.graph.common.JSONUtils;
 public class ContentBundle {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ContentBundle.class.getName());
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
@@ -66,6 +64,11 @@ public class ContentBundle {
 
 	/** The default youtube mimeType */
 	private static final String YOUTUBE_MIMETYPE = "video/youtube";
+
+	private static final String ARTIFACT_YOUTUBE_MIMETYPE = "video/x-youtube";
+	
+	private static final String WEB_URL_MIMETYPE = "text/x-url";
+	
 	/**
 	 * Creates the content manifest data.
 	 *
@@ -100,7 +103,7 @@ public class ContentBundle {
 				if (urlFields.contains(entry.getKey())) {
 					Object val = entry.getValue();
 					if (null != val) {
-						if (!StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE)) {
+						if (!isOnlineContent(mimeType)) {
 							if (val instanceof File) {
 								File file = (File) val;
 								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
@@ -115,16 +118,18 @@ public class ContentBundle {
 									entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 								}
 
-							} else if(val instanceof List) {
+							} else if (val instanceof List) {
 								List<String> data = (List<String>) val;
 								List<String> id = new ArrayList<>();
 								id.add(identifier.trim() + File.separator + entry.getKey());
 								List<String> screeshot = new ArrayList<>();
-								for(String value : data){
-									if(HttpDownloadUtility.isValidUrl(value)){
+								for (String value : data) {
+									if (HttpDownloadUtility.isValidUrl(value)) {
 										downloadUrls.put(value, id);
 										String file = FilenameUtils.getName(value);
-										screeshot.add(identifier.trim() + File.separator + ContentWorkflowPipelineParams.screenshots.name() + File.separator + Slug.makeSlug(file, true));
+										screeshot.add(identifier.trim() + File.separator
+												+ ContentWorkflowPipelineParams.screenshots.name() + File.separator
+												+ Slug.makeSlug(file, true));
 									}
 								}
 								entry.setValue(screeshot);
@@ -134,9 +139,9 @@ public class ContentBundle {
 									|| entry.getKey().equals(ContentWorkflowPipelineParams.downloadUrl.name())) {
 								entry.setValue(entry.getValue());
 							} else if (HttpDownloadUtility.isValidUrl(val)) {
-										addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
-										String file = FilenameUtils.getName(entry.getValue().toString());
-										entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
+								addDownloadUrl(downloadUrls, val, identifier, entry.getKey(), packageType);
+								String file = FilenameUtils.getName(entry.getValue().toString());
+								entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
 							}
 						}
 					}
@@ -155,6 +160,11 @@ public class ContentBundle {
 
 	}
 
+	
+	private boolean isOnlineContent(String mimeType) {
+		return StringUtils.equalsIgnoreCase(mimeType, YOUTUBE_MIMETYPE) || StringUtils.equalsIgnoreCase(mimeType, ARTIFACT_YOUTUBE_MIMETYPE)  || StringUtils.equalsIgnoreCase(mimeType, WEB_URL_MIMETYPE);
+	}
+	
 	/**
 	 * Creates the content bundle.
 	 *
@@ -250,7 +260,7 @@ public class ContentBundle {
 								+ " | [Content List is 'null' or Empty.]");
 			if (StringUtils.isBlank(manifestVersion))
 				manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
-			LOGGER.info("Manifest Header Version: " + manifestVersion);
+			PlatformLogger.log("Manifest Header Version: ", manifestVersion);
 			StringBuilder header = new StringBuilder();
 			header.append("{ \"id\": \"ekstep.content.archive\", \"ver\": \"").append(manifestVersion);
 			header.append("\", \"ts\": \"").append(getResponseTimestamp()).append("\", \"params\": { \"resmsgid\": \"");
@@ -258,22 +268,22 @@ public class ContentBundle {
 			if (StringUtils.isNotBlank(expiresOn))
 				header.append("\"expires\": \"").append(expiresOn).append("\", ");
 			header.append("\"ttl\": 24, \"items\": ");
-			LOGGER.info("Content Items in Manifest JSON: " + contents.size());
+			PlatformLogger.log("Content Items in Manifest JSON: ", contents.size());
 
 			// Updating the 'variant' Property
-			LOGGER.debug("Contents Before Updating for 'variant' Properties : " + contents);
+			PlatformLogger.log("Contents Before Updating for 'variant' Properties : ", contents);
 
-			LOGGER.info("Updating the 'variant' map from JSON string to JSON Object.");
+			PlatformLogger.log("Updating the 'variant' map from JSON string to JSON Object.");
 			contents.stream().forEach(c -> c.put(ContentWorkflowPipelineParams.variants.name(),
 					JSONUtils.convertJSONString((String) c.get(ContentWorkflowPipelineParams.variants.name()))));
 
-			LOGGER.debug("Contents After Updating for 'variant' Properties : " + contents);
+			PlatformLogger.log("Contents After Updating for 'variant' Properties : ", contents);
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
 
 			FileUtils.writeStringToFile(manifestFileName, manifestJSON);
-			LOGGER.info("Manifest JSON Written");
+			PlatformLogger.log("Manifest JSON Written");
 		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + " | [Unable to Write Manifest File.]", e);
@@ -411,9 +421,10 @@ public class ContentBundle {
 					if (file.getName().toLowerCase().endsWith("manifest.json")) {
 						fileName = file.getName();
 					} else if (file.getParentFile().getName().toLowerCase().endsWith("screenshots")) {
-						fileName = file.getParent().substring(file.getParentFile().getParent().lastIndexOf(File.separator) + 1)
+						fileName = file.getParent()
+								.substring(file.getParentFile().getParent().lastIndexOf(File.separator) + 1)
 								+ File.separator + file.getName();
-					}else {
+					} else {
 						fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
 								+ File.separator + file.getName();
 					}
@@ -434,7 +445,7 @@ public class ContentBundle {
 			}
 			IOUtils.closeQuietly(bufferedOutputStream);
 			IOUtils.closeQuietly(byteArrayOutputStream);
-			LOGGER.info("Printing Byte Array for Content Bundle" + byteArrayOutputStream.toByteArray());
+			PlatformLogger.log("Printing Byte Array for Content Bundle", byteArrayOutputStream.toByteArray());
 			return byteArrayOutputStream.toByteArray();
 		}
 	}

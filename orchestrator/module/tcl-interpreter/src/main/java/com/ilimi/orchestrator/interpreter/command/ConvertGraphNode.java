@@ -1,17 +1,15 @@
 package com.ilimi.orchestrator.interpreter.command;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -29,7 +27,7 @@ import tcl.pkg.java.ReflectObject;
 
 public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Command {
 
-	private static Logger LOGGER = LogManager.getLogger(ConvertGraphNode.class.getName());
+	
 	
     @Override
     public String getCommandName() {
@@ -99,7 +97,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                         if (fieldList.contains(entry.getKey())) {
                         	if (jsonProps.contains(entry.getKey().toLowerCase())) {
                         		Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                        		LOGGER.info("JSON Property " + entry.getKey() + " converted value is " + val);
+                        		PlatformLogger.log("JSON Property " + entry.getKey() + " converted value is " + val);
                                 if (null != val)
                                 	map.put(entry.getKey(), val);
                         	} else
@@ -113,7 +111,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                             key = new String(c);
                             if (jsonProps.contains(key.toLowerCase())) {
                             	Object val = JSONUtils.convertJSONString((String) entry.getValue());
-                            	LOGGER.info("JSON Property " + key + " converted value is " + val);
+                            	PlatformLogger.log("JSON Property " + key + " converted value is " + val);
                                 if (null != val)
                                 	map.put(key, val);
                             } else
@@ -173,7 +171,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                 }
             }
         }
-        LOGGER.info("JSON properties: " + props);
+        PlatformLogger.log("JSON properties: " , props);
         return props;
     }
     

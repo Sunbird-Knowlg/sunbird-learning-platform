@@ -246,4 +246,14 @@ public interface IDictionaryManager {
 	 * @return the synset
 	 */
 	Response getSynsetV3(String languageId, String id);
+	
+	/**
+	 * bulk update words in the CSV.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param inputStream
+	 *            the input stream
+	 */
+	Response bulkUpdateWordsCSV(String languageId, InputStream inputStream);
 }

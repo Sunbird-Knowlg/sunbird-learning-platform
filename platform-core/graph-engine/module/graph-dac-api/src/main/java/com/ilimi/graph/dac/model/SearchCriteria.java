@@ -138,6 +138,7 @@ public class SearchCriteria implements Serializable {
     @JsonIgnore
     public String getQuery() {
         StringBuilder sb = new StringBuilder();
+        pIndex = 1;
         sb.append("MATCH (ee:" + (StringUtils.isBlank(graphId) ? "NODE" : graphId) + ") ");
         if (StringUtils.isNotBlank(nodeType) || StringUtils.isNotBlank(objectType)
                 || (null != metadata && metadata.size() > 0)) {

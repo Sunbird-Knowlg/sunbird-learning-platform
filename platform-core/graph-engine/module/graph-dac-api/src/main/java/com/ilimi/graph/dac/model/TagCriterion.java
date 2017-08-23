@@ -15,8 +15,6 @@ public class TagCriterion implements Serializable {
     private List<String> tags;
     private boolean optional;
     
-    private TagCriterion() {}
-    
     public TagCriterion(List<String> tags) {
         
         this.tags = tags;

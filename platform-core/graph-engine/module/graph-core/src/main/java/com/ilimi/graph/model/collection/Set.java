@@ -7,14 +7,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -63,7 +62,7 @@ public class Set extends AbstractCollection {
 	private List<Relation> outRelations;
 	private ObjectMapper mapper = new ObjectMapper();
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(Set.class.getName());
+	
 
 	public static enum SET_TYPES {
 		MATERIALISED_SET, CRITERIA_SET;
@@ -817,7 +816,7 @@ public class Set extends AbstractCollection {
 			final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
 			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			LOGGER.info("Creating " + (out ? "outgoing" : "incoming") + " relations | count: " + newRels.size());
+			PlatformLogger.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: " , newRels.size());
 			for (Entry<String, List<String>> entry : newRels.entrySet()) {
 				if (out) {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
@@ -849,7 +848,7 @@ public class Set extends AbstractCollection {
 	private void deleteRelations(Request req, Map<String, List<String>> delRels, boolean out) {
 		final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		if (null != delRels && delRels.size() > 0) {
-			LOGGER.info("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: " + delRels.size());
+			PlatformLogger.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: " , delRels.size());
 			Request request = new Request(req);
 			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			for (Entry<String, List<String>> entry : delRels.entrySet()) {

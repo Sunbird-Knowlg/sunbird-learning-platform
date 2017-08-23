@@ -25,8 +25,9 @@ public class BaseTest
 	public String contentType = "application/json";
 	public String uploadContentType = "multipart/form-data";
 	public String userId = "ilimi";
-	//public String APIToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI1OWFiMmE2MDc1YzI0ODU2YjhiYjIzMjg4ZDdhZGNmNSJ9.RLouNX7RQ0VkVv2BYqNtH12D0IzKnBJ_I46xEORwHsU";
-	public String APIToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2MzExMTYwNTMzOGY0Zjc5YTgwZTM3YjcyZjVjMmUwZiJ9.azmj_AHmndeJz0h6yIkOJz1XjeZR6Gzd-OrZzR66I0A";
+	
+	//public String APIToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2MzExMTYwNTMzOGY0Zjc5YTgwZTM3YjcyZjVjMmUwZiJ9.azmj_AHmndeJz0h6yIkOJz1XjeZR6Gzd-OrZzR66I0A";
+	public String APIToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI1OWFiMmE2MDc1YzI0ODU2YjhiYjIzMjg4ZDdhZGNmNSJ9.RLouNX7RQ0VkVv2BYqNtH12D0IzKnBJ_I46xEORwHsU";
 	public String validuserId = "rayuluv";
 	public String invalidUserId = "abc";
 	
@@ -207,4 +208,3 @@ public class BaseTest
 	}
 
 }
-

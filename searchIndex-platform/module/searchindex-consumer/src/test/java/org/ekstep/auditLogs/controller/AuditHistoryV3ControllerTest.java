@@ -1,9 +1,11 @@
 package org.ekstep.auditLogs.controller;
 
 import static org.junit.Assert.assertEquals;
+
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
@@ -20,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
 import com.ilimi.common.dto.Response;
 
 @FixMethodOrder(MethodSorters.DEFAULT)
@@ -34,6 +37,7 @@ public class AuditHistoryV3ControllerTest {
 	final private static String graphId = "test";
 	final private String objectId = "test_word_01";
 	final private String InvalidObjectId = "xyz";
+	
 	@Test
 	public void before() {
 		AuditHistoryHelper helper = new AuditHistoryHelper();
@@ -63,8 +67,8 @@ public class AuditHistoryV3ControllerTest {
 		assertEquals(false, audit_record.isEmpty());
 		for (Object record : audit_record) {
 			Map<String, Object> map = (Map) record;
-			assertEquals(true, map.containsKey("summary"));
-			Map<String, Object> summary = (Map) map.get("summary");
+			assertEquals(true, map.containsKey("logRecord"));
+			Map<String, Object> logRecord = (Map) map.get("logRecord");
 			assertEquals(graphId, map.get("graphId"));
 			assertEquals(true, map.get("objectId").toString().startsWith(objectId));
 		}
@@ -107,33 +111,8 @@ public class AuditHistoryV3ControllerTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
-	@Test
-	public void getLogRecordByObjectId(){
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path =  "/v3/audit/read/"+ objectId;
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Response response = jsonToObject(actions);
-		Assert.assertEquals("successful", response.getParams().getStatus());
-		Map<String, Object> result = response.getResult();
-		List<Object> audit_record = (List) result.get("audit_history_record");
-		assertEquals(false, audit_record.isEmpty());
-		for (Object record : audit_record) {
-			Map<String, Object> map = (Map) record;
-			Map<String, Object> summary = (Map) map.get("summary");
-			assertEquals(true, map.containsKey("logRecord"));
-			assertEquals(graphId, map.get("graphId"));
-			assertEquals(true, map.get("objectId").toString().startsWith(objectId));
-		}
     }
+	
 	public static Response jsonToObject(ResultActions actions) {
 		String content = null;
 		Response resp = null;

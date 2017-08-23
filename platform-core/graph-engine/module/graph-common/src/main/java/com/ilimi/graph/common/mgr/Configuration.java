@@ -3,15 +3,15 @@ package com.ilimi.graph.common.mgr;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class Configuration {
-	
-	private static LogHelper LOGGER = LogHelper.getInstance(Configuration.class.getName());
 
     public static long TIMEOUT = 30000;
     public static List<String> graphIds = new ArrayList<String>();
@@ -39,7 +39,7 @@ public class Configuration {
             	}
             }
         } catch (Exception e) {
-        	LOGGER.error("Error! While Loading Graph Properties.", e);
+        	PlatformLogger.log("Error! While Loading Graph Properties.", e.getMessage(),LoggerEnum.ERROR.name());
         }
     }
     
@@ -54,5 +54,13 @@ public class Configuration {
     public static void registerNewGraph(String graphId){
     	graphIds.add(graphId);
     }
+    
+    public static void loadProperties(Map<String, Object> properties) {
+    	props.putAll(properties);
+	}
+	
+	public static void loadProperties(Properties properties) {
+		props.putAll(properties);
+	}
 
 }

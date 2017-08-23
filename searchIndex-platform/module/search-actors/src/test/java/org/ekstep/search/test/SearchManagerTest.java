@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.ekstep.compositesearch.enums.SearchActorNames;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ilimi.common.dto.Request;
@@ -240,6 +241,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Ignore
 	@Test
 	public void testSearchLTFilter() {
 		Request request = getSearchRequest();
@@ -266,6 +268,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Ignore
 	@Test
 	public void testSearchLEGEFilter() {
 		Request request = getSearchRequest();
@@ -293,6 +296,7 @@ public class SearchManagerTest extends BaseSearchActorsTest {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Ignore
 	@Test
 	public void testSearchGTFilter() {
 		Request request = getSearchRequest();

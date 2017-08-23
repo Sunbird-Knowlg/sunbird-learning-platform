@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.util.PropertiesUtil;
+
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * The Class LanguageMap loads the language graph Id to language name mappings
@@ -29,19 +29,9 @@ public class LanguageMap {
 	/** The prop. */
 	private static Properties prop = new Properties();
 
-	/** The input. */
-	private static InputStream input = null;
-
-	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(PropertiesUtil.class.getName());
-
 	static {
 		String filename = "language-map.properties";
-		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
-		if (input == null) {
-			LOGGER.error("Unable to find " + filename);
-		}
-		try {
+		try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename)){
 			// loads the data from the properties file into two maps. One with
 			// Graph Id to Language name mapping and one with Language name to
 			// Graph Id mapping.
@@ -53,11 +43,19 @@ public class LanguageMap {
 				languageMap.put(key, value);
 				languageGraphMap.put(value, key);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			PlatformLogger.log("Exception!", e.getMessage(), e);
 		}
 	}
 
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
+	}
+	
 	/**
 	 * Gets the property.
 	 *

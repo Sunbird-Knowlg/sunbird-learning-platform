@@ -1,11 +1,13 @@
 package com.ilimi.taxonomy.controller.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +21,18 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseTest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DomainV2ControllerTest extends BaseTest {
+public class DomainV2ControllerTest {
 		
 		@Autowired
 		private WebApplicationContext context;
 		private ResultActions actions;
 		
 		@Test
+		@Ignore
 		public void findDomainTest(){
 			
 			MockMvc mockMvc;
@@ -49,6 +51,7 @@ public class DomainV2ControllerTest extends BaseTest {
 		}
 		
 		@Test
+		@Ignore
 		public void findDomainTestWithInvalidUrl(){
 			MockMvc mockMvc;
 			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();

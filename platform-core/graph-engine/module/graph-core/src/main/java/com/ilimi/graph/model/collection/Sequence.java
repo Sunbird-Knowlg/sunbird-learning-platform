@@ -4,12 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -25,6 +19,12 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
+
+import akka.actor.ActorRef;
+import akka.dispatch.OnComplete;
+import akka.pattern.Patterns;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
 
 public class Sequence extends AbstractCollection {
 

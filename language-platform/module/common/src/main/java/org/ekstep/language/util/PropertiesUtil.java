@@ -2,10 +2,10 @@ package org.ekstep.language.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  * Loads properties from a properties file and supports operations to retrieve
@@ -19,23 +19,14 @@ public class PropertiesUtil {
 	/** The properties object. */
 	private static Properties prop = new Properties();
 
-	/** The input. */
-	private static InputStream input = null;
-
-	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(PropertiesUtil.class.getName());
 
 	//load language-indexes.properties by default
 	static {
 		String filename = "language-indexes.properties";
-		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
-		if (input == null) {
-			LOGGER.error("Unable to find " + filename);
-		}
-		try {
+		try(InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename)){
 			prop.load(input);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			PlatformLogger.log("Exception!", e.getMessage(), e);
 		}
 	}
 
@@ -48,5 +39,13 @@ public class PropertiesUtil {
 	 */
 	public static String getProperty(String key) {
 		return prop.getProperty(key);
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
 	}
 }

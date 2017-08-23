@@ -13,9 +13,6 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-
-import com.ilimi.dac.DataAccessEntity;
 /*import com.ilimi.mw.dto.ExecutionContext;
 import com.ilimi.mw.dto.param.HeaderParam;*/
 

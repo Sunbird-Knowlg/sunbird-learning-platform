@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
@@ -16,6 +14,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +30,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseTest;
-
+import com.ilimi.common.logger.PlatformLogger;
 /**
  * The Class ContentV2ControllerTest.
  * 
@@ -41,10 +39,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentV2ControllerTest extends BaseTest {
-
-	/** The Class Logger. */
-	private static Logger LOGGER = LogManager.getLogger(ContentV2ControllerTest.class.getName());
+public class ContentV2ControllerTest {
 
 	/** The context. */
 	@Autowired
@@ -89,6 +84,7 @@ public class ContentV2ControllerTest extends BaseTest {
 	 * 
 	 */
 	@Test
+	@Ignore
 	public void testUpload_01() {
 		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String validContentId = "CM_TEST_UPLOAD_01";
@@ -137,7 +133,7 @@ public class ContentV2ControllerTest extends BaseTest {
 		String url = "";
 		try {
 			if (null == file) {
-				LOGGER.info("Error! Upload File Package Cannot be 'null'.");
+				PlatformLogger.log("Error! Upload File Package Cannot be 'null'.");
 			} else {
 				String folder = S3PropertyReader.getProperty(s3Content);
             	folder = folder + "/" + identifier + "/" + S3PropertyReader.getProperty(s3Artifact);
@@ -146,7 +142,7 @@ public class ContentV2ControllerTest extends BaseTest {
 					url = result[1];
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error! Upload File Package Cannot be 'null'.", e);
+			PlatformLogger.log("Error! Upload File Package Cannot be 'null'.", e.getMessage(), e);
 		}
 		return url;
 	}
@@ -156,6 +152,7 @@ public class ContentV2ControllerTest extends BaseTest {
 		return file;
 	}
 
+	@SuppressWarnings("unused")
 	private static Map<String, Object> getContentNodeMetadata(String identifier) {
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata.put(ContentAPIParams.identifier.name(), identifier);

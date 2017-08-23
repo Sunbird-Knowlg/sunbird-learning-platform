@@ -6,22 +6,27 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.common.optimizr.Optimizr;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.dto.ContentSearchCriteria;
+import org.ekstep.content.enums.ContentMetadata;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.mimetype.mgr.IMimeTypeManager;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
-import org.ekstep.content.util.ContentMimeTypeFactoryUtil;
+import org.ekstep.content.publish.PublishManager;
+import org.ekstep.content.util.MimeTypeManagerFactory;
 import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.ekstep.learning.common.enums.LearningActorNames;
@@ -38,21 +43,29 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.common.mgr.ConvertToGraphNode;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
+import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.graph.model.node.RelationDefinition;
+import com.ilimi.taxonomy.common.LanguageCodeMap;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
@@ -75,22 +88,15 @@ import scala.concurrent.Future;
  * @see IContentManager
  */
 @Component
-public class ContentManagerImpl extends BaseManager implements IContentManager {
+public class ContentManagerImpl extends BaseContentManager implements IContentManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(ContentManagerImpl.class.getName());
 
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 
 	/** The Default Manifest Version */
 	private static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.2";
-
-	/**
-	 * The Default 'ContentImage' Object Suffix (Content_Object_Identifier +
-	 * ".img")
-	 */
-	private static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	/**
 	 * Content Image Object Type
@@ -113,6 +119,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	/** Default name of URL field */
 	protected static final String URL_FIELD = "URL";
 
+	private PublishManager publishManager = new PublishManager();
+
 	/**
 	 * Gets the data node.
 	 *
@@ -126,7 +134,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
 		request.put(GraphDACParams.get_tags.name(), true);
-		Response getNodeRes = getResponse(request, LOGGER);
+		Response getNodeRes = getResponse(request);
 		return getNodeRes;
 	}
 
@@ -139,52 +147,105 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@SuppressWarnings("unused")
 	@Override
 	public Response upload(String contentId, String taxonomyId, File uploadedFile) {
-		LOGGER.debug("Content ID: " + contentId);
-		LOGGER.debug("Graph ID: " + taxonomyId);
-		LOGGER.debug("Uploaded File: " + uploadedFile.getAbsolutePath());
+		PlatformLogger.log("Content ID: " + contentId);
+		PlatformLogger.log("Graph ID: " + taxonomyId);
+		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
 
-		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
-		if (StringUtils.isBlank(contentId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
-					"Content Object Id is blank.");
-		if (null == uploadedFile)
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
-					"Upload file is blank.");
-		if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
-			throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
-					"Invalid Content Identifier. | [Content Identifier does not Exists.]");
+		try {
+			if (StringUtils.isBlank(taxonomyId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+						"Taxonomy Id is blank.");
+			if (StringUtils.isBlank(contentId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+						"Content Object Id is blank.");
+			if (null == uploadedFile)
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
+						"Upload file is blank.");
+			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
+						"Invalid Content Identifier. | [Content Identifier does not Exists.]");
 
-		Node node = getNodeForOperation(taxonomyId, contentId);
-		LOGGER.debug("Node: ", node);
+			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
 
-		String mimeType = (String) node.getMetadata().get("mimeType");
-		if (StringUtils.isBlank(mimeType)) {
-			mimeType = "assets";
-		}
-		LOGGER.info("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			isNodeUnderProcessing(node, "Upload");
 
-		LOGGER.info("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
-		Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
-		if (null != uploadedFile && uploadedFile.exists()) {
-			try {
-				LOGGER.info("Cleanup - Deleting Uploaded File. | [Content ID: " + contentId + "]");
-				uploadedFile.delete();
-			} catch (Exception e) {
-				LOGGER.error("Something Went Wrong While Deleting the Uploaded File. | [Content ID: " + contentId + "]",
-						e);
+			String mimeType = (String) node.getMetadata().get("mimeType");
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = "assets";
 			}
+			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			PlatformLogger.log(
+					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			String contentType = (String) node.getMetadata().get("contentType");
+			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
+			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
+			PlatformLogger.log("Returning Response.");
+			return checkAndReturnUploadResponse(res);
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		} catch (Exception e) {
+			String message = "Something went wrong while processing uploaded file.";
+			PlatformLogger.log(message, null, e);
+			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
+		} finally {
+			if (null != uploadedFile && uploadedFile.exists())
+				uploadedFile.delete();
 		}
+	}
 
-		LOGGER.info("Returning Response.");
-		if(StringUtils.endsWith(res.getResult().get("node_id").toString(), ".img")){
-			 String identifier = (String)res.getResult().get("node_id");
-			 String new_identifier = identifier.replace(".img", "");
-			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
-			 res.getResult().replace("node_id", identifier, new_identifier);
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#upload(java.lang.String,
+	 * java.lang.String, java.io.File, java.lang.String)
+	 */
+	@Override
+	public Response upload(String contentId, String taxonomyId, String fileUrl) {
+		PlatformLogger
+				.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:" + fileUrl);
+		try {
+			if (StringUtils.isBlank(taxonomyId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+						"Taxonomy Id is blank.");
+			if (StringUtils.isBlank(contentId))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+						"Content Object Id is blank.");
+			if (StringUtils.isBlank(fileUrl))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
+						"fileUrl is blank.");
+			isImageContentId(contentId);
+			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
+			isNodeUnderProcessing(node, "Upload");
+			String mimeType = getMimeType(node);
+			PlatformLogger.log(
+					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			String contentType = (String) node.getMetadata().get("contentType");
+			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
+			Response res = mimeTypeManager.upload(node, fileUrl);
+			PlatformLogger.log("Returning Response.");
+			return checkAndReturnUploadResponse(res);
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			return ERROR(e.getErrCode(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		} catch (Exception e) {
+			String message = "Something went wrong while processing uploaded file.";
+			PlatformLogger.log(message, null, e);
+			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), message, ResponseCode.SERVER_ERROR);
 		}
-		return res;
+	}
+
+	private Response checkAndReturnUploadResponse(Response res) {
+		if (checkError(res)) {
+			return res;
+		} else {
+			String nodeId = (String) res.getResult().get("node_id");
+			String returnNodeId = getActualIdentifier(nodeId);
+			res.getResult().replace("node_id", nodeId, returnNodeId);
+			return res;
+		}
 	}
 
 	/*
@@ -196,35 +257,39 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response bundle(Request request, String taxonomyId, String version) {
-		LOGGER.debug("Request Object: ", request);
-		LOGGER.debug("Graph ID: " + taxonomyId);
-		LOGGER.debug("Version: " + version);
+		PlatformLogger.log("Request Object: ", request);
+		PlatformLogger.log("Graph ID: " + taxonomyId);
+		PlatformLogger.log("Version: " + version);
 
 		String bundleFileName = (String) request.get("file_name");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
-		LOGGER.info("Bundle File Name: " + bundleFileName);
-		LOGGER.info("Total No. of Contents: " + contentIds.size());
+		PlatformLogger.log("Bundle File Name: " + bundleFileName);
+		PlatformLogger.log("Total No. of Contents: ", contentIds.size());
 		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
 					"ECAR file name should not be blank");
 
-		LOGGER.info("Fetching all the Nodes.");
+		PlatformLogger.log("Fetching all the Nodes.");
 		Response response = searchNodes(taxonomyId, contentIds);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
-			LOGGER.info("Erroneous Response.");
+			PlatformLogger.log("Erroneous Response.");
 			return response;
 		} else {
 			List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
 			List<Node> nodes = new ArrayList<Node>();
 			List<Node> imageNodes = new ArrayList<Node>();
 			if (null != list && !list.isEmpty()) {
-				LOGGER.info("Iterating Over the List.");
+				PlatformLogger.log("Iterating Over the List.");
 				for (Object obj : list) {
 					List<Node> nodelist = (List<Node>) obj;
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
 				}
+
+				PlatformLogger.log("Validating the Input Nodes.");
+				validateInputNodesForBundling(nodes);
+
 				for (Node node : nodes) {
 					String contentImageId = getContentImageIdentifier(node.getIdentifier());
 					Response getNodeResponse = getDataNode(taxonomyId, contentImageId);
@@ -234,7 +299,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					String body = getContentBody(node.getIdentifier());
 					node.getMetadata().put(ContentAPIParams.body.name(), body);
 					imageNodes.add(node);
-					LOGGER.debug("Body fetched from content store");
+					PlatformLogger.log("Body fetched from content store");
 				}
 				if (imageNodes.size() == 1 && StringUtils.isBlank(bundleFileName))
 					bundleFileName = (String) imageNodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
@@ -242,9 +307,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			bundleFileName = Slug.makeSlug(bundleFileName, true);
 			String fileName = bundleFileName + ".ecar";
-			LOGGER.info("Bundle File Name: " + bundleFileName);
+			PlatformLogger.log("Bundle File Name: " + bundleFileName);
 
-			LOGGER.info("Preparing the Parameter Map for 'Bundle' Pipeline.");
+			PlatformLogger.log("Preparing the Parameter Map for 'Bundle' Pipeline.");
 			InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(ContentAPIParams.nodes.name(), imageNodes);
@@ -252,10 +317,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
 			parameterMap.put(ContentAPIParams.manifestVersion.name(), DEFAULT_CONTENT_MANIFEST_VERSION);
 
-			LOGGER.info("Calling Content Workflow 'Bundle' Pipeline.");
+			PlatformLogger.log("Calling Content Workflow 'Bundle' Pipeline.");
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
 
-			LOGGER.info("Returning Response.");
+			PlatformLogger.log("Returning Response.");
 			return listRes;
 		}
 	}
@@ -291,8 +356,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				requests.add(req);
 			}
 		}
-		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
-				ContentAPIParams.contents.name());
+		Response response = getResponse(requests, GraphDACParams.node_list.name(), ContentAPIParams.contents.name());
 		return response;
 	}
 
@@ -303,8 +367,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * java.lang.String)
 	 */
 	public Response optimize(String taxonomyId, String contentId) {
-		LOGGER.debug("Graph ID: " + taxonomyId);
-		LOGGER.debug("Content ID: " + contentId);
+		PlatformLogger.log("Graph ID: " + taxonomyId);
+		PlatformLogger.log("Content ID: " + contentId);
 
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
@@ -312,17 +376,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
-		Node node = getNodeForOperation(taxonomyId, contentId);
-		LOGGER.debug("Got Node: ", node);
+		Node node = getNodeForOperation(taxonomyId, contentId, "optimize", false);
+		PlatformLogger.log("Got Node: ", node);
+
+		isNodeUnderProcessing(node, "Optimize");
+
+		PlatformLogger.log("Given Content is not in Processing Status.");
 
 		String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
-		LOGGER.info("Content Status: " + status);
+		PlatformLogger.log("Content Status: " + status);
 		if (!StringUtils.equalsIgnoreCase(ContentAPIParams.Live.name(), status))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"UnPublished content cannot be optimized");
 
 		String downloadUrl = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
-		LOGGER.info("Download Url: " + downloadUrl);
+		PlatformLogger.log("Download Url: " + downloadUrl);
 		if (StringUtils.isBlank(downloadUrl))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"ECAR file not available for content");
@@ -332,7 +400,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					"Content package is not an ECAR file");
 
 		String optStatus = (String) node.getMetadata().get(ContentAPIParams.optStatus.name());
-		LOGGER.info("Optimization Process Status: " + optStatus);
+		PlatformLogger.log("Optimization Process Status: " + optStatus);
 		if (StringUtils.equalsIgnoreCase(ContentAPIParams.Processing.name(), optStatus))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
 					"Content optimization is in progress. Please try after the current optimization is complete");
@@ -341,29 +409,39 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		updateDataNode(node);
 		Optimizr optimizr = new Optimizr();
 		try {
-			LOGGER.info("Invoking the Optimizer For Content Id: " + contentId);
+			PlatformLogger.log("Invoking the Optimizer For Content Id: " + contentId);
 			File minEcar = optimizr.optimizeECAR(downloadUrl);
-			LOGGER.info("Optimized File: " + minEcar.getName() + " | [Content Id: " + contentId + "]");
+			PlatformLogger.log("Optimized File: " + minEcar.getName() + " | [Content Id: " + contentId + "]");
 
 			String folder = getFolderName(downloadUrl);
-			LOGGER.info("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
+			PlatformLogger.log("Folder Name: " + folder + " | [Content Id: " + contentId + "]");
 
 			String[] arr = AWSUploader.uploadFile(folder, minEcar);
 			response.put("url", arr[1]);
-			LOGGER.info("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
+			PlatformLogger.log("URL: " + arr[1] + " | [Content Id: " + contentId + "]");
 
-			LOGGER.info("Updating the Optimization Status. | [Content Id: " + contentId + "]");
+			PlatformLogger.log("Updating the Optimization Status. | [Content Id: " + contentId + "]");
 			node.getMetadata().put(ContentAPIParams.optStatus.name(), "Complete");
 			updateDataNode(node);
-			LOGGER.info("Node Updated. | [Content Id: " + contentId + "]");
+			PlatformLogger.log("Node Updated. | [Content Id: " + contentId + "]");
 
-			LOGGER.info("Directory Cleanup. | [Content Id: " + contentId + "]");
+			PlatformLogger.log("Directory Cleanup. | [Content Id: " + contentId + "]");
 			FileUtils.deleteDirectory(minEcar.getParentFile());
 		} catch (Exception e) {
 			node.getMetadata().put(ContentAPIParams.optStatus.name(), "Error");
 			updateDataNode(node);
 			response = ERROR(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		}
+		return response;
+	}
+
+	public Response preSignedURL(String taxonomyId, String contentId, String fileName) {
+		// TODO: Check content exist or not.
+		Response response = new Response();
+		String preSignedURL = AWSUploader.preSignedURL(contentId, fileName);
+		response.put(ContentAPIParams.content_id.name(), contentId);
+		response.put(ContentAPIParams.pre_signed_url.name(), preSignedURL);
+		response.put(ContentAPIParams.url_expiry.name(), S3PropertyReader.getProperty("s3.upload.url.expiry"));
 		return response;
 	}
 
@@ -391,7 +469,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * @return the response
 	 */
 	private Response updateDataNode(Node node) {
-		LOGGER.debug("[updateNode] | Node: ", node);
+		PlatformLogger.log("[updateNode] | Node: ", node);
 		Response response = new Response();
 		if (null != node) {
 			String contentId = node.getIdentifier();
@@ -402,16 +480,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				node.setIdentifier(node.getIdentifier() + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX);
 			}
 
-			LOGGER.info("Getting Update Node Request For Node ID: " + node.getIdentifier());
+			PlatformLogger.log("Getting Update Node Request For Node ID: " + node.getIdentifier());
 			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 			updateReq.put(GraphDACParams.node.name(), node);
 			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 
-			LOGGER.info("Updating the Node ID: " + node.getIdentifier());
-			response = getResponse(updateReq, LOGGER);
+			PlatformLogger.log("Updating the Node ID: " + node.getIdentifier());
+			response = getResponse(updateReq);
 
 			response.put(TaxonomyAPIParams.node_id.name(), contentId);
-			LOGGER.info("Returning Node Update Response.");
+			PlatformLogger.log("Returning Node Update Response.");
 		}
 		return response;
 	}
@@ -423,8 +501,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * java.lang.String)
 	 */
 	public Response publish(String taxonomyId, String contentId, Map<String, Object> requestMap) {
-		LOGGER.debug("Graph ID: " + taxonomyId);
-		LOGGER.debug("Content ID: " + contentId);
+		PlatformLogger.log("Graph ID: " + taxonomyId + " | Content ID: " + contentId);
 
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
@@ -433,18 +510,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		Response response = new Response();
 
-		Node node = getNodeForOperation(taxonomyId, contentId);
-		LOGGER.debug("Got Node: ", node);
+		Node node = getNodeForOperation(taxonomyId, contentId, "publish", false);
+		PlatformLogger.log("Got Node: ", node);
 
-		String body = getContentBody(node.getIdentifier());
-		node.getMetadata().put(ContentAPIParams.body.name(), body);
-		LOGGER.debug("Body fetched from content store");
+		isNodeUnderProcessing(node, "Publish");
 
-		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-		if (StringUtils.isBlank(mimeType)) {
-			mimeType = "assets";
-		}
-		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
+		PlatformLogger.log("Given Content is not in Processing Status.");
 
 		String publisher = null;
 		if (null != requestMap && !requestMap.isEmpty()) {
@@ -452,42 +523,41 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			node.getMetadata().putAll(requestMap);
 		}
 		if (StringUtils.isNotBlank(publisher)) {
-			LOGGER.debug("LastPublishedBy: " + publisher);
+			PlatformLogger.log("LastPublishedBy: " + publisher);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), publisher);
 		} else {
 			node.getMetadata().put("lastPublishedBy", null);
 			node.getMetadata().put(GraphDACParams.lastUpdatedBy.name(), null);
 		}
-		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
 
 		try {
-			response = mimeTypeManager.publish(contentId, node, true);
+			response = publishManager.publish(contentId, node);
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), "Error occured during content publish");
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+					"Error occured during content publish");
 		}
 
-		LOGGER.info("Returning 'Response' Object.");
-		if(StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")){
-			 String identifier = (String)response.getResult().get("node_id");
-			 String new_identifier = identifier.replace(".img", "");
-			 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
-			 response.getResult().replace("node_id", identifier, new_identifier);
+		PlatformLogger.log("Returning 'Response' Object.");
+		if (StringUtils.endsWith(response.getResult().get("node_id").toString(), ".img")) {
+			String identifier = (String) response.getResult().get("node_id");
+			String new_identifier = identifier.replace(".img", "");
+			PlatformLogger.log("replacing image id with content id in response" + identifier + new_identifier);
+			response.getResult().replace("node_id", identifier, new_identifier);
 		}
 		return response;
 	}
 
 	@Override
 	public Response review(String taxonomyId, String contentId, Request request) {
-		LOGGER.debug("Graph Id: ", taxonomyId);
-		LOGGER.debug("Content Id: ", contentId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", taxonomyId);
+		PlatformLogger.log("Content Id: ", contentId);
+		PlatformLogger.log("Request: ", request);
 
-		LOGGER.info("Validating The Input Parameter.");
+		PlatformLogger.log("Validating The Input Parameter.");
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
@@ -495,57 +565,48 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		Response response = new Response();
 
-		Node node = getNodeForOperation(taxonomyId, contentId);
-		LOGGER.debug("Node: ", node);
+		Node node = getNodeForOperation(taxonomyId, contentId, "review", false);
+		PlatformLogger.log("Node: ", node);
+
+		isNodeUnderProcessing(node, "Review");
+
+		PlatformLogger.log("Given Content is not in Processing Status.");
 
 		String body = getContentBody(node.getIdentifier());
 		node.getMetadata().put(ContentAPIParams.body.name(), body);
-		LOGGER.debug("Body Fetched From Content Store.");
+		PlatformLogger.log("Body Fetched From Content Store.");
+
+		PlatformLogger.log("Putting the last Submitted On TimeStamp.");
+		node.getMetadata().put(TaxonomyAPIParams.lastSubmittedOn.name(), DateUtils.formatCurrentDate());
 
 		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 		if (StringUtils.isBlank(mimeType)) {
 			mimeType = "assets";
 		}
-		LOGGER.info("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
+		PlatformLogger.log("Mime-Type" + mimeType + " | [Content ID: " + contentId + "]");
 
-		LOGGER.info("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
-		IMimeTypeManager mimeTypeManager = ContentMimeTypeFactoryUtil.getImplForService(mimeType);
+		PlatformLogger.log("Getting Mime-Type Manager Factory. | [Content ID: " + contentId + "]");
+		String contentType = (String) node.getMetadata().get("contentType");
+		IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 
 		response = mimeTypeManager.review(contentId, node, false);
 
-		LOGGER.debug("Returning 'Response' Object: ", response);
+		PlatformLogger.log("Returning 'Response' Object: ", response);
 		return response;
 	}
 
 	@Override
 	public Response getHierarchy(String graphId, String contentId, String mode) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Content Id: ", contentId);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Content Id: ", contentId);
 		Node node = getContentNode(graphId, contentId, mode);
 
-		LOGGER.info("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
+		PlatformLogger.log("Collecting Hierarchical Data For Content Id: " + node.getIdentifier());
 		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
 		Map<String, Object> map = getContentHierarchyRecursive(graphId, node, definition, mode);
 		Map<String, Object> dataMap = contentCleanUp(map);
 		Response response = new Response();
 		response.put("content", dataMap);
-		response.setParams(getSucessStatus());
-		return response;
-	}
-
-	@Override
-	public Response getById(String graphId, String contentId, String mode) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Content Id: ", contentId);
-		Response response = new Response();
-
-		Node node = getContentNode(graphId, contentId, mode);
-
-		LOGGER.info("Fetching the Data For Content Id: " + node.getIdentifier());
-		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
-		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
-
-		response.put("content", contentMap);
 		response.setParams(getSucessStatus());
 		return response;
 	}
@@ -559,7 +620,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition, String mode) {
+	private Map<String, Object> getContentHierarchyRecursive(String graphId, Node node, DefinitionDTO definition,
+			String mode) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 		if (null != children && !children.isEmpty()) {
@@ -568,7 +630,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				Node childNode = getContentNode(graphId, dto.getIdentifier(), mode);
 				Map<String, Object> childMap = getContentHierarchyRecursive(graphId, childNode, definition, mode);
 				childMap.put("index", dto.getIndex());
-				Map<String,Object> childData = contentCleanUp(childMap);
+				Map<String, Object> childData = contentCleanUp(childMap);
 				childList.add(childData);
 			}
 			contentMap.put("children", childList);
@@ -578,14 +640,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return contentMap;
 	}
 
-	private Map<String, Object> contentCleanUp(Map<String,Object> map){
-		if(map.containsKey("identifier")){
-			String identifier = (String)map.get("identifier");
-			LOGGER.info("Checking if identifier ends with .img" + identifier);
-			if(StringUtils.endsWithIgnoreCase(identifier, ".img")){
-				 String new_identifier = identifier.replace(".img", "");
-				 LOGGER.info("replacing image id with content id in response" + identifier + new_identifier);
-				 map.replace("identifier", identifier, new_identifier);
+	private Map<String, Object> contentCleanUp(Map<String, Object> map) {
+		if (map.containsKey(TaxonomyAPIParams.identifier.name())) {
+			String identifier = (String) map.get(TaxonomyAPIParams.identifier.name());
+			PlatformLogger.log("Checking if identifier ends with .img" + identifier);
+			if (StringUtils.endsWithIgnoreCase(identifier, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX)) {
+				String newIdentifier = identifier.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+				PlatformLogger.log("replacing image id with content id in response " + identifier + newIdentifier);
+				map.replace(TaxonomyAPIParams.identifier.name(), identifier, newIdentifier);
 			}
 		}
 		return map;
@@ -598,7 +660,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Response responseNode = getDataNode(graphId, contentImageId);
 			if (!checkError(responseNode)) {
 				Node content = (Node) responseNode.get(GraphDACParams.node.name());
-				LOGGER.debug("Got draft version of node: ", content);
+				PlatformLogger.log("Got draft version of node: ", content);
 				return content;
 			}
 		}
@@ -608,14 +670,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					"Content not found with id: " + contentId);
 
 		Node content = (Node) responseNode.get(GraphDACParams.node.name());
-		LOGGER.debug("Got Node: ", content);
+		PlatformLogger.log("Got Node: ", content);
 		return content;
 	}
 
 	private DefinitionDTO getDefinition(String graphId, String objectType) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
-		Response response = getResponse(request, LOGGER);
+		Response response = getResponse(request);
 		if (!checkError(response)) {
 			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
 			return definition;
@@ -623,12 +685,22 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
+	@SuppressWarnings("unused")
+	private String getContentBody(String contentId, String mode) {
+		String body = "";
+		if (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.edit.name(), mode))
+			body = getContentBody(getContentImageIdentifier(contentId));
+		if (StringUtils.isBlank(body))
+			body = getContentBody(contentId);
+		return body;
+	}
+
 	private String getContentBody(String contentId) {
 		Request request = new Request();
 		request.setManagerName(LearningActorNames.CONTENT_STORE_ACTOR.name());
 		request.setOperation(ContentStoreOperations.getContentBody.name());
 		request.put(ContentStoreParams.content_id.name(), contentId);
-		Response response = makeLearningRequest(request, LOGGER);
+		Response response = makeLearningRequest(request);
 		String body = (String) response.get(ContentStoreParams.body.name());
 		return body;
 	}
@@ -639,7 +711,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		request.setOperation(ContentStoreOperations.getContentProperties.name());
 		request.put(ContentStoreParams.content_id.name(), contentId);
 		request.put(ContentStoreParams.properties.name(), properties);
-		Response response = makeLearningRequest(request, LOGGER);
+		Response response = makeLearningRequest(request);
 		return response;
 	}
 
@@ -649,8 +721,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		request.setOperation(ContentStoreOperations.updateContentProperties.name());
 		request.put(ContentStoreParams.content_id.name(), contentId);
 		request.put(ContentStoreParams.properties.name(), properties);
-
-		Response response = makeLearningRequest(request, LOGGER);
+		Response response = makeLearningRequest(request);
 		return response;
 	}
 
@@ -663,83 +734,95 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 *            the logger object
 	 * @return the LearningActor response
 	 */
-	private Response makeLearningRequest(Request request, Logger logger) {
+	private Response makeLearningRequest(Request request) {
 		ActorRef router = LearningRequestRouterPool.getRequestRouter();
 		try {
 			Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
 			Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response response = (Response) obj;
-				logger.info("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
+				PlatformLogger.log("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode()
 						+ " | Result: " + response.getResult().keySet());
 				return response;
 			} else {
 				return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
 			}
 		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			PlatformLogger.log("Error! Something went wrong", e.getMessage(), e);
 			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", e);
 		}
 	}
 
 	private String getContentImageIdentifier(String contentId) {
 		String contentImageId = "";
-		if (StringUtils.isNotBlank(contentId)) {
+		if (StringUtils.isNotBlank(contentId))
 			contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
-			// TODO: Put below the Logic to read contentImageId from Cache
-			// (Redis).
-		}
 		return contentImageId;
 	}
 
-	private Node getNodeForOperation(String taxonomyId, String contentId) {
-		LOGGER.debug("Taxonomy Id: " + taxonomyId);
-		LOGGER.debug("Content Id: " + contentId);
-
-		LOGGER.info("Fetching Node for Operation for Content Id: " + contentId);
+	private Node getNodeForOperation(String taxonomyId, String contentId, String operation, boolean notImageNode) {
+		PlatformLogger.log("Taxonomy Id: " + taxonomyId + " | Content Id: " + contentId);
 		Node node = new Node();
-
-		String contentImageId = getContentImageIdentifier(contentId);
-		LOGGER.info("Fetching the Content Node. | [Content ID: " + contentId + "]");
-
-		LOGGER.debug("Fetching the Content Image Node for Content Id: " + contentId);
-		Response response = getDataNode(taxonomyId, contentImageId);
-		if (checkError(response)) {
-			LOGGER.debug("Unable to Fetch Content Image Node for Content Id: " + contentId);
-
-			LOGGER.debug("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
+		Response response;
+		if (notImageNode) {
 			response = getDataNode(taxonomyId, contentId);
 
-			LOGGER.info("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
-			if (checkError(response))
+			PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			if (checkError(response)) {
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+			} else {
+				node = (Node) response.get(GraphDACParams.node.name());
+			}
+		} else {
+			PlatformLogger.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
+			String contentImageId = getContentImageIdentifier(contentId);
+			response = getDataNode(taxonomyId, contentImageId);
+			if (checkError(response)) {
+				PlatformLogger.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
 
-			// Content Image Node is not Available so assigning the original
-			// Content Node as node
-			node = (Node) response.get(GraphDACParams.node.name());
+				PlatformLogger.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
+				response = getDataNode(taxonomyId, contentId);
 
-			LOGGER.info("Fetched Content Node: ", node);
-			String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
-			if (StringUtils.isNotBlank(status) && (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
-					|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
-				node = createContentImageNode(taxonomyId, contentImageId, node);
-		} else{
-			// Content Image Node is Available so assigning it as node
-			node = (Node) response.get(GraphDACParams.node.name());
-			LOGGER.info("Getting Content Image Node and assigning it as node" + node.getIdentifier());
+				PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+				if (checkError(response))
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+
+				// Content Image Node is not Available so assigning the original
+				// Content Node as node
+				node = (Node) response.get(GraphDACParams.node.name());
+
+				if (!StringUtils.equalsIgnoreCase(operation, "publish")
+						&& !StringUtils.equalsIgnoreCase(operation, "review")) {
+					// Checking if given Content Id is Image Node
+					if (null != node && isContentImageObject(node))
+						throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+								"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
+										+ "' does not Exist.]");
+
+					PlatformLogger.log("Fetched Content Node: ", node);
+					String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+					if (StringUtils.isNotBlank(status)
+							&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
+									|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
+						node = createContentImageNode(taxonomyId, contentImageId, node);
+				}
+			} else {
+				// Content Image Node is Available so assigning it as node
+				node = (Node) response.get(GraphDACParams.node.name());
+				PlatformLogger.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
+			}
 		}
-		// Assigning the original 'identifier' to the Node
-		//node.setIdentifier(contentId);
 
-		LOGGER.info("Returning the Node for Operation with Identifier: " + node.getIdentifier());
+		PlatformLogger.log("Returning the Node for Operation with Identifier: " + node.getIdentifier());
 		return node;
 	}
 
 	private Node createContentImageNode(String taxonomyId, String contentImageId, Node node) {
-		LOGGER.debug("Taxonomy Id: " + taxonomyId);
-		LOGGER.debug("Content Id: " + contentImageId);
-		LOGGER.debug("Node: ", node);
+		PlatformLogger.log("Taxonomy Id: " + taxonomyId);
+		PlatformLogger.log("Content Id: " + contentImageId);
+		PlatformLogger.log("Node: ", node);
 
 		Node imageNode = new Node(taxonomyId, SystemNodeTypes.DATA_NODE.name(), CONTENT_IMAGE_OBJECT_TYPE);
 		imageNode.setGraphId(taxonomyId);
@@ -756,36 +839,66 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							+ "]");
 		Response resp = getDataNode(taxonomyId, contentImageId);
 		Node nodeData = (Node) resp.get(GraphDACParams.node.name());
-		LOGGER.info("Returning Content Image Node Identifier"+ nodeData.getIdentifier());
+		PlatformLogger.log("Returning Content Image Node Identifier" + nodeData.getIdentifier());
 		return nodeData;
 	}
 
 	private Response createDataNode(Node node) {
-		LOGGER.debug("Node :", node);
+		PlatformLogger.log("Node :", node);
 		Response response = new Response();
 		if (null != node) {
 			Request request = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "createDataNode");
 			request.put(GraphDACParams.node.name(), node);
 
-			LOGGER.info("Creating the Node ID: " + node.getIdentifier());
-			response = getResponse(request, LOGGER);
+			PlatformLogger.log("Creating the Node ID: " + node.getIdentifier());
+			response = getResponse(request);
 		}
 		return response;
+	}
+
+	private void validateInputNodesForBundling(List<Node> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			for (Node node : nodes) {
+				// Validating for Content Image Node
+				if (null != node && isContentImageObject(node))
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
+									+ "' does not Exist.]");
+			}
+		}
+	}
+
+	private boolean isContentImageObject(Node node) {
+		boolean isContentImage = false;
+		if (null != node && StringUtils.equalsIgnoreCase(node.getObjectType(),
+				ContentWorkflowPipelineParams.ContentImage.name()))
+			isContentImage = true;
+		return isContentImage;
 	}
 
 	public Response createContent(Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-		Object mimeType = map.get("mimeType");
-		if (null != mimeType && StringUtils.isNotBlank(mimeType.toString())) {
-			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType.toString()))
+		String mimeType = (String) map.get("mimeType");
+		if (StringUtils.isNotBlank(mimeType)) {
+			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
 				map.put("osId", "org.ekstep.quiz.app");
-			Object contentType = map.get("contentType");
-			if (null != contentType && StringUtils.isNotBlank(contentType.toString())) {
-				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType.toString()))
+			String contentType = (String) map.get("contentType");
+			if (StringUtils.isNotBlank(contentType)) {
+				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType))
 					map.put("visibility", "Parent");
 			}
+
+			if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.plugin-archive", mimeType)) {
+				String code = (String) map.get("code");
+				if (null == code || StringUtils.isBlank(code))
+					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins",
+							ResponseCode.CLIENT_ERROR);
+				map.put("identifier", map.get("code"));
+			}
+
+			updateDefaultValuesByMimeType(map, mimeType);
 
 			Map<String, Object> externalProps = new HashMap<String, Object>();
 			List<String> externalPropsList = getExternalPropsList(definition);
@@ -795,13 +908,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						externalProps.put(prop, map.get(prop));
 					map.remove(prop);
 				}
-			}
-
-			if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.plugin-archive", mimeType.toString())) {
-				Object code = map.get("code");
-				if (null == code || StringUtils.isBlank(code.toString()))
-					return ERROR("ERR_PLUGIN_CODE_REQUIRED", "Unique code is mandatory for plugins", ResponseCode.CLIENT_ERROR);
-				map.put("identifier", map.get("code"));
 			}
 
 			try {
@@ -824,7 +930,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				return ERROR("ERR_CONTENT_SERVER_ERROR", "Internal error", ResponseCode.SERVER_ERROR);
 			}
 		} else {
-			return ERROR("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", "Mime Type cannot be empty", ResponseCode.CLIENT_ERROR);
+			return ERROR("ERR_CONTENT_INVALID_CONTENT_MIMETYPE_TYPE", "Mime Type cannot be empty",
+					ResponseCode.CLIENT_ERROR);
 		}
 	}
 
@@ -839,23 +946,29 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		map.put("objectType", CONTENT_OBJECT_TYPE);
 		map.put("identifier", contentId);
 
+		String mimeType = (String) map.get(TaxonomyAPIParams.mimeType.name());
+		updateDefaultValuesByMimeType(map, mimeType);
+
 		boolean isImageObjectCreationNeeded = false;
 		boolean imageObjectExists = false;
 
 		String contentImageId = contentId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 		Response getNodeResponse = getDataNode(GRAPH_ID, contentImageId);
 		if (checkError(getNodeResponse)) {
-			LOGGER.info("Content image not found: " + contentImageId);
+			PlatformLogger.log("Content image not found: " + contentImageId);
 			isImageObjectCreationNeeded = true;
 			getNodeResponse = getDataNode(GRAPH_ID, contentId);
-			LOGGER.info("Content node response: " + getNodeResponse);
+			PlatformLogger.log("Content node response: " + getNodeResponse);
 		} else
 			imageObjectExists = true;
 
 		if (checkError(getNodeResponse)) {
-			LOGGER.info("Content not found: " + contentId);
+			PlatformLogger.log("Content not found: " + contentId);
 			return getNodeResponse;
 		}
+		
+		if (map.containsKey(ContentAPIParams.body.name()))
+			map.put(ContentAPIParams.artifactUrl.name(), null);
 
 		Map<String, Object> externalProps = new HashMap<String, Object>();
 		List<String> externalPropsList = getExternalPropsList(definition);
@@ -868,7 +981,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 
 		Node graphNode = (Node) getNodeResponse.get(GraphDACParams.node.name());
-		LOGGER.info("Graph node found: " + graphNode.getIdentifier());
+		PlatformLogger.log("Graph node found: " + graphNode.getIdentifier());
 		Map<String, Object> metadata = graphNode.getMetadata();
 		String status = (String) metadata.get("status");
 		boolean isReviewState = StringUtils.equalsIgnoreCase("Review", status);
@@ -876,13 +989,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
 		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
 		boolean logEvent = false;
-		Object inputStatus = map.get("status");
+		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
-			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus.toString());
-			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus.toString());
-			if ( (updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
+			boolean updateToReviewState = StringUtils.equalsIgnoreCase("Review", inputStatus);
+			boolean updateToFlagReviewState = StringUtils.equalsIgnoreCase("FlagReview", inputStatus);
+			if ((updateToReviewState || updateToFlagReviewState) && (!isReviewState || !isFlaggedReviewState))
 				map.put("lastSubmittedOn", DateUtils.format(new Date()));
-			if (!StringUtils.equalsIgnoreCase(status, inputStatus.toString()))
+			if (!StringUtils.equalsIgnoreCase(status, inputStatus))
 				logEvent = true;
 		}
 
@@ -897,15 +1010,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				if (null != lastUpdatedBy)
 					metadata.put("lastUpdatedBy", lastUpdatedBy);
 				graphNode.setGraphId(GRAPH_ID);
-				LOGGER.info("Creating content image: " + graphNode.getIdentifier());
+				PlatformLogger.log("Creating content image: " + graphNode.getIdentifier());
 				createResponse = createDataNode(graphNode);
 				checkError = checkError(createResponse);
 				if (!checkError) {
-					LOGGER.info("Updating external props for: " + contentImageId);
+					PlatformLogger.log("Updating external props for: " + contentImageId);
 					Response bodyResponse = getContentProperties(contentId, externalPropsList);
 					checkError = checkError(bodyResponse);
 					if (!checkError) {
-						Map<String, Object> extValues = (Map<String, Object>) bodyResponse.get(ContentStoreParams.values.name());
+						Map<String, Object> extValues = (Map<String, Object>) bodyResponse
+								.get(ContentStoreParams.values.name());
 						if (null != extValues && !extValues.isEmpty()) {
 							updateContentProperties(contentImageId, extValues);
 						}
@@ -922,7 +1036,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		if (checkError)
 			return createResponse;
-		LOGGER.info("Updating content node: " + contentId);
+		PlatformLogger.log("Updating content node: " + contentId);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, graphNode);
 		domainObj.setGraphId(GRAPH_ID);
 		domainObj.setIdentifier(contentId);
@@ -947,6 +1061,90 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return createResponse;
 	}
 
+	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
+		if (StringUtils.isNotBlank(mimeType)) {
+			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection"))
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
+			else
+				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
+
+			if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url")) 
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
+			else 
+				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response find(String graphId, String contentId, String mode, List<String> fields) {
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Content Id: ", contentId);
+		Response response = new Response();
+
+		Node node = getContentNode(graphId, contentId, mode);
+
+		PlatformLogger.log("Fetching the Data For Content Id: " + node.getIdentifier());
+		DefinitionDTO definition = getDefinition(graphId, node.getObjectType());
+		List<String> externalPropsList = getExternalPropsList(definition);
+		if (null == fields)
+			fields = new ArrayList<String>();
+		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
+		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
+
+		if (null != externalPropsToFetch && !externalPropsToFetch.isEmpty()) {
+			Response getContentPropsRes = getContentProperties(node.getIdentifier(), externalPropsToFetch);
+			if (!checkError(getContentPropsRes)) {
+				Map<String, Object> resProps = (Map<String, Object>) getContentPropsRes
+						.get(TaxonomyAPIParams.values.name());
+				if (null != resProps)
+					contentMap.putAll(resProps);
+			}
+		}
+
+		// Get all the languages for a given Content
+		List<String> languages = convertStringArrayToList(
+				(String[]) node.getMetadata().get(TaxonomyAPIParams.language.name()));
+
+		// Eval the language code for all Content Languages
+		List<String> languageCodes = new ArrayList<String>();
+		for (String language : languages)
+			languageCodes.add(LanguageCodeMap.getLanguageCode(language.toLowerCase()));
+		if (null != languageCodes && languageCodes.size() == 1)
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes.get(0));
+		else
+			contentMap.put(TaxonomyAPIParams.languageCode.name(), languageCodes);
+
+		response.put(TaxonomyAPIParams.content.name(), contentCleanUp(contentMap));
+		response.setParams(getSucessStatus());
+		return response;
+	}
+
+	public Response updateAllContentNodes(String originalId, Map<String, Object> map) throws Exception {
+		if (null == map)
+			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		map.put("versionKey", graphPassportKey);
+		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+		Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
+		if (checkError(updateResponse))
+			return updateResponse;
+		updateResponse.put(GraphDACParams.node_id.name(), originalId);
+
+		Node imgDomainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
+		updateNode(originalId + ".img", CONTENT_IMAGE_OBJECT_TYPE, imgDomainObj);
+		return updateResponse;
+	}
+
+	private Response updateNode(String identifier, String objectType, Node domainNode) {
+		domainNode.setGraphId(GRAPH_ID);
+		domainNode.setIdentifier(identifier);
+		domainNode.setObjectType(objectType);
+		return updateDataNode(domainNode);
+	}
+
 	private List<String> getExternalPropsList(DefinitionDTO definition) {
 		List<String> list = new ArrayList<String>();
 		if (null != definition) {
@@ -960,6 +1158,265 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 		}
 		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response updateHierarchy(Map<String, Object> data) {
+		String graphId = GRAPH_ID;
+		if (null != data && !data.isEmpty()) {
+			Map<String, Object> modifiedNodes = (Map<String, Object>) data.get("nodesModified");
+			Map<String, Object> hierarchy = (Map<String, Object>) data.get("hierarchy");
+			Map<String, String> idMap = new HashMap<String, String>();
+			Map<String, String> newIdMap = new HashMap<String, String>();
+			Map<String, Node> nodeMap = new HashMap<String, Node>();
+			String rootNodeId = null;
+			if (null != modifiedNodes && !modifiedNodes.isEmpty()) {
+				DefinitionDTO definition = getDefinition(graphId, CONTENT_OBJECT_TYPE);
+				Map<String, RelationDefinition> inRelDefMap = new HashMap<String, RelationDefinition>();
+				Map<String, RelationDefinition> outRelDefMap = new HashMap<String, RelationDefinition>();
+				getRelationDefMaps(definition, inRelDefMap, outRelDefMap);
+				for (Entry<String, Object> entry : modifiedNodes.entrySet()) {
+					Map<String, Object> map = (Map<String, Object>) entry.getValue();
+					Response nodeResponse = createNodeObject(graphId, entry, idMap, nodeMap, newIdMap, definition,
+							inRelDefMap, outRelDefMap);
+					if (null != nodeResponse)
+						return nodeResponse;
+					Boolean root = (Boolean) map.get("root");
+					if (BooleanUtils.isTrue(root))
+						rootNodeId = idMap.get(entry.getKey());
+				}
+			}
+			if (null != hierarchy && !hierarchy.isEmpty()) {
+				for (Entry<String, Object> entry : hierarchy.entrySet()) {
+					updateNodeHierarchyRelations(graphId, entry, idMap, nodeMap);
+					if (StringUtils.isBlank(rootNodeId)) {
+						Map<String, Object> map = (Map<String, Object>) entry.getValue();
+						Boolean root = (Boolean) map.get("root");
+						if (BooleanUtils.isTrue(root))
+							rootNodeId = idMap.get(entry.getKey());
+					}
+				}
+			}
+			if (null != nodeMap && !nodeMap.isEmpty()) {
+				List<Node> nodes = new ArrayList<Node>(nodeMap.values());
+				Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "bulkUpdateNodes");
+				request.put(GraphDACParams.nodes.name(), nodes);
+				PlatformLogger.log("Sending bulk update request | Total nodes: " + nodes.size());
+				Response response = getResponse(request);
+				if (StringUtils.isNotBlank(rootNodeId)) {
+					if (StringUtils.endsWithIgnoreCase(rootNodeId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
+						rootNodeId = rootNodeId.replace(DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX, "");
+					response.put(ContentAPIParams.content_id.name(), rootNodeId);
+				}
+				if (null != newIdMap && !newIdMap.isEmpty())
+					response.put(ContentAPIParams.identifiers.name(), newIdMap);
+				return response;
+			}
+		} else {
+			throw new ClientException("ERR_INVALID_HIERARCHY_DATA", "Hierarchy data is empty");
+		}
+		return new Response();
+	}
+
+	@SuppressWarnings("unchecked")
+	private Response createNodeObject(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
+			Map<String, Node> nodeMap, Map<String, String> newIdMap, DefinitionDTO definition,
+			Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
+		String nodeId = entry.getKey();
+		String id = nodeId;
+		String objectType = CONTENT_OBJECT_TYPE;
+		Node tmpnode = null;
+		Map<String, Object> map = (Map<String, Object>) entry.getValue();
+		Boolean isNew = (Boolean) map.get("isNew");
+		if (BooleanUtils.isTrue(isNew)) {
+			id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
+			newIdMap.put(nodeId, id);
+		} else {
+			tmpnode = getNodeForOperation(graphId, id, "create", false);
+			if (null != tmpnode && StringUtils.isNotBlank(tmpnode.getIdentifier())) {
+				id = tmpnode.getIdentifier();
+				objectType = tmpnode.getObjectType();
+			} else {
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
+			}
+		}
+		idMap.put(nodeId, id);
+		Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
+		metadata.put("identifier", id);
+		metadata.put("objectType", objectType);
+		if (BooleanUtils.isTrue(isNew)) {
+			metadata.put("isNew", true);
+			metadata.put("code", nodeId);
+			metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis() + "");
+			metadata.put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
+			Boolean root = (Boolean) map.get("root");
+			if (BooleanUtils.isNotTrue(root))
+				metadata.put("visibility", "Parent");
+		}
+		metadata.put(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+		Response validateNodeResponse = validateNode(graphId, nodeId, metadata, tmpnode, definition);
+		if (checkError(validateNodeResponse))
+			return validateNodeResponse;
+		try {
+			Node node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
+			node.setGraphId(graphId);
+			node.setNodeType(SystemNodeTypes.DATA_NODE.name());
+			getRelationsToBeDeleted(node, metadata, inRelDefMap, outRelDefMap);
+			nodeMap.put(id, node);
+		} catch (Exception e) {
+			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
+		}
+		return null;
+	}
+
+	private Response validateNode(String graphId, String nodeId, Map<String, Object> metadata, Node tmpnode,
+			DefinitionDTO definition) {
+		Node node = null;
+		try {
+			node = ConvertToGraphNode.convertToGraphNode(metadata, definition, null);
+		} catch (Exception e) {
+			throw new ClientException("ERR_CREATE_CONTENT_OBJECT", "Error creating content for the node: " + nodeId, e);
+		}
+		if (null == tmpnode) {
+			tmpnode = new Node();
+			tmpnode.setGraphId(graphId);
+			tmpnode.setObjectType(CONTENT_OBJECT_TYPE);
+		}
+		if (null != tmpnode.getMetadata() && !tmpnode.getMetadata().isEmpty()) {
+			if (null == node.getMetadata())
+				node.setMetadata(tmpnode.getMetadata());
+			else {
+				for (Entry<String, Object> entry : tmpnode.getMetadata().entrySet()) {
+					if (!node.getMetadata().containsKey(entry.getKey()))
+						node.getMetadata().put(entry.getKey(), entry.getValue());
+				}
+			}
+		}
+		if (null == node.getInRelations())
+			node.setInRelations(tmpnode.getInRelations());
+		if (null == node.getOutRelations())
+			node.setOutRelations(tmpnode.getOutRelations());
+		Request request = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+		request.put(GraphDACParams.node.name(), node);
+		Response response = getResponse(request);
+		return response;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
+			Map<String, Node> nodeMap) {
+		String nodeId = entry.getKey();
+		String id = idMap.get(nodeId);
+		if (StringUtils.isBlank(id)) {
+			Map<String, Object> map = (Map<String, Object>) entry.getValue();
+			Boolean root = (Boolean) map.get("root");
+			Node tmpnode = getNodeForOperation(graphId, nodeId, "update", true);
+			if (null != tmpnode) {
+				id = tmpnode.getIdentifier();
+				tmpnode.setOutRelations(null);
+				tmpnode.setInRelations(null);
+				String visibility = (String) tmpnode.getMetadata().get("visibility");
+				if (StringUtils.equalsIgnoreCase("Parent", visibility) || BooleanUtils.isTrue(root)) {
+					idMap.put(nodeId, id);
+					nodeMap.put(id, tmpnode);
+				}
+			} else {
+				throw new ResourceNotFoundException("ERR_CONTENT_NOT_FOUND",
+						"Content not found with identifier: " + id);
+			}
+		}
+		if (StringUtils.isNotBlank(id)) {
+			Node node = nodeMap.get(id);
+			if (null != node) {
+				Map<String, Object> map = (Map<String, Object>) entry.getValue();
+				List<String> children = (List<String>) map.get("children");
+				if (null != children) {
+					List<Relation> outRelations = node.getOutRelations();
+					if (null == outRelations)
+						outRelations = new ArrayList<Relation>();
+					int index = 1;
+					for (String childId : children) {
+						if (idMap.containsKey(childId))
+							childId = idMap.get(childId);
+						Relation rel = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), childId);
+						Map<String, Object> metadata = new HashMap<String, Object>();
+						metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
+						index += 1;
+						rel.setMetadata(metadata);
+						outRelations.add(rel);
+					}
+					Relation dummyContentRelation = new Relation(id, RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+							null);
+					dummyContentRelation.setEndNodeObjectType(CONTENT_OBJECT_TYPE);
+					outRelations.add(dummyContentRelation);
+					Relation dummyContentImageRelation = new Relation(id,
+							RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), null);
+					dummyContentImageRelation.setEndNodeObjectType(CONTENT_IMAGE_OBJECT_TYPE);
+					outRelations.add(dummyContentImageRelation);
+					node.setOutRelations(outRelations);
+				}
+			}
+		}
+	}
+
+	private void getRelationsToBeDeleted(Node node, Map<String, Object> metadata,
+			Map<String, RelationDefinition> inRelDefMap, Map<String, RelationDefinition> outRelDefMap) {
+		if (null != metadata) {
+			List<Relation> inRelations = node.getInRelations();
+			if (null == inRelations)
+				inRelations = new ArrayList<Relation>();
+			List<Relation> outRelations = node.getOutRelations();
+			if (null == outRelations)
+				outRelations = new ArrayList<Relation>();
+			for (Entry<String, Object> entry : metadata.entrySet()) {
+				if (inRelDefMap.containsKey(entry.getKey())) {
+					RelationDefinition rDef = inRelDefMap.get(entry.getKey());
+					List<String> objectTypes = rDef.getObjectTypes();
+					if (null != objectTypes) {
+						for (String objectType : objectTypes) {
+							Relation dummyInRelation = new Relation(null, rDef.getRelationName(), node.getIdentifier());
+							dummyInRelation.setStartNodeObjectType(objectType);
+							inRelations.add(dummyInRelation);
+						}
+					}
+				} else if (outRelDefMap.containsKey(entry.getKey())) {
+					RelationDefinition rDef = outRelDefMap.get(entry.getKey());
+					List<String> objectTypes = rDef.getObjectTypes();
+					if (null != objectTypes) {
+						for (String objectType : objectTypes) {
+							Relation dummyOutRelation = new Relation(node.getIdentifier(), rDef.getRelationName(),
+									null);
+							dummyOutRelation.setEndNodeObjectType(objectType);
+							outRelations.add(dummyOutRelation);
+						}
+					}
+				}
+			}
+			if (!inRelations.isEmpty())
+				node.setInRelations(inRelations);
+			if (!outRelations.isEmpty())
+				node.setOutRelations(outRelations);
+		}
+	}
+
+	private void getRelationDefMaps(DefinitionDTO definition, Map<String, RelationDefinition> inRelDefMap,
+			Map<String, RelationDefinition> outRelDefMap) {
+		if (null != definition) {
+			if (null != definition.getInRelations() && !definition.getInRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getInRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle()) && null != rDef.getObjectTypes())
+						inRelDefMap.put(rDef.getTitle(), rDef);
+				}
+			}
+			if (null != definition.getOutRelations() && !definition.getOutRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getOutRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle()) && null != rDef.getObjectTypes())
+						outRelDefMap.put(rDef.getTitle(), rDef);
+				}
+			}
+		}
 	}
 
 }

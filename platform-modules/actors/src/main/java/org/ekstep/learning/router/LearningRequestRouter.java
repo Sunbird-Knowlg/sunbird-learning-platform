@@ -1,8 +1,6 @@
 package org.ekstep.learning.router;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.learning.actor.ContentStoreActor;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.common.enums.LearningErrorCodes;
@@ -16,6 +14,8 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
@@ -38,7 +38,7 @@ import scala.concurrent.Future;
 public class LearningRequestRouter extends UntypedActor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(LearningRequestRouter.class.getName());
+	
 	private static final String ekstep = "org.ekstep.";
 	private static final String ilimi = "com.ilimi.";
 	private static final String java = "java.";
@@ -120,8 +120,8 @@ public class LearningRequestRouter extends UntypedActor {
 				parent.tell(arg0, getSelf());
 				Response res = (Response) arg0;
 				ResponseParams params = res.getParams();
-				LOGGER.info(
-						request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
+				PlatformLogger.log(
+						request.getManagerName() , request.getOperation() + ", SUCCESS, " + params.toString());
 			}
 		}, getContext().dispatcher());
 
@@ -144,7 +144,7 @@ public class LearningRequestRouter extends UntypedActor {
 	 *            the parent
 	 */
 	protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-		LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
+		PlatformLogger.log(request.getManagerName() + "," + request.getOperation() , ", ERROR: " + e.getMessage(), LoggerEnum.WARN.name());
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus(StatusType.failed.name());
@@ -163,10 +163,10 @@ public class LearningRequestRouter extends UntypedActor {
 	private String setErrMessage(Throwable e) {
 		Class<? extends Throwable> className = e.getClass();
 		if (className.getName().contains(ekstep) || className.getName().contains(ilimi)) {
-			LOGGER.error("Setting error message sent from class " + className + e.getMessage());
+			PlatformLogger.log("Setting error message sent from class " + className + e.getMessage());
 			return e.getMessage();
 		} else if (className.getName().startsWith(java)) {
-			LOGGER.error("Setting default err msg " + className + e.getMessage());
+			PlatformLogger.log("Setting default err msg " + className + e.getMessage());
 			return default_err_msg;
 		}
 		return "";

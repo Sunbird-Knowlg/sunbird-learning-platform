@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 
 import com.ilimi.common.dto.Request;
@@ -19,6 +17,7 @@ import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -37,10 +36,13 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public abstract class CompositeIndexSyncManager extends BaseManager {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(CompositeIndexSyncManager.class.getName());
+	
 
 	/** The Constant SYNC_BATCH_SIZE. */
 	private static final int SYNC_BATCH_SIZE = 1000;
+
+	/** The Constant MAX_LIMIT. */
+	private static final int MAX_LIMIT = 5000;
 
 	/**
 	 * Syncs all objects of a given object type or all object types in a given
@@ -60,7 +62,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
-		LOGGER.info("Composite index sync : " + graphId);
+		PlatformLogger.log("Composite index sync : " + graphId);
 		Response response = OK();
 
 		// if object type is given, sync only objects of the given type
@@ -95,7 +97,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_IDENTIFIER.name(),
 					"Identifier is blank.");
-		LOGGER.info("Composite index sync : " + graphId + " | Identifier: " + identifiers);
+		PlatformLogger.log("Composite index sync : " + graphId , " | Identifier: " + identifiers);
 		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
 		if (null != identifiers && identifiers.length > 0) {
 			for (String identifier : identifiers) {
@@ -108,7 +110,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 							"Object not found: " + identifier);
 				}
 			}
-			LOGGER.info("Sync messages count : " + lstMessages.size());
+			PlatformLogger.log("Sync messages count : " , lstMessages.size());
 		}
 		return pushMessageToKafka(lstMessages);
 	}
@@ -125,7 +127,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	private Response getDefinition(String graphId, String objectType) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition");
 		request.put(GraphDACParams.object_type.name(), objectType);
-		return getResponse(request, LOGGER);
+		return getResponse(request);
 	}
 
 	/**
@@ -137,7 +139,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	 */
 	private Response getAllDefinitions(String graphId) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
-		return getResponse(request, LOGGER);
+		return getResponse(request);
 	}
 
 	/**
@@ -194,6 +196,8 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	private Response genCompositeSearchMessage(String graphId, DefinitionDTO def, Integer startPosition,
 			Integer total) {
 		Response response = OK();
+		if (null == total || total > MAX_LIMIT)
+			total = MAX_LIMIT;
 		int start = 0;
 		if (null != startPosition && startPosition.intValue() > 0)
 			start = startPosition.intValue();
@@ -366,7 +370,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		req.put(GraphDACParams.get_tags.name(), true);
-		Response listRes = getResponse(req, LOGGER);
+		Response listRes = getResponse(req);
 		if (checkError(listRes))
 			throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: " + graphId);
 		else {
@@ -387,7 +391,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	private Node getNode(String graphId, String identifier) {
 		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), identifier);
-		Response listRes = getResponse(req, LOGGER);
+		Response listRes = getResponse(req);
 		if (checkError(listRes))
 			throw new ResourceNotFoundException(
 					CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),

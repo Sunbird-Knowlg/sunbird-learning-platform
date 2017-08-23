@@ -9,18 +9,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.ilimi.common.dto.ExecutionContext;
-import com.ilimi.common.logger.LogHelper;
 
 @Component
 public class RequestInterceptor extends HandlerInterceptorAdapter {
-
-    private static LogHelper LOGGER = LogHelper.getInstance(RequestInterceptor.class.getName());
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         String requestId = getUUID();
         ExecutionContext.setRequestId(requestId);
-        LOGGER.info("Path: " + request.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
+        PlatformLogger.log("Path: " + request.getServletPath() + " | Remote Address: " + request.getRemoteAddr()
                 + " | Params: " + request.getParameterMap());
         return true;
     }

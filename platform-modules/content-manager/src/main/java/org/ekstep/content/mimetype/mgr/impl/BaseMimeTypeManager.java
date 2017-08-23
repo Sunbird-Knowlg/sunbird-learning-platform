@@ -2,32 +2,38 @@ package org.ekstep.content.mimetype.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.common.util.UnzipUtility;
+import org.ekstep.common.util.ZipUtility;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.common.EcarPackageType;
 import org.ekstep.content.common.ExtractionType;
+import org.ekstep.content.dto.ContentSearchCriteria;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.util.ContentBundle;
@@ -42,7 +48,10 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Filter;
@@ -51,12 +60,14 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import org.ekstep.content.dto.ContentSearchCriteria;
 
 public class BaseMimeTypeManager extends BaseLearningManager {
 
 	private static final String tempFileLocation = "/data/contentBundle/";
-	private static Logger LOGGER = LogManager.getLogger(BaseMimeTypeManager.class.getName());
+	
+	protected static final int IDX_S3_KEY = 0;
+	
+	protected static final int IDX_S3_URL = 1;
 
 	private static final String s3Content = "s3.content.folder";
 	private static final String s3Artifact = "s3.artifact.folder";
@@ -159,6 +170,59 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		}
 		return node;
 	}
+	
+	protected File copyURLToFile(String fileUrl) {
+		try {
+			String fileName = getFieNameFromURL(fileUrl);
+			File file = new File(fileName);
+			FileUtils.copyURLToFile(new URL(fileUrl), file);
+			return file;
+		} catch (IOException e) {
+			throw new ClientException(TaxonomyErrorCodes.ERR_INVALID_UPLOAD_FILE_URL.name(), "fileUrl is invalid.");
+		}
+	}
+	
+	protected String getFieNameFromURL(String fileUrl) {
+		String fileName = FilenameUtils.getBaseName(fileUrl)+"_"+ System.currentTimeMillis();
+		if (!FilenameUtils.getExtension(fileUrl).isEmpty()) 
+			fileName += "." + FilenameUtils.getExtension(fileUrl);
+		return fileName;
+	}
+	
+	/**
+	 * This return true if at least one member matches from the checkList.
+	 * @param file
+	 * @param checkList
+	 * @return
+	 * @throws IOException
+	 */
+	protected boolean hasGivenFile(File file, String checkFile) {
+		boolean isValidPackage = false;
+		try {
+			if (file.exists()) {
+				PlatformLogger.log("Validating File For Folder Structure: " + file.getName());
+				if (StringUtils.isBlank(checkFile)) {
+					isValidPackage = true;
+				} else {
+					try (ZipFile zipFile = new ZipFile(file)) {
+						Enumeration<? extends ZipEntry> entries = zipFile.entries();
+						while (entries.hasMoreElements()) {
+							ZipEntry entry = entries.nextElement();
+							if (StringUtils.equalsIgnoreCase(entry.getName(), checkFile)) {
+								isValidPackage = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		} catch (ZipException e) {
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Invalid zip file");
+		} catch (IOException e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Error while validating the content");
+		}
+		return isValidPackage;
+	}
 
 	private void downloadAppIcon(Node node, String tempFolder) {
 		String appIcon = (String) node.getMetadata().get("appIcon");
@@ -256,7 +320,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 			try {
 				return AWSUploader.getObjectSize(key);
 			} catch (IOException e) {
-				LOGGER.error("Error: While getting the file size from AWS", e);
+				PlatformLogger.log("Error: While getting the file size from AWS", key, e);
 			}
 		}
 		return bytes;
@@ -290,7 +354,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
+		Response updateRes = getResponse(updateReq);
 		return updateRes;
 	}
 
@@ -383,12 +447,12 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		try {
 			bytes = getFileSize(file) / 1024;
 		} catch (IOException e) {
-			LOGGER.error("Error: While Calculating the file size.", e);
+			PlatformLogger.log("Error: While Calculating the file size.",file.getName(), e);
 		}
 		return bytes;
 	}
 
-	private double getFileSize(File file) throws IOException {
+	protected double getFileSize(File file) throws IOException {
 		double bytes = 0;
 		if (file.exists()) {
 			bytes = file.length();
@@ -419,7 +483,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 //				requests.add(req);
 //			}
 //		}
-		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
+		Response response = getResponse(requests, GraphDACParams.node_list.name(),
 				ContentAPIParams.contents.name());
 		return response;
 	}
@@ -437,13 +501,13 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return urlArray;
 	}
 
-	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile) {
+	public Response uploadContentArtifact(String contentId, Node node, File uploadedFile, boolean slugFile) {
 		String[] urlArray = uploadArtifactToAWS(uploadedFile, contentId);
 		node.getMetadata().put("s3Key", urlArray[0]);
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 		
 		ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
-		contentPackageExtractionUtil.extractContentPackage(contentId, node, uploadedFile, ExtractionType.snapshot);
+		contentPackageExtractionUtil.extractContentPackage(contentId, node, uploadedFile, ExtractionType.snapshot, slugFile);
 		
 		return updateContentNode(contentId, node, urlArray[1]);
 	}
@@ -475,6 +539,11 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		return path;
 	}
 	
+	protected String getTempDirectoryPath(String contentId) {
+		return tempFileLocation + contentId + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name()
+		 + File.separator;
+	}
+	
 	/**
 	 * extractContentPackage() 
 	 * extracts the ContentPackageZip file
@@ -488,6 +557,15 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
 					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR + " | [ZIP Extraction Failed.]");
+		}
+	}
+	
+	protected void createZipPackage(String basePath, String zipFileName) {
+		if (!StringUtils.isBlank(zipFileName)) {
+			PlatformLogger.log("Creating Zip File: ", zipFileName);
+			ZipUtility appZip = new ZipUtility(basePath, zipFileName);
+			appZip.generateFileList(new File(basePath));
+			appZip.zipIt(zipFileName);
 		}
 	}
 }

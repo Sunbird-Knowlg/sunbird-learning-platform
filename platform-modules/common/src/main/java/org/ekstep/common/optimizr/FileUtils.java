@@ -14,10 +14,10 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+
 import javax.activation.MimetypesFileTypeMap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ilimi.common.logger.PlatformLogger;
 
 /**
  *
@@ -25,7 +25,6 @@ import org.apache.logging.log4j.Logger;
  */
 public class FileUtils {
 
-	private static Logger LOGGER = LogManager.getLogger(FileUtils.class.getName());
     private static DecimalFormat decimalFormat = new DecimalFormat("#.00");
     private static MimetypesFileTypeMap mimeTypesMap = null;
 
@@ -50,7 +49,7 @@ public class FileUtils {
 
         try {
             // Open the zip file
-        	LOGGER.debug("extract | file =" + zfile.getName() + " | outputFolder =" + outputFolder);
+        	PlatformLogger.log("extract | file =" + zfile.getName() + " | outputFolder =" + outputFolder);
             ZipFile zipFile = new ZipFile(zfile);
             Enumeration<?> enu = zipFile.entries();
             while (enu.hasMoreElements()) {
@@ -97,7 +96,7 @@ public class FileUtils {
     }
 
     public static void compress(String zipFileName, String dir) throws Exception {
-    	LOGGER.debug("compress | zipFileName =" + zipFileName + " | dir =" + dir);
+    	PlatformLogger.log("compress | zipFileName =" + zipFileName + " | dir =" + dir);
     	File dirObj = new File(dir);
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName, false));
         System.out.println("Creating : " + zipFileName);

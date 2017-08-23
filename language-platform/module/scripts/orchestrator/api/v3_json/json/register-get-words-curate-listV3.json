@@ -1,0 +1,15 @@
+{
+    "name": "getWordsCurateList_v3",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/words/curate/list"
+    },
+    "body": "",
+    "apiId":"ekstep.language.words.curate.list",
+    "version":"3.0"
+}

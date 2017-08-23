@@ -4,6 +4,7 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.amazonaws.regions.Region;
@@ -14,7 +15,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-
+@Ignore
 public class AWSUploadTest {
 
 	@Test

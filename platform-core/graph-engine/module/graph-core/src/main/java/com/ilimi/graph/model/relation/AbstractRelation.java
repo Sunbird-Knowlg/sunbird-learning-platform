@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -37,8 +38,6 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     protected String startNodeId;
     protected String endNodeId;
     protected Map<String, Object> metadata;
-
-    private static LogHelper LOGGER = LogHelper.getInstance(AbstractRelation.class.getName());
     
     protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId,
             Map<String, Object> metadata) {
@@ -85,7 +84,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                 }
             }, manager.getContext().dispatcher());
         } catch (Exception e) {
-        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_CREATE.name() + "Error occured while creating the relation", e);
+        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_CREATE.name() + " Error occured while creating the relation", null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Error occured while creating the Relation", e);
         }
     }
@@ -129,7 +128,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_DELETE.name() +  "Error occured while deleting the relation" + e.getMessage(), e);
+        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_DELETE.name() + " Error occured while deleting the relation" + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_DELETE.name(), "Error occured while deleting the relation", e);
         }
     }
@@ -178,7 +177,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                 }
             }, manager.getContext().dispatcher());
         } catch (Exception e) {
-        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error Validating the relation "+ e.getMessage(), e);
+        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error Validating the relation "+ e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(),"Error Validating the relation", e);
         }
     }
@@ -218,7 +217,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name() + "Error in fetching the relation properties" + e.getMessage(),e);
+        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name() + " Error in fetching the relation properties" + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), "Error in fetching the relation properties", e);
         }
     }
@@ -275,7 +274,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             }, manager.getContext().dispatcher());
             return node;
         } catch (Exception e) {
-        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validating the relation " + e.getMessage(), e);
+        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validating the relation " + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validating the relation", e);
         }
     }
@@ -316,7 +315,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             }, manager.getContext().dispatcher());
             return message;
         } catch (Exception e) {
-        	LOGGER.error(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + "Error occured while validing the relation" + e.getMessage(), e);
+        	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name() + " Error occured while validing the relation" + e.getMessage(), null, e);
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_VALIDATE.name(), "Error occured while validing the relation", e);
         }
     }

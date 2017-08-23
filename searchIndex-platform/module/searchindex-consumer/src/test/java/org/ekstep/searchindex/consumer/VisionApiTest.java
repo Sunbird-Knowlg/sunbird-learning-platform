@@ -11,9 +11,11 @@ import java.util.Map.Entry;
 
 import org.ekstep.searchindex.util.VisionApi;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.util.ResourceUtils;
 
+@Ignore
 public class VisionApiTest {
 	
 	Map<String,Object> tags = new HashMap<String,Object>();

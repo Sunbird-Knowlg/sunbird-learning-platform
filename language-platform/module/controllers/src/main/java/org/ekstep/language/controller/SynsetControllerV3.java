@@ -1,8 +1,5 @@
 package org.ekstep.language.controller;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
-import org.ekstep.language.controller.BaseLanguageController;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.PlatformLogger;
 
 @Controller
 @RequestMapping("v3/synsets")
@@ -23,7 +21,7 @@ public class SynsetControllerV3 extends BaseLanguageController {
 	@Autowired
 	private IDictionaryManager dictionaryManager;
 	
-	private static Logger LOGGER = LogManager.getLogger(SynsetControllerV3.class.getName());
+	
 
 	@RequestMapping(value = "/read/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
@@ -35,10 +33,10 @@ public class SynsetControllerV3 extends BaseLanguageController {
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
 			Response response = dictionaryManager.getSynsetV3(languageId, objectId);
-			LOGGER.info("Find | Response: " + response);
+			PlatformLogger.log("Find | Response: " , response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Find | Exception: " + e.getMessage(), e);
+			PlatformLogger.log("Find | Exception: " , e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

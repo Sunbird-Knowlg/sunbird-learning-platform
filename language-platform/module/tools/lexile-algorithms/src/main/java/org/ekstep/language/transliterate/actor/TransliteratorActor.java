@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
@@ -17,6 +15,7 @@ import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
 import akka.actor.ActorRef;
@@ -31,7 +30,7 @@ import akka.actor.ActorRef;
 public class TransliteratorActor extends LanguageBaseActor {
 
 	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(TransliteratorActor.class.getName());
+	
 
 	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
@@ -45,7 +44,7 @@ public class TransliteratorActor extends LanguageBaseActor {
 	@Override
 	public void onReceive(Object msg) throws Exception {
 		Request request = (Request) msg;
-		LOGGER.info(request.getRequestId() + " | Received Command: " + request);
+		PlatformLogger.log(request.getRequestId() + " | Received Command: " , request);
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
@@ -81,7 +80,7 @@ public class TransliteratorActor extends LanguageBaseActor {
 				WordCacheUtil.loadWordArpabetCollection(in);
 				OK(getSender());
 			} else {
-				LOGGER.info("Unsupported operation: " + operation);
+				PlatformLogger.log("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
 						"Unsupported operation: " + operation);
 			}

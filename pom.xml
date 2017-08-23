@@ -17,15 +17,32 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 	</properties>
 
-	<modules>
-		<module>searchIndex-platform</module>
-		<module>platform-core</module>
-		<module>platform-modules</module>
-		<module>language-platform</module>
-		<module>orchestrator</module>
-		<module>platform-config</module>
-		<module>platform-tools/kernel-extension</module>
-	</modules>
+	<profiles>
+		<profile>
+			<id>platform-services</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>searchIndex-platform</module>
+				<module>platform-core</module>
+				<module>platform-modules</module>
+				<module>language-platform</module>
+				<module>orchestrator</module>
+				<module>platform-config</module>
+				<module>platform-tools/kernel-extension</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>samza-jobs</id>
+			<modules>
+				<module>platform-core</module>
+				<module>platform-modules/actors</module>
+				<module>platform-modules/content-manager</module>
+				<module>platform-jobs</module>
+			</modules>
+		</profile>
+	</profiles>
 
 	<dependencies>
 

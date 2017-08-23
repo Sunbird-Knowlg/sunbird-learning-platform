@@ -134,4 +134,17 @@ public interface IGraphManager {
     void removeRelation(Request request);
 
 	void createTaskNode(Request request);
+	
+	/**
+     * Updates multiple nodes in the graph. It does the following:
+     * - validates the input nodes metadata and relations
+     * - create/update nodes
+     * - update node relations: this involves removing all existing relations of the same type and with the nodes of same object type
+     * - add tags 
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - NODES list of nodes to be updated
+     * @response - STATUS: API call status
+     */
+	void bulkUpdateNodes(Request request);
 }

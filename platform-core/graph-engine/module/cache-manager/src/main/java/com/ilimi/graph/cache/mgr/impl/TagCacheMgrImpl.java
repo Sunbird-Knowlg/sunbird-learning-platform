@@ -7,8 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import redis.clients.jedis.Jedis;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -18,6 +16,8 @@ import com.ilimi.graph.cache.util.RedisKeyGenerator;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+
+import redis.clients.jedis.Jedis;
 
 public class TagCacheMgrImpl implements ITagCacheMgr {
 

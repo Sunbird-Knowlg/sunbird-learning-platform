@@ -68,30 +68,6 @@ proc addFlaggedBy {flaggedBy node_metadata} {
 	return $flaggedByList
 }
 
-proc addFlags {flags node_metadata} {
-	set flagsList [java::new ArrayList]
-	$flagsList add $flags
-	set existingFlagsBy [$node_metadata get "flags"]	
-	set isExistingFlagsByNull [java::isnull $existingFlagsBy]
-	if {$isExistingFlagsByNull == 0} {
-		set arr_instance [java::instanceof $existingFlagsBy {String[]}]
-		if {$arr_instance == 1} {
-			set existingFlagsBy [java::cast {String[]} $existingFlagsBy]
-			set existingFlagsBy [java::call Arrays asList $existingFlagsBy]
-		} else {
-			set existingFlagsBy [java::cast ArrayList $existingFlagsBy]
-		}
-		if {[isNotEmpty $existingFlagsBy]} {
-			set flagSet [java::new HashSet $existingFlagsBy]
-			$flagSet addAll $flagsList
-			set flagsList [java::new ArrayList $flagSet]
-			return $flagsList
-		}
-	}
-
-	return $flagsList
-}
-
 set resp_get_node [getDataNode $graph_id $content_id]
 set check_error [check_response_error $resp_get_node]
 if {$check_error} {
@@ -109,21 +85,13 @@ if {$check_error} {
 		if {$isLiveState == 1 || $isFlaggedState == 1 || $isProcessingState == 1} {
 			set request [java::new HashMap]              
 			set flaggedList [addFlaggedBy $flaggedBy $node_metadata]
-            set flaggedList [java::cast ArrayList $flaggedList]
-            set arraySize [$flaggedList size]
-            if {($arraySize > 0)} {
-            	$request put "lastUpdatedBy" [$flaggedList get 0]
+		        set flaggedList [java::cast ArrayList $flaggedList]
+		        set arraySize [$flaggedList size]
+            		if {($arraySize > 0)} {
+            			$request put "lastUpdatedBy" [$flaggedList get 0]
 			}
-            $request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
-			set isFlagsNull [java::isnull $flags]
-			if {$isFlagsNull == 0} {
-				set flags [java::cast ArrayList $flags]
-				set hasFlags [isNotEmpty $flags]
-				if {$hasFlags} {
-					set flags [addFlags $flags $node_metadata]
-					$request put "flags" $flags
-				}
-			}
+           		$request put "flaggedBy" [addFlaggedBy $flaggedBy $node_metadata]
+			$request put "flags" $flags
 			$request put "versionKey" $versionKey
 			$request put "status" "Flagged"
 			$request put "lastFlaggedOn" [java::call DateUtils format [java::new Date]]

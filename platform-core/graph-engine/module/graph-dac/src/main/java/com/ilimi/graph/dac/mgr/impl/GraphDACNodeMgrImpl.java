@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.IGraphDatabaseService;
-import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.factory.GraphServiceFactory;
@@ -34,23 +31,7 @@ import akka.actor.ActorRef;
  */
 public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNodeMgr {
 
-	/** The logger. */
-	private static Logger LOGGER = LogManager.getLogger(GraphDACNodeMgrImpl.class.getName());
-
-	/** The service. */
-	static IGraphDatabaseService service;
-	static {
-		String databasePolicy = DACConfigurationConstants.ACTIVE_DATABASE_POLICY;
-
-		LOGGER.info("Active Database Policy Id:" + databasePolicy);
-
-		if (StringUtils.isBlank(databasePolicy))
-			databasePolicy = DACConfigurationConstants.DEFAULT_DATABASE_POLICY;
-
-		LOGGER.info("Creating Database Connection Using Policy Id:" + databasePolicy);
-
-		service = GraphServiceFactory.getDatabaseService(databasePolicy);
-	}
+	private static IGraphDatabaseService service = GraphServiceFactory.getDatabaseService();
 
 	/*
 	 * (non-Javadoc)

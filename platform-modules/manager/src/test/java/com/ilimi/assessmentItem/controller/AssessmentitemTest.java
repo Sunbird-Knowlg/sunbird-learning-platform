@@ -1,10 +1,8 @@
 package com.ilimi.assessmentItem.controller;
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
-
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
@@ -24,7 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -38,7 +36,7 @@ import com.ilimi.taxonomy.content.common.BaseTest;
  * each of the operation
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentitemTest extends BaseTest {
+public class AssessmentitemTest extends BaseGraphSpec {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -62,6 +60,7 @@ public class AssessmentitemTest extends BaseTest {
 			e.getCause();
 		}
 		Response resp = jsonToObject(actions);
+		Assert.assertEquals("LP_UT_test_01", (String)resp.get("node_id"));
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 
@@ -352,23 +351,7 @@ public class AssessmentitemTest extends BaseTest {
 		Response resp = jsonToObject(actions);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
-
-	// Delete an non-existiing assessmentItem
-	// expect 404 response
-	@Test
-	public void deleteNonexistingAssessmentItem() {
-		String path = "/v1/assessmentitem//q_1_s_urdu_01";
-		try {
-			actions = this.mockMvc.perform(MockMvcRequestBuilders.delete(path).header("user-id", "ilimi")
-					.contentType(MediaType.APPLICATION_JSON));
-			Assert.assertEquals(404, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		Response resp = jsonToObject(actions);
-		Assert.assertEquals("failed", resp.getParams().getStatus());
-	}
-
+	
 	// Delete assessmentItem with invalid url
 	// expect 404 response
 	@Test

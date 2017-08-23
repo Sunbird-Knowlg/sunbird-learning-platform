@@ -7,13 +7,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.Configuration;
 
 public class Identifier {
-	
-	private static LogHelper LOGGER = LogHelper.getInstance(Identifier.class.getName());
 
 	private static long environmentId = 10000000;
 	private static String shardId = "1";
@@ -33,7 +31,7 @@ public class Identifier {
 					shardId = shard;
 			}
 		} catch (Exception e) {
-			LOGGER.error("Error! While Loading Graph Properties.", e);
+			PlatformLogger.log("Error! While Loading Graph Properties.", null, e);
 		}
 	}
 	

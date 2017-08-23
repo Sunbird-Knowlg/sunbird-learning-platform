@@ -11,7 +11,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.ilimi.dac.BaseDataAccessEntity;
 /*import com.ilimi.dac.utils.HibernateDAOHelper;
 import com.ilimi.mw.dto.ExecutionContext;*/
 import com.googlecode.genericdao.dao.hibernate.GeneralDAOImpl;
@@ -19,6 +18,7 @@ import com.googlecode.genericdao.search.ExampleOptions;
 import com.googlecode.genericdao.search.Filter;
 import com.googlecode.genericdao.search.ISearch;
 import com.googlecode.genericdao.search.SearchResult;
+import com.ilimi.dac.BaseDataAccessEntity;
 
 /**
  * Provides a generalized hibernate DAO which can be used with any domain

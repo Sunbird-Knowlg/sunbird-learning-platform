@@ -1,6 +1,6 @@
 package com.ilimi.taxonomy.content.concrete.processor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,23 +18,25 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.taxonomy.content.common.BaseTest;
 
-public class LocalizeAssetProcessorTest extends BaseTest{
+
+public class LocalizeAssetProcessorTest {
 
 	final static File assetFolder = new File("src/test/resources/Contents/testlocal_01/assets");
-    final static File downloadedAssetFolder = new File("/data/ContentBundleTest/local");
+    final static File tmpFolder = new File("/data/ContentBundleTest/local");
     
     @Rule
 	public ExpectedException exception = ExpectedException.none();
 
-	@SuppressWarnings("unused")
 	@BeforeClass
 	public static void init() {
 		try {
-			FileUtils.cleanDirectory(downloadedAssetFolder);
+			if(!tmpFolder.exists()){
+				tmpFolder.mkdir();
+			}else{
+				FileUtils.cleanDirectory(tmpFolder);
+			}
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -57,7 +59,7 @@ public class LocalizeAssetProcessorTest extends BaseTest{
 		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
 		PipelineRequestorClient
-				.getPipeline("localizeAssetProcessor", downloadedAssetFolder.getAbsolutePath(), "").execute(plugin);
+				.getPipeline("localizeAssetProcessor", tmpFolder.getAbsolutePath(), "").execute(plugin);
 	}
 
 	@Test
@@ -79,7 +81,7 @@ public class LocalizeAssetProcessorTest extends BaseTest{
 		String strContent = getFileString("testlocal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
 		Plugin result = PipelineRequestorClient
-				.getPipeline("localizeAssetProcessor", downloadedAssetFolder.getAbsolutePath(), "test_01").execute(plugin);
+				.getPipeline("localizeAssetProcessor", tmpFolder.getAbsolutePath(), "test_01").execute(plugin);
 		
 		List<String> expected = new ArrayList<String>();
 		for (final File fileEntry : assetFolder.listFiles()) {
@@ -95,13 +97,13 @@ public class LocalizeAssetProcessorTest extends BaseTest{
 		String local = "src/test/resources/Contents/testlocal_01";
 		assertEquals(true, new File(local, "index.ecml").exists());
 		assertEquals(false, result.getManifest().getMedias().isEmpty());
-		assertEquals(true, CollectionUtils.isEqualCollection(expected, actual));
-
+        assertEquals(true, CollectionUtils.isEqualCollection(actual, expected));
 	}
 	
 	@AfterClass
-	public static void deleteFromS3() {
+	public static void deleteFromS3() throws IOException {
 
+		FileUtils.deleteDirectory(tmpFolder);
 		for (final File fileEntry : assetFolder.listFiles()) {
 			try {
 				AWSUploader.deleteFile(fileEntry.getName());
@@ -109,5 +111,16 @@ public class LocalizeAssetProcessorTest extends BaseTest{
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public String getFileString(String fileName) {
+		String fileString = "";
+		File file = new File(getClass().getResource("/Contents/" + fileName).getFile());
+		try {
+			fileString = FileUtils.readFileToString(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fileString;
 	}
 }

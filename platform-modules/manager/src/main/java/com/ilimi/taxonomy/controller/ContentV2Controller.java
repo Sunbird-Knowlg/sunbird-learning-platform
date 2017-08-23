@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 /**
@@ -40,7 +42,6 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 public class ContentV2Controller extends BaseController {
 
 	/** The Class Logger. */
-	private static LogHelper LOGGER = LogHelper.getInstance(ContentV2Controller.class.getName());
 
 	@Autowired
 	private IContentManager contentManager;
@@ -49,61 +50,134 @@ public class ContentV2Controller extends BaseController {
 	private String graphId = "domain";
 
 	/**
-	 * This method carries all the tasks related to 'Upload' operation of
-	 * content work-flow.
-	 * 
+	 * This method fetches the Content by Content Id
 	 *
 	 * @param contentId
-	 *            The Content Id for which the Content Package needs to be
-	 *            Uploaded.
-	 * @param file
-	 *            The Content Package File
-	 * @param userId
-	 *            Unique id of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id in its Result Set.
+	 *            The Content Id whose hierarchy needs to be fetched
+	 * @return The Response entity with Content hierarchy in the result set
 	 */
-	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "file", required = true) MultipartFile file) {
-		String apiId = "ekstep.learning.content.upload";
-		LOGGER.debug("Upload Content | Content Id: " + contentId);
-		LOGGER.info("Uploaded File Name: " + file.getName());
-		LOGGER.info("Calling the Manager for 'Upload' Operation | [Content Id " + contentId + "]");
+	public ResponseEntity<Response> find(@PathVariable(value = "id") String contentId,
+			@RequestParam(value = "fields", required = false) String[] fields,
+			@RequestParam(value = "mode", required = false) String mode) {
+		String apiId = "ekstep.learning.content.info";
+		PlatformLogger.log(
+				"Executing Content Get API (Java Version) (API Version V2) For Content Id: " + contentId + ".", null,
+				"INFO");
+		Response response;
+		PlatformLogger.log("Content GetById | Content Id : " + contentId);
 		try {
-			String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
-					+ FilenameUtils.getExtension(file.getOriginalFilename());
-			File uploadedFile = new File(name);
-			file.transferTo(uploadedFile);
-			Response response = contentManager.upload(contentId, "domain", uploadedFile);
-			LOGGER.info("Upload | Response: " + response);
+			PlatformLogger.log("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
+			response = contentManager.find(graphId, contentId, mode, convertStringArrayToList(fields));
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.create";
+		PlatformLogger.log("Executing Content Create API (Java Version) (API Version V2).", requestMap, "INFO");
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
+			Response response = contentManager.createContent(map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.content.update";
+		PlatformLogger.log(
+				"Executing Content Update API (Java Version) (API Version V2) For Content Id: " + contentId + ".",
+				requestMap, "INFO");
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
+			Response response = contentManager.updateContent(contentId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Publish' operation of
-	 * content work-flow.
+	 * This method carries all the tasks related to 'Upload' operation of content
+	 * work-flow.
+	 * 
+	 *
+	 * @param contentId
+	 *            The Content Id for which the Content Package needs to be Uploaded.
+	 * @param file
+	 *            The Content Package File
+	 * @param userId
+	 *            Unique id of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
+	 * @return The Response entity with Content Id in its Result Set.
+	 */
+	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
+			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "fileUrl", required = false) String fileUrl) {
+		String apiId = "ekstep.learning.content.upload";
+		PlatformLogger.log("Upload Content | Content Id: " + contentId);
+		if (StringUtils.isBlank(fileUrl) && null == file) {
+			return getExceptionResponseEntity(
+					new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_RESOURCE.name(),
+							"File or fileUrl should be available."),
+					apiId, null);
+		} else {
+			try {
+				if (StringUtils.isNotBlank(fileUrl)) {
+					Response response = contentManager.upload(contentId, graphId, fileUrl);
+					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
+					return getResponseEntity(response, apiId, null);
+				} else {
+					String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_"
+							+ System.currentTimeMillis() + "." + FilenameUtils.getExtension(file.getOriginalFilename());
+					File uploadedFile = new File(name);
+					file.transferTo(uploadedFile);
+					Response response = contentManager.upload(contentId, "domain", uploadedFile);
+					PlatformLogger.log("Upload | Response: ", response);
+					return getResponseEntity(response, apiId, null);
+				}
+			} catch (Exception e) {
+				PlatformLogger.log("Upload | Exception: ", e.getMessage(), e);
+				return getExceptionResponseEntity(e, apiId, null);
+			}
+		}
+	}
+
+	/**
+	 * This method carries all the tasks related to 'Publish' operation of content
+	 * work-flow.
 	 *
 	 * @param contentId
 	 *            The Content Id which needs to be published.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id and ECAR URL in its Result
-	 *         Set.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
+	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
 	 */
 	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.learning.content.publish";
-		LOGGER.info("Publish content | Content Id : " + contentId);
+		PlatformLogger.log("Publish content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
 			Response response = contentManager.publish(graphId, contentId, null);
 
 			return getResponseEntity(response, apiId, null);
@@ -113,23 +187,23 @@ public class ContentV2Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Optimize' operation of
-	 * content work-flow. This includes compressing images, audio and videos.
+	 * This method carries all the tasks related to 'Optimize' operation of content
+	 * work-flow. This includes compressing images, audio and videos.
 	 *
 	 * @param contentId
 	 *            Content Id which needs to be optimized.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with Content Id in its Result Set.
 	 */
 	@RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId) {
 		String apiId = "ekstep.learning.content.optimize";
-		LOGGER.info("Optimize content | Content Id : " + contentId);
+		PlatformLogger.log("Optimize content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for 'Optimize' Operation | [Content Id " + contentId + "]");
 			Response response = contentManager.optimize(graphId, contentId);
 
 			return getResponseEntity(response, apiId, null);
@@ -139,31 +213,31 @@ public class ContentV2Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related of bundling the contents into
-	 * one package, It includes all the operations valid for the Publish
-	 * operation but without making the status of content as 'Live'. i.e. It
-	 * bundles content of all status with a 'expiry' date.
+	 * This method carries all the tasks related of bundling the contents into one
+	 * package, It includes all the operations valid for the Publish operation but
+	 * without making the status of content as 'Live'. i.e. It bundles content of
+	 * all status with a 'expiry' date.
 	 *
 	 * @param map
 	 *            the map contains the parameter for creating the Bundle e.g.
 	 *            "identifier" List.
 	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
+	 *            Unique 'id' of the user mainly for authentication purpose, It can
+	 *            impersonation details as well.
 	 * @return The Response entity with a Bundle URL in its Result Set.
 	 */
 	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.archive";
-		LOGGER.info("Create Content Bundle");
+		PlatformLogger.log("Create Content Bundle");
 		try {
 			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
 			request.put(ContentAPIParams.version.name(), "v2");
 
-			LOGGER.info("Calling the Manager for 'Bundle' Operation");
+			PlatformLogger.log("Calling the Manager for 'Bundle' Operation");
 			Response response = contentManager.bundle(request, graphId, "1.1");
-			LOGGER.info("Archive | Response: " + response);
+			PlatformLogger.log("Archive | Response: " + response);
 
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -184,9 +258,9 @@ public class ContentV2Controller extends BaseController {
 			@RequestParam(value = "mode", required = false) String mode) {
 		String apiId = "ekstep.learning.content.hierarchy";
 		Response response;
-		LOGGER.info("Content Hierarchy | Content Id : " + contentId);
+		PlatformLogger.log("Content Hierarchy | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
+			PlatformLogger.log("Calling the Manager for fetching content 'Hierarchy' | [Content Id " + contentId + "]");
 			response = contentManager.getHierarchy(graphId, contentId, mode);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -194,23 +268,23 @@ public class ContentV2Controller extends BaseController {
 		}
 	}
 
-	/**
-	 * This method fetches the Content by Content Id
-	 *
-	 * @param contentId
-	 *            The Content Id whose hierarchy needs to be fetched
-	 * @return The Response entity with Content hierarchy in the result set
-	 */
-	@RequestMapping(value = "/getbyid/{id:.+}", method = RequestMethod.GET)
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/upload/url/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> getById(@PathVariable(value = "id") String contentId,
-			@RequestParam(value = "mode", required = false) String mode) {
-		String apiId = "content.getById";
+	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "ekstep.learning.content.upload.url";
 		Response response;
-		LOGGER.info("Content GetById | Content Id : " + contentId);
+		PlatformLogger.log("Upload URL content | Content Id : " + contentId);
 		try {
-			LOGGER.info("Calling the Manager for fetching content 'getById' | [Content Id " + contentId + "]");
-			response = contentManager.getById(graphId, contentId, mode);
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			if (null == requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())) {
+				return getExceptionResponseEntity(
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"),
+						apiId, null);
+			}
+			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -218,33 +292,17 @@ public class ContentV2Controller extends BaseController {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/create", method = RequestMethod.POST)
+	@RequestMapping(value = "/hierarchy/update", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> create(@RequestBody Map<String, Object> requestMap) {
-		String apiId = "content.create.java";
+	public ResponseEntity<Response> updateHierarchy(@RequestBody Map<String, Object> requestMap) {
+		String apiId = "content.hierarchy.update";
 		Request request = getRequest(requestMap);
 		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.createContent(map);
+			Map<String, Object> map = (Map<String, Object>) request.get("data");
+			Response response = contentManager.updateHierarchy(map);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/update/{id:.+}", method = RequestMethod.PATCH)
-	@ResponseBody
-	public ResponseEntity<Response> update(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> requestMap) {
-		String apiId = "content.update.java";
-		Request request = getRequest(requestMap);
-		try {
-			Map<String, Object> map = (Map<String, Object>) request.get("content");
-			Response response = contentManager.updateContent(contentId, map);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error(e);
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}

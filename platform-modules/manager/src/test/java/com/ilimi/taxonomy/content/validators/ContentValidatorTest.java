@@ -3,21 +3,20 @@ package com.ilimi.taxonomy.content.validators;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.io.IOException;
-import org.apache.commons.io.FileUtils;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.validator.ContentValidator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
-import com.ilimi.taxonomy.content.common.BaseTest;
 
-public class ContentValidatorTest extends BaseTest {
+public class ContentValidatorTest {
 	
 	ContentValidator validator = new ContentValidator();
 	
@@ -34,7 +33,10 @@ public class ContentValidatorTest extends BaseTest {
 	public static File invalid_package_size = new File("src/test/resources/Contents/packageSize_validator.zip");
 	public static File invalid_package_mimetype = new File("src/test/resources/Contents/Verbs");
 	public static File invalid_package = new File("src/test/resources/Contents/package_validator.zip");
-
+    public static File invalid_mimeType = new File("src/test/resources/Contents/sampleTest.epub");
+    public static File valid_mimeType = new File("src/test/resources/Contents/sample.epub");
+	public static File valid_plugin_structure = new File("src/test/resources/Contents/Custom_Plugin.zip");
+    
 	//checks for given input is zip file with index.ecml/index.json present at the root folder with proper package structure
 	@Test
 	 public void validContentPackage(){
@@ -49,9 +51,9 @@ public class ContentValidatorTest extends BaseTest {
 	//input is a file with not a zip extension
 	@Test
 	public void invalidContentPackage(){
-			 exception.expect(ClientException.class);
-			 exception.expectMessage(ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_FILE_MIME_TYPE_ERROR);
-			 validator.isValidContentPackage(invalid_content_package_file);
+		 exception.expect(ClientException.class);
+		 exception.expectMessage(ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_FILE_MIME_TYPE_ERROR);
+		 validator.isValidContentPackage(invalid_content_package_file);
 	}
 	
 	//input is zip file without index.ecml/index.json
@@ -72,7 +74,7 @@ public class ContentValidatorTest extends BaseTest {
 	
 	//input is zip file with filesize greater than 50mb
 	@Test
-	public void invalidContentPackageStructure_03(){
+	public void invalidContentPackageSize_03(){
 		 exception.expect(ClientException.class);
 		 exception.expectMessage(ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_SIZE_ERROR);
 		 validator.isValidContentPackage(invalid_package_size);
@@ -86,31 +88,50 @@ public class ContentValidatorTest extends BaseTest {
 		 validator.isValidContentPackage(invalid_package);
 	}
 	
-//	@Test
-	public void createNode(){
-		Request request = new Request();
-		request.setId(TEST_GRAPH);
-		request.getContext().put("body", "<theme></theme>");
-		request.getContext().put("code","org.ekstep.mar8.story");
-		request.getContext().put("status", "Mock");
-		request.getContext().put("description", "शेर का साथी हा");
-		request.getContext().put("subject", "literacy");
-		request.getContext().put("name", "शेर का साथी हाथ");
-		request.getContext().put("owner", "EkStep");
-		request.getContext().put("mimeType", "application/vnd.ekstep.ecml-archive");
-		request.getContext().put("identifier","org.ekstep.mar8.story");
-		request.getContext().put("contentType", "Story");
-		request.getContext().put("osId", "org.ekstep.quiz.app");
-		node.createDataNode(request);
+	@Test
+	public void validContentNodeTest(){
+		 Node node = new Node();
+		 node.setGraphId("En");
+		 node.setIdentifier("org.ekstep.jul03.collection.test02");
+		 node.setNodeType("DATA_NODE");
+		 node.setObjectType("Content");
+		 Map<String,Object> metadata = new HashMap<String,Object>();
+		 metadata.put("name", "test");
+		 metadata.put("code", "org.ekstep.test");
+		 metadata.put("mimeType", "application/vnd.ekstep.content-collection");
+		 node.setMetadata(metadata);
+		 Boolean isValid = validator.isValidContentNode(node);
+		 assertEquals(true, isValid);
 	}
-	public static String readFileString(String fileName) {
-		String fileString = "";
-		File file = new File("src/test/resources/Contents/" + fileName);
-		try {
-			fileString = FileUtils.readFileToString(file);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return fileString;
+	
+	@Test
+	public void inValidContentNodeTest(){
+		 exception.expect(ClientException.class);
+		 exception.expectMessage(ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS);
+		 Node node = new Node();
+		 node.setGraphId("En");
+		 node.setIdentifier("org.ekstep.jul03.msword.test02");
+		 node.setNodeType("DATA_NODE");
+		 node.setObjectType("Content");
+		 Map<String,Object> metadata = new HashMap<String,Object>();
+		 metadata.put("name", "test");
+		 metadata.put("code", "org.ekstep.test");
+		 metadata.put("mimeType", "application/msword");
+		 node.setMetadata(metadata);
+		 validator.isValidContentNode(node);
 	}
+	
+	@Test
+	public void invalidMimeTypeCheck(){
+		exception.expect(ClientException.class);
+		exception.expectMessage(ContentErrorMessageConstants.INVALID_UPLOADED_FILE_EXTENSION_ERROR);
+		validator.exceptionChecks("application/epub",invalid_mimeType);
+	}
+	
+	@Test
+	public void validMimeTypeCheck(){
+		Boolean isValid = validator.exceptionChecks("application/epub",valid_mimeType);
+		assertEquals(true, isValid);
+	}
+
 }

@@ -10,10 +10,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Direction;
 
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.OnComplete;
-
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -32,6 +28,10 @@ import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.Graph;
+
+import akka.actor.ActorRef;
+import akka.dispatch.OnComplete;
+import scala.concurrent.Future;
 
 public class SearchManagerImpl extends BaseGraphManager implements ISearchManager {
 
@@ -147,6 +147,22 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 handleException(e, getSender());
             }
         }
+    }
+    
+    public void executeQueryForProps(Request request) {
+    		String query = (String) request.get(GraphDACParams.query.name());
+		List<String> props = (List<String>) request.get(GraphDACParams.property_keys.name());
+		if (!validateRequired(query, props)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_EXECUTE_QUERY_FOR_NODES_UNKNOWN_ERROR.name(), "Required parameters are missing...");        
+		} else {
+	        try {
+	        		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+	            Graph graph = new Graph(this, graphId);
+	            graph.executeQueryForProps(request);
+	        } catch (Exception e) {
+	            handleException(e, getSender());
+	        }
+		}
     }
 
     @Override

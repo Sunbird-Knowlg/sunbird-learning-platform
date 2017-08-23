@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
@@ -18,9 +17,13 @@ import org.neo4j.driver.v1.Driver;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
+import org.neo4j.driver.v1.Transaction;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -31,8 +34,6 @@ import com.ilimi.graph.importer.ImportData;
 
 public class Neo4JBoltGraphOperations {
 
-	private static Logger LOGGER = LogManager.getLogger(Neo4JBoltGraphOperations.class.getName());
-
 	/**
 	 * Creates the graph.
 	 *
@@ -42,7 +43,7 @@ public class Neo4JBoltGraphOperations {
 	 *            the request
 	 */
 	public void createGraph(String graphId, Request request) {
-		LOGGER.debug("Operation Not Allowed in Bolt.");
+		PlatformLogger.log("Operation Not Allowed in Bolt.");
 	}
 
 	/**
@@ -56,9 +57,8 @@ public class Neo4JBoltGraphOperations {
 	 *            the request
 	 */
 	public void createGraphUniqueContraint(String graphId, List<String> indexProperties, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Index Properties List: ", indexProperties);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: " + graphId);
+		PlatformLogger.log("Index Properties List: " + indexProperties);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -70,11 +70,11 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_INDEX_PROPERTY_KEY_LIST
 							+ " | ['Create Graph Unique Contraint' Operation Failed.]");
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			for (String indexProperty : indexProperties) {
-				LOGGER.debug("Populating Parameter Map.");
+				PlatformLogger.log("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
 				parameterMap.put(GraphDACParams.indexProperty.name(), indexProperty);
@@ -83,7 +83,7 @@ public class Neo4JBoltGraphOperations {
 				StatementResult result = session
 						.run(QueryUtil.getQuery(Neo4JOperation.CREATE_UNIQUE_CONSTRAINT, parameterMap));
 				for (Record record : result.list()) {
-					LOGGER.debug("'Create Unique' Constraint Operation Finished.", record);
+					PlatformLogger.log("'Create Unique' Constraint Operation Finished.", record);
 				}
 			}
 		}
@@ -100,9 +100,8 @@ public class Neo4JBoltGraphOperations {
 	 *            the request
 	 */
 	public void createIndex(String graphId, List<String> indexProperties, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Index Properties List: ", indexProperties);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Index Properties List: ", indexProperties);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -114,12 +113,12 @@ public class Neo4JBoltGraphOperations {
 							+ " | [Create Graph Index Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
-			
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+
 			for (String indexProperty : indexProperties) {
-				LOGGER.debug("Populating Parameter Map.");
+				PlatformLogger.log("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
 				parameterMap.put(GraphDACParams.indexProperty.name(), indexProperty);
@@ -127,7 +126,7 @@ public class Neo4JBoltGraphOperations {
 
 				StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.CREATE_INDEX, parameterMap));
 				for (Record record : result.list()) {
-					LOGGER.debug("'Create Index' Operation Finished.", record);
+					PlatformLogger.log("'Create Index' Operation Finished.", record);
 				}
 			}
 		}
@@ -142,26 +141,25 @@ public class Neo4JBoltGraphOperations {
 	 *            the request
 	 */
 	public void deleteGraph(String graphId, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Delete Graph' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.request.name(), request);
 
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_GRAPH, parameterMap));
 			for (Record record : result.list()) {
-				LOGGER.debug("'Delete Graph' Operation Finished.", record);
+				PlatformLogger.log("'Delete Graph' Operation Finished.", record);
 			}
 		}
 	}
@@ -182,11 +180,10 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void createRelation(String graphId, String startNodeId, String endNodeId, String relationType,
 			Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -205,11 +202,11 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_RELATION_TYPE + " | ['Create Relation' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -229,7 +226,7 @@ public class Neo4JBoltGraphOperations {
 				else
 					result = session.run(query);
 				for (Record record : result.list())
-					LOGGER.debug("'Create Relation' Operation Finished.", record);
+					PlatformLogger.log("'Create Relation' Operation Finished.", record);
 			}
 		}
 	}
@@ -251,11 +248,10 @@ public class Neo4JBoltGraphOperations {
 	@SuppressWarnings("unchecked")
 	public void updateRelation(String graphId, String startNodeId, String endNodeId, String relationType,
 			Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -276,11 +272,11 @@ public class Neo4JBoltGraphOperations {
 		Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
 		if (null != metadata && !metadata.isEmpty()) {
 			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-			LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 			try (Session session = driver.session()) {
-				LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+				PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-				LOGGER.debug("Populating Parameter Map.");
+				PlatformLogger.log("Populating Parameter Map.");
 				Map<String, Object> parameterMap = new HashMap<String, Object>();
 				parameterMap.put(GraphDACParams.graphId.name(), graphId);
 				parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -300,7 +296,7 @@ public class Neo4JBoltGraphOperations {
 					else
 						result = session.run(query);
 					for (Record record : result.list()) {
-						LOGGER.debug("'Update Relation' Operation Finished.", record);
+						PlatformLogger.log("'Update Relation' Operation Finished.", record);
 					}
 				}
 			}
@@ -323,11 +319,11 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void deleteRelation(String graphId, String startNodeId, String endNodeId, String relationType,
 			Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+//		PlatformLogger.log("Request: ", request);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -346,11 +342,11 @@ public class Neo4JBoltGraphOperations {
 					DACErrorMessageConstants.INVALID_RELATION_TYPE + " | ['Delete Relation' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -360,7 +356,7 @@ public class Neo4JBoltGraphOperations {
 
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.DELETE_RELATION, parameterMap));
 			for (Record record : result.list()) {
-				LOGGER.debug("'Delete Relation' Operation Finished.", record);
+				PlatformLogger.log("'Delete Relation' Operation Finished.", record);
 			}
 		}
 	}
@@ -381,11 +377,10 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void createIncomingRelations(String graphId, List<String> startNodeIds, String endNodeId,
 			String relationType, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Ids: ", startNodeIds);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Ids: ", startNodeIds);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -407,9 +402,9 @@ public class Neo4JBoltGraphOperations {
 							+ " | ['Create Incoming Relations' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			for (String startNodeId : startNodeIds)
 				createRelation(graphId, startNodeId, endNodeId, relationType, request);
 		}
@@ -431,11 +426,10 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void createOutgoingRelations(String graphId, String startNodeId, List<String> endNodeIds,
 			String relationType, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Ids: ", endNodeIds);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Ids: ", endNodeIds);
+		PlatformLogger.log("Relation Type: ", relationType);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -457,9 +451,9 @@ public class Neo4JBoltGraphOperations {
 							+ " | ['Create Outgoing Relations' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			for (String endNodeId : endNodeIds)
 				createRelation(graphId, startNodeId, endNodeId, relationType, request);
 		}
@@ -481,11 +475,10 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void deleteIncomingRelations(String graphId, List<String> startNodeIds, String endNodeId,
 			String relationType, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Ids: ", startNodeIds);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Ids: ", startNodeIds);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -507,9 +500,9 @@ public class Neo4JBoltGraphOperations {
 							+ " | ['Delete Incoming Relations' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			for (String startNodeId : startNodeIds)
 				deleteRelation(graphId, startNodeId, endNodeId, relationType, request);
 		}
@@ -531,11 +524,10 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void deleteOutgoingRelations(String graphId, String startNodeId, List<String> endNodeIds,
 			String relationType, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Ids: ", endNodeIds);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Ids: ", endNodeIds);
+		PlatformLogger.log("Relation Type: ", relationType);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -557,9 +549,9 @@ public class Neo4JBoltGraphOperations {
 							+ " | ['Delete Outgoing Relations' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 			for (String endNodeId : endNodeIds)
 				deleteRelation(graphId, startNodeId, endNodeId, relationType, request);
 		}
@@ -583,12 +575,11 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void removeRelationMetadataByKey(String graphId, String startNodeId, String endNodeId, String relationType,
 			String key, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Start Node Id: ", startNodeId);
-		LOGGER.debug("End Node Id: ", endNodeId);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Metadata Key: ", key);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Start Node Id: ", startNodeId);
+		PlatformLogger.log("End Node Id: ", endNodeId);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Metadata Key: ", key);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -614,11 +605,11 @@ public class Neo4JBoltGraphOperations {
 							+ " | ['Remove Relation Metadata' Operation Failed.]");
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
-		LOGGER.debug("Driver Initialised. | [Graph Id: " + graphId + "]");
+		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
 		try (Session session = driver.session()) {
-			LOGGER.debug("Session Initialised. | [Graph Id: " + graphId + "]");
+			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			LOGGER.debug("Populating Parameter Map.");
+			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(GraphDACParams.graphId.name(), graphId);
 			parameterMap.put(GraphDACParams.startNodeId.name(), startNodeId);
@@ -630,7 +621,7 @@ public class Neo4JBoltGraphOperations {
 			StatementResult result = session
 					.run(QueryUtil.getQuery(Neo4JOperation.REMOVE_RELATION_METADATA, parameterMap));
 			for (Record record : result.list()) {
-				LOGGER.debug("'Remove Relation Metadata' Operation Finished.", record);
+				PlatformLogger.log("'Remove Relation Metadata' Operation Finished.", record);
 			}
 		}
 	}
@@ -655,21 +646,21 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public void createCollection(String graphId, String collectionId, com.ilimi.graph.dac.model.Node collection,
 			String relationType, List<String> members, String indexProperty, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Collection Node Id: ", collectionId);
-		LOGGER.debug("Collection Node: ", collection);
-		LOGGER.debug("Relation Type: ", relationType);
-		LOGGER.debug("Members: ", members);
-		LOGGER.debug("Index Property: ", indexProperty);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Collection Node Id: ", collectionId);
+		PlatformLogger.log("Collection Node: ", collection);
+		PlatformLogger.log("Relation Type: ", relationType);
+		PlatformLogger.log("Members: ", members);
+		PlatformLogger.log("Index Property: ", indexProperty);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
 					DACErrorMessageConstants.INVALID_GRAPH_ID + " | ['Create Collection' Operation Failed.]");
 
-//		if (null == collection)
-//			throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
-//					DACErrorMessageConstants.INVALID_COLLECTION_NODE + " | ['Create Collection' Operation Failed.]");
+		// if (null == collection)
+		// throw new ClientException(DACErrorCodeConstants.INVALID_NODE.name(),
+		// DACErrorMessageConstants.INVALID_COLLECTION_NODE + " | ['Create
+		// Collection' Operation Failed.]");
 
 		if (StringUtils.isBlank(relationType))
 			throw new ClientException(DACErrorCodeConstants.INVALID_RELATION.name(),
@@ -681,7 +672,7 @@ public class Neo4JBoltGraphOperations {
 				collection.setIdentifier(collectionId);
 			nodeOperations.upsertNode(graphId, collection, request);
 		}
-		
+
 		if (null != members && !members.isEmpty())
 			createOutgoingRelations(graphId, collectionId, members, relationType, request);
 	}
@@ -697,9 +688,8 @@ public class Neo4JBoltGraphOperations {
 	 *            the request
 	 */
 	public void deleteCollection(String graphId, String collectionId, Request request) {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Collection Node Id: ", collectionId);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Collection Node Id: ", collectionId);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -708,7 +698,7 @@ public class Neo4JBoltGraphOperations {
 		if (StringUtils.isBlank(collectionId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
 					DACErrorMessageConstants.INVALID_COLLECTION_NODE_ID + " | ['Create Collection' Operation Failed.]");
-		
+
 		Neo4JBoltNodeOperations nodeOperations = new Neo4JBoltNodeOperations();
 		nodeOperations.deleteNode(graphId, collectionId, request);
 	}
@@ -730,10 +720,9 @@ public class Neo4JBoltGraphOperations {
 	 */
 	public Map<String, List<String>> importGraph(String graphId, String taskId, ImportData input, Request request)
 			throws Exception {
-		LOGGER.debug("Graph Id: ", graphId);
-		LOGGER.debug("Task Id: ", taskId);
-		LOGGER.debug("Import Data: ", input);
-		LOGGER.debug("Request: ", request);
+		PlatformLogger.log("Graph Id: ", graphId);
+		PlatformLogger.log("Task Id: ", taskId);
+		PlatformLogger.log("Import Data: ", input);
 
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(DACErrorCodeConstants.INVALID_GRAPH.name(),
@@ -760,7 +749,7 @@ public class Neo4JBoltGraphOperations {
 		}
 		return messages;
 	}
-	
+
 	private void updateTaskStatus(String graphId, String taskId, Request request) throws Exception {
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
 		com.ilimi.graph.dac.model.Node taskNode = new com.ilimi.graph.dac.model.Node();
@@ -770,10 +759,9 @@ public class Neo4JBoltGraphOperations {
 		taskNode.getMetadata().put(GraphEngineParams.status.name(), GraphEngineParams.Completed.name());
 		nodeOps.upsertNode(graphId, taskNode, request);
 	}
-	
-	private int createNodes(String graphId, Request request, Map<String, com.ilimi.graph.dac.model.Node> existingNodes, 
-			Map<String, Map<String, List<Relation>>> existingRelations,
-			List<com.ilimi.graph.dac.model.Node> nodes) {
+
+	private int createNodes(String graphId, Request request, Map<String, com.ilimi.graph.dac.model.Node> existingNodes,
+			Map<String, Map<String, List<Relation>>> existingRelations, List<com.ilimi.graph.dac.model.Node> nodes) {
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
 		int nodesCount = 0;
@@ -801,7 +789,7 @@ public class Neo4JBoltGraphOperations {
 		}
 		return nodesCount;
 	}
-	
+
 	private Map<String, Map<String, List<Relation>>> getExistingRelations(List<Relation> dbRelations,
 			Map<String, Map<String, List<Relation>>> existingRelations) {
 		if (null != dbRelations && null != dbRelations.iterator()) {
@@ -829,10 +817,11 @@ public class Neo4JBoltGraphOperations {
 		}
 		return existingRelations;
 	}
-	
-	private int createRelations(String graphId, Request request, 
-			Map<String, Map<String, List<Relation>>> existingRelations, Map<String, com.ilimi.graph.dac.model.Node> existingNodes,
-			List<com.ilimi.graph.dac.model.Node> nodes, Map<String, List<String>> messages) {
+
+	private int createRelations(String graphId, Request request,
+			Map<String, Map<String, List<Relation>>> existingRelations,
+			Map<String, com.ilimi.graph.dac.model.Node> existingNodes, List<com.ilimi.graph.dac.model.Node> nodes,
+			Map<String, List<String>> messages) {
 		int relationsCount = 0;
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		for (com.ilimi.graph.dac.model.Node node : nodes) {
@@ -881,9 +870,11 @@ public class Neo4JBoltGraphOperations {
 									relEndNodeIds.remove(endNodeId);
 									Relation relation = relMap.get(endNodeId);
 									request.put(GraphDACParams.metadata.name(), relation.getMetadata());
-									updateRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(), request);
+									updateRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(),
+											rel.getRelationType(), request);
 								} else {
-									deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(), request);
+									deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(),
+											rel.getRelationType(), request);
 									relationsCount--;
 								}
 							}
@@ -892,7 +883,8 @@ public class Neo4JBoltGraphOperations {
 								if (otherNode != null) {
 									Relation relation = relMap.get(endNodeId);
 									request.put(GraphDACParams.metadata.name(), relation.getMetadata());
-									createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(), relType, request);
+									createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(),
+											relType, request);
 									relationsCount++;
 								} else {
 									otherNode = searchOps.getNodeByUniqueId(graphId, endNodeId, true, request);
@@ -908,7 +900,8 @@ public class Neo4JBoltGraphOperations {
 										existingNodes.put(endNodeId, otherNode);
 										Relation relation = relMap.get(endNodeId);
 										request.put(GraphDACParams.metadata.name(), relation.getMetadata());
-										createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(), relType, request);
+										createRelation(graphId, neo4jNode.getIdentifier(), otherNode.getIdentifier(),
+												relType, request);
 										relationsCount++;
 									}
 								}
@@ -916,7 +909,8 @@ public class Neo4JBoltGraphOperations {
 							}
 						} else {
 							for (Relation rel : relationMap.get(relType)) {
-								deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(), request);
+								deleteRelation(graphId, rel.getStartNodeId(), rel.getEndNodeId(), rel.getRelationType(),
+										request);
 								relationsCount--;
 							}
 						}
@@ -938,9 +932,10 @@ public class Neo4JBoltGraphOperations {
 		return relationsCount;
 	}
 
-	private int createNewRelations(com.ilimi.graph.dac.model.Node neo4jNode, Map<String, List<String>> nodeRelMap, String relType,
-			Map<String, Map<String, Relation>> nodeRelation, String uniqueId, Map<String, com.ilimi.graph.dac.model.Node> existingNodes,
-			Map<String, List<String>> messages, String graphId, Request request) {
+	private int createNewRelations(com.ilimi.graph.dac.model.Node neo4jNode, Map<String, List<String>> nodeRelMap,
+			String relType, Map<String, Map<String, Relation>> nodeRelation, String uniqueId,
+			Map<String, com.ilimi.graph.dac.model.Node> existingNodes, Map<String, List<String>> messages,
+			String graphId, Request request) {
 		int relationsCount = 0;
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		List<String> relEndNodeIds = nodeRelMap.get(relType);
@@ -972,7 +967,7 @@ public class Neo4JBoltGraphOperations {
 		}
 		return relationsCount;
 	}
-	
+
 	private void upsertRootNode(String graphId, Integer nodesCount, Integer relationsCount, Request request) {
 		Neo4JBoltSearchOperations searchOps = new Neo4JBoltSearchOperations();
 		Neo4JBoltNodeOperations nodeOps = new Neo4JBoltNodeOperations();
@@ -985,7 +980,7 @@ public class Neo4JBoltGraphOperations {
 			node.setMetadata(new HashMap<String, Object>());
 		}
 		node.getMetadata().put(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
-		
+
 		Long dbNodesCount = (Long) node.getMetadata().get("nodesCount");
 		if (null == dbNodesCount)
 			dbNodesCount = 0l;
@@ -995,6 +990,127 @@ public class Neo4JBoltGraphOperations {
 		node.getMetadata().put("nodesCount", dbNodesCount + nodesCount);
 		node.getMetadata().put("relationsCount", dbRelationsCount + relationsCount);
 		nodeOps.upsertNode(graphId, node, request);
+	}
+
+	public void bulkUpdateNodes(String graphId, List<Map<String, Object>> newNodes, List<Map<String, Object>> modifiedNodes,
+			List<Map<String, Object>> addOutRelations, List<Map<String, Object>> removeOutRelations,
+			List<Map<String, Object>> addInRelations, List<Map<String, Object>> removeInRelations) {
+		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
+		Transaction tr = null;
+		try (Session session = driver.session()) {
+			tr = session.beginTransaction();
+			createNodes(tr, graphId, newNodes);
+			updateNodes(tr, graphId, modifiedNodes);
+			removeOutRelations(tr, graphId, removeOutRelations);
+			removeInRelations(tr, graphId, removeInRelations);
+			addOutRelations(tr, graphId, addOutRelations);
+			addInRelations(tr, graphId, addInRelations);
+			tr.success();
+		} catch (Exception e) {
+			PlatformLogger.log("Bulk update failed in DAC", "Update failed on GraphId: " + graphId, e);
+			if (null != tr)
+				tr.failure();
+			throw new ServerException("ERR_BULK_UPDATE_OPERATION", "Bulk update operation failed: " + e.getMessage());
+		} finally {
+			if (null != tr)
+				tr.close();
+		}
+	}
+	
+	private void createNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			PlatformLogger.log("Bulk update | Creating nodes : " + nodes.size(), null, LoggerEnum.INFO.name());
+			String query = "UNWIND {batch} as row CREATE (n:" + graphId + ") SET n += row";
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("batch", nodes);
+			tr.run(query, params);
+		}
+	}
+
+	private void updateNodes(Transaction tr, String graphId, List<Map<String, Object>> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			PlatformLogger.log("Bulk update | Updating nodes : " + nodes.size(), null, LoggerEnum.INFO.name());
+			String query = "UNWIND {batch} as row MATCH (n:" + graphId
+					+ "{IL_UNIQUE_ID: row.IL_UNIQUE_ID}) SET n += row.metadata";
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("batch", nodes);
+			tr.run(query, params);
+		}
+	}
+
+	private void addOutRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			PlatformLogger.log("Bulk update | Adding out relations : " + relations.size(), null, LoggerEnum.INFO.name());
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.from}) MATCH (to:"
+						+ graphId + "{IL_UNIQUE_ID: row.to}) CREATE (from)-[rel:" + entry.getKey()
+						+ "]->(to) SET rel += row.metadata";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+	
+	private void addInRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			PlatformLogger.log("Bulk update | Adding in relations : " + relations.size(), null, LoggerEnum.INFO.name());
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.from}) MATCH (to:"
+						+ graphId + "{IL_UNIQUE_ID: row.to}) CREATE (from)<-[rel:" + entry.getKey()
+						+ "]-(to) SET rel += row.metadata";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+
+	private void removeOutRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			PlatformLogger.log("Bulk update | Removing out relations : " + relations.size(), null, LoggerEnum.INFO.name());
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId + "{IL_UNIQUE_ID: row.IL_UNIQUE_ID})-[r:"
+						+ entry.getKey() + "]->(to:" + graphId + " {IL_FUNC_OBJECT_TYPE: row.objectType}) DELETE r";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+
+	private void removeInRelations(Transaction tr, String graphId, List<Map<String, Object>> relations) {
+		if (null != relations && !relations.isEmpty()) {
+			PlatformLogger.log("Bulk update | Removing in relations : " + relations.size(), null, LoggerEnum.INFO.name());
+			Map<String, List<Map<String, Object>>> relationTypeMap = getRelationMap(relations);
+			for (Entry<String, List<Map<String, Object>>> entry : relationTypeMap.entrySet()) {
+				String query = "UNWIND {batch} as row MATCH (from:" + graphId
+						+ "{IL_FUNC_OBJECT_TYPE: row.objectType})<-[r:" + entry.getKey() + "]-(to:" + graphId
+						+ " {IL_UNIQUE_ID: row.IL_UNIQUE_ID}) DELETE r";
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("batch", entry.getValue());
+				tr.run(query, params);
+			}
+		}
+	}
+
+	private static Map<String, List<Map<String, Object>>> getRelationMap(List<Map<String, Object>> relations) {
+		Map<String, List<Map<String, Object>>> relationTypeMap = null;
+		if (null != relations) {
+			relationTypeMap = new HashMap<String, List<Map<String, Object>>>();
+			for (Map<String, Object> relation : relations) {
+				String type = (String) relation.get("type");
+				List<Map<String, Object>> list = relationTypeMap.get(type);
+				if (null == list)
+					list = new ArrayList<Map<String, Object>>();
+				list.add(relation);
+				relationTypeMap.put(type, list);
+			}
+		}
+		return relationTypeMap;
 	}
 
 }

@@ -24,15 +24,6 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingFile>
-		<RollingFile name="AuditLogAppender" fileName="/data/logs/audit.log"
-			filePattern="/data/logs/audit-%d{MM-dd-yyyy-hh-mm}-%i.log">
-			<PatternLayout>
-				<Pattern>%d [%t] - %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<OnStartupTriggeringPolicy />
-			</Policies>
-		</RollingFile>
 		<RollingRandomAccessFile name="KafkaMessageAppender" fileName="/data/logs/Kafka_messages.log"
 			filePattern="/data/logs/Kafka_messages-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
@@ -47,9 +38,6 @@
 		<AsyncLogger name="KafkaMessageLogger" level="INFO" additivity="false">
 			<AppenderRef ref="KafkaMessageAppender" />
 		</AsyncLogger>
-		<Logger name="AuditTestLogger" level="INFO" additivity="false">
-			<AppenderRef ref="AuditLogAppender" />
-		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>

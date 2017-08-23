@@ -2,11 +2,7 @@ swagger: '2.0'
 info:
   version: '3.0'
   title: Content Model API
-  description: >-
-    The Content Model API deals with all the operations related to the Content
-    in EkStep Platform, including the basic CRUD (Create, Update, Read and
-    Delete) operations and also the high level operations as well such as
-    upload, publish the Content in EkStep Platform.
+  description: 'The Content Model API deals with all the operations related to the Content in EkStep Platform, including the basic CRUD (Create, Update, Read and Delete) operations and also the high level operations as well such as upload, publish the Content in EkStep Platform.'
   license:
     name: EkStep License
     url: 'http:www.ekstep.in'
@@ -33,21 +29,16 @@ tags:
   - name: History
     description: Everything related to history of modifications with a Content
   - name: Flag
-    description: >-
-      Everything related to Change in state of Content and its availability for
-      further usage
+    description: Everything related to Change in state of Content and its availability for further usage
+  - name: Reject
+    description: Everythhing related to Rejection of a Content which is in Review/FlagReview state
 paths:
   /create:
     post:
       tags:
         - Core
       summary: Creates a Content
-      description: >-
-        The _content_ endpoint is used to create the content into the _EkStep
-        Platform_ with the metadata provided as part of request body, there are
-        certain fields marked as mandatory for which the value has to be given
-        in order to create the content into the platfrom, The _content_ endpoint
-        returns the node id as _node_id_ i.e. the identifier of created content.
+      description: 'The _content_ endpoint is used to create the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the content into the platfrom, The _content_ endpoint returns the node id as _node_id_ i.e. the identifier of created content.'
       operationId: ekstep.learning.content.create
       produces:
         - application/json
@@ -59,17 +50,11 @@ paths:
           schema:
             $ref: '#/definitions/ContentCreateResponse'
         '400':
-          description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
+          description: 'Error While Content Creation! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentCreateErrorResponse'
         '500':
-          description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
+          description: 'Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentCreateErrorResponse'
       security: []
@@ -78,14 +63,7 @@ paths:
       tags:
         - Core
       summary: Updates the Content
-      description: >-
-        The _content/{contentId}_ endpoint with 'PATCH' method is used to update
-        the content into the _EkStep Platform_ with the metadata provided as
-        part of request body, there are certain fields marked as mandatory for
-        which the value has to be given in order to have the content into the
-        platfrom i.e. the mandatory fields cannot be null or empty, The
-        _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the
-        identifier of updated content.
+      description: 'The _content/{contentId}_ endpoint with ''PATCH'' method is used to update the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to have the content into the platfrom i.e. the mandatory fields cannot be null or empty, The _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the identifier of updated content.'
       operationId: ekstep.learning.content.update
       produces:
         - application/json
@@ -98,10 +76,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentUpdateResponse'
         '400':
-          description: >-
-            Error While Content Update! | Error occurred while operation, mostly
-            because of the input given by client, In general it is 'Client
-            Exception'.
+          description: 'Error While Content Update! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
         '404':
@@ -109,10 +84,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
         '500':
-          description: >-
-            Error While Content Update! | Error occurred while operation, mostly
-            because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'.
+          description: 'Error While Content Update! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
       security: []
@@ -121,13 +93,7 @@ paths:
       tags:
         - Core
       summary: Get Content Object
-      description: >-
-        The _content/{contentId}_ endpoint with 'GET' method is used to fetch
-        the content from the _EkStep Platform_. This endpoint returns the entire
-        Content Object with default fields. The Consumer can get the non-default
-        fields by passing the comma separated list of fields in a query
-        parameter _fields_ For Example:
-        _/content/{contentId}?fields?body,soundCredits_
+      description: 'The _content/{contentId}_ endpoint with ''GET'' method is used to fetch the content from the _EkStep Platform_. This endpoint returns the entire Content Object with default fields. The Consumer can get the non-default fields by passing the comma separated list of fields in a query parameter _fields_ For Example: _/content/{contentId}?fields?body,soundCredits_'
       operationId: ekstep.learning.content.read
       produces:
         - application/json
@@ -139,10 +105,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentGetResponse'
         '400':
-          description: >-
-            Error While Content Fetch! | Error occurred while operation, mostly
-            because of the input given by client, In general it is 'Client
-            Exception'.
+          description: 'Error While Content Fetch! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
         '404':
@@ -150,10 +113,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
         '500':
-          description: >-
-            Error While Content Fetch! | Error occurred while operation, mostly
-            because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'.
+          description: 'Error While Content Fetch! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
       security: []
@@ -162,11 +122,7 @@ paths:
       tags:
         - Core
       summary: Deletes Content Object
-      description: >-
-        The _content/{contentId}_ endpoint with 'DELETE' method is used to
-        delete (Retire) the content from the _EkStep Platform_. It consumes the
-        Content Identifier as 'contentId' on which the delete (Retire) operation
-        has to be performed.
+      description: 'The _content/{contentId}_ endpoint with ''DELETE'' method is used to delete (Retire) the content from the _EkStep Platform_. It consumes the Content Identifier as ''contentId'' on which the delete (Retire) operation has to be performed.'
       operationId: ekstep.learning.content.retire
       produces:
         - application/json
@@ -178,10 +134,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentDeleteResponse'
         '400':
-          description: >-
-            Error While Content Retire! | Error occurred while operation, mostly
-            because of the input given by client, In general it is 'Client
-            Exception'.
+          description: 'Error While Content Retire! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentDeleteErrorResponse'
         '404':
@@ -189,10 +142,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentDeleteErrorResponse'
         '500':
-          description: >-
-            Error While Content Retire! | Error occurred while operation, mostly
-            because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'.
+          description: 'Error While Content Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentDeleteErrorResponse'
       security: []
@@ -201,17 +151,7 @@ paths:
       tags:
         - Search
       summary: List all Contents
-      description: >-
-        The _content/list_ endpoint is used to list all the content from the
-        _EkStep Platform_. By deafult it returns only 'Live' content But Content
-        belongs to other status can also be queried by explicitly providing the
-        metadata information in the Request body. Apart from this the Request
-        body can have the sorting field information, order of sorting and a
-        particular set of fields you want in output. The only difference between
-        'search' and 'list' operation is, the 'list' operation only return the
-        Content of type story, worksheet and games i.e. the content playable on
-        Genie App while the 'search' operation will return all the objects of
-        type content.
+      description: 'The _content/list_ endpoint is used to list all the content from the _EkStep Platform_. By deafult it returns only ''Live'' content But Content belongs to other status can also be queried by explicitly providing the metadata information in the Request body. Apart from this the Request body can have the sorting field information, order of sorting and a particular set of fields you want in output. The only difference between ''search'' and ''list'' operation is, the ''list'' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the ''search'' operation will return all the objects of type content.'
       operationId: content.list
       produces:
         - application/json
@@ -223,17 +163,11 @@ paths:
           schema:
             $ref: '#/definitions/ContentListResponse'
         '400':
-          description: >-
-            Error While Listing Contents! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
+          description: 'Error While Listing Contents! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentListErrorResponse'
         '500':
-          description: >-
-            Error While Listing Contents! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
+          description: 'Error While Listing Contents! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentListErrorResponse'
       security: []
@@ -242,16 +176,7 @@ paths:
       tags:
         - Search
       summary: Search the Content
-      description: >-
-        The 'content/search' endpoint is used to search the content in the
-        _EkStep Platform_. It makes the search based on the Search Criteria
-        provided in the Request Body. Apart from this the Request body can have
-        the sorting field information, order of sorting and a particular set of
-        fields you want in output.  The only difference between 'search' and
-        'list' operation is, the 'list' operation only return the Content of
-        type story, worksheet and games i.e. the content playable on Genie App
-        while the 'search' operation will return all the objects of type
-        content.
+      description: 'The ''content/search'' endpoint is used to search the content in the _EkStep Platform_. It makes the search based on the Search Criteria provided in the Request Body. Apart from this the Request body can have the sorting field information, order of sorting and a particular set of fields you want in output.  The only difference between ''search'' and ''list'' operation is, the ''list'' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the ''search'' operation will return all the objects of type content.'
       operationId: content.search
       produces:
         - application/json
@@ -263,17 +188,11 @@ paths:
           schema:
             $ref: '#/definitions/ContentSearchResponse'
         '400':
-          description: >-
-            Error While Content Search! | Error occurred while operation, mostly
-            because of the input given by client, In general it is 'Client
-            Exception'.
+          description: 'Error While Content Search! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentSearchErrorResponse'
         '500':
-          description: >-
-            Error While Content Search! | Error occurred while operation, mostly
-            because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'.
+          description: 'Error While Content Search! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentSearchErrorResponse'
       security: []
@@ -282,15 +201,7 @@ paths:
       tags:
         - Workflow
       summary: Uploads a Content Package
-      description: >-
-        The '/content/upload/{contentId}' endpoint uploads the Content package
-        for the given 'contentId'. This endpoint is responsible for the Content
-        'Upload' operation which is considered to be one of the high-level
-        operation. It takes content identifier as path parameter and content
-        package file as file type body parameter. In response it returns the
-        Content Url as 'content_url' which is the address of storage space (S3)
-        where the content is being uploaded and the Content node identifier as
-        'node_id' for which the upload operation is being performed.
+      description: 'The ''/content/upload/{contentId}'' endpoint uploads the Content package for the given ''contentId''. This endpoint is responsible for the Content ''Upload'' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter and content package file as file type body parameter. In response it returns the Content Url as ''content_url'' which is the address of storage space (S3) where the content is being uploaded and the Content node identifier as ''node_id'' for which the upload operation is being performed.'
       operationId: content.upload
       produces:
         - application/json
@@ -303,10 +214,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentUploadResponse'
         '400':
-          description: >-
-            Error While Content Upload! | Error occurred while operation, mostly
-            because of the input given by client, In general it is 'Client
-            Exception'.
+          description: 'Error While Content Upload! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
         '404':
@@ -314,10 +222,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
         '500':
-          description: >-
-            Error While Content Upload! | Error occurred while operation, mostly
-            because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'.
+          description: 'Error While Content Upload! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
       security: []
@@ -326,15 +231,7 @@ paths:
       tags:
         - Workflow
       summary: Publishes a Content
-      description: >-
-        The '/content/publish/{contentId}' endpoint publishes a Content whose
-        Content identifier is given as 'contentId'. This endpoint is responsible
-        for the Content 'Publish' operation which is considered to be one of the
-        high-level operation. It takes content identifier as path parameter. In
-        response it returns the Content Url as 'content_url' which is the
-        address of storage space (S3) where the content ECAR is being uploaded
-        and the Content node identifier as 'node_id' for which the publish
-        operation is being performed.
+      description: 'The ''/content/publish/{contentId}'' endpoint publishes a Content whose Content identifier is given as ''contentId''. This endpoint is responsible for the Content ''Publish'' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter. In response it returns the Content Url as ''content_url'' which is the address of storage space (S3) where the content ECAR is being uploaded and the Content node identifier as ''node_id'' for which the publish operation is being performed.'
       operationId: content.publish
       produces:
         - application/json
@@ -346,10 +243,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentPublishResponse'
         '400':
-          description: >-
-            Error While Content Publish! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
+          description: 'Error While Content Publish! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
         '404':
@@ -357,10 +251,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
         '500':
-          description: >-
-            Error While Content Publish! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
+          description: 'Error While Content Publish! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
       security: []
@@ -369,14 +260,7 @@ paths:
       tags:
         - Bundle
       summary: Bundle the Contents
-      description: >-
-        The '/content/bundle' endpoint bundles the Contents whose identifiers
-        are given. It consumes the list of Content identifiers as
-        'content_identifiers' and the bundle file name as 'file_name' which is
-        the name of output bundle file. In response it returns the URL of Bundle
-        Package file which is uploaded to storage space (S3). This endpoint
-        performs the 'Bundle' operation for the given contents which is useful
-        for offline access of EkStep Content.
+      description: The '/content/bundle' endpoint bundles the Contents whose identifiers are given. It consumes the list of Content identifiers as 'content_identifiers' and the bundle file name as 'file_name' which is the name of output bundle file. In response it returns the URL of Bundle Package file which is uploaded to storage space (S3). This endpoint performs the 'Bundle' operation for the given contents which is useful for offline access of EkStep Content.
       operationId: content.bundle
       produces:
         - application/json
@@ -388,17 +272,11 @@ paths:
           schema:
             $ref: '#/definitions/ContentBundleResponse'
         '400':
-          description: >-
-            Error While Content Bundling! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
+          description: 'Error While Content Bundling! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentBundleErrorResponse'
         '500':
-          description: >-
-            Error While Content Bundling! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
+          description: 'Error While Content Bundling! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentBundleErrorResponse'
       security: []
@@ -407,11 +285,7 @@ paths:
       tags:
         - History
       summary: Returns the history of Contents modified
-      description: >-
-        The '/history/{content_id}' endpoint returns history of the content_id
-        with its modifications. It consumes the content identifier as request
-        path variable. In response it returns the history of modifications
-        performed on that particular content_id
+      description: 'The ''/history/{content_id}'' endpoint returns history of the content_id with its modifications. It consumes the content identifier as request path variable. In response it returns the history of modifications performed on that particular content_id'
       operationId: content.history
       produces:
         - application/json
@@ -423,17 +297,11 @@ paths:
           schema:
             $ref: '#/definitions/ContentHistoryResponse'
         '400':
-          description: >-
-            Error While fetching Content history! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
+          description: 'Error While fetching Content history! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentHistoryErrorResponse'
         '500':
-          description: >-
-            Error While fetching Content history! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
+          description: 'Error While fetching Content history! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentHistoryErrorResponse'
       security: []
@@ -442,11 +310,7 @@ paths:
       tags:
         - Flag
       summary: Flags a particular Content
-      description: >-
-        The '/flag/{content_id}' endpoint flags a particular content and makes
-        it unavailbale for future usage. It consumes the content identifier as
-        request path variable with falg request body. In response it returns the
-        message that particular content has been flagged
+      description: 'The ''/flag/{content_id}'' endpoint flags a particular content and makes it unavailbale for future usage. It consumes the content identifier as request path variable with flag request body. In response it returns the message that particular content has been flagged'
       operationId: ekstep.learning.content.flag
       produces:
         - application/json
@@ -459,21 +323,114 @@ paths:
           schema:
             $ref: '#/definitions/ContentFlagResponse'
         '400':
-          description: >-
-            Error While flagging a particular content! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
+          description: 'Error While flagging a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
           schema:
             $ref: '#/definitions/ContentFlagErrorResponse'
         '500':
-          description: >-
-            Error While flagging a particular content! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
+          description: 'Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
           schema:
             $ref: '#/definitions/ContentFlagErrorResponse'
       security: []
+  '/flag/accept/{contentId}':
+    get:
+      tags:
+        - Flag
+      summary: Accepts a particular Content which is Flagged
+      description: 'The ''/flag/accept/{content_id}'' endpoint flags a particular content. It consumes the content identifier as request path variable with Accept flag request body. In response it returns the message that particular content which was flagged has been accepted'
+      operationId: ekstep.learning.content.acceptFlag
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ContentId'
+        - $ref: '#/parameters/AcceptflagRequestBody'
+      responses:
+        '200':
+          description: Content Flag Accepted Successfully
+          schema:
+            $ref: '#/definitions/ContentFlagAcceptResponse'
+        '400':
+          description: 'Error While Accepting a content which is flagged! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          schema:
+            $ref: '#/definitions/ContentAcceptFlagErrorResponse'
+        '500':
+          description: 'Error While Accepting a content which is flagged! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          schema:
+            $ref: '#/definitions/ContentAcceptFlagErrorResponse'
+      security: []
+  '/flag/reject/{contentId}':
+    get:
+      tags:
+        - Flag
+      summary: Rejects a particular Content which is flagged.
+      description: 'The ''/flag/reject/{content_id}'' endpoint rejects a particular content which is flagged and updates the status back to draft. It consumes the content identifier as request path variable with reject flag request body. In response it returns the message that particular content whcih was flagged has been rejected and the content is back to draft status'
+      operationId: ekstep.learning.content.rejectFlag
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ContentId'
+        - $ref: '#/parameters/RejectFlagRequestBody'
+      responses:
+        '200':
+          description: Content Flag Rejected Successfully
+          schema:
+            $ref: '#/definitions/ContentRejectFlagResponse'
+        '400':
+          description: 'Error While rejecting flag of a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          schema:
+            $ref: '#/definitions/ContentFlagErrorResponse'
+        '500':
+          description: 'Error While rejecting flag of a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          schema:
+            $ref: '#/definitions/ContentFlagErrorResponse'
+      security: []
+  '/reject/{contentId}':
+    post:
+      tags:
+        - Reject
+      summary: Rejects a particular Content in Review State.
+      description: 'The ''/reject/{content_id}'' endpoint rejects a particular content which is in review state and pushes it to draft state. It consumes the content identifier as request path variable with reject request body. In response it returns the message that particular content has been rejected'
+      operationId: ekstep.learning.content.reject
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ContentId'
+        - $ref: '#/parameters/RejectRequestBody'
+      responses:
+        '200':
+          description: Content Rejected Successfully
+          schema:
+            $ref: '#/definitions/ContentRejectResponse'
+        '400':
+          description: 'Error While Rejecting a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'
+          schema:
+            $ref: '#/definitions/ContentRejectErrorResponse'
+        '500':
+          description: 'Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'
+          schema:
+            $ref: '#/definitions/ContentRejectErrorResponse'
+      security: []
 parameters:
+  RejectFlagRequestBody:
+    name: Request
+    in: body
+    description: Content Request Object which contains the request data
+    required: true
+    schema:
+      $ref: '#/definitions/ContentRejectFlagRequestObject'
+  AcceptflagRequestBody:
+    name: Request
+    in: body
+    description: Content Request Object which contains the request data
+    required: true
+    schema:
+      $ref: '#/definitions/ContentAcceptFlagRequestObject'
+  RejectRequestBody:
+    name: Request
+    in: body
+    description: Content Request Object which contains the request data
+    required: true
+    schema:
+      $ref: '#/definitions/ContentRejectRequestObject'
   ContentRequestObject:
     name: Request
     in: body
@@ -499,9 +456,7 @@ parameters:
   ContentBundleRequestObject:
     name: Request
     in: body
-    description: >-
-      Content Bundle Request Object which contains the list of Content
-      identifiers to bundle and the bundle file name
+    description: Content Bundle Request Object which contains the list of Content identifiers to bundle and the bundle file name
     required: true
     schema:
       $ref: '#/definitions/ContentBundleRequestObject'
@@ -519,6 +474,61 @@ parameters:
     schema:
       $ref: '#/definitions/FlagRequestObject'
 definitions:
+  ContentAcceptFlagRequestObject:
+    properties:
+      request:
+        type: array
+        items:
+          $ref: '#/definitions/FlagAcceptRequestObject'
+  FlagAcceptRequestObject:
+    properties:
+      flaggedBy:
+        type: string
+        description: Name of the flag Approver
+  FlagRejectRequestObject:
+    properties:
+      flaggedBy:
+        type: string
+        description: Name of the flag Rejecter
+  ContentRejectFlagRequestObject:
+    properties:
+      request:
+        type: array
+        items:
+          $ref: '#/definitions/FlagRejectRequestObject'
+  ContentRejectRequestObject:
+    properties:
+      request:
+        type: array
+        items:
+          $ref: '#/definitions/FlagAcceptRequestObject'
+  ContentRejectResponse:
+    title: Content Reject Response
+    type: array
+    items:
+      $ref: '#/definitions/ResultWithNodeId'
+  ContentFlagAcceptResponse:
+    title: Content Accept Flag Response
+    type: array
+    items:
+      $ref: '#/definitions/ResultWithNodeId'
+  ContentRejectFlagResponse:
+    title: Content Reject Flag Response
+    type: array
+    items:
+      $ref: '#/definitions/ResultWithNodeId'
+  ContentRejectErrorResponse:
+    title: Reject Content Error Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/EmptyResult'
+      - $ref: '#/definitions/ResponseHeader'
+  ContentAcceptFlagErrorResponse:
+    title: Reject Content Error Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/EmptyResult'
+      - $ref: '#/definitions/ResponseHeader'
   Content:
     title: Content Metadata
     type: object
@@ -535,6 +545,11 @@ definitions:
       os:
         type: string
         description: Supported Operating Systems
+        example:
+          - All
+          - Android
+          - iOS
+          - Windows
       minOsVersion:
         type: string
         description: E.g. 4.4
@@ -550,15 +565,108 @@ definitions:
       visibility:
         type: string
         description: Visibility (set as 'Parent' to hide this from any other list view)
+        example:
+          - default/parent
+      audience:
+        title: Audience
+        description: The target audience of the Content
+        example:
+          - Learner
+          - Instructor
       posterImage:
         type: string
         description: ''
       mimeType:
         type: string
         description: ''
+        example:
+          - application/vnd.ekstep.ecml-archive
+          - application/vnd.ekstep.html-archive
+          - application/vnd.android.package-archive
+          - application/vnd.ekstep.content-archive
+          - application/vnd.ekstep.content-collection
+          - application/vnd.ekstep.plugin-archive
+          - application/vnd.ekstep.h5p-archive
+          - application/epub
+          - text/x-url
+          - video/x-youtube
+          - application/octet-stream
+          - application/msword
+          - application/pdf
+          - image/jpeg
+          - image/jpg
+          - image/png
+          - image/tiff
+          - image/bmp
+          - image/gif
+          - image/svg+xml
+          - video/avi
+          - video/mpeg
+          - video/quicktime
+          - video/3gpp
+          - video/mpeg
+          - video/mp4
+          - video/ogg
+          - video/webm
+          - audio/mp3
+          - audio/mp4
+          - audio/mpeg
+          - audio/ogg
+          - audio/webm
+          - audio/x-wav
+          - audio/wav
+      artifactMimeType:
+        type: string
+        description: ''
+        example:
+          - application/vnd.ekstep.html-archive+zip
+          - application/vnd.android.package-archive+zip
+          - application/vnd.ekstep.content-archive+zip
+          - application/vnd.ekstep.content-collection+zip
+          - application/vnd.ekstep.plugin-archive+zip
+          - application/vnd.ekstep.h5p-archive+zip
+          - application/epub+zip
+          - text/x-url
+          - video/x-youtube
+          - application/octet-stream
+          - application/msword
+          - application/pdf
+          - image/jpeg
+          - image/jpg
+          - image/png
+          - image/tiff
+          - image/bmp
+          - image/gif
+          - image/svg+xml
+          - video/avi
+          - video/mpeg
+          - video/quicktime
+          - video/3gpp
+          - video/mpeg
+          - video/mp4
+          - video/ogg
+          - video/webm
+          - audio/mp3
+          - audio/mp4
+          - audio/mpeg
+          - audio/ogg
+          - audio/webm
+          - audio/x-wav
       mediaType:
         type: string
         description: ''
+        example:
+          - content
+          - collection
+          - image
+          - video
+          - audio
+          - voice
+          - ecml
+          - document
+          - pdf
+          - text
+          - other
       appIcon:
         type: string
         description: ''
@@ -566,12 +674,6 @@ definitions:
         type: string
         description: ''
       thumbnail:
-        type: string
-        description: ''
-      format:
-        type: string
-        description: ''
-      duration:
         type: string
         description: ''
       size:
@@ -583,24 +685,12 @@ definitions:
       idealScreenDensity:
         type: string
         description: ''
-      releaseNotes:
-        type: string
-        description: ''
-      pkgVersion:
-        type: number
-        description: Version number of the package file
-      resources:
-        type: string
-        description: ''
       downloadUrl:
         type: string
         description: URL to download the content
       artifactUrl:
         type: string
         description: URL to download the content
-      objects:
-        type: string
-        description: ''
       developer:
         type: string
         description: Content Developer
@@ -613,9 +703,6 @@ definitions:
       owner:
         type: string
         description: Content Owner
-      portalOwner:
-        type: string
-        description: Portal Owner
       attributions:
         type: string
         description: Attributions/Credits
@@ -646,36 +733,131 @@ definitions:
       text:
         type: string
         description: Text of the story
-      forkable:
-        type: boolean
-        description: Forkable
-      translatable:
-        type: boolean
-        description: Translatable
       ageGroup:
         type: string
         description: Suggested Age Group
+        example:
+          - <5
+          - 5-6
+          - 6-7
+          - 7-8
+          - 8-10
+          - '>10'
+          - Other
       gradeLevel:
         type: string
         description: ''
+        example:
+          - Kindergarten
+          - Grade 1
+          - Grade 2
+          - Grade 3
+          - Grade 4
+          - Grade 5
+          - Grade 6
+          - Grade 7
+          - Grade 8
+          - Grade 9
+          - Grade 10
+          - Grade 11
+          - Grade 12
+          - Other
       interactivityLevel:
         type: string
         description: ''
+        example:
+          - High
+          - Medium
+          - Low
       curriculum:
         type: string
         description: ''
       contentType:
         type: string
         description: ''
+        example:
+          - Story
+          - Worksheet
+          - Game
+          - Simulation
+          - Puzzle
+          - Diagnostic
+          - Collection
+          - Asset
+          - Template
+          - Plugin
+          - ContentTemplate
+          - ItemTemplate
+          - TextBook
+          - TextBookUnit
+          - Course
+          - CourseUnit
+      category:
+        type: string
+        description: ''
+        example:
+          - core
+          - learning
+          - literacy
+          - math
+          - science
+          - time
+          - wordnet
+          - game
+          - mcq
+          - mtf
+          - ftb
+          - library
       templateType:
         type: string
         description: ''
+        example:
+          - story
+          - worksheet
+          - mcq
+          - ftb
+          - mtf
+          - recognition
+          - activity
+          - widget
+          - other
       genre:
         type: string
         description: ''
+        example:
+          - Picture Books
+          - Chapter Books
+          - Flash Cards
+          - Serial Books
+          - Alphabet Books
+          - Folktales
+          - Fiction
+          - Non-Fiction
+          - Poems/Rhymes
+          - Plays
+          - Comics
+          - Words
       theme:
         type: string
         description: ''
+        example:
+          - History
+          - Adventure
+          - Mystery
+          - Science
+          - Nature
+          - Art
+          - Music
+          - Funny
+          - Family
+          - Life Skills
+          - Scary
+          - School Stories
+          - Holidays
+          - Hobby
+          - Geography
+          - Rural
+          - Urban
       rating:
         type: number
         description: ''
@@ -703,30 +885,80 @@ definitions:
       scaffolding:
         type: string
         description: ''
+        example:
+          - Tutorial
+          - Help
+          - Practice
       feedback:
         type: string
         description: ''
+        example:
+          - Right/Wrong
+          - Reflection
+          - Guidance
+          - Learn from Mistakes
+          - Adaptive Feedback
+          - Interrupts
+          - Rich Feedback
       feedbackType:
         type: string
         description: ''
+        example:
+          - Audio
+          - Visual
+          - Textual
+          - Tactile
       teachingMode:
         type: string
         description: ''
+        example:
+          - Abstract
+          - Concrete
+          - Pictorial
       skills:
         type: string
         description: ''
+        example:
+          - Listening
+          - Speaking
+          - Reading
+          - Writing
+          - Touch
+          - Gestures
+          - Draw
       keywords:
         type: string
         description: ''
       domain:
         type: string
         description: ''
+        example:
+          - numeracy
+          - literacy
+          - science
       status:
         type: string
         description: ''
+        example:
+          - Draft
+          - Review
+          - Redraft
+          - Flagged
+          - Live
+          - Retired
+          - Mock
+          - Processing
+          - FlagDraft
+          - FlagReview
+          - Failed
       optStatus:
         type: string
         description: ''
+        example:
+          - Pending
+          - Processing
+          - Error
+          - Complete
       description:
         type: string
         description: ''
@@ -737,15 +969,6 @@ definitions:
         type: string
         description: ''
       data:
-        type: string
-        description: ''
-      loadingMessage:
-        type: string
-        description: Loading Message
-      checksum:
-        type: string
-        description: Checksum value of the story package file
-      learningObjective:
         type: string
         description: ''
       createdBy:
@@ -772,16 +995,7 @@ definitions:
       lastPublishedOn:
         type: string
         description: ''
-      version:
-        type: number
-        description: ''
-      versionDate:
-        type: string
-        description: ''
       origin:
-        type: string
-        description: ''
-      versionCreatedBy:
         type: string
         description: ''
     required:
@@ -789,6 +1003,7 @@ definitions:
       - code
       - mediaType
       - mimeType
+      - contentType
   ContentResponse:
     title: Content Response Metadata
     type: object
@@ -942,11 +1157,13 @@ definitions:
         description: Identifier of the content
         items:
           type: string
+        example: do_1223
       name:
         type: array
         description: Name of the content
         items:
           type: string
+        example: testContent
       code:
         type: array
         description: Unique code for the content
@@ -1409,6 +1626,11 @@ definitions:
         type: array
         items:
           type: string
+        example:
+          - Inappropriate Content
+          - Copyright Violation
+          - Privacy Violation
+          - Other
       flaggedBy:
         type: string
         description: flaggedBy
@@ -1777,3 +1999,4 @@ definitions:
     allOf:
       - $ref: '#/definitions/EmptyResult'
       - $ref: '#/definitions/ResponseHeader'
+

@@ -12,10 +12,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 
 import redis.clients.jedis.Jedis;
@@ -32,7 +31,7 @@ import redis.clients.jedis.JedisPoolConfig;
 public class WordCacheUtil {
 
 	/** The LOGGER. */
-	private static Logger LOGGER = LogManager.getLogger(WordCacheUtil.class.getName());
+	
 
 	/** The jedis pool. */
 	private static JedisPool jedisPool;
@@ -143,12 +142,12 @@ public class WordCacheUtil {
 	 *            the words arpabets stream
 	 */
 	public static void loadWordArpabetCollection(InputStream wordsArpabetsStream) {
-		LOGGER.debug("inside loadWordArpabetCollection");
+		PlatformLogger.log("inside loadWordArpabetCollection");
 		Map<String, String> wordArpabetCacheMap = parseInputStream(wordsArpabetsStream);
 		if (wordArpabetCacheMap.size() > 0) {
 			loadRedisCache(wordArpabetCacheMap);
 		}
-		LOGGER.debug("completed loadWordArpabetCollection");
+		PlatformLogger.log("completed loadWordArpabetCollection");
 	}
 
 	/**
@@ -287,7 +286,7 @@ public class WordCacheUtil {
 	 * @return the arpabets
 	 */
 	public static String getArpabets(String word) {
-		LOGGER.info("GetArpabets - word " + word);
+		PlatformLogger.log("GetArpabets - word " + word);
 
 		Jedis jedis = getRedisConncetion();
 		word = word.toUpperCase();
@@ -316,7 +315,7 @@ public class WordCacheUtil {
 			returnConnection(jedis);
 		}
 
-		LOGGER.info("GetArpabets - arpabets " + arpabetsOfWord);
+		PlatformLogger.log("GetArpabets - arpabets " + arpabetsOfWord);
 		return arpabetsOfWord;
 	}
 
@@ -329,7 +328,7 @@ public class WordCacheUtil {
 	 * @return the similar sound words
 	 */
 	public static Set<String> getSimilarSoundWords(String word) {
-		LOGGER.info("GetSimilarSoundWords - word " + word);
+		PlatformLogger.log("GetSimilarSoundWords - word " + word);
 
 		Jedis jedis = getRedisConncetion();
 		String Arpabets = getArpabets(word);
@@ -345,7 +344,7 @@ public class WordCacheUtil {
 		} finally {
 			returnConnection(jedis);
 		}
-		LOGGER.info("GetSimilarSoundWords - similarSoundWords size " + similarSoundWords.size());
+		PlatformLogger.log("GetSimilarSoundWords - similarSoundWords size " + similarSoundWords.size());
 
 		return similarSoundWords;
 	}

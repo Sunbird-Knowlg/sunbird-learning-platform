@@ -6,14 +6,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.factory.GraphServiceFactory;
-import org.junit.AfterClass;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runners.MethodSorters;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -25,15 +27,13 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
 
-import org.junit.runners.MethodSorters;
-
+@Ignore
 @FixMethodOrder(MethodSorters.DEFAULT)
 public class GraphPolicyTest {
 	
-	static String databasePolicy = "bolt";
 	static String graphId =  "domain";
 	static String graphId1 =  "123";
-	static IGraphDatabaseService graphDb = GraphServiceFactory.getDatabaseService(databasePolicy);
+	static IGraphDatabaseService graphDb = GraphServiceFactory.getDatabaseService();
 	String relationType = "ASSOCIATED_TO"; 
 	
 	@Rule

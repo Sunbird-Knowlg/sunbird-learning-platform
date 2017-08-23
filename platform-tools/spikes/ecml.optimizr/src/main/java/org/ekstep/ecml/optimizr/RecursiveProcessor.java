@@ -15,8 +15,7 @@ import org.apache.logging.log4j.Logger;
  * @author feroz
  */
 public class RecursiveProcessor implements Processor {
-    
-    private static final Logger logger = LogManager.getLogger();
+
     protected List<Processor> processors = new ArrayList<Processor>();
     protected Statistics stats = null;
     
@@ -46,13 +45,13 @@ public class RecursiveProcessor implements Processor {
                 for (Processor proc : processors) {    
                     if (proc.isApplicable(type)) {
                         try {
-                            logger.debug("Processing file: " + file.getName());
+                            PlatformLogger.log("Processing file: " + file.getName());
                             File output = proc.process(file);
                             if (output != null) redSize = output.length();
                             stats.update(type, rawSize, redSize);
                         }
                         catch (Exception ex) {
-                            logger.warn("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName());
+                            PlatformLogger.log("Failed to apply processor: " + proc.getClass() + " on file: " + file.getName());
                         }
                     }
                 }

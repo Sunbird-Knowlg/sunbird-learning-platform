@@ -1,7 +1,6 @@
 package org.esktep.search.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.search.router.SearchRequestRouterPool;
 
@@ -11,6 +10,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.logger.PlatformLogger;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -59,7 +59,7 @@ public class BaseSearchManager {
      * @return the search response
      */
     @CoverageIgnore
-	protected Response getSearchResponse(Request request, Logger logger) {
+	protected Response getSearchResponse(Request request) {
         ActorRef router = SearchRequestRouterPool.getRequestRouter();
         try {
             Future<Object> future = Patterns.ask(router, request, SearchRequestRouterPool.REQ_TIMEOUT);
@@ -70,7 +70,7 @@ public class BaseSearchManager {
                 return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            PlatformLogger.log("Exception", e.getMessage(), e);
             return ERROR(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
         }
     }

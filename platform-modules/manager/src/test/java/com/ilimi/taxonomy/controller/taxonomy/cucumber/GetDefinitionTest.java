@@ -3,13 +3,11 @@ package com.ilimi.taxonomy.controller.taxonomy.cucumber;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.runner.RunWith;
+import org.junit.Ignore;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -21,8 +19,8 @@ import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.api.junit.Cucumber;
 
+@Ignore
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class GetDefinitionTest extends BaseCucumberTest{

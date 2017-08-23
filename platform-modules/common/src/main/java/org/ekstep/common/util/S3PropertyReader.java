@@ -1,30 +1,36 @@
 package org.ekstep.common.util;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 
 public class S3PropertyReader {
 	private static Properties prop = new Properties();
 	private static InputStream input = null;
-	private static Logger LOGGER = LogManager.getLogger(S3PropertyReader.class
-			.getName());
 
 	static {
 		String filename = "amazonS3Config.properties";
 		input = S3PropertyReader.class.getClassLoader().getResourceAsStream(
 				filename);
 		if (input == null) {
-			LOGGER.error("Unable to find " + filename);
+			PlatformLogger.log("Unable to find " , filename);
 		}
 		try {
 			prop.load(input);
-		} catch (IOException e) {
-			LOGGER.error(e.getMessage(), e);
+		} catch (Exception e) {
+			PlatformLogger.log("Error", e.getMessage(), LoggerEnum.ERROR.name());
 		}
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
 	}
 	
 	public static String getProperty(String key){

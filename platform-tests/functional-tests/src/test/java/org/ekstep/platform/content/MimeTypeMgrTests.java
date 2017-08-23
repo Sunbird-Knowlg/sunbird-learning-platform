@@ -43,9 +43,10 @@ public class MimeTypeMgrTests extends BaseTest {
 	String jsonCreateInvalidUrlContent = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"English\" ], \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"mimeType\":\"video/youtube\", \"artifactUrl\":\"https://www.videos.com/watch?v=s10ARdfQUOY\" } } } ";
 	String jsonCreateValidPdfContent = "{ \"request\": { \"content\": {\"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"English\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"mimeType\":\"application/pdf\" } } }";
 	String jsonCreateValidPdfContentWithInvalidMimeType = "{ \"request\": { \"identifier\": \"LP_FT_"+rn+"\", \"content\": { \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"English\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"mimeType\":\"application/pdsaf\" } } }";
-	String jsonCreateValidPdfContentWithUrl = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"English\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"mimeType\":\"application/pdf\",\"artifactUrl\":\"http://www.tra.org.bh/media/document/sample10.pdf\" } } }";
+	String jsonCreateValidPdfContentWithUrl = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"English\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"mimeType\":\"application/pdf\",\"artifactUrl\":\"http://www.pdf995.com/samples/pdf.pdf\" } } }";
 	String jsonCreateValidDocContent = "{ \"request\": { \"content\": { \"identifier\": \"LP_FT_"+rn+"\", \"mediaType\": \"content\", \"visibility\": \"Default\", \"name\": \"test\", \"language\": [ \"English\" ], \"appIcon\":\"http://media.idownloadblog.com/wp-content/uploads/2014/08/YouTube-2.9-for-iOS-app-icon-small.png\", \"contentType\": \"Story\", \"code\": \"test\", \"osId\": \"org.ekstep.quiz.app\", \"pkgVersion\": 1, \"mimeType\":\"application/msword\" } } }";
-	
+	String jsonCreateValidEpubContent = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}}}";
+	String jsonCreateEpubContentWithInvalidZip = "{\"request\":{\"content\":{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}}}";
 	
 	private static Set<String> allowed_file_extensions = new HashSet<String>();
 
@@ -168,10 +169,9 @@ public class MimeTypeMgrTests extends BaseTest {
 		setURI();
 		given().
 		spec(getRequestSpec(contentType, validuserId)).
-		body(jsonContentWithPublisherId).
 		contentType(JSON).
 		when().
-		post("/learning/v3/content/publish/" + node).
+		get("/learning/v2/content/publish/" + node).
 		then().
 	//	log().all().
 		spec(get400ResponseSpec());
@@ -203,10 +203,9 @@ public class MimeTypeMgrTests extends BaseTest {
 				setURI();
 				given()
 				.spec(getRequestSpec(contentType, validuserId)).
-				body(jsonContentWithPublisherId).
 				contentType(JSON).
 				when().
-				post("/learning/v3/content/publish/" + node).
+				get("/learning/v2/content/publish/" + node).
 				then().
 			//	log().all().
 				spec(get400ResponseSpec());
@@ -300,10 +299,9 @@ public class MimeTypeMgrTests extends BaseTest {
 				setURI();
 					given()
 					.spec(getRequestSpec(contentType, validuserId)).
-					body(jsonContentWithPublisherId).
 					contentType(JSON).
 					when().
-					post("/learning/v3/content/publish/" + node).
+					get("/learning/v2/content/publish/" + node).
 					then().
 				//	log().all().
 					spec(get200ResponseSpec());
@@ -357,7 +355,7 @@ public class MimeTypeMgrTests extends BaseTest {
 				when().
 				post("/learning/v2/content").
 				then().
-	  		//	log().all().
+	  			log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -370,12 +368,11 @@ public class MimeTypeMgrTests extends BaseTest {
 		setURI();
 				given()
 				.spec(getRequestSpec(contentType, validuserId)).
-				body(jsonContentWithPublisherId).
 				contentType(JSON).
 				when().
-				post("/learning/v3/content/publish/" + node).
+				get("/learning/v2/content/publish/" + node).
 				then().
-			//	log().all().
+				log().all().
 				spec(get200ResponseSpec());
 		
 		// Get content and validate
@@ -469,10 +466,9 @@ public class MimeTypeMgrTests extends BaseTest {
 				setURI();
 					given()
 					.spec(getRequestSpec(contentType, validuserId)).
-					body(jsonContentWithPublisherId).
 					contentType(JSON).
 					when().
-					post("/learning/v3/content/publish/" + node).
+					get("/learning/v2/content/publish/" + node).
 					then().
 				//	log().all().
 					spec(get200ResponseSpec());
@@ -495,6 +491,156 @@ public class MimeTypeMgrTests extends BaseTest {
 				String status = jp4.get("result.content.status");
 				asyncPublishValidationContents(node, status);
 				accessURL(node);
+	}
+	
+	@Test
+	public void createValidEpubContentExpect200(){
+		   contentCleanUp();
+			setURI();
+			Response R =
+					given().
+					spec(getRequestSpec(contentType, validuserId)).
+					body(jsonCreateValidEpubContent).
+					with().
+					contentType(JSON).
+					when().
+					post("/learning/v2/content").
+					then().
+			//		log().all().
+					spec(get200ResponseSpec()).
+					extract().
+					response();
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			String node = jp.get("result.node_id");
+			
+		// Upload Content
+				setURI();
+					given().
+					spec(getRequestSpec(uploadContentType, validuserId)).
+					multiPart(new File(path + "/sample4.epub")).
+					when().
+					post("/learning/v2/content/upload/" + node).
+					then().
+				//	 log().all().
+					spec(get200ResponseSpec());
+				
+
+	// Publish Content
+				setURI();
+					given()
+					.spec(getRequestSpec(contentType, validuserId)).
+					contentType(JSON).
+					when().
+					get("/learning/v2/content/publish/" + node).
+					then().
+				//	log().all().
+					spec(get200ResponseSpec());
+				
+	// Get content and validate
+				setURI();
+				Response R4 =
+						given().
+						spec(getRequestSpec(contentType, validuserId)).
+						when().
+						get("/learning/v2/content/" + node).
+						then().
+						// log().all().
+						spec(get200ResponseSpec()).
+						extract().
+						response();
+
+				// Validate the response
+				JsonPath jp4 = R4.jsonPath();
+				String status = jp4.get("result.content.status");
+				asyncPublishValidationContents(node, status);
+				accessURL(node);
+	}
+
+	@Test
+	public void createValidEpubContentWithInvalidZipExpect400(){
+		   contentCleanUp();
+			setURI();
+			Response R =
+					given().
+					spec(getRequestSpec(contentType, validuserId)).
+					body(jsonCreateValidEpubContent).
+					with().
+					contentType(JSON).
+					when().
+					post("/learning/v2/content").
+					then().
+//					log().all().
+					extract().
+					response();
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			String node = jp.get("result.node_id");
+			
+		// Upload Content
+				setURI();
+					given().
+					spec(getRequestSpec(uploadContentType, validuserId)).
+					multiPart(new File(path + "/ecml_with_json.zip")).
+					when().
+					post("/learning/v2/content/upload/" + node).
+					then().
+				//	 log().all().
+					spec(get400ResponseSpec());
+	}
+	
+	@Test
+	public void createValidEpubContentWithInvalidContentId(){
+		   contentCleanUp();
+			setURI();
+			Response R =
+					given().
+					spec(getRequestSpec(contentType, validuserId)).
+					body(jsonCreateValidEpubContent).
+					with().
+					contentType(JSON).
+					when().
+					post("/learning/v2/content").
+					then().
+//					log().all().
+					extract().
+					response();
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			String node = jp.get("result.node_id");
+			
+		// Upload Content
+				setURI();
+					given().
+					spec(getRequestSpec(uploadContentType, validuserId)).
+					multiPart(new File(path + "/ecml_with_json.zip")).
+					when().
+					post("/learning/v2/content/upload/LP_FT").
+					then().
+				//	 log().all().
+					spec(get400ResponseSpec());
+	}
+	
+	@Test
+	public void createValidEpubContentWithInvalidUrl(){
+		   contentCleanUp();
+			setURI();
+			Response R =
+					given().
+					spec(getRequestSpec(contentType, validuserId)).
+					body(jsonCreateValidEpubContent).
+					with().
+					contentType(JSON).
+					when().
+					post("/learning/v2/conwsxstent").
+					then().
+//					log().all().
+					spec(get500ResponseSpec()).
+					extract().
+					response();
 	}
 	
 	@SuppressWarnings("unused")
@@ -652,14 +798,20 @@ public class MimeTypeMgrTests extends BaseTest {
 							String url = getStringValue(item, "downloadUrl");
 							Assert.assertEquals(url, artifactUrl);
 							String compatibilityLevel = getStringValue(item, "compatibilityLevel");
-							Assert.assertEquals(compatibilityLevel, "3");
+							Assert.assertEquals("4", compatibilityLevel);
 							String artiUrl = getStringValue(item, "artifactUrl");
 							Assert.assertEquals(artiUrl, artifactUrl);
 						}
 						if(mimeType.equals("application/msword") || mimeType.equals("application/pdf")){
 							String compatibilityLevel = getStringValue(item, "compatibilityLevel");
-							Assert.assertEquals(compatibilityLevel, "3");
+							Assert.assertEquals("4", compatibilityLevel);
 							Assert.assertTrue(downloadUrl.endsWith(".ecar")&&statusActual.equals("Live"));
+						}
+						if(mimeType.equals("application/epub")){
+							String compatibilityLevel = getStringValue(item, "compatibilityLevel");
+							Assert.assertEquals("4", compatibilityLevel);
+							Assert.assertTrue(downloadUrl.endsWith(".ecar")&&statusActual.equals("Live"));
+							Assert.assertEquals(true, artifactUrl.endsWith("index.epub"));
 						}
 					} catch (JSONException jse) {
 						accessURL = false;

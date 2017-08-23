@@ -2,18 +2,18 @@ package com.ilimi.graph.engine.mgr.impl;
 
 import java.lang.reflect.Method;
 import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import akka.actor.ActorRef;
+import java.util.Map;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
+import com.ilimi.graph.cache.util.RedisStoreUtil;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.mgr.IGraphManager;
 import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -23,9 +23,9 @@ import com.ilimi.graph.model.Graph;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.relation.RelationHandler;
 
-public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
+import akka.actor.ActorRef;
 
-    private static final Logger logger = LogManager.getLogger(IGraphManager.class.getName());
+public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     protected void invokeMethod(Request request, ActorRef parent) {
         String methodName = request.getOperation();
@@ -45,11 +45,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createGraph(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            logger.info("Create Graph request: " + graphId);
+            PlatformLogger.log("Create Graph request: ", graphId);
             Graph graph = new Graph(this, graphId);
             graph.create(request);
         } catch (Exception e) {
-            logger.error("Error in Create Graph", e);
+        	PlatformLogger.log("Error in Create Graph", e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -58,11 +58,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createUniqueConstraint(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            logger.info("Create Unique Constraint request: " + graphId);
+        	PlatformLogger.log("Create Unique Constraint request: " , graphId);
             Graph graph = new Graph(this, graphId);
             graph.createUniqueConstraint(request);
         } catch (Exception e) {
-            logger.error("Error in Create Unique Constraint", e);
+        	PlatformLogger.log("Error in Create Unique Constraint", e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -71,11 +71,11 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
     public void createIndex(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-            logger.info("Create Index request: " + graphId);
+        	PlatformLogger.log("Create Index request: " , graphId);
             Graph graph = new Graph(this, graphId);
             graph.createIndex(request);
         } catch (Exception e) {
-            logger.error("Error in Create Index", e);
+        	PlatformLogger.log("Error in Create Index", e.getMessage(), e);
             handleException(e, getSender());
         }
     }
@@ -157,12 +157,13 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
         String relationType = (String) request.get(GraphDACParams.relation_type.name());
         String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
+        Map<String, Object> metadata = (Map<String, Object>)  request.get(GraphDACParams.metadata.name());
         // TODO: get metadata
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
             throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Required parameters are missing...");
         } else {
             try {
-                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId, relationType, endNodeId, null);
+                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId, relationType, endNodeId, metadata);
                 relation.create(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -219,4 +220,37 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         }
     }
 
+    public void deleteCacheNodesProperty(Request request) {
+        try {
+            String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+            String property = (String) request.get(GraphDACParams.property.name());
+
+            if (!validateRequired(graphId, property)) {
+                throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), "Required parameters are missing...");
+            } else {
+    			RedisStoreUtil.deleteAllNodeProperty(graphId, property);
+            }
+
+            OK(getSender());
+        } catch (Exception e) {
+            ERROR(e, getSender());
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public void bulkUpdateNodes(Request request) {
+    	String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+    	List<Node> nodes = (List<Node>) request.get(GraphDACParams.nodes.name());
+    	if (null != nodes && !nodes.isEmpty()) {
+    		try {
+    			Graph graph = new Graph(this, graphId);
+                graph.bulkUpdateNodes(request);
+    		} catch (Exception e) {
+                handleException(e, getSender());
+            }
+    	} else {
+    		OK(getSender());
+    	}
+    }
 }

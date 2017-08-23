@@ -17,12 +17,14 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
 
+@Ignore
 public class SoftConstraintsTest extends BaseSearchActorsTest {
 	
 	private static ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
@@ -133,6 +135,7 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Ignore
 	@Test
 	public void testSearchWithModeAndSCFromConfig() {
 		Request request = getSearchRequest();
@@ -272,6 +275,7 @@ public class SoftConstraintsTest extends BaseSearchActorsTest {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Ignore
 	@Test
 	public void testWithoutSoftConstraintRequest() {
 		Request request = getSearchRequest();

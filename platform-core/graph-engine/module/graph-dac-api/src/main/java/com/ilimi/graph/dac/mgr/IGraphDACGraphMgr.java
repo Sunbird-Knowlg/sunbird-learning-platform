@@ -33,4 +33,6 @@ public interface IGraphDACGraphMgr {
     void deleteIncomingRelations(Request request);
     
     void deleteOutgoingRelations(Request request);
+    
+    void bulkUpdateNodes(Request request);
 }

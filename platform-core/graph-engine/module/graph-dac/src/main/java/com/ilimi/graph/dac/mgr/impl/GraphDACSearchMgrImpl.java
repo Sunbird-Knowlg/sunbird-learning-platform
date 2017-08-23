@@ -5,11 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.graph.service.IGraphDatabaseService;
-import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.factory.GraphServiceFactory;
 
 import com.ilimi.common.dto.Property;
@@ -36,22 +32,8 @@ import akka.actor.ActorRef;
 
 public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDACSearchMgr {
 	
-	private static Logger LOGGER = LogManager.getLogger(GraphDACSearchMgrImpl.class.getName());
-
-	static IGraphDatabaseService service;
-	static {
-		String databasePolicy = DACConfigurationConstants.ACTIVE_DATABASE_POLICY;
-
-		LOGGER.info("Active Database Policy Id:" + databasePolicy);
-
-		if (StringUtils.isBlank(databasePolicy))
-			databasePolicy = DACConfigurationConstants.DEFAULT_DATABASE_POLICY;
-
-		LOGGER.info("Creating Database Connection Using Policy Id:" + databasePolicy);
-
-		service = GraphServiceFactory.getDatabaseService(databasePolicy);
-	}
-
+	private static IGraphDatabaseService service = GraphServiceFactory.getDatabaseService();
+	
     protected void invokeMethod(Request request, ActorRef parent) {
         String methodName = request.getOperation();
         try {
@@ -96,6 +78,22 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
                 ERROR(e, getSender());
             }
         }
+    }
+    
+    public void executeQueryForProps(Request request) {
+    		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+    		String query = (String) request.get(GraphDACParams.query.name());
+    		List<String> propKeys = (List<String>) request.get(GraphDACParams.property_keys.name());
+    		if (!validateRequired(graphId, query, propKeys)) {
+    			throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_QUERY_NOT_FOUND.name(), "Query is missing");
+    		} else {
+    			try {
+                List<Map<String, Object>> nodes = service.executeQueryForProps(graphId, query, propKeys);
+                OK(GraphDACParams.properties.name(), nodes, getSender());
+            } catch (Exception e) {
+                ERROR(e, getSender());
+            }
+    		}
     }
 
     @Override

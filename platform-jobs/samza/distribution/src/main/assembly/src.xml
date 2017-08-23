@@ -1,0 +1,14 @@
+<assembly>
+	<id>distribution</id>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+
+	<dependencySets>
+    	<dependencySet>
+      		<useTransitiveDependencies>false</useTransitiveDependencies>
+      		<unpack>false</unpack>
+    	</dependencySet>
+  	</dependencySets>
+</assembly>
