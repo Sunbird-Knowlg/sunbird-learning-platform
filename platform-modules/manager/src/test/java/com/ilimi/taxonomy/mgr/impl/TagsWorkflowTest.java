@@ -3,12 +3,9 @@ package com.ilimi.taxonomy.mgr.impl;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -17,9 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 
-import junit.framework.Assert;
 
-public class TagsWorkflowTest {
+public class TagsWorkflowTest extends BaseGraphSpec {
 	
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	ObjectMapper mapper = new ObjectMapper();
