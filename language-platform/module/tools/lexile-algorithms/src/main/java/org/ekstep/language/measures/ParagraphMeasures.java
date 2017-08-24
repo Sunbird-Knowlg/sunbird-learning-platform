@@ -3,7 +3,6 @@ package org.ekstep.language.measures;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -28,16 +27,8 @@ import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Result;
-import org.neo4j.graphdb.Transaction;
 
-import com.ilimi.graph.dac.model.Filter;
-import com.ilimi.graph.dac.model.MetadataCriterion;
-import com.ilimi.graph.dac.model.SearchConditions;
-import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.util.Neo4jGraphFactory;
+import com.ilimi.graph.dac.model.Node;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -335,203 +326,105 @@ public class ParagraphMeasures {
 	 * @return the node
 	 */
 	private static Node getNode(String prop, String value, String languageId) {
-		Transaction tx = null;
-		Node neo4jNode = null;
-		try {
-			GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
-			tx = graphDb.beginTx();
-			SearchCriteria sc = new SearchCriteria();
-			sc.setObjectType("Word");
-			sc.addMetadata(MetadataCriterion
-					.create(Arrays.asList(new Filter(prop, SearchConditions.OP_IN, Arrays.asList(value)))));
-			sc.setResultSize(1);
-			String query = sc.getQuery();
-			Map<String, Object> params = sc.getParams();
-			Result result = graphDb.execute(query, params);
-			if (null != result) {
-				if (result.hasNext()) {
-					Map<String, Object> map = result.next();
-					Object o = map.values().iterator().next();
-					if (o instanceof Node) {
-						neo4jNode = (Node) o;
-					}
-				}
-				result.close();
-			}
-			tx.success();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (null != tx)
-				tx.failure();
-		} finally {
-			if (null != tx)
-				tx.close();
-		}
-		return neo4jNode;
+		return wordUtil.searchWord(languageId, prop, value);
 	}
 
 	/**
 	 * Gets the lemma value.
 	 *
-	 * @param neo4jNode
-	 *            the neo 4 j node
+	 * @param node
+	 *            the  node
 	 * @param languageId
 	 *            the language id
 	 * @return the lemma value
 	 */
-	private static String getLemmaValue(Node neo4jNode, String languageId) {
-		Transaction tx = null;
+	private static String getLemmaValue(Node node, String languageId) {
 		String lemma = null;
-		try {
-			GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
-			tx = graphDb.beginTx();
-			if (null != neo4jNode) {
-				if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_LEMMA))
-					lemma = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_LEMMA);
-			}
-			tx.success();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (null != tx)
-				tx.failure();
-		} finally {
-			if (null != tx)
-				tx.close();
-		}
+		
+		if (node != null && node.getMetadata() != null)
+			lemma = (String) node.getMetadata().get(IWordnetConstants.ATTRIB_LEMMA);
+
+		
 		return lemma;
 	}
 
 	/**
 	 * Gets the threshold level value.
 	 *
-	 * @param neo4jNode
-	 *            the neo 4 j node
+	 * @param node
+	 *            the node
 	 * @param languageId
 	 *            the language id
 	 * @return the threshold level value
 	 */
-	private static String getThresholdLevelValue(Node neo4jNode, String languageId) {
-		Transaction tx = null;
+	private static String getThresholdLevelValue(Node node, String languageId) {
 		String level = null;
-		try {
-			GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
-			tx = graphDb.beginTx();
-			if (null != neo4jNode) {
-				if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_THRESHOLD_LEVEL))
-					level = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_THRESHOLD_LEVEL);
-			}
-			tx.success();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (null != tx)
-				tx.failure();
-		} finally {
-			if (null != tx)
-				tx.close();
-		}
+		
+		if (node != null && node.getMetadata() != null)
+			level = (String) node.getMetadata().get(IWordnetConstants.ATTRIB_THRESHOLD_LEVEL);
+
 		return level;
 	}
 
 	/**
 	 * Gets the category value.
 	 *
-	 * @param neo4jNode
-	 *            the neo 4 j node
+	 * @param node
+	 *            the  node
 	 * @param languageId
 	 *            the language id
 	 * @return the category value
 	 */
-	private static String getCategoryValue(Node neo4jNode, String languageId) {
-		Transaction tx = null;
+	private static String getCategoryValue(Node node, String languageId) {
 		String category = null;
-		try {
-			GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
-			tx = graphDb.beginTx();
-			if (null != neo4jNode) {
-				if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_CATEGORY))
-					category = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_CATEGORY);
-			}
-			tx.success();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (null != tx)
-				tx.failure();
-		} finally {
-			if (null != tx)
-				tx.close();
-		}
+
+		if (node != null && node.getMetadata() != null)
+			category = (String) node.getMetadata().get(IWordnetConstants.ATTRIB_CATEGORY);
+
 		return category;
 	}
 
 	/**
 	 * Gets the word complexity value.
 	 *
-	 * @param neo4jNode
-	 *            the neo 4 j node
+	 * @param node
+	 *            the  node
 	 * @param languageId
 	 *            the language id
 	 * @return the word complexity value
 	 */
-	private static Double getWordComplexityValue(Node neo4jNode, String languageId) {
-		Transaction tx = null;
+	private static Double getWordComplexityValue(Node node, String languageId) {
+
 		Double value = null;
-		try {
-			GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
-			tx = graphDb.beginTx();
-			if (null != neo4jNode) {
-				if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_WORD_COMPLEXITY))
-					value = (Double) neo4jNode.getProperty(IWordnetConstants.ATTRIB_WORD_COMPLEXITY);
-			}
-			tx.success();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (null != tx)
-				tx.failure();
-		} finally {
-			if (null != tx)
-				tx.close();
-		}
+		if (node != null && node.getMetadata() != null)
+			value = (Double) node.getMetadata().get(IWordnetConstants.ATTRIB_WORD_COMPLEXITY);
+
 		return value;
 	}
 
 	/**
 	 * Gets the POS value.
 	 *
-	 * @param neo4jNode
-	 *            the neo 4 j node
+	 * @param node
+	 *            the  node
 	 * @param languageId
 	 *            the language id
 	 * @return the POS value
 	 */
-	private static String getPOSValue(Node neo4jNode, String languageId) {
-		Transaction tx = null;
+	private static String getPOSValue(Node node, String languageId) {
 		String posValue = null;
-		try {
-			GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
-			tx = graphDb.beginTx();
-			if (null != neo4jNode) {
-				if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_POS)) {
-					String[] pos = (String[]) neo4jNode.getProperty(IWordnetConstants.ATTRIB_POS);
-					if (null != pos && pos.length > 0) {
-						for (String str : pos) {
-							if (WordnetUtil.isStandardPOS(str)) {
-								posValue = str.trim().toLowerCase();
-								break;
-							}
-						}
-						if (StringUtils.isBlank(posValue))
-							posValue = WordnetUtil.getPosValue(pos[0]);
+		if (node != null && node.getMetadata() != null) {
+			String[] pos = (String[]) node.getMetadata().get(IWordnetConstants.ATTRIB_POS);
+			if (null != pos && pos.length > 0) {
+				for (String str : pos) {
+					if (WordnetUtil.isStandardPOS(str)) {
+						posValue = str.trim().toLowerCase();
+						break;
 					}
 				}
+				if (StringUtils.isBlank(posValue))
+					posValue = WordnetUtil.getPosValue(pos[0]);
 			}
-			tx.success();
-		} catch (Exception e) {
-			e.printStackTrace();
-			if (null != tx)
-				tx.failure();
-		} finally {
-			if (null != tx)
-				tx.close();
 		}
 		return posValue;
 	}

@@ -1227,6 +1227,36 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 
 	/**
+	 * Searches for a word in the graph using the lemma
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param lemma
+	 *            lemma of thw word
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Node searchWord(String languageId, String prop, String value) {
+		Node node = null;
+
+		SearchCriteria sc = new SearchCriteria();
+		sc.setObjectType("Word");
+		sc.addMetadata(MetadataCriterion
+				.create(Arrays.asList(new Filter(prop, SearchConditions.OP_IN, Arrays.asList(value)))));
+		sc.setResultSize(1);
+		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+		req.put(GraphDACParams.search_criteria.name(), sc);
+		Response searchRes = getResponse(req);
+		if (!checkError(searchRes)) {
+			List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+			if (null != nodes && nodes.size() > 0)
+				node = nodes.get(0);
+		}
+		
+		return node;
+	}
+
+	/**
 	 * Searches for a word in the graph using the lemma or variants property
 	 * 
 	 * @param languageId
