@@ -1,112 +1,159 @@
 package com.ilimi.graph.cache.mgr.impl;
 
-import java.util.HashMap;
+import static com.ilimi.graph.cache.factory.JedisFactory.getRedisConncetion;
+import static com.ilimi.graph.cache.factory.JedisFactory.returnConnection;
+
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.util.CacheKeyGenerator;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
+import redis.clients.jedis.Jedis;
 
 public class SetCacheManager {
 
     private static BaseGraphManager manager;
-    
-    private static Map<String, Object> setNodeCache = new HashMap<String,Object>();
-	
+
     public static void createSet(String graphId, String setId, List<String> memberIds) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name());
-        if (manager.validateRequired(memberIds)) {
+        if (!manager.validateRequired(setId)) {
+            throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name(), "Required parameters are missing");
+        }
+        Jedis jedis = getRedisConncetion();
+        try {
+            if (manager.validateRequired(memberIds)) {
+                String[] members = new String[memberIds.size()];
+                for (int i = 0; i < memberIds.size(); i++) {
+                    members[i] = memberIds.get(i);
+                }
+                String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
+                jedis.sadd(setMembersKey, members);
+            }
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name(), e.getMessage());
+        } finally {
+            returnConnection(jedis);
+        }
+    }
+
+    
+    public static void addSetMember(String graphId, String setId, String memberId) {
+        if (!manager.validateRequired(setId, memberId)) {
+            throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name(), "Required parameters are missing");
+        }
+        Jedis jedis = getRedisConncetion();
+        try {
+            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
+            jedis.sadd(setMembersKey, memberId);
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name(), e.getMessage());
+        } finally {
+            returnConnection(jedis);
+        }
+    }
+
+    public static void addSetMembers(String graphId, String setId, List<String> memberIds) {
+        if (!manager.validateRequired(setId, memberIds)) {
+            throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name(), "Required parameters are missing");
+        }
+        Jedis jedis = getRedisConncetion();
+        try {
+            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             String[] members = new String[memberIds.size()];
             for (int i = 0; i < memberIds.size(); i++) {
                 members[i] = memberIds.get(i);
             }
-            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-            setNodeCache.put(setMembersKey, members);
+            jedis.sadd(setMembersKey, members);
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name(), e.getMessage());
+        } finally {
+            returnConnection(jedis);
         }
-    }
-
-    public static void addSetMember(String graphId, String setId, String memberId) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
-        if (!manager.validateRequired(setId, memberId)) {
-            throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name(), "Required parameters are missing");
-        }
-        String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-        setNodeCache.put(setMembersKey, memberId);
-    }
-
-    public static void addSetMembers(String graphId, String setId, List<String> memberIds) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
-        if (!manager.validateRequired(setId, memberIds))
-            throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name(), "Required parameters are missing");
-        String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-        String[] members = new String[memberIds.size()];
-        for (int i = 0; i < memberIds.size(); i++) {
-            members[i] = memberIds.get(i);
-        }
-        setNodeCache.put(setMembersKey, members);
     }
 
     public static void removeSetMember(String graphId, String setId, String memberId) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_REMOVE_SET_MEMBER.name());
-        if (!manager.validateRequired(setId, memberId))
+        if (!manager.validateRequired(setId, memberId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_REMOVE_SET_MEMBER.name(), "Required parameters are missing");
-        String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-        setNodeCache.remove(setMembersKey, memberId);
-    }
-
-    public static void dropSet(String graphId, String setId) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name());
-        if (!manager.validateRequired(setId))
-            throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name(), "Required parameters are missing");
+        }
+        Jedis jedis = getRedisConncetion();
+        try {
             String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-            setNodeCache.remove(setMembersKey);
+            jedis.srem(setMembersKey, memberId);
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_REMOVE_SET_MEMBER.name(), e.getMessage());
+        } finally {
+            returnConnection(jedis);
+        }
+    }
+    
+    public static void dropSet(String graphId, String setId) {
+        if (!manager.validateRequired(setId)) {
+            throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name(), "Required parameters are missing");
+        }
+        Jedis jedis = getRedisConncetion();
+        try {
+            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
+            jedis.del(setMembersKey);
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name(), e.getMessage());
+        } finally {
+            returnConnection(jedis);
+        }
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-	public static List<String> getSetMembers(String graphId, String setId) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
+    public static List<String> getSetMembers(String graphId, String setId) {
         if (!manager.validateRequired(setId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), "Required parameters are missing");
         }
+        Jedis jedis = getRedisConncetion();
+        try {
             String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-			Set<String> members = (Set)setNodeCache.get(key);
+            Set<String> members = jedis.smembers(key);
             List<String> memberIds = new LinkedList<String>();
             if (null != members && !members.isEmpty()) {
                 memberIds.addAll(members);
             }
             return memberIds;
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), e.getMessage(), e);
+        } finally {
+            returnConnection(jedis);
+        }
     }
-
+    
     public static Long getSetCardinality(String graphId, String setId) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
         if (!manager.validateRequired(setId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), "Required parameters are missing");
         }
-        String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-        Long cardinality = (Long)setNodeCache.get(key);
-        return cardinality;
+        Jedis jedis = getRedisConncetion();
+        try {
+            String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
+            Long cardinality = jedis.scard(key);
+            return cardinality;
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), e.getMessage(), e);
+        } finally {
+            returnConnection(jedis);
+        }
     }
 
-    public static Boolean isSetMember(String graphId, String setId, String memberId) {
-    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
-        if (!manager.validateRequired(setId, memberId)) {
+    
+    public static Boolean isSetMember(String graphId, String setId, String members) {
+        if (!manager.validateRequired(setId, members)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), "IsSetMember: Required parameters are missing");
         }
-        String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-        Boolean isMember = setNodeCache.get(memberId).equals(key);
-        return isMember;
+        Jedis jedis = getRedisConncetion();
+        try {
+            String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
+            Boolean isMember = jedis.sismember(key, members);
+            return isMember;
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), e.getMessage(), e);
+        } finally {
+            returnConnection(jedis);
+        }
     }
-    
-    private static void validateRequired(String graphId, String id, String errCode) {
-		if (StringUtils.isBlank(graphId))
-			throw new ClientException(errCode, "graphId is missing");
-		if (StringUtils.isBlank(id))
-			throw new ClientException(errCode, "id/objectType is missing");
-	}
 }

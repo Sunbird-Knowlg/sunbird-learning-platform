@@ -14,8 +14,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
-import com.ilimi.graph.cache.actor.GraphCacheManagers;
+import com.ilimi.graph.cache.mgr.impl.SequenceCacheManager;
 import com.ilimi.graph.cache.mgr.impl.SetCacheManager;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -546,13 +545,10 @@ public class Set extends AbstractCollection {
 				throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_SET_INVALID_SET_ID.name(),
 						"Required parameters are missing...");
 			} else {
-				ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-				Request request = new Request(req);
-				request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-				request.setOperation("dropSet");
-				request.put(GraphDACParams.set_id.name(), setId);
-				Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
-
+				req.getContext().get(GraphDACParams.graph_id.name());
+         		SetCacheManager.dropSet(graphId, setId);
+                Future<Object> response = null;
+                
 				ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 				Request dacRequest = new Request(req);
 				dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
@@ -959,19 +955,20 @@ public class Set extends AbstractCollection {
 
 	private Future<Object> removeMemberFromSet(Request req, String setId, String memberId) {
 		List<Future<Object>> futures = new ArrayList<Future<Object>>();
+		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+		Request dacRequest = new Request(req);
+		dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+		dacRequest.setOperation("deleteRelation");
+		dacRequest.put(GraphDACParams.start_node_id.name(), setId);
+		dacRequest.put(GraphDACParams.relation_type.name(), new String(RelationTypes.SET_MEMBERSHIP.relationName()));
+		dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
+		Future<Object> dacResponse = Patterns.ask(dacRouter, dacRequest, timeout);
+		futures.add(dacResponse);
+		
+		//get from redis cache
 		req.getContext().get(GraphDACParams.graph_id.name());
  		SetCacheManager.dropSet(graphId, setId);
- 	
-		ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-		Request request = new Request(req);
-		request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-		request.setOperation("removeSetMember");
-		request.put(GraphDACParams.set_id.name(), setId);
-		request.put(GraphDACParams.member_id.name(), memberId);
-		Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
-		futures.add(response);
-
-		return mergeFutures(futures);
+ 		return mergeFutures(futures);
 	}
 
 	private Future<Object> mergeFutures(List<Future<Object>> futures) {

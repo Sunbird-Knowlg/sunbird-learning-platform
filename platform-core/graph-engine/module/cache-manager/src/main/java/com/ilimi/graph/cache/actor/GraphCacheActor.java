@@ -1,15 +1,9 @@
 package com.ilimi.graph.cache.actor;
 
 import java.lang.reflect.Method;
-import java.util.List;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.graph.cache.mgr.ISequenceCacheMgr;
-import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-
 import akka.actor.ActorRef;
 
 public class GraphCacheActor extends BaseGraphManager {
@@ -28,75 +22,75 @@ public class GraphCacheActor extends BaseGraphManager {
         }
     }
 
-    public void createSequence(Request request) {
-        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
-        try {
-            cacheMgr.createSequence(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void addSequenceMember(Request request) {
-        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
-        try {
-            Long cardinality = cacheMgr.addSequenceMember(request);
-            OK(GraphDACParams.index.name(), cardinality, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void removeSequenceMember(Request request) {
-        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
-        try {
-            cacheMgr.removeSequenceMember(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void dropSequence(Request request) {
-        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
-        try {
-            cacheMgr.dropSequence(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getSequenceMembers(Request request) {
-        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
-        try {
-            List<String> memberIds = cacheMgr.getSequenceMembers(request);
-            OK(GraphDACParams.members.name(), memberIds, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getSequenceCardinality(Request request) {
-        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
-        try {
-            Long cardinality = cacheMgr.getSequenceCardinality(request);
-            OK(GraphDACParams.cardinality.name(), cardinality, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void isSequenceMember(Request request) {
-        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
-        try {
-            Boolean isMember = cacheMgr.isSequenceMember(request);
-            OK(GraphDACParams.is_member.name(), isMember, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
+//    public void createSequence(Request request) {
+//        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
+//        try {
+//            cacheMgr.createSequence(request);
+//            OK(getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void addSequenceMember(Request request) {
+//        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
+//        try {
+//            Long cardinality = cacheMgr.addSequenceMember(request);
+//            OK(GraphDACParams.index.name(), cardinality, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void removeSequenceMember(Request request) {
+//        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
+//        try {
+//            cacheMgr.removeSequenceMember(request);
+//            OK(getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void dropSequence(Request request) {
+//        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
+//        try {
+//            cacheMgr.dropSequence(request);
+//            OK(getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void getSequenceMembers(Request request) {
+//        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
+//        try {
+//            List<String> memberIds = cacheMgr.getSequenceMembers(request);
+//            OK(GraphDACParams.members.name(), memberIds, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void getSequenceCardinality(Request request) {
+//        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
+//        try {
+//            Long cardinality = cacheMgr.getSequenceCardinality(request);
+//            OK(GraphDACParams.cardinality.name(), cardinality, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void isSequenceMember(Request request) {
+//        ISequenceCacheMgr cacheMgr = new SequenceCacheMgrImpl(this);
+//        try {
+//            Boolean isMember = cacheMgr.isSequenceMember(request);
+//            OK(GraphDACParams.is_member.name(), isMember, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
 
 //    public void saveDefinitionNode(Request request) {
 //        IDefinitionNodeCacheMgr cacheMgr = new DefinitionNodeCacheMgrImpl(this);
