@@ -220,7 +220,7 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Response getHirerachy(String identifier) {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/hierarchy/" + identifier;
+		String url = PropertiesUtil.getProperty("platform-api-url") + "/v3/content/hierarchy/" + identifier;
 		Response hirerachyRes = null;
 		try {
 			String result = HTTPUtil.makeGetRequest(url);
