@@ -171,18 +171,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
 
 		PlatformLogger.log("setting compatability level for youtube, pdf and doc and epub", null, LoggerEnum.INFO.name());
-		if (StringUtils.containsIgnoreCase(
-				(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
-				ContentWorkflowPipelineParams.youtube.name())
-				|| StringUtils.containsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
-						ContentWorkflowPipelineParams.pdf.name())
-				|| StringUtils.containsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
-						ContentWorkflowPipelineParams.msword.name())
-				|| StringUtils.containsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()),
-						ContentWorkflowPipelineParams.epub.name()))
+		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
+		if (StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.youtube.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.epub.name())
+				|| StringUtils.containsIgnoreCase(mimeType, "x-url"))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 
 		PlatformLogger.log("setting compatability level for course and course unit", null, LoggerEnum.INFO.name());
