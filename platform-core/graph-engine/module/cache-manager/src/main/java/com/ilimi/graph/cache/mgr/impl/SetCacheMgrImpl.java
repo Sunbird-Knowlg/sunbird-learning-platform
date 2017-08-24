@@ -12,7 +12,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.mgr.ISetCacheMgr;
-import com.ilimi.graph.cache.util.RedisKeyGenerator;
+import com.ilimi.graph.cache.util.CacheKeyGenerator;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -43,7 +43,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
                 for (int i = 0; i < memberIds.size(); i++) {
                     members[i] = memberIds.get(i);
                 }
-                String setMembersKey = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+                String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
                 jedis.sadd(setMembersKey, members);
             }
         } catch (Exception e) {
@@ -63,7 +63,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String setMembersKey = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             jedis.sadd(setMembersKey, memberId);
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name(), e.getMessage());
@@ -83,7 +83,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String setMembersKey = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             String[] members = new String[memberIds.size()];
             for (int i = 0; i < memberIds.size(); i++) {
                 members[i] = memberIds.get(i);
@@ -106,7 +106,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String setMembersKey = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             jedis.srem(setMembersKey, memberId);
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_REMOVE_SET_MEMBER.name(), e.getMessage());
@@ -124,7 +124,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String setMembersKey = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             jedis.del(setMembersKey);
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name(), e.getMessage());
@@ -143,7 +143,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+            String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             Set<String> members = jedis.smembers(key);
             List<String> memberIds = new LinkedList<String>();
             if (null != members && !members.isEmpty()) {
@@ -166,7 +166,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+            String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             Long cardinality = jedis.scard(key);
             return cardinality;
         } catch (Exception e) {
@@ -186,7 +186,7 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSetMembersKey(graphId, setId);
+            String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
             Boolean isMember = jedis.sismember(key, memberId);
             return isMember;
         } catch (Exception e) {

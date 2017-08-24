@@ -14,7 +14,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.mgr.ISequenceCacheMgr;
-import com.ilimi.graph.cache.util.RedisKeyGenerator;
+import com.ilimi.graph.cache.util.CacheKeyGenerator;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -40,7 +40,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Map<String, Double> sortedMap = new HashMap<String, Double>();
             double i = 1;
             for (String memberId : memberIds) {
@@ -66,7 +66,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             if (null == index || index.longValue() <= 0) {
                 index = jedis.zcard(key) + 1;
             }
@@ -89,7 +89,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             jedis.zrem(key, memberId);
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SEQ_REMOVE_MEMBER_ERROR.name(), e.getMessage());
@@ -107,7 +107,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             jedis.del(key);
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_DROP_SEQ_ERROR.name(), e.getMessage());
@@ -125,7 +125,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Set<String> members = jedis.zrange(key, 0, -1);
             List<String> memberIds = new LinkedList<String>();
             if (null != members && !members.isEmpty()) {
@@ -150,7 +150,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Long cardinality = jedis.zcard(key);
             return cardinality;
         } catch (Exception e) {
@@ -170,7 +170,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Double score = jedis.zscore(key, memberId);
             if (null == score || score.doubleValue() <= 0) {
                 return false;
