@@ -13,7 +13,7 @@ import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.util.CacheKeyGenerator;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 
-public class SetCacheManager {
+public class SetCacheMemoryManager {
 
     private static BaseGraphManager manager;
     
@@ -64,30 +64,28 @@ public class SetCacheManager {
     	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name());
         if (!manager.validateRequired(setId))
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name(), "Required parameters are missing");
-            String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-            setNodeCache.remove(setMembersKey);
+        String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
+        setNodeCache.remove(setMembersKey);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List<String> getSetMembers(String graphId, String setId) {
     	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
-        if (!manager.validateRequired(setId)) {
+        if (!manager.validateRequired(setId))
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), "Required parameters are missing");
+        String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
+		Set<String> members = (Set)setNodeCache.get(key);
+        List<String> memberIds = new LinkedList<String>();
+        if (null != members && !members.isEmpty()) {
+            memberIds.addAll(members);
         }
-            String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-			Set<String> members = (Set)setNodeCache.get(key);
-            List<String> memberIds = new LinkedList<String>();
-            if (null != members && !members.isEmpty()) {
-                memberIds.addAll(members);
-            }
-            return memberIds;
+        return memberIds;
     }
 
     public static Long getSetCardinality(String graphId, String setId) {
     	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
-        if (!manager.validateRequired(setId)) {
+        if (!manager.validateRequired(setId))
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), "Required parameters are missing");
-        }
         String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
         Long cardinality = (Long)setNodeCache.get(key);
         return cardinality;
