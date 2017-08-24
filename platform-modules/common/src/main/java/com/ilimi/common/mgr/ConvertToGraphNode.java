@@ -21,8 +21,6 @@ public class ConvertToGraphNode {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	
-	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition, Node graphNode) throws Exception {
 		Node node = new Node();

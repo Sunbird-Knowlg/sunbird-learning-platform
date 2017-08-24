@@ -19,8 +19,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
-import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -156,7 +154,6 @@ public class DataNode extends AbstractNode {
 		request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 		request.setOperation("getNodeByUniqueId");
 		request.put(GraphDACParams.node_id.name(), getNodeId());
-		request.put(GraphDACParams.get_tags.name(), true);
 		Future<Object> response = Patterns.ask(dacRouter, request, timeout);
 		Future<Node> message = response.map(new Mapper<Object, Node>() {
 			@Override
@@ -170,146 +167,6 @@ public class DataNode extends AbstractNode {
 			}
 		}, manager.getContext().dispatcher());
 		return message;
-	}
-
-	public Future<List<String>> addTags(final Request req, List<String> tags) {
-		final Promise<List<String>> promise = Futures.promise();
-		Future<List<String>> tagsFuture = promise.future();
-		if (null != tags && !tags.isEmpty()) {
-			final ExecutionContext ec = manager.getContext().dispatcher();
-			List<Future<String>> tagFutures = new ArrayList<Future<String>>();
-			final List<String> tagIds = new ArrayList<String>();
-			for (String tagName : tags) {
-//				Tag tag = new Tag(manager, graphId, tagName, null, null);
-//				tagIds.add(tag.getNodeId());
-//				Future<String> tagFuture = tag.upsert(req);
-//				tagFutures.add(tagFuture);
-			}
-			Future<Iterable<String>> tagSequence = Futures.sequence(tagFutures, ec);
-			tagSequence.onComplete(new OnComplete<Iterable<String>>() {
-				@Override
-				public void onComplete(Throwable e, Iterable<String> arg0) {
-					List<String> messages = new ArrayList<String>();
-					if (null != e) {
-						messages.add(e.getMessage());
-						promise.success(messages);
-					} else {
-						if (null != arg0) {
-							for (String msg : arg0) {
-								if (StringUtils.isNotBlank(msg)) {
-									messages.add(msg);
-								}
-							}
-						}
-						if (messages.isEmpty()) {
-							ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-							Request request = new Request(req);
-							request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-							request.setOperation("addIncomingRelations");
-							request.put(GraphDACParams.start_node_id.name(), tagIds);
-							request.put(GraphDACParams.relation_type.name(),
-									RelationTypes.SET_MEMBERSHIP.relationName());
-							request.put(GraphDACParams.end_node_id.name(), getNodeId());
-							Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-							response.onComplete(new OnComplete<Object>() {
-								@Override
-								public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-									List<String> messages = new ArrayList<String>();
-									if (null != arg0) {
-										messages.add(arg0.getMessage());
-									} else {
-										if (arg1 instanceof Response) {
-											Response res = (Response) arg1;
-											if (manager.checkError(res)) {
-												messages.add(manager.getErrorMessage(res));
-											} 
-//												else {
-//												for (String tagId : tagIds)
-//													updateTagCache(req, tagId, getNodeId());
-//											}
-										} else {
-											messages.add("Error adding tags");
-										}
-									}
-									promise.success(messages);
-								}
-							}, ec);
-						} else {
-							promise.success(messages);
-						}
-					}
-				}
-			}, ec);
-		} else {
-			promise.success(null);
-		}
-		return tagsFuture;
-	}
-
-	public Future<List<String>> removeTags(final Request req, List<String> tags) {
-		final Promise<List<String>> promise = Futures.promise();
-		Future<List<String>> tagsFuture = promise.future();
-		if (null != tags && !tags.isEmpty()) {
-			ExecutionContext ec = manager.getContext().dispatcher();
-			final List<String> tagIds = new ArrayList<String>();
-//			for (String tagName : tags) {
-//				Tag tag = new Tag(manager, graphId, tagName, null, null);
-//				tagIds.add(tag.getNodeId());
-//			}
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			request.setOperation("deleteIncomingRelations");
-			request.put(GraphDACParams.start_node_id.name(), tagIds);
-			request.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
-			request.put(GraphDACParams.end_node_id.name(), getNodeId());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-			response.onComplete(new OnComplete<Object>() {
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					List<String> messages = new ArrayList<String>();
-					if (null != arg0) {
-						messages.add(arg0.getMessage());
-					} else {
-						if (arg1 instanceof Response) {
-							Response res = (Response) arg1;
-							if (manager.checkError(res)) {
-								messages.add(manager.getErrorMessage(res));
-							} else {
-								for (String tagId : tagIds)
-									removeTagMember(req, tagId, getNodeId());
-							}
-						} else {
-							messages.add("Error deleting tags");
-						}
-					}
-					promise.success(messages);
-				}
-			}, ec);
-		} else {
-			promise.success(null);
-		}
-		return tagsFuture;
-	}
-
-	private void updateTagCache(Request req, String tagId, String memberId) {
-		ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-		Request request = new Request(req);
-		request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-		request.setOperation("addTagMember");
-		request.put(GraphDACParams.tag_id.name(), tagId);
-		request.put(GraphDACParams.member_id.name(), memberId);
-		cacheRouter.tell(request, manager.getSelf());
-	}
-
-	private void removeTagMember(Request req, String tagId, String memberId) {
-		ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-		Request request = new Request(req);
-		request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-		request.setOperation("removeTagMember");
-		request.put(GraphDACParams.tag_id.name(), tagId);
-		request.put(GraphDACParams.member_id.name(), memberId);
-		cacheRouter.tell(request, manager.getSelf());
 	}
 
 	public List<Relation> getNewRelationList() {

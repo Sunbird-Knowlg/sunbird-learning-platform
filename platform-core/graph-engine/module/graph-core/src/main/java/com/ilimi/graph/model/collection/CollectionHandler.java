@@ -20,9 +20,6 @@ public class CollectionHandler {
             } else if (StringUtils.equals(CollectionTypes.SET.name(), collectionType)) {
                 return new Set(manager, graphId, collectionId, metadata);
             }
-//            } else if (StringUtils.equals(CollectionTypes.TAG.name(), collectionType)) {
-//                return new Tag(manager, graphId, collectionId);
-//            }
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_COLLECTION_TYPE.name(), "Invalid Collection Type: "
                     + collectionType);
         }

@@ -19,8 +19,6 @@ import com.ilimi.graph.model.node.RelationDefinition;
 
 public class ConvertGraphNode {
 	
-	
-
     public static Map<String, Object> convertGraphNode(Node node, String domainId, DefinitionDTO definition,
             List<String> fieldList) {
         Map<String, Object> map = new HashMap<String, Object>();
@@ -90,8 +88,6 @@ public class ConvertGraphNode {
                 }
                 updateReturnMap(map, outRelMap, outRelDefMap);
             }
-//            if (null != node.getTags() && !node.getTags().isEmpty())
-//                map.put("tags", node.getTags());
             map.put("identifier", node.getIdentifier());
         }
         return map;
@@ -118,8 +114,6 @@ public class ConvertGraphNode {
                     }
                 }
             }
-//            if (null != node.getTags() && !node.getTags().isEmpty())
-//                map.put("tags", node.getTags());
             map.put("identifier", node.getIdentifier());
         }
         return map;

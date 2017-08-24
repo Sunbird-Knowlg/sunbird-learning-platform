@@ -90,8 +90,6 @@ import scala.concurrent.Future;
 @Component
 public class ContentManagerImpl extends BaseContentManager implements IContentManager {
 
-	/** The logger. */
-
 	/** The Disk Location where the operations on file will take place. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 
@@ -830,7 +828,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		imageNode.setMetadata(node.getMetadata());
 		imageNode.setInRelations(node.getInRelations());
 		imageNode.setOutRelations(node.getOutRelations());
-//		imageNode.setTags(node.getTags());
 		imageNode.getMetadata().put(TaxonomyAPIParams.status.name(), TaxonomyAPIParams.Draft.name());
 		Response response = createDataNode(imageNode);
 		if (checkError(response))

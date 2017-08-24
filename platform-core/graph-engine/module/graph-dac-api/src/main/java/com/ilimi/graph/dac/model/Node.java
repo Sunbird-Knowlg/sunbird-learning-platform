@@ -15,7 +15,6 @@ import org.neo4j.graphdb.Relationship;
 
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
@@ -30,7 +29,6 @@ public class Node implements Serializable {
 	private Map<String, Object> metadata;
 	private List<Relation> outRelations;
 	private List<Relation> inRelations;
-//	private List<String> tags;
 
 	public Node() {
 
@@ -112,10 +110,6 @@ public class Node implements Serializable {
 					this.outRelations.add(rel);
 				} if (relationship.endNodeId() == node.id()) {
 					Relation rel = new Relation(graphId, relationship, startNodeMap, endNodeMap);
-//					if (!isTagRelation(rel))
-//						this.inRelations.add(rel);
-//					else
-////						this.tags.add(rel.getStartNodeName());
 				}
 			}
 		}
@@ -149,15 +143,9 @@ public class Node implements Serializable {
 		}
 		Iterable<Relationship> inRels = neo4jNode.getRelationships(Direction.INCOMING);
 		if (null != inRels && null != inRels.iterator()) {
-//			this.tags = new ArrayList<String>();
 			this.inRelations = new ArrayList<Relation>();
 			for (Relationship inRel : inRels) {
 				Relation rel = new Relation(graphId, inRel);
-//				if (!isTagRelation(rel))
-//					this.inRelations.add(rel);
-//				else {
-//					this.tags.add(rel.getStartNodeName());
-//				}
 			}
 		}
 	}
@@ -225,15 +213,7 @@ public class Node implements Serializable {
 	public void setInRelations(List<Relation> inRelations) {
 		this.inRelations = inRelations;
 	}
-
-//	public List<String> getTags() {
-//		return tags;
-//	}
-//
-//	public void setTags(List<String> tags) {
-//		this.tags = tags;
-//	}
-
+	
 	public long getId() {
 		return id;
 	}
@@ -243,8 +223,7 @@ public class Node implements Serializable {
 	}
 
 	private boolean isTagRelation(Relation rel) {
-//		if (StringUtils.equals(SystemNodeTypes.TAG.name(), rel.getStartNodeType())
-			if(StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), rel.getRelationType()))
+	    if(StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), rel.getRelationType()))
 			return true;
 		return false;
 	}

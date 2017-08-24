@@ -522,17 +522,6 @@ public class Graph extends AbstractDomainObject {
 												} else {
 													final Map<String, List<String>> importMsgMap = (Map<String, List<String>>) actorResponse
 															.get(GraphDACParams.messages.name());
-													// Create Tag Nodes.
-//													Map<String, List<String>> tagMembersMap = importData
-//															.getTagMembersMap();
-//													if (tagMembersMap != null) {
-//														for (String tagName : tagMembersMap.keySet()) {
-//															Request tagRequest = new Request(request);
-//															Tag tag = new Tag(manager, graphId, tagName, null,
-//																	tagMembersMap.get(tagName));
-//															tag.createTag(tagRequest);
-//														}
-//													}
 													CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(
 															byteInputStream);
 													OutputStream outputStream = msgHandler

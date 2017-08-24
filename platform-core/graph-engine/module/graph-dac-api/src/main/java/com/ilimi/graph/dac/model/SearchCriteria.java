@@ -23,7 +23,6 @@ public class SearchCriteria implements Serializable {
     private String op;
     private List<MetadataCriterion> metadata;
     private List<RelationCriterion> relations;
-//    private TagCriterion tag;
     private boolean countQuery;
     private int resultSize = 0;
     private int startPosition = 0;
@@ -127,14 +126,6 @@ public class SearchCriteria implements Serializable {
         relations.add(rc);
     }
 
-//    public TagCriterion getTag() {
-//        return tag;
-//    }
-//
-//    public void setTag(TagCriterion tag) {
-//        this.tag = tag;
-//    }
-
     @JsonIgnore
     public String getQuery() {
         StringBuilder sb = new StringBuilder();
@@ -171,8 +162,6 @@ public class SearchCriteria implements Serializable {
             }
             sb.append(") ");
         }
-//        if (null != tag)
-//            sb.append(tag.getCypher(this, "ee"));
         if (null != relations && relations.size() > 0) {
             for (RelationCriterion rel : relations)
                 sb.append(rel.getCypher(this, null));
@@ -273,9 +262,6 @@ public class SearchCriteria implements Serializable {
                         new Filter("prop4", SearchConditions.OP_IN, Arrays.asList("1", "2", "3", "4"))),
                 SearchConditions.LOGICAL_OR);
         sc.addMetadata(mc2);
-
-//        TagCriterion tag = new TagCriterion(Arrays.asList("tag1", "tag2"));
-//        sc.setTag(tag);
 
         RelationCriterion rc1 = new RelationCriterion("associatedTo", "Concept");
         MetadataCriterion rmc1 = MetadataCriterion.create(
