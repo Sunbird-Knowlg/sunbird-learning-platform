@@ -9,32 +9,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
-import com.ilimi.graph.cache.mgr.ISequenceCacheMgr;
 import com.ilimi.graph.cache.util.CacheKeyGenerator;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-
 import redis.clients.jedis.Jedis;
 
-public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
+public class SequenceCacheManager {
 
-    private BaseGraphManager manager;
+    private static BaseGraphManager manager;
 
-    public SequenceCacheMgrImpl(BaseGraphManager manager) {
-        this.manager = manager;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void createSequence(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
-        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
+    public static void createSequence(String graphId, String sequenceId, List<String> members) {
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_CREATE_SEQ_ERROR.name(), "Required parameters are missing");
         }
@@ -43,7 +29,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
             String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Map<String, Double> sortedMap = new HashMap<String, Double>();
             double i = 1;
-            for (String memberId : memberIds) {
+            for (String memberId : members) {
                 sortedMap.put(memberId, i);
                 i += 1;
             }
@@ -55,12 +41,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
     }
 
-    @Override
-    public Long addSequenceMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
-        Long index = (Long) request.get(GraphDACParams.index.name());
-        String memberId = (String) request.get(GraphDACParams.member_id.name());
+    public static Long addSequenceMember(String graphId, String sequenceId, Long index, String memberId) {
         if (!manager.validateRequired(sequenceId, memberId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_ADD_MEMBER_ERROR.name(), "Required parameters are missing");
         }
@@ -79,11 +60,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
     }
 
-    @Override
-    public void removeSequenceMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
-        String memberId = (String) request.get(GraphDACParams.member_id.name());
+    public static void removeSequenceMember(String graphId, String sequenceId, String memberId) {
         if (!manager.validateRequired(sequenceId, memberId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_REMOVE_MEMBER_ERROR.name(), "Required parameters are missing");
         }
@@ -98,10 +75,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
     }
 
-    @Override
-    public void dropSequence(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
+    public static void dropSequence(String graphId, String sequenceId) {
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_DROP_SEQ_ERROR.name(), "Required parameters are missing");
         }
@@ -116,10 +90,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
     }
 
-    @Override
-    public List<String> getSequenceMembers(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
+    public static List<String> getSequenceMembers(String graphId, String sequenceId) {
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(), "Required parameters are missing");
         }
@@ -141,10 +112,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
     }
 
-    @Override
-    public Long getSequenceCardinality(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
+    public static Long getSequenceCardinality(String graphId, String sequenceId) {
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(), "Required parameters are missing");
         }
@@ -160,10 +128,7 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
     }
 
-    public Boolean isSequenceMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
-        String memberId = (String) request.get(GraphDACParams.member_id.name());
+    public static Boolean isSequenceMember(String graphId, String sequenceId, String memberId) {
         if (!manager.validateRequired(sequenceId, memberId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(),
                     "IsSequenceMember: Required parameters are missing");
