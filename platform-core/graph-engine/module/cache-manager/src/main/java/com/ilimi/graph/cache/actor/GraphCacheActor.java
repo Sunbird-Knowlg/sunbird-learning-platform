@@ -6,9 +6,7 @@ import java.util.List;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.cache.mgr.ISequenceCacheMgr;
-import com.ilimi.graph.cache.mgr.ISetCacheMgr;
 import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
-import com.ilimi.graph.cache.mgr.impl.SetCacheMgrImpl;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
@@ -120,84 +118,84 @@ public class GraphCacheActor extends BaseGraphManager {
 //        }
 //    }
 
-    public void createSet(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            String setId = (String) request.get(GraphDACParams.set_id.name());
-            cacheMgr.createSet(request);
-            OK(GraphDACParams.set_id.name(), setId, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
+//    public void createSet(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            String setId = (String) request.get(GraphDACParams.set_id.name());
+//            cacheMgr.createSet(request);
+//            OK(GraphDACParams.set_id.name(), setId, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
 
-    public void addSetMember(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            cacheMgr.addSetMember(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void addSetMembers(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            cacheMgr.addSetMembers(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void removeSetMember(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            cacheMgr.removeSetMember(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void dropSet(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            cacheMgr.dropSet(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getSetMembers(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            List<String> memberIds = cacheMgr.getSetMembers(request);
-            OK(GraphDACParams.members.name(), memberIds, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getSetCardinality(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            Long cardinality = cacheMgr.getSetCardinality(request);
-            OK(GraphDACParams.cardinality.name(), cardinality, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void isSetMember(Request request) {
-        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
-        try {
-            Boolean isMember = cacheMgr.isSetMember(request);
-            OK(GraphDACParams.is_member.name(), isMember, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
+//    public void addSetMember(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            cacheMgr.addSetMember(request);
+//            OK(getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void addSetMembers(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            cacheMgr.addSetMembers(request);
+//            OK(getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void removeSetMember(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            cacheMgr.removeSetMember(request);
+//            OK(getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void dropSet(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            cacheMgr.dropSet(request);
+//            OK(getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void getSetMembers(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            List<String> memberIds = cacheMgr.getSetMembers(request);
+//            OK(GraphDACParams.members.name(), memberIds, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void getSetCardinality(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            Long cardinality = cacheMgr.getSetCardinality(request);
+//            OK(GraphDACParams.cardinality.name(), cardinality, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
+//
+//    public void isSetMember(Request request) {
+//        ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
+//        try {
+//            Boolean isMember = cacheMgr.isSetMember(request);
+//            OK(GraphDACParams.is_member.name(), isMember, getSender());
+//        } catch (Exception e) {
+//            ERROR(e, getSender());
+//        }
+//    }
 }
