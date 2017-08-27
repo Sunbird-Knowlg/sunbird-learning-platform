@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import com.ilimi.common.exception.ClientException;
 
-@Ignore
-public class SetCacheManagerTest {
+public class SetCacheManagerTest extends BaseCacheManagerTest {
 	
 	@Test(expected = ClientException.class)
 	public void createSetWithoutMembers() {
@@ -45,8 +43,7 @@ public class SetCacheManagerTest {
 		SetCacheManager.addSetMember("domain", "set_123", "do_123456");
 		List<String> membersList = SetCacheManager.getSetMembers("domain", "set_123");
 		Assert.assertEquals(false, membersList.isEmpty());
-		Assert.assertEquals("do_123", membersList.get(0));
-		Assert.assertEquals("do_123456", membersList.get(1));
+		Assert.assertTrue(membersList.contains("do_123456"));
 	}
 	
 	@Test(expected = ClientException.class)

@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -14,7 +15,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 
-
+// Enable it after adding embedded-redis. 
+@Ignore
 public class TagsWorkflowTest extends BaseGraphSpec {
 	
 	ContentManagerImpl mgr = new ContentManagerImpl();
