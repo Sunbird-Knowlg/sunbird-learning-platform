@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import com.ilimi.common.exception.ClientException;
 
-public class SetCacheManagerTest extends BaseCacheManagerTest {
+public class SetCacheManagerTest {
 	
 	@Test(expected = ClientException.class)
 	public void createSetWithoutMembers() {
