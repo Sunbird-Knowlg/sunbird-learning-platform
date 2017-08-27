@@ -47,9 +47,6 @@ import scala.concurrent.Future;
 @Component
 public class ControllerUtil extends BaseLanguageManager implements IWordnetConstants {
 
-	/** The logger. */
-	
-
 	/** The task refresh time in millis. */
 	private Long TASK_REFRESH_TIME_IN_MILLIS = 10000L;
 
@@ -323,31 +320,21 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 		}
 	}
 
-	/**
-	 * Adds the tags.
-	 *
-	 * @param node
-	 *            the node
-	 * @param citations
-	 *            the citations
-	 * @param groupName
-	 *            the group name
-	 */
 	@SuppressWarnings("unchecked")
 	public void addTags(Node node, Map<String, Object> citations, String groupName) {
-		Map<String, Object> sources = (Map<String, Object>) citations.get(groupName);
-		if (null != sources && !sources.isEmpty()) {
-			List<String> tags = node.getTags();
-			if (null == tags)
-				tags = new ArrayList<String>();
-			for (String source : sources.keySet()) {
-				if (!tags.contains(source.trim()))
-					tags.add(source.trim());
-			}
-			node.setTags(tags);
-		}
-	}
-
+ 		Map<String, Object> sources = (Map<String, Object>) citations.get(groupName);
+ 		if (null != sources && !sources.isEmpty()) {
+ 			List<String> tags = node.getTags();
+ 			if (null == tags)
+ 				tags = new ArrayList<String>();
+ 			for (String source : sources.keySet()) {
+ 				if (!tags.contains(source.trim()))
+ 					tags.add(source.trim());
+ 			}
+ 			node.setTags(tags);
+ 		}
+ 	}
+	
 	/**
 	 * Update pos list.
 	 *

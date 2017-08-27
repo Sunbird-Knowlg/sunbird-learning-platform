@@ -391,7 +391,6 @@ public class BaseFinalizer extends BasePipeline {
 		imageNode.setMetadata(node.getMetadata());
 		imageNode.setInRelations(node.getInRelations());
 		imageNode.setOutRelations(node.getOutRelations());
-		imageNode.setTags(node.getTags());
 		imageNode.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 				ContentWorkflowPipelineParams.Draft.name());
 		Response response = createDataNode(imageNode);

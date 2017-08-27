@@ -409,8 +409,6 @@ public class TransactionEventTest {
         node.setObjectType(objectType);
         if(outRel!=null) 
         	node.setOutRelations(outRel);
-        if(tags!=null)
-        	node.setTags(tags);
         request.put(GraphDACParams.node.name(), node);
         request.put(GraphDACParams.node_id.name(), nodeId);
         Future<Object> req = Patterns.ask(reqRouter, request, TestUtil.timeout);

@@ -24,17 +24,19 @@ import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration({ "classpath:servlet-context.xml" })
-
 /**
+ * @author Rashmi
+ * 
  * The AssessmentItemTest class contains tests to validate creation of
  * AssessmentItems, fetching the AssessmentItems, updating given asessmentItem,
  * search for assessmentItems based on given criteria, delete the given
  * assessmentitem Positive and negative test senarios have been specified for
  * each of the operation
  */
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AssessmentitemTest extends BaseGraphSpec {
 

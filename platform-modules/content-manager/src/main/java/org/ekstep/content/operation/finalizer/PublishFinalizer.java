@@ -43,8 +43,6 @@ import com.rits.cloning.Cloner;
  */
 public class PublishFinalizer extends BaseFinalizer {
 
-	/** The logger. */
-
 	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
 
@@ -273,6 +271,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
+		newNode.setTags(node.getTags());
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();
@@ -299,7 +298,6 @@ public class PublishFinalizer extends BaseFinalizer {
 
 		newNode.setInRelations(node.getInRelations());
 		newNode.setOutRelations(node.getOutRelations());
-		newNode.setTags(node.getTags());
 
 		PlatformLogger.log("Migrating the Image Data to the Live Object. | [Content Id: " + contentId + ".]", null,
 				LoggerEnum.INFO.name());

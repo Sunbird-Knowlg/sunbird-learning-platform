@@ -70,7 +70,7 @@ import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
-import com.ilimi.graph.dac.model.TagCriterion;
+//import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -599,13 +599,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					if (null != list && !list.isEmpty()) {
 						filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
 					}
-				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-					List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
-					if (null != tags && !tags.isEmpty()) {
-						TagCriterion tc = new TagCriterion(tags);
-						sc.setTag(tc);
-					}
 				}
+				// PARAM_TAGS- specific condition removed.
 			}
 		}
 		if (null != filters && !filters.isEmpty()) {
@@ -682,8 +677,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			}
 			addRelationsData(node, map);
 			if (null != node.getTags() && !node.getTags().isEmpty()) {
-				map.put("tags", node.getTags());
-			}
+ 				map.put("tags", node.getTags());
+ 			}
 			map.put("identifier", node.getIdentifier());
 			map.put("language", LanguageMap.getLanguage(languageId));
 		}

@@ -385,7 +385,7 @@ public class BaseMimeTypeManager extends BaseLearningManager {
 				metadata.remove("body");
 				metadata.remove("editorState");
 				if (null != node.getTags() && !node.getTags().isEmpty())
-					metadata.put("tags", node.getTags());
+					metadata.put("keywords", node.getTags());
 				List<String> searchIds = new ArrayList<String>();
 				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 					List<NodeDTO> children = new ArrayList<NodeDTO>();

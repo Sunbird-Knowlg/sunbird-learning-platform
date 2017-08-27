@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,9 +66,32 @@ public class ContentManagerImplCreateContentTest {
 		Assert.assertTrue(StringUtils.equalsIgnoreCase("OK", response.getResponseCode().name()));
 		Map<String, Object> metadata = getMetadata(contentId);
 		Assert.assertTrue(StringUtils.equalsIgnoreCase("gzip", (String) metadata.get("contentEncoding")));
-		Assert.assertTrue(StringUtils.equalsIgnoreCase("attachment", (String) metadata.get("contentDisposition")));
+		Assert.assertTrue(StringUtils.equalsIgnoreCase("inline", (String) metadata.get("contentDisposition")));
 	}
 	
+	
+	@Test
+	public void testCreateContentWithKeywords() {
+		String contentId = "CONTENT_CREATE_TEST_2";
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("identifier", contentId);
+		map.put("osId", "org.ekstep.quiz.app");
+		map.put("mediaType", "content");
+		map.put("visibility", "Default");
+		map.put("description", "Books for learning about colours, animals, fruits, vegetables, shapes");
+		map.put("name", "Learning Books");
+		List<String> languages = new ArrayList<String>();
+		languages.add("English");
+		map.put("language", languages);
+		map.put("contentType", "Story");
+		map.put("code", "org.ekstep.feb03.story.learningbooks");
+		map.put("mimeType", "application/vnd.ekstep.ecml-archive");
+		map.put("tags", Arrays.asList("colors", "animals"));
+		Response response = contentManager.createContent(map);
+		Assert.assertTrue(StringUtils.equalsIgnoreCase("OK", response.getResponseCode().name()));
+		Map<String, Object> metadata = getMetadata(contentId);
+		Assert.assertTrue(metadata.containsKey("keywords"));
+	}
 	
 	private Map<String, Object> getMetadata(String contentId) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();

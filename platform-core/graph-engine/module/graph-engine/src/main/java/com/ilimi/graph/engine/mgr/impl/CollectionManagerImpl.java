@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -19,12 +18,7 @@ import com.ilimi.graph.model.ICollection;
 import com.ilimi.graph.model.collection.CollectionHandler;
 import com.ilimi.graph.model.collection.Sequence;
 import com.ilimi.graph.model.collection.Set;
-import com.ilimi.graph.model.collection.Tag;
-import com.ilimi.graph.model.node.DataNode;
-
 import akka.actor.ActorRef;
-import akka.dispatch.OnComplete;
-import scala.concurrent.Future;
 
 public class CollectionManagerImpl extends BaseGraphManager implements ICollectionManager {
 
@@ -125,21 +119,6 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ID_MISSING.name(), "Collection Id is missing...");
         Set set = new Set(this, graphId, setId, null);
         set.getCardinality(request);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void createTag(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String tagName = (String) request.get(GraphDACParams.tag_name.name());
-        String attributeName = (String) request.get(GraphDACParams.attribute_name.name());
-        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
-        try {
-            ICollection tagNode = new Tag(this, graphId, tagName, attributeName, memberIds);
-            tagNode.create(request);
-        } catch (Exception e) {
-            handleException(e, getSender());
-        }
     }
 
     @Override
@@ -254,49 +233,4 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             }
         }
     }
-
-    @Override
-    public void addTag(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        try {
-            ICollection tag = new Tag(this, graphId, null);
-            tag.addMember(request);
-        } catch (Exception e) {
-            handleException(e, getSender());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void addTags(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String nodeId = (String) request.get(GraphDACParams.node_id.name());
-        List<String> tags = (List<String>) request.get(GraphDACParams.tags.name());
-        if (!validateRequired(nodeId, tags)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_MISSING_REQ_PARAMS.name(),
-                    "Required parameters are missing...");
-        } else {
-            try {
-                DataNode node = new DataNode(this, graphId, nodeId, null, null);
-                Future<List<String>> tagsFuture = node.addTags(request, tags);
-                tagsFuture.onComplete(new OnComplete<List<String>>() {
-                    @Override
-                    public void onComplete(Throwable arg0, List<String> arg1) throws Throwable {
-                        if (null != arg0) {
-                            handleException(arg0, getSender());
-                        } else {
-                            if (null != arg1 && !arg1.isEmpty()) {
-                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_UNKNOWN_ERROR.name(), "Error adding tags",
-                                        ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), arg1, getSender());
-                            } else {
-                                OK(getSender());
-                            }
-                        }
-                    }
-                }, getContext().dispatcher());
-            } catch (Exception e) {
-                handleException(e, getSender());
-            }
-        }
-    }
-
 }

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class WordEnrichmentTest {
+public class WordEnrichmentServiceTest {
 	
 	JobMetrics mockMetrics;
 	MessageCollector mockCollector;

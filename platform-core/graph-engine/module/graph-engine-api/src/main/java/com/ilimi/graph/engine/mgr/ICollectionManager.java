@@ -40,20 +40,6 @@ public interface ICollectionManager {
     void getSetCardinality(Request request);
 
     /**
-     * API to create a new tag. Tag can be created on a node or a on a node
-     * property. If the criteria parameter contains property name, then the tag
-     * is created as a tag on metadata property. Else, the tag is created as tag
-     * on nodes.
-     * 
-     * @request - GRAPH_ID as request context variable.
-     * @request - TAG_ID Unique id of the tag
-     * @request - CRITERIA Criteria for the tag.
-     * @request - MEMBERS list of tag members
-     * @response - STATUS: API call status
-     */
-    void createTag(Request request);
-
-    /**
      * API to add a member to a collection. If the collection is a dynamic set
      * and if the given member does not fulfill the criteria, this API returns
      * an error.
@@ -101,28 +87,6 @@ public interface ICollectionManager {
      * @response - STATUS: API call status
      */
     void getCollectionMembers(Request request);
-
-    /**
-     * API to add a tag to a node or a node property. If PROPERTY is specified,
-     * then the tag is created on the property.
-     * 
-     * @request - GRAPH_ID as request context variable.
-     * @request - TAG_NAME name of the tag to be created
-     * @request - NODE_ID id of the node to be tagged
-     * @request - PROPERTY name of the property to be tagged
-     * @response - STATUS: API call status
-     */
-    void addTag(Request request);
-
-    /**
-     * API to add multiple tags to a node.
-     * 
-     * @request - GRAPH_ID as request context variable.
-     * @request - TAGS list of tags to be added
-     * @request - NODE_ID id of the node to be tagged
-     * @response - STATUS: API call status
-     */
-    void addTags(Request request);
 
 	void addMembers(Request request);
 

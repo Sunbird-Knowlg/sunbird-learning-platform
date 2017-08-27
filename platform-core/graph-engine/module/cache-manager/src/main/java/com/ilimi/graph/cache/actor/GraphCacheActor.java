@@ -13,7 +13,7 @@ import com.ilimi.graph.cache.mgr.ITagCacheMgr;
 import com.ilimi.graph.cache.mgr.impl.DefinitionNodeCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SetCacheMgrImpl;
-import com.ilimi.graph.cache.mgr.impl.TagCacheMgrImpl;
+//import com.ilimi.graph.cache.mgr.impl.TagCacheMgrImpl;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
@@ -200,86 +200,6 @@ public class GraphCacheActor extends BaseGraphManager {
         ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
         try {
             Boolean isMember = cacheMgr.isSetMember(request);
-            OK(GraphDACParams.is_member.name(), isMember, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void createTag(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            cacheMgr.createTag(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void addTagMember(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            cacheMgr.addTagMember(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void addTagMembers(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            cacheMgr.addTagMembers(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void removeTagMember(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            cacheMgr.removeTagMember(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void dropTag(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            cacheMgr.dropTag(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getTagMembers(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            List<String> memberIds = cacheMgr.getTagMembers(request);
-            OK(GraphDACParams.members.name(), memberIds, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getTagCardinality(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            Long cardinality = cacheMgr.getCardinality(request);
-            OK(GraphDACParams.cardinality.name(), cardinality, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void isTagMember(Request request) {
-        ITagCacheMgr cacheMgr = new TagCacheMgrImpl(this);
-        try {
-            Boolean isMember = cacheMgr.isTagMember(request);
             OK(GraphDACParams.is_member.name(), isMember, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());

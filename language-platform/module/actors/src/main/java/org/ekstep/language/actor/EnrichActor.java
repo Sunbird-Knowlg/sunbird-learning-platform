@@ -48,9 +48,6 @@ import akka.actor.ActorRef;
  */
 public class EnrichActor extends LanguageBaseActor implements IWordnetConstants {
 
-	/** The logger. */
-	
-
 	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();
 
@@ -320,8 +317,8 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
 					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
 				List<String> tags = synset.getTags();
-				if (tags != null && tags.size() > 0)
-					word.setTags(tags);
+ 				if (tags != null && tags.size() > 0)
+ 					word.setTags(tags);
 				updatePosList(languageId, word);
 				updateNode = true;
 			}

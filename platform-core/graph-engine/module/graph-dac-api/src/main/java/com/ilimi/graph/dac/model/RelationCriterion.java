@@ -20,7 +20,6 @@ public class RelationCriterion implements Serializable {
     private String op = SearchConditions.LOGICAL_AND;
     private List<MetadataCriterion> metadata;
     private List<RelationCriterion> relations;
-    private TagCriterion tag;
     private boolean optional;
     private int fromDepth = 1;
     private int toDepth = 1;
@@ -131,14 +130,6 @@ public class RelationCriterion implements Serializable {
         if (null == relations)
             relations = new ArrayList<RelationCriterion>();
         relations.add(rc);
-    }
-
-    public TagCriterion getTag() {
-        return tag;
-    }
-
-    public void setTag(TagCriterion tag) {
-        this.tag = tag;
     }
 
     public boolean isOptional() {
@@ -252,8 +243,6 @@ public class RelationCriterion implements Serializable {
             }
             sb.append(") ");
         }
-        if (null != tag)
-            sb.append(tag.getCypher(sc, param));
         if (null != relations && relations.size() > 0) {
             for (RelationCriterion rel : relations) {
                 sb.append(rel.getCypher(sc, param));
