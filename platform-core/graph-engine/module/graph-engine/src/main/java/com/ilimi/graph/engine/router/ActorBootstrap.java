@@ -15,9 +15,6 @@ import org.w3c.dom.NodeList;
 
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.actor.GraphCacheActor;
-import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
-import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
 import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
 import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
@@ -126,10 +123,6 @@ public class ActorBootstrap {
         ActorRef dacRouter = system.actorOf(new SmallestMailboxPool(poolSize).props(dacRouterProps));
         GraphDACActorPoolMgr.setDacRouter(dacRouter);
 
-        Props cacheRouterProps = Props.create(CacheRequestRouter.class);
-        ActorRef cacheRouter = system.actorOf(new SmallestMailboxPool(poolSize).props(cacheRouterProps));
-        GraphCacheActorPoolMgr.setCacheRouter(cacheRouter);
-
         Props graphDACMgrProps = Props.create(GraphDACGraphMgrImpl.class);
         ActorRef graphDACMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(graphDACMgrProps));
         GraphDACActorPoolMgr.addActorRefToPool(null, GraphDACManagers.DAC_GRAPH_MANAGER, graphDACMgr);
@@ -142,9 +135,6 @@ public class ActorBootstrap {
         ActorRef searchDACMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(searchDACMgrProps));
         GraphDACActorPoolMgr.addActorRefToPool(null, GraphDACManagers.DAC_SEARCH_MANAGER, searchDACMgr);
 
-        Props cacheMgrProps = Props.create(GraphCacheActor.class);
-        ActorRef cacheMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(cacheMgrProps));
-        GraphCacheActorPoolMgr.addActorRefToPool(null, GraphCacheManagers.GRAPH_CACHE_MANAGER, cacheMgr);
     }
 
     private static void initMethodMap() {
@@ -157,7 +147,6 @@ public class ActorBootstrap {
         GraphDACActorPoolMgr.initMethodMap(GraphDACManagers.DAC_NODE_MANAGER);
         GraphDACActorPoolMgr.initMethodMap(GraphDACManagers.DAC_SEARCH_MANAGER);
 
-        GraphCacheActorPoolMgr.initMethodMap(GraphCacheManagers.GRAPH_CACHE_MANAGER);
     }
 
     private static void initRouters() {
@@ -186,8 +175,6 @@ public class ActorBootstrap {
                                 GraphEngineActorPoolMgr.setRequestRouter(actor);
                             else if (StringUtils.equalsIgnoreCase("DACRouter", name))
                                 GraphDACActorPoolMgr.setDacRouter(actor);
-                            else if (StringUtils.equalsIgnoreCase("CacheRouter", name))
-                                GraphCacheActorPoolMgr.setCacheRouter(actor);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -212,8 +199,6 @@ public class ActorBootstrap {
                             GraphEngineActorPoolMgr.setRequestRouter(actor.anchor());
                         else if (StringUtils.equalsIgnoreCase("DACRouter", name))
                             GraphDACActorPoolMgr.setDacRouter(actor.anchor());
-                        else if (StringUtils.equalsIgnoreCase("CacheRouter", name))
-                            GraphCacheActorPoolMgr.setCacheRouter(actor.anchor());
                     }
                 }
             }
@@ -287,8 +272,6 @@ public class ActorBootstrap {
                     GraphEngineActorPoolMgr.addActorRefToPool(id, className, actor);
                 else if (StringUtils.equalsIgnoreCase("dac-managers", poolName))
                     GraphDACActorPoolMgr.addActorRefToPool(id, className, actor);
-                else if (StringUtils.equalsIgnoreCase("cache-managers", poolName))
-                    GraphCacheActorPoolMgr.addActorRefToPool(id, className, actor);
             } catch (Exception e) {
                 e.printStackTrace();
             }

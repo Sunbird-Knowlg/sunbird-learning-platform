@@ -5,8 +5,6 @@
 				class="com.ilimi.graph.engine.router.RequestRouter"></init-router>
 			<init-router name="DACRouter" count="4"
 				class="com.ilimi.graph.engine.router.DACRequestRouter"></init-router>
-			<init-router name="CacheRouter" count="4"
-				class="com.ilimi.graph.engine.router.CacheRequestRouter"></init-router>
 			<init-router name="TclExecutor" count="8"
 				class="com.ilimi.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
 		</init-routers>
@@ -31,9 +29,4 @@
 			<graph id="*" count="4"></graph>
 		</manager>
 	</dac-managers>
-	<cache-managers>
-		<manager classes="com.ilimi.graph.cache.actor.GraphCacheActor">
-			<graph id="*" count="4"></graph>
-		</manager>
-	</cache-managers>
 </actor-config>
