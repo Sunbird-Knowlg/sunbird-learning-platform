@@ -18,7 +18,7 @@ import redis.clients.jedis.Jedis;
 public class SetCacheManager {
 
     public static void createSet(String graphId, String setId, List<String> memberIds) {
-    		validateRequired(graphId, setId, memberIds, GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name());
+    	validateRequired(graphId, setId, memberIds, GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name());
         Jedis jedis = getRedisConncetion();
         try {
             String[] members = new String[memberIds.size()];
@@ -36,7 +36,7 @@ public class SetCacheManager {
 
     
     public static void addSetMember(String graphId, String setId, String memberId) {
-    		validateRequired(graphId, setId, memberId, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
+    	validateRequired(graphId, setId, memberId, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
         Jedis jedis = getRedisConncetion();
         try {
             String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
@@ -49,7 +49,7 @@ public class SetCacheManager {
     }
 
     public static void addSetMembers(String graphId, String setId, List<String> memberIds) {
-    		validateRequired(graphId, setId, memberIds, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
+    	validateRequired(graphId, setId, memberIds, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
         Jedis jedis = getRedisConncetion();
         try {
             String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
@@ -66,7 +66,7 @@ public class SetCacheManager {
     }
 
     public static void removeSetMember(String graphId, String setId, String memberId) {
-    		validateRequired(graphId, setId, memberId, GraphCacheErrorCodes.ERR_CACHE_REMOVE_SET_MEMBER.name());
+    	validateRequired(graphId, setId, memberId, GraphCacheErrorCodes.ERR_CACHE_REMOVE_SET_MEMBER.name());
         Jedis jedis = getRedisConncetion();
         try {
             String setMembersKey = CacheKeyGenerator.getSetMembersKey(graphId, setId);
@@ -92,7 +92,7 @@ public class SetCacheManager {
     }
 
     public static List<String> getSetMembers(String graphId, String setId) {
-    		validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
+    	validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
         Jedis jedis = getRedisConncetion();
         try {
             String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
@@ -125,7 +125,7 @@ public class SetCacheManager {
 
     
     public static Boolean isSetMember(String graphId, String setId, String member) {
-    		validateRequired(graphId, setId, member, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
+    	validateRequired(graphId, setId, member, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
         Jedis jedis = getRedisConncetion();
         try {
             String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
