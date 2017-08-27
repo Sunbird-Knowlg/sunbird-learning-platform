@@ -27,9 +27,8 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
-import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
+import com.ilimi.graph.cache.mgr.impl.SetCacheManager;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -181,7 +180,6 @@ public class Graph extends AbstractDomainObject {
 			List<Node> setNodes = getAllSetObjects(dacRouter, req);
 			if (null != setNodes && !setNodes.isEmpty()) {
 				System.out.println("Total sets: " + setNodes.size());
-				ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
 				for (Node node : setNodes) {
 					List<String> memberIds = new ArrayList<String>();
 					if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
@@ -194,12 +192,8 @@ public class Graph extends AbstractDomainObject {
 					}
 					if (null != memberIds && !memberIds.isEmpty()) {
 						System.out.println("Loading set: " + node.getIdentifier() + ", members: " + memberIds.size());
-						Request request = new Request(req);
-						request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-						request.setOperation("createSet");
-						request.put(GraphDACParams.set_id.name(), node.getIdentifier());
-						request.put(GraphDACParams.members.name(), memberIds);
-						cacheRouter.tell(request, manager.getSelf());
+						String setId = node.getIdentifier();
+						SetCacheManager.createSet(graphId, setId, memberIds);
 					}
 				}
 			}
