@@ -18,8 +18,6 @@ public class SetCacheManagerTest {
 	
 	@Test(expected = ClientException.class)
 	public void createSetWithoutGraphId() {
-		List<String> members = new ArrayList<String>();
-		members.add("do_123");
 		SetCacheManager.createSet(null, "set_123", null);
 	}
 	
@@ -176,7 +174,6 @@ public class SetCacheManagerTest {
 		List<String> members = new ArrayList<String>();
 		members.add("do_123");
 		Long cardinality = SetCacheManager.getSetCardinality("domain", "set_123");
-		System.out.println(cardinality);
 		Assert.assertEquals(false ,  null == cardinality);
 	}
 	
@@ -211,5 +208,4 @@ public class SetCacheManagerTest {
 	public void isSetMemberWithoutMemberId(){
 		SetCacheManager.isSetMember("domain", "set_123", null);
 	}
-	
 }

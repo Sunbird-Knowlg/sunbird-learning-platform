@@ -20,7 +20,7 @@ import redis.clients.jedis.Jedis;
 public class SequenceCacheManager {
 
     public static void createSequence(String graphId, String sequenceId, List<String> members) {
-    		validateRequired(graphId, sequenceId, members, GraphCacheErrorCodes.ERR_CACHE_CREATE_SEQ_ERROR.name());
+    	validateRequired(graphId, sequenceId, members, GraphCacheErrorCodes.ERR_CACHE_CREATE_SEQ_ERROR.name());
         Jedis jedis = getRedisConncetion();
         try {
             String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
@@ -82,7 +82,7 @@ public class SequenceCacheManager {
     }
 
     public static List<String> getSequenceMembers(String graphId, String sequenceId) {
-    		validateRequired(graphId, sequenceId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
+    	validateRequired(graphId, sequenceId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
         Jedis jedis = getRedisConncetion();
         try {
             String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
@@ -102,7 +102,7 @@ public class SequenceCacheManager {
     }
 
     public static Long getSequenceCardinality(String graphId, String sequenceId) {
-    		validateRequired(graphId, sequenceId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
+    	validateRequired(graphId, sequenceId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
         Jedis jedis = getRedisConncetion();
         try {
             String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
@@ -116,7 +116,7 @@ public class SequenceCacheManager {
     }
 
     public static Boolean isSequenceMember(String graphId, String sequenceId, String memberId) {
-    		validateRequired(graphId, sequenceId, memberId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
+    	validateRequired(graphId, sequenceId, memberId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
         Jedis jedis = getRedisConncetion();
         try {
             String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
