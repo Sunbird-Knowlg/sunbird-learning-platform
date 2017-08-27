@@ -1,7 +1,6 @@
 package com.ilimi.graph.dac.model;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

@@ -43,7 +43,7 @@ public class ConvertToGraphNode {
                          String objectStr = mapper.writeValueAsString(entry.getValue());
                          List<String> tags = mapper.readValue(objectStr, List.class);
                          if (null != tags && !tags.isEmpty())
-                             node.setTags(tags);
+                             metadata.put("keywords", tags);
                      } catch (Exception e) {
                          e.printStackTrace();
                          throw e;
