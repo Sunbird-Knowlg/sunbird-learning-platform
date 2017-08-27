@@ -47,7 +47,7 @@ public class NodeCacheManager {
 	private static void validateRequired(String graphId, String id, Object members, String errCode) {
 		validateRequired(graphId, id, errCode);
 		if (null == members)
-			throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name(), "node is null.");
+			throw new ClientException(errCode, "node is null.");
 	}
 
 	private static void validateRequired(String graphId, String id, String errCode) {

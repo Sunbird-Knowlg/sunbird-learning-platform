@@ -11,6 +11,7 @@ import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.entity.Media;
 import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.util.ECRFConversionUtility;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,6 +27,7 @@ public class GlobalizeAssetProcessorTest {
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
+	@Ignore
 	@Test
 	public void globalizeAssetProcessor_01() {
 
