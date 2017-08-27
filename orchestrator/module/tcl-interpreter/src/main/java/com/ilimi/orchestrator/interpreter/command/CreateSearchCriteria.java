@@ -16,7 +16,6 @@ import com.ilimi.graph.dac.model.RelationFilter;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
-import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -51,12 +50,6 @@ public class CreateSearchCriteria implements ICommand, Command {
                             String nodeType = (String) map.get("nodeType");
                             if (StringUtils.isNotBlank(nodeType))
                                 sc.setNodeType(nodeType);
-                        } else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
-                            List<String> tags = getList(entry.getValue(), true);
-                            if (null != tags && !tags.isEmpty()) {
-                                TagCriterion tc = new TagCriterion(tags);
-                                sc.setTag(tc);
-                            }
                         } else if (StringUtils.equalsIgnoreCase("fields", entry.getKey())) {
                             List<String> fields = (List<String>) map.get("fields");
                             if (null != fields && !fields.isEmpty())

@@ -12,11 +12,10 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.common.enums.LanguageActorNames;
+import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -28,9 +27,8 @@ import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.util.Neo4jGraphFactory;
-import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
@@ -48,9 +46,6 @@ import scala.concurrent.Future;
  */
 @Component
 public class ControllerUtil extends BaseLanguageManager implements IWordnetConstants {
-
-	/** The logger. */
-	
 
 	/** The task refresh time in millis. */
 	private Long TASK_REFRESH_TIME_IN_MILLIS = 10000L;
@@ -325,31 +320,21 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 		}
 	}
 
-	/**
-	 * Adds the tags.
-	 *
-	 * @param node
-	 *            the node
-	 * @param citations
-	 *            the citations
-	 * @param groupName
-	 *            the group name
-	 */
 	@SuppressWarnings("unchecked")
 	public void addTags(Node node, Map<String, Object> citations, String groupName) {
-		Map<String, Object> sources = (Map<String, Object>) citations.get(groupName);
-		if (null != sources && !sources.isEmpty()) {
-			List<String> tags = node.getTags();
-			if (null == tags)
-				tags = new ArrayList<String>();
-			for (String source : sources.keySet()) {
-				if (!tags.contains(source.trim()))
-					tags.add(source.trim());
-			}
-			node.setTags(tags);
-		}
-	}
-
+ 		Map<String, Object> sources = (Map<String, Object>) citations.get(groupName);
+ 		if (null != sources && !sources.isEmpty()) {
+ 			List<String> tags = node.getTags();
+ 			if (null == tags)
+ 				tags = new ArrayList<String>();
+ 			for (String source : sources.keySet()) {
+ 				if (!tags.contains(source.trim()))
+ 					tags.add(source.trim());
+ 			}
+ 			node.setTags(tags);
+ 		}
+ 	}
+	
 	/**
 	 * Update pos list.
 	 *
@@ -589,33 +574,24 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 * @return true, if successful
 	 */
 	public boolean taskCompleted(String taskId, String graphId) {
-		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
-		Transaction tx = null;
 		boolean taskStatus = false;
 		try {
 			Long startTime = System.currentTimeMillis();
 			while (true) {
 				Long timeDiff = System.currentTimeMillis() - startTime;
 				if (timeDiff >= TASK_REFRESH_TIME_IN_MILLIS) {
-					tx = graphDb.beginTx();
 					startTime = System.currentTimeMillis();
-					org.neo4j.graphdb.Node taskNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, taskId);
-					String status = (String) taskNode.getProperty(GraphEngineParams.status.name());
+					Node node = getDataNode(graphId, taskId);
+					String status = (String) node.getMetadata().get(GraphEngineParams.status.name());
 					if (status.equalsIgnoreCase(GraphEngineParams.Completed.name())) {
 						taskStatus = true;
 					}
-					tx.success();
-					tx.close();
 					if (taskStatus) {
 						return taskStatus;
 					}
 				}
 			}
 		} catch (Exception e) {
-			if (null != tx) {
-				tx.failure();
-				tx.close();
-			}
 		}
 		return taskStatus;
 	}
@@ -652,5 +628,16 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 				LanguageOperations.syncWordsMetadata.name());
 		langReq.put(LanguageParams.synsetId.name(), identifier);
 		makeAsyncLanguageRequest(langReq);
+	}
+	
+	public Node getDataNode(String languageId, String nodeId) throws Exception {
+		Request getNodeReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
+		getNodeReq.put(GraphDACParams.node_id.name(), nodeId);
+		getNodeReq.put(GraphDACParams.graph_id.name(), languageId);
+		Response getNodeRes = getResponse(getNodeReq);
+		if (checkError(getNodeRes)) {
+			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getNodeRes));
+		}
+		return (Node) getNodeRes.get(GraphDACParams.node.name());
 	}
 }

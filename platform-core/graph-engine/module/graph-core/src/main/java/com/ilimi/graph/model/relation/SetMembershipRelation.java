@@ -45,11 +45,10 @@ public class SetMembershipRelation extends AbstractRelation {
                         return "Start Node Id is invalid";
                     } else {
                         String nodeType = node.getNodeType();
-                        if (StringUtils.equals(SystemNodeTypes.SET.name(), nodeType)
-                                || StringUtils.equals(SystemNodeTypes.TAG.name(), nodeType)) {
+                        if (StringUtils.equals(SystemNodeTypes.SET.name(), nodeType))
                             return null;
-                        } else {
-                            return "Start Node " + startNodeId + " should be one a Set or Tag";
+                         else {
+                            return "Start Node " + startNodeId + " should be one a Set";
                         }
                     }
                 }

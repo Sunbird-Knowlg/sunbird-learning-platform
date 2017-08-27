@@ -21,8 +21,6 @@ public class ConvertToGraphNode {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	
-	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition, Node graphNode) throws Exception {
 		Node node = new Node();
@@ -41,15 +39,15 @@ public class ConvertToGraphNode {
                 } else if (StringUtils.equalsIgnoreCase("objectType", entry.getKey())) {
                     node.setObjectType((String) entry.getValue());
                 } else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
-                    try {
-                        String objectStr = mapper.writeValueAsString(entry.getValue());
-                        List<String> tags = mapper.readValue(objectStr, List.class);
-                        if (null != tags && !tags.isEmpty())
-                            node.setTags(tags);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        throw e;
-                    }
+                		try {
+                         String objectStr = mapper.writeValueAsString(entry.getValue());
+                         List<String> tags = mapper.readValue(objectStr, List.class);
+                         if (null != tags && !tags.isEmpty())
+                             metadata.put("keywords", tags);
+                     } catch (Exception e) {
+                         e.printStackTrace();
+                         throw e;
+                     } 
                 } else if (inRelDefMap.containsKey(entry.getKey())) {
                     try {
                         String objectStr = mapper.writeValueAsString(entry.getValue());

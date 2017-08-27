@@ -19,7 +19,7 @@ public class CompositeSearchTests extends BaseTest {
 	
 	int rn = generateRandomInt(2000, 2500);
 
-	String jsonSimpleSearchQuery = "{\"request\": {\"query\": \"add\",\"limit\": 10}}";
+	String jsonSimpleSearchQuery = "{\"request\": {\"filters\":{},\"query\": \"add\",\"limit\": 10}}";
 	String jsonFilteredCompositeSearch = "{\"request\": {\"query\": \"add\",\"filters\": {\"objectType\": [\"content\", \"concept\"]},\"limit\": 10}}"; 
 	String jsonSearchWithFilter = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]}}}";
 	String jsonSearchQueryAndFilter = "{\"request\":{\"query\":\"lion\",\"filters\":{\"objectType\":[\"Concept\",\"Word\",\"Domain\",\"Dimension\",\"AssessmentItem\",\"Content\",\"Method\"]}}}";
@@ -89,7 +89,6 @@ public class CompositeSearchTests extends BaseTest {
 		JSONObject js = new JSONObject(jsonFilteredCompositeSearch);
 		js.getJSONObject("request").put("query", ecmlNode);
 		String jsonSimpleQuery = js.toString();
-		//system.out.println(jsonSimpleQuery);
 		Response R2 =
 		given().
 	 		spec(getRequestSpec(contentType, validuserId)).
@@ -153,8 +152,9 @@ public class CompositeSearchTests extends BaseTest {
 	public void blankSpaceSearchExpect200() {
 		setURI();
 		JSONObject js = new JSONObject(jsonSimpleSearchQuery);
-		js.getJSONObject("request").put("query", "   ");
+		js.getJSONObject("request").put("query", "");
 		String jsonBlankSearch = js.toString();
+		//System.out.println(jsonBlankSearch);
 		given().
 	 		spec(getRequestSpec(contentType, validuserId)).
 	 		body(jsonBlankSearch).

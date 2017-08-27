@@ -26,8 +26,6 @@ import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
 public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Command {
-
-	
 	
     @Override
     public String getCommandName() {

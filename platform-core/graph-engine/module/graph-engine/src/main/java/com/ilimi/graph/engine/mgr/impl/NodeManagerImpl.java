@@ -178,7 +178,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                             // if node is created successfully,
                                             // create relations and tags
                                             List<Relation> addRels = datanode.getNewRelationList();
-                                            updateRelationsAndTags(parent, node, datanode, request, ec, addRels, null, node.getTags(), null);
+                                            updateRelations(parent, node, datanode, request, ec, addRels, null);
                                         }
                                     }
                                 }
@@ -208,8 +208,8 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
      * @param addTags the add tags
      * @param delTags the del tags
      */
-    private void updateRelationsAndTags(final ActorRef parent, Node node, final DataNode datanode, final Request request, final ExecutionContext ec,
-            final List<Relation> addRels, final List<Relation> delRels, final List<String> addTags, final List<String> delTags) {
+    private void updateRelations(final ActorRef parent, Node node, final DataNode datanode, final Request request, final ExecutionContext ec,
+            final List<Relation> addRels, final List<Relation> delRels) {
         Future<List<String>> deleteRelsFuture = null;
         List<String> msgs = new ArrayList<String>();
         try {
@@ -230,24 +230,6 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                     } catch (Exception e) {
                         messages.add(e.getMessage());
                         validationFutures.add(Futures.successful(messages));
-                    }
-                    if (null != addTags && !addTags.isEmpty()) {
-                        List<String> tags = new ArrayList<String>();
-                        for (String strTag : addTags) {
-                            if (StringUtils.isNotBlank(strTag))
-                                tags.add(strTag);
-                        }
-                        Future<List<String>> tagsFuture = datanode.addTags(request, tags);
-                        validationFutures.add(tagsFuture);
-                    }
-                    if (null != delTags && !delTags.isEmpty()) {
-                        List<String> tags = new ArrayList<String>();
-                        for (String strTag : delTags) {
-                            if (StringUtils.isNotBlank(strTag))
-                                tags.add(strTag);
-                        }
-                        Future<List<String>> tagsFuture = datanode.removeTags(request, tags);
-                        validationFutures.add(tagsFuture);
                     }
                 } else {
                     validationFutures.add(Futures.successful(msgs));
@@ -348,8 +330,6 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
             final List<String> messages = new ArrayList<String>();
             final List<Relation> addRels = new ArrayList<Relation>();
             final List<Relation> delRels = new ArrayList<Relation>();
-            final List<String> addTags = new ArrayList<String>();
-            final List<String> delTags = new ArrayList<String>();
             final List<Node> dbNodes = new ArrayList<Node>();
             Future<Node> nodeFuture = datanode.getNodeObject(request);
             nodeFuture.andThen(new OnComplete<Node>() {
@@ -369,7 +349,6 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                             }
                         }
                         getRelationsDelta(addRels, delRels, dbNode, datanode);
-                        getTagsDelta(addTags, delTags, dbNode, node.getTags());
                         dbNodes.add(dbNode);
                     }
                 }
@@ -419,8 +398,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                                     // updated
                                                     // successfully,
                                                     // update relations and tags
-                                                    updateRelationsAndTags(parent, node, datanode, request, ec, addRels, delRels, addTags,
-                                                            delTags);
+                                                    updateRelations(parent, node, datanode, request, ec, addRels, delRels);
                                                 }
                                             }
                                         }
@@ -438,28 +416,6 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                     }
                 }
             }, ec);
-        }
-    }
-
-    /**
-     * Gets the tags delta.
-     *
-     * @param addTags the add tags
-     * @param delTags the del tags
-     * @param dbNode the db node
-     * @param tags the tags
-     * @return the tags delta
-     */
-    private void getTagsDelta(List<String> addTags, List<String> delTags, Node dbNode, List<String> tags) {
-        if (null != tags) {
-            List<String> dbTags = dbNode.getTags();
-            addTags.addAll(tags);
-            if (null != dbTags && !dbTags.isEmpty()) {
-                for (String dbTag : dbTags) {
-                    if (!tags.contains(dbTag))
-                        delTags.add(dbTag);
-                }
-            }
         }
     }
 

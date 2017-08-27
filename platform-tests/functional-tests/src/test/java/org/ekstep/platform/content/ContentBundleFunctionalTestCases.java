@@ -112,7 +112,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");	
-		System.out.println(ecarUrl);
+		//System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
 	}
 	
@@ -414,7 +414,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 			String versionKey;
 			if(count==1){
 				node1 = nodeId;
-				System.out.println(nodeId);
+				//System.out.println(nodeId);
 				
 				// Upload Content
 				setURI();
@@ -800,14 +800,14 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 				// Update status as Retired
 				setURI();
 				jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key", versionKey);
-				System.out.println(jsonUpdateContentValid);
+				//System.out.println(jsonUpdateContentValid);
 				given().
 				spec(getRequestSpec(contentType, validuserId)).
 				body(jsonUpdateContentValid).
 				with().
 				contentType("application/json").
 				then().
-				log().all().
+				//log().all().
 				patch("/learning/v2/content/"+node2);
 
 			}	
@@ -822,7 +822,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 		when().
 		post("learning/v2/content/bundle").
 		then().
-		log().all().
+		//log().all().
 		spec(get400ResponseSpec());
 	}
 
@@ -1049,7 +1049,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 				with().
 				contentType("application/json").
 				then().
-				log().all().
+				//log().all().
 				patch("/learning/v2/content/"+node2);
 
 			}
@@ -1084,7 +1084,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 		post("learning/v2/content/bundle").
 		then().
 		//log().all().
-		spec(get400ResponseSpec());
+		spec(get200ResponseSpec());
 	}
 	
 	// Bundle nested collection

@@ -25,7 +25,6 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
@@ -181,34 +180,6 @@ public class TestGraphImportUsingCSV {
         long relationsCount = Iterators.count(graphDb.getAllRelationships().iterator());
         assertEquals(3, nodesCount); // root node + importedObjects.
         assertEquals(1, relationsCount); // only isParentOf relation.
-        tx.success();
-        tx.close();
-        deleteGraph();
-    }
-
-    //@Test
-    public void testForTagsCount() throws Exception {
-        ActorRef reqRouter = initReqRouter();
-        Request request = getRequest();
-        InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/CSV-NodesAndTags.csv");
-        request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
-        Future<Object> req = Patterns.ask(reqRouter, request, t);
-        Object obj = Await.result(req, t.duration());
-        Response response = (Response) obj;
-        ResponseParams params = response.getParams();
-        assertEquals(StatusType.successful.name(), params.getStatus());
-        Thread.sleep(15000);
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
-        Transaction tx = graphDb.beginTx();
-        int tagsCount = 0;
-        ResourceIterator<Node> nodes = graphDb.getAllNodes().iterator();
-        while (nodes.hasNext()) {
-            Node node = nodes.next();
-            if (SystemNodeTypes.TAG.name().equals(node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()))) {
-                tagsCount++;
-            }
-        }
-        assertEquals(2, tagsCount);
         tx.success();
         tx.close();
         deleteGraph();

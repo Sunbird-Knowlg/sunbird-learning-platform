@@ -125,14 +125,11 @@ public class Relation implements Serializable {
 		String name = (String) node.getProperty("name", null);
 		if (StringUtils.isBlank(name)) {
 			name = (String) node.getProperty("title", null);
-			if (StringUtils.isBlank(name)) {
-				name = (String) node.getProperty(SystemProperties.IL_TAG_NAME.name(), null);
 				if (StringUtils.isBlank(name)) {
 					name = (String) node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), null);
 					if (StringUtils.isBlank(name))
 						name = (String) node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), null);
-				}
-			}
+			    }
 		}
 		return name;
 	}
@@ -141,14 +138,11 @@ public class Relation implements Serializable {
 		String name = node.get("name").asString();
 		if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name)) {
 			name = node.get("title").asString();
-			if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name)) {
-				name = node.get(SystemProperties.IL_TAG_NAME.name()).asString();
 				if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name)) {
 					name = node.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).asString();
 					if (StringUtils.isBlank(name) || StringUtils.equalsIgnoreCase("null", name))
 						name = node.get(SystemProperties.IL_SYS_NODE_TYPE.name()).asString();
 				}
-			}
 		}
 		return name;
 	}

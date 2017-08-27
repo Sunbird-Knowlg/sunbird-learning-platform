@@ -18,7 +18,7 @@ import org.junit.rules.ExpectedException;
 
 import com.ilimi.common.exception.ClientException;
 
-
+@Ignore
 public class GlobalizeAssetProcessorTest {
 
 	final static File FOLDER = new File("src/test/resources/Contents/testglobal_01");

@@ -47,6 +47,8 @@ public class ContentEnrichmentService implements ISamzaService {
 	private static final String s3Content = "s3.content.folder";
 
 	private static final String s3Artifact = "s3.artifact.folder";
+	
+	private static final String COLLECTION_CONTENT_MIMETYPE = "application/vnd.ekstep.content-collection";
 
 	private static ObjectMapper mapper = new ObjectMapper();
 
@@ -85,7 +87,7 @@ public class ContentEnrichmentService implements ISamzaService {
 				} else {
 					// processData(node);
 				}
-				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name()).equals("application/vnd.ekstep.content-collection")) {
+				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name()).equals(COLLECTION_CONTENT_MIMETYPE)) {
 					processCollectionForTOC(node);
 				}
 			} else {
@@ -711,7 +713,8 @@ public class ContentEnrichmentService implements ISamzaService {
 				leafCount = leafCount + lc;
 			}
 		} else {
-			leafCount++;
+			if (!COLLECTION_CONTENT_MIMETYPE.equals(data.get(ContentEnrichmentParams.mimeType.name())))
+				leafCount++;
 		}
 		return leafCount;
 	}

@@ -70,7 +70,7 @@ import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
-import com.ilimi.graph.dac.model.TagCriterion;
+//import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -599,13 +599,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					if (null != list && !list.isEmpty()) {
 						filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
 					}
-				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-					List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
-					if (null != tags && !tags.isEmpty()) {
-						TagCriterion tc = new TagCriterion(tags);
-						sc.setTag(tc);
-					}
 				}
+				// PARAM_TAGS- specific condition removed.
 			}
 		}
 		if (null != filters && !filters.isEmpty()) {
@@ -682,8 +677,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			}
 			addRelationsData(node, map);
 			if (null != node.getTags() && !node.getTags().isEmpty()) {
-				map.put("tags", node.getTags());
-			}
+ 				map.put("tags", node.getTags());
+ 			}
 			map.put("identifier", node.getIdentifier());
 			map.put("language", LanguageMap.getLanguage(languageId));
 		}
@@ -1223,6 +1218,36 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					node = nodes.get(0);
 			}
 		}
+		return node;
+	}
+
+	/**
+	 * Searches for a word in the graph using the lemma
+	 * 
+	 * @param languageId
+	 *            Graph Id
+	 * @param lemma
+	 *            lemma of thw word
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public Node searchWord(String languageId, String prop, String value) {
+		Node node = null;
+
+		SearchCriteria sc = new SearchCriteria();
+		sc.setObjectType("Word");
+		sc.addMetadata(MetadataCriterion
+				.create(Arrays.asList(new Filter(prop, SearchConditions.OP_IN, Arrays.asList(value)))));
+		sc.setResultSize(1);
+		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+		req.put(GraphDACParams.search_criteria.name(), sc);
+		Response searchRes = getResponse(req);
+		if (!checkError(searchRes)) {
+			List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+			if (null != nodes && nodes.size() > 0)
+				node = nodes.get(0);
+		}
+		
 		return node;
 	}
 

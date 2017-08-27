@@ -68,7 +68,7 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
-import com.ilimi.graph.dac.model.TagCriterion;
+//import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -607,14 +607,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						else
 							filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
 					}
-				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-					Object val = entry.getValue();
-					List<String> tags = getList(mapper, val, true);
-					if (null != tags && !tags.isEmpty()) {
-						TagCriterion tc = new TagCriterion(tags);
-						sc.setTag(tc);
-					}
 				}
+				// PARAM_TAGS - specific condition removed.
 			}
 		}
 		if (null != filters && !filters.isEmpty()) {
@@ -752,7 +746,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			}
 			addRelationsData(languageId, objectType, node, map, synsetMembers);
 			if (null != node.getTags() && !node.getTags().isEmpty()) {
-				map.put("tags", node.getTags());
+				map.put("keywords", node.getTags());
 			}
 			map.put("identifier", node.getIdentifier());
 		}

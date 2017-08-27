@@ -17,3 +17,6 @@ quiz-app/www
 platform-tools/scripts/orchestrator/node_modules/
 coverageReport/
 language-platform/module/scripts/orchestrator/node_modules/
+*.
+*.
+H5PContentWorkflowTest.java
