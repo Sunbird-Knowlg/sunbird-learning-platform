@@ -23,7 +23,6 @@
 		<module>module/graph-common</module>
 		<module>module/graph-dac-api</module>
 		<module>module/graph-dac</module>
-		<module>module/cache-manager-api</module>
 		<module>module/cache-manager</module>
 		<module>module/graph-core</module>
 		<module>module/graph-engine-api</module>
