@@ -599,13 +599,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					if (null != list && !list.isEmpty()) {
 						filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
 					}
-				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-					List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
-//					if (null != tags && !tags.isEmpty()) {
-//						TagCriterion tc = new TagCriterion(tags);
-//						sc.setTag(tc);
-//					}
 				}
+				// PARAM_TAGS- specific condition removed.
 			}
 		}
 		if (null != filters && !filters.isEmpty()) {
@@ -681,9 +676,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 			addRelationsData(node, map);
-//			if (null != node.getTags() && !node.getTags().isEmpty()) {
-//				map.put("tags", node.getTags());
-//			}
+			if (null != node.getTags() && !node.getTags().isEmpty()) {
+ 				map.put("tags", node.getTags());
+ 			}
 			map.put("identifier", node.getIdentifier());
 			map.put("language", LanguageMap.getLanguage(languageId));
 		}
@@ -996,8 +991,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				} else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
 					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<String> tags = mapper.readValue(objectStr, List.class);
-//					if (null != tags && !tags.isEmpty())
-//						node.setTags(tags);
+					if (null != tags && !tags.isEmpty())
+						node.setTags(tags);
 				} else if (inRelDefMap.containsKey(entry.getKey())) {
 					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<Map> list = mapper.readValue(objectStr, List.class);

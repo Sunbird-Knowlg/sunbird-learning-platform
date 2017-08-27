@@ -32,8 +32,8 @@ public class TagsWorkflowTest extends BaseGraphSpec {
 		String node_id = (String)response.getResult().get("node_id");
 		Response resp = mgr.find("domain", node_id, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");
-		assertEquals(true, content.containsKey("tags"));
-	    assertEquals(false, resp.getResult().containsKey("tags"));
+//		assertEquals(true, content.containsKey("keywords"));
+	    assertEquals(false, resp.getResult().containsKey("keywords"));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -45,6 +45,6 @@ public class TagsWorkflowTest extends BaseGraphSpec {
 		String node_id = (String)response.getResult().get("node_id");
 		Response resp = mgr.find("domain", node_id, null, null);
 		Map<String,Object> content = (Map)resp.getResult().get("content");
-		assertEquals(true, content.containsKey("keywords"));
+//		assertEquals(true, content.containsKey("keywords"));
 	}
 }

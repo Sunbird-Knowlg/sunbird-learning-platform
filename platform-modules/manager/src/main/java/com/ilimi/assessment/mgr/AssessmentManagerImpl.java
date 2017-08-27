@@ -315,6 +315,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 				}
 			}
 		}
+		if (null != node.getTags() && !node.getTags().isEmpty()) {
+			 metadata.put("tags", node.getTags());
+		}
 		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<NodeDTO> concepts = new ArrayList<NodeDTO>();
 			for (Relation rel : node.getOutRelations()) {

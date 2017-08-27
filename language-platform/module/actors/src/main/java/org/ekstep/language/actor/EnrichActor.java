@@ -316,6 +316,9 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
 				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
 					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
+				List<String> tags = synset.getTags();
+ 				if (tags != null && tags.size() > 0)
+ 					word.setTags(tags);
 				updatePosList(languageId, word);
 				updateNode = true;
 			}
@@ -328,6 +331,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 				word.getMetadata().put(ATTRIB_CATEGORY, null);
 				word.getMetadata().put(ATTRIB_PICTURES, null);
 				word.getMetadata().put(ATTRIB_MEANING, null);
+				word.setTags(null);
 				updatePosList(languageId, word);
 				updateNode = true;
 			}
@@ -399,6 +403,9 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 					word.getMetadata().put(ATTRIB_PICTURES, synset.getMetadata().get(ATTRIB_PICTURES));
 				if (synset.getMetadata().get(ATTRIB_GLOSS) != null)
 					word.getMetadata().put(ATTRIB_MEANING, synset.getMetadata().get(ATTRIB_GLOSS));
+				List<String> tags = synset.getTags();
+				if (tags != null && tags.size() > 0)
+					word.setTags(tags);
 				updatePosList(languageId, word);
 			}
 
@@ -548,6 +555,7 @@ public class EnrichActor extends LanguageBaseActor implements IWordnetConstants 
 								controllerUtil.setCountsMetadata(node, citations, "source", "source");
 								controllerUtil.setCountsMetadata(node, citations, "grade", "grade");
 								controllerUtil.setCountsMetadata(node, citations, "pos", "pos");
+								controllerUtil.addTags(node, citations, "source");
 								controllerUtil.updatePosList(node, citations);
 								controllerUtil.updateSourceTypesList(node, citations);
 								controllerUtil.updateSourcesList(node, citations);

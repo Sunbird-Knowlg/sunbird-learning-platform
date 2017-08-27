@@ -73,7 +73,7 @@ public class ItemSetDTO implements Serializable {
                     }
                 }
             }
-//            setTags(node.getTags());
+            setTags(node.getTags());
             if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
                 this.concepts = new ArrayList<NodeDTO>();
                 for (Relation rel : node.getOutRelations()) {

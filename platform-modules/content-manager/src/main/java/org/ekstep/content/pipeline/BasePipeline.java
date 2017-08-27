@@ -453,6 +453,8 @@ public class BasePipeline extends BaseManager {
 				metadata.put(ContentWorkflowPipelineParams.subject.name(), node.getGraphId());
 				metadata.remove(ContentWorkflowPipelineParams.body.name());
 				metadata.remove(ContentWorkflowPipelineParams.editorState.name());
+				if (null != node.getTags() && !node.getTags().isEmpty())
+					 metadata.put(ContentWorkflowPipelineParams.tags.name(), node.getTags());
 				List<String> searchIds = new ArrayList<String>();
 				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 					List<NodeDTO> children = new ArrayList<NodeDTO>();

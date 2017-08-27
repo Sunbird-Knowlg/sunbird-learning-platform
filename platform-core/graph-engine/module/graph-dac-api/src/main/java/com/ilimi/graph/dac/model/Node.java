@@ -1,7 +1,9 @@
 package com.ilimi.graph.dac.model;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -222,6 +224,26 @@ public class Node implements Serializable {
 		this.id = id;
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<String> getTags() {
+		if (null == this.metadata) 
+			return null;
+		else {
+			Object keywords = this.metadata.get("keywords");
+			if (keywords instanceof String)
+				return Arrays.asList((String)keywords);
+			else  if (keywords instanceof String[])
+				return Arrays.asList((String[]) keywords);
+			else return (List<String>) keywords;
+		}
+ 	}
+ 
+ 	public void setTags(List<String> tags) {
+ 		if (null == this.metadata)
+ 			this.metadata = new HashMap<>();
+ 		this.metadata.put("keywords", tags);
+ 	}
+	
 	private boolean isTagRelation(Relation rel) {
 	    if(StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), rel.getRelationType()))
 			return true;

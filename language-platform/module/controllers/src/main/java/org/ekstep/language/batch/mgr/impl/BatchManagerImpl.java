@@ -652,6 +652,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 									controllerUtil.setCountsMetadata(node, citations, "source", "source");
 									controllerUtil.setCountsMetadata(node, citations, "grade", "grade");
 									controllerUtil.setCountsMetadata(node, citations, "pos", "pos");
+									controllerUtil.addTags(node, citations, "source");
 									controllerUtil.updatePosList(node, citations);
 									controllerUtil.updateSourceTypesList(node, citations);
 									controllerUtil.updateSourcesList(node, citations);

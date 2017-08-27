@@ -178,7 +178,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                             // if node is created successfully,
                                             // create relations and tags
                                             List<Relation> addRels = datanode.getNewRelationList();
-                                            updateRelationsAndTags(parent, node, datanode, request, ec, addRels, null);
+                                            updateRelations(parent, node, datanode, request, ec, addRels, null);
                                         }
                                     }
                                 }
@@ -208,7 +208,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
      * @param addTags the add tags
      * @param delTags the del tags
      */
-    private void updateRelationsAndTags(final ActorRef parent, Node node, final DataNode datanode, final Request request, final ExecutionContext ec,
+    private void updateRelations(final ActorRef parent, Node node, final DataNode datanode, final Request request, final ExecutionContext ec,
             final List<Relation> addRels, final List<Relation> delRels) {
         Future<List<String>> deleteRelsFuture = null;
         List<String> msgs = new ArrayList<String>();
@@ -398,7 +398,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                                     // updated
                                                     // successfully,
                                                     // update relations and tags
-                                                    updateRelationsAndTags(parent, node, datanode, request, ec, addRels, delRels);
+                                                    updateRelations(parent, node, datanode, request, ec, addRels, delRels);
                                                 }
                                             }
                                         }

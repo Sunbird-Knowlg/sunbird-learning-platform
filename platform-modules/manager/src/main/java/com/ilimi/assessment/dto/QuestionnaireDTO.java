@@ -52,7 +52,7 @@ public class QuestionnaireDTO implements Serializable {
             } else {
                 setMetadata(node.getMetadata());
             }
-//            setTags(node.getTags());
+            setTags(node.getTags());
             if (getMetadata().containsKey("item_sets")) {
                 String itemSets = (String) getMetadata().get("item_sets");
                 Object obj = JSONUtils.convertJSONString(itemSets);

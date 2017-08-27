@@ -277,6 +277,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
+		newNode.setTags(node.getTags());
 
 		if (BooleanUtils.isTrue(ContentConfigurationConstants.IS_ECAR_EXTRACTION_ENABLED)) {
 			ContentPackageExtractionUtil contentPackageExtractionUtil = new ContentPackageExtractionUtil();

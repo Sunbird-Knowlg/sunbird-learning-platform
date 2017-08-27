@@ -91,6 +91,8 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                     try {
                         String objectStr = mapper.writeValueAsString(entry.getValue());
                         List<String> tags = mapper.readValue(objectStr, List.class);
+                        if (null != tags && !tags.isEmpty())
+                        		node.setTags(tags);
                     } catch (Exception e) {
                         e.printStackTrace();
                         throw e;
