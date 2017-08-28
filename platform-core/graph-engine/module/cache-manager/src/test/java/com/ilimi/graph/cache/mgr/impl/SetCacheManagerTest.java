@@ -2,12 +2,11 @@ package com.ilimi.graph.cache.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 import com.ilimi.common.exception.ClientException;
 
-public class SetCacheManagerTest {
+public class SetCacheManagerTest extends BaseCacheManagerTest {
 	
 	@Test(expected = ClientException.class)
 	public void createSetWithoutMembers() {
