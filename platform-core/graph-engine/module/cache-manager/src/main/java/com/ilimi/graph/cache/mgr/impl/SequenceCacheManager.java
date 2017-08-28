@@ -106,9 +106,8 @@ public class SequenceCacheManager {
 	            returnConnection(jedis);
 	        }
         } else {
-        	System.out.println(sequenceCache.remove(sequenceId));
-        	if(sequenceCache.containsKey(sequenceId))
-        		sequenceCache.remove(sequenceId);
+        	if(sequenceCache.containsKey(key))
+        		sequenceCache.remove(key);
         }
     }
 
@@ -160,7 +159,8 @@ public class SequenceCacheManager {
         }
     }
 
-    public static Boolean isSequenceMember(String graphId, String sequenceId, String memberId) {
+    @SuppressWarnings("unchecked")
+	public static Boolean isSequenceMember(String graphId, String sequenceId, String memberId) {
     	validateRequired(graphId, sequenceId, memberId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
         Jedis jedis = getRedisConncetion();
         String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
@@ -180,7 +180,7 @@ public class SequenceCacheManager {
 	        }
         } else {
         	isMember = false;
-        	String[] memberIds = (String[]) sequenceCache.get(key);
+        	List<String> memberIds = (List<String>) sequenceCache.get(key);
         	for(String id: memberIds){
         		if(memberId.equals(id))
         		  isMember = true;

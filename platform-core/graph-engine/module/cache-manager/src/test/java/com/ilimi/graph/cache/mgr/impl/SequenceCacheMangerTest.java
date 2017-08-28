@@ -157,7 +157,10 @@ public class SequenceCacheMangerTest {
 	
 	@Test
 	public void isSequenceMember(){
-		Boolean isMember = SequenceCacheManager.isSequenceMember("domain", "sequence_123", "do_123");
+		List<String> members = new ArrayList<String>();
+		members.add("do_123456");
+		SequenceCacheManager.addSequenceMember("domain", "sequence_1236", 12345L, "do_123456");
+		Boolean isMember = SequenceCacheManager.isSequenceMember("domain", "sequence_1236", "do_123456");
 		Assert.assertEquals(true, isMember);
 	}
 	
