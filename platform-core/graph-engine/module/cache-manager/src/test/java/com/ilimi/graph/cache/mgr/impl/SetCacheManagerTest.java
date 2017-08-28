@@ -164,7 +164,7 @@ public class SetCacheManagerTest {
 		SetCacheManager.getSetMembers("domain", null);
 	}
 	
-//	@Test
+	@Test
 	public void getCardinality(){
 		List<String> members = new ArrayList<String>();
 		members.add("test");

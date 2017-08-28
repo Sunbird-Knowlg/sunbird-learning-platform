@@ -155,7 +155,8 @@ public class SequenceCacheManager {
 	            returnConnection(jedis);
 	        }
         } else {
-        	return 0L;
+        	Long cardinality = (long) StringUtils.length(key);
+			return cardinality;
         }
     }
 
@@ -203,5 +204,4 @@ public class SequenceCacheManager {
 		if (StringUtils.isBlank(id))
 			throw new ClientException(errCode, "id is missing");
 	}
-    
 }

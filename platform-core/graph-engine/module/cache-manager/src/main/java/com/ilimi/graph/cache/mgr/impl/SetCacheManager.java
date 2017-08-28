@@ -36,9 +36,7 @@ public class SetCacheManager {
 				returnConnection(jedis);
 			}
 		} else {
-			System.out.println(key instanceof String);
 			setCache.put(key, members);
-			System.out.println(setCache);
 		}
 	}
 
@@ -163,7 +161,6 @@ public class SetCacheManager {
 		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
 			try {
 				Long cardinality = jedis.scard(key);
-				System.out.println("cardinality" + cardinality);
 				return cardinality;
 			} catch (Exception e) {
 				throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), e.getMessage(), e);
@@ -171,7 +168,8 @@ public class SetCacheManager {
 				returnConnection(jedis);
 			}
 		} else {
-			return 0L;
+			Long cardinality = (long) StringUtils.length(key);
+			return cardinality;
 		}
 	}
 
