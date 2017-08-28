@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import com.ilimi.common.exception.ClientException;
 
-public class SequenceCacheMangerTest extends BaseCacheManagerTest {
+public class SequenceCacheMangerTest {
 	
 	@Test(expected = ClientException.class)
 	public void createSequenceWithoutMembers() {
