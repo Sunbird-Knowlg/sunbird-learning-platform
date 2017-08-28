@@ -199,64 +199,44 @@ public class Set extends AbstractCollection {
 		Request request = new Request();
 		request.getContext().get(GraphDACParams.graph_id.name());
 		String setId = node.getIdentifier();
- 		List<String> members = SetCacheManager.getSetMembers(graphId, setId);
- 		Response response = new Response();
- 		if (null != members) {
- 			response.put("members", members);
+ 		List<String> existingMembers = SetCacheManager.getSetMembers(graphId, setId);
+ 		
+ 		if (null != existingMembers) {
+ 			List<String> removeIds = new ArrayList<String>();
+			List<String> addIds = new ArrayList<String>();
+			if (null != memberIds) {
+				for (String member : memberIds) {
+					if (existingMembers.contains(member)) {
+						existingMembers.remove(member);
+					} else {
+						addIds.add(member);
+					}
+				}
+				removeIds.addAll(existingMembers);
+			}
+			Request req = new Request();
+			req.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+			if (removeIds.size() > 0) {
+				for (String removeId : removeIds) {
+					Future<Object> removeResp = removeMemberFromSet(req, getNodeId(), removeId);
+					manager.returnResponseOnFailure(removeResp, getParent());
+				}
+			}
+			if (addIds.size() > 0) {
+				Future<Object> addResp = addMembersToSet(req, getNodeId(), addIds);
+				manager.returnResponseOnFailure(addResp, getParent());
+			}
+			Request updateReq = new Request(req);
+			updateReq.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
+			updateReq.setOperation("updateNode");
+			updateReq.put(GraphDACParams.node.name(), toNode());
+			Future<Object> response = Patterns.ask(GraphDACActorPoolMgr.getDacRouter(), updateReq, timeout);
+			updateRelations(req, node);
+			manager.returnResponse(response, getParent());
  		} else {
  			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_GET_SET_MEMBERS_INVALID_SET_ID.name(),
  					"Failed to get set members", ResponseCode.RESOURCE_NOT_FOUND, getParent());
  		}
-
-		OnComplete<Object> membersResp = new OnComplete<Object>() {
-			@Override
-			public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-				if (null != arg0 || null == arg1) {
-					manager.ERROR(arg0, getParent());
-				} else {
-					if (arg1 instanceof Response) {
-						Response resp = (Response) arg1;
-						@SuppressWarnings("unchecked")
-						List<String> existingMembers = (List<String>) resp.get(GraphDACParams.members.name());
-						List<String> removeIds = new ArrayList<String>();
-						List<String> addIds = new ArrayList<String>();
-						if (null != memberIds) {
-							for (String member : memberIds) {
-								if (existingMembers.contains(member)) {
-									existingMembers.remove(member);
-								} else {
-									addIds.add(member);
-								}
-							}
-							removeIds.addAll(existingMembers);
-						}
-						Request req = new Request();
-						req.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-						if (removeIds.size() > 0) {
-							for (String removeId : removeIds) {
-								Future<Object> removeResp = removeMemberFromSet(req, getNodeId(), removeId);
-								manager.returnResponseOnFailure(removeResp, getParent());
-							}
-						}
-						if (addIds.size() > 0) {
-							Future<Object> addResp = addMembersToSet(req, getNodeId(), addIds);
-							manager.returnResponseOnFailure(addResp, getParent());
-						}
-						Request request = new Request(req);
-						request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-						request.setOperation("updateNode");
-						request.put(GraphDACParams.node.name(), toNode());
-						Future<Object> response = Patterns.ask(GraphDACActorPoolMgr.getDacRouter(), request, timeout);
-						updateRelations(req, node);
-						manager.returnResponse(response, getParent());
-					} else {
-						manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_UNKNOWN_EXCEPTION.name(),
-								"Invalid response to get existing members.", ResponseCode.SERVER_ERROR, getParent());
-					}
-				}
-			}
-		};
-//		response.onComplete(membersResp, manager.getContext().dispatcher());
 	}
 
 	@Override
@@ -750,7 +730,7 @@ public class Set extends AbstractCollection {
 					if (null != criteria) {
 						updateIndex(req, criteria);
 					} else {
-//						manager.returnResponse(response, getParent());
+						manager.OK(GraphDACParams.set_id.name(), setId, getParent());
 					}
 				}
 			}

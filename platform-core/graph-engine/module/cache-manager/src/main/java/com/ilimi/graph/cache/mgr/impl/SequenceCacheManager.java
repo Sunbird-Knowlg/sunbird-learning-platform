@@ -155,8 +155,11 @@ public class SequenceCacheManager {
 	            returnConnection(jedis);
 	        }
         } else {
-        	Long cardinality = (long) StringUtils.length(key);
-			return cardinality;
+        	List<String> members = (List<String>) sequenceCache.get(key);
+        	if (null != members) {
+        		return (long) members.size();
+        	} else 
+			return 0l;
         }
     }
 
