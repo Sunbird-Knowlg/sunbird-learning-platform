@@ -33,6 +33,7 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -884,7 +885,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				map.put("osId", "org.ekstep.quiz.app");
 			String contentType = (String) map.get("contentType");
 			if (StringUtils.isNotBlank(contentType)) {
-				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType))
+				List<String> parentVisibilityList = Platform.config.getStringList("content.metadata.visibility.parent");
+				if (parentVisibilityList.contains(contentType.toLowerCase()))
 					map.put("visibility", "Parent");
 			}
 
@@ -1061,7 +1063,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
 		if (StringUtils.isNotBlank(mimeType)) {
-			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection"))
+			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
 				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
 			else
 				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
