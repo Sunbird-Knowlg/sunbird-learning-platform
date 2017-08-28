@@ -1010,7 +1010,8 @@
 						"Course",
 						"CourseUnit",
 						"LessonPlan",
-            			"LessonPlanUnit"
+            			"LessonPlanUnit",
+            			"Resource"
 					],
 					"defaultValue": "",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
