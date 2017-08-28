@@ -26,7 +26,6 @@ public class SetCacheManager {
     public static void createSet(String graphId, String setId, List<String> members) {
     		validateRequired(graphId, setId, members, GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name());
     		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-    		System.out.println("Cache Type:"+ Platform.config.getString("cache.type"));
     		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
     			Jedis jedis = getRedisConncetion();
     			try {
