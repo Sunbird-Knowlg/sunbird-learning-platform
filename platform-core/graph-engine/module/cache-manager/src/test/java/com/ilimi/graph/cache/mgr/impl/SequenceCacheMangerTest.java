@@ -29,6 +29,8 @@ public class SequenceCacheMangerTest {
 	public void createSequence(){
 		List<String> members = new ArrayList<String>();
 		members.add("do_123");
+		members.add("testData");
+		members.add("do_234");
 		SequenceCacheManager.createSequence("domain", "sequence_123", members);
 		List<String> membersList =  SequenceCacheManager.getSequenceMembers("domain", "sequence_123");
 		Assert.assertEquals(false, membersList.isEmpty());
@@ -39,8 +41,9 @@ public class SequenceCacheMangerTest {
 	public void addSequenceMember(){
 		List<String> members = new ArrayList<String>();
 		members.add("do_123456");
-		Long index = SequenceCacheManager.addSequenceMember("domain", "sequence_123", 12345L, "do_123456");
-		Assert.assertEquals(false, null == index);
+		SequenceCacheManager.addSequenceMember("domain", "sequence_1236", 12345L, "do_123456");
+		List<String> list = SequenceCacheManager.getSequenceMembers("domain", "sequence_1236");
+		Assert.assertEquals("do_123456", list.get(0));
 	}
 	
 	@Test(expected = ClientException.class)
@@ -98,10 +101,11 @@ public class SequenceCacheMangerTest {
 		members.add("data_90");
 		SequenceCacheManager.createSequence("domain", "sequence_890", members);
 		List<String> berforeMemberList = SequenceCacheManager.getSequenceMembers("domain", "sequence_890");
-		Assert.assertEquals("do_123", berforeMemberList.get(0));
+		Assert.assertEquals(true, berforeMemberList.contains("do_123"));
 		SequenceCacheManager.dropSequence("domain", "sequence_890");
 		List<String> afterMemberList = SequenceCacheManager.getSequenceMembers("domain", "sequence_890");
-		Assert.assertEquals(true, afterMemberList.isEmpty());
+		System.out.println(afterMemberList);
+		Assert.assertEquals(true, null == afterMemberList || afterMemberList.isEmpty());
 	}
 	
 	@Test(expected = ClientException.class)
