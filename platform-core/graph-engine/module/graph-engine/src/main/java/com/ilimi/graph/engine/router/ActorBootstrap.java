@@ -13,6 +13,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
@@ -66,7 +67,6 @@ public class ActorBootstrap {
 
     public static void loadConfiguration() {
         try {
-            Config config = ConfigFactory.load();
             if (null != document) {
                 // init actor configuration
                 NodeList configList = document.getElementsByTagName("init");
@@ -78,7 +78,7 @@ public class ActorBootstrap {
                         if (StringUtils.isBlank(systemName))
                             systemName = DEFAULT_SYSTEM_NAME;
                         try {
-                            system = ActorSystem.create(systemName, config.getConfig(systemName));
+                            system = ActorSystem.create(systemName, Platform.config.getConfig(systemName));
                             registerShutdownHook();
                         } catch (Exception e) {
                         	e.printStackTrace();
@@ -91,7 +91,7 @@ public class ActorBootstrap {
                 createManagersPool("cache-managers");
                 createRoutersPool();
             } else {
-                system = ActorSystem.create(DEFAULT_SYSTEM_NAME, config.getConfig(DEFAULT_SYSTEM_NAME));
+                system = ActorSystem.create(DEFAULT_SYSTEM_NAME, Platform.config.getConfig(DEFAULT_SYSTEM_NAME));
                 createLocatConfig();
             }
             initMethodMap();
