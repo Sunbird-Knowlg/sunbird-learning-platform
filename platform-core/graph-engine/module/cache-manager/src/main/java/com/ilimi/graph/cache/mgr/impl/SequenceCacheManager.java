@@ -141,7 +141,8 @@ public class SequenceCacheManager {
 		return membersList;
     }
 
-    public static Long getSequenceCardinality(String graphId, String sequenceId) {
+    @SuppressWarnings("unchecked")
+	public static Long getSequenceCardinality(String graphId, String sequenceId) {
     	validateRequired(graphId, sequenceId, GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name());
         Jedis jedis = getRedisConncetion();
         String key = CacheKeyGenerator.getSequenceMembersKey(graphId, sequenceId);

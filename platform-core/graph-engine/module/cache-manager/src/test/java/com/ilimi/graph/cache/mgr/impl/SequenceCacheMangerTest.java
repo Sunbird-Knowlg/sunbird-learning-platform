@@ -141,7 +141,7 @@ public class SequenceCacheMangerTest {
 	public void getSequenceCardinality(){
 		List<String> members = new ArrayList<String>();
 		members.add("do_123");
-		Long cardinality = SequenceCacheManager.getSequenceCardinality("domain", "sequence_123");
+		Long cardinality = SequenceCacheManager.getSequenceCardinality("domain", "sequence_12367");
 		Assert.assertEquals(false ,  null == cardinality);
 	}
 

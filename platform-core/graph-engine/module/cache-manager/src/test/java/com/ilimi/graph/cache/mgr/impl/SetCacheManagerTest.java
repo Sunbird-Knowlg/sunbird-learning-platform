@@ -169,8 +169,8 @@ public class SetCacheManagerTest {
 		List<String> members = new ArrayList<String>();
 		members.add("test");
 		members.add("data");
-		SetCacheManager.createSet("domain", "set_123", members);
-		Long cardinality = SetCacheManager.getSetCardinality("domain", "set_123");
+		SetCacheManager.createSet("domain", "set_12390", members);
+		Long cardinality = SetCacheManager.getSetCardinality("domain", "set_12390");
 		Assert.assertEquals(false ,  null == cardinality);
 	}
 	

@@ -2,7 +2,6 @@ package com.ilimi.graph.cache.mgr.impl;
 
 import static com.ilimi.graph.cache.factory.JedisFactory.getRedisConncetion;
 import static com.ilimi.graph.cache.factory.JedisFactory.returnConnection;
-
 import java.util.ArrayList;
 
 import java.util.HashMap;
@@ -154,6 +153,7 @@ public class SetCacheManager {
 		return members;
 	}
 
+	@SuppressWarnings({ "unchecked" })
 	public static Long getSetCardinality(String graphId, String setId) {
 		validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
 		Jedis jedis = getRedisConncetion();
@@ -161,6 +161,7 @@ public class SetCacheManager {
 		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
 			try {
 				Long cardinality = jedis.scard(key);
+				System.out.println(cardinality);
 				return cardinality;
 			} catch (Exception e) {
 				throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), e.getMessage(), e);
@@ -168,8 +169,11 @@ public class SetCacheManager {
 				returnConnection(jedis);
 			}
 		} else {
-			Long cardinality = (long) StringUtils.length(key);
-			return cardinality;
+			List<String> members = (List<String>) setCache.get(key);
+        	if (null != members) {
+        		return (long) members.size();
+        	} else 
+			return 0l;
 		}
 	}
 
