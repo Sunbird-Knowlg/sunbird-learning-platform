@@ -112,7 +112,6 @@ public class Sequence extends AbstractCollection {
             } else {
             	req.getContext().get(GraphDACParams.graph_id.name());
          		SequenceCacheManager.removeSequenceMember(graphId, sequenceId, memberId);
-         		Future<Object> response = null;
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
                 dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
@@ -121,7 +120,7 @@ public class Sequence extends AbstractCollection {
                 dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
                 dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
                 dacRouter.tell(dacRequest, manager.getSelf());
-                manager.returnResponse(response, getParent());
+                manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
             }
         } catch (Exception e) {
             manager.handleException(e, getParent());
@@ -156,7 +155,7 @@ public class Sequence extends AbstractCollection {
             } else {
             	req.getContext().get(GraphDACParams.graph_id.name());
          		Boolean isMember= SequenceCacheManager.isSequenceMember(graphId, sequenceId, memberId);
-         		manager.OK(GraphDACParams.is_member.name(),isMember,getParent());
+         		manager.OK(GraphDACParams.is_member.name(), isMember, getParent());
             }
         } catch (Exception e) {
             manager.handleException(e, getParent());
@@ -173,15 +172,13 @@ public class Sequence extends AbstractCollection {
             } else {
             	req.getContext().get(GraphDACParams.graph_id.name());
          		SequenceCacheManager.dropSequence(graphId, sequenceId);
-         		Future<Object> response = null;
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
                 dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                 dacRequest.setOperation("deleteCollection");
                 dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
                 dacRouter.tell(dacRequest, manager.getSelf());
-
-                manager.returnResponse(response, getParent());
+                manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
             }
         } catch (Exception e) {
             manager.handleException(e, getParent());
@@ -233,7 +230,6 @@ public class Sequence extends AbstractCollection {
                             String sequenceId = (String) res.get(GraphDACParams.node_id.name());
                             req.getContext().get(GraphDACParams.graph_id.name());
                      		SequenceCacheManager.createSequence(graphId, sequenceId, memberIds);
-                            Future<Object> response = null;
 
                             if (null != memberIds && memberIds.size() > 0) {
                                 Request dacRequest = new Request(req);
@@ -245,7 +241,7 @@ public class Sequence extends AbstractCollection {
                                 dacRequest.put(GraphDACParams.members.name(), memberIds);
                                 dacRouter.tell(dacRequest, manager.getSelf());
                             }
-                            manager.returnResponse(response, getParent());
+                            manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
                         }
                     } else {
                         manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(),
