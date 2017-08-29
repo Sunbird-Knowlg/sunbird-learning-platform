@@ -156,7 +156,7 @@ public class PublishPipelineService implements ISamzaService {
 			parameterMap.put(PublishPipelineParams.node.name(), node);
 			parameterMap.put(PublishPipelineParams.ecmlType.name(),
 					PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePathForTmpLocation(nodeId, this.config.get("lp.tempfile.location")), nodeId);
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")), nodeId);
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
 			LOGGER
@@ -180,24 +180,20 @@ public class PublishPipelineService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getPublishLifecycleData(Map<String, Object> message) {
 		String eid = (String) message.get("eid");
-		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name())) {
+		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name()))
 			return null;
-		}
 
 		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
-		if (null == edata) {
+		if (null == edata) 
 			return null;
-		}
 
 		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
-		if (null == eks) {
+		if (null == eks) 
 			return null;
-		}
-		if (StringUtils.equalsIgnoreCase((String) eks.get("state"), "Processing")) {
-			{
-				return eks;
-			}
-		}
+
+		if (StringUtils.equalsIgnoreCase((String) eks.get("state"), "Processing")) 
+			return eks;
+		
 		return null;
 	}
 }

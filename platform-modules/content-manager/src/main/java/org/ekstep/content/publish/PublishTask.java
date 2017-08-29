@@ -137,7 +137,7 @@ public class PublishTask implements Runnable {
 			setContentBody(node, mimeType);
 			this.parameterMap.put(ContentWorkflowPipelineParams.node.name(), node);
 			this.parameterMap.put(ContentWorkflowPipelineParams.ecmlType.name(), PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId), nodeId);
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, null), nodeId);
 			pipeline.init(ContentWorkflowPipelineParams.publish.name(), this.parameterMap);
 		} catch (Exception e) {
 			PlatformLogger.log("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: " + nodeId
