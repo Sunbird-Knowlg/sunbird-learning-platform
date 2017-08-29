@@ -52,11 +52,12 @@ public class PublishPipelineService implements ISamzaService {
 		S3PropertyReader.loadProperties(props);
 		Configuration.loadProperties(props);
 		PropertiesUtil.loadProperties(props);
-		CassandraConnector.loadProperties(props);
 		ReadProperties.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
-		LOGGER.info("Akka actors initialized");
+		LOGGER.info("Akka actors initialized");	
+		CassandraConnector.loadProperties(props);
+		LOGGER.info("Cassandra connection initialized");
 		JedisFactory.initialize(props);
 		LOGGER.info("Redis connection factory initialized");
 	}
@@ -156,7 +157,7 @@ public class PublishPipelineService implements ISamzaService {
 			parameterMap.put(PublishPipelineParams.node.name(), node);
 			parameterMap.put(PublishPipelineParams.ecmlType.name(),
 					PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")), nodeId);
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location").toString()), nodeId);
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
 			LOGGER
@@ -179,19 +180,19 @@ public class PublishPipelineService implements ISamzaService {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getPublishLifecycleData(Map<String, Object> message) {
-		String eid = (String) message.get("eid");
+		String eid = (String) message.get(PublishPipelineParams.eid.name());
 		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name()))
 			return null;
 
-		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
+		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
 		if (null == edata) 
 			return null;
 
-		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
+		Map<String, Object> eks = (Map<String, Object>) edata.get(PublishPipelineParams.eks.name());
 		if (null == eks) 
 			return null;
 
-		if (StringUtils.equalsIgnoreCase((String) eks.get("state"), "Processing")) 
+		if (StringUtils.equalsIgnoreCase((String) eks.get(PublishPipelineParams.state.name()), PublishPipelineParams.Processing.name())) 
 			return eks;
 		
 		return null;

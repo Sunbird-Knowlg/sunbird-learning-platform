@@ -18,7 +18,7 @@ import com.ilimi.graph.common.mgr.Configuration;
  */
 public class CassandraConnector {
 
-	private static Properties props = new Properties();
+	private static Properties props;
 	
 	/** Cassandra Cluster. */
 	private static Cluster cluster;
@@ -32,6 +32,7 @@ public class CassandraConnector {
 		try (InputStream inputStream = Configuration.class.getClassLoader()
 				.getResourceAsStream("cassandra.properties")) {
 			if (null != inputStream) {
+				props = new Properties();
 				props.load(inputStream);
 				String host = props.getProperty("cassandra.host");
 				if (StringUtils.isBlank(host))

@@ -51,16 +51,16 @@
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
-	<!-- 	<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>upload-content</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency> 
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
+			<version>0.0.1</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency> 
+	<!--<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>upload-content</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
