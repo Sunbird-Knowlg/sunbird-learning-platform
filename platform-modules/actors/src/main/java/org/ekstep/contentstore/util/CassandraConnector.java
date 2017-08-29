@@ -1,6 +1,7 @@
 package org.ekstep.contentstore.util;
 
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -17,14 +18,13 @@ import com.ilimi.graph.common.mgr.Configuration;
  */
 public class CassandraConnector {
 
+	private static Properties props = new Properties();
+	
 	/** Cassandra Cluster. */
 	private static Cluster cluster;
 
 	/** Cassandra Session. */
 	private static Session session;
-
-	/** The Logger object. */
-	
 
 	static {
 		// Connect to Cassandra Cluster specified by provided node IP address
@@ -32,7 +32,7 @@ public class CassandraConnector {
 		try (InputStream inputStream = Configuration.class.getClassLoader()
 				.getResourceAsStream("cassandra.properties")) {
 			if (null != inputStream) {
-				Properties props = new Properties();
+				props = new Properties();
 				props.load(inputStream);
 				String host = props.getProperty("cassandra.host");
 				if (StringUtils.isBlank(host))
@@ -54,6 +54,14 @@ public class CassandraConnector {
 		} catch (Exception e) {
 			PlatformLogger.log("Error! While Loading Cassandra Properties.", e.getMessage(), e);
 		}
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		props.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		props.putAll(props);
 	}
 
 	/**
@@ -86,5 +94,4 @@ public class CassandraConnector {
 			}
 		});
 	}
-
 }

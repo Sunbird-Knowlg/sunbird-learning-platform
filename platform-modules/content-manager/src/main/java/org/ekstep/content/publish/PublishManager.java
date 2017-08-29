@@ -52,7 +52,7 @@ public class PublishManager extends BaseManager {
 				response = new Response();
 			response.put(ContentAPIParams.publishStatus.name(), "Publish Operation for Content Id '" + contentId
 					+ "' Started Successfully!");
-			executor.submit(new PublishTask(contentId, parameterMap));
+//			executor.submit(new PublishTask(contentId, parameterMap));
 		}
 
 		return response;
@@ -73,16 +73,19 @@ public class PublishManager extends BaseManager {
 	public Response review(String contentId, Map<String, Object> parameterMap) {
 
 		Response response = new Response();
-		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId), contentId);
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(contentId, null), contentId);
 		parameterMap.put(ContentAPIParams.isPublishOperation.name(), true);
 		response = pipeline.init(ContentAPIParams.review.name(), parameterMap);
 		return response;
 	}
 
-	public static String getBasePath(String contentId) {
-		return tempFileLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name() + File.separator + contentId;
+	public static String getBasePath(String contentId, String tmpLocation) {
+		if(null == tmpLocation)
+			return tempFileLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name() + File.separator + contentId;
+		else
+			return tmpLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name() + File.separator + contentId;
 	}
-
+	
 	@Override
 	protected void finalize() throws Throwable {
 		executor.shutdown();
