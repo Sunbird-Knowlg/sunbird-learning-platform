@@ -10,11 +10,14 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.util.ReadProperties;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
+import org.ekstep.content.util.PropertiesUtil;
 import org.ekstep.content.util.PublishWebHookInvoker;
+import org.ekstep.contentstore.util.CassandraConnector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
@@ -31,13 +34,12 @@ public class PublishPipelineService implements ISamzaService {
 
 	private String contentId;
 
-	private Map<String, Object> parameterMap;
+	private Map<String, Object> parameterMap = new HashMap<String,Object>();
 
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
 
-	@SuppressWarnings("unused")
 	private Config config = null;
 
 	@Override
@@ -49,6 +51,9 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		S3PropertyReader.loadProperties(props);
 		Configuration.loadProperties(props);
+		PropertiesUtil.loadProperties(props);
+		CassandraConnector.loadProperties(props);
+		ReadProperties.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
@@ -151,7 +156,7 @@ public class PublishPipelineService implements ISamzaService {
 			parameterMap.put(PublishPipelineParams.node.name(), node);
 			parameterMap.put(PublishPipelineParams.ecmlType.name(),
 					PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId), nodeId);
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePathForTmpLocation(nodeId, this.config.get("lp.tempfile.location")), nodeId);
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
 			LOGGER

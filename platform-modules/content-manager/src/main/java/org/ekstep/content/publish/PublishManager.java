@@ -52,7 +52,7 @@ public class PublishManager extends BaseManager {
 				response = new Response();
 			response.put(ContentAPIParams.publishStatus.name(), "Publish Operation for Content Id '" + contentId
 					+ "' Started Successfully!");
-			executor.submit(new PublishTask(contentId, parameterMap));
+//			executor.submit(new PublishTask(contentId, parameterMap));
 		}
 
 		return response;
@@ -81,6 +81,10 @@ public class PublishManager extends BaseManager {
 
 	public static String getBasePath(String contentId) {
 		return tempFileLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name() + File.separator + contentId;
+	}
+	
+	public static String getBasePathForTmpLocation(String contentId, String tmpLocation){
+		return tmpLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name() + File.separator + contentId;
 	}
 
 	@Override

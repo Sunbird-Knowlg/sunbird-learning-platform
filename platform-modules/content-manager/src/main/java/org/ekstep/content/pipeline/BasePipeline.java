@@ -70,9 +70,6 @@ import scala.concurrent.Future;
  */
 public class BasePipeline extends BaseManager {
 
-	/** The logger. */
-	
-
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 

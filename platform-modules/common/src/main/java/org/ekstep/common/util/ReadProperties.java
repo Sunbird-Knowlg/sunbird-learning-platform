@@ -3,10 +3,14 @@ package org.ekstep.common.util;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public class ReadProperties {
     String result = "";
+    
+   private static Properties prop = new Properties();
+    
     InputStream inputStream = new InputStream() {
         @Override
         public int read() throws IOException {
@@ -16,7 +20,6 @@ public class ReadProperties {
 
     public String getPropValues(String key) throws IOException {
         try {
-            Properties prop = new Properties();
             String propFileName = "content.properties";
             inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
             if (inputStream != null) {
@@ -32,4 +35,13 @@ public class ReadProperties {
         }
         return result;
     }
+    
+
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
+	}
 }

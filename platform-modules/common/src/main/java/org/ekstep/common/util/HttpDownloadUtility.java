@@ -24,8 +24,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class HttpDownloadUtility {
 
-	
-
 	private static final int BUFFER_SIZE = 4096;
 
 	/**

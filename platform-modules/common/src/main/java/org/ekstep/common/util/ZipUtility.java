@@ -18,8 +18,6 @@ import com.ilimi.common.logger.PlatformLogger;
  **/
 public class ZipUtility {
 
-	
-
 	List<String> fileList;
 	private String outPutZipFile = null;
 	private String sourceFolder = null;
