@@ -56,8 +56,25 @@ public class CassandraConnector {
 		}
 	}
 	
+	// method to load cassandra properties for samza job
 	public static void loadProperties(Map<String, Object> props) {
 		props.putAll(props);
+		String host = (String)props.get("cassandra.host");
+		if (StringUtils.isBlank(host))
+			host = "localhost";
+		int port = -1;
+		String portConfig = (String)props.get("cassandra.port");
+		if (StringUtils.isNotBlank(portConfig)) {
+			try {
+				port = Integer.parseInt(portConfig);
+			} catch (Exception e) {
+			}
+		}
+		if (port < 0)
+			port = 9042;
+		cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
+		session = cluster.connect();
+		registerShutdownHook();
 	}
 	
 	public static void loadProperties(Properties props) {
