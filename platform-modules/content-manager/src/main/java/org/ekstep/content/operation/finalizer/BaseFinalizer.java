@@ -283,9 +283,9 @@ public class BaseFinalizer extends BasePipeline {
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ecmlType);
 			PlatformLogger.log("Creating ECML File With Name: " + file.getAbsolutePath());
 			FileUtils.writeStringToFile(file, ecml);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.ECML_FILE_WRITE.name(),
-					ContentErrorMessageConstants.ECML_FILE_WRITE_ERROR + " | [Unable to Write ECML File.]");
+					ContentErrorMessageConstants.ECML_FILE_WRITE_ERROR + " | [Unable to Write ECML File.]", e);
 		}
 	}
 

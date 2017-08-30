@@ -285,7 +285,7 @@ public class ContentBundle {
 
 			FileUtils.writeStringToFile(manifestFileName, manifestJSON);
 			PlatformLogger.log("Manifest JSON Written");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + " | [Unable to Write Manifest File.]", e);
 		}
@@ -395,7 +395,8 @@ public class ContentBundle {
 			}
 			pool.shutdown();
 		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
+					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + "Error while creating contentBundle", e);
 		}
 		return files;
 	}
