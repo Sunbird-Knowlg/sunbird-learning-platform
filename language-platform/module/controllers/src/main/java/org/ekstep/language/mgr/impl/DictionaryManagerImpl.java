@@ -2677,13 +2677,6 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		meaningMap.remove(LanguageParams.actions.name());
 		meaningMap.remove(LanguageParams.workers.name());
 		meaningMap.remove(LanguageParams.converse.name());
-
-		// set synset tags
-		List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
-		if (tags != null) {
-			synset.setTags(tags);
-			meaningMap.remove(LanguageParams.tags.name());
-		}
 		
 		Node existingSynset = null;
 		if (outRelations.size() > 0 || emptyRelations.size() > 0) {
@@ -2788,9 +2781,17 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			meaningMap.remove(ATTRIB_EXAMPLE_SENTENCES);
 		}
 		
+		List<String> tags = (List<String>) meaningMap.get(LanguageParams.tags.name());
+		meaningMap.remove(LanguageParams.tags.name());
+
 		// set synset metadata
 		synset.setMetadata(meaningMap);
 		
+		// set synset tags
+		if (tags != null) {
+			synset.setTags(tags);
+		}
+
 		return synset;
 
 	}

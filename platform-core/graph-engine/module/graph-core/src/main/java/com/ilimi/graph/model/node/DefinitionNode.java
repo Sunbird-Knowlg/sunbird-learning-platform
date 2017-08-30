@@ -13,8 +13,9 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
-import com.ilimi.graph.cache.actor.GraphCacheManagers;
+import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
+import com.ilimi.graph.cache.util.RedisStoreUtil;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -237,8 +238,7 @@ public class DefinitionNode extends AbstractNode {
                                 manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(),
                                         manager.getErrorMessage(res), res.getResponseCode(), getParent());
                             } else {
-                                ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-                                loadToCache(cacheRouter, req);
+                                loadToCache(req);
                                 manager.OK(GraphDACParams.node_id.name(), getNodeId(), getParent());
                             }
                         } else {
@@ -369,16 +369,17 @@ public class DefinitionNode extends AbstractNode {
         return messages;
     }
 
-    @SuppressWarnings("unchecked")
-	public void loadToCache(ActorRef cacheRouter, Request req) {
-        Request cacheReq = new Request(req);
-        cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-        cacheReq.setOperation("saveDefinitionNode");
-        cacheReq.put(GraphDACParams.object_type.name(), new String(getFunctionalObjectType()));
-        DefinitionDTO dto = getValueObject();
-        Map<String, Object> map = mapper.convertValue(dto, Map.class);
-        cacheReq.put(GraphDACParams.definition_node.name(), map);
-        cacheRouter.tell(cacheReq, manager.getSelf());
+	public void loadToCache(Request req) {
+        String graphId = (String) req.getContext().get(GraphHeaderParams.graph_id.name());
+    		DefinitionDTO node = getValueObject();
+    		NodeCacheManager.saveDefinitionNode(graphId, new String(getFunctionalObjectType()), node);
+    		// store versionCheckMode as string property into cache
+    		Map<String, Object> metadata = node.getMetadata();
+    		if (null != metadata) {
+    			String versionCheckMode = (String) metadata.get(GraphDACParams.versionCheckMode.name());
+    			if (StringUtils.isNotBlank(versionCheckMode))
+    				RedisStoreUtil.saveNodeProperty(graphId, objectType, GraphDACParams.versionCheckMode.name(), versionCheckMode);
+    		}
     }
 
     private void validateRelationDefinition(RelationDefinition def, List<String> messages, List<String> relationNames) {

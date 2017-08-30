@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -15,8 +16,9 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.content.common.TestSuitSetup;
 
 
-public class TagsWorkflowTest extends TestSuitSetup {
-	
+// Enable it after adding embedded-redis. 
+@Ignore
+public class TagsWorkflowTest extends BaseGraphSpec {
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	ObjectMapper mapper = new ObjectMapper();
 	String createValidContentWithTags = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"tags\":[\"akshara\"],\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";

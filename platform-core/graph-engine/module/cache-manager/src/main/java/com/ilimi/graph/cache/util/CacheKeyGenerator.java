@@ -1,6 +1,6 @@
 package com.ilimi.graph.cache.util;
 
-public class RedisKeyGenerator {
+public class CacheKeyGenerator {
 
     private static final String KEY_SEPARATOR = ":";
     
@@ -8,6 +8,14 @@ public class RedisKeyGenerator {
         return RedisKeysEnum.UNIQUE_ID.name();
     }
 
+    public static String getKey(String graphId, String identifier, String type) {
+    		return graphId + KEY_SEPARATOR + type + KEY_SEPARATOR + removeSpaces(identifier);
+    }
+    
+    public static String getKey(String graphId, String identifier) {
+		return graphId + KEY_SEPARATOR + removeSpaces(identifier);
+    }
+    
     public static String getSetMembersKey(String graphId, String nodeId) {
         return graphId + KEY_SEPARATOR + RedisKeysEnum.SET + KEY_SEPARATOR + nodeId + KEY_SEPARATOR + RedisKeysEnum.MEMBERS;
     }

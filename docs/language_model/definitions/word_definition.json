@@ -801,6 +801,18 @@
           "defaultValue": "",
           "renderingHints": "{'inputType': 'table', 'order': 45}",
           "indexed": true
+        },
+        {
+          "propertyName": "keywords",
+          "title": "Keywords",
+          "description": "",
+          "category": "General",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 7}",
+          "indexed": true
         }
       ],
       "inRelations": [

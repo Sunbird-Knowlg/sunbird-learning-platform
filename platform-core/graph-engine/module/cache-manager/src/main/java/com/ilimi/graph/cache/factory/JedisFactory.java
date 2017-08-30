@@ -1,8 +1,7 @@
 package com.ilimi.graph.cache.factory;
 
-import java.io.InputStream;
+
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -12,10 +11,9 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
-import com.ilimi.graph.common.mgr.Configuration;
 
 public class JedisFactory {
 
@@ -27,38 +25,10 @@ public class JedisFactory {
 	private static int index = 0;
 
 	static {
-		try (InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties")) {
-			if (null != inputStream) {
-				Properties props = new Properties();
-				props.load(inputStream);
-				String redisHost = props.getProperty("redis.host");
-				if (StringUtils.isNotBlank(redisHost))
-					host = redisHost;
-				String redisPort = props.getProperty("redis.port");
-				if (StringUtils.isNotBlank(redisPort)) {
-					try {
-						port = Integer.parseInt(redisPort);
-					} catch (Exception e) {
-					}
-				}
-				String redisMaxConn = props.getProperty("redis.maxConnections");
-				if (StringUtils.isNotBlank(redisMaxConn)) {
-					try {
-						maxConnections = Integer.parseInt(redisMaxConn);
-					} catch (Exception e) {
-					}
-				}
-				String dbIndex = props.getProperty("redis.dbIndex");
-				if (StringUtils.isNotBlank(dbIndex)) {
-					try {
-						index = Integer.parseInt(dbIndex);
-					} catch (Exception e) {
-					}
-				}
-			}
-		} catch (Exception e) {
-			PlatformLogger.log("Error! While Loading Graph Properties.", null, e);
-		}
+		if (Platform.config.hasPath("redis.host")) host = Platform.config.getString("redis.host");
+		if (Platform.config.hasPath("redis.port")) port = Platform.config.getInt("redis.port");
+		if (Platform.config.hasPath("redis.maxConnections")) maxConnections = Platform.config.getInt("redis.maxConnections");
+		if (Platform.config.hasPath("redis.dbIndex")) index = Platform.config.getInt("redis.dbIndex");
 		JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(maxConnections);
 		config.setBlockWhenExhausted(true);

@@ -18,8 +18,9 @@ import com.ilimi.graph.common.mgr.Configuration;
  */
 public class CassandraConnector {
 
-	private static Properties props;
-	
+
+	private static Properties props = new Properties();
+
 	/** Cassandra Cluster. */
 	private static Cluster cluster;
 
@@ -75,6 +76,7 @@ public class CassandraConnector {
 		cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
 		session = cluster.connect();
 		registerShutdownHook();
+
 	}
 	
 	public static void loadProperties(Properties props) {

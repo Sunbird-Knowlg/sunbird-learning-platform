@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.util.RedisKeyGenerator;
+import com.ilimi.graph.cache.util.CacheKeyGenerator;
 import com.ilimi.graph.common.mgr.Configuration;
 
 /**
@@ -154,7 +154,7 @@ public class LocalCache {
 	 * @return the def node property key
 	 */
 	private static String getDefNodePropertyKey(String graphId, String objectType, String nodeProperty) {
-		String key = RedisKeyGenerator.getNodePropertyKey(graphId, objectType, nodeProperty);
+		String key = CacheKeyGenerator.getNodePropertyKey(graphId, objectType, nodeProperty);
 		return key;
 	}
 }

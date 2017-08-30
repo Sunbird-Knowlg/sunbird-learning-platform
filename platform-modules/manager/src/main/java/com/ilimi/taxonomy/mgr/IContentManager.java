@@ -44,7 +44,7 @@ public interface IContentManager {
 	 * @return the response contains the node id as <code>node_id</code> for
 	 *         which the content is being uploaded.
 	 */
-	Response upload(String id, String taxonomyId, File uploadedFile);
+	Response upload(String id, String taxonomyId, File uploadedFile, String mimeType);
 	
 	/**
 	 * Upload is High level Content Operation to set the <code>artifactUrl</code> of the
@@ -64,7 +64,7 @@ public interface IContentManager {
 	 * @return the response contains the node id as <code>node_id</code> for
 	 *         which the content is being uploaded.
 	 */
-	Response upload(String id, String taxonomyId, String fileUrl);
+	Response upload(String id, String taxonomyId, String fileUrl, String mimeType);
 
 	/**
 	 * Optimize is High level Content Operation mainly deals with optimizing the

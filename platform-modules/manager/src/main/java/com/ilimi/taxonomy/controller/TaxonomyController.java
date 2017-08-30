@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -36,10 +39,24 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @RequestMapping("/taxonomy")
 public class TaxonomyController extends BaseController {
 
-	
-
 	@Autowired
 	private ITaxonomyManager taxonomyManager;
+	
+	@PostConstruct
+	public void postConstruct() {
+		if (Platform.config.hasPath("cache.graphs_list")) {
+			PlatformLogger.log("Loading definition nodes to in-memory cache.", null, LoggerEnum.INFO.name());
+			List<String> graphIds = Platform.config.getStringList("cache.graphs_list");
+			for (String graphId: graphIds) {
+				PlatformLogger.log("Loading definition nodes to in-memory cache for graph: "+graphId, null, LoggerEnum.INFO.name());
+				taxonomyManager.findAllDefinitions(graphId);
+			}
+			PlatformLogger.log("Loading definition nodes to in-memory cache is complete.", null, LoggerEnum.INFO.name());
+		} else {
+			PlatformLogger.log("Not loading definition nodes to in-memory cache because configuration is not available.", null, LoggerEnum.WARN.name());
+		}
+	}
+	
 
 	@RequestMapping(value = "/{graphId:.+}/{objectType:.+}", method = RequestMethod.GET)
 	@ResponseBody
