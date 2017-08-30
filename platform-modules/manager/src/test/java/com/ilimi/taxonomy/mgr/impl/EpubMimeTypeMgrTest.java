@@ -52,7 +52,7 @@ public class EpubMimeTypeMgrTest extends BaseGraphSpec {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/sample.epub").getFile());
 		
-		Response resp = mgr.upload(node_id, "domain", file);
+		Response resp = mgr.upload(node_id, "domain", file, null);
 		Map<String,Object> mapData = resp.getResult();
 		assertEquals(ResponseCode.OK, resp.getResponseCode());
 		assertEquals(true, mapData.containsKey("content_url"));
@@ -65,7 +65,7 @@ public class EpubMimeTypeMgrTest extends BaseGraphSpec {
 		exception.expect(ClientException.class);
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/content_validator_01.zip").getFile());
-		mgr.upload(node_id, "domain", file);
+		mgr.upload(node_id, "domain", file, null);
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -74,7 +74,7 @@ public class EpubMimeTypeMgrTest extends BaseGraphSpec {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/sample4.epub").getFile());
 		
-		mgr.upload(node_id, "domain", file);
+		mgr.upload(node_id, "domain", file, null);
 		Map<String,Object> contentMap = new HashMap<String,Object>();
 		contentMap.put("lastPublishedBy", "ilimi");
 		LearningRequestRouterPool.init();
@@ -100,7 +100,7 @@ public class EpubMimeTypeMgrTest extends BaseGraphSpec {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File file = new File(classLoader.getResource("Contents/index.epub").getFile());
 		
-		mgr.upload(node_id, "domain", file);
+		mgr.upload(node_id, "domain", file, null);
 		Map<String,Object> contentMap = new HashMap<String,Object>();
 		contentMap.put("lastPublishedBy", "ilimi");
 		LearningRequestRouterPool.init();
