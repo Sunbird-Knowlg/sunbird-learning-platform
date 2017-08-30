@@ -57,7 +57,7 @@ public class ContentBundle {
 	protected static final String URL_FIELD = "URL";
 
 	/** The Constant BUNDLE_PATH. */
-	protected static final String BUNDLE_PATH = "/data/contentBundle";
+	protected static final String BUNDLE_PATH = "/tmp";
 
 	/** The s3 ecar folder */
 	private static final String s3EcarFolder = "s3.ecar.folder";
