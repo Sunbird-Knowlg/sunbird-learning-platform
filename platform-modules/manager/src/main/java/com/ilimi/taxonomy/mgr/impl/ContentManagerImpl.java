@@ -145,7 +145,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public Response upload(String contentId, String taxonomyId, File uploadedFile) {
+	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
 		PlatformLogger.log("Content ID: " + contentId);
 		PlatformLogger.log("Graph ID: " + taxonomyId);
 		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
@@ -168,10 +168,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			isNodeUnderProcessing(node, "Upload");
 
-			String mimeType = (String) node.getMetadata().get("mimeType");
 			if (StringUtils.isBlank(mimeType)) {
-				mimeType = "assets";
+				mimeType = getMimeType(node);
+			} else {
+				Response response = updateMimeType(contentId, mimeType);
+				if (checkError(response))
+					return response;
 			}
+
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			PlatformLogger.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
@@ -201,7 +205,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(String contentId, String taxonomyId, String fileUrl) {
+	public Response upload(String contentId, String taxonomyId, String fileUrl, String mimeType) {
 		PlatformLogger
 				.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:" + fileUrl);
 		try {
@@ -217,7 +221,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			isImageContentId(contentId);
 			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
 			isNodeUnderProcessing(node, "Upload");
-			String mimeType = getMimeType(node);
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = getMimeType(node);
+			} else {
+				Response response = updateMimeType(contentId, mimeType);
+				if (checkError(response))
+					return response;
+			}
+				
 			PlatformLogger.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -1417,6 +1428,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				}
 			}
 		}
+	}
+	
+	private Response updateMimeType(String contentId, String mimeType) throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		map.put("mimeType", mimeType);
+		map.put("versionKey", Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
+		return updateContent(contentId, map);
 	}
 
 }

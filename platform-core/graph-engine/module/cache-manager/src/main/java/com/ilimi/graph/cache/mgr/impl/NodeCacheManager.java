@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.util.CacheKeyGenerator;
 import com.ilimi.graph.cache.util.RedisKeysEnum;
@@ -24,11 +25,13 @@ public class NodeCacheManager {
 		validateRequired(graphId, objectType, node, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, objectType, RedisKeysEnum.DEF_NODE.name());
 		definitionNodeCache.put(key, node);
+		PlatformLogger.log("Saved definition node into cache having objectType: " + objectType + " into graph: "+ graphId);
 	}
 
 	public static Object getDefinitionNode(String graphId, String objectType) {
 		validateRequired(graphId, objectType, GraphCacheErrorCodes.ERR_CACHE_GET_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, objectType, RedisKeysEnum.DEF_NODE.name());
+		PlatformLogger.log("Fetching definition node from cache having objectType: " + objectType + " in graph: "+ graphId);
 		return definitionNodeCache.get(key);
 	}
 
@@ -36,11 +39,13 @@ public class NodeCacheManager {
 		validateRequired(graphId, id, node, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, id, RedisKeysEnum.DATA_NODE.name());
 		dataNodeCache.put(key, node);
+		PlatformLogger.log("Saved data node into cache having identifier: " + id + " into graph: "+ graphId);
 	}
 
 	public static Object getDataNode(String graphId, String id) {
 		validateRequired(graphId, id, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
 		String key = CacheKeyGenerator.getKey(graphId, id, RedisKeysEnum.DATA_NODE.name());
+		PlatformLogger.log("Fetching data node from cache having identifier: " + id + " in graph: "+ graphId);
 		return dataNodeCache.get(key);
 	}
 
