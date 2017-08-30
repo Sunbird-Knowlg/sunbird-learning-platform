@@ -12,10 +12,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseGraphSpec;
+import com.ilimi.taxonomy.content.common.TestSuitSetup;
 
 
-public class TagsWorkflowTest extends BaseGraphSpec {
+public class TagsWorkflowTest extends TestSuitSetup {
 	
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	ObjectMapper mapper = new ObjectMapper();

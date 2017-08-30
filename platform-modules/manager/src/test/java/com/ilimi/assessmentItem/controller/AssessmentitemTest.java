@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseGraphSpec;
+import com.ilimi.taxonomy.content.common.TestSuitSetup;
 
 /**
  * @author Rashmi
@@ -38,7 +38,7 @@ import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentitemTest extends BaseGraphSpec {
+public class AssessmentitemTest extends TestSuitSetup {
 
 	@Autowired
 	private WebApplicationContext context;
