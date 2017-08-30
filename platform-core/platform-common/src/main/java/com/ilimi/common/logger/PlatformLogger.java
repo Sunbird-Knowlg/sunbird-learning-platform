@@ -60,19 +60,23 @@ public class PlatformLogger {
 	}
 
 	private static void info(String message,  Object data) {
-		rootLogger.info(getBELogEvent(LoggerEnum.INFO.name(), message, data));
+		if (rootLogger.isInfoEnabled())
+			rootLogger.info(getBELogEvent(LoggerEnum.INFO.name(), message, data));
 	}
 
 	private static void debug(String message,  Object data) {
-		rootLogger.debug(getBELogEvent(LoggerEnum.DEBUG.name(), message, data));
+		if (rootLogger.isDebugEnabled())
+			rootLogger.debug(getBELogEvent(LoggerEnum.DEBUG.name(), message, data));
 	}
 
 	private static void error(String message,  Object data, Throwable exception) {
-		rootLogger.error(getBELogEvent(LoggerEnum.ERROR.name(), message, data, exception));
+		if (rootLogger.isErrorEnabled())
+			rootLogger.error(getBELogEvent(LoggerEnum.ERROR.name(), message, data, exception));
 	}
 
 	private static void warn(String message, Object data, Throwable exception) {
-		rootLogger.warn(getBELogEvent(LoggerEnum.WARN.name(), message, data, exception));
+		if (rootLogger.isWarnEnabled())
+			rootLogger.warn(getBELogEvent(LoggerEnum.WARN.name(), message, data, exception));
 	}
 
 	private static void backendLog(String message,  Object data, Throwable e, String logLevel) {
