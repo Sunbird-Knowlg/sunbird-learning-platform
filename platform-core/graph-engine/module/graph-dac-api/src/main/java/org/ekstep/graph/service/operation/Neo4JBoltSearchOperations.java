@@ -139,7 +139,7 @@ public class Neo4JBoltSearchOperations {
 		
 		Node node = (Node) NodeCacheManager.getDataNode(graphId, nodeId);
 		if (null != node) {
-			PlatformLogger.log("Saving node from in-memory cache: "+node.getIdentifier(), null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Fetched node from in-memory cache: "+node.getIdentifier(), null, LoggerEnum.INFO.name());
 			return node;
 		} else {
 			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
