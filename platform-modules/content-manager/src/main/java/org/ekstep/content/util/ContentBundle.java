@@ -208,7 +208,7 @@ public class ContentBundle {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(),
-					"[Error! something went wrong while bundling ECAR]");
+					"[Error! something went wrong while bundling ECAR]", e);
 		}
 	}
 

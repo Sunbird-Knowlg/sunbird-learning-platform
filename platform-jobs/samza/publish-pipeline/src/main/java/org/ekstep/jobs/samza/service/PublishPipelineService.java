@@ -163,6 +163,7 @@ public class PublishPipelineService implements ISamzaService {
 			LOGGER.info("Initializing the publish pipeline" + this.config.get("lp.tempfile.location") );
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
+			e.printStackTrace();
 			LOGGER
 					.info("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 							+ nodeId + "]", e.getMessage());
