@@ -174,6 +174,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				Response response = updateMimeType(contentId, mimeType);
 				if (checkError(response))
 					return response;
+				else {
+					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
+				}	
 			}
 
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
@@ -224,9 +227,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
 			} else {
-				Response response = updateMimeType(contentId, mimeType);
+				Response response = updateMimeType(node.getIdentifier(), mimeType);
 				if (checkError(response))
 					return response;
+				else {
+					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
+				}
 			}
 				
 			PlatformLogger.log(
