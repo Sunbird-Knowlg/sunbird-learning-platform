@@ -38,6 +38,14 @@ public class TestSuitSetup {
 	private static TaxonomyManagerImpl taxonomyMgr = new TaxonomyManagerImpl();
 	private static GraphDatabaseService graphDb = null;
 
+	private static String NEO4J_SERVER_ADDRESS = "localhost:7687";
+	private static String GRAPH_DIRECTORY_PROPERTY_KEY = "graph.dir";
+	private static String BOLT_ENABLED = "true";
+
+	private static String CONCEPT_CSV = "src/test/resources/literacy/literacy_concepts.csv";
+	private static String DIMENSION_CSV = "src/test/resources/literacy/literacy_dimensions.csv";
+	private static String DOMAIN_CSV = "src/test/resources/literacy/literacy_domain.csv";
+
 	private static String CASSANDRA_KEYSPACE = "unit_test_content_store";
 	private static String CASSANDRA_DDL_CQL_FILE = "db/cassandra_keystore_ddl.cql";
 
@@ -62,7 +70,7 @@ public class TestSuitSetup {
 		Response resp = null;
 		try {
 			resp = taxonomyMgr.create(graphId, in);
-			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+			if (!resp.getParams().getStatus().equalsIgnoreCase(TestCaseParams.successful.name())) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
@@ -75,7 +83,7 @@ public class TestSuitSetup {
 		Response resp = null;
 		try {
 			resp = taxonomyMgr.updateDefinition(graphId, objectType);
-			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+			if (!resp.getParams().getStatus().equalsIgnoreCase(TestCaseParams.successful.name())) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
@@ -98,7 +106,7 @@ public class TestSuitSetup {
 		Response resp = null;
 		try {
 			resp = taxonomyMgr.delete(graphId);
-			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+			if (!resp.getParams().getStatus().equalsIgnoreCase(TestCaseParams.successful.name())) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
@@ -115,7 +123,8 @@ public class TestSuitSetup {
 				String definition;
 				try {
 					definition = FileUtils.readFileToString(fileEntry);
-					Response resp = createDefinition(Configuration.getProperty("graphId"), definition);
+					Response resp = createDefinition(Configuration.getProperty(TestCaseParams.graphId.name()),
+							definition);
 					definitions.put(fileEntry.getName(), resp.getResponseCode().toString());
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -127,12 +136,12 @@ public class TestSuitSetup {
 
 	private static void loadAllNodes() {
 		System.out.println("creating sample nodes for test");
-		InputStream in = csvReader("src/test/resources/literacy/literacy_concepts.csv");
-		create(Configuration.getProperty("graphId"), in);
-		InputStream in1 = csvReader("src/test/resources/literacy/literacy_dimensions.csv");
-		create(Configuration.getProperty("graphId"), in1);
-		InputStream in2 = csvReader("src/test/resources/literacy/literacy_domain.csv");
-		create(Configuration.getProperty("graphId"), in2);
+		InputStream in = csvReader(CONCEPT_CSV);
+		create(Configuration.getProperty(TestCaseParams.graphId.name()), in);
+		InputStream in1 = csvReader(DIMENSION_CSV);
+		create(Configuration.getProperty(TestCaseParams.graphId.name()), in1);
+		InputStream in2 = csvReader(DOMAIN_CSV);
+		create(Configuration.getProperty(TestCaseParams.graphId.name()), in2);
 	}
 
 	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
@@ -159,9 +168,9 @@ public class TestSuitSetup {
 		System.out.println("Starting neo4j in embedded mode");
 
 		graphDb = new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder(new File(Configuration.getProperty("graph.dir")))
-				.setConfig(bolt.type, "BOLT").setConfig(bolt.enabled, "true").setConfig(bolt.address, "localhost:7687")
-				.newGraphDatabase();
+				.newEmbeddedDatabaseBuilder(new File(Configuration.getProperty(GRAPH_DIRECTORY_PROPERTY_KEY)))
+				.setConfig(bolt.type, TestCaseParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
+				.setConfig(bolt.address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
 		registerShutdownHook(graphDb);
 
 		try (Transaction tx = graphDb.beginTx()) {
@@ -181,6 +190,6 @@ public class TestSuitSetup {
 	private static void tearEmbeddedNeo4JSetup() {
 		System.out.println("deleting Graph...!!");
 		graphDb.shutdown();
-		deleteGraph(Configuration.getProperty("graphId"));
+		deleteGraph(Configuration.getProperty(TestCaseParams.graphId.name()));
 	}
 }
