@@ -24,8 +24,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class HttpDownloadUtility {
 
-	
-
 	private static final int BUFFER_SIZE = 4096;
 
 	/**
@@ -101,6 +99,7 @@ public class HttpDownloadUtility {
 				PlatformLogger.log("No file to download. Server replied HTTP code: " + responseCode);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			PlatformLogger.log("Error! While Downloading File.", e.getMessage(), e);
 		} finally {
 			if (null != httpConn)

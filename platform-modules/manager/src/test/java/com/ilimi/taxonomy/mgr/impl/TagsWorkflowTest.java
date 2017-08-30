@@ -13,12 +13,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseGraphSpec;
+import com.ilimi.taxonomy.content.common.TestSuitSetup;
+
 
 // Enable it after adding embedded-redis. 
 @Ignore
 public class TagsWorkflowTest extends BaseGraphSpec {
-	
 	ContentManagerImpl mgr = new ContentManagerImpl();
 	ObjectMapper mapper = new ObjectMapper();
 	String createValidContentWithTags = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"tags\":[\"akshara\"],\"description\":\"Test Epub content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Epub\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test epub content\",\"mimeType\":\"application/epub\"}";

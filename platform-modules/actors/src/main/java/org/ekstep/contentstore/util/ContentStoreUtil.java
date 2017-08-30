@@ -30,10 +30,6 @@ public class ContentStoreUtil {
 	
 	static ObjectMapper mapper = new ObjectMapper();
 	static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	
-	
-	/** The Logger object. */
-	
 
 	public static void updateContentBody(String contentId, String body) {
 		updateContentProperty(contentId, "body", body);

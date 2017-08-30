@@ -34,9 +34,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class MissingAssetValidatorProcessor extends AbstractProcessor {
 
-	/** The logger. */
-	
-
 	/**
 	 * Instantiates a new missing asset validator processor.
 	 *
@@ -118,5 +115,4 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 		}
 		return id;
 	}
-
 }

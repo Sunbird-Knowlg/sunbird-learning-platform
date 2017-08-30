@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseGraphSpec;
+import com.ilimi.taxonomy.content.common.TestSuitSetup;
 
 /**
  * The AssessmentItemTest class contains tests to validate creation of
@@ -42,7 +42,7 @@ import com.ilimi.taxonomy.content.common.BaseGraphSpec;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentitemV3Test extends BaseGraphSpec {
+public class AssessmentitemV3Test extends TestSuitSetup {
 
 	@Autowired
 	private WebApplicationContext context;

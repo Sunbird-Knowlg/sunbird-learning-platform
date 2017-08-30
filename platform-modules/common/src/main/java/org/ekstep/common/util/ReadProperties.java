@@ -1,35 +1,48 @@
 package org.ekstep.common.util;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public class ReadProperties {
-    String result = "";
-    InputStream inputStream = new InputStream() {
-        @Override
-        public int read() throws IOException {
-            return 0;
-        }
-    };
 
-    public String getPropValues(String key) throws IOException {
-        try {
-            Properties prop = new Properties();
-            String propFileName = "content.properties";
-            inputStream = getClass().getClassLoader().getResourceAsStream(propFileName);
-            if (inputStream != null) {
-                prop.load(inputStream);
-            } else {
-                throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-            }
-            result = prop.getProperty(key);
-        } catch (Exception e) {
-            System.out.println("Exception: " + e);
-        } finally {
-            inputStream.close();
-        }
-        return result;
-    }
+	private static Properties prop = new Properties();
+	private static InputStream input = null;
+
+	static {
+		loadProperties("content.properties");
+	}
+	
+	/**
+	 * @params key to get Property
+     * @return the property
+     */
+	public static String getProperty(String key) {
+		return prop.getProperty(key);
+	}
+	
+	public static void loadProperties(Map<String, Object> props) {
+		prop.putAll(props);
+	}
+	
+	public static void loadProperties(Properties props) {
+		prop.putAll(props);
+	}
+	
+	/**
+	 * @params File from where to load the properties
+	 * loads all properties from the file
+	 * throws exception if the file is empty/absent
+     */
+	public static void loadProperties(String filename) {
+		try {
+			input = ReadProperties.class.getClassLoader().getResourceAsStream(filename);
+			if (input == null) {
+				throw new Exception("Unable to find " + filename);
+			}
+			prop.load(input);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

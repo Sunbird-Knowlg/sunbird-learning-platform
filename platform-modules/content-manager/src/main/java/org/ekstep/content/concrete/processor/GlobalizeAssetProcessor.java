@@ -45,9 +45,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class GlobalizeAssetProcessor extends AbstractProcessor {
 
-	/** The logger. */
-	
-	
 	private static final String s3Content = "s3.content.folder";
     private static final String s3Assets = "s3.asset.folder";
 

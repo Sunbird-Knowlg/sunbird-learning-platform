@@ -25,7 +25,6 @@ public class PublishPipelineTask implements StreamTask, InitableTask, Windowable
 	
 	@Override
 	public void init(Config config, TaskContext context) throws Exception {
-
 		try {
 			metrics = new JobMetrics(context);
 			service.initialize(config);

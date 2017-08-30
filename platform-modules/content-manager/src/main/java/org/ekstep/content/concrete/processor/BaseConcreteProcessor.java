@@ -52,9 +52,6 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class BaseConcreteProcessor extends BaseManager {
 
-	/** The logger. */
-	
-
 	/**
 	 * Gets the media.
 	 *

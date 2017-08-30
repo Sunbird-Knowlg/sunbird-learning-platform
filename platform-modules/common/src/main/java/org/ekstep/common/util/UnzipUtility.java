@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
@@ -74,6 +75,8 @@ public class UnzipUtility {
 			zipIn.close();
 		} catch (Exception e) {
 			PlatformLogger.log("Error! While Unzipping the File.", e.getMessage(),LoggerEnum.ERROR.name());
+			throw new ServerException("Error while unziping the file" , e.getMessage());
+			
 		} finally {
 			zipIn.close();
 		}

@@ -10,11 +10,14 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.common.util.ReadProperties;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
+import org.ekstep.content.util.PropertiesUtil;
 import org.ekstep.content.util.PublishWebHookInvoker;
+import org.ekstep.contentstore.util.CassandraConnector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
@@ -31,13 +34,12 @@ public class PublishPipelineService implements ISamzaService {
 
 	private String contentId;
 
-	private Map<String, Object> parameterMap;
+	private Map<String, Object> parameterMap = new HashMap<String,Object>();
 
 	protected static final String DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX = ".img";
 
 	private ControllerUtil util = new ControllerUtil();
 
-	@SuppressWarnings("unused")
 	private Config config = null;
 
 	@Override
@@ -49,9 +51,13 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		S3PropertyReader.loadProperties(props);
 		Configuration.loadProperties(props);
+		PropertiesUtil.loadProperties(props);
+		ReadProperties.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
-		LOGGER.info("Akka actors initialized");
+		LOGGER.info("Akka actors initialized");	
+		CassandraConnector.loadProperties(props);
+		LOGGER.info("Cassandra connection initialized");
 		JedisFactory.initialize(props);
 		LOGGER.info("Redis connection factory initialized");
 	}
@@ -148,12 +154,16 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Publish processing start for node", nodeId);
 		try {
 			setContentBody(node, mimeType);
+			LOGGER.info("Fetched body from cassandra");
 			parameterMap.put(PublishPipelineParams.node.name(), node);
 			parameterMap.put(PublishPipelineParams.ecmlType.name(),
 					PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, null), nodeId);
+			LOGGER.info("Fetch basePath" + PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")));
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")), nodeId);
+			LOGGER.info("Initializing the publish pipeline" + this.config.get("lp.tempfile.location") );
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
+			e.printStackTrace();
 			LOGGER
 					.info("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 							+ nodeId + "]", e.getMessage());
@@ -174,25 +184,21 @@ public class PublishPipelineService implements ISamzaService {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> getPublishLifecycleData(Map<String, Object> message) {
-		String eid = (String) message.get("eid");
-		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name())) {
+		String eid = (String) message.get(PublishPipelineParams.eid.name());
+		if (null == eid || !StringUtils.equalsIgnoreCase(eid, PublishPipelineParams.BE_OBJECT_LIFECYCLE.name()))
 			return null;
-		}
 
-		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
-		if (null == edata) {
+		Map<String, Object> edata = (Map<String, Object>) message.get(PublishPipelineParams.edata.name());
+		if (null == edata) 
 			return null;
-		}
 
-		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
-		if (null == eks) {
+		Map<String, Object> eks = (Map<String, Object>) edata.get(PublishPipelineParams.eks.name());
+		if (null == eks) 
 			return null;
-		}
-		if (StringUtils.equalsIgnoreCase((String) eks.get("state"), "Processing")) {
-			{
-				return eks;
-			}
-		}
+
+		if (StringUtils.equalsIgnoreCase((String) eks.get(PublishPipelineParams.state.name()), PublishPipelineParams.Processing.name())) 
+			return eks;
+		
 		return null;
 	}
 }
