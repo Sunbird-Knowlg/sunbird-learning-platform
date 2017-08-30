@@ -26,7 +26,9 @@ import org.neo4j.graphdb.Direction;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
@@ -134,47 +136,57 @@ public class Neo4JBoltSearchOperations {
 			throw new ClientException(DACErrorCodeConstants.INVALID_IDENTIFIER.name(),
 					DACErrorMessageConstants.INVALID_IDENTIFIER + " | ['Get Node By Unique Id' Operation Failed.]");
 
-		Node node = new Node();
-		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
-		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
-		try (Session session = driver.session()) {
-			PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
+		
+		Node node = (Node) NodeCacheManager.getDataNode(graphId, nodeId);
+		if (null != node) {
+			PlatformLogger.log("Saving node from in-memory cache: "+node.getIdentifier(), null, LoggerEnum.INFO.name());
+			return node;
+		} else {
+			Driver driver = DriverUtil.getDriver(graphId, GraphOperation.READ);
+			PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
+			try (Session session = driver.session()) {
+				PlatformLogger.log("Session Initialised. | [Graph Id: " + graphId + "]");
 
-			PlatformLogger.log("Populating Parameter Map.");
-			Map<String, Object> parameterMap = new HashMap<String, Object>();
-			parameterMap.put(GraphDACParams.graphId.name(), graphId);
-			parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
-			parameterMap.put(GraphDACParams.getTags.name(), getTags);
-			parameterMap.put(GraphDACParams.request.name(), request);
+				PlatformLogger.log("Populating Parameter Map.");
+				Map<String, Object> parameterMap = new HashMap<String, Object>();
+				parameterMap.put(GraphDACParams.graphId.name(), graphId);
+				parameterMap.put(GraphDACParams.nodeId.name(), nodeId);
+				parameterMap.put(GraphDACParams.getTags.name(), getTags);
+				parameterMap.put(GraphDACParams.request.name(), request);
 
-			StatementResult result = session
-					.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_BY_UNIQUE_ID, parameterMap));
-			if (null == result || !result.hasNext())
-				throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
-						DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]: "+ nodeId);
+				StatementResult result = session
+						.run(QueryUtil.getQuery(Neo4JOperation.GET_NODE_BY_UNIQUE_ID, parameterMap));
+				if (null == result || !result.hasNext())
+					throw new ResourceNotFoundException(DACErrorCodeConstants.NOT_FOUND.name(),
+							DACErrorMessageConstants.NODE_NOT_FOUND + " | [Invalid Node Id.]: "+ nodeId);
 
-			PlatformLogger.log("Initializing the Result Maps.");
-			Map<Long, Object> nodeMap = new HashMap<Long, Object>();
-			Map<Long, Object> relationMap = new HashMap<Long, Object>();
-			Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
-			Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
-			for (Record record : result.list()) {
-				PlatformLogger.log("'Get Node By Unique Id' Operation Finished.", record);
-				if (null != record)
-					getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+				PlatformLogger.log("Initializing the Result Maps.");
+				Map<Long, Object> nodeMap = new HashMap<Long, Object>();
+				Map<Long, Object> relationMap = new HashMap<Long, Object>();
+				Map<Long, Object> startNodeMap = new HashMap<Long, Object>();
+				Map<Long, Object> endNodeMap = new HashMap<Long, Object>();
+				for (Record record : result.list()) {
+					PlatformLogger.log("'Get Node By Unique Id' Operation Finished.", record);
+					if (null != record)
+						getRecordValues(record, nodeMap, relationMap, startNodeMap, endNodeMap);
+				}
+				PlatformLogger.log("Node Map: ", nodeMap);
+				PlatformLogger.log("Relation Map: ", relationMap);
+				PlatformLogger.log("Start Node Map: ", startNodeMap);
+				PlatformLogger.log("End Node Map: ", endNodeMap);
+				PlatformLogger.log("Initializing Node.");
+				if (!nodeMap.isEmpty()) {
+					for (Entry<Long, Object> entry : nodeMap.entrySet())
+						node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
+								startNodeMap, endNodeMap);
+				}
+				if (StringUtils.equalsIgnoreCase("Concept", node.getObjectType())) {
+					PlatformLogger.log("Saving concept to in-memory cache: "+node.getIdentifier(), null, LoggerEnum.INFO.name());
+					NodeCacheManager.saveDataNode(graphId, node.getIdentifier(), node);
+				}
 			}
-			PlatformLogger.log("Node Map: ", nodeMap);
-			PlatformLogger.log("Relation Map: ", relationMap);
-			PlatformLogger.log("Start Node Map: ", startNodeMap);
-			PlatformLogger.log("End Node Map: ", endNodeMap);
-			PlatformLogger.log("Initializing Node.");
-			if (!nodeMap.isEmpty()) {
-				for (Entry<Long, Object> entry : nodeMap.entrySet())
-					node = new Node(graphId, (org.neo4j.driver.v1.types.Node) entry.getValue(), relationMap,
-							startNodeMap, endNodeMap);
-			}
+			return node;
 		}
-		return node;
 	}
 
 	/**
