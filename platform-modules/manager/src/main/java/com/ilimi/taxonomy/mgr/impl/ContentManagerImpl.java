@@ -175,7 +175,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				if (checkError(response))
 					return response;
 				else {
+					// TODO: need to change this implementation.
 					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
+					node.getMetadata().put("mimeType", mimeType);
+					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
 				}	
 			}
 
@@ -227,11 +230,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
 			} else {
+				// TODO: need to change this implementation.
 				Response response = updateMimeType(node.getIdentifier(), mimeType);
 				if (checkError(response))
 					return response;
 				else {
 					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
+					node.getMetadata().put("mimeType", mimeType);
+					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
 				}
 			}
 				
