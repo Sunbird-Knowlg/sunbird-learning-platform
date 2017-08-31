@@ -37,7 +37,7 @@ public class ContentValidator {
 	private static final String DEF_CONTENT_PACKAGE_MIME_TYPE = "application/zip";
 
 	/** The Constant BUNDLE_PATH. */
-	private static final String BUNDLE_PATH = "/data/contentBundle";
+	private static final String BUNDLE_PATH = "/tmp";
 
 	/** The youtubeUrl regex */
 	private static final String YOUTUBE_REGEX = "^(http(s)?:\\/\\/)?((w){3}.)?youtu(be|.be)?(\\.com)?\\/.+";
