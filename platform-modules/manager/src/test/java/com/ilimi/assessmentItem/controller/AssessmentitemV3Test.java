@@ -28,7 +28,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.TestSuitSetup;
+import com.ilimi.taxonomy.content.common.TestSetup;
 
 /**
  * The AssessmentItemTest class contains tests to validate creation of
@@ -42,7 +42,7 @@ import com.ilimi.taxonomy.content.common.TestSuitSetup;
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentitemV3Test extends TestSuitSetup {
+public class AssessmentitemV3Test extends TestSetup {
 
 	@Autowired
 	private WebApplicationContext context;

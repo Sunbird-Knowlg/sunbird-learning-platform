@@ -29,7 +29,7 @@ import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 
-public class TestSuitSetup{
+public class TestSetup{
 
 	@ClassRule
 	public static CassandraCQLUnit cassandra;
@@ -71,7 +71,7 @@ public class TestSuitSetup{
 		Response resp = null;
 		try {
 			resp = taxonomyMgr.create(graphId, in);
-			if (!resp.getParams().getStatus().equalsIgnoreCase(TestCaseParams.successful.name())) {
+			if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
@@ -84,7 +84,7 @@ public class TestSuitSetup{
 		Response resp = null;
 		try {
 			resp = taxonomyMgr.updateDefinition(graphId, objectType);
-			if (!resp.getParams().getStatus().equalsIgnoreCase(TestCaseParams.successful.name())) {
+			if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
@@ -107,7 +107,7 @@ public class TestSuitSetup{
 		Response resp = null;
 		try {
 			resp = taxonomyMgr.delete(graphId);
-			if (!resp.getParams().getStatus().equalsIgnoreCase(TestCaseParams.successful.name())) {
+			if (!resp.getParams().getStatus().equalsIgnoreCase(TestParams.successful.name())) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
 		} catch (Exception e) {
@@ -124,7 +124,7 @@ public class TestSuitSetup{
 				String definition;
 				try {
 					definition = FileUtils.readFileToString(fileEntry);
-					Response resp = createDefinition(Configuration.getProperty(TestCaseParams.graphId.name()),
+					Response resp = createDefinition(Configuration.getProperty(TestParams.graphId.name()),
 							definition);
 					definitions.put(fileEntry.getName(), resp.getResponseCode().toString());
 				} catch (IOException e) {
@@ -138,11 +138,11 @@ public class TestSuitSetup{
 	private static void loadAllNodes() {
 		System.out.println("creating sample nodes for test");
 		InputStream in = csvReader(CONCEPT_CSV);
-		create(Configuration.getProperty(TestCaseParams.graphId.name()), in);
+		create(Configuration.getProperty(TestParams.graphId.name()), in);
 		InputStream in1 = csvReader(DIMENSION_CSV);
-		create(Configuration.getProperty(TestCaseParams.graphId.name()), in1);
+		create(Configuration.getProperty(TestParams.graphId.name()), in1);
 		InputStream in2 = csvReader(DOMAIN_CSV);
-		create(Configuration.getProperty(TestCaseParams.graphId.name()), in2);
+		create(Configuration.getProperty(TestParams.graphId.name()), in2);
 	}
 
 	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
@@ -170,7 +170,7 @@ public class TestSuitSetup{
 
 		graphDb = new GraphDatabaseFactory()
 				.newEmbeddedDatabaseBuilder(new File(Configuration.getProperty(GRAPH_DIRECTORY_PROPERTY_KEY)))
-				.setConfig(bolt.type, TestCaseParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
+				.setConfig(bolt.type, TestParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
 				.setConfig(bolt.address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
 		registerShutdownHook(graphDb);
 
@@ -191,6 +191,6 @@ public class TestSuitSetup{
 	private static void tearEmbeddedNeo4JSetup() {
 		System.out.println("deleting Graph...!!");
 		graphDb.shutdown();
-		deleteGraph(Configuration.getProperty(TestCaseParams.graphId.name()));
+		deleteGraph(Configuration.getProperty(TestParams.graphId.name()));
 	}
 }
