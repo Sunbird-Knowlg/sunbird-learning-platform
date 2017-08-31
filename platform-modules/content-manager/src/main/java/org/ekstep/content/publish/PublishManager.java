@@ -19,10 +19,12 @@ import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.router.RequestRouterPool;
@@ -52,7 +54,12 @@ public class PublishManager extends BaseManager {
 				response = new Response();
 			response.put(ContentAPIParams.publishStatus.name(), "Publish Operation for Content Id '" + contentId
 					+ "' Started Successfully!");
-//			executor.submit(new PublishTask(contentId, parameterMap));
+			if (Platform.config.hasPath("content.publish_task.enabled")) {
+				if (Platform.config.getBoolean("content.publish_task.enabled")) {
+					PlatformLogger.log("Publish task execution starting for content Id: " + contentId, null, LoggerEnum.INFO.name());
+					executor.submit(new PublishTask(contentId, parameterMap));
+				}
+			}
 		}
 
 		return response;

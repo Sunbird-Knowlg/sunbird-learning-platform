@@ -275,17 +275,25 @@ public class ContentV2Controller extends BaseController {
 	public ResponseEntity<Response> preSignedURL(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "ekstep.learning.content.upload.url";
-		Response response;
 		PlatformLogger.log("Upload URL content | Content Id : " + contentId);
+		Response response;
 		try {
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			if (null == requestMap.get("fileName") || StringUtils.isBlank(requestMap.get("fileName").toString())) {
+			String fileName = null;
+			if (null != requestMap) {
+				fileName = (String) requestMap.get("fileName");
+				if (StringUtils.isBlank(fileName)) {
+					return getExceptionResponseEntity(
+							new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"),
+							apiId, null);
+				}
+			} else {
 				return getExceptionResponseEntity(
-						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_FILE_NAME.name(), "File name is blank"),
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), "content object is blank"),
 						apiId, null);
 			}
-			response = contentManager.preSignedURL(graphId, contentId, requestMap.get("fileName").toString());
+			response = contentManager.preSignedURL(graphId, contentId, fileName);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
