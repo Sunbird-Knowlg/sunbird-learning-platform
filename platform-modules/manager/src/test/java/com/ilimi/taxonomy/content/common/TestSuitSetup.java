@@ -15,7 +15,7 @@ import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Rule;
+import org.junit.ClassRule;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionTerminatedException;
@@ -28,9 +28,10 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
-public class TestSuitSetup {
 
-	@Rule
+public class TestSuitSetup{
+
+	@ClassRule
 	public static CassandraCQLUnit cassandra;
 
 	private static File folder = new File("src/test/resources/definitions");
