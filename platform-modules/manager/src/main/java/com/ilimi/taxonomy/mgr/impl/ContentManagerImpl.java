@@ -656,8 +656,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				childList.add(childData);
 			}
 			contentMap.put("children", childList);
-		} else {
-
 		}
 		return contentMap;
 	}
@@ -1335,7 +1333,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (StringUtils.isBlank(id)) {
 			Map<String, Object> map = (Map<String, Object>) entry.getValue();
 			Boolean root = (Boolean) map.get("root");
-			Node tmpnode = getNodeForOperation(graphId, nodeId, "update", true);
+			Node tmpnode = getNodeForOperation(graphId, nodeId, "update", false);
 			if (null != tmpnode) {
 				id = tmpnode.getIdentifier();
 				tmpnode.setOutRelations(null);
