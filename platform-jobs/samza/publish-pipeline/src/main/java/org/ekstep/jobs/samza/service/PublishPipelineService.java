@@ -196,8 +196,8 @@ public class PublishPipelineService implements ISamzaService {
 		if (null == eks) 
 			return null;
 
-		if (StringUtils.equalsIgnoreCase((String) eks.get(PublishPipelineParams.state.name()), PublishPipelineParams.Processing.name()) && 
-				(!StringUtils.equalsAnyIgnoreCase((String)eks.get(PublishPipelineParams.type.name()), PublishPipelineParams.Asset.name()))) 
+		if ((StringUtils.equalsIgnoreCase((String) eks.get(PublishPipelineParams.state.name()), PublishPipelineParams.Processing.name()))
+		&& (!StringUtils.equalsIgnoreCase((String) eks.get(PublishPipelineParams.type.name()), PublishPipelineParams.Asset.name())))
 			return eks;
 		
 		return null;
