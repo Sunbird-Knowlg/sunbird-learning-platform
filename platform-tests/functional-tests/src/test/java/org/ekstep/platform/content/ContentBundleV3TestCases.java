@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
@@ -860,23 +861,87 @@ public class ContentBundleV3TestCases extends BaseTest {
 				spec(get400ResponseSpec());
 	}
 
+//	@Test
+//	public void bundleBodyUpdateContentExpectSuccess200() {
+//		setURI();
+//		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
+//				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().log()
+//				.all().extract().response();
+//
+//		// Get node_id
+//		JsonPath jP = R.jsonPath();
+//		String nodeId = jP.get("result.node_id");
+//
+//		// Upload Zip File
+//		setURI();
+//		Response R1 = given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
+//				.multiPart(new File(path + "/Akshara_worksheet.zip")).when().post("/content/v3/upload/" + nodeId).then()
+//				.log().all().spec(get200ResponseSpec()).extract().response();
+//
+//		JsonPath jP1 = R1.jsonPath();
+//		String versionKey = jP1.get("result.versionKey");
+//		String artifactUrl = jP1.get("result.content_url");
+//		Assert.assertFalse(artifactUrl.equals(null));
+//
+//		// Update content body
+//		setURI();
+//		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("null", versionKey);
+//		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateATContentBody).with()
+//				.contentType("application/json").then().patch("/content/v3/update/" + nodeId);
+//
+//		// Get body and validate
+//		setURI();
+//		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
+//				.get("/content/v3/read/" + nodeId).then().log().all().spec(get200ResponseSpec()).extract().response();
+//
+//		JsonPath jP2 = R2.jsonPath();
+//		String artifactUrlUpdated = jP2.get("result.content.artifactUrl");
+//		Assert.assertEquals(artifactUrlUpdated, null);
+//
+//		// Bundle created content
+//		setURI();
+//		Response R3 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
+//				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
+//						+ "\"],\"file_name\": \"Testqa_bundle_ECML\"}}")
+//				.when().post("content/v3/bundle").then().log().all().spec(get200ResponseSpec()).extract().response();
+//
+//		JsonPath jP3 = R3.jsonPath();
+//		String ecarUrl = jP3.get("result.ECAR_URL");
+//	}
+	
 	// Bundle content with updated body post upload
 	@Test
-	public void bundleBodyUpdateContentExpectSuccess200() {
+	public void bundleBodyUpdateContentExpectSuccess200(){
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().log()
-				.all().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				extract().
+				response();
 
 		// Get node_id
 		JsonPath jP = R.jsonPath();
 		String nodeId = jP.get("result.node_id");
-
+		
 		// Upload Zip File
 		setURI();
-		Response R1 = given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-				.multiPart(new File(path + "/Akshara_worksheet.zip")).when().post("/content/v3/upload/" + nodeId).then()
-				.log().all().spec(get200ResponseSpec()).extract().response();
+		Response R1 =
+		given().
+		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		multiPart(new File(path+"/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec()).
+		extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String versionKey = jP1.get("result.versionKey");
@@ -886,27 +951,49 @@ public class ContentBundleV3TestCases extends BaseTest {
 		// Update content body
 		setURI();
 		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("null", versionKey);
-		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateATContentBody).with()
-				.contentType("application/json").then().patch("/content/v3/update/" + nodeId);
-
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		body(jsonUpdateATContentBody).
+		with().
+		contentType("application/json").
+		then().
+		patch("/content/v3/update/"+nodeId);
+		
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().log().all().spec(get200ResponseSpec()).extract().response();
+		Response R2 =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				when().
+				get("/content/v3/read/"+nodeId).
+				then().
+				log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String artifactUrlUpdated = jP2.get("result.content.artifactUrl");
+		ArrayList<String> language = jP2.get("result.content.language");
+		Assert.assertTrue(language.contains("Hindi") && language.contains("Tamil") && language.contains("Telugu"));
 		Assert.assertEquals(artifactUrlUpdated, null);
-
 		// Bundle created content
 		setURI();
-		Response R3 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
-						+ "\"],\"file_name\": \"Testqa_bundle_ECML\"}}")
-				.when().post("content/v3/bundle").then().log().all().spec(get200ResponseSpec()).extract().response();
+		Response R3 = 
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body("{\"request\": {\"content_identifiers\": [\""+nodeId+"\"],\"file_name\": \"Testqa_bundle_ECML\"}}").
+				when().
+				post("content/v3/bundle").
+				then().
+				log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
 
 		JsonPath jP3 = R3.jsonPath();
 		String ecarUrl = jP3.get("result.ECAR_URL");
+		Assert.assertTrue(bundleValidation(ecarUrl));
 	}
 
 	// Bundle nested collection

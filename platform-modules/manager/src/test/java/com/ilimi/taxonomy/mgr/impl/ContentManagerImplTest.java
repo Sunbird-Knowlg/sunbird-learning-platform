@@ -236,5 +236,9 @@ public class ContentManagerImplTest extends TestSetup {
 			e.printStackTrace();
 		}
 	}
+	
+	private static void seedContent() {
+		
+	}
 
 }
