@@ -768,10 +768,11 @@ public class ParagraphMeasures {
 
 		if (wordList != null) {
 			for (Map<String, Object> word : wordList) {
-				List<String> tags = (List<String>) word.get(LanguageParams.tags.name());
-				for (String tag : tags) {
-					themes.merge(tag, 1, (v, vv) -> ++v);
-				}
+				List<String> keywords = (List<String>) word.get(LanguageParams.keywords.name());
+				if (keywords != null)
+					for (String keyword : keywords) {
+						themes.merge(keyword, 1, (v, vv) -> ++v);
+					}
 			}
 		}
 
