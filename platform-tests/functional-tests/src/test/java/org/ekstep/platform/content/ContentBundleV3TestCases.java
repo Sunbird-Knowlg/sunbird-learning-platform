@@ -2,6 +2,7 @@ package org.ekstep.platform.content;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileReader;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.platform.domain.BaseTest;
 //import org.hamcrest.CoreMatchers;
 import org.json.JSONObject;
@@ -19,7 +21,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -66,7 +67,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 			+ "\",\"osId\": \"org.ekstep.app\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"
 			+ rn
 			+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"]}}}";
-	String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"null\", \"body\": {\"theme\":{\"manifest\":{\"media\":[{\"id\":\"tick\",\"type\":\"image\",\"src\":\"https://qa.ekstep.in/assets/public/content/1455104185970tick.png\",\"assetId\":\"tick\"},{\"id\":\"domain_2890\",\"type\":\"audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/%C3%A0%C2%B2%C2%9A_1463054756900.mp3\",\"assetId\":\"domain_2890\"},{\"id\":\"validate\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_ok_highlights_1460705843676.png\",\"type\":\"image\",\"assetId\":\"domain_38852\"},{\"id\":\"popupTint\",\"src\":\"https://qa.ekstep.in/assets/public/content/PopupTint_1460636175572.png\",\"type\":\"image\",\"assetId\":\"domain_38606\"},{\"id\":\"goodjobBg\",\"src\":\"https://qa.ekstep.in/assets/public/content/goodjobBg_1460727428389.png\",\"type\":\"image\",\"assetId\":\"domain_38939\"},{\"id\":\"retryBg\",\"src\":\"https://qa.ekstep.in/assets/public/content/retryBg_1460727370746.png\",\"type\":\"image\",\"assetId\":\"domain_38938\"},{\"id\":\"retry_audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/retry_1460636610607.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38624\"},{\"id\":\"goodjob_audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/goodJob_1460636677521.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38625\"},{\"id\":\"next\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_next_1461401649059.png\",\"type\":\"image\",\"assetId\":\"domain_40358\"},{\"id\":\"previous\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_back_1461401700215.png\",\"type\":\"image\",\"assetId\":\"domain_40359\"},{\"id\":\"submit\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_submit_1459243202199.png\",\"type\":\"image\",\"assetId\":\"domain_14524\"},{\"id\":\"home\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_home_1459242981364.png\",\"type\":\"image\",\"assetId\":\"domain_14519\"},{\"id\":\"reload\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_reload_1459243110661.png\",\"type\":\"image\",\"assetId\":\"domain_14522\"},{\"id\":\"icon_hint\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_hint_1454918891133.png\",\"type\":\"image\",\"assetId\":\"domain_799\"},{\"id\":\"bg\",\"src\":\"https://qa.ekstep.in/assets/public/content/background_1458729298020.png\",\"type\":\"image\"}]},\"id\":\"theme\",\"ver\":0.2,\"startStage\":\"Stage\",\"controller\":[{\"name\":\"dictionary\",\"type\":\"data\",\"id\":\"dictionary\",\"__cdata\":{}}],\"template\":[{\"image\":[{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"show\",\"asset\":\"retryDialog\"},\"type\":\"click\"},\"asset\":\"popupTint\",\"x\":-100,\"y\":-150,\"w\":550,\"h\":600,\"visible\":true,\"id\":\"popup-Tint\"},{\"asset\":\"retryBg\",\"x\":0,\"y\":0,\"w\":150,\"h\":150,\"visible\":true,\"id\":\"right\"}],\"shape\":[{\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"hide\",\"asset\":\"retryDialog\"},{\"type\":\"command\",\"command\":\"SHOWHTMLELEMENTS\",\"asset\":\"retry\"}],\"type\":\"click\"},\"type\":\"roundrect\",\"x\":72,\"y\":25,\"w\":50,\"h\":65,\"visible\":true,\"id\":\"retry\",\"hitArea\":true},{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"transitionTo\",\"asset\":\"theme\",\"param\":\"next\",\"effect\":\"fadein\",\"direction\":\"left\",\"ease\":\"linear\",\"duration\":100},\"type\":\"click\"},\"type\":\"roundrect\",\"x\":110,\"y\":100,\"w\":25,\"h\":35,\"visible\":true,\"id\":\"continue\",\"hitArea\":true}],\"id\":\"retry\"},{\"g\":{\"image\":[{\"asset\":\"popupTint\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"visible\":true,\"id\":\"popup-Tint\"}],\"text\":[{\"x\":25,\"y\":25,\"w\":50,\"h\":9,\"visible\":true,\"editable\":true,\"model\":\"word.lemma\",\"weight\":\"normal\",\"font\":\"helvetica\",\"color\":\"rgb(0,0,0)\",\"fontstyle\":\"\",\"fontsize\":75,\"align\":\"left\",\"z-index\":1,\"id\":\"lemma\"},{\"x\":25,\"y\":35,\"w\":50,\"h\":40,\"visible\":true,\"editable\":true,\"model\":\"word.gloss\",\"weight\":\"normal\",\"font\":\"helvetica\",\"color\":\"rgb(0,0,0)\",\"fontstyle\":\"\",\"fontsize\":43,\"align\":\"left\",\"z-index\":2,\"id\":\"gloss\"}],\"shape\":[{\"x\":20,\"y\":20,\"w\":60,\"h\":60,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":10,\"opacity\":1,\"fill\":\"#45b3a5\",\"stroke-width\":1,\"z-index\":0,\"id\":\"textBg\"}],\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"SHOWHTMLELEMENTS\",\"asset\":\"textBg\"},{\"type\":\"command\",\"command\":\"hide\",\"parent\":true}],\"type\":\"click\"}},\"id\":\"infoTemplate\"},{\"image\":[{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"show\",\"asset\":\"\"},\"type\":\"click\"},\"asset\":\"popupTint\",\"x\":-100,\"y\":-150,\"w\":550,\"h\":600,\"visible\":true,\"id\":\"popup-Tint\"},{\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"transitionTo\",\"asset\":\"theme\",\"param\":\"next\",\"effect\":\"fadein\",\"direction\":\"left\",\"ease\":\"linear\",\"duration\":500}],\"type\":\"click\"},\"asset\":\"goodjobBg\",\"x\":0,\"y\":0,\"w\":150,\"h\":150,\"visible\":true,\"id\":\"continue\"}],\"id\":\"goodjob\"}],\"stage\":[{\"id\":\"Stage\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"param\":[{\"name\":\"next\",\"value\":\"scene3e8f3e6d-72db-45db-aca6-e88d95cb87c8\"}],\"events\":{\"event\":[]},\"image\":[{\"x\":0,\"y\":0,\"w\":71.11111111111111,\"h\":77.77777777777779,\"visible\":true,\"editable\":true,\"asset\":\"tick\",\"z-index\":0}],\"text\":[],\"shape\":[],\"hotspot\":[],\"embed\":[],\"div\":[],\"audio\":[],\"scribble\":[],\"htext\":[],\"g\":[],\"preload\":true},{\"id\":\"scene3e8f3e6d-72db-45db-aca6-e88d95cb87c8\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"param\":[{\"name\":\"previous\",\"value\":\"Stage\"}],\"events\":{\"event\":[{\"action\":{\"type\":\"command\",\"command\":\"play\",\"asset\":\"domain_2890\",\"loop\":1},\"type\":\"enter\"},{\"action\":{\"type\":\"command\",\"command\":\"stop\",\"asset\":\"domain_2890\",\"loop\":1},\"type\":\"exit\"}]},\"image\":[],\"text\":[],\"shape\":[{\"x\":24.583333333333332,\"y\":17.555555555555554,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":1,\"opacity\":1,\"fill\":\"rgb(255, 255, 0)\",\"stroke-width\":1,\"z-index\":0},{\"x\":39.72222222222222,\"y\":12.222222222222221,\"w\":27.77777777777778,\"h\":44.44444444444444,\"visible\":true,\"editable\":true,\"type\":\"ellipse\",\"opacity\":1,\"fill\":\"rgb(0,255,0)\",\"stroke-width\":1,\"z-index\":1},{\"x\":48.333333333333336,\"y\":58.22222222222222,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":10,\"opacity\":1,\"fill\":\"red\",\"stroke-width\":1,\"z-index\":2}],\"hotspot\":[{\"x\":27.63888888888889,\"y\":47.77777777777778,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":1,\"fill\":\"red\",\"stroke-width\":1,\"keyword\":\"\",\"hitArea\":true,\"z-index\":3}],\"embed\":[],\"div\":[],\"audio\":[{\"asset\":\"domain_2890\"}],\"scribble\":[],\"htext\":[],\"g\":[]}]}}}}}";
+	String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"null\", \"body\": {\"theme\":{\"manifest\":{\"media\":[{\"id\":\"tick\",\"type\":\"image\",\"src\":\"https://qa.ekstep.in/assets/public/content/1455104185970tick.png\",\"assetId\":\"tick\"},{\"id\":\"domain_2890\",\"type\":\"audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/%C3%A0%C2%B2%C2%9A_1463054756900.mp3\",\"assetId\":\"domain_2890\"},{\"id\":\"validate\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_ok_highlights_1460705843676.png\",\"type\":\"image\",\"assetId\":\"domain_38852\"},{\"id\":\"popupTint\",\"src\":\"https://qa.ekstep.in/assets/public/content/PopupTint_1460636175572.png\",\"type\":\"image\",\"assetId\":\"domain_38606\"},{\"id\":\"goodjobBg\",\"src\":\"https://qa.ekstep.in/assets/public/content/goodjobBg_1460727428389.png\",\"type\":\"image\",\"assetId\":\"domain_38939\"},{\"id\":\"retryBg\",\"src\":\"https://qa.ekstep.in/assets/public/content/retryBg_1460727370746.png\",\"type\":\"image\",\"assetId\":\"domain_38938\"},{\"id\":\"retry_audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/retry_1460636610607.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38624\"},{\"id\":\"goodjob_audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/goodJob_1460636677521.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38625\"},{\"id\":\"next\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_next_1461401649059.png\",\"type\":\"image\",\"assetId\":\"domain_40358\"},{\"id\":\"previous\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_back_1461401700215.png\",\"type\":\"image\",\"assetId\":\"domain_40359\"},{\"id\":\"submit\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_submit_1459243202199.png\",\"type\":\"image\",\"assetId\":\"domain_14524\"},{\"id\":\"home\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_home_1459242981364.png\",\"type\":\"image\",\"assetId\":\"domain_14519\"},{\"id\":\"reload\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_reload_1459243110661.png\",\"type\":\"image\",\"assetId\":\"domain_14522\"},{\"id\":\"icon_hint\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_hint_1454918891133.png\",\"type\":\"image\",\"assetId\":\"domain_799\"},{\"id\":\"bg\",\"src\":\"https://qa.ekstep.in/assets/public/content/background_1458729298020.png\",\"type\":\"image\"}]},\"id\":\"theme\",\"ver\":0.2,\"startStage\":\"Stage\",\"controller\":[{\"name\":\"dictionary\",\"type\":\"data\",\"id\":\"dictionary\",\"__cdata\":{}}],\"template\":[{\"image\":[{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"show\",\"asset\":\"retryDialog\"},\"type\":\"click\"},\"asset\":\"popupTint\",\"x\":-100,\"y\":-150,\"w\":550,\"h\":600,\"visible\":true,\"id\":\"popup-Tint\"},{\"asset\":\"retryBg\",\"x\":0,\"y\":0,\"w\":150,\"h\":150,\"visible\":true,\"id\":\"right\"}],\"shape\":[{\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"hide\",\"asset\":\"retryDialog\"},{\"type\":\"command\",\"command\":\"SHOWHTMLELEMENTS\",\"asset\":\"retry\"}],\"type\":\"click\"},\"type\":\"roundrect\",\"x\":72,\"y\":25,\"w\":50,\"h\":65,\"visible\":true,\"id\":\"retry\",\"hitArea\":true},{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"transitionTo\",\"asset\":\"theme\",\"param\":\"next\",\"effect\":\"fadein\",\"direction\":\"left\",\"ease\":\"linear\",\"duration\":100},\"type\":\"click\"},\"type\":\"roundrect\",\"x\":110,\"y\":100,\"w\":25,\"h\":35,\"visible\":true,\"id\":\"continue\",\"hitArea\":true}],\"id\":\"retry\"},{\"g\":{\"image\":[{\"asset\":\"popupTint\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"visible\":true,\"id\":\"popup-Tint\"}],\"text\":[{\"x\":25,\"y\":25,\"w\":50,\"h\":9,\"visible\":true,\"editable\":true,\"model\":\"word.lemma\",\"weight\":\"normal\",\"font\":\"helvetica\",\"color\":\"rgb(0,0,0)\",\"fontstyle\":\"\",\"fontsize\":75,\"align\":\"left\",\"z-index\":1,\"id\":\"lemma\"},{\"x\":25,\"y\":35,\"w\":50,\"h\":40,\"visible\":true,\"editable\":true,\"model\":\"word.gloss\",\"weight\":\"normal\",\"font\":\"helvetica\",\"color\":\"rgb(0,0,0)\",\"fontstyle\":\"\",\"fontsize\":43,\"align\":\"left\",\"z-index\":2,\"id\":\"gloss\"}],\"shape\":[{\"x\":20,\"y\":20,\"w\":60,\"h\":60,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":10,\"opacity\":1,\"fill\":\"#45b3a5\",\"stroke-width\":1,\"z-index\":0,\"id\":\"textBg\"}],\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"SHOWHTMLELEMENTS\",\"asset\":\"textBg\"},{\"type\":\"command\",\"command\":\"hide\",\"parent\":true}],\"type\":\"click\"}},\"id\":\"infoTemplate\"},{\"image\":[{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"show\",\"asset\":\"\"},\"type\":\"click\"},\"asset\":\"popupTint\",\"x\":-100,\"y\":-150,\"w\":550,\"h\":600,\"visible\":true,\"id\":\"popup-Tint\"},{\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"transitionTo\",\"asset\":\"theme\",\"param\":\"next\",\"effect\":\"fadein\",\"direction\":\"left\",\"ease\":\"linear\",\"duration\":500}],\"type\":\"click\"},\"asset\":\"goodjobBg\",\"x\":0,\"y\":0,\"w\":150,\"h\":150,\"visible\":true,\"id\":\"continue\"}],\"id\":\"goodjob\"}],\"stage\":[{\"id\":\"Stage\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"param\":[{\"name\":\"next\",\"value\":\"scene3e8f3e6d-72db-45db-aca6-e88d95cb87c8\"}],\"events\":{\"event\":[]},\"image\":[{\"x\":0,\"y\":0,\"w\":71.11111111111111,\"h\":77.77777777777779,\"visible\":true,\"editable\":true,\"asset\":\"tick\",\"z-index\":0}],\"text\":[],\"shape\":[],\"hotspot\":[],\"embed\":[],\"div\":[],\"audio\":[],\"scribble\":[],\"htext\":[],\"g\":[],\"preload\":true},{\"id\":\"scene3e8f3e6d-72db-45db-aca6-e88d95cb87c8\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"param\":[{\"name\":\"previousEKSTEP-ECO\",\"value\":\"Stage\"}],\"events\":{\"event\":[{\"action\":{\"type\":\"command\",\"command\":\"play\",\"asset\":\"domain_2890\",\"loop\":1},\"type\":\"enter\"},{\"action\":{\"type\":\"command\",\"command\":\"stop\",\"asset\":\"domain_2890\",\"loop\":1},\"type\":\"exit\"}]},\"image\":[],\"text\":[],\"shape\":[{\"x\":24.583333333333332,\"y\":17.555555555555554,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":1,\"opacity\":1,\"fill\":\"rgb(255, 255, 0)\",\"stroke-width\":1,\"z-index\":0},{\"x\":39.72222222222222,\"y\":12.222222222222221,\"w\":27.77777777777778,\"h\":44.44444444444444,\"visible\":true,\"editable\":true,\"type\":\"ellipse\",\"opacity\":1,\"fill\":\"rgb(0,255,0)\",\"stroke-width\":1,\"z-index\":1},{\"x\":48.333333333333336,\"y\":58.22222222222222,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":10,\"opacity\":1,\"fill\":\"red\",\"stroke-width\":1,\"z-index\":2}],\"hotspot\":[{\"x\":27.63888888888889,\"y\":47.77777777777778,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":1,\"fill\":\"red\",\"stroke-width\":1,\"keyword\":\"\",\"hitArea\":true,\"z-index\":3}],\"embed\":[],\"div\":[],\"audio\":[{\"asset\":\"domain_2890\"}],\"scribble\":[],\"htext\":[],\"g\":[]}]}}}}}";
 	String jsonContentWithPublisherId = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}";
 
 	String invalidContentId = "LP_FT" + rn + "";
@@ -861,87 +862,25 @@ public class ContentBundleV3TestCases extends BaseTest {
 				spec(get400ResponseSpec());
 	}
 
-//	@Test
-//	public void bundleBodyUpdateContentExpectSuccess200() {
-//		setURI();
-//		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-//				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().log()
-//				.all().extract().response();
-//
-//		// Get node_id
-//		JsonPath jP = R.jsonPath();
-//		String nodeId = jP.get("result.node_id");
-//
-//		// Upload Zip File
-//		setURI();
-//		Response R1 = given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-//				.multiPart(new File(path + "/Akshara_worksheet.zip")).when().post("/content/v3/upload/" + nodeId).then()
-//				.log().all().spec(get200ResponseSpec()).extract().response();
-//
-//		JsonPath jP1 = R1.jsonPath();
-//		String versionKey = jP1.get("result.versionKey");
-//		String artifactUrl = jP1.get("result.content_url");
-//		Assert.assertFalse(artifactUrl.equals(null));
-//
-//		// Update content body
-//		setURI();
-//		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("null", versionKey);
-//		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateATContentBody).with()
-//				.contentType("application/json").then().patch("/content/v3/update/" + nodeId);
-//
-//		// Get body and validate
-//		setURI();
-//		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
-//				.get("/content/v3/read/" + nodeId).then().log().all().spec(get200ResponseSpec()).extract().response();
-//
-//		JsonPath jP2 = R2.jsonPath();
-//		String artifactUrlUpdated = jP2.get("result.content.artifactUrl");
-//		Assert.assertEquals(artifactUrlUpdated, null);
-//
-//		// Bundle created content
-//		setURI();
-//		Response R3 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-//				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
-//						+ "\"],\"file_name\": \"Testqa_bundle_ECML\"}}")
-//				.when().post("content/v3/bundle").then().log().all().spec(get200ResponseSpec()).extract().response();
-//
-//		JsonPath jP3 = R3.jsonPath();
-//		String ecarUrl = jP3.get("result.ECAR_URL");
-//	}
-	
 	// Bundle content with updated body post upload
 	@Test
-	public void bundleBodyUpdateContentExpectSuccess200(){
+	public void bundleBodyUpdateContentExpectSuccess200() {
 		setURI();
-		Response R = 
-				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
-				body(jsonCreateValidContent).
-				with().
-				contentType(JSON).
-				when().
-				post("content/v3/create").
-				then().
-				//log().all().
-				extract().
-				response();
+		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
+				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().
+				// log().all().
+				extract().response();
 
 		// Get node_id
 		JsonPath jP = R.jsonPath();
 		String nodeId = jP.get("result.node_id");
-		
+
 		// Upload Zip File
 		setURI();
-		Response R1 =
-		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
-		multiPart(new File(path+"/uploadContent.zip")).
-		when().
-		post("/content/v3/upload/"+nodeId).
-		then().
-		//log().all().
-		spec(get200ResponseSpec()).
-		extract().response();
+		Response R1 = given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
+				// log().all().
+				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String versionKey = jP1.get("result.versionKey");
@@ -951,26 +890,13 @@ public class ContentBundleV3TestCases extends BaseTest {
 		// Update content body
 		setURI();
 		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("null", versionKey);
-		given().
-		spec(getRequestSpecification(contentType, validuserId, APIToken)).
-		body(jsonUpdateATContentBody).
-		with().
-		contentType("application/json").
-		then().
-		patch("/content/v3/update/"+nodeId);
-		
+		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateATContentBody).with()
+				.contentType("application/json").then().patch("/content/v3/update/" + nodeId);
+
 		// Get body and validate
 		setURI();
-		Response R2 =
-				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
-				when().
-				get("/content/v3/read/"+nodeId).
-				then().
-				log().all().
-				spec(get200ResponseSpec()).
-				extract().
-				response();
+		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).when()
+				.get("/content/v3/read/" + nodeId).then().log().all().spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String artifactUrlUpdated = jP2.get("result.content.artifactUrl");
@@ -979,21 +905,14 @@ public class ContentBundleV3TestCases extends BaseTest {
 		Assert.assertEquals(artifactUrlUpdated, null);
 		// Bundle created content
 		setURI();
-		Response R3 = 
-				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
-				body("{\"request\": {\"content_identifiers\": [\""+nodeId+"\"],\"file_name\": \"Testqa_bundle_ECML\"}}").
-				when().
-				post("content/v3/bundle").
-				then().
-				log().all().
-				spec(get200ResponseSpec()).
-				extract().
-				response();
+		Response R3 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
+				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
+						+ "\"],\"file_name\": \"Testqa_bundle_ECML\"}}")
+				.when().post("content/v3/bundle").then().log().all().spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
 		String ecarUrl = jP3.get("result.ECAR_URL");
-		Assert.assertTrue(bundleValidation(ecarUrl));
+		Assert.assertTrue(bundleValidation(ecarUrl, "EKSTEP-ECO"));
 	}
 
 	// Bundle nested collection
@@ -1214,12 +1133,118 @@ public class ContentBundleV3TestCases extends BaseTest {
 		return true;
 	}
 
+	@SuppressWarnings({ "unused" })
+	private boolean bundleValidation(String ecarUrl, String searchString) throws ClassCastException {
+		// double manifestVesionActual = 1.1;
+		boolean bundleValidation = true;
+		try {
+			String bundleName = "bundle_" + rn + "";
+
+			// Downloading the Ecar from ecar url
+			FileUtils.copyURLToFile(new URL(ecarUrl), new File(downloadPath + "/" + bundleName + ".zip"));
+			String bundlePath = downloadPath + "/" + bundleName + ".zip";
+
+			// Setting up extract path
+			File bundleExtract = new File(downloadPath + "/" + bundleName);
+			String bundleExtractPath = bundleExtract.getPath();
+
+			try {
+				// Unzip the file
+				ZipFile bundleZip = new ZipFile(bundlePath);
+				bundleZip.extractAll(bundleExtractPath);
+
+				File fileName = new File(bundleExtractPath);
+				File[] listofFiles = fileName.listFiles();
+
+				// Validating the folders having zip file or not
+				for (File file : listofFiles) {
+					// System.out.println(file.getName());
+					if (file.isFile() && file.getName().endsWith("json")) {
+						// Reading the manifest
+						File manifest = new File(file.getPath());
+						// Gson gson = new Gson();
+						JsonParser parser = new JsonParser();
+						JsonElement jsonElement = parser.parse(new FileReader(manifest));
+						JsonObject obj = jsonElement.getAsJsonObject();
+						JsonElement manifestVersionElement = obj.get("ver");
+						Double manifestVersion = manifestVersionElement.getAsDouble();
+						// System.out.println(manifestVersion);
+						// Assert.assertTrue(manifestVersion.equals(manifestVesionActual));
+
+						// Validating expiry and items
+						JsonObject arc = obj.getAsJsonObject("archive");
+						if (arc.has("expires") && arc.has("items")) {
+							JsonArray items = arc.getAsJsonArray("items");
+
+							@SuppressWarnings("rawtypes")
+							Iterator i = items.iterator();
+							while (i.hasNext()) {
+								try {
+
+									// Validating download url, status and package version
+									JsonObject item = (JsonObject) i.next();
+									JsonElement downloadUrlElement = item.get("downloadUrl");
+									String contentTypeElement = getStringValue(item, "contentType");
+									if (contentTypeElement.equals("Collection")) {
+										downloadUrlElement = downloadUrlElement.getAsJsonNull();
+										Assert.assertTrue(downloadUrlElement.isJsonNull());
+									} else {
+										Assert.assertTrue(downloadUrlElement != null);
+										String downloadUrl = downloadUrlElement.getAsString();
+									}
+									JsonElement statusElement = item.get("status");
+									String status = statusElement.getAsString();
+									JsonElement pkgVersionElement = item.get("pkgVersion");
+									Float pkgVersion = pkgVersionElement.getAsFloat();
+									if (status.equals("draft") || status.equals("review")) {
+										Assert.assertTrue(pkgVersion.equals("0"));
+									}
+								} catch (Exception classCastException) {
+									classCastException.printStackTrace();
+									return false;
+								}
+							}
+						}
+					} else if (file.isFile() && file.getName().endsWith("index.ecml")) {
+						File ecmlFile = new File(file.getPath());
+						String ecml = getFileString(ecmlFile);
+						assertTrue(StringUtils.contains(ecml, searchString));
+					} else if (file.isDirectory()) {
+						File[] listofsubFiles = file.listFiles();
+						for (File newfile : listofsubFiles) {
+							String fName = newfile.getName();
+							if (fName.endsWith(".zip") || fName.endsWith(".rar")) {
+								// System.out.println(fName);
+							}
+						}
+					}
+				}
+			} catch (Exception zipExtract) {
+				zipExtract.printStackTrace();
+				return false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return true;
+	}
+
 	private String getStringValue(JsonObject obj, String attr) {
 		if (obj.has(attr)) {
 			JsonElement element = obj.get(attr);
 			return element.getAsString();
 		}
 		return null;
+	}
+
+	private String getFileString(File file) {
+		String fileString = "";
+		try {
+			fileString = FileUtils.readFileToString(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fileString;
 	}
 
 }
