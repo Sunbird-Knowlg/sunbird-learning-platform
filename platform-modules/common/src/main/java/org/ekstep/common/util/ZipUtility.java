@@ -23,6 +23,7 @@ public class ZipUtility {
 	private String sourceFolder = null;
 
 	public ZipUtility() {
+//		ReadProperties.loadProperties("content.properties");
 		fileList = new ArrayList<String>();
 	}
 
@@ -40,10 +41,9 @@ public class ZipUtility {
 	}
 
 	public void zip() {
-		ReadProperties readPro = new ReadProperties();
 		try {
-			outPutZipFile = readPro.getPropValues("output.zipfile");
-			sourceFolder = readPro.getPropValues("source.folder");
+			outPutZipFile = ReadProperties.getProperty("output.zipfile");
+			sourceFolder = ReadProperties.getProperty("source.folder");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

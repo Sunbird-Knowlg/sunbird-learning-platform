@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -27,11 +28,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.content.common.BaseGraphSpec;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration({ "classpath:servlet-context.xml" })
+import com.ilimi.taxonomy.content.common.TestSetup;
 
 /**
  * The AssessmentItemTest class contains tests to validate creation of
@@ -40,8 +37,12 @@ import com.ilimi.taxonomy.content.common.BaseGraphSpec;
  * assessmentitem Positive and negative test senarios have been specified for
  * each of the operation
  */
+@Ignore
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration({ "classpath:servlet-context.xml" })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class AssessmentitemV3Test extends BaseGraphSpec {
+public class AssessmentitemV3Test extends TestSetup {
 
 	@Autowired
 	private WebApplicationContext context;

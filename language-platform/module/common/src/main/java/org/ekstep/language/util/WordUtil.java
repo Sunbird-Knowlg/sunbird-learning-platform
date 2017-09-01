@@ -593,8 +593,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				if (!StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
 						&& !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
 						&& !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
-						&& !StringUtils.equalsIgnoreCase("word-lists", entry.getKey())
-						&& !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+						&& !StringUtils.equalsIgnoreCase("word-lists", entry.getKey())) {
 					List<String> list = getList(mapper, entry.getValue(), entry.getKey());
 					if (null != list && !list.isEmpty()) {
 						filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
@@ -676,9 +675,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 			addRelationsData(node, map);
-			if (null != node.getTags() && !node.getTags().isEmpty()) {
- 				map.put("tags", node.getTags());
- 			}
 			map.put("identifier", node.getIdentifier());
 			map.put("language", LanguageMap.getLanguage(languageId));
 		}
@@ -988,11 +984,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					node.setIdentifier((String) entry.getValue());
 				} else if (StringUtils.equalsIgnoreCase("objectType", entry.getKey())) {
 					node.setObjectType((String) entry.getValue());
-				} else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
-					String objectStr = mapper.writeValueAsString(entry.getValue());
-					List<String> tags = mapper.readValue(objectStr, List.class);
-					if (null != tags && !tags.isEmpty())
-						node.setTags(tags);
 				} else if (inRelDefMap.containsKey(entry.getKey())) {
 					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<Map> list = mapper.readValue(objectStr, List.class);

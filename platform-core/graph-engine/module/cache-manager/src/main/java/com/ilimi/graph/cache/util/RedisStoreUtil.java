@@ -21,7 +21,7 @@ public class RedisStoreUtil {
 
 		Jedis jedis = getRedisConncetion();
 		try {
-			String redisKey = RedisKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
+			String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
 			jedis.set(redisKey, propValue);
 		} catch (Exception e) {
 			throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SAVE_PROPERTY_ERROR.name(), e.getMessage());
@@ -34,7 +34,7 @@ public class RedisStoreUtil {
 
 		Jedis jedis = getRedisConncetion();
 		try {
-			String redisKey = RedisKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
+			String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, nodeProperty);
 			String value = jedis.get(redisKey);
 			return value;
 		} catch (Exception e) {
@@ -51,7 +51,7 @@ public class RedisStoreUtil {
 				String propertyName = entry.getKey();
 				String propertyValue = entry.getValue().toString();
 
-				String redisKey = RedisKeyGenerator.getNodePropertyKey(graphId, objectId, propertyName);
+				String redisKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, propertyName);
 				jedis.set(redisKey, propertyValue);
 			}
 
@@ -66,8 +66,8 @@ public class RedisStoreUtil {
 		Jedis jedis = getRedisConncetion();
 		try {
 			
-			String versionKey = RedisKeyGenerator.getNodePropertyKey(graphId, objectId, GraphDACParams.versionKey.name());
-			String consumerId = RedisKeyGenerator.getNodePropertyKey(graphId, objectId, GraphDACParams.consumerId.name());
+			String versionKey = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, GraphDACParams.versionKey.name());
+			String consumerId = CacheKeyGenerator.getNodePropertyKey(graphId, objectId, GraphDACParams.consumerId.name());
 			jedis.del(versionKey, consumerId);
 
 		} catch (Exception e) {
@@ -81,7 +81,7 @@ public class RedisStoreUtil {
 		Jedis jedis = getRedisConncetion();
 		try {
 			
-			String delKeysPattern =RedisKeyGenerator.getAllNodePropertyKeysPattern(graphId, propertyName);
+			String delKeysPattern =CacheKeyGenerator.getAllNodePropertyKeysPattern(graphId, propertyName);
 			Set<String> keys = jedis.keys(delKeysPattern);
 			if(keys!=null && keys.size()>0){
 				List<String> keyList = new ArrayList<>(keys);

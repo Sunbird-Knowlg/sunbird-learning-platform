@@ -99,6 +99,7 @@ public class HttpDownloadUtility {
 				PlatformLogger.log("No file to download. Server replied HTTP code: " + responseCode);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			PlatformLogger.log("Error! While Downloading File.", e.getMessage(), e);
 		} finally {
 			if (null != httpConn)

@@ -104,7 +104,8 @@ public class ContentV3Controller extends BaseController {
 	@ResponseBody
 	public ResponseEntity<Response> upload(@PathVariable(value = "id") String contentId,
 			@RequestParam(value = "file", required = false) MultipartFile file,
-			@RequestParam(value = "fileUrl", required = false) String fileUrl) {
+			@RequestParam(value = "fileUrl", required = false) String fileUrl,
+			@RequestParam(value = "mimeType", required = false) String mimeType) {
 		String apiId = "ekstep.learning.content.upload";
 		PlatformLogger.log("Upload Content | Content Id: " + contentId);
 		if (StringUtils.isBlank(fileUrl) && null == file) {
@@ -115,7 +116,7 @@ public class ContentV3Controller extends BaseController {
 		} else {
 			try {
 				if (StringUtils.isNotBlank(fileUrl)) {
-					Response response = contentManager.upload(contentId, graphId, fileUrl);
+					Response response = contentManager.upload(contentId, graphId, fileUrl, mimeType);
 					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				} else {
@@ -124,7 +125,7 @@ public class ContentV3Controller extends BaseController {
 					File uploadedFile = new File(name);
 					file.transferTo(uploadedFile);
 					uploadedFile = new File(name);
-					Response response = contentManager.upload(contentId, graphId, uploadedFile);
+					Response response = contentManager.upload(contentId, graphId, uploadedFile, mimeType);
 					PlatformLogger.log("Upload | Response: ", response.getResponseCode());
 					return getResponseEntity(response, apiId, null);
 				}

@@ -33,6 +33,7 @@ import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -144,7 +145,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 */
 	@SuppressWarnings("unused")
 	@Override
-	public Response upload(String contentId, String taxonomyId, File uploadedFile) {
+	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
 		PlatformLogger.log("Content ID: " + contentId);
 		PlatformLogger.log("Graph ID: " + taxonomyId);
 		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
@@ -167,10 +168,20 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 			isNodeUnderProcessing(node, "Upload");
 
-			String mimeType = (String) node.getMetadata().get("mimeType");
 			if (StringUtils.isBlank(mimeType)) {
-				mimeType = "assets";
+				mimeType = getMimeType(node);
+			} else {
+				Response response = updateMimeType(contentId, mimeType);
+				if (checkError(response))
+					return response;
+				else {
+					// TODO: need to change this implementation.
+					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
+					node.getMetadata().put("mimeType", mimeType);
+					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
+				}	
 			}
+
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			PlatformLogger.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
@@ -200,7 +211,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	 * java.lang.String, java.io.File, java.lang.String)
 	 */
 	@Override
-	public Response upload(String contentId, String taxonomyId, String fileUrl) {
+	public Response upload(String contentId, String taxonomyId, String fileUrl, String mimeType) {
 		PlatformLogger
 				.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:" + fileUrl);
 		try {
@@ -216,7 +227,20 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			isImageContentId(contentId);
 			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
 			isNodeUnderProcessing(node, "Upload");
-			String mimeType = getMimeType(node);
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = getMimeType(node);
+			} else {
+				// TODO: need to change this implementation.
+				Response response = updateMimeType(node.getIdentifier(), mimeType);
+				if (checkError(response))
+					return response;
+				else {
+					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
+					node.getMetadata().put("mimeType", mimeType);
+					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
+				}
+			}
+				
 			PlatformLogger.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -884,7 +908,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				map.put("osId", "org.ekstep.quiz.app");
 			String contentType = (String) map.get("contentType");
 			if (StringUtils.isNotBlank(contentType)) {
-				if (StringUtils.equalsIgnoreCase("TextBookUnit", contentType))
+				List<String> parentVisibilityList = Platform.config.getStringList("content.metadata.visibility.parent");
+				if (parentVisibilityList.contains(contentType.toLowerCase()))
 					map.put("visibility", "Parent");
 			}
 
@@ -1061,7 +1086,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
 		if (StringUtils.isNotBlank(mimeType)) {
-			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection"))
+			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
 				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
 			else
 				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
@@ -1415,6 +1440,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				}
 			}
 		}
+	}
+	
+	private Response updateMimeType(String contentId, String mimeType) throws Exception {
+		Map<String, Object> map = new HashMap<>();
+		map.put("mimeType", mimeType);
+		map.put("versionKey", Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
+		return updateContent(contentId, map);
 	}
 
 }

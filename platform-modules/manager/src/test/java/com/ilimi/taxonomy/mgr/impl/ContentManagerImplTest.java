@@ -1,245 +1,244 @@
 package com.ilimi.taxonomy.mgr.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-
+import org.junit.rules.ExpectedException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.taxonomy.content.common.BaseTestUtil;
+import com.ilimi.taxonomy.content.common.TestParams;
+import com.ilimi.taxonomy.content.common.TestSetup;
 
-@Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebAppConfiguration
-@ContextConfiguration({ "classpath:servlet-context.xml" })
-public class ContentManagerImplTest {
-	@Autowired
-	private WebApplicationContext context;
-	//private ContentManagerImpl contentManager = new ContentManagerImpl();
-	private ResultActions actions;
-	
-	private static String contentId = "";
-	private static String TAXONOMY_ID = "numeracy";
-	private static String OBJECT_TYPE = "Story";
+public class ContentManagerImplTest extends TestSetup {
 
-	public String createDefinitionNode(String contentString) {
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/content?taxonomyId=" + TAXONOMY_ID + "&type=" + OBJECT_TYPE;
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
-					.contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes())
-					.header("user-id", "ilimi"));
-		} catch (Exception e) {
-			PlatformLogger.log("Create | Exception: " , e.getMessage(), e);
-		}
-		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Create | Response: " + resp);
-		Assert.assertEquals("successful", resp.getParams().getStatus());
-		return (String) resp.getResult().get("node_id");
+	ContentManagerImpl contentManager = new ContentManagerImpl();
+
+	ObjectMapper mapper = new ObjectMapper();
+
+	String createECMLContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.ekstep.ecml-archive\"}";
+	String createHTMLContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.ekstep.html-archive\"}";
+	String createAPKContent = "{\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.android.package-archive\"}";
+	String createPluginContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.ekstep.plugin-archive\"}";
+	String createYouTubeContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"video/x-youtube\"}";
+	String createDocumentContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/pdf\"}";
+	String createH5PContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.ekstep.h5p-archive\"}";
+	String createDefaultContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"video/mp4\"}";
+	String createCollectionContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.ekstep.content-collection\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}";
+	String createAssetContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"image/jpeg\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}";
+	String requestForReview = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}";
+
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+
+	@BeforeClass
+	public static void beforeSetupTestSuit() {
+		System.out.println("ContentManagerImplTest -- Before");
+
 	}
 
-	public void deleteDefinition(String contentId) {
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/content/" + contentId + "?taxonomyId=" + TAXONOMY_ID + "&type="
-				+ OBJECT_TYPE;
+	@AfterClass
+	public static void afterCleanData() {
+		System.out.println("ContentManagerImplTest -- After");
+	}
+
+	/*
+	 * Create Content without body
+	 */
+	@Test
+	public void testCreateContent_01() {
 		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.delete(path)
-					.header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			PlatformLogger.log("Delete | Exception: " + e.getMessage(), e);
-		}
-		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Delete | Response: " + resp);
-		System.out.println("Deletion Done");
-		Assert.assertEquals("successful", resp.getParams().getStatus());
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void upload(String mimeType, File uploadFile) throws IOException {
-		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"mimeType\":\""+mimeType+"\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"<content></content>\"}}}}";
-		FileInputStream inputFile = new FileInputStream(uploadFile);
-		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", uploadFile.getName(),
-				"multipart/form-data", inputFile);
-		contentId = createDefinitionNode(contentString);
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v2/content/upload/" + contentId + "?type=" + OBJECT_TYPE;
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path)
-					.file(mockMultipartFile).header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		} catch (Exception e) {
-			PlatformLogger.log("Upload | Exception: " , e.getMessage(), e);
-		}
-		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Upload | Response: " + resp);
-		Assert.assertEquals("successful", resp.getParams().getStatus());
-		String actualArtifactUrl = (String)(((Map<String,Object>)((Map<String,Object>)resp.getResult().get("updated_node")).get("metadata")).get("artifactUrl"));
-		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/.*";
-		System.out.println(actualArtifactUrl.matches(expectedArtifactUrl));
-		Assert.assertTrue(actualArtifactUrl.matches(expectedArtifactUrl));
-		deleteDefinition(contentId);
-	}
-	
-	public void publish(String contentString) throws IOException {
-		//String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"mimeType\":\""+mimeType+"\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
-		String contentId = createDefinitionNode(contentString);
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v2/content/publish/" + contentId;
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.get(path)
-					.header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse()
-					.getStatus());
-		} catch (Exception e) {
-			PlatformLogger.log("Publish | Exception: " , e.getMessage(), e);
-		}
-		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Publish | Response: " + resp);
-		Assert.assertEquals("successful", resp.getParams().getStatus());
-		deleteDefinition(contentId);
-	}
-	
-	public void extract(String mimeType) throws IOException {
-		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"name\":\"Math Magic\",\"description\":\"Math Magic\",\"body\":\"<content/>\",\"code\":\"org.ekstep.story.math.magic\",\"owner\":\"EkStep\",\"artifactUrl\":\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452494498502_Hindihathibhaloojan11new.zip\",\"status\":\"Live\",\"mimeType\":\""+mimeType+"\"},\"outRelations\":[],\"tags\":[]}}}";
-		String contentId = createDefinitionNode(contentString);
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v2/content/extract/" + contentId;
-		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.get(path)
-					.header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse()
-					.getStatus());
-		} catch (Exception e) {
-			PlatformLogger.log("Extract | Exception: " , e.getMessage(), e);
-		}
-		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Extract | Response: " +resp);
-		Assert.assertEquals("successful", resp.getParams().getStatus());
-		deleteDefinition(contentId);
-	}
-	
-	public void bundle(String mimeType) throws IOException {
-		String contentStringFirst = "{\"request\":{\"content\":{\"metadata\":{\"name\":\"Math Magic\",\"description\":\"Math Magic\",\"body\":\"<content/>\",\"code\":\"org.ekstep.story.math.magic\",\"owner\":\"EkStep\",\"artifactUrl\":\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452494498502_Hindihathibhaloojan11new.zip\",\"status\":\"Live\",\"mimeType\":\""+mimeType+"\"},\"outRelations\":[],\"tags\":[]}}}";
-		String contentIdOne = createDefinitionNode(contentStringFirst);
-		String contentStringSecond = "{\"request\":{\"content\":{\"metadata\":{\"name\":\"Math Magic\",\"description\":\"Math Magic\",\"body\":\"<content/>\",\"code\":\"org.ekstep.story.math.magic\",\"owner\":\"EkStep\",\"artifactUrl\":\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452494498502_Hindihathibhaloojan11new.zip\",\"status\":\"Live\",\"mimeType\":\""+mimeType+"\"},\"outRelations\":[],\"tags\":[]}}}";
-		String contentIdTwo = createDefinitionNode(contentStringSecond);
-		String contentStringThird = "{\"request\":{\"content\":{\"metadata\":{\"name\":\"Math Magic\",\"description\":\"Math Magic\",\"body\":\"<content/>\",\"code\":\"org.ekstep.story.math.magic\",\"owner\":\"EkStep\",\"artifactUrl\":\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452494498502_Hindihathibhaloojan11new.zip\",\"status\":\"Live\",\"mimeType\":\""+mimeType+"\"},\"outRelations\":[],\"tags\":[]}}}";
-		String contentIdThree = createDefinitionNode(contentStringThird);
-		String contentBundleString ="{\"request\":{\"content_identifiers\":[\""+contentIdOne+"\",\""+contentIdThree+"\",\""+contentIdTwo+"\"],\"file_name\":\"Pratham_Reading\"}}";
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/content/bundle?taxonomyId=" +TAXONOMY_ID;
-		try {
-			actions =mockMvc.perform(MockMvcRequestBuilders.post(path)
-					.contentType(MediaType.APPLICATION_JSON).content(contentBundleString.getBytes())
-					.header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse()
-					.getStatus());
-		} catch (Exception e) {
-			PlatformLogger.log("Bundle | Exception: " , e.getMessage(), e);
-		}
-		Response resp = jsonToObject(actions);
-		PlatformLogger.log("Bundle | Response: " + resp);
-		Assert.assertEquals("successful", resp.getParams().getStatus());
-		deleteDefinition(contentIdOne);
-		deleteDefinition(contentIdTwo);
-		deleteDefinition(contentIdThree);
-	}
-	ClassLoader classLoader = getClass().getClassLoader();
-	
-	@Test
-	public void uploadECMLContent() throws Exception{
-		upload("application/octet-stream", new File(classLoader.getResource("ecml.zip").getFile()));
-		//upload("application/vnd.ekstep.ecml-archive", new File(classLoader.getResource("ecml.zip").getFile()));
-	}
-	@Test
-	public void uploadHTMLContent() throws Exception{
-		upload("application/vnd.ekstep.html-archive", new File(classLoader.getResource("demo.zip").getFile()));
-	}
-	@Test
-	public void uploadApkContent() throws Exception{
-		upload("application/vnd.android.package-archive", new File(classLoader.getResource("android.apk").getFile()));
-	}
-	@Test
-	public void uploadCollectionContent() throws Exception{
-		upload("application/vnd.ekstep.content-collection", new File(classLoader.getResource("collection.zip").getFile()));
-	}
-	@Test
-	public void uploadAssetsContent() throws Exception{
-		upload("", new File(classLoader.getResource("Assets.jpeg").getFile()));
-	}
-	@Test
-	public void publishECMLContent() throws Exception{
-		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\": \"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452487631391_PrathamStories_Day_1_JAN_9_2016.zip\",\"mimeType\":\"application/octet-stream\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
-		publish(contentString);
-		//publish("application/vnd.ekstep.ecml-archive");
-	}
-	@Test
-	public void publishHTMLContent() throws Exception{
-		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\": \"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/build_a_sentence_1446706423188.zip\",\"mimeType\":\"application/vnd.ekstep.html-archive\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
-		publish(contentString);
-	}
-	@Test
-	public void publishApkContent() throws Exception{
-		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/android_1457093660959.apk\",\"mimeType\":\"application/vnd.android.package-archive\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
-		publish(contentString);
-	}
-	@Test
-	public void publishCollectionContent() throws Exception{
-		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\": \"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452487631391_PrathamStories_Day_1_JAN_9_2016.zip\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
-		publish(contentString);
-	}
-	/*@Test
-	public void publishAssetsContent() throws Exception{
-		publish("");
-	}*/
-	@Test
-	public void extractECMLContent() throws Exception{
-		extract("application/octet-stream");
-		//extract("application/vnd.ekstep.ecml-archive");
-	}
-	@Test
-	public void bundle() throws IOException {
-		bundle("application/octet-stream");
-	}
-	public static Response jsonToObject(ResultActions actions) {
-		String content = null;
-		Response resp = null;
-		try {
-			content = actions.andReturn().getResponse().getContentAsString();
-			ObjectMapper objectMapper = new ObjectMapper();
-			if (StringUtils.isNotBlank(content))
-				resp = objectMapper.readValue(content, Response.class);
-		} catch (UnsupportedEncodingException e) {
+			Map<String, Object> contentMap = mapper.readValue(createECMLContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Create Content with body
+	 */
+	@Test
+	public void testCreateContent_02() {
+		try {
+			Map<String, Object> contentMap = mapper.readValue(createECMLContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			contentMap.put(TestParams.body.name(), BaseTestUtil.getFileString("Sample_XML_1.ecml"));
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return resp;
 	}
+
+	/*
+	 * Create HTML Content
+	 */
+	@Test
+	public void testCreateContent_03() {
+		try {
+			Map<String, Object> contentMap = mapper.readValue(createHTMLContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Create APK Content
+	 */
+	@Test
+	public void testCreateContent_04() {
+		try {
+			Map<String, Object> contentMap = mapper.readValue(createAPKContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Create Plugin Content
+	 */
+	@Test
+	public void testCreateContent_05() {
+		try {
+			Map<String, Object> contentMap = mapper.readValue(createPluginContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Create YouTube Content
+	 */
+	@Test
+	public void testCreateContent_06() {
+		try {
+			Map<String, Object> contentMap = mapper.readValue(createYouTubeContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Create Document Content
+	 */
+	@Test
+	public void testCreateContent_07() {
+		try {
+			Map<String, Object> contentMap = mapper.readValue(createDocumentContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Create Default (video/mp4) Content
+	 */
+	@Test
+	public void testCreateContent_08() {
+		try {
+			Map<String, Object> contentMap = mapper.readValue(createDocumentContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	/*
+	 * Create Collection Content
+	 */
+	@Test
+	public void testCreateContent_09() {
+		try {
+			// Creating First Child
+			Map<String, Object> childrenMap1 = mapper.readValue(createECMLContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response resChildren1 = contentManager.createContent(childrenMap1);
+			String childNode1 = (String) resChildren1.getResult().get(TestParams.node_id.name());
+
+			// Creating Second Child
+			Map<String, Object> childrenMap2 = mapper.readValue(createHTMLContent,
+					new TypeReference<Map<String, Object>>() {
+					});
+			Response resChildren2 = contentManager.createContent(childrenMap2);
+			String childNode2 = (String) resChildren2.getResult().get(TestParams.node_id.name());
+
+			Map<String, Object> contentMap = mapper.readValue(
+					createCollectionContent.replace("id1", childNode1).replace("id2", childNode2),
+					new TypeReference<Map<String, Object>>() {
+					});
+			
+			Response response = contentManager.createContent(contentMap);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void seedContent() {
+		
+	}
+
 }

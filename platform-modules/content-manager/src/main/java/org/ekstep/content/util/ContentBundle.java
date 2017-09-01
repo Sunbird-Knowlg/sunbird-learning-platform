@@ -57,7 +57,7 @@ public class ContentBundle {
 	protected static final String URL_FIELD = "URL";
 
 	/** The Constant BUNDLE_PATH. */
-	protected static final String BUNDLE_PATH = "/data/contentBundle";
+	protected static final String BUNDLE_PATH = "/tmp";
 
 	/** The s3 ecar folder */
 	private static final String s3EcarFolder = "s3.ecar.folder";
@@ -206,8 +206,9 @@ public class ContentBundle {
 			}
 			return null;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(),
-					"[Error! something went wrong while bundling ECAR]");
+					"[Error! something went wrong while bundling ECAR]", e);
 		}
 	}
 
@@ -284,7 +285,7 @@ public class ContentBundle {
 
 			FileUtils.writeStringToFile(manifestFileName, manifestJSON);
 			PlatformLogger.log("Manifest JSON Written");
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + " | [Unable to Write Manifest File.]", e);
 		}
@@ -394,7 +395,8 @@ public class ContentBundle {
 			}
 			pool.shutdown();
 		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+			throw new ServerException(ContentErrorCodeConstants.MANIFEST_FILE_WRITE.name(),
+					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + "Error while creating contentBundle", e);
 		}
 		return files;
 	}

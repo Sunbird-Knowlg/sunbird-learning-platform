@@ -111,6 +111,8 @@ public class Node implements Serializable {
 					this.outRelations.add(rel);
 				} if (relationship.endNodeId() == node.id()) {
 					Relation rel = new Relation(graphId, relationship, startNodeMap, endNodeMap);
+					if (!isTagRelation(rel))
+						this.inRelations.add(rel);
 				}
 			}
 		}
@@ -244,7 +246,8 @@ public class Node implements Serializable {
  	}
 	
 	private boolean isTagRelation(Relation rel) {
-	    if(StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), rel.getRelationType()))
+		if (StringUtils.equals("TAG", rel.getStartNodeType())
+				&& StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), rel.getRelationType()))
 			return true;
 		return false;
 	}

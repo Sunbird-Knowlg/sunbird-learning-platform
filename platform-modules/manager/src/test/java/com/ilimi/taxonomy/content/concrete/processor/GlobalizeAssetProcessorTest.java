@@ -27,6 +27,7 @@ public class GlobalizeAssetProcessorTest {
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 
+	@Ignore
 	@Test
 	public void globalizeAssetProcessor_01() {
 

@@ -154,12 +154,16 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Publish processing start for node", nodeId);
 		try {
 			setContentBody(node, mimeType);
+			LOGGER.info("Fetched body from cassandra");
 			parameterMap.put(PublishPipelineParams.node.name(), node);
 			parameterMap.put(PublishPipelineParams.ecmlType.name(),
 					PublishManager.isECMLContent(mimeType));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location").toString()), nodeId);
+			LOGGER.info("Fetch basePath" + PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")));
+			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")), nodeId);
+			LOGGER.info("Initializing the publish pipeline" + this.config.get("lp.tempfile.location") );
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
+			e.printStackTrace();
 			LOGGER
 					.info("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 							+ nodeId + "]", e.getMessage());

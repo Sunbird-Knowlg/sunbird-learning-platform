@@ -27,8 +27,8 @@ import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
-import com.ilimi.graph.cache.actor.GraphCacheManagers;
+import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
+import com.ilimi.graph.cache.mgr.impl.SetCacheManager;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -179,7 +179,6 @@ public class Graph extends AbstractDomainObject {
 			List<Node> setNodes = getAllSetObjects(dacRouter, req);
 			if (null != setNodes && !setNodes.isEmpty()) {
 				System.out.println("Total sets: " + setNodes.size());
-				ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
 				for (Node node : setNodes) {
 					List<String> memberIds = new ArrayList<String>();
 					if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
@@ -192,12 +191,8 @@ public class Graph extends AbstractDomainObject {
 					}
 					if (null != memberIds && !memberIds.isEmpty()) {
 						System.out.println("Loading set: " + node.getIdentifier() + ", members: " + memberIds.size());
-						Request request = new Request(req);
-						request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-						request.setOperation("createSet");
-						request.put(GraphDACParams.set_id.name(), node.getIdentifier());
-						request.put(GraphDACParams.members.name(), memberIds);
-						cacheRouter.tell(request, manager.getSelf());
+						String setId = node.getIdentifier();
+						SetCacheManager.createSet(graphId, setId, memberIds);
 					}
 				}
 			}
@@ -221,10 +216,9 @@ public class Graph extends AbstractDomainObject {
 							List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
 							if (null != defNodes && !defNodes.isEmpty()) {
 								System.out.println("Total def nodes: " + defNodes.size());
-								ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
 								for (Node defNode : defNodes) {
 									DefinitionNode node = new DefinitionNode(manager, defNode);
-									node.loadToCache(cacheRouter, defNodesReq);
+									node.loadToCache(defNodesReq);
 								}
 								manager.OK(getParent());
 							} else {
@@ -831,38 +825,14 @@ public class Graph extends AbstractDomainObject {
 	}
 
 	public void getDefinitionFromCache(Request req) {
-		try {
-			String objectType = (String) req.get(GraphDACParams.object_type.name());
-			ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-			Request cacheReq = new Request(req);
-			cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-			cacheReq.setOperation("getDefinitionNode");
-			cacheReq.put(GraphDACParams.object_type.name(), objectType);
-			Future<Object> response = Patterns.ask(cacheRouter, cacheReq, timeout);
-			response.onComplete(new OnComplete<Object>() {
-				@SuppressWarnings("unchecked")
-				@Override
-				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-					boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-							GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
-							"Failed to get definition node");
-					if (valid) {
-						ObjectMapper mapper = new ObjectMapper();
-						Response res = (Response) arg1;
-						Map<String, Object> map = (Map<String, Object>) res.get(GraphDACParams.definition_node.name());
-						if (null != map && !map.isEmpty()) {
-							DefinitionDTO dto = mapper.convertValue(map, DefinitionDTO.class);
-							manager.OK(GraphDACParams.definition_node.name(), dto, getParent());
-						} else {
-							manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-									"Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
-						}
-					}
-				}
-			}, manager.getContext().dispatcher());
-		} catch (Exception e) {
-			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
-					e);
+		req.getContext().get(GraphDACParams.graph_id.name());
+		String objectType = (String) req.get(GraphDACParams.object_type.name());
+		DefinitionDTO node = (DefinitionDTO) NodeCacheManager.getDefinitionNode(graphId, objectType);
+		if (null != node) {
+			manager.OK(GraphDACParams.definition_node.name(), node, getParent());
+		} else {
+			manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+					"Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
 		}
 	}
 
@@ -885,12 +855,11 @@ public class Graph extends AbstractDomainObject {
 						Response res = (Response) arg1;
 						List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
 						if (null != nodes && !nodes.isEmpty()) {
-							ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
 							List<DefinitionDTO> definitions = new ArrayList<DefinitionDTO>();
 							for (Node node : nodes) {
 								DefinitionNode defNode = new DefinitionNode(manager, node);
 								DefinitionDTO definition = defNode.getValueObject();
-								defNode.loadToCache(cacheRouter, req);
+								defNode.loadToCache(req);
 								definitions.add(definition);
 							}
 							manager.OK(GraphDACParams.definition_nodes.name(), definitions, getParent());
@@ -1024,9 +993,8 @@ public class Graph extends AbstractDomainObject {
 										GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_FAILED_TO_CREATE.name(),
 										"Definition nodes creation error");
 								if (valid) {
-									ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
 									for (DefinitionNode defNode : defNodes) {
-										defNode.loadToCache(cacheRouter, request);
+										defNode.loadToCache(request);
 									}
 									manager.OK(getParent());
 								}
