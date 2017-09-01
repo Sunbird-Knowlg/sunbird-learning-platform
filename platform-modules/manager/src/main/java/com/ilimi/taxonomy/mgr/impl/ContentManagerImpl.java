@@ -1110,6 +1110,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<String> externalPropsList = getExternalPropsList(definition);
 		if (null == fields)
 			fields = new ArrayList<String>();
+
+		// TODO: this is only for backward compatibility. remove after this release.
+		if (fields.contains("tags")) {
+			fields.remove("tags");
+			fields.add("keywords");
+		}
+
 		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
 
