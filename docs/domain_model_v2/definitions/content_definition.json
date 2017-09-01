@@ -1020,6 +1020,19 @@
 				},
 				{
 					"required": false,
+					"dataType": "Text",
+					"propertyName": "resourceType",
+					"title": "Resource Type",
+					"description": "Resource Type",
+					"category": "General",
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{ 'inputType': 'table', 'order': 6 }",
+					"indexed": true,
+					"draft": false
+				},
+				{
+					"required": false,
 					"dataType": "Multi-Select",
 					"propertyName": "category",
 					"title": "Category",
