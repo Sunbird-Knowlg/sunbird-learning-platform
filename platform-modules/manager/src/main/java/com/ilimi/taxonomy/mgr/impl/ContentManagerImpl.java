@@ -1110,6 +1110,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<String> externalPropsList = getExternalPropsList(definition);
 		if (null == fields)
 			fields = new ArrayList<String>();
+		else
+			fields = new ArrayList<String>(fields);
+		
 
 		// TODO: this is only for backward compatibility. remove after this release.
 		if (fields.contains("tags")) {
