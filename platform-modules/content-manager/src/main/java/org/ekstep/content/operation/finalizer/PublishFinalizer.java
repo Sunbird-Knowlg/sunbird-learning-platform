@@ -174,6 +174,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.pdf.name())
 				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.msword.name())
 				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.epub.name())
+				|| StringUtils.containsIgnoreCase(mimeType, ContentWorkflowPipelineParams.h5p.name())
 				|| StringUtils.containsIgnoreCase(mimeType, "x-url"))
 			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 4);
 

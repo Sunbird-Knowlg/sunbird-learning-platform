@@ -230,7 +230,7 @@ public class AWSUploader {
 		int SECONDS = Integer.parseInt(S3PropertyReader.getProperty(s3UploadURLExpiry));
 		milliSeconds += 1000 * SECONDS;
 		expiration.setTime(milliSeconds);
-		String objectKey = S3PropertyReader.getProperty(s3AssetFolder)+"/"+contentId+"/"+fileName;
+		String objectKey = S3PropertyReader.getProperty(s3AssetFolder)+"/"+contentId+"/"+ Slug.makeSlug(fileName);
 		GeneratePresignedUrlRequest presignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
 		presignedUrlRequest.setMethod(HttpMethod.PUT);
 		presignedUrlRequest.setExpiration(expiration);

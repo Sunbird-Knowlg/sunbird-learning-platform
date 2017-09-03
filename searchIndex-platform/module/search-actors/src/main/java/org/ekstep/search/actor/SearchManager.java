@@ -103,7 +103,15 @@ public class SearchManager extends SearchBaseActor {
 				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
-
+			if (null == filters) filters = new HashMap<>();
+			if (filters.containsKey("tags")) {
+				Object tags = filters.get("tags");
+				if (null != tags) {
+					filters.remove("tags");
+					filters.put("keywords", tags);
+				}
+			}
+			
 			Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
 			String objectType = null;
 			if (objectTypeFromFilter != null) {

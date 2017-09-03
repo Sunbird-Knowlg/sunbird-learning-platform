@@ -656,8 +656,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				childList.add(childData);
 			}
 			contentMap.put("children", childList);
-		} else {
-
 		}
 		return contentMap;
 	}
@@ -1112,6 +1110,16 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<String> externalPropsList = getExternalPropsList(definition);
 		if (null == fields)
 			fields = new ArrayList<String>();
+		else
+			fields = new ArrayList<String>(fields);
+		
+
+		// TODO: this is only for backward compatibility. remove after this release.
+		if (fields.contains("tags")) {
+			fields.remove("tags");
+			fields.add("keywords");
+		}
+
 		List<String> externalPropsToFetch = (List<String>) CollectionUtils.intersection(fields, externalPropsList);
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, fields);
 
@@ -1335,7 +1343,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (StringUtils.isBlank(id)) {
 			Map<String, Object> map = (Map<String, Object>) entry.getValue();
 			Boolean root = (Boolean) map.get("root");
-			Node tmpnode = getNodeForOperation(graphId, nodeId, "update", true);
+			Node tmpnode = getNodeForOperation(graphId, nodeId, "update", false);
 			if (null != tmpnode) {
 				id = tmpnode.getIdentifier();
 				tmpnode.setOutRelations(null);
