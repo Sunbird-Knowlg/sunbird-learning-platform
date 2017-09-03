@@ -65,7 +65,7 @@ public class ContentPublishWorkflowTests extends BaseTest{
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT\"}}";
 	
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
-	static URL url = classLoader.getResource("DownloadedFiles");
+	static URL url = classLoader.getResource("DownloadedFiles/");
 	static File downloadPath;
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 	

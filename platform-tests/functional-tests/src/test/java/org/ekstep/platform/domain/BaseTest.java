@@ -42,8 +42,8 @@ public class BaseTest
 		//TO-DO: This will be read from config file, soon.
 		//baseURI = "http://localhost:8080/";
 		//baseURI = "https://api.ekstep.in/";
-		//baseURI ="https://dev.ekstep.in/api/"; 
-		baseURI ="https://qa.ekstep.in/api/"; 
+		baseURI ="https://dev.ekstep.in/api/"; 
+		//baseURI ="https://qa.ekstep.in/api/"; 
 	}
 	
 		
