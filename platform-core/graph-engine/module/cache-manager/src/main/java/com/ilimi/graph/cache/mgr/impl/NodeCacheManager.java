@@ -34,6 +34,13 @@ public class NodeCacheManager {
 		PlatformLogger.log("Fetching definition node from cache having objectType: " + objectType + " in graph: "+ graphId);
 		return definitionNodeCache.get(key);
 	}
+	
+	public static Object deleteDefinitionNode(String graphId, String objectType) {
+		validateRequired(graphId, objectType, GraphCacheErrorCodes.ERR_CACHE_GET_DEF_NODE_ERROR.name());
+		String key = CacheKeyGenerator.getKey(graphId, objectType, RedisKeysEnum.DEF_NODE.name());
+		PlatformLogger.log("Deleting definition node from cache having objectType: " + objectType + " in graph: "+ graphId);
+		return definitionNodeCache.remove(key);
+	}
 
 	public static void saveDataNode(String graphId, String id, Object node) {
 		validateRequired(graphId, id, node, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
@@ -47,6 +54,13 @@ public class NodeCacheManager {
 		String key = CacheKeyGenerator.getKey(graphId, id, RedisKeysEnum.DATA_NODE.name());
 		PlatformLogger.log("Fetching data node from cache having identifier: " + id + " in graph: "+ graphId);
 		return dataNodeCache.get(key);
+	}
+	
+	public static Object deleteDataNode(String graphId, String id) {
+		validateRequired(graphId, id, GraphCacheErrorCodes.ERR_CACHE_SAVE_DEF_NODE_ERROR.name());
+		String key = CacheKeyGenerator.getKey(graphId, id, RedisKeysEnum.DATA_NODE.name());
+		PlatformLogger.log("Deleting data node from cache having identifier: " + id + " in graph: "+ graphId);
+		return dataNodeCache.remove(key);
 	}
 
 	private static void validateRequired(String graphId, String id, Object members, String errCode) {

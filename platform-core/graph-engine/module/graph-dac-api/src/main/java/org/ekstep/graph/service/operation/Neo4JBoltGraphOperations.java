@@ -24,6 +24,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -227,6 +228,8 @@ public class Neo4JBoltGraphOperations {
 					result = session.run(query);
 				for (Record record : result.list())
 					PlatformLogger.log("'Create Relation' Operation Finished.", record);
+				NodeCacheManager.deleteDataNode(graphId, startNodeId);
+				NodeCacheManager.deleteDataNode(graphId, endNodeId);
 			}
 		}
 	}
@@ -298,6 +301,8 @@ public class Neo4JBoltGraphOperations {
 					for (Record record : result.list()) {
 						PlatformLogger.log("'Update Relation' Operation Finished.", record);
 					}
+					NodeCacheManager.deleteDataNode(graphId, startNodeId);
+					NodeCacheManager.deleteDataNode(graphId, endNodeId);
 				}
 			}
 		}
@@ -358,6 +363,8 @@ public class Neo4JBoltGraphOperations {
 			for (Record record : result.list()) {
 				PlatformLogger.log("'Delete Relation' Operation Finished.", record);
 			}
+			NodeCacheManager.deleteDataNode(graphId, startNodeId);
+			NodeCacheManager.deleteDataNode(graphId, endNodeId);
 		}
 	}
 
@@ -623,6 +630,8 @@ public class Neo4JBoltGraphOperations {
 			for (Record record : result.list()) {
 				PlatformLogger.log("'Remove Relation Metadata' Operation Finished.", record);
 			}
+			NodeCacheManager.deleteDataNode(graphId, startNodeId);
+			NodeCacheManager.deleteDataNode(graphId, endNodeId);
 		}
 	}
 

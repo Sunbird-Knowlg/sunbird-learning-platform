@@ -28,6 +28,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
 import com.ilimi.graph.cache.util.RedisStoreUtil;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
@@ -393,6 +394,8 @@ public class Neo4JBoltNodeOperations {
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.REMOVE_PROPERTY, parameterMap));
 			for (Record record : result.list())
 				PlatformLogger.log("Remove Property Value Operation | ", record);
+			
+			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		}
 	}
 
@@ -428,6 +431,8 @@ public class Neo4JBoltNodeOperations {
 			StatementResult result = session.run(QueryUtil.getQuery(Neo4JOperation.REMOVE_PROPERTIES, parameterMap));
 			for (Record record : result.list())
 				PlatformLogger.log("Update Property Values Operation | ", record);
+
+			NodeCacheManager.deleteDataNode(graphId, nodeId);
 		}
 	}
 
@@ -458,6 +463,7 @@ public class Neo4JBoltNodeOperations {
 			for (Record record : result.list())
 				PlatformLogger.log("Delete Node Operation | ", record);
 
+			NodeCacheManager.deleteDataNode(graphId, nodeId);
 			try {
 				RedisStoreUtil.deleteNodeProperties(graphId, nodeId);
 			} catch (Exception e) {
@@ -582,5 +588,6 @@ public class Neo4JBoltNodeOperations {
 
 		if (cacheMap.size() > 0)
 			RedisStoreUtil.saveNodeProperties(graphId, nodeId, cacheMap);
+		NodeCacheManager.deleteDataNode(graphId, nodeId);
 	}
 }
