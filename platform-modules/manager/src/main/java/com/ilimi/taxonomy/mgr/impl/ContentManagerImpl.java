@@ -149,7 +149,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		PlatformLogger.log("Content ID: " + contentId);
 		PlatformLogger.log("Graph ID: " + taxonomyId);
 		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
-
+		boolean updateMimeType = false;
+		
 		try {
 			if (StringUtils.isBlank(taxonomyId))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
@@ -171,24 +172,24 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
 			} else {
-				Response response = updateMimeType(contentId, mimeType);
-				if (checkError(response))
-					return response;
-				else {
-					// TODO: need to change this implementation.
-					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
-					node.getMetadata().put("mimeType", mimeType);
-					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
-				}	
+				node.getMetadata().put("mimeType", mimeType);
+				updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
+				updateMimeType = true;
 			}
 
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-			PlatformLogger.log(
-					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
-			PlatformLogger.log("Returning Response.");
+			
+			if (updateMimeType && !checkError(res)) {
+				node.getMetadata().put("versionKey", res.getResult().get("versionKey"));
+				Response response = updateMimeType(contentId, mimeType);
+				if (checkError(response))
+					return response;
+			}
+			
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
 			throw e;
