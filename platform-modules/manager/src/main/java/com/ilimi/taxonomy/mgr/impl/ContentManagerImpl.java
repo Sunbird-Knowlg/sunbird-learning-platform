@@ -168,8 +168,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
 
 			isNodeUnderProcessing(node, "Upload");
-			setMimeTypeForUpload(mimeType, node, updateMimeType);
-
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = getMimeType(node);
+			} else {
+				setMimeTypeForUpload(mimeType, node, updateMimeType);
+			}
+			
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -222,7 +226,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			isImageContentId(contentId);
 			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
 			isNodeUnderProcessing(node, "Upload");
-			setMimeTypeForUpload(mimeType, node, updateMimeType);
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = getMimeType(node);
+			} else {
+				setMimeTypeForUpload(mimeType, node, updateMimeType);
+			}
 				
 			PlatformLogger.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
@@ -250,13 +258,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	private void setMimeTypeForUpload(String mimeType, Node node, boolean updateMimeType) {
-		if (StringUtils.isBlank(mimeType)) {
-			mimeType = getMimeType(node);
-		} else {
-			node.getMetadata().put("mimeType", mimeType);
-			updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
-			updateMimeType = true;
-		}
+		node.getMetadata().put("mimeType", mimeType);
+		updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
+		updateMimeType = true;
 	}
 	
 	private Response checkAndReturnUploadResponse(Response res) {
