@@ -287,9 +287,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_01() {
 		try {
+			String contentId = "U_ECML_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_ECML_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -297,7 +299,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_ECML_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -309,9 +311,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_02() {
 		try {
+			String contentId = "U_HTML_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_HTML_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -319,7 +323,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_HTML_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -331,9 +335,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_03() {
 		try {
+			String contentId = "U_APK_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_APK_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -341,7 +347,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_APK_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -353,9 +359,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_04() {
 		try {
+			String contentId = "U_Collection_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_Collection_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -363,7 +371,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_Collection_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -375,9 +383,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_05() {
 		try {
+			String contentId = "U_Asset_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_Asset_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -385,7 +395,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_Asset_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -397,9 +407,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_06() {
 		try {
+			String contentId = "U_Plugin_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_Plugin_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -407,7 +419,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_Plugin_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -419,9 +431,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_07() {
 		try {
+			String contentId = "U_YouTube_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_YouTube_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -429,7 +443,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_YouTube_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -441,9 +455,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_08() {
 		try {
+			String contentId = "U_Document_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_Document_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -451,7 +467,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_Document_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -463,9 +479,11 @@ public class ContentManagerImplTest extends TestSetup {
 	@Test
 	public void testUpdateContent_09() {
 		try {
+			String contentId = "U_Default_01";
 			Map<String, Object> contentMap = mapper.readValue(updateContent, new TypeReference<Map<String, Object>>() {
 			});
-			Response response = contentManager.updateContent("U_Default_01", contentMap);
+			contentMap.put(TestParams.versionKey.name(), versionKeyMap.get(contentId));
+			Response response = contentManager.updateContent(contentId, contentMap);
 			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
 			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
 			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
@@ -473,7 +491,7 @@ public class ContentManagerImplTest extends TestSetup {
 			Assert.assertFalse(
 					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
 			if (StringUtils.isNotBlank(versionKey))
-				versionKeyMap.put("U_Default_01", versionKey);
+				versionKeyMap.put(contentId, versionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
