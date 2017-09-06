@@ -171,7 +171,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
 			} else {
-				setMimeTypeForUpload(mimeType, node, updateMimeType);
+				setMimeTypeForUpload(mimeType, node);
+				updateMimeType = true;
 			}
 			
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
@@ -229,7 +230,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
 			} else {
-				setMimeTypeForUpload(mimeType, node, updateMimeType);
+				setMimeTypeForUpload(mimeType, node);
+				updateMimeType = true;
 			}
 				
 			PlatformLogger.log(
@@ -257,10 +259,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
-	private void setMimeTypeForUpload(String mimeType, Node node, boolean updateMimeType) {
+	private void setMimeTypeForUpload(String mimeType, Node node) {
 		node.getMetadata().put("mimeType", mimeType);
 		updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
-		updateMimeType = true;
 	}
 	
 	private Response checkAndReturnUploadResponse(Response res) {
