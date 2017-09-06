@@ -652,11 +652,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 						if (StringUtils.isNotBlank(asset_id)) {
 							Node asset = getNode(graphId, asset_id);
 							if (asset != null) {
-								String variantsJSON = (String) asset.getMetadata()
-										.get(ContentAPIParams.variants.name());
-								Map<String, String> variants = mapper.readValue(variantsJSON,
-										new TypeReference<Map<String, String>>() {
-										});
+								if(null != asset.getMetadata().get(ContentAPIParams.variants.name())){
+									String variantsJSON = (String) asset.getMetadata().get(ContentAPIParams.variants.name());
+									Map<String, String> variants = mapper.readValue(variantsJSON, new TypeReference<Map<String, String>>() {});
 								if (variants != null && variants.size() > 0) {
 									String lowVariantURL = variants.get(resolution);
 									if (StringUtils.isNotEmpty(lowVariantURL)) {
@@ -664,6 +662,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 										mediaItem.put(ContentAPIParams.src.name(), lowVariantURL);
 									}
 								}
+							  }
 							}
 						}
 					}
