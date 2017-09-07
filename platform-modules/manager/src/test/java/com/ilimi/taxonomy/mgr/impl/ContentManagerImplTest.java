@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,9 +37,10 @@ public class ContentManagerImplTest extends TestSetup {
 	static String createH5PContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.ekstep.h5p-archive\"}";
 	static String createDefaultContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"video/mp4\"}";
 	static String createCollectionContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"application/vnd.ekstep.content-collection\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}";
-	static String createAssetContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"image/jpeg\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}";
+	static String createAssetContent = "{\"osId\":\"org.ekstep.quiz.app\",\"mediaType\":\"content\",\"visibility\":\"Default\",\"description\":\"Unit Test Content\",\"gradeLevel\":[\"Grade 2\"],\"name\":\"Unit Test Content\",\"language\":[\"English\"],\"contentType\":\"Story\",\"code\":\"test content\",\"mimeType\":\"image/jpeg\"}";
 	static String updateContent = "{\"request\":{\"content\":{\"appIcon\":\"https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/89c173618416f8561f785bd076d2b73a_1475228619822.jpeg\"}}}";
 	static String requestForReview = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}";
+	static String taxonomyId = "domain";
 
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
@@ -496,6 +498,30 @@ public class ContentManagerImplTest extends TestSetup {
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	 * Upload ECML Content
+	 */
+	@Test
+	public void testUploadContent_01() {
+		try {
+			String contentId = "U_ECML_01";
+			String mimeType = "application/vnd.ekstep.ecml-archive";
+			File file = new File("");
+			Response response = contentManager.upload(contentId, taxonomyId, file, mimeType);
+			String nodeId = (String) response.getResult().get(TestParams.node_id.name());
+			String versionKey = (String) response.getResult().get(TestParams.versionKey.name());
+			Assert.assertTrue(StringUtils.isNotBlank(nodeId));
+			Assert.assertTrue(StringUtils.isNotBlank(versionKey));
+			Assert.assertFalse(
+					StringUtils.equalsIgnoreCase(versionKey, (String) versionKeyMap.get(TestParams.versionKey.name())));
+			if (StringUtils.isNotBlank(versionKey))
+				versionKeyMap.put(contentId, versionKey);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	private static void seedContent() {
 		try {
@@ -530,8 +556,8 @@ public class ContentManagerImplTest extends TestSetup {
 				versionKeyMap.put("U_APK_01", apkVersionKey);
 
 			// Create Collection Content
-			createCollectionContent.replace("id1", "U_ECML_01").replace("id2", "U_HTML_01");
-			Map<String, Object> collectionContentMap = mapper.readValue(createCollectionContent,
+			Map<String, Object> collectionContentMap = mapper.readValue(
+					createCollectionContent.replace("id1", "U_ECML_01").replace("id2", "U_HTML_01"),
 					new TypeReference<Map<String, Object>>() {
 					});
 			collectionContentMap.put(TestParams.identifier.name(), "U_Collection_01");
@@ -555,6 +581,7 @@ public class ContentManagerImplTest extends TestSetup {
 					new TypeReference<Map<String, Object>>() {
 					});
 			pluginContentMap.put(TestParams.identifier.name(), "U_Plugin_01");
+			pluginContentMap.put(TestParams.code.name(), "U_Plugin_01");
 			Response pluginResponse = contentManager.createContent(pluginContentMap);
 			String pluginVersionKey = (String) pluginResponse.getResult().get(TestParams.versionKey.name());
 			if (StringUtils.isNotBlank(pluginVersionKey))

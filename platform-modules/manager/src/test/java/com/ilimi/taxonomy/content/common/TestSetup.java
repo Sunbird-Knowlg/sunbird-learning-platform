@@ -13,6 +13,7 @@ import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
+import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -60,6 +61,7 @@ public class TestSetup{
 	public static void before() {
 		setupEmbeddedNeo4J();
 		setupEmbeddedCassandra();
+		setupActorSystem();
 	}
 
 	private static void clearEmbeddedCassandraTables() {
@@ -182,6 +184,10 @@ public class TestSetup{
 		} catch (TransactionTerminatedException ignored) {
 			System.out.println("Execption" + ignored);
 		}
+	}
+	
+	private static void setupActorSystem() {
+		LearningRequestRouterPool.init();
 	}
 
 	private static void tearEmbeddedCassandraSetup() {
