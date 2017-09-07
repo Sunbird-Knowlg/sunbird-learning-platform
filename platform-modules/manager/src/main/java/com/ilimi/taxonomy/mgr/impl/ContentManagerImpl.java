@@ -961,6 +961,9 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
+		// Restrict Update API to Update Status
+		map.remove(ContentAPIParams.status.name());
+		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
