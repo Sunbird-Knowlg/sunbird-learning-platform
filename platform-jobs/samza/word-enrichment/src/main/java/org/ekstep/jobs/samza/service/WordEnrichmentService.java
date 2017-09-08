@@ -214,10 +214,9 @@ public class WordEnrichmentService implements ISamzaService {
 				if (propertyMap != null && propertyMap.getKey() != null) {
 					String propertyName = (String) propertyMap.getKey();
 					if (syncableSynsetProperties.stream().anyMatch(propertyName::equalsIgnoreCase)){
-						String newpLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");
-						String oldLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("ov");
-						if (newpLemmaValue != null && oldLemmaValue != null
-								&& !StringUtils.equalsIgnoreCase(oldLemmaValue, newpLemmaValue))
+						String newValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");
+						String oldValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("ov");
+						if (!StringUtils.equalsIgnoreCase(oldValue, newValue))
 							return true;
 					}
 				}
