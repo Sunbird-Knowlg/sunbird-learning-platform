@@ -47,7 +47,6 @@ import org.junit.Test;
 	import com.jayway.restassured.response.Response;
 	import com.jayway.restassured.specification.RequestSpecification;
 
-import apoc.data.Extract;
 import net.lingala.zip4j.core.ZipFile;
 
 
@@ -85,7 +84,7 @@ import net.lingala.zip4j.core.ZipFile;
 		static File downloadPath;
 		static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 		
-	/*	@BeforeClass
+		@BeforeClass
 		public static void setup() throws URISyntaxException{
 			downloadPath = new File(url.toURI().getPath());		
 		}	
@@ -99,7 +98,7 @@ import net.lingala.zip4j.core.ZipFile;
 		public void cleanup() {
 			contentCleanUp();
 		}
-		*/
+		
 		
 //		@Test
 //		public void getContentType(){
@@ -197,7 +196,7 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					post("content/v3/create").
 					then().
-					//log().all().
+					log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -713,6 +712,106 @@ import net.lingala.zip4j.core.ZipFile;
 			JsonPath jp3 = R3.jsonPath();
 			ArrayList<String> identifier3 = jp3.get("result.content.identifier");
 			Assert.assertTrue((identifier3).contains(nodeId));
+		}
+		
+		// Update content with metadata changes
+		@Test
+		public void updateMetaDataExpectSuccess200(){
+			setURI();
+			Response R =
+					given().
+					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					body(jsonCreateValidContent).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().
+					//log().all().
+					extract().
+					response();	
+
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			String nodeId = jp.get("result.node_id");
+			
+			// Upload Content
+			setURI();
+			given().
+			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			multiPart(new File(path+"/uploadContent.zip")).
+			when().
+			post("/content/v3/upload/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
+
+			// Publish created content
+			setURI();
+			Response R1 =
+			given().
+			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+			when().
+			post("/content/v3/publish/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec()).
+			extract().response();
+			
+			JsonPath jP1 = R1.jsonPath();
+			String versionKey = jP1.get("result.versionKey");
+
+			// Update content metadata
+			setURI();
+			JSONObject js = new JSONObject(jsonUpdateContentValid);
+			js.getJSONObject("request").getJSONObject("content").put("language", "[\"Tamil\", \"Telugu\"]").remove("status");
+			jsonUpdateContentValid = jsonUpdateContentValid.replace("version_Key", versionKey);
+			System.out.println(jsonUpdateContentValid);
+			Response nR = 
+			given().
+			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			body(jsonUpdateContentValid).
+			with().
+			contentType("application/json").
+			when().
+			patch("/content/v3/update/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec()).
+			extract().response();
+			
+			// Extracting the JSON path
+			JsonPath njP = nR.jsonPath();
+			String versionKey1 = njP.get("result.versionKey");
+			Assert.assertFalse(versionKey.equals(versionKey1));
+			
+			// Publish the content
+			setURI();
+			given().
+			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+			when().
+			post("/content/v3/publish/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
+			
+			// Get and validate the change
+			setURI();
+			Response R2 =
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			when().
+			get("content/v3/read/"+nodeId).
+			then().
+			log().all().
+			spec(get200ResponseSpec()).
+			extract().response();
+			
+			JsonPath jP2 = R2.jsonPath();
+			ArrayList<String> language = jP2.get("result.content.language");
+			Assert.assertTrue(language.contains("Tamil") && (language.contains("Telugu")));
 		}
 		
 		// Upload file without index
@@ -1394,7 +1493,7 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					post("content/v3/create").
 					then().
-					//log().all().
+					log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -1411,7 +1510,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			post("/content/v3/upload/"+nodeId).
 			then().
-			//log().all().
+			log().all().
 			spec(get200ResponseSpec());
 		
 			// Get body and validate
