@@ -116,6 +116,7 @@ public class BasePipeline extends BaseManager {
 			Request updateReq = getRequest(clonedNode.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 			if(null != clonedNode.getMetadata().get("channel"))
 				updateReq.getContext().put(GraphDACParams.CHANNEL_ID.name(), (String)clonedNode.getMetadata().get("channel"));
+			System.out.println("setting channel id in the request header " + updateReq.getContext().get(GraphDACParams.CHANNEL_ID.name()));
 			updateReq.put(GraphDACParams.node.name(), clonedNode);
 			updateReq.put(GraphDACParams.node_id.name(), clonedNode.getIdentifier());
 			response = getResponse(updateReq);
