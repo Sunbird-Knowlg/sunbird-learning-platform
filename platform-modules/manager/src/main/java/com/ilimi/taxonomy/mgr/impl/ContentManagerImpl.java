@@ -179,7 +179,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
 					node.getMetadata().put("mimeType", mimeType);
 					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
-				}	
+				}
 			}
 
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
@@ -240,7 +240,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
 				}
 			}
-				
+
 			PlatformLogger.log(
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
@@ -899,6 +899,12 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response createContent(Map<String, Object> map) {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
+
+		// Checking for status
+		if (map.containsKey(ContentAPIParams.status.name()))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CREATE.name(),
+					"Error! Status cannot be set while creating a Content.");
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
@@ -962,8 +968,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		// Restrict Update API to Update Status
-		map.remove(ContentAPIParams.status.name());
-		
+		if (map.containsKey(ContentAPIParams.status.name()))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
+					"Error! Status cannot be set while updating the Content.");
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
@@ -990,7 +998,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			PlatformLogger.log("Content not found: " + contentId);
 			return getNodeResponse;
 		}
-		
+
 		if (map.containsKey(ContentAPIParams.body.name()))
 			map.put(ContentAPIParams.artifactUrl.name(), null);
 
@@ -1087,14 +1095,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 	private void updateDefaultValuesByMimeType(Map<String, Object> map, String mimeType) {
 		if (StringUtils.isNotBlank(mimeType)) {
-			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection") || mimeType.endsWith("epub"))
+			if (mimeType.endsWith("archive") || mimeType.endsWith("vnd.ekstep.content-collection")
+					|| mimeType.endsWith("epub"))
 				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.gzip.name());
 			else
 				map.put(TaxonomyAPIParams.contentEncoding.name(), ContentMetadata.ContentEncoding.identity.name());
 
-			if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url")) 
+			if (mimeType.endsWith("youtube") || mimeType.endsWith("x-url"))
 				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.online.name());
-			else 
+			else
 				map.put(TaxonomyAPIParams.contentDisposition.name(), ContentMetadata.ContentDisposition.inline.name());
 		}
 	}
@@ -1115,7 +1124,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			fields = new ArrayList<String>();
 		else
 			fields = new ArrayList<String>(fields);
-		
 
 		// TODO: this is only for backward compatibility. remove after this release.
 		if (fields.contains("tags")) {
@@ -1452,7 +1460,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			}
 		}
 	}
-	
+
 	private Response updateMimeType(String contentId, String mimeType) throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		map.put("mimeType", mimeType);
