@@ -419,8 +419,6 @@ public class PublishFinalizer extends BaseFinalizer {
 	private Map<String, Object> removeKeysUpdatedInPublishProcess(Map<String, Object> metadata, List<String> keys) {
 		for (String key : keys)
 			metadata.remove(key);
-		System.out.println("metadata After Removal" + metadata);
 		return metadata;
 	}
-
 }

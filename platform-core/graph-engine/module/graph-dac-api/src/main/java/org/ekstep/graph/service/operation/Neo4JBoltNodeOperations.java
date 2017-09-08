@@ -545,7 +545,6 @@ public class Neo4JBoltNodeOperations {
 		try {
 			if (null != request && null != request.getContext()) {
 				channelId = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
-				System.out.println("channel Id recieved from request context " + channelId);
 				if (StringUtils.isBlank(channelId))
 					channelId = DACConfigurationConstants.DEFAULT_CHANNEL_ID;
 			}
