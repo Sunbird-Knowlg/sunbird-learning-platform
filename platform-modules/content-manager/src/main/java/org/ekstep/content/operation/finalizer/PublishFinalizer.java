@@ -367,8 +367,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
 			if (null != dbNode) {
-				Map<String, Object> metadata = dbNode.getMetadata();
-				metadata = removeKeysUpdatedInPublishProcess(metadata, Arrays.asList(
+				
+				contentImage = copyLatestMetadata(contentImage, dbNode, Arrays.asList(
 						ContentWorkflowPipelineParams.s3Key.name(),
 						ContentWorkflowPipelineParams.downloadUrl.name(),
 						ContentWorkflowPipelineParams.pkgVersion.name(),
@@ -382,7 +382,6 @@ public class PublishFinalizer extends BaseFinalizer {
 						ContentWorkflowPipelineParams.createdOn.name(),
 						ContentWorkflowPipelineParams.status.name()
 						));
-				contentImage.setMetadata(metadata);
 				String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 				contentImage.getMetadata().put("versionKey", graphPassportKey);
 				contentImage.setInRelations(dbNode.getInRelations());
@@ -416,9 +415,15 @@ public class PublishFinalizer extends BaseFinalizer {
 
 	//removing List of key from imageNode which is being set in beginning of the code
 	//TODO: Refactor Publish Finalizer code
-	private Map<String, Object> removeKeysUpdatedInPublishProcess(Map<String, Object> metadata, List<String> keys) {
-		for (String key : keys)
-			metadata.remove(key);
-		return metadata;
+	private Node copyLatestMetadata(Node contentNode, Node imageNode, List<String> keys) {
+		Map<String, Object> contentMetadata = contentNode.getMetadata();
+		Map<String, Object> imageMetadata = imageNode.getMetadata();
+		for (Map.Entry<String, Object> entry : imageMetadata.entrySet()) {
+			String key = entry.getKey();
+			if (!keys.contains(key))
+				contentMetadata.put(key, imageMetadata.get(key));
+		}
+		contentNode.setMetadata(contentMetadata);
+		return contentNode;
 	}
 }
