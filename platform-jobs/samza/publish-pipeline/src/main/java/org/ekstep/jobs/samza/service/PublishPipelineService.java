@@ -93,8 +93,6 @@ public class PublishPipelineService implements ISamzaService {
 		node = util.getNode(PublishPipelineParams.domain.name(), imgNodeId);
 		if (null == node) {
 			node = util.getNode(PublishPipelineParams.domain.name(), nodeId);
-		} else {
-			node.setIdentifier(nodeId);
 		}
 		return node;
 	}
