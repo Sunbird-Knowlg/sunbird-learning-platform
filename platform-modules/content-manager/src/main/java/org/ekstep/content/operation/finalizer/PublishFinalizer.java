@@ -368,20 +368,20 @@ public class PublishFinalizer extends BaseFinalizer {
 					ContentWorkflowPipelineParams.Live.name());
 			if (null != dbNode) {
 				
-				contentImage = copyLatestMetadata(contentImage, dbNode, Arrays.asList(
-						ContentWorkflowPipelineParams.s3Key.name(),
-						ContentWorkflowPipelineParams.downloadUrl.name(),
-						ContentWorkflowPipelineParams.pkgVersion.name(),
-						ContentWorkflowPipelineParams.lastPublishedOn.name(),
-						ContentWorkflowPipelineParams.body.name(),
-						ContentWorkflowPipelineParams.flagReasons.name(),
-						ContentWorkflowPipelineParams.publishError.name(),
-						ContentWorkflowPipelineParams.variants.name(),
-						ContentWorkflowPipelineParams.compatibilityLevel.name(),
-						ContentWorkflowPipelineParams.size.name(),
-						ContentWorkflowPipelineParams.createdOn.name(),
-						ContentWorkflowPipelineParams.status.name()
-						));
+//				contentImage = copyLatestMetadata(contentImage, dbNode, Arrays.asList(
+//						ContentWorkflowPipelineParams.s3Key.name(),
+//						ContentWorkflowPipelineParams.downloadUrl.name(),
+//						ContentWorkflowPipelineParams.pkgVersion.name(),
+//						ContentWorkflowPipelineParams.lastPublishedOn.name(),
+//						ContentWorkflowPipelineParams.body.name(),
+//						ContentWorkflowPipelineParams.flagReasons.name(),
+//						ContentWorkflowPipelineParams.publishError.name(),
+//						ContentWorkflowPipelineParams.variants.name(),
+//						ContentWorkflowPipelineParams.compatibilityLevel.name(),
+//						ContentWorkflowPipelineParams.size.name(),
+//						ContentWorkflowPipelineParams.createdOn.name(),
+//						ContentWorkflowPipelineParams.status.name()
+//						));
 				String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 				contentImage.getMetadata().put("versionKey", graphPassportKey);
 				contentImage.setInRelations(dbNode.getInRelations());
