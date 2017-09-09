@@ -73,7 +73,7 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		try {
 			String nodeId = (String) eks.get(PublishPipelineParams.id.name());
-			Node node = util.getNode(PublishPipelineParams.domain.name(), nodeId);
+			Node node = getNode(nodeId);
 			String mimeType = (String) node.getMetadata().get(PublishPipelineParams.mimeType.name());
 			if ((null != node) && (node.getObjectType().equalsIgnoreCase(PublishPipelineParams.content.name()))) {
 				publishContent(node, mimeType);
@@ -87,6 +87,18 @@ public class PublishPipelineService implements ISamzaService {
 		}
 	}
 
+	private Node getNode(String nodeId) {
+		Node node = null;
+		String imgNodeId = nodeId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
+		node = util.getNode(PublishPipelineParams.domain.name(), imgNodeId);
+		if (null == node) {
+			node = util.getNode(PublishPipelineParams.domain.name(), nodeId);
+		} else {
+			node.setIdentifier(nodeId);
+		}
+		return node;
+	}
+	
 	private void publishContent(Node node, String mimeType) {
 		LOGGER.info("Publish processing start for content");
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
