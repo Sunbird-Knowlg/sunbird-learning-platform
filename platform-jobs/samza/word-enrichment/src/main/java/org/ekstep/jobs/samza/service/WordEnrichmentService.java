@@ -214,12 +214,31 @@ public class WordEnrichmentService implements ISamzaService {
 				if (propertyMap != null && propertyMap.getKey() != null) {
 					String propertyName = (String) propertyMap.getKey();
 					if (syncableSynsetProperties.stream().anyMatch(propertyName::equalsIgnoreCase)){
-						String newpLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");
-						String oldLemmaValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("ov");
-						if (!StringUtils.equalsIgnoreCase(oldLemmaValue, newpLemmaValue))
-							return true;
+						if (StringUtils.equalsIgnoreCase("pictures", propertyName)) {
+							List<String> newValue = (List<String>) ((Map<String, Object>) propertyMap.getValue()).get("nv");
+							List<String> oldValue = (List<String>) ((Map<String, Object>) propertyMap.getValue()).get("ov");
+							if(newValue == null || oldValue == null)
+								return true;
+							if(!equals(oldValue, newValue))
+								return true;
+						} else {
+							String newValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");
+							String oldValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("ov");
+							if (!StringUtils.equalsIgnoreCase(oldValue, newValue))
+								return true;
+						}
 					}
 				}
+			}
+		}
+		return false;
+	}
+	
+	private boolean equals(List<String> oldValue, List<String> newValue) {
+		if (newValue != null && oldValue != null && (newValue.size() == oldValue.size())) {
+			newValue.removeAll(oldValue);
+			if (newValue.isEmpty()) {
+				return true;
 			}
 		}
 		return false;
