@@ -62,6 +62,7 @@ public class PublishPipelineService implements ISamzaService {
 		LOGGER.info("Redis connection factory initialized");
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
@@ -74,8 +75,9 @@ public class PublishPipelineService implements ISamzaService {
 		try {
 			String nodeId = (String) eks.get(PublishPipelineParams.id.name());
 			Node node = getNode(nodeId);
+			LOGGER.info("Node fetched for publish operation " + node.getIdentifier());
 			String mimeType = (String) node.getMetadata().get(PublishPipelineParams.mimeType.name());
-			if ((null != node) && (node.getObjectType().equalsIgnoreCase(PublishPipelineParams.content.name()))) {
+			if (null != node) {
 				publishContent(node, mimeType);
 				metrics.incSuccessCounter();
 			} else {
