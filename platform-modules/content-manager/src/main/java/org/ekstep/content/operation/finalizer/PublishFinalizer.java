@@ -3,7 +3,6 @@ package org.ekstep.content.operation.finalizer;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -366,24 +365,8 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
+			
 			if (null != dbNode) {
-				
-//				contentImage = copyLatestMetadata(contentImage, dbNode, Arrays.asList(
-//						ContentWorkflowPipelineParams.s3Key.name(),
-//						ContentWorkflowPipelineParams.downloadUrl.name(),
-//						ContentWorkflowPipelineParams.pkgVersion.name(),
-//						ContentWorkflowPipelineParams.lastPublishedOn.name(),
-//						ContentWorkflowPipelineParams.body.name(),
-//						ContentWorkflowPipelineParams.flagReasons.name(),
-//						ContentWorkflowPipelineParams.publishError.name(),
-//						ContentWorkflowPipelineParams.variants.name(),
-//						ContentWorkflowPipelineParams.compatibilityLevel.name(),
-//						ContentWorkflowPipelineParams.size.name(),
-//						ContentWorkflowPipelineParams.createdOn.name(),
-//						ContentWorkflowPipelineParams.status.name()
-//						));
-				String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-				contentImage.getMetadata().put("versionKey", graphPassportKey);
 				contentImage.setInRelations(dbNode.getInRelations());
 				contentImage.setOutRelations(dbNode.getOutRelations());
 			}
@@ -411,19 +394,5 @@ public class PublishFinalizer extends BaseFinalizer {
 		PlatformLogger.log("Returning the Response Object After Migrating the Content Body and Metadata.", response,
 				null, LoggerEnum.INFO.name());
 		return response;
-	}
-
-	//removing List of key from imageNode which is being set in beginning of the code
-	//TODO: Refactor Publish Finalizer code
-	private Node copyLatestMetadata(Node contentNode, Node imageNode, List<String> keys) {
-		Map<String, Object> contentMetadata = contentNode.getMetadata();
-		Map<String, Object> imageMetadata = imageNode.getMetadata();
-		for (Map.Entry<String, Object> entry : imageMetadata.entrySet()) {
-			String key = entry.getKey();
-			if (!keys.contains(key))
-				contentMetadata.put(key, imageMetadata.get(key));
-		}
-		contentNode.setMetadata(contentMetadata);
-		return contentNode;
 	}
 }
