@@ -149,7 +149,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		PlatformLogger.log("Content ID: " + contentId);
 		PlatformLogger.log("Graph ID: " + taxonomyId);
 		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
-
+		boolean updateMimeType = false;
+		
 		try {
 			if (StringUtils.isBlank(taxonomyId))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
@@ -167,28 +168,26 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
 
 			isNodeUnderProcessing(node, "Upload");
-
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
 			} else {
-				Response response = updateMimeType(contentId, mimeType);
-				if (checkError(response))
-					return response;
-				else {
-					// TODO: need to change this implementation.
-					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
-					node.getMetadata().put("mimeType", mimeType);
-					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
-				}
+				setMimeTypeForUpload(mimeType, node);
+				updateMimeType = true;
 			}
-
+			
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-			PlatformLogger.log(
-					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
-			PlatformLogger.log("Returning Response.");
+			
+			if (updateMimeType && !checkError(res)) {
+				node.getMetadata().put("versionKey", res.getResult().get("versionKey"));
+				Response response = updateMimeType(contentId, mimeType);
+				if (checkError(response))
+					return response;
+			}
+			
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
 			throw e;
@@ -214,6 +213,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response upload(String contentId, String taxonomyId, String fileUrl, String mimeType) {
 		PlatformLogger
 				.log("Graph ID: " + taxonomyId + " :: " + "Content ID: " + contentId + " :: " + "File URL:" + fileUrl);
+		boolean updateMimeType = false;
 		try {
 			if (StringUtils.isBlank(taxonomyId))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
@@ -230,15 +230,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
 			} else {
-				// TODO: need to change this implementation.
-				Response response = updateMimeType(node.getIdentifier(), mimeType);
-				if (checkError(response))
-					return response;
-				else {
-					node.getMetadata().put("versionKey", response.getResult().get("versionKey"));
-					node.getMetadata().put("mimeType", mimeType);
-					updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
-				}
+				setMimeTypeForUpload(mimeType, node);
+				updateMimeType = true;
 			}
 
 			PlatformLogger.log(
@@ -246,7 +239,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(node, fileUrl);
-			PlatformLogger.log("Returning Response.");
+			
+			if (updateMimeType && !checkError(res)) {
+				node.getMetadata().put("versionKey", res.getResult().get("versionKey"));
+				Response response = updateMimeType(contentId, mimeType);
+				if (checkError(response))
+					return response;
+			}
+			
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
 			throw e;
@@ -259,6 +259,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		}
 	}
 
+	private void setMimeTypeForUpload(String mimeType, Node node) {
+		node.getMetadata().put("mimeType", mimeType);
+		updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
+	}
+	
 	private Response checkAndReturnUploadResponse(Response res) {
 		if (checkError(res)) {
 			return res;

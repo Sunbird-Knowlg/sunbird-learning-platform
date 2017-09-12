@@ -365,6 +365,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
 					ContentWorkflowPipelineParams.Live.name());
+			
 			if (null != dbNode) {
 				contentImage.setInRelations(dbNode.getInRelations());
 				contentImage.setOutRelations(dbNode.getOutRelations());
@@ -394,5 +395,4 @@ public class PublishFinalizer extends BaseFinalizer {
 				null, LoggerEnum.INFO.name());
 		return response;
 	}
-
 }
