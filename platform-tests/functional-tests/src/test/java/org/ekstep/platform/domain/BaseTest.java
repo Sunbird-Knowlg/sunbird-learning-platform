@@ -1,7 +1,6 @@
 package org.ekstep.platform.domain;
 
 
-
 /// hi this is test to check smartgit sync.
 import static com.jayway.restassured.RestAssured.baseURI;
 import static com.jayway.restassured.RestAssured.given;
@@ -42,8 +41,8 @@ public class BaseTest
 		//TO-DO: This will be read from config file, soon.
 		//baseURI = "http://localhost:8080/";
 		//baseURI = "https://api.ekstep.in/";
-		//baseURI ="https://dev.ekstep.in/api/"; 
-		baseURI ="https://qa.ekstep.in/api/"; 
+		baseURI ="https://dev.ekstep.in/api/"; 
+		//baseURI ="https://qa.ekstep.in/api/"; 
 	}
 	
 		

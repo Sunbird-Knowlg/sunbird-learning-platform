@@ -29,16 +29,18 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.OutputStreamValue;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
+import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 @Controller
 @RequestMapping("/v3/system")
 public class GraphV3Controller extends BaseController {
 
-	
-
 	@Autowired
 	private ITaxonomyManager taxonomyManager;
+	
+	@Autowired
+	private IContentManager contentManager;
 
 	@RequestMapping(value = "/import/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
@@ -150,6 +152,23 @@ public class GraphV3Controller extends BaseController {
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			PlatformLogger.log("Find All Definitions | Exception: " , e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/content/update/{id:.+}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public ResponseEntity<Response> internalObjectUpdate(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> requestMap) {
+		String apiId = "ekstep.learning.system.content.update";
+		Request request = getRequest(requestMap);
+		try {
+			Map<String, Object> map = (Map<String, Object>) request.get("content");
+			Response response = contentManager.updateAllContentNodes(contentId, map);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			PlatformLogger.log("Exception", e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
