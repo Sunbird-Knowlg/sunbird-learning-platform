@@ -207,7 +207,7 @@ public class SetCacheManager {
 
 	private static String cacheType() {
 		if (Platform.config.hasPath("cache.type")) 
-			return cacheType();
+			return Platform.config.getString("cache.type");
 		else 
 			return "redis";
 	}
