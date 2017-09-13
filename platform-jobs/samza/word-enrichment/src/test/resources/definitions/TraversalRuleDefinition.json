@@ -1,0 +1,212 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "TraversalRule",
+      "properties": [
+		{
+          "propertyName": "name",
+          "title": "Name",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 1 }"
+        },
+        {
+          "propertyName": "description",
+          "title": "Description",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 2 }"
+        },
+        {
+            "propertyName": "type",
+            "title": "Type",
+            "description": "Type",
+            "category": "general",
+            "dataType": "Select",
+            "range":
+            [
+                "ConsonantBoundary",
+				"AksharaBoundary",
+                "RhymingSound"
+            ],
+            "required": true,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Other",
+            "renderingHints": "{'inputType': 'select', 'order': 3}"
+        },
+        {
+          "propertyName": "ruleId",
+          "title": "Rule Id",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "maxChainLength",
+          "title": "Maximum word chain Length",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": 20,
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "minChainLength",
+          "title": "Minimum word chain Length",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": 5,
+          "renderingHints": "{ 'order': 6 }"
+        },
+        {
+          "propertyName": "maxWords",
+          "title": "Maximum number of words in word chains",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": 1000,
+          "renderingHints": "{ 'order': 7 }"
+        },
+        {
+          "propertyName": "startWordsSize",
+          "title": "Maximum number of start words in word chains",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": 30,
+          "renderingHints": "{ 'order': 8 }"
+        },
+        {
+          "propertyName": "reviewers",
+          "title": "Reviewers",
+          "description": "",
+          "category": "audit",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 9 }"
+        },  
+        {
+          "propertyName": "lastUpdatedBy",
+          "title": "Last Updated By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+        },
+        {
+          "propertyName": "lastUpdatedOn",
+          "title": "Last Updated On",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 11 }"
+        },
+        {
+            "propertyName": "status",
+            "title": "Status",
+            "description": "Status of the domain",
+            "category": "audit",
+            "dataType": "Select",
+            "range":
+            [
+                "Draft",
+                "Live",
+                "Review",
+                "Retired"
+            ],
+
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Draft",
+            "renderingHints": "{'inputType': 'select', 'order': 12}"
+        },
+        {
+          "propertyName": "ruleScript",
+          "title": "Rule Script",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 14 }"
+        },
+         {
+          "propertyName": "ruleObjectType",
+          "title": "Rule Object Type",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "Word",
+          "renderingHints": "{ 'order': 15 }"
+        }
+      ],
+      "inRelations": [
+      ],
+      "outRelations": [
+      ],
+      "systemTags": [],
+      "metadata": {
+        "ttl": 24,
+        "limit": 50
+      }
+    }
+  ]
+}

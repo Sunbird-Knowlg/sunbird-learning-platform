@@ -1,0 +1,364 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "Synset",
+      "properties": [
+        {
+          "propertyName": "gloss",
+          "title": "Gloss",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 1 }"
+        },
+        {
+          "propertyName": "glossInEnglish",
+          "title": "Gloss in English",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
+        },
+        {
+            "propertyName": "category",
+            "title": "Category",
+            "description": "Category",
+            "category": "general",
+            "dataType": "Select",
+            "range":
+            [
+                "Person",
+                "Place",
+                "Thing",
+                "Quality",
+                "Numeral/Time",
+                "Concept",
+                "Action/Event",
+                "Grammatical Word"
+            ],
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'select', 'order': 3}"
+        },
+        {
+          "propertyName": "exampleSentences",
+          "title": "Example Sentences",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
+        },
+        {
+          "propertyName": "pos",
+          "title": "POS",
+          "description": "",
+          "category": "grammar",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 5 }"
+        },
+        {
+          "propertyName": "pictures",
+          "title": "Pictures",
+          "description": "URL",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 6 }"
+        },
+        {
+          "propertyName": "Audio",
+          "title": "audio",
+          "description": "URL",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'teaxtarea',  'order': 7 }"
+        },
+        {
+            "required": false,
+            "dataType": "JSON",
+            "propertyName": "translations",
+            "title": "Translations",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 8 }",
+            "indexed": true,
+            "draft": false
+        },
+        {
+          "propertyName": "gender",
+          "title": "Gender",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 8 }"
+        },
+        {
+          "propertyName": "variants",
+          "title": "Morphological Variants",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 9 }"
+        },
+        {
+          "propertyName": "reviewers",
+          "title": "Reviewers",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
+        },
+        {
+          "propertyName": "lastUpdatedBy",
+          "title": "Last Updated By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 11 }"
+        },
+        {
+          "propertyName": "lastUpdatedOn",
+          "title": "Last Updated On",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 12 }"
+        },
+        {
+            "propertyName": "status",
+            "title": "Status",
+            "description": "Status of the domain",
+            "category": "audit",
+            "dataType": "Select",
+            "range":
+            [
+                "Draft",
+                "Live",
+                "Review",
+                "Retired"
+            ],
+
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Live",
+            "renderingHints": "{'inputType': 'select', 'order': 13}"
+        },
+        {
+          "propertyName": "frames",
+          "title": "Sentence Frames",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 14 }"
+        },
+        {
+          "propertyName": "members",
+          "title": "Member Words",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 15 }"
+        }
+      ],
+      "inRelations": [
+      ],
+      "outRelations": [
+        {
+          "relationName": "synonym",
+          "title": "synonyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasAntonym",
+          "title": "antonyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasHypernym",
+          "title": "hypernyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasHolonym",
+          "title": "holonyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasHyponym",
+          "title": "hyponyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasMeronym",
+          "title": "meronyms",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasWorker",
+          "title": "workers",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "usesTool",
+          "title": "tools",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasAction",
+          "title": "actions",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "actionOn",
+          "title": "objects",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasConverse",
+          "title": "converse",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        }
+      ],
+      "systemTags": [
+        {
+          "name": "Review Tags",
+          "description": "Need to Review this Synset."
+        },
+        {
+          "name": "Missing Information",
+          "description": "Some the information is missing."
+        },
+        {
+          "name": "Incorrect Data",
+          "description": "Wrong information about this Synset."
+        }
+      ],
+      "metadata": {
+        "ttl": 24,
+        "limit": 50
+      }
+    }
+  ]
+}

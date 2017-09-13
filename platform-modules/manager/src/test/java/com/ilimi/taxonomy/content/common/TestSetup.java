@@ -11,12 +11,15 @@ import java.util.Map;
 
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.commons.io.FileUtils;
+import org.apache.thrift.transport.TTransportException;
 import org.cassandraunit.CassandraCQLUnit;
 import org.cassandraunit.dataset.cql.ClassPathCQLDataSet;
+import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.TransactionTerminatedException;
@@ -32,8 +35,10 @@ import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 public class TestSetup{
 
-	@ClassRule
-	public static CassandraCQLUnit cassandra;
+//	@ClassRule
+//	public static CassandraCQLUnit cassandra;
+	@Rule
+    public CassandraCQLUnit cassandraCQLUnit = new CassandraCQLUnit(new ClassPathCQLDataSet(CASSANDRA_DDL_CQL_FILE,CASSANDRA_KEYSPACE));
 
 	private static File folder = new File("src/test/resources/definitions");
 	private static Map<String, String> definitions = new HashMap<String, String>();
@@ -65,8 +70,8 @@ public class TestSetup{
 	}
 
 	private static void clearEmbeddedCassandraTables() {
-		Collection<TableMetadata> tables = cassandra.cluster.getMetadata().getKeyspace(CASSANDRA_KEYSPACE).getTables();
-		tables.forEach(table -> cassandra.session.execute(QueryBuilder.truncate(table)));
+//		Collection<TableMetadata> tables = cassandra.cluster.getMetadata().getKeyspace(CASSANDRA_KEYSPACE).getTables();
+//		tables.forEach(table -> cassandra.session.execute(QueryBuilder.truncate(table)));
 	}
 
 	private static Response create(String graphId, InputStream in) {
@@ -158,10 +163,20 @@ public class TestSetup{
 
 	private static void setupEmbeddedCassandra() {
 		try {
-			ClassPathCQLDataSet dataSet = new ClassPathCQLDataSet(CASSANDRA_DDL_CQL_FILE, true, true,
-					CASSANDRA_KEYSPACE);
-			cassandra = new CassandraCQLUnit(dataSet);
+//			ClassPathCQLDataSet dataSet = new ClassPathCQLDataSet(CASSANDRA_DDL_CQL_FILE, true, true,
+//					CASSANDRA_KEYSPACE);
+//			cassandra = new CassandraCQLUnit(dataSet);
+			 try {
+				 System.out.println("Starting Cassandra");
+				 EmbeddedCassandraServerHelper.startEmbeddedCassandra("/cassandra-unit.yaml");
+				System.out.println("Started Cassandra");
+			} catch (TTransportException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} catch (ConfigurationException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
