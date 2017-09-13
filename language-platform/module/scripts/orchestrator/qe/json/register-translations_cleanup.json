@@ -1,0 +1,22 @@
+{
+    "name": "lang_qe_translations_cleanup",
+    "parameters": [
+    	{
+    		"name":"word",
+    		"index": 0,
+    		"routingParam": true
+    	},
+    	{
+        	"name": "startUnicode",
+        	"index": 1,
+        	"routingParam": false
+    	},
+    	{
+        	"name": "endUnicode",
+        	"index": 2,
+        	"routingParam": false
+    	}
+
+	],
+    "body": ""
+}

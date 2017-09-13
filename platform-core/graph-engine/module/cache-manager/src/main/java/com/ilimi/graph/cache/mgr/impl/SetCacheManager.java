@@ -25,7 +25,7 @@ public class SetCacheManager {
 	public static void createSet(String graphId, String setId, List<String> members) {
 		validateRequired(graphId, setId, members, GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name());
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			Jedis jedis = getRedisConncetion();
 			try {
 				String[] tempMembers = new String[members.size()];
@@ -44,7 +44,7 @@ public class SetCacheManager {
 		validateRequired(graphId, setId, memberId, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
 		Jedis jedis = getRedisConncetion();
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			try {
 				jedis.sadd(key, memberId);
 			} finally {
@@ -65,7 +65,7 @@ public class SetCacheManager {
 		validateRequired(graphId, setId, memberIds, GraphCacheErrorCodes.ERR_CACHE_ADD_SET_MEMBER.name());
 		Jedis jedis = getRedisConncetion();
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			try {
 				String[] members = new String[memberIds.size()];
 				for (int i = 0; i < memberIds.size(); i++) {
@@ -94,7 +94,7 @@ public class SetCacheManager {
 		validateRequired(graphId, setId, memberId, GraphCacheErrorCodes.ERR_CACHE_REMOVE_SET_MEMBER.name());
 		Jedis jedis = getRedisConncetion();
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			try {
 				jedis.srem(key, memberId);
 			} catch (Exception e) {
@@ -115,7 +115,7 @@ public class SetCacheManager {
 		validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_DROP_SET.name());
 		Jedis jedis = getRedisConncetion();
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			try {
 				jedis.del(key);
 			} catch (Exception e) {
@@ -134,7 +134,7 @@ public class SetCacheManager {
 		validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
 		List<String> members = new ArrayList<String>();
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			Jedis jedis = getRedisConncetion();
 			try {
 				Set<String> memberIds = jedis.smembers(key);
@@ -158,7 +158,7 @@ public class SetCacheManager {
 		validateRequired(graphId, setId, GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name());
 		Jedis jedis = getRedisConncetion();
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			try {
 				Long cardinality = jedis.scard(key);
 				System.out.println(cardinality);
@@ -183,7 +183,7 @@ public class SetCacheManager {
 		Jedis jedis = getRedisConncetion();
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
 		Boolean isMember;
-		if ("redis".equalsIgnoreCase(Platform.config.getString("cache.type"))) {
+		if ("redis".equalsIgnoreCase(cacheType())) {
 			try {
 				isMember = jedis.sismember(key, member);
 				return isMember;
@@ -205,6 +205,13 @@ public class SetCacheManager {
 		return isMember;
 	}
 
+	private static String cacheType() {
+		if (Platform.config.hasPath("cache.type")) 
+			return cacheType();
+		else 
+			return "redis";
+	}
+	
 	private static void validateRequired(String graphId, String id, Object members, String errCode) {
 		validateRequired(graphId, id, errCode);
 		if (null == members)
