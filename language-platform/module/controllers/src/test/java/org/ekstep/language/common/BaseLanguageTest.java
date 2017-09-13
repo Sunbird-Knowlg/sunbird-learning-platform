@@ -12,13 +12,15 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.dac.util.Neo4jGraphFactory;
+import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.engine.router.ActorBootstrap;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
@@ -26,6 +28,7 @@ public class BaseLanguageTest {
 
 	
 	private static ObjectMapper mapper = new ObjectMapper();
+	private static GraphDatabaseService graphDb;
 	protected static String TEST_LANGUAGE = "en";
 	protected static String TEST_COMMON_LANGUAGE = "language";
 	private static String definitionFolder = "src/test/resources/definitions";
@@ -47,23 +50,59 @@ public class BaseLanguageTest {
 	}
 		
 	protected static void createGraph(){
-		if (!Neo4jGraphFactory.graphExists(TEST_LANGUAGE)) 
-			Neo4jGraphFactory.createGraph(TEST_LANGUAGE);
-		if (!Neo4jGraphFactory.graphExists(TEST_COMMON_LANGUAGE)) 
-			Neo4jGraphFactory.createGraph(TEST_COMMON_LANGUAGE);	
+
+		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector( "0" );
+        System.out.println("Starting neo4j in embedded mode");
+       
+        graphDb = new GraphDatabaseFactory()
+		        .newEmbeddedDatabaseBuilder(new File(Configuration.getProperty("graph.dir")))
+		        .setConfig( bolt.type, "BOLT" )
+		        .setConfig( bolt.enabled, "true" )
+		        .setConfig( bolt.address, "localhost:7687" )
+		        .newGraphDatabase();
+		registerShutdownHook(graphDb);
 	}
 
-	protected static void deleteGraph(){
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(TEST_LANGUAGE);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_LANGUAGE);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_LANGUAGE);
-        graphDb = Neo4jGraphFactory.getGraphDb(TEST_COMMON_LANGUAGE);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_COMMON_LANGUAGE);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_COMMON_LANGUAGE);
+	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				graphDb.shutdown();
+			}
+		});
+	}
+		
+	protected static void deleteGraph() {
+
+		try {
+			Request request = new Request();
+			request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+			request.setOperation("deleteGraph");
+			request.getContext().put(GraphHeaderParams.graph_id.name(),
+					TEST_LANGUAGE);
+			Response resp = LanguageCommonTestHelper.getResponse(
+					request);
+			PlatformLogger.log("List | Response: " ,resp);
+			
+			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
+			}
+			
+			request = new Request();
+			request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+			request.setOperation("deleteGraph");
+			request.getContext().put(GraphHeaderParams.graph_id.name(),
+					TEST_COMMON_LANGUAGE);
+			resp = LanguageCommonTestHelper.getResponse(
+					request);
+			PlatformLogger.log("List | Response: " ,resp);
+			
+			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	protected static void createDefinition() throws IOException{

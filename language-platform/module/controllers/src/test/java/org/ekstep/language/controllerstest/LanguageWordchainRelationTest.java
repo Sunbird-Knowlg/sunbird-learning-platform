@@ -1,5 +1,6 @@
 package org.ekstep.language.controllerstest;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -9,17 +10,22 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.language.common.LanguageCommonTestHelper;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.junit.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.util.Neo4jGraphFactory;
-
+import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
+import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class LanguageWordchainRelationTest {
 
@@ -27,6 +33,7 @@ public class LanguageWordchainRelationTest {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static String TEST_LANGUAGE1 = "enTest";
 	private static String TEST_LANGUAGE2 = "kaTest";
+	private static GraphDatabaseService graphDb;
 	
 	static {
 		LanguageRequestRouterPool.init();
@@ -151,23 +158,58 @@ public class LanguageWordchainRelationTest {
 	}*/
 
 	public static void createGraph(){
-		if (!Neo4jGraphFactory.graphExists(TEST_LANGUAGE1)) 
-			Neo4jGraphFactory.createGraph(TEST_LANGUAGE1);
-		if (!Neo4jGraphFactory.graphExists(TEST_LANGUAGE2)) 
-			Neo4jGraphFactory.createGraph(TEST_LANGUAGE2);	
+		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector( "0" );
+        System.out.println("Starting neo4j in embedded mode");
+       
+        graphDb = new GraphDatabaseFactory()
+		        .newEmbeddedDatabaseBuilder(new File(Configuration.getProperty("graph.dir")))
+		        .setConfig( bolt.type, "BOLT" )
+		        .setConfig( bolt.enabled, "true" )
+		        .setConfig( bolt.address, "localhost:7687" )
+		        .newGraphDatabase();
+		registerShutdownHook(graphDb);
 	}
-
+	
+	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				graphDb.shutdown();
+			}
+		});
+	}
+	
 	public static void deleteGraph(){
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(TEST_LANGUAGE1);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_LANGUAGE1);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_LANGUAGE1);
-        graphDb = Neo4jGraphFactory.getGraphDb(TEST_LANGUAGE2);
-        if (null != graphDb) {
-            Neo4jGraphFactory.shutdownGraph(TEST_LANGUAGE2);
-        }
-        Neo4jGraphFactory.deleteGraph(TEST_LANGUAGE2);
+
+		try {
+			Request request = new Request();
+			request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+			request.setOperation("deleteGraph");
+			request.getContext().put(GraphHeaderParams.graph_id.name(),
+					TEST_LANGUAGE1);
+			Response resp = LanguageCommonTestHelper.getResponse(
+					request);
+			PlatformLogger.log("List | Response: " ,resp);
+			
+			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
+			}
+			
+			request = new Request();
+			request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+			request.setOperation("deleteGraph");
+			request.getContext().put(GraphHeaderParams.graph_id.name(),
+					TEST_LANGUAGE2);
+			resp = LanguageCommonTestHelper.getResponse(
+					request);
+			PlatformLogger.log("List | Response: " ,resp);
+			
+			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
+				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static Response jsonToObject(ResultActions actions) {

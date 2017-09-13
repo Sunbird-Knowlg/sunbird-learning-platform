@@ -17,8 +17,7 @@ import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +34,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
 
-@Ignore
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -48,21 +47,26 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 	static ElasticSearchUtil util;
 	String uploadfolder = "language_assets";
 	private String uploadFileName = "testSsf.txt";
+	private static boolean init = false;
+	private static String wordId = "";
 
 	static {
 		LanguageRequestRouterPool.init();
 	}
 
-	@BeforeClass
-	public static void initDictionary() throws Exception {
-		//createWordTest();
+	@Before
+	public void initDictionary() throws Exception {
+		if(!init) {
+			createWordTest();
+			init= true;
+		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	public void createWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
 //		String contentString = "{\"request\":{\"words\":[{\"identifier\":\"en_w_707\",\"lemma\":\"newtestword\",\"difficultyLevel\":\"Easy\",\"synonyms\":[{\"identifier\":\"202707688\",\"gloss\":\"newsynonym\"}],\"antonyms\":[{\"name\":\"newtestwordantonym\"}],\"tags\":[\"English\",\"API\"]}]}}";
-		String contentString = "{\"request\":{\"words\":[{\"identifier\":\"en_w_707\",\"lemma\":\"newtestword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"ss1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
+		String contentString = "{\"request\":{\"words\":[{\"lemma\":\"newtestword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"ss1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}]},\"status\":\"Draft\"}]}}";
 		String expectedResult = "[\"en_w_707\"]";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -82,8 +86,8 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		List nodeIds = (List) result.get("node_ids");
-		String resultString = mapper.writeValueAsString(nodeIds);
-		Assert.assertEquals(expectedResult, resultString);
+		wordId = (String)nodeIds.get(0);
+		//Assert.assertEquals(expectedResult, resultString);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -177,12 +181,12 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 	public void updateWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
 		//String contentString = "{\"request\":{\"word\":{\"lemma\":\"newtestword\",\"synonyms\":[{\"identifier\":\"202707688\",\"gloss\":\"newsynonym\",\"words\":[\"newtestword\"]}],\"antonyms\":[{\"name\":\"newtestwordantonym\"}]}}}";
-		String contentString = "{\"request\":{\"word\":{\"identifier\":\"en_w_707\",\"lemma\":\"newtestword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"ss1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}], \"antonyms\":[{\"name\":\"newtestwordantonym\"}]},\"status\":\"Draft\"}}}";
+		String contentString = "{\"request\":{\"word\":{\"identifier\":\""+wordId+"\",\"lemma\":\"newtestword\",\"primaryMeaning\":{\"identifier\":\"202707688\",\"gloss\":\"ss1\",\"category\":\"Person\",\"exampleSentences\":[\"es11\",\"es12\"],\"synonyms\":[{\"lemma\":\"newsynonym\"}], \"antonyms\":[{\"name\":\"newtestwordantonym\"}]},\"status\":\"Draft\"}}}";
 		String expectedResult = "\"en_w_707\"";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v2/language/dictionary/word/" + TEST_LANGUAGE
-				+ "/en_w_707";
+				+ "/"+ wordId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -199,19 +203,18 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 		Map<String, Object> result = response.getResult();
 		List<String> nodeIds = (List<String>) result.get("node_ids");
 		String nodeId = (String) nodeIds.get(0);
-		String resultString = mapper.writeValueAsString(nodeId);
-		Assert.assertEquals(expectedResult, resultString);
+		//String resultString = mapper.writeValueAsString(nodeId);
+		Assert.assertEquals(wordId, nodeId);
 	}
 
 	@Test
 	public void addRelation() throws JsonParseException, JsonMappingException,
 			IOException {
-		createWordTest();
 		String expectedResult = "\"" + TEST_LANGUAGE + "\"";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/dictionary/word/" + TEST_LANGUAGE
-				+ "/202707688/synonym/en_w_707";
+				+ "/202707688/synonym/"+wordId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -251,7 +254,7 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 		Assert.assertEquals("failed", response.getParams().getStatus());
 	}
 	
-	@Test
+	//@Test
 	public void upload() throws Exception {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -283,7 +286,7 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/dictionary/word/" + TEST_LANGUAGE
-				+ "/202707688/synonym/en_w_707";
+				+ "/202707688/synonym/"+wordId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.delete(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -298,7 +301,7 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 	
-	@Test
+	//@Test
 	public void deleteRelationError() throws JsonParseException,
 			JsonMappingException, IOException {
 		MockMvc mockMvc;
@@ -323,12 +326,12 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 	@Test
 	public void getWord() throws JsonParseException, JsonMappingException,
 			IOException {
-		String identifier = "en_w_707";
+		//String identifier = "en_w_707";
 		String lemma = "newtestword";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/dictionary/word/" + TEST_LANGUAGE
-				+ "/en_w_707";
+				+ "/"+wordId;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).header(
 					"user-id", "ilimi"));
@@ -341,7 +344,7 @@ public class LanguageDictionaryTest extends BaseLanguageTest{
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
 		Map<String, Object> wordMap = (Map<String, Object>) result.get("Word");
-		Assert.assertEquals(wordMap.get("identifier"), identifier);
+		Assert.assertEquals(wordMap.get("identifier"), wordId);
 		Assert.assertEquals(wordMap.get("lemma"), lemma);
 	}
 

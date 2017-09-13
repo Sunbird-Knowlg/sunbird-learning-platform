@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.language.common.BaseLanguageTest;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.search.router.SearchRequestRouterPool;
 import org.junit.Assert;
@@ -34,7 +35,7 @@ import com.ilimi.common.router.RequestRouterPool;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class LanguageWordBulkUpdateTest {
+public class LanguageWordBulkUpdateTest  extends BaseLanguageTest{
 
 	@Autowired
 	private WebApplicationContext context;
@@ -56,7 +57,7 @@ public class LanguageWordBulkUpdateTest {
         
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v2/language/dictionary/word/bulkUpdateWordsByCSV/en";
+		String path = "/v2/language/dictionary/word/bulkUpdateWordsByCSV/"+TEST_LANGUAGE;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path).
 					file(file)
@@ -85,7 +86,7 @@ public class LanguageWordBulkUpdateTest {
         
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v2/language/dictionary/word/bulkUpdateWordsByCSV/en";
+		String path = "/v2/language/dictionary/word/bulkUpdateWordsByCSV/"+TEST_LANGUAGE;
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path).
 					file(file)
