@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,6 +21,7 @@ import com.ilimi.taxonomy.content.common.BaseTestUtil;
 import com.ilimi.taxonomy.content.common.TestParams;
 import com.ilimi.taxonomy.content.common.TestSetup;
 
+@Ignore
 public class ContentManagerImplTest extends TestSetup {
 
 	static ContentManagerImpl contentManager = new ContentManagerImpl();
