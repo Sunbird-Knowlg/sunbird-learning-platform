@@ -31,18 +31,11 @@ public class CassandraConnector {
 	public static void loadProperties(){
 		try{
 			String host = Platform.config.getString("cassandra.host");
-			String portConfig = Platform.config.getString("cassandra.port");
+			int port = Platform.config.getInt("cassandra.port");
+			System.out.println("port" + port + "host" + host);
 			if (StringUtils.isBlank(host))
-				host = "localhost";
-			int port = -1;
-			
-			if (StringUtils.isNotBlank(portConfig)) {
-				try {
-					port = Integer.parseInt(portConfig);
-				} catch (Exception e) {
-				}
-			}
-			if (port < 0)
+				host = "localhost";					
+			if (port <= 0)
 				port = 9042;
 			cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
 			session = cluster.connect();
