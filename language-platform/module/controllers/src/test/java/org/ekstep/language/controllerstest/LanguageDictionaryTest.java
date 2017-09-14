@@ -18,6 +18,7 @@ import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ import com.ilimi.common.dto.Response;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
+@Ignore
 public class LanguageDictionaryTest extends BaseLanguageTest{
 
 	@Autowired
