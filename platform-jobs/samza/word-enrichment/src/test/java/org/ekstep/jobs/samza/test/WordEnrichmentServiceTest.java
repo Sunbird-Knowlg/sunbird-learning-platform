@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,9 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -128,7 +132,7 @@ public class WordEnrichmentServiceTest extends BaseTest{
 	}
 	
 	@Test
-	public void testSyncIsRequiredWithCategory() throws JsonParseException, JsonMappingException, IOException{
+	public void testSyncIsRequiredWithProperty() throws JsonParseException, JsonMappingException, IOException{
 		WordEnrichmentTest(synsetEventWithCategoryChange1);
 		boolean isSyncNeeded = service.isSyncNeeded(messageData);
 		assertEquals(isSyncNeeded, true);
@@ -144,30 +148,143 @@ public class WordEnrichmentServiceTest extends BaseTest{
 	}
 	
 	@Test
-	public void testSyncIsRequiredWithoutCategory() throws JsonParseException, JsonMappingException, IOException{
+	public void testSyncIsRequiredWithoutProperty() throws JsonParseException, JsonMappingException, IOException{
 		WordEnrichmentTest(synsetEventWithoutPropertyChange);
 		boolean isEnrichNeeded = service.isSyncNeeded(messageData);
 		assertEquals(isEnrichNeeded, false);
 	}
 	
 	@Test
-	public void testEnrichment() throws JsonParseException, JsonMappingException, IOException{
+	public void englishWordEnrichTest() throws JsonParseException, JsonMappingException, IOException{
 		try {
-			String wordLemma = "testLemma";
+			String wordLemma = "Lion";
 			String wordId = createWord(wordLemma);
 			assertNotEquals(wordId, null);
 			String eventMsg = "{\"ets\":1500888709490,\"nodeUniqueId\":\""+wordId+"\",\"transactionData\":{\"properties\":{\"lemma\":{\"ov\":null,\"nv\":\""+wordLemma+"\"}}},\"operationType\":\"CREATE\",\"graphId\":\""+BaseTest.languageId+"\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-07-24T09:31:49.490+0000\",\"objectType\":\"Word\"}";
 			WordEnrichmentTest(eventMsg);
 			service.processMessage(messageData, null, null);
 			lock.await(2000, TimeUnit.MILLISECONDS);
-			Node word = getWord(wordId);
+			Node word = getWord(wordId, BaseTest.languageId);
 			Map<String, Object> meta = word.getMetadata();
 			//checking word enrichment few metadata
-			assertNotEquals(meta.get("syllableCount"), null);
+			assertEquals((Long)meta.get("syllableCount"), new Long(("Lion".length())));
 			List<Relation> rels =word.getInRelations();
 			//checking words akshra/rhyming wordset associations
-			Assert.assertTrue(rels.size()  > 1 );  
-			System.out.println(word.getMetadata().toString());
+			Assert.assertTrue(rels.size()  > 1 );
+		} catch(Exception e) {			
+		}
+	}
+	
+	@Test
+	public void indicLanguageWordEnrichTest() throws JsonParseException, JsonMappingException, IOException{
+		try {
+			String wordLemma = "ಸಿಂಹ";
+			String wordId = createWord(wordLemma, BaseTest.ka_languageId);
+			assertNotEquals(wordId, null);
+			String eventMsg = "{\"ets\":1500888709490,\"nodeUniqueId\":\""+wordId+"\",\"transactionData\":{\"properties\":{\"lemma\":{\"ov\":null,\"nv\":\""+wordLemma+"\"}}},\"operationType\":\"CREATE\",\"graphId\":\""+BaseTest.ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-07-24T09:31:49.490+0000\",\"objectType\":\"Word\"}";
+			WordEnrichmentTest(eventMsg);
+			service.processMessage(messageData, null, null);
+			lock.await(2000, TimeUnit.MILLISECONDS);
+			Node word = getWord(wordId, BaseTest.ka_languageId);
+			Map<String, Object> meta = word.getMetadata();
+			//checking word enrichment few metadata
+			assertEquals((Long)meta.get("syllableCount"), new Long(2));
+			assertEquals((Double)meta.get("orthographic_complexity"), new Double(1.1));
+			assertEquals((Double)meta.get("phonologic_complexity"), new Double(12.2));
+			assertEquals(meta.get("syllableNotation").toString(),"CVVCV");
+			assertEquals(meta.get("unicodeNotation").toString(),"\\0cb8\\0cbf\\0c82 \\0cb9\\0C85a");
+			//assertEquals((Double)meta.get("word_complexity"), new Double(1.3));
+			List<Relation> rels =word.getInRelations();
+			//checking words akshra/rhyming wordset associations
+			Assert.assertTrue(rels.size() == 4 );
+			List<String> relationTypes = new ArrayList<>();
+			List<String> wordSetMembers = new ArrayList<>();
+			for(Relation rel:rels) {
+				relationTypes.add(rel.getRelationType());
+				if(rel.getStartNodeObjectType().equalsIgnoreCase("WordSet"))
+					wordSetMembers.add(rel.getStartNodeMetadata().get("lemma").toString());
+			}
+	        assertThat(relationTypes, containsInAnyOrder("synonym","hasMember","hasMember", "hasMember"));
+	        assertThat(wordSetMembers, containsInAnyOrder("rhymingSound_ 0CB9 0C85A","startsWith_ಸ","endsWith_ಹ"));
+		} catch(Exception e) {			
+		}
+	}
+	
+	@Test
+	public void indicLanguageWordSyncTest() throws JsonParseException, JsonMappingException, IOException{
+		try {
+			String wordLemma = "ಆನೆ";
+			String wordId = createWord(wordLemma, BaseTest.ka_languageId);
+			assertNotEquals(wordId, null);
+			String eventMsg = "{\"ets\":1500888709490,\"nodeUniqueId\":\""+wordId+"\",\"transactionData\":{\"properties\":{\"lemma\":{\"ov\":null,\"nv\":\""+wordLemma+"\"}}},\"operationType\":\"CREATE\",\"graphId\":\""+BaseTest.ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-07-24T09:31:49.490+0000\",\"objectType\":\"Word\"}";
+			WordEnrichmentTest(eventMsg);
+			service.processMessage(messageData, null, null);
+			lock.await(2000, TimeUnit.MILLISECONDS);
+			Node word = getWord(wordId, BaseTest.ka_languageId);
+			Map<String, Object> meta = word.getMetadata();
+			//checking word enrichment few metadata
+			assertEquals((Long)meta.get("syllableCount"), new Long(2));
+			assertEquals((Double)meta.get("orthographic_complexity"), new Double(0.4));
+			assertEquals((Double)meta.get("phonologic_complexity"), new Double(3.0));
+			assertEquals(meta.get("syllableNotation").toString(),"VCV");
+			assertEquals(meta.get("unicodeNotation").toString(),"\\0c86\\0C85a \\0ca8\\0cc6");
+			//check meaning and category is null
+			assertEquals(meta.get("meaning"), null);
+			assertEquals(meta.get("category"), null);
+			assertNotEquals(meta.get("primaryMeaningId"), null);
+			String pmId = meta.get("primaryMeaningId").toString();
+			//synset to word metadata sync message
+			String syncMsg = "{\"ets\":1505114540510,\"nodeUniqueId\":\""+wordId+"\",\"transactionData\":{\"addedRelations\":[{\"rel\":\"synonym\",\"id\":\""+pmId+"\",\"label\":\"ಆನೆ\",\"dir\":\"IN\",\"type\":\"Synset\",\"relMetadata\":{\"isPrimary\":true}}],\"properties\":{}},\"operationType\":\"UPDATE\",\"label\":\"ಆನೆ\",\"graphId\":\""+ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"createdOn\":\"2017-09-11T12:52:20.510+0530\",\"objectType\":\"Word\"}";
+			WordEnrichmentTest(syncMsg);
+			service.processMessage(messageData, null, null);
+			lock.await(2000, TimeUnit.MILLISECONDS);
+			word = getWord(wordId, BaseTest.ka_languageId);
+			meta = word.getMetadata();
+			//check meaning and category of the word is copied from synset
+			assertEquals(meta.get("meaning"), "ಆನೆ");
+			assertEquals(meta.get("category"), "Place");
+		} catch(Exception e) {			
+		}
+	}
+	
+	@Test
+	public void indicLanguageSynsetSyncTest() throws JsonParseException, JsonMappingException, IOException{
+		try {
+			String wordLemma = "ಮನೆ";
+			String wordId = createWord(wordLemma, BaseTest.ka_languageId);
+			assertNotEquals(wordId, null);
+			Node word = getWord(wordId, BaseTest.ka_languageId);
+			Map<String, Object> meta = word.getMetadata();
+			assertNotEquals(meta.get("primaryMeaningId"), null);
+			String pmId = meta.get("primaryMeaningId").toString();
+			assertEquals(meta.get("category"), null);
+			
+			String eventMsg = "{\"ets\":1500888709490,\"nodeUniqueId\":\""+wordId+"\",\"transactionData\":{\"properties\":{\"lemma\":{\"ov\":null,\"nv\":\""+wordLemma+"\"}}},\"operationType\":\"CREATE\",\"graphId\":\""+BaseTest.ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"userId\":\"ANONYMOUS\",\"createdOn\":\"2017-07-24T09:31:49.490+0000\",\"objectType\":\"Word\"}";
+			WordEnrichmentTest(eventMsg);
+			service.processMessage(messageData, null, null);
+			//synset to word metadata sync message
+			String syncMsg = "{\"ets\":1505114540510,\"nodeUniqueId\":\""+wordId+"\",\"transactionData\":{\"addedRelations\":[{\"rel\":\"synonym\",\"id\":\""+pmId+"\",\"label\":\"ಮನೆ\",\"dir\":\"IN\",\"type\":\"Synset\",\"relMetadata\":{\"isPrimary\":true}}],\"properties\":{}},\"operationType\":\"UPDATE\",\"label\":\"ಮನೆ\",\"graphId\":\""+ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"createdOn\":\"2017-09-11T12:52:20.510+0530\",\"objectType\":\"Word\"}";
+			WordEnrichmentTest(syncMsg);
+			service.processMessage(messageData, null, null);
+			lock.await(2000, TimeUnit.MILLISECONDS);
+			word = getWord(wordId, BaseTest.ka_languageId);
+			meta = word.getMetadata();
+			//check meaning and category of the word is copied from synset
+			assertEquals(meta.get("meaning"), "ಮನೆ");
+			assertEquals(meta.get("category"), "Place");
+			
+			String synsetRequest = "{\"nodeType\":\"DATA_NODE\",\"identifier\":\""+pmId+"\", \"objectType\":\"Synset\",\"metadata\":{\"category\":\"Thing\"}}";
+			Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
+			String synsetId = updateNode(pmId, synsetNodeObj, BaseTest.ka_languageId);
+			String synsetUpdateEventMsg="{\"ets\":1505489002231,\"nodeUniqueId\":\""+synsetId+"\",\"transactionData\":{\"category\":{\"ov\":\"Place\",\"nv\":\"Thing\"}},\"operationType\":\"UPDATE\",\"graphId\":\""+ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"createdOn\":\"2017-09-15T20:53:22.231+0530\",\"objectType\":\"Synset\"}";
+			WordEnrichmentTest(syncMsg);
+			service.processMessage(messageData, null, null);
+			lock.await(1000, TimeUnit.MILLISECONDS);
+			word = getWord(wordId, BaseTest.ka_languageId);
+			meta = word.getMetadata();
+			//check category of the word
+			assertEquals(meta.get("category"), "Thing");
+			
 		} catch(Exception e) {			
 		}
 	}

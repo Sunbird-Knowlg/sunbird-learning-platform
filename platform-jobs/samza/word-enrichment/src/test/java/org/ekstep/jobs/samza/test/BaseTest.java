@@ -2,6 +2,7 @@ package org.ekstep.jobs.samza.test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -29,6 +30,7 @@ abstract public class BaseTest {
 	private static GraphDatabaseService graphDb;
 	private static ObjectMapper mapper = new ObjectMapper();
 	protected static String languageId = "en";
+	protected static String ka_languageId = "ka";
 	protected static String languageCommonId = "testLanguage";
 	
 	protected static void before(){
@@ -47,6 +49,7 @@ abstract public class BaseTest {
 			System.out.println("Loading All Definitions...!!");
 			loadAllDefinitions(new File("src/test/resources/definitions"), languageId);
 			loadAllDefinitions(new File("src/test/resources/definitions"), languageCommonId);
+			loadAllDefinitions(new File("src/test/resources/definitions"), ka_languageId);
 		}
 	}
 	
@@ -90,22 +93,25 @@ abstract public class BaseTest {
 	}
 	
 	protected static String createWord(String lemma) throws Exception{
-		
-		String synsetRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Synset\",\"metadata\":{\"gloss\":\""+lemma+"\"}}";
-		Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
-		String synsetId = createNode(synsetNodeObj);
-		String wordRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\",\"metadata\":{\"lemma\":\""+lemma+"\",\"primaryMeaningId\":\""+synsetId+"\"},\"inRelations\": [{\"endNodeId\":null, \"relationType\":\"synonym\",\"startNodeId\":\""+synsetId+"\"}]}";
-		Object wordNodeObj = mapper.readValue(wordRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
-		return createNode(wordNodeObj);
+		return createWord(lemma, languageId);
 	}
 	
-	protected static Node getWord(String wordId) throws Exception{
+	protected static String createWord(String lemma, String graphId) throws Exception{
+		String synsetRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Synset\",\"metadata\":{\"gloss\":\""+lemma+"\",\"category\":\"Place\"}}";
+		Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
+		String synsetId = createNode(synsetNodeObj, graphId);
+		String wordRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\",\"metadata\":{\"lemma\":\""+lemma+"\",\"primaryMeaningId\":\""+synsetId+"\"},\"inRelations\": [{\"endNodeId\":null, \"relationType\":\"synonym\",\"startNodeId\":\""+synsetId+"\"}]}";
+		Object wordNodeObj = mapper.readValue(wordRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
+		return createNode(wordNodeObj, graphId);
+	}
+
+	protected static Node getWord(String wordId, String graphId) throws Exception{
 		
 		Request request = new Request();
 		request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
 		request.setOperation("getDataNode");
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
-				languageId);
+				graphId);
 		request.put(GraphDACParams.node_id.name(), wordId);
 		PlatformLogger.log("List | Request: " , request);
 		Response response = util.getResponse(
@@ -117,20 +123,51 @@ abstract public class BaseTest {
 		
 	}
 	
-	protected static String createNode(Object node) throws Exception{
+	
+	protected static String createNode(Object node, String graphId) throws Exception{
 		Request request = new Request();
 		request.setManagerName(GraphEngineManagers.NODE_MANAGER);
 		request.setOperation("createDataNode");
 		request.getContext().put(GraphHeaderParams.graph_id.name(),
-				languageId);
+				graphId);
 		request.put(GraphDACParams.node.name(), node);
-		PlatformLogger.log("List | Request: " , request);
 		Response response = util.getResponse(
 				request);
-		PlatformLogger.log("List | Response: " ,response);
-		
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		return response.getResult().get(GraphDACParams.node_id.name()).toString();
+	}
+	
+	protected static String updateNode(String identifier, Object node, String graphId) throws Exception{
+		Request request = new Request();
+		request.setManagerName(GraphEngineManagers.NODE_MANAGER);
+		request.setOperation("updateDataNode");
+		request.getContext().put(GraphHeaderParams.graph_id.name(),
+				graphId);
+		request.put(GraphDACParams.node.name(), node);
+		request.put(GraphDACParams.node_id.name(), identifier);
+		Response response = util.getResponse(
+				request);
+		Assert.assertEquals("successful", response.getParams().getStatus());
+		return response.getResult().get(GraphDACParams.node_id.name()).toString();
+	}
+	
+	protected static String createNode(Object node) throws Exception{
+		return createNode(node, languageId);
+	}
+	
+	protected static void createRelation(String graphId, String startId, String relationType, String endId, Map<String, Object> metadata) {
+		
+		Request request = new Request();
+		request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+		request.setOperation("createRelation");
+		request.getContext().put(GraphHeaderParams.graph_id.name(),
+				graphId);
+		request.put(GraphDACParams.start_node_id.name(), startId);
+		request.put(GraphDACParams.relation_type.name(), relationType);
+		request.put(GraphDACParams.end_node_id.name(), endId);
+		request.put(GraphDACParams.metadata.name(), metadata);
+		Response response = util.getResponse(request);
+		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 	
 	public static void after() {
