@@ -162,7 +162,6 @@ public class ContentStoreUtil {
 			sb.append("select blobAsText(").append(property).append(") as ");
 			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " +keyspaceName+"."+keyspaceTable  +  " where content_id = ?");
 			PlatformLogger.log("Fetched keyspace names for get Operation: " + keyspaceName + keyspaceTable, null, LoggerEnum.INFO.name());
-			System.out.println(sb.toString());
 		}
 		return sb.toString();
 	}
