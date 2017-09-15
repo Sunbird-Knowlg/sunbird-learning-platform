@@ -62,6 +62,16 @@ public class BaseTest
 		return requestSpec;
 	}
 	
+	public RequestSpecification getRequestSpecification(String content_type,String user_id, String APIToken)
+	{
+		RequestSpecBuilder builderreq = new RequestSpecBuilder();
+		builderreq.addHeader("Content-Type", content_type);
+		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeader("Authorization", APIToken);
+		RequestSpecification requestSpec = builderreq.build();
+		return requestSpec;
+	}
+	
 	
 	/**
 	 * checks whether response statuscode is 200,param size is 5, param.status is successful and param.errmsg is null

@@ -3,14 +3,14 @@ package org.ekstep.platform.content;
 
 	import static com.jayway.restassured.RestAssured.given;
 	import static com.jayway.restassured.http.ContentType.JSON;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
+	
+	import java.io.BufferedReader;
+	import java.io.File;
+	import java.io.FileInputStream;
+	import java.io.FileReader;
 	import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+	import java.io.InputStreamReader;
+	import java.io.StringReader;
 	import java.net.URISyntaxException;
 	import java.net.URL;
 	import java.util.ArrayList;
@@ -30,8 +30,8 @@ import java.io.StringReader;
 	import org.junit.Assert;
 	import org.junit.Before;
 	import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+	import org.junit.Ignore;
+	import org.junit.Test;
 	import org.xml.sax.InputSource;
 	import org.xml.sax.SAXException;
 
@@ -52,15 +52,7 @@ import net.lingala.zip4j.core.ZipFile;
 
 	public class ContentPublishV3TestCases extends BaseTest{
 	
-		public RequestSpecification getRequestSpecification(String content_type,String user_id, String APIToken)
-		{
-			RequestSpecBuilder builderreq = new RequestSpecBuilder();
-			builderreq.addHeader("Content-Type", content_type);
-			builderreq.addHeader("user-id", user_id);
-			builderreq.addHeader("Authorization", APIToken);
-			RequestSpecification requestSpec = builderreq.build();
-			return requestSpec;
-		}
+
 		int rn = generateRandomInt(0, 9999999);
 		String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 		String jsonCreateValidContentWithConcept = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\"\"concepts\":[{\"identifier\":\"LO1\",\"name\":\"Word Meaning\",\"objectType\":\"Concept\",\"relation\":\"associatedTo\",\"description\":\"Understanding meaning of words\",\"index\":null,\"status\":null,\"depth\":null,\"mimeType\":null,\"visibility\":null}],,\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
@@ -73,7 +65,7 @@ import net.lingala.zip4j.core.ZipFile;
 		String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"body\": {\"theme\":{\"manifest\":{\"media\":[{\"id\":\"tick\",\"type\":\"image\",\"src\":\"https://qa.ekstep.in/assets/public/content/1455104185970tick.png\",\"assetId\":\"tick\"},{\"id\":\"domain_2890\",\"type\":\"audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/%C3%A0%C2%B2%C2%9A_1463054756900.mp3\",\"assetId\":\"domain_2890\"},{\"id\":\"validate\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_ok_highlights_1460705843676.png\",\"type\":\"image\",\"assetId\":\"domain_38852\"},{\"id\":\"popupTint\",\"src\":\"https://qa.ekstep.in/assets/public/content/PopupTint_1460636175572.png\",\"type\":\"image\",\"assetId\":\"domain_38606\"},{\"id\":\"goodjobBg\",\"src\":\"https://qa.ekstep.in/assets/public/content/goodjobBg_1460727428389.png\",\"type\":\"image\",\"assetId\":\"domain_38939\"},{\"id\":\"retryBg\",\"src\":\"https://qa.ekstep.in/assets/public/content/retryBg_1460727370746.png\",\"type\":\"image\",\"assetId\":\"domain_38938\"},{\"id\":\"retry_audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/retry_1460636610607.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38624\"},{\"id\":\"goodjob_audio\",\"src\":\"https://qa.ekstep.in/assets/public/content/goodJob_1460636677521.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38625\"},{\"id\":\"next\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_next_1461401649059.png\",\"type\":\"image\",\"assetId\":\"domain_40358\"},{\"id\":\"previous\",\"src\":\"https://qa.ekstep.in/assets/public/content/btn_back_1461401700215.png\",\"type\":\"image\",\"assetId\":\"domain_40359\"},{\"id\":\"submit\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_submit_1459243202199.png\",\"type\":\"image\",\"assetId\":\"domain_14524\"},{\"id\":\"home\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_home_1459242981364.png\",\"type\":\"image\",\"assetId\":\"domain_14519\"},{\"id\":\"reload\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_reload_1459243110661.png\",\"type\":\"image\",\"assetId\":\"domain_14522\"},{\"id\":\"icon_hint\",\"src\":\"https://qa.ekstep.in/assets/public/content/icon_hint_1454918891133.png\",\"type\":\"image\",\"assetId\":\"domain_799\"},{\"id\":\"bg\",\"src\":\"https://qa.ekstep.in/assets/public/content/background_1458729298020.png\",\"type\":\"image\"}]},\"id\":\"theme\",\"ver\":0.2,\"startStage\":\"Stage\",\"controller\":[{\"name\":\"dictionary\",\"type\":\"data\",\"id\":\"dictionary\",\"__cdata\":{}}],\"template\":[{\"image\":[{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"show\",\"asset\":\"retryDialog\"},\"type\":\"click\"},\"asset\":\"popupTint\",\"x\":-100,\"y\":-150,\"w\":550,\"h\":600,\"visible\":true,\"id\":\"popup-Tint\"},{\"asset\":\"retryBg\",\"x\":0,\"y\":0,\"w\":150,\"h\":150,\"visible\":true,\"id\":\"right\"}],\"shape\":[{\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"hide\",\"asset\":\"retryDialog\"},{\"type\":\"command\",\"command\":\"SHOWHTMLELEMENTS\",\"asset\":\"retry\"}],\"type\":\"click\"},\"type\":\"roundrect\",\"x\":72,\"y\":25,\"w\":50,\"h\":65,\"visible\":true,\"id\":\"retry\",\"hitArea\":true},{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"transitionTo\",\"asset\":\"theme\",\"param\":\"next\",\"effect\":\"fadein\",\"direction\":\"left\",\"ease\":\"linear\",\"duration\":100},\"type\":\"click\"},\"type\":\"roundrect\",\"x\":110,\"y\":100,\"w\":25,\"h\":35,\"visible\":true,\"id\":\"continue\",\"hitArea\":true}],\"id\":\"retry\"},{\"g\":{\"image\":[{\"asset\":\"popupTint\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"visible\":true,\"id\":\"popup-Tint\"}],\"text\":[{\"x\":25,\"y\":25,\"w\":50,\"h\":9,\"visible\":true,\"editable\":true,\"model\":\"word.lemma\",\"weight\":\"normal\",\"font\":\"helvetica\",\"color\":\"rgb(0,0,0)\",\"fontstyle\":\"\",\"fontsize\":75,\"align\":\"left\",\"z-index\":1,\"id\":\"lemma\"},{\"x\":25,\"y\":35,\"w\":50,\"h\":40,\"visible\":true,\"editable\":true,\"model\":\"word.gloss\",\"weight\":\"normal\",\"font\":\"helvetica\",\"color\":\"rgb(0,0,0)\",\"fontstyle\":\"\",\"fontsize\":43,\"align\":\"left\",\"z-index\":2,\"id\":\"gloss\"}],\"shape\":[{\"x\":20,\"y\":20,\"w\":60,\"h\":60,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":10,\"opacity\":1,\"fill\":\"#45b3a5\",\"stroke-width\":1,\"z-index\":0,\"id\":\"textBg\"}],\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"SHOWHTMLELEMENTS\",\"asset\":\"textBg\"},{\"type\":\"command\",\"command\":\"hide\",\"parent\":true}],\"type\":\"click\"}},\"id\":\"infoTemplate\"},{\"image\":[{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"show\",\"asset\":\"\"},\"type\":\"click\"},\"asset\":\"popupTint\",\"x\":-100,\"y\":-150,\"w\":550,\"h\":600,\"visible\":true,\"id\":\"popup-Tint\"},{\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"transitionTo\",\"asset\":\"theme\",\"param\":\"next\",\"effect\":\"fadein\",\"direction\":\"left\",\"ease\":\"linear\",\"duration\":500}],\"type\":\"click\"},\"asset\":\"goodjobBg\",\"x\":0,\"y\":0,\"w\":150,\"h\":150,\"visible\":true,\"id\":\"continue\"}],\"id\":\"goodjob\"}],\"stage\":[{\"id\":\"Stage\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"param\":[{\"name\":\"next\",\"value\":\"scene3e8f3e6d-72db-45db-aca6-e88d95cb87c8\"}],\"events\":{\"event\":[]},\"image\":[{\"x\":0,\"y\":0,\"w\":71.11111111111111,\"h\":77.77777777777779,\"visible\":true,\"editable\":true,\"asset\":\"tick\",\"z-index\":0}],\"text\":[],\"shape\":[],\"hotspot\":[],\"embed\":[],\"div\":[],\"audio\":[],\"scribble\":[],\"htext\":[],\"g\":[],\"preload\":true},{\"id\":\"scene3e8f3e6d-72db-45db-aca6-e88d95cb87c8\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"param\":[{\"name\":\"previous\",\"value\":\"Stage\"}],\"events\":{\"event\":[{\"action\":{\"type\":\"command\",\"command\":\"play\",\"asset\":\"domain_2890\",\"loop\":1},\"type\":\"enter\"},{\"action\":{\"type\":\"command\",\"command\":\"stop\",\"asset\":\"domain_2890\",\"loop\":1},\"type\":\"exit\"}]},\"image\":[],\"text\":[],\"shape\":[{\"x\":24.583333333333332,\"y\":17.555555555555554,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":1,\"opacity\":1,\"fill\":\"rgb(255, 255, 0)\",\"stroke-width\":1,\"z-index\":0},{\"x\":39.72222222222222,\"y\":12.222222222222221,\"w\":27.77777777777778,\"h\":44.44444444444444,\"visible\":true,\"editable\":true,\"type\":\"ellipse\",\"opacity\":1,\"fill\":\"rgb(0,255,0)\",\"stroke-width\":1,\"z-index\":1},{\"x\":48.333333333333336,\"y\":58.22222222222222,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":10,\"opacity\":1,\"fill\":\"red\",\"stroke-width\":1,\"z-index\":2}],\"hotspot\":[{\"x\":27.63888888888889,\"y\":47.77777777777778,\"w\":13.88888888888889,\"h\":22.22222222222222,\"visible\":true,\"editable\":true,\"type\":\"roundrect\",\"radius\":1,\"fill\":\"red\",\"stroke-width\":1,\"keyword\":\"\",\"hitArea\":true,\"z-index\":3}],\"embed\":[],\"div\":[],\"audio\":[{\"asset\":\"domain_2890\"}],\"scribble\":[],\"htext\":[],\"g\":[]}]}}}}}";
 		String jsonUpdateChildren	= "{\"request\":{\"content\":{\"children\":[],\"versionKey\":\"version_Key\"}}}";
 		String jsonPublishContent = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}";
-		
+		String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"null\",\"language\":[\"Tamil\",\"Telugu\"]}}}";
 		String invalidContentId = "LP_NFT"+rn+"";
 		String malformedXMLBody = "xml version=\"1.0\" ";
 		String malformedJSONBody = "{\"theme\":{\"manifes77\",\"scribble\":[],\"htext\":[],\"g\":[]}";
@@ -91,7 +83,7 @@ import net.lingala.zip4j.core.ZipFile;
 		
 		@AfterClass
 		public static void end() throws IOException{
-			FileUtils.cleanDirectory(downloadPath);
+			//FileUtils.cleanDirectory(downloadPath);
 		}
 		
 		@Before
@@ -115,7 +107,7 @@ import net.lingala.zip4j.core.ZipFile;
 //					setURI();
 //					Response R =
 //					given().
-//					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+//					spec(getRequestSpecification(contentType, userId, APIToken)).
 //					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}").
 //					when().
 //					post("/content/v3/publish/" + identifier).
@@ -189,7 +181,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -209,7 +201,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+ecmlNode).
 					then().
@@ -230,7 +222,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContentWithConcept).
 					with().
 					contentType(JSON).
@@ -250,7 +242,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+ecmlNode).
 					then().
@@ -275,7 +267,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateValidContentHtml = js.toString();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContentHtml).
 					with().
 					contentType(JSON).
@@ -295,7 +287,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+htmlNode).
 					then().
@@ -320,7 +312,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateValidContentAPK = js.toString();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContentAPK).
 					with().
 					contentType(JSON).
@@ -340,7 +332,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+apkNode).
 					then().
@@ -370,7 +362,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -398,7 +390,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -418,7 +410,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+collectionNode).
 					then().
@@ -440,7 +432,7 @@ import net.lingala.zip4j.core.ZipFile;
 		{
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonCreateInvalidContent).
 			with().
 				contentType(JSON).
@@ -458,7 +450,7 @@ import net.lingala.zip4j.core.ZipFile;
 			js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.-archive");
 			String jsonCreateValidContentHtml = js.toString();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonCreateValidContentHtml).
 			with().
 			contentType(JSON).
@@ -477,7 +469,7 @@ import net.lingala.zip4j.core.ZipFile;
 			js.getJSONObject("request").getJSONObject("content").put("contentType", "TestContentType01");
 			String jsonCreateValidContentHtml = js.toString();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonCreateValidContentHtml).
 			with().
 			contentType(JSON).
@@ -495,7 +487,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -515,7 +507,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateExistingContent = js.toString();
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonCreateExistingContent).
 			with().
 			contentType(JSON).
@@ -536,7 +528,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -554,7 +546,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", ecmlNode).replace("id2", invalidContentId);
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonCreateContentCollection).
 			with().
 			contentType(JSON).
@@ -571,7 +563,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -592,7 +584,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonUpdateContentValid = jsonUpdateContentValid.replace("version_Key", versionKey);
 			Response nR = 
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateContentValid).
 			with().
 			contentType("application/json").
@@ -612,7 +604,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonGetContentList).
 					with().
 					contentType("application/json").
@@ -633,7 +625,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace(versionKey, versionKey1);
 			Response nR1 =
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateContentValid).
 			with().
 			contentType("application/json").
@@ -654,7 +646,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonGetContentList).
 					with().
 					contentType("application/json").
@@ -675,7 +667,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Review").replace(versionKey1, versionKey2);
 			Response nR2 =
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateContentValid).
 			with().
 			contentType("application/json").
@@ -696,7 +688,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R3 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonGetContentList).
 					with().
 					contentType("application/json").
@@ -720,14 +712,15 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
 					when().
-					post("content/v3/create").
+					post("/content/v3/create").
 					then().
-					//log().all().
+					spec(get200ResponseSpec()).
+					log().all().
 					extract().
 					response();	
 
@@ -738,24 +731,24 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
 			then().
-			//log().all().
+			log().all().
 			spec(get200ResponseSpec());
 
 			// Publish created content
 			setURI();
 			Response R1 =
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
 			then().
-			//log().all().
+			log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 			
@@ -763,15 +756,13 @@ import net.lingala.zip4j.core.ZipFile;
 			String versionKey = jP1.get("result.versionKey");
 
 			// Update content metadata
+			jsonUpdateMetadata = jsonUpdateMetadata.replace("version_Key", versionKey);			
+			System.out.println(jsonUpdateMetadata);
 			setURI();
-			JSONObject js = new JSONObject(jsonUpdateContentValid);
-			js.getJSONObject("request").getJSONObject("content").put("language", "[\"Tamil\", \"Telugu\"]").remove("status");
-			jsonUpdateContentValid = jsonUpdateContentValid.replace("version_Key", versionKey);
-			System.out.println(jsonUpdateContentValid);
 			Response nR = 
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
-			body(jsonUpdateContentValid).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body(jsonUpdateMetadata).
 			with().
 			contentType("application/json").
 			when().
@@ -789,7 +780,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish the content
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -811,7 +802,7 @@ import net.lingala.zip4j.core.ZipFile;
 			
 			JsonPath jP2 = R2.jsonPath();
 			ArrayList<String> language = jP2.get("result.content.language");
-			Assert.assertTrue(language.contains("Tamil") && (language.contains("Telugu")));
+			Assert.assertTrue(language.contains("Tamil") && language.contains("Telugu"));
 		}
 		
 		// Upload file without index
@@ -822,7 +813,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -839,7 +830,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/UploadWithoutIndex.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -856,7 +847,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -873,7 +864,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadInvalidEcml.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -893,7 +884,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateValidContentHtml = js.toString();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContentHtml).
 					with().
 					contentType(JSON).
@@ -912,7 +903,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/Build-a-sentence.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -929,7 +920,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -946,7 +937,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadApk.apk")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -963,7 +954,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -980,7 +971,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/haircut_empty.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -997,7 +988,7 @@ import net.lingala.zip4j.core.ZipFile;
 					setURI();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidContent).
 						with().
 						contentType(JSON).
@@ -1014,7 +1005,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Upload Content
 				setURI();
 				given().
-				spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 				multiPart(new File(path+"/ecmlCorruptedJSON.zip")).
 				when().
 				post("/content/v3/upload/"+nodeId).
@@ -1031,7 +1022,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1048,7 +1039,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/contentAbove50MB.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -1064,7 +1055,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1081,7 +1072,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/haircut_withoutAssets.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -1098,7 +1089,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1115,7 +1106,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/carpenter.png")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -1137,7 +1128,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetInvalid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetInvalid).
 				with().
 				contentType(JSON).
@@ -1156,7 +1147,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Upload Content
 		setURI();
 		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path+"/pngImage.png")).
 		when().	
 		post("/content/v3/upload/"+nodeId).
@@ -1176,7 +1167,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetInvalid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetInvalid).
 				with().
 				contentType(JSON).
@@ -1195,7 +1186,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Upload Content
 		setURI();
 		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path+"/Oggaudio.ogg")).
 		when().	
 		post("/content/v3/upload/"+nodeId).
@@ -1212,7 +1203,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1232,7 +1223,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			//System.out.println(path);
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().	
 			post("/content/v3/upload/"+nodeId).
@@ -1245,7 +1236,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -1270,7 +1261,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1289,7 +1280,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -1301,7 +1292,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -1318,7 +1309,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Setting status to review
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{}}}").
 				when().
 				post("/content/v3/review/"+nodeId).
@@ -1330,7 +1321,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+nodeId).
 						then().
@@ -1351,7 +1342,7 @@ import net.lingala.zip4j.core.ZipFile;
 		public void reviewInvalidContentExpect4xx(){
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{}}}").
 			when().
 			post("content/v3/review/asfdkfa").
@@ -1366,7 +1357,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1385,7 +1376,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Review the content
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{}}}").
 			when().
 			post("/content/v3/review/"+nodeId).
@@ -1400,7 +1391,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1421,7 +1412,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateATContentBody).
 			with().
 			contentType("application/json").
@@ -1435,7 +1426,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -1451,7 +1442,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Setting status to review
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{}}}").
 			when().
 			post("/content/v3/review/"+nodeId).
@@ -1463,7 +1454,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -1486,7 +1477,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1505,7 +1496,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -1517,7 +1508,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -1543,7 +1534,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetValid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetValid).
 				with().
 				contentType(JSON).
@@ -1562,7 +1553,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Upload Content
 		setURI();
 		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path+"/jpegImage.jpeg")).
 		when().	
 		post("/content/v3/upload/"+nodeId).
@@ -1573,7 +1564,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Publish the created asset
 		setURI();
 		given().
-		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 		when().
 		post("/content/v3/publish/"+nodeId).
@@ -1593,7 +1584,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetInvalid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetInvalid).
 				with().
 				contentType(JSON).
@@ -1612,7 +1603,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Upload Content
 		setURI();
 		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path+"/Verbs_test.zip")).
 		when().	
 		post("/content/v3/upload/"+nodeId).
@@ -1632,7 +1623,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetInvalid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetInvalid).
 				with().
 				contentType(JSON).
@@ -1651,7 +1642,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Upload Content
 		setURI();
 		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path+"/pngImage.png")).
 		when().	
 		post("/content/v3/upload/"+nodeId).
@@ -1671,7 +1662,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetInvalid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetInvalid).
 				with().
 				contentType(JSON).
@@ -1690,7 +1681,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/sample.mp3")).
 			when().	
 			post("/content/v3/upload/"+nodeId).
@@ -1701,7 +1692,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish the created asset
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -1721,7 +1712,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetInvalid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetInvalid).
 				with().
 				contentType(JSON).
@@ -1740,7 +1731,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Upload Content
 		setURI();
 		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path+"/pngImage.png")).
 		when().	
 		post("/content/v3/upload/"+nodeId).
@@ -1760,7 +1751,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateImageAssetInvalid = js.toString();
 			Response R =
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body(jsonCreateImageAssetInvalid).
 				with().
 				contentType(JSON).
@@ -1779,7 +1770,7 @@ import net.lingala.zip4j.core.ZipFile;
 		// Upload Content
 		setURI();
 		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 		multiPart(new File(path+"/Oggaudio.ogg")).
 		when().	
 		post("/content/v3/upload/"+nodeId).
@@ -1803,7 +1794,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidContentSpclChar = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidContentSpclChar).
 						with().
 						contentType(JSON).
@@ -1822,7 +1813,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Upload Content
 				setURI();
 				given().
-				spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+				spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 				multiPart(new File(path+"/uploadContent.zip")).
 				when().	
 				post("/content/v3/upload/"+nodeId).
@@ -1835,7 +1826,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R2 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+nodeId+"?fields=body").
 						then().
@@ -1859,7 +1850,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1878,7 +1869,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/ExternalJsonItemDataCdata.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -1891,7 +1882,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -1916,7 +1907,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1935,7 +1926,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/Item_json.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -1947,7 +1938,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -1972,7 +1963,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -1991,7 +1982,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/Data_json_ecml.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2003,7 +1994,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2028,7 +2019,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -2045,7 +2036,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/Custom_Plugin.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2057,7 +2048,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2082,7 +2073,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -2101,7 +2092,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2113,7 +2104,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2137,7 +2128,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -2156,7 +2147,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/ecml_with_json.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2168,7 +2159,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2192,7 +2183,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -2211,7 +2202,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/Ecml_without_asset.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2223,7 +2214,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2240,6 +2231,95 @@ import net.lingala.zip4j.core.ZipFile;
 			}
 		}
 
+		// Publish content and upload zip and validate
+		
+		@Test
+		public void publishContentNewZipExpectSuccess200(){
+			setURI();
+			Response R =
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					body(jsonCreateValidContent).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().
+					//log().all().
+					spec(get200ResponseSpec()).
+					extract().
+					response();
+		
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			String nodeId = jp.get("result.node_id");
+		
+			// Upload Content
+			setURI();
+			given().
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+			multiPart(new File(path+"/uploadContent.zip")).
+			when().
+			post("/content/v3/upload/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
+		
+			// Get body and validate
+			setURI();
+			Response R2 =
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/"+nodeId+"?fields=body").
+					then().
+					log().all().
+					spec(get200ResponseSpec()).
+					extract().
+					response();
+		
+			JsonPath jP2 = R2.jsonPath();
+			String body = jP2.get("result.content.body");
+			Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+			if (isValidXML(body) || isValidJSON(body)){
+				Assert.assertTrue(accessURL(nodeId));
+			}
+			
+			// Upload Content
+			setURI();
+			given().
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+			multiPart(new File(path+"/tweenAndaudioSprite.zip")).
+			when().
+			post("/content/v3/upload/"+nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
+		
+			// Get body and validate
+			setURI();
+			Response R3 =
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/"+nodeId+"?fields=body").
+					then().
+					log().all().
+					spec(get200ResponseSpec()).
+					extract().
+					response();
+		
+			JsonPath jP3 = R3.jsonPath();
+			String bodyNew = jP3.get("result.content.body");
+			System.out.println(bodyNew);
+			Assert.assertTrue(body!=bodyNew);
+			Assert.assertTrue((isValidXML(bodyNew) || isValidJSON(bodyNew)));
+			Assert.assertTrue(accessURL(nodeId));
+			if (isValidXML(bodyNew) || isValidJSON(bodyNew)){
+			}
+		}
+		
+		
 		// Upload multiple files
 
 		//Create content
@@ -2248,7 +2328,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -2265,7 +2345,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2276,7 +2356,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2288,7 +2368,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2311,7 +2391,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -2332,7 +2412,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateATContentBody).
 			with().
 			contentType("application/json").
@@ -2345,7 +2425,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish created content
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -2359,7 +2439,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+nodeId).
 						then().
@@ -2392,7 +2472,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateValidWorksheet = js.toString();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidWorksheet).
 					with().
 					contentType(JSON).
@@ -2411,7 +2491,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/Akshara_worksheet.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2423,7 +2503,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2451,7 +2531,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateValidContentHtml = js.toString();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContentHtml).
 					with().
 					contentType(JSON).
@@ -2470,7 +2550,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadHtml.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2482,7 +2562,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2510,7 +2590,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String jsonCreateValidContentAPK = js.toString();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContentAPK).
 					with().
 					contentType(JSON).
@@ -2529,7 +2609,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Upload Content
 			setURI();
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadAPK.apk")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -2542,7 +2622,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -2573,7 +2653,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -2594,7 +2674,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -2605,7 +2685,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -2620,7 +2700,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -2631,7 +2711,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -2646,7 +2726,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -2664,7 +2744,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish collection
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -2676,7 +2756,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -2708,7 +2788,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -2729,7 +2809,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -2740,7 +2820,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish created content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node1).
@@ -2755,7 +2835,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -2767,7 +2847,7 @@ import net.lingala.zip4j.core.ZipFile;
 						setURI();
 						Response R1 = 
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node2).
@@ -2782,7 +2862,7 @@ import net.lingala.zip4j.core.ZipFile;
 						jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key", versionKey);
 						System.out.println(jsonUpdateContentValid);
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonUpdateContentValid).
 						with().
 						contentType("application/json").
@@ -2798,7 +2878,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateContentCollection).
 						with().
 						contentType(JSON).
@@ -2816,7 +2896,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish collection
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+nodeId).
@@ -2828,7 +2908,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R2 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+nodeId).
 						then().
@@ -2863,7 +2943,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -2883,7 +2963,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadHtml.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -2894,7 +2974,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -2909,7 +2989,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -2929,7 +3009,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadAPK.apk")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -2940,7 +3020,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -2955,7 +3035,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -2973,7 +3053,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish collection
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -2985,7 +3065,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -3017,7 +3097,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3038,7 +3118,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -3049,7 +3129,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -3069,7 +3149,7 @@ import net.lingala.zip4j.core.ZipFile;
 					setURI();
 					jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonUpdateATContentBody).
 					with().
 					contentType("application/json").
@@ -3086,7 +3166,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -3104,7 +3184,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish collection
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -3116,7 +3196,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -3148,7 +3228,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3168,7 +3248,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					then().
 					post("/content/v3/upload/"+node1);
@@ -3176,7 +3256,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					then().
 					post("/content/v3/publish/"+node1);
@@ -3188,7 +3268,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/ExternalJsonItemDataCdata.zip")).
 					then().
 					post("/content/v3/upload/"+node2);
@@ -3197,7 +3277,7 @@ import net.lingala.zip4j.core.ZipFile;
 					setURI();
 					Response R1 = 
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -3212,7 +3292,7 @@ import net.lingala.zip4j.core.ZipFile;
 					setURI();
 					jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key", versionKey);
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonUpdateContentValid).
 					with().
 					contentType("application/json").
@@ -3228,7 +3308,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -3246,7 +3326,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish created content
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+collectionNode).
@@ -3258,7 +3338,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+collectionNode).
 					then().
@@ -3291,7 +3371,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3312,7 +3392,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -3323,7 +3403,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -3338,7 +3418,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -3349,7 +3429,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -3364,7 +3444,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -3383,7 +3463,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -3402,7 +3482,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonUpdateChildren =  jsonUpdateChildren.replace("[]", "[{\"identifier\":\""+node2+"\"}]").replace("version_Key", versionKey);
 			System.out.println(jsonUpdateChildren);
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateChildren).	
 			when().
 			patch("/content/v3/update/"+nodeId).
@@ -3426,7 +3506,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3447,7 +3527,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -3458,7 +3538,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -3473,7 +3553,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -3484,7 +3564,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -3499,7 +3579,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -3517,7 +3597,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish collection
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -3529,7 +3609,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -3551,7 +3631,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 			Response R3 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateNestedCollection).
 					with().
 					contentType(JSON).
@@ -3569,7 +3649,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish collection
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+collectionId).
@@ -3581,7 +3661,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R4 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+collectionId).
 					then().
@@ -3612,7 +3692,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3633,7 +3713,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -3648,7 +3728,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -3666,7 +3746,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -3684,7 +3764,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -3696,7 +3776,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -3728,7 +3808,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3749,7 +3829,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -3763,7 +3843,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -3781,7 +3861,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -3799,7 +3879,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -3811,7 +3891,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -3843,7 +3923,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3864,7 +3944,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -3875,7 +3955,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -3890,7 +3970,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -3908,7 +3988,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -3926,7 +4006,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -3938,7 +4018,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -3970,7 +4050,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -3991,7 +4071,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -4002,7 +4082,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -4017,7 +4097,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -4028,7 +4108,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -4047,7 +4127,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -4065,7 +4145,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -4077,7 +4157,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -4109,7 +4189,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -4130,7 +4210,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -4141,7 +4221,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -4156,7 +4236,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -4175,7 +4255,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -4193,7 +4273,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -4205,7 +4285,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -4237,7 +4317,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -4258,7 +4338,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -4269,7 +4349,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -4284,7 +4364,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -4295,7 +4375,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -4314,7 +4394,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -4332,7 +4412,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -4344,7 +4424,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -4376,7 +4456,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -4397,7 +4477,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -4408,7 +4488,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish created content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node1).
@@ -4423,7 +4503,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -4435,7 +4515,7 @@ import net.lingala.zip4j.core.ZipFile;
 					setURI();
 					Response R1 = 
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node2).
@@ -4450,7 +4530,7 @@ import net.lingala.zip4j.core.ZipFile;
 					jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key", versionKey);
 					System.out.println(jsonUpdateContentValid);
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonUpdateContentValid).
 					with().
 					contentType("application/json").
@@ -4468,7 +4548,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateContentCollection).
 					with().
 					contentType(JSON).
@@ -4486,7 +4566,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+nodeId).
@@ -4498,7 +4578,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId).
 					then().
@@ -4543,7 +4623,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -4564,7 +4644,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -4579,7 +4659,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -4593,7 +4673,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -4604,7 +4684,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node3).
@@ -4618,7 +4698,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -4629,7 +4709,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node4).
@@ -4647,7 +4727,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -4670,7 +4750,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -4688,7 +4768,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -4700,7 +4780,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -4745,7 +4825,7 @@ import net.lingala.zip4j.core.ZipFile;
 				String jsonCreateValidChild = js.toString();
 				Response R =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateValidChild).
 						with().
 						contentType(JSON).
@@ -4766,7 +4846,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node1).
@@ -4781,7 +4861,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node2).
@@ -4795,7 +4875,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/uploadContent.zip")).
 					when().
 					post("/content/v3/upload/"+node3).
@@ -4806,7 +4886,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node3).
@@ -4820,7 +4900,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Upload Content
 					setURI();
 					given().
-					spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+					spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 					multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 					when().
 					post("/content/v3/upload/"+node4).
@@ -4831,7 +4911,7 @@ import net.lingala.zip4j.core.ZipFile;
 					// Publish content
 					setURI();
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 					when().
 					post("/content/v3/publish/"+node4).
@@ -4849,7 +4929,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 			Response R1 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateTextbookUnit).
 					with().
 					contentType(JSON).
@@ -4872,7 +4952,7 @@ import net.lingala.zip4j.core.ZipFile;
 			jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 			Response R3 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateNestedCollection).
 					with().
 					contentType(JSON).
@@ -4890,7 +4970,7 @@ import net.lingala.zip4j.core.ZipFile;
 			// Publish textbook
 			setURI();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
 			post("/content/v3/publish/"+textBookId).
@@ -4902,7 +4982,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R4 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+textBookId).
 					then().
@@ -4946,7 +5026,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -4967,7 +5047,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -4982,7 +5062,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -4996,7 +5076,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -5007,7 +5087,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node3).
@@ -5021,7 +5101,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -5032,7 +5112,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node4).
@@ -5048,7 +5128,7 @@ import net.lingala.zip4j.core.ZipFile;
 				System.out.println(jsonCreateTextbookUnit);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -5072,7 +5152,7 @@ import net.lingala.zip4j.core.ZipFile;
 				System.out.println(jsonCreateNestedCollection);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -5090,7 +5170,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -5102,7 +5182,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -5146,7 +5226,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -5167,7 +5247,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -5182,7 +5262,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -5196,7 +5276,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -5207,7 +5287,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node3).
@@ -5221,7 +5301,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -5232,7 +5312,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content 4
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node4).
@@ -5250,7 +5330,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -5268,7 +5348,7 @@ import net.lingala.zip4j.core.ZipFile;
 				//Publish Textbook unit
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+nodeId).
@@ -5285,7 +5365,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -5303,7 +5383,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -5315,7 +5395,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -5359,7 +5439,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -5380,7 +5460,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -5395,7 +5475,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -5409,7 +5489,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -5420,7 +5500,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node3).
@@ -5434,7 +5514,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -5445,7 +5525,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node4).
@@ -5460,7 +5540,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -5478,7 +5558,7 @@ import net.lingala.zip4j.core.ZipFile;
 				//Publish Textbook unit
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+nodeId).
@@ -5494,7 +5574,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -5512,7 +5592,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -5524,7 +5604,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -5568,7 +5648,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -5589,7 +5669,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -5604,7 +5684,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -5618,7 +5698,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -5633,7 +5713,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -5648,7 +5728,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -5671,7 +5751,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -5689,7 +5769,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -5701,7 +5781,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -5745,7 +5825,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -5766,7 +5846,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -5781,7 +5861,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -5795,7 +5875,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -5810,7 +5890,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -5828,7 +5908,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -5851,7 +5931,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -5869,7 +5949,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -5881,7 +5961,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -5925,7 +6005,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -5946,7 +6026,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -5957,7 +6037,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node1).
@@ -5972,7 +6052,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -5983,7 +6063,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node2).
@@ -5997,7 +6077,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -6008,7 +6088,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node3).
@@ -6022,7 +6102,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -6033,7 +6113,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node4).
@@ -6048,7 +6128,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -6066,7 +6146,7 @@ import net.lingala.zip4j.core.ZipFile;
 				//Publish Textbook unit
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+node3).
@@ -6082,7 +6162,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -6100,7 +6180,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -6112,7 +6192,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -6156,7 +6236,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -6177,7 +6257,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -6188,7 +6268,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node1).
@@ -6203,7 +6283,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -6214,7 +6294,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node2).
@@ -6228,7 +6308,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -6239,7 +6319,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node3).
@@ -6253,7 +6333,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -6264,7 +6344,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node4).
@@ -6282,7 +6362,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -6300,7 +6380,7 @@ import net.lingala.zip4j.core.ZipFile;
 				//Publish Textbook unit
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+nodeId).
@@ -6316,7 +6396,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -6334,7 +6414,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -6346,7 +6426,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -6391,7 +6471,7 @@ import net.lingala.zip4j.core.ZipFile;
 					String jsonCreateValidChild = js.toString();
 					Response R =
 							given().
-							spec(getRequestSpecification(contentType, validuserId, APIToken)).
+							spec(getRequestSpecification(contentType, userId, APIToken)).
 							body(jsonCreateValidChild).
 							with().
 							contentType(JSON).
@@ -6412,7 +6492,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/uploadContent.zip")).
 						when().
 						post("/content/v3/upload/"+node1).
@@ -6423,7 +6503,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node1).
@@ -6438,7 +6518,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node2).
@@ -6449,7 +6529,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node2).
@@ -6463,7 +6543,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node3).
@@ -6474,7 +6554,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node3).
@@ -6488,7 +6568,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Upload Content
 						setURI();
 						given().
-						spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+						spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 						multiPart(new File(path+"/tweenAndaudioSprite.zip")).
 						when().
 						post("/content/v3/upload/"+node4).
@@ -6499,7 +6579,7 @@ import net.lingala.zip4j.core.ZipFile;
 						// Publish content
 						setURI();
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 						when().
 						post("/content/v3/publish/"+node4).
@@ -6517,7 +6597,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateTextbookUnit = jsonCreateTextbookUnit.replace("id1", node1).replace("id2", node2).replace("id3", node3).replace("id4", node4);
 				Response R1 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateTextbookUnit).
 						with().
 						contentType(JSON).
@@ -6535,7 +6615,7 @@ import net.lingala.zip4j.core.ZipFile;
 				//Publish Textbook unit 1
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+nodeId).
@@ -6551,7 +6631,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection2 = jsonCreateNestedCollection2.replace("id1", nodeId).replace("Test_QANested_", "Test_Textbook2_");
 				Response R2 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection2).
 						with().
 						contentType(JSON).
@@ -6569,7 +6649,7 @@ import net.lingala.zip4j.core.ZipFile;
 				//Publish Textbook unit
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+nodeId2).
@@ -6585,7 +6665,7 @@ import net.lingala.zip4j.core.ZipFile;
 				jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId2);
 				Response R3 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						body(jsonCreateNestedCollection).
 						with().
 						contentType(JSON).
@@ -6603,7 +6683,7 @@ import net.lingala.zip4j.core.ZipFile;
 				// Publish textbook
 				setURI();
 				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 				when().
 				post("/content/v3/publish/"+textBookId).
@@ -6615,7 +6695,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R4 =
 						given().
-						spec(getRequestSpecification(contentType, validuserId, APIToken)).
+						spec(getRequestSpecification(contentType, userId, APIToken)).
 						when().
 						get("/content/v3/read/"+textBookId).
 						then().
@@ -6640,7 +6720,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -6659,7 +6739,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 = 
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -6679,7 +6759,7 @@ import net.lingala.zip4j.core.ZipFile;
 			js.getJSONObject("request").getJSONObject("content").put("versionKey", versionKey1).put("body", malformedJSONBody).remove("status");
 			jsonUpdateContentValid = js.toString();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateContentValid).
 			with().
 			contentType("application/json").
@@ -6693,7 +6773,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -6713,7 +6793,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					body(jsonCreateValidContent).
 					with().
 					contentType(JSON).
@@ -6733,7 +6813,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 = 
 			given().
-			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			spec(getRequestSpecification(uploadContentType, userId, APIToken)).
 			multiPart(new File(path+"/uploadContent.zip")).
 			when().
 			post("/content/v3/upload/"+nodeId).
@@ -6752,7 +6832,7 @@ import net.lingala.zip4j.core.ZipFile;
 			js.getJSONObject("request").getJSONObject("content").put("versionKey", versionKey1).put("body", malformedXMLBody).remove("status");
 			jsonUpdateContentValid = js.toString();
 			given().
-			spec(getRequestSpecification(contentType, validuserId, APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(jsonUpdateContentValid).
 			with().
 			contentType("application/json").
@@ -6766,7 +6846,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R2 =
 					given().
-					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
@@ -6823,14 +6903,14 @@ import net.lingala.zip4j.core.ZipFile;
 		
 		@SuppressWarnings("unused")
 		private boolean accessURL(String nodeId) throws ClassCastException{
-			boolean accessURL = false;
+			boolean accessURL = true;
 					
 			// Publish created content
 			setURI();
 			given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			when().
-			get("/learning/v2/content/publish/"+nodeId).
+			get("/content/v3/publish/"+nodeId).
 			then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -6839,9 +6919,9 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R5 =
 					given().
-					spec(getRequestSpec(contentType, validuserId)).
+					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
-					get("/learning/v2/content/"+nodeId).
+					get("/content/v3/read/"+nodeId).
 					then().
 					//log().all().
 					spec(get200ResponseSpec()).
@@ -6859,7 +6939,7 @@ import net.lingala.zip4j.core.ZipFile;
 					setURI();
 					Response R3 =
 							given().
-							spec(getRequestSpec(contentType, validuserId)).
+							spec(getRequestSpec(contentType, userId)).
 							when().
 							get("/learning/v2/content/"+nodeId).
 							then().
@@ -6885,7 +6965,7 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			Response R1 =
 					given().
-					spec(getRequestSpec(contentType, validuserId)).
+					spec(getRequestSpec(contentType, userId)).
 					when().
 					get("/learning/v2/content/"+nodeId).
 					then().
@@ -6952,7 +7032,7 @@ import net.lingala.zip4j.core.ZipFile;
 					if(file.isFile()){
 						String fPath = file.getAbsolutePath();
 						String fName = file.getName();
-						//System.out.println(fName);
+						System.out.println(fName);
 						
 						if (fName.endsWith(".zip")|| fName.endsWith(".rar")|| fName.endsWith(".apk")){
 							ZipFile ecarZip = new ZipFile(fPath);
@@ -6964,10 +7044,10 @@ import net.lingala.zip4j.core.ZipFile;
 							if (assetsPath.exists()){
 
 								int assetCount = assetsPath.listFiles().length;
-								//System.out.println(assetCount);
+								System.out.println(assetCount);
 
 								int uploadAssetsCount = uploadAssetsPath.listFiles().length;
-								//System.out.println(uploadAssetsCount);
+								System.out.println(uploadAssetsCount);
 
 								// Asserting the assets count in uploaded zip file and ecar file
 								Assert.assertEquals(assetCount, uploadAssetsCount);
@@ -7023,23 +7103,24 @@ import net.lingala.zip4j.core.ZipFile;
 						String pkgVersion =  getStringValue(item, "pkgVersion");
 						//Assert.assertNotSame(pkgVersionActual, pkgVersion);
 						Assert.assertTrue(artifactUrl.endsWith(".zip")||artifactUrl.endsWith(".apk")&&downloadUrl.endsWith(".ecar")&&statusUpdated.equals("Live"));
+						System.out.println(description +mediaType +code);
 					}
 					catch(JSONException jse){
-						accessURL = false;
+						return false;
 						//jse.printStackTrace();
 					}
 				}
 			}				
 			catch (Exception x){
-				accessURL = false;
+				return false;
 				//x.printStackTrace();	
 			}
 		}
 		catch (Exception e) {
-			accessURL = false;
+			return false;
 			//e.printStackTrace();
 			}
-			return true;
+			return accessURL;
 		}
 		
 		private String getStringValue(JsonObject obj, String attr) {
@@ -7057,7 +7138,7 @@ import net.lingala.zip4j.core.ZipFile;
 				setURI();
 				Response R3 =
 						given().
-						spec(getRequestSpec(contentType, validuserId)).
+						spec(getRequestSpec(contentType, userId)).
 						when().
 						get("/learning/v2/content/"+nodeId).
 						then().
@@ -7087,7 +7168,7 @@ import net.lingala.zip4j.core.ZipFile;
 					setURI();
 					Response R3 =
 							given().
-							spec(getRequestSpec(contentType, validuserId)).
+							spec(getRequestSpec(contentType, userId)).
 							when().
 							get("/learning/v2/content/"+nodeId).
 							then().

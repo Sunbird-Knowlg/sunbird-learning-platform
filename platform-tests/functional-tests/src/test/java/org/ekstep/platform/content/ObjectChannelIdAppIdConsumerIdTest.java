@@ -7,11 +7,25 @@ import org.ekstep.platform.domain.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
 
 public class ObjectChannelIdAppIdConsumerIdTest extends BaseTest {
-
+	
+	public RequestSpecification getRequestSpecWithHeaderExceptChannelId(String content_type,String user_id)
+	{
+		RequestSpecBuilder builderreq = new RequestSpecBuilder();
+		builderreq.addHeader("Content-Type", content_type);
+		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeader("consumerId", "FT_DEMO_CONSUMER_ID");
+		builderreq.addHeader("channelId", "FT_DEMO_CHANNEL_ID");
+		builderreq.addHeader("appId", "FT_DEMO_APP_ID");
+		RequestSpecification requestSpec = builderreq.build();
+		return requestSpec;
+	}
+	
 	int rn = generateRandomInt(0, 9999999);
 	
 	String DEF_CHANNEL_ID = "in.ekstep";

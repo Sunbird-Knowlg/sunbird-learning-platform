@@ -9,7 +9,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 
-import com.ilimi.taxonomy.content.common.BaseTestUtil;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;

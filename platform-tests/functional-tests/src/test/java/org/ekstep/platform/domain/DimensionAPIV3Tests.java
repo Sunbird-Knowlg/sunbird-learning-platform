@@ -30,9 +30,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 	{
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/numeracy/dimensions/list").
+			get("/domain/v3/numeracy/dimensions/list").
 		then().
 			log().all().
 			spec(get200ResponseSpec()).
@@ -46,9 +46,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 	public void getDimensionListLiteracyExpectSuccess200(){
 			setURI();
 			given().
-				spec(getRequestSpec(contentType,validuserId)).
+				spec(getRequestSpecification(contentType, userId, APIToken)).
 			when().
-				get("/learning/v3/domains/literacy/dimensions/list").
+				get("/domain/v3/literacy/dimensions/list").
 			then().
 				log().all().
 				spec(get200ResponseSpec()).
@@ -62,9 +62,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 	public void getDimensionListScienceExpectSuccess200(){
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/science/dimensions/list").
+			get("/domain/v3/science/dimensions/list").
 		then().
 			log().all().
 			spec(get200ResponseSpec()).
@@ -78,9 +78,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 	public void getDimensionListInvalidExpect4xx(){
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/adfasf/dimensions/list").
+			get("/domain/v3/afsf/dimensions/list").
 		then().
 			log().all().
 			spec(get404ResponseSpec());
@@ -93,9 +93,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 	{
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/numeracy/dimensions/read/Num:C3").
+			get("/domain/v3/numeracy/dimensions/read/Num:C3").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -109,9 +109,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 	{
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/abc/dimensions/list").
+			get("/domain/v3/abc/dimensions/list").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -123,9 +123,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 	{
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/literacy/dimensions/read/xyz").
+			get("/domain/v3/literacy/dimensions/read/xyz").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -139,12 +139,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateLiteracyDimension).
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -158,9 +158,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 		//getDimension API call to verify if the above dimension has been created.
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/literacy/dimensions/read/"+dimensionId).
+			get("/domain/v3/literacy/dimensions/read/"+dimensionId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());		
@@ -174,12 +174,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateLiteracyDimension).
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			//log().all().
 		extract().
@@ -193,12 +193,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		JsonCreateLiteracyDimension = JsonCreateLiteracyDimension.replace("literacy", dimensionId);
 		given().
-		spec(getRequestSpec(contentType, validuserId)).
+		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(JsonCreateLiteracyDimension).
 		with().
 			contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			//log().all().
 		spec(get400ResponseSpec());
@@ -211,12 +211,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateNumeracyDimension).
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/numeracy/dimensions/create").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -230,9 +230,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 		//getDimension API call to verify if the above dimension has been created.
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/literacy/dimensions/read/"+dimensionId).
+			get("/domain/v3/numeracy/dimensions/read/"+dimensionId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());		
@@ -245,12 +245,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateScienceDimension).
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v3/domains/science/dimensions/create").
+			post("/domain/v3/science/dimensions/create").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -264,9 +264,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 		//getDimension API call to verify if the above dimension has been created.
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/science/dimensions/read/"+dimensionId).
+			get("/domain/v3/science/dimensions/read/"+dimensionId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());		
@@ -281,12 +281,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response R =
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonSaveDimensionWithEmptyParent).
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -301,9 +301,9 @@ public class DimensionAPIV3Tests extends BaseTest {
 		// verify that the dimension is not saved in DB. 
 		setURI();
 		given().
-			spec(getRequestSpec(contentType,validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v3/domains/literacy/dimensions/read/"+dimensionId).
+			get("/domain/v3/literacy/dimensions/read/"+dimensionId).
 		then().
 			log().all().
 			spec(get404ResponseSpec());		
@@ -317,12 +317,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		//saveDimension API call 
 		setURI();
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonSaveDimensionWithInvalidParent).
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -337,12 +337,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateLiteracyDimension).
 		with().
 			contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -355,12 +355,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		
 		setURI();
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonUpdateDimensionValid).
 		with().
 			contentType("application/json").
 		when().
-			patch("/learning/v3/domains/literacy/dimensions/update/"+dimensionId).
+			patch("/domain/v3/literacy/dimensions/update/"+dimensionId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -375,12 +375,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateLiteracyDimension).
 		with().
 			contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			//log().all().
 		extract().
@@ -392,12 +392,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		
 		setURI();
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonUpdateDimensionValid).
 		with().
 			contentType("application/json").
 		when().
-			patch("/learning/v3/domains/literacy/adfdd/update/"+dimensionId).
+			patch("/domain/v3/literacy/update/"+dimensionId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -412,12 +412,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateLiteracyDimension).
 		with().
 			contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			//log().all().
 		extract().
@@ -429,12 +429,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		
 		setURI();
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonUpdateDimensionValid).
 		with().
 			contentType("application/json").
 		when().
-			patch("/learning/v3/domains/literacy/dimensions/update/"+dimensionId+"dfad").
+			patch("/domain/v3/literacy/dimensions/update/"+dimensionId+"dfad").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -449,12 +449,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		Response response1 = 
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonCreateLiteracyDimension).
 		with().
 			contentType(JSON).
 		when().
-			post("/learning/v3/domains/literacy/dimensions/create").
+			post("/domain/v3/literacy/dimensions/create").
 		then().
 			//log().all().
 		extract().
@@ -467,12 +467,12 @@ public class DimensionAPIV3Tests extends BaseTest {
 		setURI();
 		JsonUpdateDimensionValid = JsonUpdateDimensionValid.replace("literacy", "Test_1234");
 		given().
-			spec(getRequestSpec(contentType, validuserId)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			body(JsonUpdateDimensionValid).
 		with().
 			contentType("application/json").
 		when().
-			patch("/learning/v3/domains/literacy/dimensions/update/"+dimensionId).
+			patch("/domain/v3/literacy/dimensions/update/"+dimensionId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());

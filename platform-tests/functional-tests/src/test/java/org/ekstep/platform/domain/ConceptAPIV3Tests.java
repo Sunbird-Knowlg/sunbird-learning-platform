@@ -5,6 +5,7 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -18,15 +19,6 @@ import com.jayway.restassured.specification.RequestSpecification;
 @WebAppConfiguration
 public class ConceptAPIV3Tests extends BaseTest {
 	
-	public RequestSpecification getRequestSpecification(String content_type,String user_id, String APIToken)
-	{
-		RequestSpecBuilder builderreq = new RequestSpecBuilder();
-		builderreq.addHeader("Content-Type", content_type);
-		builderreq.addHeader("user-id", user_id);
-		builderreq.addHeader("Authorization", APIToken);
-		RequestSpecification requestSpec = builderreq.build();
-		return requestSpec;
-	}
 
 	int noOfConceptsAvailable = 70;
 	int rn = generateRandomInt(0, 9999999);
@@ -45,7 +37,6 @@ public class ConceptAPIV3Tests extends BaseTest {
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -57,11 +48,11 @@ public class ConceptAPIV3Tests extends BaseTest {
 	{
 		setURI();
 		given().
-			spec(getRequestSpecification(contentType,userId,APIToken)).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 		when().
-			get("/learning/v2/domains/numeracy/concepts").
+			get("/domain/v3/numeracy/concepts/list").
 		then().
-			//log().all().
+			log().all().
 			spec(get200ResponseSpec()).
 			body("result.concepts.status", hasItems("Live"));
 	}
@@ -75,7 +66,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 			given().
 				spec(getRequestSpecification(contentType,userId,APIToken)).
 			when().
-				get("/learning/v2/domains/literacy/concepts").
+				get("/domain/v3/literacy/concepts/list").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -91,7 +82,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 			given().
 				spec(getRequestSpecification(contentType,userId,APIToken)).
 			when().
-				get("/learning/v2/domains/science/concepts").
+				get("/domain/v3/science/concepts/list").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -120,7 +111,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		given().
 			spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
-			get("/learning/v2/domains/abc/concepts").
+			get("/domain/v3/abc/concepts/list").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -132,7 +123,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		given().
 			spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
-			get("/learning/v2/domains/literacy/concepts/xyz").
+			get("/domain/v3/numeracy/concepts/xyz").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -149,7 +140,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v2/domains/literacy/concepts").
+			post("/domain/v3/literacy/concepts/create").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -159,12 +150,12 @@ public class ConceptAPIV3Tests extends BaseTest {
 		JsonPath jp1 = R.jsonPath();
 		String conceptId = jp1.get("result.node_id");
 		
-		//getDimension API call to verify if the above dimension has been created.
+		//getConcept API call to verify if the above dimension has been created.
 		setURI();
 		given().
 			spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
-			get("/learning/v2/domains/literacy/concepts/"+conceptId).
+			get("/domain/v3/literacy/concepts/"+conceptId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());		
@@ -182,7 +173,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v2/domains/numeracy/concepts").
+			post("/domain/v3/numeracy/concepts/create").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -197,7 +188,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		given().
 			spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
-			get("/learning/v2/domains/numeracy/concepts/"+conceptId).
+			get("/domain/v3/literacy/concepts/"+conceptId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -215,7 +206,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v2/domains/science/concepts").
+			post("/domain/v3/science/concepts/create").
 		then().
 			log().all().
 			spec(get200ResponseSpec()).
@@ -230,14 +221,14 @@ public class ConceptAPIV3Tests extends BaseTest {
 		given().
 			spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
-			get("/learning/v2/domains/science/concepts/"+conceptId).
+			get("/domain/v3/literacy/concepts/"+conceptId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
 	}
 	
 	@Test
-	public void createConceptWithNoDimExpect4xx()
+	public void createConceptWithInvalidDomainExpect4xx()
 	{
 		setURI();
 		given().
@@ -246,7 +237,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v2/domains/liter/concepts").
+			post("/domain/v3/liter/concepts").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -264,7 +255,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("/learning/v2/domains/literacy/concepts");
+			post("/domain/v3/literacy/concepts/create");
 		
 		given().
 			spec(getRequestSpecification(contentType,userId,APIToken)).
@@ -272,13 +263,13 @@ public class ConceptAPIV3Tests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("/learning/v2/domains/literacy/concepts").
+			post("/domain/v3/literacy/concepts/create").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
 	}
 	
-	@Test
+	@Ignore
 	public void searchConceptsExpectSuccess200()
 	{
 		setURI();
@@ -295,7 +286,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 	}
 	
 	//To-do: Need to check if it sends empty result.
-	@Test
+	@Ignore
 	public void searchConceptsNotExistingExpect200()
 	{
 		setURI();
@@ -312,7 +303,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 			
 	}
 	
-	@Test
+	@Ignore
 	public void searchConceptsWithDomainNotExistingExpect4xx()
 	{
 		setURI();
