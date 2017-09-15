@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.ilimi.common.Platform;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
 /**
@@ -32,6 +33,7 @@ public class CassandraConnector {
 		try{
 			String host = Platform.config.getString("cassandra.host");
 			int port = Platform.config.getInt("cassandra.port");
+			PlatformLogger.log("Fetching cassandra properties from configPath" + host + port, null, LoggerEnum.INFO.name());
 			if (StringUtils.isBlank(host))
 				host = "localhost";					
 			if (port <= 0)

@@ -905,10 +905,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		// Checking for status
-		if (map.containsKey(ContentAPIParams.status.name()))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CREATE.name(),
-					"Error! Status cannot be set while creating a Content.");
+//		// Checking for status
+//		if (map.containsKey(ContentAPIParams.status.name()))
+//			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CREATE.name(),
+//					"Error! Status cannot be set while creating a Content.");
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String mimeType = (String) map.get("mimeType");
@@ -971,11 +971,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	public Response updateContent(String contentId, Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
-
-		// Restrict Update API to Update Status
-		if (map.containsKey(ContentAPIParams.status.name()))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
-					"Error! Status cannot be set while updating the Content.");
+		map.remove(ContentAPIParams.status.name());
+//		// Restrict Update API to Update Status
+//		if (map.containsKey(ContentAPIParams.status.name()))
+//			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
+//					"Error! Status cannot be set while updating the Content.");
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String originalId = contentId;
