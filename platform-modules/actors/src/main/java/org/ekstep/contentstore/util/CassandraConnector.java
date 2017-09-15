@@ -12,7 +12,7 @@ import com.ilimi.common.logger.PlatformLogger;
 /**
  * Class used for connecting to Cassandra database.
  * 
- * @author rayulu
+ * @author rayulu, rashmi
  */
 public class CassandraConnector {
 
@@ -32,7 +32,6 @@ public class CassandraConnector {
 		try{
 			String host = Platform.config.getString("cassandra.host");
 			int port = Platform.config.getInt("cassandra.port");
-			System.out.println("port" + port + "host" + host);
 			if (StringUtils.isBlank(host))
 				host = "localhost";					
 			if (port <= 0)
