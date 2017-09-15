@@ -22,6 +22,7 @@ import com.ilimi.common.Platform;
 import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
 public class ContentStoreUtil {
@@ -160,6 +161,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("select blobAsText(").append(property).append(") as ");
 			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " +keyspaceName+"."+keyspaceTable + " where content_id = ?");
+			PlatformLogger.log("Fetched keyspace names for get Operation: " + keyspaceName + keyspaceTable, null, LoggerEnum.INFO.name());
 		}
 		return sb.toString();
 	}
@@ -188,6 +190,7 @@ public class ContentStoreUtil {
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("UPDATE " +keyspaceName+"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
 			sb.append(property.trim()).append(" = textAsBlob(?) where content_id = ?");
+			PlatformLogger.log("Fetched keyspace names for update Operation: " + keyspaceName + keyspaceTable, null, LoggerEnum.INFO.name());
 		}
 		return sb.toString();
 	}
