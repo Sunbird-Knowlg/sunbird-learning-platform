@@ -236,11 +236,7 @@ public class ContentValidator {
 	 * @return FileSizeLimit(configurable)
 	 */
 	private double getContentPackageFileSizeLimit() {
-		double size = 52428800;
-		double limit = Platform.config.getDouble(ContentWorkflowPipelineParams.MAX_CONTENT_PACKAGE_FILE_SIZE_LIMIT.name());
-		if(null != limit)
-			size = limit;
-		return size;
+		return Platform.config.getDouble(ContentWorkflowPipelineParams.MAX_CONTENT_PACKAGE_FILE_SIZE_LIMIT.name());
 	}
 
 	/**

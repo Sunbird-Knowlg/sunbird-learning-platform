@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
 
 /**
@@ -23,7 +24,6 @@ public class ZipUtility {
 	private String sourceFolder = null;
 
 	public ZipUtility() {
-//		ReadProperties.loadProperties("content.properties");
 		fileList = new ArrayList<String>();
 	}
 
@@ -42,8 +42,8 @@ public class ZipUtility {
 
 	public void zip() {
 		try {
-			outPutZipFile = ReadProperties.getProperty("output.zipfile");
-			sourceFolder = ReadProperties.getProperty("source.folder");
+			outPutZipFile = Platform.config.getString("output.zipfile");
+			sourceFolder = Platform.config.getString("source.folder");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
