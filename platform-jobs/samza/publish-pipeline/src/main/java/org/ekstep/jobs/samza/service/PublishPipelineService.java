@@ -10,12 +10,10 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.util.ReadProperties;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
-import org.ekstep.content.util.PropertiesUtil;
 import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.contentstore.util.CassandraConnector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
@@ -27,6 +25,9 @@ import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValueFactory;
 
 public class PublishPipelineService implements ISamzaService {
 
@@ -49,10 +50,10 @@ public class PublishPipelineService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
+		ConfigObject conf = ConfigValueFactory.fromMap(props);
+		ConfigFactory.load(conf.toConfig());
 		S3PropertyReader.loadProperties(props);
 		Configuration.loadProperties(props);
-		PropertiesUtil.loadProperties(props);
-		ReadProperties.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");	

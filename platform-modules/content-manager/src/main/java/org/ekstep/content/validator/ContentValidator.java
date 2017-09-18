@@ -17,10 +17,10 @@ import org.ekstep.content.common.AssetsMimeTypeMap;
 import org.ekstep.content.common.ContentErrorMessageConstants;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
-import org.ekstep.content.util.PropertiesUtil;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.neo4j.io.fs.FileUtils;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -236,15 +236,10 @@ public class ContentValidator {
 	 * @return FileSizeLimit(configurable)
 	 */
 	private double getContentPackageFileSizeLimit() {
-		double size = 52428800; // In Bytes, Default is 50MB
-		String limit = PropertiesUtil
-				.getProperty(ContentWorkflowPipelineParams.MAX_CONTENT_PACKAGE_FILE_SIZE_LIMIT.name());
-		if (!StringUtils.isBlank(limit)) {
-			try {
-				size = Double.parseDouble(limit);
-			} catch (Exception e) {
-			}
-		}
+		double size = 52428800;
+		double limit = Platform.config.getDouble(ContentWorkflowPipelineParams.MAX_CONTENT_PACKAGE_FILE_SIZE_LIMIT.name());
+		if(null != limit)
+			size = limit;
 		return size;
 	}
 

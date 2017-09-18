@@ -66,7 +66,6 @@ public class CassandraConnector {
 		cluster = Cluster.builder().addContactPoint(host).withPort(port).build();
 		session = cluster.connect();
 		registerShutdownHook();
-
 	}
 	
 	public static void loadProperties(Properties props) {

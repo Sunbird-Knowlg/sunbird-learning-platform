@@ -26,8 +26,6 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @Component
 public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager {
 
-	
-
 	public static String[] taxonomyIds = { "numeracy", "literacy", "literacy_v2" };
 
 	@Override

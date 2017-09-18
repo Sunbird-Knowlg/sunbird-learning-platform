@@ -28,6 +28,7 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -39,9 +40,7 @@ import com.ilimi.graph.dac.model.Node;
  * @author Mohammad Azharuddin
  */
 public class ContentPackageExtractionUtil {
-
-	/** The logger. */
-
+	
 	/** The Constant AWS_UPLOAD_RESULT_URL_INDEX. */
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
@@ -283,7 +282,7 @@ public class ContentPackageExtractionUtil {
 	}
 
 	private String getH5PLibraryPath() {
-		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
+		String path = Platform.config.getString(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
 		if (StringUtils.isBlank(path))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
 					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");
