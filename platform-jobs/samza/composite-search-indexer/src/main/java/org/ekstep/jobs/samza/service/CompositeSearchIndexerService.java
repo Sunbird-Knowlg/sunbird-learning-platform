@@ -15,12 +15,14 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
+import org.ekstep.learning.router.LearningRequestRouterPool;
+import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import org.ekstep.searchindex.util.PropertiesUtil;
-
-import com.ilimi.graph.cache.factory.JedisFactory;
+import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.graph.model.node.DefinitionDTO;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
@@ -30,6 +32,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 
 	private ElasticSearchUtil esUtil = null;
 
+	private ControllerUtil util = new ControllerUtil();
+
 	@Override
 	public void initialize(Config config) throws Exception {
 		Map<String, Object> props = new HashMap<String, Object>();
@@ -38,16 +42,17 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		}
 		PropertiesUtil.loadProperties(props);
 		LOGGER.info("Service config initialized");
+		Configuration.loadProperties(props);
 		esUtil = new ElasticSearchUtil();
+		LearningRequestRouterPool.init();
+		LOGGER.info("Learning actors initialized");
 		createCompositeSearchIndex();
 		LOGGER.info(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + " created");
-		JedisFactory.initialize(props);
-		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
+			throws Exception {
 		Object index = message.get("index");
 		Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
 		if (!BooleanUtils.isFalse(shouldindex)) {
@@ -75,18 +80,21 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
-				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
-				Map<String, String> relationMap = ObjectDefinitionCache.getRelationDefinition(objectType, graphId);
+				DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
+				Map<String, Object> definition = mapper.convertValue(definitionNode,
+						new TypeReference<Map<String, Object>>() {
+						});
+				Map<String, String> relationMap = getRelationMap(objectType, definition);
 				String operationType = (String) message.get("operationType");
 				switch (operationType) {
 				case CompositeSearchConstants.OPERATION_CREATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, false);
+					Map<String, Object> indexDocument = getIndexDocument(message, relationMap, false);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_UPDATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, true);
+					Map<String, Object> indexDocument = getIndexDocument(message, relationMap, true);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
@@ -106,27 +114,53 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
+	private Map<String, String> getRelationMap(String objectType, Map definitionNode) throws Exception {
+		Map<String, String> relationMap = new HashMap<String, String>();
+		Map<String, String> relationDefinition = retrieveRelations(definitionNode, "IN", "inRelations");
+		relationDefinition.putAll(retrieveRelations(definitionNode, "OUT", "outRelations"));
+		relationMap.put(objectType, relationDefinition.toString());
+		return relationMap;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static Map<String, String> retrieveRelations(Map definitionNode, String direction, String relationProperty)
+			throws Exception {
+		Map<String, String> definition = new HashMap<String, String>();
+		List<Map> inRelsList = (List<Map>) definitionNode.get(relationProperty);
+		if (null != inRelsList && !inRelsList.isEmpty()) {
+			for (Map relMap : inRelsList) {
+				List<String> objectTypes = (List<String>) relMap.get("objectTypes");
+				if (null != objectTypes && !objectTypes.isEmpty()) {
+					for (String type : objectTypes) {
+						String key = direction + "_" + type + "_" + (String) relMap.get("relationName");
+						definition.put(key, (String) relMap.get("title"));
+					}
+				}
+			}
+		}
+		return definition;
+	}
+
 	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
-		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
-				uniqueId, jsonIndexDocument);
+		esUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 
 	private void createCompositeSearchIndex() throws IOException {
 		String settings = "{ \"settings\": {   \"index\": {     \"index\": \""
-				+ CompositeSearchConstants.COMPOSITE_SEARCH_INDEX
-				+ "\",     \"type\": \""
+				+ CompositeSearchConstants.COMPOSITE_SEARCH_INDEX + "\",     \"type\": \""
 				+ CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE
 				+ "\",     \"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
-		String mappings = "{ \""
-				+ CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE
+		String mappings = "{ \"" + CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE
 				+ "\" : {    \"dynamic_templates\": [      {        \"longs\": {          \"match_mapping_type\": \"long\",          \"mapping\": {            \"type\": \"long\",            fields: {              \"raw\": {                \"type\": \"long\"              }            }          }        }      },      {        \"booleans\": {          \"match_mapping_type\": \"boolean\",          \"mapping\": {            \"type\": \"boolean\",            fields: {              \"raw\": {                \"type\": \"boolean\"              }            }          }        }      },{        \"doubles\": {          \"match_mapping_type\": \"double\",          \"mapping\": {            \"type\": \"double\",            fields: {              \"raw\": {                \"type\": \"double\"              }            }          }        }      },	  {        \"dates\": {          \"match_mapping_type\": \"date\",          \"mapping\": {            \"type\": \"date\",            fields: {              \"raw\": {                \"type\": \"date\"              }            }          }        }      },      {        \"strings\": {          \"match_mapping_type\": \"string\",          \"mapping\": {            \"type\": \"string\",            \"copy_to\": \"all_fields\",            \"analyzer\": \"cs_index_analyzer\",            \"search_analyzer\": \"cs_search_analyzer\",            fields: {              \"raw\": {                \"type\": \"string\",                \"analyzer\": \"keylower\"              }            }          }        }      }    ],    \"properties\": {      \"all_fields\": {        \"type\": \"string\",        \"analyzer\": \"cs_index_analyzer\",        \"search_analyzer\": \"cs_search_analyzer\",        fields: {          \"raw\": {            \"type\": \"string\",            \"analyzer\": \"keylower\"          }        }      }    }  }}";
-		esUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings,
-				mappings);
+		esUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Map<String, Object> getIndexDocument(Map<String, Object> message, Map<String, Object> definitionNode,
-			Map<String, String> relationDefinition, boolean updateRequest) throws IOException {
+	public Map<String, Object> getIndexDocument(Map<String, Object> message, Map<String, String> relationMap,
+			boolean updateRequest) throws IOException {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		String uniqueId = (String) message.get("nodeUniqueId");
 		if (updateRequest) {
@@ -144,24 +178,23 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 					if (propertyMap != null && propertyMap.getKey() != null) {
 						String propertyName = (String) propertyMap.getKey();
-						Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv"); // new value
-																											// of the
-																											// property
-						if (propertyNewValue == null) // New value from transaction data is null, then remove the
-														// property from document
+						// new value of the property
+						Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
+						// New value from transaction data is null, then remove the property from document																	
+						if (propertyNewValue == null)
 							indexDocument.remove(propertyName);
 						else {
 							indexDocument.put(propertyName, propertyNewValue);
 						}
-
 					}
 				}
 			}
-			List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData.get("addedRelations");
+			List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData
+					.get("addedRelations");
 			if (null != addedRelations && !addedRelations.isEmpty()) {
 				for (Map<String, Object> rel : addedRelations) {
 					String key = rel.get("dir") + "_" + rel.get("type") + "_" + rel.get("rel");
-					String title = relationDefinition.get(key);
+					String title = relationMap.get(key);
 					if (StringUtils.isNotBlank(title)) {
 						List<String> list = (List<String>) indexDocument.get(title);
 						if (null == list)
@@ -174,11 +207,12 @@ public class CompositeSearchIndexerService implements ISamzaService {
 					}
 				}
 			}
-			List<Map<String, Object>> removedRelations = (List<Map<String, Object>>) transactionData.get("removedRelations");
+			List<Map<String, Object>> removedRelations = (List<Map<String, Object>>) transactionData
+					.get("removedRelations");
 			if (null != removedRelations && !removedRelations.isEmpty()) {
 				for (Map<String, Object> rel : removedRelations) {
 					String key = rel.get("dir") + "_" + rel.get("type") + "_" + rel.get("rel");
-					String title = relationDefinition.get(key);
+					String title = relationMap.get(key);
 					if (StringUtils.isNotBlank(title)) {
 						List<String> list = (List<String>) indexDocument.get(title);
 						if (null != list && !list.isEmpty()) {
@@ -191,31 +225,6 @@ public class CompositeSearchIndexerService implements ISamzaService {
 					}
 				}
 			}
-			List<String> addedTags = (List<String>) transactionData.get("addedTags");
-			if (addedTags != null && !addedTags.isEmpty()) {
-				List<String> indexedTags = (List<String>) indexDocument.get(CompositeSearchConstants.INDEX_FIELD_TAGS);
-				if (indexedTags == null || indexedTags.isEmpty()) {
-					indexedTags = new ArrayList<String>();
-				}
-				for (String addedTag : addedTags) {
-					if (!indexedTags.contains(addedTag)) {
-						indexedTags.add(addedTag);
-					}
-				}
-				indexDocument.put(CompositeSearchConstants.INDEX_FIELD_TAGS, indexedTags);
-			}
-			List<String> removedTags = (List<String>) transactionData.get("removedTags");
-			if (removedTags != null && !removedTags.isEmpty()) {
-				List<String> indexedTags = (List<String>) indexDocument.get(CompositeSearchConstants.INDEX_FIELD_TAGS);
-				if (indexedTags != null && !indexedTags.isEmpty()) {
-					for (String removedTag : removedTags) {
-						if (indexedTags.contains(removedTag)) {
-							indexedTags.remove(indexedTags.indexOf(removedTag));
-						}
-					}
-					indexDocument.put(CompositeSearchConstants.INDEX_FIELD_TAGS, indexedTags);
-				}
-			}
 		}
 		indexDocument.put("graph_id", (String) message.get("graphId"));
 		indexDocument.put("node_id", (int) message.get("nodeGraphId"));
@@ -224,5 +233,4 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
 		return indexDocument;
 	}
-
 }
