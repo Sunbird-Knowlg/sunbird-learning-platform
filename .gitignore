@@ -20,3 +20,4 @@ language-platform/module/scripts/orchestrator/node_modules/
 *.
 *.
 H5PContentWorkflowTest.java
+platform-tools/spikes/sunbird-tools/nbproject
