@@ -40,8 +40,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class AWSUploader {
 
-	
-
 	private static final String s3Bucket = "s3.bucket";
 	private static final String s3Environment = "s3.env";
 	private static final String s3Region = "s3.region";
