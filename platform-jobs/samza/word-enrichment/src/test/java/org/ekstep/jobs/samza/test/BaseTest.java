@@ -1,11 +1,16 @@
 package org.ekstep.jobs.samza.test;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.util.ControllerUtil;
 import org.junit.Assert;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -20,8 +25,11 @@ import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.enums.ImportType;
+import com.ilimi.graph.importer.InputStreamValue;
 
 
 abstract public class BaseTest {
@@ -31,7 +39,11 @@ abstract public class BaseTest {
 	private static ObjectMapper mapper = new ObjectMapper();
 	protected static String languageId = "en";
 	protected static String ka_languageId = "ka";
-	protected static String languageCommonId = "testLanguage";
+	protected static String languageCommonId = "language";
+	
+	private static String ISO_CSV = "src/test/resources/data/ISO_Data.csv";
+	private static String VARNA_CSV = "src/test/resources/data/Kannada_Varna.csv";
+	private static String VOWELSIGN_CSV = "src/test/resources/data/Kannada_VowelSigns.csv";
 	
 	protected static void before(){
 		GraphDatabaseSettings.BoltConnector bolt = GraphDatabaseSettings.boltConnector( "0" );
@@ -48,8 +60,9 @@ abstract public class BaseTest {
 		try(Transaction tx = graphDb.beginTx()){
 			System.out.println("Loading All Definitions...!!");
 			loadAllDefinitions(new File("src/test/resources/definitions"), languageId);
-			loadAllDefinitions(new File("src/test/resources/definitions"), languageCommonId);
+			loadAllDefinitions(new File("src/test/resources/definitions/language"), languageCommonId);
 			loadAllDefinitions(new File("src/test/resources/definitions"), ka_languageId);
+			loadData();
 		}
 	}
 	
@@ -76,6 +89,26 @@ abstract public class BaseTest {
 		}
 	}
 	
+	private static void loadData() {
+		System.out.println("creating sample nodes");
+		InputStream in = csvReader(ISO_CSV);
+		createData(languageCommonId, in);
+		InputStream in1 = csvReader(VARNA_CSV);
+		createData(ka_languageId, in1);
+		InputStream in2 = csvReader(VOWELSIGN_CSV);
+		createData(ka_languageId, in2);
+	}
+	
+	private static InputStream csvReader(String file) {
+		InputStream in = null;
+		try {
+			in = new FileInputStream(new File(file));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return in;
+	}
+	
 	protected static void createDefinition(String contentString, String graph_id) throws IOException{
 		
 		Request request = new Request();
@@ -92,6 +125,27 @@ abstract public class BaseTest {
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
 	
+	protected static void createData( String graph_id, InputStream stream){
+		try {
+			Request request = new Request();
+			request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+			request.setOperation("importGraph");
+			request.getContext().put(GraphHeaderParams.graph_id.name(),
+					graph_id);
+			request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
+			request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(stream));
+			PlatformLogger.log("List | Request: " , request);
+			Response response = util.getResponse(
+					request);
+			PlatformLogger.log("List | Response: " ,response);
+			
+			Assert.assertEquals("successful", response.getParams().getStatus());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	protected static String createWord(String lemma) throws Exception{
 		return createWord(lemma, languageId);
 	}
@@ -100,9 +154,13 @@ abstract public class BaseTest {
 		String synsetRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Synset\",\"metadata\":{\"gloss\":\""+lemma+"\",\"category\":\"Place\"}}";
 		Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
 		String synsetId = createNode(synsetNodeObj, graphId);
-		String wordRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\",\"metadata\":{\"lemma\":\""+lemma+"\",\"primaryMeaningId\":\""+synsetId+"\"},\"inRelations\": [{\"endNodeId\":null, \"relationType\":\"synonym\",\"startNodeId\":\""+synsetId+"\"}]}";
+		String wordRequest = "{\"nodeType\":\"DATA_NODE\",\"objectType\":\"Word\",\"metadata\":{\"lemma\":\""+lemma+"\",\"primaryMeaningId\":\""+synsetId+"\"}}";
 		Object wordNodeObj = mapper.readValue(wordRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
-		return createNode(wordNodeObj, graphId);
+		String wordId = createNode(wordNodeObj, graphId);
+		Map<String, Object> metadata = new HashMap<String, Object>();
+		metadata.put(LanguageParams.isPrimary.name(), true);
+		createRelation(graphId, synsetId, RelationTypes.SYNONYM.relationName(), wordId, metadata);
+		return wordId;
 	}
 
 	protected static Node getWord(String wordId, String graphId) throws Exception{

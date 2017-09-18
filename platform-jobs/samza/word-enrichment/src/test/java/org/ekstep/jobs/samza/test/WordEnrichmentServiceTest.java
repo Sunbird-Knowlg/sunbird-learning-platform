@@ -167,7 +167,7 @@ public class WordEnrichmentServiceTest extends BaseTest{
 			Node word = getWord(wordId, BaseTest.languageId);
 			Map<String, Object> meta = word.getMetadata();
 			//checking word enrichment few metadata
-			assertEquals((Long)meta.get("syllableCount"), new Long(("Lion".length())));
+			assertEquals((Long)meta.get("syllableCount"), new Long(4));
 			List<Relation> rels =word.getInRelations();
 			//checking words akshra/rhyming wordset associations
 			Assert.assertTrue(rels.size()  > 1 );
@@ -193,7 +193,7 @@ public class WordEnrichmentServiceTest extends BaseTest{
 			assertEquals((Double)meta.get("phonologic_complexity"), new Double(12.2));
 			assertEquals(meta.get("syllableNotation").toString(),"CVVCV");
 			assertEquals(meta.get("unicodeNotation").toString(),"\\0cb8\\0cbf\\0c82 \\0cb9\\0C85a");
-			//assertEquals((Double)meta.get("word_complexity"), new Double(1.3));
+			assertEquals((Double)meta.get("word_complexity"), new Double(0.8));
 			List<Relation> rels =word.getInRelations();
 			//checking words akshra/rhyming wordset associations
 			Assert.assertTrue(rels.size() == 4 );
@@ -228,6 +228,7 @@ public class WordEnrichmentServiceTest extends BaseTest{
 			assertEquals((Double)meta.get("phonologic_complexity"), new Double(3.0));
 			assertEquals(meta.get("syllableNotation").toString(),"VCV");
 			assertEquals(meta.get("unicodeNotation").toString(),"\\0c86\\0C85a \\0ca8\\0cc6");
+			assertEquals((Double)meta.get("word_complexity"), new Double(0.8));
 			//check meaning and category is null
 			assertEquals(meta.get("meaning"), null);
 			assertEquals(meta.get("category"), null);
@@ -272,14 +273,21 @@ public class WordEnrichmentServiceTest extends BaseTest{
 			//check meaning and category of the word is copied from synset
 			assertEquals(meta.get("meaning"), "ಮನೆ");
 			assertEquals(meta.get("category"), "Place");
-			
+			//checking word enrichment few metadata
+			assertEquals((Long)meta.get("syllableCount"), new Long(2));
+			assertEquals((Double)meta.get("orthographic_complexity"), new Double(1.0));
+			assertEquals((Double)meta.get("phonologic_complexity"), new Double(5.4));
+			assertEquals(meta.get("syllableNotation").toString(),"CVCV");
+			assertEquals(meta.get("unicodeNotation").toString(),"\\0cae\\0C85a \\0ca8\\0cc6");
+			assertEquals((Double)meta.get("word_complexity"), new Double(0.8));
+			//update synset metadata like category
 			String synsetRequest = "{\"nodeType\":\"DATA_NODE\",\"identifier\":\""+pmId+"\", \"objectType\":\"Synset\",\"metadata\":{\"category\":\"Thing\"}}";
 			Object synsetNodeObj = mapper.readValue(synsetRequest, Class.forName("com.ilimi.graph.dac.model.Node"));		
 			String synsetId = updateNode(pmId, synsetNodeObj, BaseTest.ka_languageId);
-			String synsetUpdateEventMsg="{\"ets\":1505489002231,\"nodeUniqueId\":\""+synsetId+"\",\"transactionData\":{\"category\":{\"ov\":\"Place\",\"nv\":\"Thing\"}},\"operationType\":\"UPDATE\",\"graphId\":\""+ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"createdOn\":\"2017-09-15T20:53:22.231+0530\",\"objectType\":\"Synset\"}";
-			WordEnrichmentTest(syncMsg);
+			String synsetUpdateEventMsg="{\"ets\":1505489002231,\"nodeUniqueId\":\""+synsetId+"\",\"transactionData\":{\"properties\":{\"category\":{\"ov\":\"Place\",\"nv\":\"Thing\"}}},\"operationType\":\"UPDATE\",\"graphId\":\""+ka_languageId+"\",\"nodeType\":\"DATA_NODE\",\"createdOn\":\"2017-09-15T20:53:22.231+0530\",\"objectType\":\"synset\"}";
+			WordEnrichmentTest(synsetUpdateEventMsg);
 			service.processMessage(messageData, null, null);
-			lock.await(1000, TimeUnit.MILLISECONDS);
+			lock.await(2000, TimeUnit.MILLISECONDS);
 			word = getWord(wordId, BaseTest.ka_languageId);
 			meta = word.getMetadata();
 			//check category of the word
