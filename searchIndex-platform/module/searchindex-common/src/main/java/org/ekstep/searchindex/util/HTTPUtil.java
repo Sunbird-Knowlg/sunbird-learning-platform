@@ -16,6 +16,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
@@ -24,7 +25,7 @@ public class HTTPUtil {
 	public static String makeGetRequest(String url) throws Exception {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(url);
-		request.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
+		request.addHeader("user-id", Platform.config.getString("ekstepPlatformApiUserId"));
 		request.addHeader("Content-Type", "application/json");
 		HttpResponse response = client.execute(request);
 		if (response.getStatusLine().getStatusCode() != 200) {
@@ -47,7 +48,7 @@ public class HTTPUtil {
 	public static String makePostRequest(String url, String body) throws Exception {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost post = new HttpPost(url);
-		post.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
+		post.addHeader("user-id", Platform.config.getString("ekstepPlatformApiUserId"));
 		post.addHeader("Content-Type", "application/json; charset=utf-8");
 		post.setEntity(new StringEntity(body,  Charsets.UTF_8.name()));
 		HttpResponse response = client.execute(post);
@@ -69,7 +70,7 @@ public class HTTPUtil {
 	public static String makePatchRequest(String url, String body) throws Exception {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPatch patch = new HttpPatch(url);
-		patch.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
+		patch.addHeader("user-id", Platform.config.getString("ekstepPlatformApiUserId"));
 		patch.addHeader("Content-Type", "application/json");
 		patch.setEntity(new StringEntity(body));
 
@@ -92,7 +93,7 @@ public class HTTPUtil {
 	public static String makePostRequestUploadFile(String url, File file) throws Exception {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost post = new HttpPost(url);
-		post.addHeader("user-id", PropertiesUtil.getProperty("ekstepPlatformApiUserId"));
+		post.addHeader("user-id", Platform.config.getString("ekstepPlatformApiUserId"));
 		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		builder.addTextBody("ContentType", "Multipart FileUpload", ContentType.TEXT_PLAIN);
 		builder.addBinaryBody("file", new FileInputStream(file), ContentType.APPLICATION_OCTET_STREAM, file.getName());

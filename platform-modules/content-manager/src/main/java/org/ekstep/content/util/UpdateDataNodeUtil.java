@@ -3,6 +3,7 @@ package org.ekstep.content.util;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
@@ -18,9 +19,6 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
  */
 public class UpdateDataNodeUtil extends BaseManager {
 
-	/** The logger. */
-	
-
 	public Response updateDataNode(Node node) {
 		PlatformLogger.log("Node: ", node);
 		Response response = new Response();
@@ -28,7 +26,7 @@ public class UpdateDataNodeUtil extends BaseManager {
 			PlatformLogger.log("Updating Data Node Id: " + node.getIdentifier());
 			
 			// Setting default version key for internal node update
-			String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+			String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 			node.getMetadata().put(GraphDACParams.versionKey.name(), graphPassportKey);
 
 			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER,

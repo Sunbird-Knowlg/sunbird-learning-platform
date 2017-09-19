@@ -3,9 +3,9 @@ package org.ekstep.graph.service.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.util.CacheKeyGenerator;
-import com.ilimi.graph.common.mgr.Configuration;
 
 /**
  * The Class LocalCache, is used to cache any object in current java instance
@@ -105,7 +105,7 @@ public class LocalCache {
 	 * @return the ttl
 	 */
 	private static void setTTL() {
-		String timeToLive = Configuration.getProperty("platform.cache.ttl");
+		String timeToLive = Platform.config.getString("platform.cache.ttl");
 		if (timeToLive != null)
 			ttl = Long.parseLong(timeToLive);
 	}

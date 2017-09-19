@@ -1,6 +1,5 @@
 package com.ilimi.graph.common.mgr;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +7,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
@@ -18,17 +18,12 @@ public class Configuration {
 
     private static Properties props;
     static {
-        try (InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties")) {
-            props = new Properties();
-            props.load(inputStream);
-            String timeout = props.getProperty("akka.request_timeout");
-            if (StringUtils.isNotBlank(timeout)) {
-                long seconds = Long.parseLong(timeout);
-                if (seconds > 0) {
-                    TIMEOUT = seconds * 1000;
-                }
+    	try{
+            int timeout = Platform.config.getInt("akka.request_timeout");
+            if (timeout > 0) {
+                TIMEOUT = timeout * 1000;
             }
-            String ids = props.getProperty("graph.ids");
+            String ids = Platform.config.getString("graph.ids");
             if (StringUtils.isNotBlank(ids)) {
             	String[] array = ids.split(",");
             	if (null != array && array.length > 0) {
@@ -48,19 +43,10 @@ public class Configuration {
 	 * @return the property
 	 */
 	public static String getProperty(String key) {
-		return props.getProperty(key);
+		return Platform.config.getString(key);
 	}
     
     public static void registerNewGraph(String graphId){
     	graphIds.add(graphId);
     }
-    
-    public static void loadProperties(Map<String, Object> properties) {
-    	props.putAll(properties);
-	}
-	
-	public static void loadProperties(Properties properties) {
-		props.putAll(properties);
-	}
-
 }

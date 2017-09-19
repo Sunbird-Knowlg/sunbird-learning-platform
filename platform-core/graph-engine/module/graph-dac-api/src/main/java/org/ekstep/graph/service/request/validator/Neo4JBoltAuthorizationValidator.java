@@ -8,11 +8,11 @@ import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.util.RedisStoreUtil;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
 public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
@@ -91,7 +91,7 @@ public class Neo4JBoltAuthorizationValidator extends Neo4JBoltBaseValidator {
 	}
 
 	private boolean isAuthEnabled(){
-		String authEnabled = Configuration.getProperty(DACConfigurationConstants.AUTHORIZATION_ENABLED_PROPERTY);
+		String authEnabled = Platform.config.getString(DACConfigurationConstants.AUTHORIZATION_ENABLED_PROPERTY);
 		
 		if(authEnabled!=null)
 			return Boolean.parseBoolean(authEnabled);

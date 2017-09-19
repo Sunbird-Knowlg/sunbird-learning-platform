@@ -3,8 +3,8 @@ package org.ekstep.graph.service.util;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.graph.service.common.DACConfigurationConstants;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.common.mgr.Configuration;
 
 public class PassportUtil {
 
@@ -14,7 +14,7 @@ public class PassportUtil {
 		boolean isValidPassportKey = false;
 
 		// Read the 'graph.passport.key.base' in Graph Properties
-		String graphPassportKeyBase = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		String graphPassportKeyBase = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		PlatformLogger.log("Passport Key Base: " + graphPassportKeyBase);
 		PlatformLogger.log("G_P_K: " + passportKey);
 

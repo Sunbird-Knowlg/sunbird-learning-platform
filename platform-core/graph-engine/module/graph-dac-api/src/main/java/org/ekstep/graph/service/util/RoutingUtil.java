@@ -7,8 +7,8 @@ import org.ekstep.graph.service.common.DACErrorMessageConstants;
 import org.ekstep.graph.service.common.GraphOperation;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
-import com.ilimi.graph.common.mgr.Configuration;
 
 public class RoutingUtil {
 
@@ -22,12 +22,12 @@ public class RoutingUtil {
 
 		String routeUrl = "bolt://localhost:7687";
 		try {
-			String path = Configuration.getProperty(
+			String path = Platform.config.getString(
 					DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX + StringUtils.lowerCase(graphOperation.name())
 							+ DACConfigurationConstants.DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR + graphId);
 			PlatformLogger.log("Request path for graph: " + graphId + " | URL: " + path);
 			if (StringUtils.isBlank(path)) {
-				path = Configuration.getProperty(DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX
+				path = Platform.config.getString(DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX
 						+ StringUtils.lowerCase(graphOperation.name())
 						+ DACConfigurationConstants.DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR
 						+ DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID);

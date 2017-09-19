@@ -5,6 +5,8 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.ilimi.common.Platform;
+
 // TODO: Auto-generated Javadoc
 /**
  * The Class GraphUtil, provides graph related operations like getDataNode.
@@ -29,7 +31,7 @@ public class GraphUtil {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static Map<String, Object> getDataNode(String graphId, String identifier) throws Exception {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v1/graph/" + graphId + "/datanodes/"
+		String url = Platform.config.getString("platform-api-url") + "/v1/graph/" + graphId + "/datanodes/"
 				+ identifier;
 		String result = HTTPUtil.makeGetRequest(url);
 		Map<String, Object> definitionObject = mapper.readValue(result, new TypeReference<Map<String, Object>>() {
