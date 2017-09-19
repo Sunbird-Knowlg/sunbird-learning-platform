@@ -19,10 +19,11 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.searchindex.util.ObjectDefinitionCache;
-import org.ekstep.searchindex.util.PropertiesUtil;
-import com.ilimi.graph.common.mgr.Configuration;
+
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValueFactory;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
@@ -40,9 +41,9 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		PropertiesUtil.loadProperties(props);
+		ConfigObject conf = ConfigValueFactory.fromMap(props);
+		ConfigFactory.load(conf.toConfig());
 		LOGGER.info("Service config initialized");
-		Configuration.loadProperties(props);
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
@@ -108,7 +109,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
-				ObjectDefinitionCache.resyncDefinition(objectType, graphId);
+				util.getDefinition(graphId, objectType);
 			}
 			}
 		}
