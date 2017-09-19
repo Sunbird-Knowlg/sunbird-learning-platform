@@ -7,6 +7,8 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.ilimi.common.Platform;
+
 @SuppressWarnings("rawtypes")
 public class ObjectDefinitionCache {
 
@@ -53,7 +55,7 @@ public class ObjectDefinitionCache {
     }
     
 	private static void getDefinitionFromGraph(String objectType, String graphId) throws Exception {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/taxonomy/" + graphId + "/definition/"
+		String url = Platform.config.getString("platform-api-url") + "/taxonomy/" + graphId + "/definition/"
 				+ objectType;
 		String result = HTTPUtil.makeGetRequest(url);
 		Map<String, Object> definitionObject = mapper.readValue(result,

@@ -25,6 +25,9 @@ import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValueFactory;
 
 public class ObjectLifecycleService implements ISamzaService {
 	
@@ -43,7 +46,8 @@ public class ObjectLifecycleService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		Configuration.loadProperties(props);
+		ConfigObject conf = ConfigValueFactory.fromMap(props);
+		ConfigFactory.load(conf.toConfig());
 		LOGGER.info("Service config initialized");
 		digest = MessageDigest.getInstance("MD5");
 		LearningRequestRouterPool.init();

@@ -25,7 +25,6 @@ import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.cache.factory.JedisFactory;
@@ -35,6 +34,9 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.enums.CollectionTypes;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValueFactory;
 
 public class ContentEnrichmentService implements ISamzaService {
 
@@ -61,9 +63,8 @@ public class ContentEnrichmentService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		S3PropertyReader.loadProperties(props);
-		Configuration.loadProperties(props);
-		PropertiesUtil.loadProperties(props);
+		ConfigObject conf = ConfigValueFactory.fromMap(props);
+		ConfigFactory.load(conf.toConfig());
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Actors initialized");

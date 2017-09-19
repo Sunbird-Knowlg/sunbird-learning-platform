@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.util.HttpDownloadUtility;
-import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.ImageWorkflowEnums;
 import org.ekstep.jobs.samza.util.JobLogger;
@@ -26,8 +25,10 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValueFactory;
 
 public class ImageTaggingService implements ISamzaService {
 
@@ -44,8 +45,8 @@ public class ImageTaggingService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		S3PropertyReader.loadProperties(props);
-		Configuration.loadProperties(props);
+		ConfigObject conf = ConfigValueFactory.fromMap(props);
+		ConfigFactory.load(conf.toConfig());
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");

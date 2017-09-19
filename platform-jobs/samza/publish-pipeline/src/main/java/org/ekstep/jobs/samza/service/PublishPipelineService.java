@@ -10,12 +10,10 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.PublishWebHookInvoker;
-import org.ekstep.contentstore.util.CassandraConnector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
@@ -23,7 +21,6 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
@@ -52,13 +49,9 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
 		ConfigFactory.load(conf.toConfig());
-		S3PropertyReader.loadProperties(props);
-		Configuration.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");	
-		CassandraConnector.loadProperties(props);
-		LOGGER.info("Cassandra connection initialized");
 		JedisFactory.initialize(props);
 		LOGGER.info("Redis connection factory initialized");
 	}
