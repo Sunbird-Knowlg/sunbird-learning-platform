@@ -18,9 +18,9 @@ import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ControllerUtil;
 
 import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
-
-
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValueFactory;
 
 public class WordEnrichmentService implements ISamzaService {
 
@@ -40,9 +40,8 @@ public class WordEnrichmentService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		Configuration.loadProperties(props);
-		org.ekstep.language.util.PropertiesUtil.loadProperties(props);
-		org.ekstep.searchindex.util.PropertiesUtil.loadProperties(props);
+		ConfigObject conf = ConfigValueFactory.fromMap(props);
+		ConfigFactory.load(conf.toConfig());
 		LanguageMap.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LanguageRequestRouterPool.init();
@@ -123,6 +122,7 @@ public class WordEnrichmentService implements ISamzaService {
         return transactionMap;   
 	}
 	
+	@SuppressWarnings("unchecked")
 	public boolean checkPropertyExist(Map<String,Object> transactionData, String property) {
 		Map<String, Object> properties = (Map<String, Object>) transactionData.get(property);
 		if (properties != null && !properties.isEmpty()) {
@@ -131,6 +131,7 @@ public class WordEnrichmentService implements ISamzaService {
 		return false;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public boolean checkPropertyListExist(Map<String,Object> transactionData, String property) {
 		List<Map<String, Object>> properties = (List<Map<String, Object>>) transactionData.get(property);
 		if (properties != null && !properties.isEmpty()) {

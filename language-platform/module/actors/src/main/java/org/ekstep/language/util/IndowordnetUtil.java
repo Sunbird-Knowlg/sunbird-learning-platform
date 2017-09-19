@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.Util.HibernateSessionFactory;
 import org.ekstep.language.Util.IndowordnetConstants;
-import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -22,8 +21,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ServerException;
@@ -40,9 +39,6 @@ import akka.actor.ActorRef;
  * 
  */
 public class IndowordnetUtil {
-
-	/** The mapper. */
-	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The comma separator. */
 	private final String COMMA_SEPARATOR = ",";
@@ -82,7 +78,7 @@ public class IndowordnetUtil {
 		int totalCount = 0;
 		long startTime = 0l;
 		long endTime = 0l;
-		String language = LanguageMap.getLanguage(languageGraphId);
+		String language = Platform.config.getString(languageGraphId);
 		if (languageGraphId != null) {
 			List<String> errorMessages = new ArrayList<String>();
 			Map<String, String> wordLemmaMap = new HashMap<String, String>();

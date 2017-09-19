@@ -12,8 +12,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
@@ -169,7 +169,7 @@ public class LanguageEnrichmentMessageProcessor extends BaseProcessor implements
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map<String, Object> getComplexityMeasures(String languageId, String text) throws Exception {
 
-		String api_url = PropertiesUtil.getProperty("language-api-url") + "/v1/language/tools/complexityMeasures/text";
+		String api_url = Platform.config.getString("language-api-url") + "/v1/language/tools/complexityMeasures/text";
 
 		Map<String, Object> request_map = new HashMap<String, Object>();
 		Map<String, Object> requestObj = new HashMap<String, Object>();

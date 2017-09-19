@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
@@ -29,10 +30,7 @@ import redis.clients.jedis.JedisPoolConfig;
  * @author Karthik
  */
 public class WordCacheUtil {
-
-	/** The LOGGER. */
 	
-
 	/** The jedis pool. */
 	private static JedisPool jedisPool;
 
@@ -82,18 +80,18 @@ public class WordCacheUtil {
 	}
 
 	static {
-		String redisHost = PropertiesUtil.getProperty("redis.host");
+		String redisHost = Platform.config.getString("redis.host");
 		if (StringUtils.isNotBlank(redisHost))
 			host = redisHost;
-		String redisPort = PropertiesUtil.getProperty("redis.port");
+		String redisPort = Platform.config.getString("redis.port");
 		if (StringUtils.isNotBlank(redisPort)) {
 			port = Integer.parseInt(redisPort);
 		}
-		String redisMaxConn = PropertiesUtil.getProperty("redis.maxConnections");
+		String redisMaxConn = Platform.config.getString("redis.maxConnections");
 		if (StringUtils.isNotBlank(redisMaxConn)) {
 			maxConnections = Integer.parseInt(redisMaxConn);
 		}
-		String dbIndex = PropertiesUtil.getProperty("redis.dbIndex");
+		String dbIndex = Platform.config.getString("redis.dbIndex");
 		if (StringUtils.isNotBlank(dbIndex)) {
 			index = Integer.parseInt(dbIndex);
 		}

@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.UnzipUtility;
-import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.LanguageSourceTypeMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -42,6 +41,7 @@ import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -154,7 +154,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	 */
 	@Override
 	public Response importJSON(String languageId, InputStream synsetsStreamInZIPStream) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId) || !Platform.config.hasPath(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (null == synsetsStreamInZIPStream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Input Zip object is emtpy");
@@ -547,7 +547,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	 */
 	@Override
 	public Response transformData(String languageId, String sourceId, InputStream stream) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId) || !Platform.config.hasPath(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(sourceId) || !LanguageSourceTypeMap.containsSourceType(sourceId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_SOURCE_TYPE.name(), "Invalid Source Id");
@@ -617,7 +617,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	 */
 	@Override
 	public Response importData(String languageId, InputStream synsetStream, InputStream wordStream) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId) || !Platform.config.hasPath(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (null == synsetStream)
 			throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Synset object is emtpy");

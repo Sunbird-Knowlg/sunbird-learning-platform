@@ -47,7 +47,6 @@ import net.sf.json.util.JSONStringer;
 
 public class ElasticSearchUtil {
 
-	
 	private JestClient client;
 	private String hostName;
 	private int port;

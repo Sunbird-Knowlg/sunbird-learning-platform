@@ -21,7 +21,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
-import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -29,7 +28,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
@@ -60,9 +58,6 @@ public class WordEnrichmentServiceTest extends BaseTest{
 	@BeforeClass
 	public static void init() throws Exception{
 		Map<String, Object> props = new HashMap<String, Object>();
-		Configuration.loadProperties(props);
-		org.ekstep.language.util.PropertiesUtil.loadProperties(props);
-		org.ekstep.searchindex.util.PropertiesUtil.loadProperties(props);
 		LanguageMap.loadProperties(props);
 		LanguageRequestRouterPool.init();
 		JedisFactory.initialize(props);

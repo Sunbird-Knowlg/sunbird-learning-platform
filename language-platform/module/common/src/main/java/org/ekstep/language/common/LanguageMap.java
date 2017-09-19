@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.ekstep.language.util.PropertiesUtil;
-
 import com.ilimi.common.logger.PlatformLogger;
 
 /**
@@ -30,7 +28,7 @@ public class LanguageMap {
 
 	static {
 		String filename = "language-map.properties";
-		try (InputStream input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename)){
+		try (InputStream input = LanguageMap.class.getClassLoader().getResourceAsStream(filename)){
 			// loads the data from the properties file into two maps. One with
 			// Graph Id to Language name mapping and one with Language name to
 			// Graph Id mapping.
