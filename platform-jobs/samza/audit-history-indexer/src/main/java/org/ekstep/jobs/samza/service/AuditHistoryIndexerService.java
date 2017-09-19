@@ -18,10 +18,12 @@ import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.AuditHistoryConstants;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigObject;
+import com.typesafe.config.ConfigValueFactory;
 
 /**
  * The Class AuditHistoryService provides implementations of the core operations defined in the IMessageProcessor along
@@ -52,8 +54,8 @@ public class AuditHistoryIndexerService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		PropertiesUtil.loadProperties(props);
-		LOGGER.info("Service config initialized");
+		ConfigObject conf = ConfigValueFactory.fromMap(props);
+		ConfigFactory.load(conf.toConfig());
 		esUtil = new ElasticSearchUtil();
 		// Create index if not found
 		String settings = "{\"settings\":{\"index\":{\"index\":\""
