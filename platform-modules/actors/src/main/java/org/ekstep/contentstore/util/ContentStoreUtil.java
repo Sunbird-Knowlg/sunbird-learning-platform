@@ -33,6 +33,11 @@ public class ContentStoreUtil {
 	private static String keyspaceName = Platform.config.getString("keyspace.name");
 	private static String keyspaceTable = Platform.config.getString("keyspace.table");
     
+	public static void loadProperties(Map<String, Object> prop) {
+		keyspaceName = (String) prop.get("keyspace.name");
+		keyspaceTable = (String) prop.get("keyspace.table");
+	}
+	
 	public static void updateContentBody(String contentId, String body) {
 		updateContentProperty(contentId, "body", body);
 	}
