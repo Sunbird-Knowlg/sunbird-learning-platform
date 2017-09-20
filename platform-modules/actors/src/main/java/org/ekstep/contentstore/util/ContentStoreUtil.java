@@ -30,12 +30,18 @@ public class ContentStoreUtil {
 	private static final String PROPERTY_SUFFIX = "__txt";
 	
 	private static DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-	private static String keyspaceName = Platform.config.getString("keyspace.name");
-	private static String keyspaceTable = Platform.config.getString("keyspace.table");
+	private static String keyspaceName = "";
+	private static String keyspaceTable = "content_data";
+	
+	public static String getKeyspaceName() {
+		if (StringUtils.isBlank(keyspaceName) && Platform.config.hasPath("keyspace.name")) 
+			return Platform.config.getString("keyspace.name");
+		else 
+			return keyspaceName;
+	}
     
 	public static void loadProperties(Map<String, Object> prop) {
 		keyspaceName = (String) prop.get("keyspace.name");
-		keyspaceTable = (String) prop.get("keyspace.table");
 	}
 	
 	public static void updateContentBody(String contentId, String body) {
@@ -165,8 +171,8 @@ public class ContentStoreUtil {
 		StringBuilder sb = new StringBuilder();
 		if (StringUtils.isNotBlank(property)) {
 			sb.append("select blobAsText(").append(property).append(") as ");
-			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " +keyspaceName+"."+keyspaceTable  +  " where content_id = ?");
-			PlatformLogger.log("Fetched keyspace names for get Operation: " + keyspaceName + keyspaceTable, null, LoggerEnum.INFO.name());
+			sb.append(property.trim()).append(PROPERTY_SUFFIX).append(" from " + getKeyspaceName() +"."+keyspaceTable  +  " where content_id = ?");
+			PlatformLogger.log("Fetched keyspace names for get Operation: " + getKeyspaceName() + keyspaceTable, null, LoggerEnum.INFO.name());
 		}
 		return sb.toString();
 	}
@@ -185,7 +191,7 @@ public class ContentStoreUtil {
 				selectFields.append(property.trim()).append(PROPERTY_SUFFIX).append(", ");
 			}
 			sb.append(StringUtils.removeEnd(selectFields.toString(), ", "));
-			sb.append(" from " +keyspaceName+"."+keyspaceTable + " where content_id = ?");
+			sb.append(" from " + getKeyspaceName() +"."+keyspaceTable + " where content_id = ?");
 		}
 		return sb.toString();
 	}
@@ -193,9 +199,9 @@ public class ContentStoreUtil {
 	private static String getUpdateQuery(String property) {
 		StringBuilder sb = new StringBuilder();
 		if (StringUtils.isNotBlank(property)) {
-			sb.append("UPDATE " +keyspaceName+"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
+			sb.append("UPDATE " + getKeyspaceName() +"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
 			sb.append(property.trim()).append(" = textAsBlob(?) where content_id = ?");
-			PlatformLogger.log("Fetched keyspace names for update Operation: " + keyspaceName + keyspaceTable, null, LoggerEnum.INFO.name());
+			PlatformLogger.log("Fetched keyspace names for update Operation: " + getKeyspaceName() + keyspaceTable, null, LoggerEnum.INFO.name());
 		}
 		return sb.toString();
 	}
@@ -203,7 +209,7 @@ public class ContentStoreUtil {
 	private static String getUpdateQuery(Set<String> properties) {
 		StringBuilder sb = new StringBuilder();
 		if (null != properties && !properties.isEmpty()) {
-			sb.append("UPDATE " +keyspaceName+"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
+			sb.append("UPDATE " + getKeyspaceName() +"."+keyspaceTable + " SET last_updated_on = dateOf(now()), ");
 			StringBuilder updateFields = new StringBuilder();
 			for (String property : properties) {
 				if (StringUtils.isBlank(property))
