@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
+import com.typesafe.config.ConfigValue;
 
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -104,11 +105,10 @@ public class ElasticSearchUtil {
 	}
 
 	public List<String> getQuerySearchFields() {
-		String querySearchFieldsProperty = Platform.config.getString("query-search-fields");
 		List<String> querySearchFields = new ArrayList<String>();
-		if (querySearchFieldsProperty != null && !querySearchFieldsProperty.isEmpty()) {
-			String[] querySearchFieldsArray = querySearchFieldsProperty.split(",");
-			querySearchFields = Arrays.asList(querySearchFieldsArray);
+		List<ConfigValue> querySearchFieldsProperty = Platform.config.getList("query-search-fields");
+		for(ConfigValue conf : querySearchFieldsProperty){
+			querySearchFields.add(conf.unwrapped().toString());
 		}
 		return querySearchFields;
 	}

@@ -9,8 +9,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.GraphUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -130,7 +130,7 @@ public class FlagParentContentProcessor implements IMessageProcessor {
 	 */
 	private void flagContent(String contentId, List<String> flagReasons, String flaggedBy, String versionKey)
 			throws Exception {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v2/content/flag/" + contentId;
+		String url = Platform.config.getString("platform-api-url") + "/v2/content/flag/" + contentId;
 
 		Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 		Map<String, Object> requestMap = new HashMap<String, Object>();

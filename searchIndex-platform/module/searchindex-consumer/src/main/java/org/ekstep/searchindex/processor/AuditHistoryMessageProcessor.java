@@ -11,8 +11,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-
-import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
