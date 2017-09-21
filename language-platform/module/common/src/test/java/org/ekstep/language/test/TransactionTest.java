@@ -2,6 +2,7 @@ package org.ekstep.language.test;
 
 import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -9,7 +10,7 @@ import org.neo4j.graphdb.Transaction;
 
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
-
+@Ignore
 public class TransactionTest {
 
 	private Neo4JTransactionEventHandler transEventHandler = null;
@@ -17,7 +18,7 @@ public class TransactionTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void TransactionTestTest() {
-		GraphDatabaseService hiGraphDb = Neo4jGraphFactory.getGraphDb("test");
+		GraphDatabaseService hiGraphDb = Neo4jGraphFactory.getGraphDb("domain");
 		GraphDatabaseService kaGraphDb = Neo4jGraphFactory.getGraphDb("testOne");
 
 		transEventHandler = new Neo4JTransactionEventHandler("test", hiGraphDb);
