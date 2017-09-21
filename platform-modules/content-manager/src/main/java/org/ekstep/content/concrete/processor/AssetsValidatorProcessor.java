@@ -106,7 +106,10 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	}
 	
 	private double getAssetFileSizeLimit() {
-		return Platform.config.getDouble(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name());
+		double size = 20971520;	
+		if(Platform.config.hasPath(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name()))
+			size = Platform.config.getDouble(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name());
+		return size;
 	}
 
 	private String getAssetPath(String type, String src) {
