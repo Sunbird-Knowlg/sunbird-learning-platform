@@ -20,8 +20,8 @@ import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
+import com.ilimi.common.Platform;
 import com.ilimi.graph.model.node.DefinitionDTO;
-import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -42,7 +42,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		ConfigFactory.load(conf.toConfig());
+		Platform.config.withFallback(conf);
 		LOGGER.info("Service config initialized");
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();

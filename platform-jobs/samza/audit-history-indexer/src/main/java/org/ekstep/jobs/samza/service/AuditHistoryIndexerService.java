@@ -19,9 +19,9 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.AuditHistoryConstants;
-import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -55,7 +55,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		ConfigFactory.load(conf.toConfig());
+		Platform.config.withFallback(conf);
 		esUtil = new ElasticSearchUtil();
 		// Create index if not found
 		String settings = "{\"settings\":{\"index\":{\"index\":\""

@@ -27,7 +27,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
@@ -60,7 +59,6 @@ public class WordEnrichmentServiceTest extends BaseTest{
 		Map<String, Object> props = new HashMap<String, Object>();
 		LanguageMap.loadProperties(props);
 		LanguageRequestRouterPool.init();
-		JedisFactory.initialize(props);
 		BaseTest.before();
 	}
 	

@@ -26,15 +26,13 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.enums.CollectionTypes;
-import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -64,12 +62,10 @@ public class ContentEnrichmentService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		ConfigFactory.load(conf.toConfig());
+		Platform.config.withFallback(conf);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Actors initialized");
-		JedisFactory.initialize(props);
-		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override

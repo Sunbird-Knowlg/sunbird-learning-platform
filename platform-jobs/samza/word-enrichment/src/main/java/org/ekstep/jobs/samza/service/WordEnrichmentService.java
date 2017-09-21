@@ -17,8 +17,7 @@ import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ControllerUtil;
 
-import com.ilimi.graph.cache.factory.JedisFactory;
-import com.typesafe.config.ConfigFactory;
+import com.ilimi.common.Platform;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -41,13 +40,11 @@ public class WordEnrichmentService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		ConfigFactory.load(conf.toConfig());
+		Platform.config.withFallback(conf);
 		LanguageMap.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LanguageRequestRouterPool.init();
 		LOGGER.info("Actors initialized");
-		JedisFactory.initialize(props);
-		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override
