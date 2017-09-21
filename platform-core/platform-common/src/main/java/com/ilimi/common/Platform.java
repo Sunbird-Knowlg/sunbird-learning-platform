@@ -14,6 +14,6 @@ public class Platform {
 	private static Config envConf = ConfigFactory.systemEnvironment();
 	public static Config config = defaultConf.withFallback(envConf);
 	public static void loadProperties(Config conf){
-		config = defaultConf.withFallback(conf);
+		config = config.withFallback(conf);
 	}
 }
