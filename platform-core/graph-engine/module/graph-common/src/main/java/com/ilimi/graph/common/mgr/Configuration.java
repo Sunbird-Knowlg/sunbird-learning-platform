@@ -2,7 +2,6 @@ package com.ilimi.graph.common.mgr;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.Platform;
 import com.ilimi.common.logger.LoggerEnum;
@@ -19,16 +18,7 @@ public class Configuration {
             if (timeout > 0) {
                 TIMEOUT = timeout * 1000;
             }
-            String ids = Platform.config.getString("graph.ids");
-            if (StringUtils.isNotBlank(ids)) {
-            	String[] array = ids.split(",");
-            	if (null != array && array.length > 0) {
-            		for (String id : array) {
-            			if (StringUtils.isNotBlank(id))
-            				graphIds.add(id);
-            		}
-            	}
-            }
+             graphIds = Platform.config.getStringList("graph.ids");
         } catch (Exception e) {
         	PlatformLogger.log("Error! While Loading Graph Properties.", e.getMessage(),LoggerEnum.ERROR.name());
         }
