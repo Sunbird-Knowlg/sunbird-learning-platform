@@ -186,7 +186,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List list = mapper.readValue(strObject.toString(), List.class);
 				return list;
 			} catch (Exception e) {
-				PlatformLogger.log("Error! Exception", e.getMessage(), e);
+				//PlatformLogger.log("Error! Exception", e.getMessage(), e);
 				List<String> list = new ArrayList<String>();
 				list.add(object.toString());
 				return list;

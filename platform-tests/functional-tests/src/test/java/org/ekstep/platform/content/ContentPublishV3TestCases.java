@@ -26,7 +26,8 @@ package org.ekstep.platform.content;
 	import org.json.JSONException;
 	//import org.hamcrest.CoreMatchers;
 	import org.json.JSONObject;
-	import org.junit.AfterClass;
+import org.junit.After;
+import org.junit.AfterClass;
 	import org.junit.Assert;
 	import org.junit.Before;
 	import org.junit.BeforeClass;
@@ -69,7 +70,7 @@ import net.lingala.zip4j.core.ZipFile;
 		String invalidContentId = "LP_NFT"+rn+"";
 		String malformedXMLBody = "xml version=\"1.0\" ";
 		String malformedJSONBody = "{\"theme\":{\"manifes77\",\"scribble\":[],\"htext\":[],\"g\":[]}";
-		String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT\"}}";
+		String jsonContentClean = "{\"request\": {\"searchProperty\": \"identifier\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT\"}}";
 		
 		static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 		static URL url = classLoader.getResource("DownloadedFiles");
@@ -86,9 +87,8 @@ import net.lingala.zip4j.core.ZipFile;
 			//FileUtils.cleanDirectory(downloadPath);
 		}
 		
-		@Before
-		public void cleanup() {
-			contentCleanUp();
+		@After
+		public void CleanUp(){
 		}
 		
 		
@@ -112,7 +112,7 @@ import net.lingala.zip4j.core.ZipFile;
 //					when().
 //					post("/content/v3/publish/" + identifier).
 //					then().
-//					log().all().
+//					//log().all().
 //					extract().response();
 //					
 //					JsonPath jp = R.jsonPath();
@@ -132,7 +132,7 @@ import net.lingala.zip4j.core.ZipFile;
 //						when().
 //						patch("/content/v3/update/"+identifier).
 //						then().
-//						log().all().
+//						//log().all().
 //						spec(get200ResponseSpec());				
 //						
 //					}
@@ -145,7 +145,7 @@ import net.lingala.zip4j.core.ZipFile;
 //						when().
 //						patch("/content/v3/update/"+identifier).
 //						then().
-//						log().all().
+//						//log().all().
 //						spec(get200ResponseSpec());				
 //					}
 //					else if(domain.contains("numeracy")){
@@ -157,7 +157,7 @@ import net.lingala.zip4j.core.ZipFile;
 //						when().
 //						patch("/content/v3/update/"+identifier).
 //						then().
-//						log().all().
+//						//log().all().
 //						spec(get200ResponseSpec());
 //					}
 //				}
@@ -188,14 +188,14 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					post("content/v3/create").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
 
 			// Extracting the JSON path
 			JsonPath jp = R.jsonPath();
-			String ecmlNode = jp.get("result.node_id");
+			String nodeId = jp.get("result.node_id");
 
 			// Get content and validate
 			setURI();
@@ -203,7 +203,7 @@ import net.lingala.zip4j.core.ZipFile;
 					given().
 					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
-					get("/content/v3/read/"+ecmlNode).
+					get("/content/v3/read/"+nodeId).
 					then().
 					//log().all().
 					spec(get200ResponseSpec()).
@@ -214,7 +214,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String identifier = jP1.get("result.content.identifier");
 			String versionKey = jP1.get("result.content.versionKey");
 			Assert.assertTrue(versionKey!=null);
-			Assert.assertEquals(ecmlNode, identifier);
+			Assert.assertEquals(nodeId, identifier);
 		}
 
 		@Ignore
@@ -229,14 +229,14 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					post("content/v3/create").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
 
 			// Extracting the JSON path
 			JsonPath jp = R.jsonPath();
-			String ecmlNode = jp.get("result.node_id");
+			String nodeId = jp.get("result.node_id");
 
 			// Get content and validate
 			setURI();
@@ -244,7 +244,7 @@ import net.lingala.zip4j.core.ZipFile;
 					given().
 					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
-					get("/content/v3/read/"+ecmlNode).
+					get("/content/v3/read/"+nodeId).
 					then().
 					//log().all().
 					spec(get200ResponseSpec()).
@@ -255,7 +255,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String identifier = jP1.get("result.content.identifier");
 			String versionKey = jP1.get("result.content.versionKey");
 			Assert.assertTrue(versionKey!=null);
-			Assert.assertEquals(ecmlNode, identifier);
+			Assert.assertEquals(nodeId, identifier);
 
 		}
 		// Create and get valid HTML
@@ -281,7 +281,7 @@ import net.lingala.zip4j.core.ZipFile;
 
 			// Extracting the JSON path
 			JsonPath jp = R.jsonPath();
-			String htmlNode = jp.get("result.node_id");
+			String nodeId = jp.get("result.node_id");
 
 			// Get content and check
 			setURI();
@@ -289,7 +289,7 @@ import net.lingala.zip4j.core.ZipFile;
 					given().
 					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
-					get("/content/v3/read/"+htmlNode).
+					get("/content/v3/read/"+nodeId).
 					then().
 					//log().all().
 					spec(get200ResponseSpec()).
@@ -326,7 +326,7 @@ import net.lingala.zip4j.core.ZipFile;
 
 			// Extracting the JSON path
 			JsonPath jp = R.jsonPath();
-			String apkNode = jp.get("result.node_id");
+			String nodeId = jp.get("result.node_id");
 
 			// Get content and check
 			setURI();
@@ -334,7 +334,7 @@ import net.lingala.zip4j.core.ZipFile;
 					given().
 					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
-					get("/content/v3/read/"+apkNode).
+					get("/content/v3/read/"+nodeId).
 					then().
 					//log().all().
 					spec(get200ResponseSpec()).
@@ -345,7 +345,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String identifier = jP1.get("result.content.identifier");
 			String versionKey = jP1.get("result.content.versionKey");
 			Assert.assertTrue(versionKey!=null);
-			Assert.assertEquals(apkNode, identifier);
+			Assert.assertEquals(nodeId, identifier);
 		}
 
 		// Create and get new collection
@@ -404,7 +404,7 @@ import net.lingala.zip4j.core.ZipFile;
 
 			// Get collection and validate
 			JsonPath jp1 = R1.jsonPath();
-			String collectionNode = jp1.get("result.node_id");
+			String nodeId = jp1.get("result.node_id");
 
 			// Get collection
 			setURI();
@@ -412,7 +412,7 @@ import net.lingala.zip4j.core.ZipFile;
 					given().
 					spec(getRequestSpecification(contentType, userId, APIToken)).
 					when().
-					get("/content/v3/read/"+collectionNode).
+					get("/content/v3/read/"+nodeId).
 					then().
 					//log().all().
 					spec(get200ResponseSpec()).
@@ -720,7 +720,7 @@ import net.lingala.zip4j.core.ZipFile;
 					post("/content/v3/create").
 					then().
 					spec(get200ResponseSpec()).
-					log().all().
+					//log().all().
 					extract().
 					response();	
 
@@ -736,7 +736,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			post("/content/v3/upload/"+nodeId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 
 			// Publish created content
@@ -748,7 +748,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			post("/content/v3/publish/"+nodeId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 			
@@ -796,7 +796,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			get("content/v3/read/"+nodeId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec()).
 			extract().response();
 			
@@ -1044,7 +1044,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			post("/content/v3/upload/"+nodeId).
 			then().
-			log().all().
+			//log().all().
 			spec(get400ResponseSpec());
 		}
 
@@ -1386,7 +1386,7 @@ import net.lingala.zip4j.core.ZipFile;
 		}
 
 		// Review authoring tool created content
-		@Test
+		@Ignore
 		public void reivewATContentExpectSuccess200(){
 			setURI();
 			Response R =
@@ -1398,7 +1398,7 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					post("content/v3/create").
 					then().
-					log().all().
+					//log().all().
 					//spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -1409,6 +1409,7 @@ import net.lingala.zip4j.core.ZipFile;
 			String versionKey = jp.get("result.versionKey");
 			
 			// Update content body
+			try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 			setURI();
 			jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
 			given().
@@ -1419,7 +1420,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			patch("/content/v3/update/"+nodeId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());	
 			
 			// Get content and validate
@@ -1484,7 +1485,7 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					post("content/v3/create").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -1501,7 +1502,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			post("/content/v3/upload/"+nodeId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 		
 			// Get body and validate
@@ -2273,7 +2274,7 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -2304,7 +2305,7 @@ import net.lingala.zip4j.core.ZipFile;
 					when().
 					get("/content/v3/read/"+nodeId+"?fields=body").
 					then().
-					log().all().
+					//log().all().
 					spec(get200ResponseSpec()).
 					extract().
 					response();
@@ -3084,7 +3085,7 @@ import net.lingala.zip4j.core.ZipFile;
 		}
 
 		// Create, upload, publish and validate valid collection with contents created from authoring tool
-		@Test
+		@Ignore
 		public void publishValidCollectionWithATContentsExpectSuccess200(){
 			String node1 = null;
 			String node2 = null;
@@ -3487,7 +3488,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			patch("/content/v3/update/"+nodeId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 		}
 		
@@ -4734,7 +4735,7 @@ import net.lingala.zip4j.core.ZipFile;
 						when().
 						post("content/v3/create").
 						then().
-						log().all().
+						//log().all().
 						spec(get200ResponseSpec()).
 						extract().
 						response();
@@ -4975,7 +4976,7 @@ import net.lingala.zip4j.core.ZipFile;
 			when().
 			post("/content/v3/publish/"+textBookId).
 			then().
-			log().all().
+			//log().all().
 			spec(get200ResponseSpec());
 
 			// Get content and validate
@@ -6243,7 +6244,7 @@ import net.lingala.zip4j.core.ZipFile;
 							when().
 							post("content/v3/create").
 							then().
-							log().all().
+							//log().all().
 							spec(get200ResponseSpec()).
 							extract().
 							response();
@@ -6862,14 +6863,14 @@ import net.lingala.zip4j.core.ZipFile;
 
 		
 		// Content clean up	
-		public void contentCleanUp(){
+		public void contentCleanUp(String nodeId){
 			setURI();
 			given().
-			body(jsonContentClean).
-			with().
-			contentType(JSON).
+			spec(getRequestSpecification(contentType, userId, APIToken)).
 			when().
-			post("learning/v1/exec/content_qe_deleteContentBySearchStringInField");
+			post("/content/v3/retire/"+nodeId).
+			then().
+			spec(get200ResponseSpec());
 		}
 
 		// Private Members
@@ -6909,8 +6910,9 @@ import net.lingala.zip4j.core.ZipFile;
 			setURI();
 			given().
 			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
 			when().
-			get("/content/v3/publish/"+nodeId).
+			post("/content/v3/publish/"+nodeId).
 			then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -6990,6 +6992,7 @@ import net.lingala.zip4j.core.ZipFile;
 			//Float pkgVersionActual = jP1.get("result.content.pkgVersion");
 			//System.out.println(pkgVersionActual);
 			Float size = jP1.get("result.content.size");
+			
 			// Downloading the zip file from artifact url and ecar from download url and saving with different name
 
 			String ecarName = "ecar_"+rn+"";

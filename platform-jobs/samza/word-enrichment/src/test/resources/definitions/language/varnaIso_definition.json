@@ -1,0 +1,133 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "Varna_ISO",
+      "properties": [
+        {
+          "propertyName": "isoSymbol",
+          "title": "ISO Symbol",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 1 }"
+        },
+        {
+            "propertyName": "type",
+            "title": "Type",
+            "description": "Type",
+            "category": "general",
+            "dataType": "Select",
+            "range":
+            [
+                "Vowel",
+                "Consonant",
+                "Other"
+            ],
+            "required": true,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Other",
+            "renderingHints": "{'inputType': 'select', 'order': 2}"
+        },
+        {
+          "propertyName": "phonoAttribVector",
+          "title": "Phono Attrib Vector",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'order': 3 }"
+        },
+        {
+          "propertyName": "audio",
+          "title": "Audio",
+          "description": "URL",
+          "category": "sampleData",
+          "dataType": "URL",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'teaxtarea',  'order': 4 }"
+        },
+        {
+          "propertyName": "reviewers",
+          "title": "Reviewers",
+          "description": "",
+          "category": "audit",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 5 }"
+        },
+        {
+          "propertyName": "lastUpdatedBy",
+          "title": "Last Updated By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 6 }"
+        },
+        {
+          "propertyName": "lastUpdatedOn",
+          "title": "Last Updated On",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 7 }"
+        },
+        {
+            "propertyName": "status",
+            "title": "Status",
+            "description": "Status of the domain",
+            "category": "audit",
+            "dataType": "Select",
+            "range":
+            [
+                "Draft",
+                "Live",
+                "Review",
+                "Retired"
+            ],
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Draft",
+            "renderingHints": "{'inputType': 'select', 'order': 8}"
+        }
+      ],
+      "inRelations": [
+      ],
+      "outRelations": [
+      ],
+      "systemTags": [],
+      "metadata": {
+        "ttl": 24,
+        "limit": 50
+      }
+    }
+  ]
+}
