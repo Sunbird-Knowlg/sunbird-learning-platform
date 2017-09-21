@@ -24,7 +24,6 @@ import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ClientException;
-import com.typesafe.config.ConfigList;
 
 /**
  * SSFParser parses files in Simple Shakti Format(SSF) and retrieves citations,
@@ -45,7 +44,7 @@ public class SSFParser {
 	private static int defaultTokenCountAfterWord = Platform.config.getInt("defaultTokenCountAfterWord");
 
 	/** The ignore start words. */
-	private static String[] ignoreStartWords;
+	private static List<String> ignoreStartWords;
 
 	/** The tag names. */
 	private static String[] tagNames;
@@ -68,7 +67,7 @@ public class SSFParser {
 	// Gets properties required for processing
 	static {
 		// all words starting with any of these properties will be ignored
-		ConfigList ignoreStartWordsList = Platform.config.getList("ignoreStartWordsList");
+		ignoreStartWords = Platform.config.getStringList("ignoreStartWordsList");
 		
 		// tag names in the in SSF file
 		String tagNamesList = Platform.config.getString("tagNamesList");

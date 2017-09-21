@@ -35,6 +35,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.language.cache.VarnaCache;
+import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -45,7 +46,6 @@ import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.esktep.search.util.CompositeSearchUtil;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.Platform;
 import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Property;
@@ -677,7 +677,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			}
 			addRelationsData(node, map);
 			map.put("identifier", node.getIdentifier());
-			map.put("language", Platform.config.getString(languageId));
+			map.put("language", LanguageMap.getLanguage(languageId));
 		}
 		return map;
 	}

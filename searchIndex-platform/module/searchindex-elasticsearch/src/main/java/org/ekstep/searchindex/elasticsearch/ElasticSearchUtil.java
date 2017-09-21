@@ -3,7 +3,6 @@ package org.ekstep.searchindex.elasticsearch;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +19,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
 import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
-import com.typesafe.config.ConfigValue;
-
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -105,17 +102,13 @@ public class ElasticSearchUtil {
 	}
 
 	public List<String> getQuerySearchFields() {
-		List<String> querySearchFields = new ArrayList<String>();
-		List<ConfigValue> querySearchFieldsProperty = Platform.config.getList("query-search-fields");
-		for(ConfigValue conf : querySearchFieldsProperty){
-			querySearchFields.add(conf.unwrapped().toString());
-		}
+		List<String> querySearchFields = Platform.config.getStringList("query-search-fields");
 		return querySearchFields;
 	}
 
 	public List<String> getDateFields() {
-		List<String> querySearchFields = Platform.config.getStringList("date-fields");
-		return querySearchFields;
+		List<String> dateFields = Platform.config.getStringList("date-fields");
+		return dateFields;
 	}
 
 	public String getTimeZone() {
