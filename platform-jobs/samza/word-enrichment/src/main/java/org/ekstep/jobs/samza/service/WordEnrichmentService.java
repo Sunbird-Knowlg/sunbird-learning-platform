@@ -40,7 +40,7 @@ public class WordEnrichmentService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.config.withFallback(conf);
+		Platform.loadProperties(conf.toConfig());
 		LanguageMap.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LanguageRequestRouterPool.init();

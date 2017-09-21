@@ -55,7 +55,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 			props.put(entry.getKey(), entry.getValue());
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.config.withFallback(conf);
+		Platform.loadProperties(conf.toConfig());
 		esUtil = new ElasticSearchUtil();
 		// Create index if not found
 		String settings = "{\"settings\":{\"index\":{\"index\":\""
