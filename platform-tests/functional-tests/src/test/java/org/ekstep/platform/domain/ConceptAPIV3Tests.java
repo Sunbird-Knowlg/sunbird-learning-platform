@@ -25,7 +25,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 
 
 	String conceptsUrl = "/learning/v2/domains/literacy/concepts";
-	String invalidConceptsUrl = "/learning/v2/domains/literacy/abc";
+	String invalidConceptsUrl = "/domain/v3/literacy/concepts/read/adcsad";
 
 	String jsonBodyForCreateConcept = "{\"request\":{\"object\":{\"identifier\":\"TEST_CONCEPT_"+rn+"\",\"description\":\"Test\",\"name\":\"Test\",\"code\":\"Test_QA\",\"parent\":[{\"identifier\":\"LD5\",\"name\":\"Reading Comprehension\",\"objectType\":\"Concept\",\"relation\":\"isParentOf\"}]}}}";
 	String jsonBodyForCreateDuplicateConcept = "{\"request\": {\"object\": {\"identifier\": \"TEST_DUPL_CONCEPT_"+rn+"\",\"description\": \"Duplicate Test\",\"name\": \"Duplicate_Test\",\"code\": \"Lit:Dim:Dupl\",\"parent\": [{\"identifier\": \"LD5\",\"name\": \"Reading Comprehension\",\"objectType\": \"Dimension\",\"relation\": \"isParentOf\"}]}}}";
@@ -90,7 +90,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 	}
 
 	@Test
-	public void getConceptsExpect400Error()
+	public void getConceptsExpect404Error()
 	{
 		setURI();
 		given().
@@ -98,7 +98,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		when().
 		get(invalidConceptsUrl).
 		then().
-		spec(get400ResponseSpec());
+		spec(get404ResponseSpec());
 	}
 
 	/***
@@ -143,7 +143,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 				when().
 				post("/domain/v3/literacy/concepts/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();

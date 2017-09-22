@@ -88,7 +88,6 @@ public class CompositeSearchV3TestCases extends BaseTest {
 		try{Thread.sleep(10000);}catch(InterruptedException e){System.out.println(e);} 
 		setURI();
 		String jsonSimpleQuery = jsonFilteredCompositeSearch.replace("identifierNew", ecmlNode);
-		System.out.println(jsonSimpleQuery);
 		Response R2 =
 		given().
 	 		spec(getRequestSpecification(contentType, userId, APIToken)).

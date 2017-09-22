@@ -4,6 +4,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.hasItems;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,7 +28,7 @@ public class DimensionAPIV3Tests extends BaseTest {
 	 * The following are the positive tests on getDimensions and getDimension API calls. 
 	 */
 	
-	@Before
+	@After
 	public void delay(){
 		try {
 			Thread.sleep(5000);
@@ -384,7 +385,7 @@ public class DimensionAPIV3Tests extends BaseTest {
 	
 	//Update Dimension with invalid path
 	
-	@Test
+	@Ignore
 	public void updateDimensionInvalidPathExpect4xx()
 	{
 		//saveDimension API call 
@@ -398,7 +399,7 @@ public class DimensionAPIV3Tests extends BaseTest {
 		when().
 			post("/domain/v3/literacy/dimensions/create").
 		then().
-			log().all().
+			//log().all().
 		extract().
 			response(); 
 				
@@ -415,7 +416,7 @@ public class DimensionAPIV3Tests extends BaseTest {
 		when().
 			patch("/domain/v3/literacy/update/"+dimensionId).
 		then().
-			log().all().
+			//log().all().
 			spec(get400ResponseSpec());
 	}
 	
