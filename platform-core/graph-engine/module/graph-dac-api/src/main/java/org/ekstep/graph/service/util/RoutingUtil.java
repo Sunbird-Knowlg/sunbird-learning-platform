@@ -8,6 +8,7 @@ import org.ekstep.graph.service.common.GraphOperation;
 import org.neo4j.driver.v1.exceptions.ClientException;
 
 import com.ilimi.common.Platform;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
 public class RoutingUtil {
@@ -26,13 +27,13 @@ public class RoutingUtil {
 							+ DACConfigurationConstants.DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR;
 
 			if (Platform.config.hasPath(baseKey + graphId)) {
-				routeUrl = Platform.config.getString(baseKey + graphId)
+				routeUrl = Platform.config.getString(baseKey + graphId);
 			} else if (Platform.config.hasPath(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID)) {
 				routeUrl = Platform.config.getString(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID);
 			} else {
 				PlatformLogger.log("Graph connection configuration not defined.", LoggerEnum.WARN.name());
 			}
-			PlatformLogger.log("Request path for graph: " + graphId + " | URL: " + path);
+			PlatformLogger.log("Request path for graph: " + graphId + " | URL: " + routeUrl);
 		} catch (Exception e) {
 			PlatformLogger.log("Error fetching location from graph.properties", null, e);
 		}
