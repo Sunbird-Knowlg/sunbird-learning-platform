@@ -28,6 +28,8 @@ import redis.clients.jedis.JedisPoolConfig;
  * given word or similar sound word set from redis store
  * 
  * @author Karthik
+ *
+ * TODO: Should move this code to Cache-Manager OR Use Cache-Manager utils.
  */
 public class WordCacheUtil {
 	
@@ -80,21 +82,11 @@ public class WordCacheUtil {
 	}
 
 	static {
-		String redisHost = Platform.config.getString("redis.host");
-		if (StringUtils.isNotBlank(redisHost))
-			host = redisHost;
-		String redisPort = Platform.config.getString("redis.port");
-		if (StringUtils.isNotBlank(redisPort)) {
-			port = Integer.parseInt(redisPort);
-		}
-		String redisMaxConn = Platform.config.getString("redis.maxConnections");
-		if (StringUtils.isNotBlank(redisMaxConn)) {
-			maxConnections = Integer.parseInt(redisMaxConn);
-		}
-		String dbIndex = Platform.config.getString("redis.dbIndex");
-		if (StringUtils.isNotBlank(dbIndex)) {
-			index = Integer.parseInt(dbIndex);
-		}
+		if (Platform.config.hasPath("redis.host")) host = Platform.config.getString("redis.host");
+		if (Platform.config.hasPath("redis.port")) port = Platform.config.getInt("redis.port");
+		if (Platform.config.hasPath("redis.maxConnections")) maxConnections = Platform.config.getInt("redis.maxConnections");
+		if (Platform.config.hasPath("redis.dbIndex")) index = Platform.config.getInt("redis.dbIndex");
+
 		JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(maxConnections);
 		config.setBlockWhenExhausted(true);
