@@ -22,19 +22,17 @@ public class RoutingUtil {
 
 		String routeUrl = "bolt://localhost:7687";
 		try {
-			String path = Platform.config.getString(
-					DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX + StringUtils.lowerCase(graphOperation.name())
-							+ DACConfigurationConstants.DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR + graphId);
-			PlatformLogger.log("Request path for graph: " + graphId + " | URL: " + path);
-			if (StringUtils.isBlank(path)) {
-				path = Platform.config.getString(DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX
-						+ StringUtils.lowerCase(graphOperation.name())
-						+ DACConfigurationConstants.DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR
-						+ DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID);
-				PlatformLogger.log("Using default graph path for " + graphId + " | URL: " + path);
+			String baseKey = DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX + StringUtils.lowerCase(graphOperation.name())
+							+ DACConfigurationConstants.DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR;
+
+			if (Platform.config.hasPath(baseKey + graphId)) {
+				routeUrl = Platform.config.getString(baseKey + graphId)
+			} else if (Platform.config.hasPath(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID)) {
+				routeUrl = Platform.config.getString(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID);
+			} else {
+				PlatformLogger.log("Graph connection configuration not defined.", LoggerEnum.WARN.name());
 			}
-			if (StringUtils.isNotBlank(path))
-				routeUrl = path;
+			PlatformLogger.log("Request path for graph: " + graphId + " | URL: " + path);
 		} catch (Exception e) {
 			PlatformLogger.log("Error fetching location from graph.properties", null, e);
 		}
