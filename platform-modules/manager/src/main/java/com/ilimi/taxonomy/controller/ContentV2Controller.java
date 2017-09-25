@@ -187,6 +187,31 @@ public class ContentV2Controller extends BaseController {
 		}
 	}
 
+	
+	/**
+	 * This method carries all the tasks related to 'Unlisted Publish' operation of content
+	 * work-flow.
+	 *
+	 * @param contentId
+	 *            The Content Id which needs to be published.
+	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
+	 */
+	
+	@RequestMapping(value = "/publish/unlisted/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> publishUnlisted(@PathVariable(value = "id") String contentId) {
+		String apiId = "ekstep.learning.content.publish.unlisted";
+		PlatformLogger.log("Publish content | Content Id : " + contentId);
+		try {
+			PlatformLogger.log("Calling the Manager for 'Publish' Operation | [Content Id " + contentId + "]");
+			Response response = contentManager.publish(graphId, contentId, null);
+
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
 	/**
 	 * This method carries all the tasks related to 'Optimize' operation of content
 	 * work-flow. This includes compressing images, audio and videos.
