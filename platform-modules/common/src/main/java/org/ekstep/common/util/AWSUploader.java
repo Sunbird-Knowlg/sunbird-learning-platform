@@ -40,7 +40,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class AWSUploader {
 
-	private static final String s3Bucket = "s3.bucket";
 	private static final String s3Environment = "s3.env";
 	private static final String s3Region = "s3.region";
 	private static final String s3 = "s3";
@@ -50,12 +49,16 @@ public class AWSUploader {
 	private static final String forwardSlash = "/";
 	private static final String s3AssetFolder = "s3.asset.folder";
 	private static final String s3UploadURLExpiry = "s3.upload.url.expiry";
-
-	public static String getBucketName() {
-		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
-		return bucketName;
+	private static final String defaultBucketType = "public";
+	
+	public static String getBucketName(String type) {
+		return S3PropertyReader.getProperty("s3."+ type +".bucket");
 	}
+	
+	public static String getBucketName() {
+		return getBucketName(defaultBucketType);
+	}
+	
 
 	public static String[] uploadFile(String folderName, File file) throws Exception {
 		file = Slug.createSlugFile(file);
@@ -72,7 +75,7 @@ public class AWSUploader {
 		AmazonS3Client s3 = new AmazonS3Client();
 		String key = file.getName();
 		String env = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(s3Bucket, env);
+		String bucketName = S3PropertyReader.getProperty(getBucketName(), env);
 		PlatformLogger.log("Fetching bucket name:" , bucketName);
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
@@ -90,22 +93,22 @@ public class AWSUploader {
 		if (null != region)
 			s3.setRegion(region);
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
+		String bucketName = S3PropertyReader.getProperty(getBucketName(), bucketRegion);
 		s3.deleteObject(new DeleteObjectRequest(bucketName, key));
 	}
 
 	public static double getObjectSize(String key) throws IOException {
 		AmazonS3 s3 = new AmazonS3Client();
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucket = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
+		String bucket = S3PropertyReader.getProperty(getBucketName(), bucketRegion);
 		return s3.getObjectMetadata(bucket, key).getContentLength();
 	}
 
 	public static List<String> getObjectList(String prefix) {
 		AmazonS3 s3 = new AmazonS3Client();
-		PlatformLogger.log("Reading s3 Bucket and Region" , s3Bucket + s3Environment);
+		PlatformLogger.log("Reading s3 Bucket and Region" , getBucketName() + s3Environment);
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
+		String bucketName = S3PropertyReader.getProperty(getBucketName(), bucketRegion);
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
 		PlatformLogger.log("SummaryData returned from s3 object Listing" , summaries.size());
@@ -124,7 +127,7 @@ public class AWSUploader {
 	public static String updateURL(String url, String oldPublicBucketName, String oldConfigBucketName) {
 		String s3Region = Regions.AP_SOUTHEAST_1.name();
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
+		String bucketName = S3PropertyReader.getProperty(getBucketName(), bucketRegion);
 		PlatformLogger.log("Existing url:" + url);
 		PlatformLogger.log("Fetching bucket name for updating urls:" + bucketName);
 		if (bucketRegion != null && bucketName != null) {
@@ -220,7 +223,7 @@ public class AWSUploader {
 	public static String preSignedURL(String contentId, String fileName) {
 		AmazonS3Client s3 = new AmazonS3Client();
 		String env = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(s3Bucket, env);
+		String bucketName = S3PropertyReader.getProperty(getBucketName(), env);
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		s3.setRegion(region);
 		Date expiration = new Date();

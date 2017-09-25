@@ -31,10 +31,8 @@ import com.ilimi.common.logger.PlatformLogger;
 public class ConfigV3Controller extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	public static final String folderName = "resources";
-	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
+	public static final String baseUrl = "https://" + AWSUploader.getBucketName("config") + ".s3.amazonaws.com/";
 
-	
-	
 	@RequestMapping(value = "/resourcebundles/list", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundles() {

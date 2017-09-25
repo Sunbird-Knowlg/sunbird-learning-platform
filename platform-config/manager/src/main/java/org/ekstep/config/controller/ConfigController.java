@@ -32,7 +32,7 @@ import com.ilimi.common.logger.PlatformLogger;
 public class ConfigController extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	public static final String folderName = "resources";
-	public static final String baseUrl = "https://" + AWSUploader.getBucketName() + ".s3.amazonaws.com/";
+	public static final String baseUrl = "https://" + AWSUploader.getBucketName("config") + ".s3.amazonaws.com/";
 
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody
