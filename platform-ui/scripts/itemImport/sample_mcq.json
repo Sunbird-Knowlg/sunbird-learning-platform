@@ -1,0 +1,93 @@
+{
+    "request": {
+        "assessment_item": {
+            "identifier": "org.ekstep.funtoot.samplemcq",
+            "objectType": "AssessmentItem",
+            "metadata": {
+                "type": "mcq",
+                "lastUpdatedBy": "csv-import",
+                "used_for": "worksheet",
+                "num_answers": 1,
+                "max_score": 1,
+                "partial_scoring": false,
+                "code": "org.ekstep.funtoot.samplemcq",
+                "title": "जोड 123456",
+                "question": "7 + 1 = ?",
+                "question_count": 5,
+                "domain": "Numeracy",
+                "language": [
+                    "Hindi"
+                ],
+                "gradeLevel": [
+                    "Grade 1"
+                ],
+                "qlevel": "EASY",
+                "keywords": [
+                    "addition",
+                    "add",
+                    "sum"
+                ],
+                "media": [],
+                "options": [
+                    {
+                        "value": {
+                            "type": "mixed",
+                            "text": "8",
+                            "resValue": "8",
+                            "index": 0,
+                            "asset": "8"
+                        },
+                        "answer": true
+                    },
+                    {
+                        "value": {
+                            "type": "mixed",
+                            "text": "7",
+                            "resValue": "7",
+                            "index": 1,
+                            "asset": "7"
+                        },
+                        "answer": false
+                    },
+                    {
+                        "value": {
+                            "type": "mixed",
+                            "text": "1",
+                            "resValue": "1",
+                            "index": 2,
+                            "asset": "1"
+                        },
+                        "answer": false
+                    },
+                    {
+                        "value": {
+                            "type": "mixed",
+                            "text": "4",
+                            "resValue": "4",
+                            "index": 3,
+                            "asset": "4"
+                        },
+                        "answer": false
+                    }
+                ],
+                "template": "org.ekstep.mcq.t.ta",
+                "template_id": "domain_3490",
+                "model": {
+                    "param1": "7",
+                    "param2": "1"
+                },
+                "rownum": 2,
+                "portalOwner": "128",
+                "name": "जोड",
+                "identifier": "org.ekstep.funtoot.samplemcq",
+                "responses": []
+            }
+        },
+        "outRelations": [
+            {
+                "endNodeId": "Num:C1:SC1",
+                "relationType": "associatedTo"
+            }
+        ]
+    }
+}

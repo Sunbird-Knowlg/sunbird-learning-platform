@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.ekstep.platform.domain.BaseTest;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -34,7 +35,8 @@ public class ContentSuggestionTests extends BaseTest {
 		return requestSpec;
 	}
 
-
+	
+	
 	int rn = generateRandomInt(0, 9999999);
 	String nodeId;
 	
@@ -77,6 +79,15 @@ public class ContentSuggestionTests extends BaseTest {
 		FileUtils.cleanDirectory(downloadPath);
 	}
 	
+	@After
+	public void delay(){
+		try{
+			Thread.sleep(5000);
+		}
+		catch(Exception e){
+		}
+	}
+	
 	// Content clean up	
 		public void contentCleanUp(){
 			setURI();
@@ -99,7 +110,7 @@ public class ContentSuggestionTests extends BaseTest {
 						when().
 						post("/content/v3/create").
 						then().
-						// log().all().
+						// //log().all().
 						//spec(get200ResponseSpec()).
 						extract().
 						response();
@@ -117,7 +128,7 @@ public class ContentSuggestionTests extends BaseTest {
 				multiPart(new File(path + "/uploadContent.zip")).
 				then().
 				post("/content/v3/upload/" + nodeId);
-				// log().all().
+				// //log().all().
 				//spec(get200ResponseSpec());
 
 				// Publish
@@ -127,7 +138,7 @@ public class ContentSuggestionTests extends BaseTest {
 				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Ekstep\"}}}").
 				then().
 				post("/content/v3/publish/" + nodeId);
-				// log().all().
+				// //log().all().
 				//spec(get200ResponseSpec());
 			}
 		}
@@ -135,6 +146,7 @@ public class ContentSuggestionTests extends BaseTest {
 	@Test
 	public void createSuggestions(){
 		createContent();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 		
 		jsonCreateSuggestionRequest = jsonCreateSuggestionRequest.replace("nodeId", nodeId);
 		setURI();
 		Response R = given().
@@ -145,7 +157,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -157,6 +169,7 @@ public class ContentSuggestionTests extends BaseTest {
 		
 		// Read the suggestions
 		setURI();
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}		
 		Response R1 = given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
 				with().
@@ -164,7 +177,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				get("/content/v3/suggestions/read/"+ nodeId).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -188,7 +201,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -214,7 +227,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -242,7 +255,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -270,7 +283,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -298,7 +311,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -324,7 +337,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -340,7 +353,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -358,6 +371,7 @@ public class ContentSuggestionTests extends BaseTest {
 	@Test
 	public void readSuggestionByContentId(){
 		createSuggestions();
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}
 		setURI();
 		Response R = given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
@@ -366,7 +380,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				get("/content/v3/suggestions/read/"+ nodeId).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -387,7 +401,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				get("/content/v3/suggestions/read/LP_12+TEST").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -408,15 +422,16 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				get("/content/v3/suggestions/read/LP_12+TEST").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
 	}
 	
-	@Test
+	@Ignore
 	public void rejectSuggestionWithValidRequest(){
 		createSuggestions();
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}
 		setURI();
 		Response R = given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
@@ -426,7 +441,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/reject/"+ suggestionId).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -441,6 +456,7 @@ public class ContentSuggestionTests extends BaseTest {
 	@Ignore
 	public void rejectSuggestionWithoutStatus(){
 		createSuggestions();
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}
 		setURI();
 		Response R = given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
@@ -450,7 +466,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/reject/"+ suggestionId).
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -475,7 +491,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/reject/ ").
 				then().
-				log().all().
+				//log().all().
 				spec(get500ResponseSpec()).
 				extract().
 				response();
@@ -500,7 +516,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/reject/afdakW").
 				then().
-				log().all().
+				//log().all().
 				spec(get500ResponseSpec()).
 				extract().
 				response();
@@ -509,6 +525,7 @@ public class ContentSuggestionTests extends BaseTest {
 	@Test
 	public void approveSuggestionWithValidRequest(){
 		createSuggestions();
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}
 		setURI();
 		Response R = given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
@@ -518,7 +535,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/approve/"+ suggestionId).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -532,6 +549,7 @@ public class ContentSuggestionTests extends BaseTest {
 	
 	@Ignore
 	public void approveSuggestionWithoutStatus(){
+		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}
 		setURI();
 		Response R = given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
@@ -541,7 +559,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/approve/"+ suggestionId).
 				then().
-				log().all().
+				//log().all().
 				spec(get400ResponseSpec()).
 				extract().
 				response();
@@ -567,7 +585,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/approve/").
 				then().
-				log().all().
+				//log().all().
 				spec(get500ResponseSpec()).
 				extract().
 				response();
@@ -593,7 +611,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/approve/asdjfhdjksa").
 				then().
-				log().all().
+				//log().all().
 				spec(get500ResponseSpec()).
 				extract().
 				response();
@@ -610,7 +628,7 @@ public class ContentSuggestionTests extends BaseTest {
 				when().
 				post("/content/v3/suggestions/list").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();

@@ -102,9 +102,9 @@ public class ContentBundleV3TestCases extends BaseTest {
 		// Upload content
 		setURI();
 		given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				// log().all().
-				spec(get200ResponseSpec());
+		.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Bundle created content
 		setURI();
@@ -136,15 +136,14 @@ public class ContentBundleV3TestCases extends BaseTest {
 		setURI();
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(
 				"{\"request\": {\"content_identifiers\": [\"" + nodeId + "\"],\"file_name\": \"Testqa_bundle_ECML\"}}")
-				.when().post("content/v3/bundle").then().
-				// log().all().
-				spec(get400ResponseSpec());
+		.when().post("content/v3/bundle").then().
+		// log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Create and Bundle APK
 	@Test
 	public void createAndBundleAPKContentExpectSuccess200() {
-		contentCleanUp();
 		setURI();
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.android.package-archive");
@@ -161,9 +160,9 @@ public class ContentBundleV3TestCases extends BaseTest {
 		// Upload content
 		setURI();
 		given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				// log().all().
-				spec(get200ResponseSpec());
+		.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Bundle created content
 		setURI();
@@ -177,12 +176,12 @@ public class ContentBundleV3TestCases extends BaseTest {
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
+		contentCleanUp(nodeId);
 	}
 
 	// Create and Bundle collection
 	@Test
 	public void createAndBundleCollectionExpectSuccess200() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -207,19 +206,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node1).then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 			}
 			if (count == 2) {
@@ -228,19 +227,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node2).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node2).then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			count++;
 		}
@@ -254,12 +253,12 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		// Get collection and validate
 		JsonPath jp1 = R1.jsonPath();
-		String collectionNode = jp1.get("result.node_id");
+		String nodeId = jp1.get("result.node_id");
 
 		// Bundle created content
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body("{\"request\": {\"content_identifiers\": [\"" + collectionNode
+				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
 						+ "\"],\"file_name\": \"Testqa_bundle_Collection\"}}")
 				.when().post("content/v3/bundle").then().
 				// log().all().
@@ -269,6 +268,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
+		contentCleanUp(nodeId);
 	}
 
 	// Bundle AT content
@@ -288,12 +288,13 @@ public class ContentBundleV3TestCases extends BaseTest {
 		setURI();
 		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("null", versionKey);
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateATContentBody).with()
-				.contentType("application/json").then().patch("/content/v3/update/" + nodeId);
+		.contentType("application/json").then().patch("/content/v3/update/" + nodeId);
 
 		// Bundle created content
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(
-				"{\"request\": {\"content_identifiers\": [\"" + nodeId + "\"],\"file_name\": \"Testqa_bundle_ECML\"}}")
+		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
+				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
+						+ "\"],\"file_name\": \"Testqa_bundle_ECML\"}}")
 				.when().post("content/v3/bundle").then().
 				// log().all().
 				spec(get200ResponseSpec()).extract().response();
@@ -302,7 +303,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		Assert.assertTrue(bundleValidation(ecarUrl));
 	}
-	
+
 	// Bundle content with updated body post upload
 	@Test
 	public void bundleBodyUpdateContentExpectSuccess200(){
@@ -323,19 +324,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 		// Get node_id
 		JsonPath jP = R.jsonPath();
 		String nodeId = jP.get("result.node_id");
-		
+
 		// Upload Zip File
 		setURI();
 		Response R1 =
-		given().
-		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
-		multiPart(new File(path+"/uploadContent.zip")).
-		when().
-		post("/content/v3/upload/"+nodeId).
-		then().
-		//log().all().
-		spec(get200ResponseSpec()).
-		extract().response();
+				given().
+				spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+				multiPart(new File(path+"/uploadContent.zip")).
+				when().
+				post("/content/v3/upload/"+nodeId).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String versionKey = jP1.get("result.versionKey");
@@ -352,10 +353,10 @@ public class ContentBundleV3TestCases extends BaseTest {
 		contentType("application/json").
 		then().
 		patch("/content/v3/update/"+nodeId);
-//		then().
-//		log().all().
-//		spec(get200ResponseSpec());
-		
+		//		then().
+		//		log().all().
+		//		spec(get200ResponseSpec());
+
 		// Get body and validate
 		setURI();
 		Response R2 =
@@ -374,7 +375,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 		ArrayList<String> language = jP2.get("result.content.language");
 		Assert.assertTrue(language.contains("Hindi") && language.contains("Tamil") && language.contains("Telugu"));
 		Assert.assertEquals(artifactUrlUpdated, null);
-		
+
 		// Bundle created content
 		setURI();
 		Response R3 = 
@@ -397,7 +398,6 @@ public class ContentBundleV3TestCases extends BaseTest {
 	// Bundle AT content and Uploaded content
 	@Test
 	public void bundleATAndUploadedContentExpectSuccess200() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -423,34 +423,35 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1).then().log().all().spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node1).then().log().all().spec(get200ResponseSpec());
 			}
 			if (count == 2) {
 				node2 = nodeId;
 				versionKey = jp.get("result.versionKey");
 
 				// Update content body
+				try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 				setURI();
 				jsonUpdateATContentBody = jsonUpdateATContentBody.replace("null", versionKey);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateATContentBody)
-						.with().contentType("application/json").when().patch("/content/v3/update/" + nodeId).then()
-						.log().all().spec(get200ResponseSpec());
+				.with().contentType("application/json").when().patch("/content/v3/update/" + nodeId).then()
+				.log().all().spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node2).then().log().all().spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node2).then().log().all().spec(get200ResponseSpec());
 			}
 			count++;
 		}
@@ -468,12 +469,13 @@ public class ContentBundleV3TestCases extends BaseTest {
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
+		contentCleanUp(node1);
+
 	}
 
 	// Bundle existing and non-existing content
 	@Test
 	public void bundleExistingAndNonExistingContentExpect4xx() {
-		contentCleanUp();
 		setURI();
 		Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
 				.body(jsonCreateValidContent).with().contentType(JSON).when().post("content/v3/create").then().extract()
@@ -486,22 +488,21 @@ public class ContentBundleV3TestCases extends BaseTest {
 		// Upload content
 		setURI();
 		given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).then().post("/content/v3/upload/" + nodeId);
+		.multiPart(new File(path + "/uploadContent.zip")).then().post("/content/v3/upload/" + nodeId);
 
 		// Bundle created content
 		setURI();
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId + "\",\"" + invalidContentId
-						+ "\"],\"file_name\": \"Testqa_bundle_invalid\"}}")
-				.when().post("content/v3/bundle").then().
-				// log().all().
-				spec(get404ResponseSpec());
+		.body("{\"request\": {\"content_identifiers\": [\"" + nodeId + "\",\"" + invalidContentId
+				+ "\"],\"file_name\": \"Testqa_bundle_invalid\"}}")
+		.when().post("content/v3/bundle").then().
+		// log().all().
+		spec(get404ResponseSpec());
 	}
 
 	// Bundle ECML and APK Contents
 	@Test
 	public void bundleECMLAndAPKContentsExpectSuccess200() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -515,7 +516,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 			}
 			if (count == 2) {
 				js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_FT_T_" + rn + "")
-						.put("name", "LP_FT_T-" + rn + "").put("mimeType", "application/vnd.android.package-archive");
+				.put("name", "LP_FT_T-" + rn + "").put("mimeType", "application/vnd.android.package-archive");
 			}
 			String jsonCreateValidChild = js.toString();
 			Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
@@ -532,19 +533,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node1).then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			if (count == 2) {
 				node2 = nodeId;
@@ -552,19 +553,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node2).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node2).then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			count++;
 		}
@@ -580,12 +581,12 @@ public class ContentBundleV3TestCases extends BaseTest {
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		Assert.assertTrue(bundleValidation(ecarUrl));
+		contentCleanUp(node1);
 	}
 
 	// Bundle Live and Draft contents
 	@Test
 	public void bundleLiveAndDraftContentsExpectSuccess200() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -610,19 +611,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node1).then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 			}
 			if (count == 2) {
@@ -631,10 +632,10 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			count++;
 		}
@@ -651,12 +652,12 @@ public class ContentBundleV3TestCases extends BaseTest {
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
+		contentCleanUp(node1);
 	}
 
 	// Bundle Live and Retired Content
 	@Test
 	public void bundleLiveAndRetiredContentExpect4xx() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -682,7 +683,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1);
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1);
 				// then().
 				// log().all().
 				// spec(get200ResponseSpec());
@@ -691,8 +692,8 @@ public class ContentBundleV3TestCases extends BaseTest {
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1);
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node1);
 				// then().
 				// log().all().
 				// spec(get200ResponseSpec());
@@ -704,8 +705,8 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).then()
-						.post("/content/v3/upload/" + node2);
+				.multiPart(new File(path + "/tweenAndaudioSprite.zip")).then()
+				.post("/content/v3/upload/" + node2);
 				// then().
 				// log().all().
 				// spec(get200ResponseSpec());
@@ -743,15 +744,16 @@ public class ContentBundleV3TestCases extends BaseTest {
 		// Bundle both the contents
 		setURI();
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body("{\"request\": {\"content_identifiers\": [\"" + node1 + "\",\"" + node2
-						+ "\"],\"file_name\": \"Testqa_bundle_ECML&APK\"}}")
-				.when().post("content/v3/bundle").then().log().all().spec(get400ResponseSpec());
+		.body("{\"request\": {\"content_identifiers\": [\"" + node1 + "\",\"" + node2
+				+ "\"],\"file_name\": \"Testqa_bundle_ECML&APK\"}}")
+		.when().post("content/v3/bundle").then().log().all().spec(get400ResponseSpec());
+		contentCleanUp(node1);
+
 	}
 
 	// Bundle collection with Live, Draft and Review contents
 	@Test
 	public void bundleCollectionWithLDRContentsExpectSuccess200() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		String node3 = null;
@@ -760,13 +762,20 @@ public class ContentBundleV3TestCases extends BaseTest {
 			setURI();
 			int rn = generateRandomInt(900, 999999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
-			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_FT_T_" + rn + "").put("name",
-					"LP_FT_T-" + rn + "");
+			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_FT_T_" + rn + "").put("name","LP_FT_T-" + rn + "");
 			String jsonCreateValidChild = js.toString();
-			Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-					.body(jsonCreateValidChild).with().contentType(JSON).when().post("content/v3/create").then().
+			Response R = 
+					given().
+					spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					body(jsonCreateValidChild).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().
 					// log().all().
-					spec(get200ResponseSpec()).extract().response();
+					spec(get200ResponseSpec()).
+					extract().response();
 
 			// Extracting the JSON path
 			JsonPath jp = R.jsonPath();
@@ -776,31 +785,41 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Upload Content
 				setURI();
-				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+				multiPart(new File(path + "/uploadContent.zip")).
+				when().
+				post("/content/v3/upload/" + node1)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
-				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonContentWithPublisherId).
+				with().contentType(JSON).
+				when().
+				post("content/v3/publish/" + node1).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			if (count == 2) {
 				node2 = nodeId;
 
 				// Upload Content
 				setURI();
-				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
-						.post("/content/v3/upload/" + node2).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+				multiPart(new File(path + "/tweenAndaudioSprite.zip")).
+				when().
+				post("/content/v3/upload/" + node2).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 			}
 			if (count == 3) {
@@ -809,54 +828,72 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 				// Upload Content
 				setURI();
-				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node3)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				given().
+				spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+				multiPart(new File(path + "/uploadContent.zip")).
+				when().
+				post("/content/v3/upload/" + node3).
+				then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Update status as Review
 				setURI();
 				jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Review").replace("null", versionKey);
-				given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateContentValid)
-						.with().contentType("application/json").then().patch("/content/v3/update/" + node3);
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonUpdateContentValid).
+				with().
+				contentType("application/json").
+				then().
+				patch("/content/v3/update/" + node3);
 			}
 			count++;
 		}
 
 		// Create collection
 		setURI();
-		jsonCreateThreeContentCollection = jsonCreateThreeContentCollection.replace("id1", node1).replace("id2", node2)
-				.replace("id3", node3);
-		Response R1 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body(jsonCreateThreeContentCollection).with().contentType(JSON).when().post("content/v3/create").then()
-				.
+		jsonCreateThreeContentCollection = jsonCreateThreeContentCollection.replace("id1", node1).replace("id2", node2).replace("id3", node3);
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonCreateThreeContentCollection).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				// log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Get collection and validate
 		JsonPath jp1 = R1.jsonPath();
-		String collectionNode = jp1.get("result.node_id");
+		String nodeId = jp1.get("result.node_id");
 
 		// Bundle created content
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body("{\"request\": {\"content_identifiers\": [\"" + collectionNode
-						+ "\"],\"file_name\": \"Testqa_bundle_LDRContentCollection\"}}")
-				.when().post("content/v3/bundle").then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body("{\"request\": {\"content_identifiers\": [\"" + nodeId+ "\"],\"file_name\": \"Testqa_bundle_LDRContentCollection\"}}").
+				when().
+				post("content/v3/bundle").
+				then().
 				// log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
+		contentCleanUp(nodeId);
 	}
 
 	// Bundle collection with live and retired contents
 	@Test
 	public void bundleCollectionWithLiveAndRetiredContentsExpect400() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -864,11 +901,18 @@ public class ContentBundleV3TestCases extends BaseTest {
 			setURI();
 			int rn = generateRandomInt(900, 999999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
-			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_FT_T_" + rn + "").put("name",
-					"LP_FT_T-" + rn + "");
+			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_FT_T_" + rn + "").put("name","LP_FT_T-" + rn + "");
 			String jsonCreateValidChild = js.toString();
-			Response R = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-					.body(jsonCreateValidChild).with().contentType(JSON).when().post("content/v3/create").then().
+			Response R = 
+					given().spec(getRequestSpecification(contentType, validuserId, APIToken)).
+					body(jsonCreateValidChild).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().
+
+
 					// log().all().
 					// spec(get200ResponseSpec()).
 					extract().response();
@@ -882,17 +926,17 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1);
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node1);
 				// then().
 				// log().all().
 				// spec(get200ResponseSpec());
@@ -904,7 +948,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2);
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node2);
 				// then().
 				// log().all().
 				// spec(get200ResponseSpec());
@@ -925,7 +969,7 @@ public class ContentBundleV3TestCases extends BaseTest {
 				setURI();
 				jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("null", versionKey);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonUpdateContentValid)
-						.with().contentType("application/json").when().patch("/content/v3/update/" + node2);
+				.with().contentType("application/json").when().patch("/content/v3/update/" + node2);
 
 			}
 			count++;
@@ -941,22 +985,23 @@ public class ContentBundleV3TestCases extends BaseTest {
 
 		// Get collection and validate
 		JsonPath jp1 = R1.jsonPath();
-		String collectionNode = jp1.get("result.node_id");
+		String nodeId = jp1.get("result.node_id");
 
 		// Bundle created content
 		setURI();
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body("{\"request\": {\"content_identifiers\": [\"" + collectionNode
-						+ "\"],\"file_name\": \"Testqa_bundle_CollectionLiveAndRetired\"}}")
-				.when().post("content/v3/bundle").then().
-				// log().all().
-				spec(get400ResponseSpec());
+		.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
+				+ "\"],\"file_name\": \"Testqa_bundle_CollectionLiveAndRetired\"}}")
+		.when().post("content/v3/bundle").then().
+		// log().all().
+		spec(get400ResponseSpec());
+		contentCleanUp(nodeId);
+
 	}
-	
+
 	// Bundle nested collection
 	@Test
 	public void bundleNestedCollectionExpectSuccess200() {
-		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -981,19 +1026,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
-						.then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + node1)
+				.then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node1).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node1).then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 			}
 			if (count == 2) {
@@ -1002,19 +1047,19 @@ public class ContentBundleV3TestCases extends BaseTest {
 				// Upload Content
 				setURI();
 				given().spec(getRequestSpecification(uploadContentType, validuserId, APIToken))
-						.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
-						.post("/content/v3/upload/" + node2).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when()
+				.post("/content/v3/upload/" + node2).then().
+				// log().all().
+				spec(get200ResponseSpec());
 
 				// Publish created content
 				setURI();
 				System.out.println(jsonContentWithPublisherId);
 				given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-						.body(jsonContentWithPublisherId).with().contentType(JSON).when()
-						.post("content/v3/publish/" + node2).then().
-						// log().all().
-						spec(get200ResponseSpec());
+				.body(jsonContentWithPublisherId).with().contentType(JSON).when()
+				.post("content/v3/publish/" + node2).then().
+				// log().all().
+				spec(get200ResponseSpec());
 			}
 			count++;
 		}
@@ -1034,9 +1079,9 @@ public class ContentBundleV3TestCases extends BaseTest {
 		setURI();
 		System.out.println(jsonContentWithPublisherId);
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonContentWithPublisherId)
-				.with().contentType(JSON).when().post("content/v3/publish/" + nodeId1).then().
-				// log().all().
-				spec(get200ResponseSpec());
+		.with().contentType(JSON).when().post("content/v3/publish/" + nodeId1).then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Create nested collection
 		setURI();
@@ -1047,20 +1092,20 @@ public class ContentBundleV3TestCases extends BaseTest {
 				spec(get200ResponseSpec()).extract().response();
 
 		JsonPath jP3 = R3.jsonPath();
-		String collectionId = jP3.get("result.node_id");
+		String nodeId = jP3.get("result.node_id");
 
 		// Publish created content
 		setURI();
 		System.out.println(jsonContentWithPublisherId);
 		given().spec(getRequestSpecification(contentType, validuserId, APIToken)).body(jsonContentWithPublisherId)
-				.with().contentType(JSON).when().post("content/v3/publish/" + collectionId).then().
-				// log().all().
-				spec(get200ResponseSpec());
+		.with().contentType(JSON).when().post("content/v3/publish/" + nodeId).then().
+		// log().all().
+		spec(get200ResponseSpec());
 
 		// Bundle created content
 		setURI();
 		Response R2 = given().spec(getRequestSpecification(contentType, validuserId, APIToken))
-				.body("{\"request\": {\"content_identifiers\": [\"" + collectionId
+				.body("{\"request\": {\"content_identifiers\": [\"" + nodeId
 						+ "\"],\"file_name\": \"Testqa_bundle_nestedCollection\"}}")
 				.when().post("content/v3/bundle").then().
 				// log().all().
@@ -1070,13 +1115,18 @@ public class ContentBundleV3TestCases extends BaseTest {
 		String ecarUrl = jP2.get("result.ECAR_URL");
 		// System.out.println(ecarUrl);
 		Assert.assertTrue(bundleValidation(ecarUrl));
+		contentCleanUp(nodeId);
 	}
 
 	// Content clean up
-	public void contentCleanUp() {
+	public void contentCleanUp(String nodeId) {
 		setURI();
-		given().body(jsonContentClean).with().contentType(JSON).when()
-				.post("learning/v1/exec/content_qe_deleteContentBySearchStringInField");
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		when().
+		post("/content/v3/retire/"+nodeId).
+		then().
+		spec(get200ResponseSpec());
 	}
 
 	@SuppressWarnings({ "unused" })
