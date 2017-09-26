@@ -2588,24 +2588,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 				// Publish created content
 				setURI();
-				Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
-						.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-						.post("/content/v3/publish/" + node2).then().
+				Response R1 = given().
+						spec(getRequestSpecification(contentType, userId, APIToken)).
+						body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+						when().
+						post("/content/v3/publish/" + node2).
+						then().
 						//log().all().
 						extract().response();
 
 				JsonPath jp1 = R1.jsonPath();
-				String versionKey = jp1.get("result.versionKey");
+				//String versionKey = jp1.get("result.versionKey");
 
 				// Update status as Retired
 				setURI();
-				jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key",
-						versionKey);
-				given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateContentValid).with()
-						.contentType("application/json").then().
-						//log().all().
-						patch("/content/v3/update/" + node2);
-
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				delete("/content/v3/retire/" + node2).
+				then().
+				spec(get200ResponseSpec());
 			}
 			count++;
 		}
@@ -3486,17 +3488,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 						.post("/content/v3/publish/" + node2).then().extract().response();
 
 				JsonPath jp1 = R1.jsonPath();
-				String versionKey = jp1.get("result.versionKey");
+				//String versionKey = jp1.get("result.versionKey");
 
 				// Update status as Retired
 				setURI();
-				jsonUpdateContentValid = jsonUpdateContentValid.replace("Live", "Retired").replace("version_Key",
-						versionKey);
-				//System.out.println(jsonUpdateContentValid);
-				given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateContentValid).with()
-						.contentType("application/json").then().
-						//log().all().
-						patch("/content/v3/update/" + node2);
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				delete("/content/v3/retire/" + node2).
+				then().
+				spec(get200ResponseSpec());
 			}
 			count++;
 		}
