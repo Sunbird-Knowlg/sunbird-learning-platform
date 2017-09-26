@@ -567,7 +567,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		get("/content/v3/read/"+ecmlNode+".img").
 		then().
-		log().all().
+		//log().all().
 		spec(get404ResponseSpec());
 	}
 
@@ -734,7 +734,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/list").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 
 	}
@@ -753,7 +753,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("/content/v3/list").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 
 	}
@@ -772,7 +772,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		when().
 		post("content/v3/search").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec());
 
 	}

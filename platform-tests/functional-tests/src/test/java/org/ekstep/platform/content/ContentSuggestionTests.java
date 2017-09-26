@@ -118,7 +118,7 @@ public class ContentSuggestionTests extends BaseTest {
 				// Extracting the JSON path
 				JsonPath jp = R.jsonPath();
 				nodeId = jp.get("result.node_id");
-				System.out.println("nodeId=" + nodeId);
+				//System.out.println("nodeId=" + nodeId);
 
 
 				// Upload Content
@@ -165,11 +165,11 @@ public class ContentSuggestionTests extends BaseTest {
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
 		suggestionId = jp.get("result.suggestion_id");
-		System.out.println("suggestion_id=" + suggestionId);
+		//System.out.println("suggestion_id=" + suggestionId);
 		
 		// Read the suggestions
 		setURI();
-		try{Thread.sleep(5000);}catch(Exception e){e.printStackTrace();}		
+		try{Thread.sleep(5000);}catch(Exception e1){e1.printStackTrace();}		
 		Response R1 = given().
 				spec(getRequestSpecification(contentType, validuserId, APIToken)).
 				with().
@@ -187,7 +187,6 @@ public class ContentSuggestionTests extends BaseTest {
 		List<Object> suggestions = jp1.get("result.suggestions");
 		Assert.assertEquals(suggestions.isEmpty(), false);
 	}
-	
 	@Test
 	public void createSuggestionWithoutCommand(){
 		createContent();
@@ -440,7 +439,7 @@ public class ContentSuggestionTests extends BaseTest {
 				contentType(JSON).
 				when().
 				post("/content/v3/suggestions/reject/"+ suggestionId).
-				then().
+				then(). 
 				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
