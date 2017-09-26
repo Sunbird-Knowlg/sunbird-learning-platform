@@ -92,8 +92,10 @@ public class ElasticSearchUtil {
 	public void initialize() {
 		hostName = Platform.config.getString("elastic-search-host");
 		port = Platform.config.getInt("elastic-search-port");
-		BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
-		CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
+		if(Platform.config.hasPath("bulk-load-batch-size"))
+			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
+		if(Platform.config.hasPath("bulk-load-batch-size"))
+			CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
 	}
 	
 	public void finalize() {
