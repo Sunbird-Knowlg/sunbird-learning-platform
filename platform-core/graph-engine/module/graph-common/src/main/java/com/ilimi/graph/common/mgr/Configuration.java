@@ -14,11 +14,13 @@ public class Configuration {
     
     static {
     	try{
-            int timeout = Platform.config.getInt("akka.request_timeout");
-            if (timeout > 0) {
-                TIMEOUT = timeout * 1000;
-            }
-             graphIds = Platform.config.getStringList("graph.ids");
+    		if (Platform.config.hasPath("akka.request_timeout")) {
+    			int timeout = Platform.config.getInt("akka.request_timeout");
+    			if (timeout > 0)
+    				TIMEOUT = timeout * 1000;
+    		}
+            if(Platform.config.hasPath("graph.ids"))
+            	graphIds = Platform.config.getStringList("graph.ids");
         } catch (Exception e) {
         	PlatformLogger.log("Error! While Loading Graph Properties.", e.getMessage(),LoggerEnum.ERROR.name());
         }
