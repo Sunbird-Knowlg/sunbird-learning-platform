@@ -12,7 +12,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>0.0.4</version>
+			<version>0.0.5</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
