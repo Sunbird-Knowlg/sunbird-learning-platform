@@ -70,6 +70,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			+ "\",\"language\":[\"English\"],\"contentType\": \"TextBookUnit\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"owner\": \"EkStep\", \"children\": [{\"identifier\": \"id1\"},{ \"identifier\": \"id2\"},{\"identifier\": \"id3\"},{\"identifier\": \"id4\"}]}}}";
 	String jsonUpdateContentValid = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"status\": \"Live\"}}}";
 	String jsonGetContentList = "{\"request\": { \"search\": {\"tags\":[\"LP_functionalTest\"],\"limit\": 5000}}}";
+	String jsonGetContentListEmptySearch = "{\"request\": { \"search\": {}}}";
 	String jsonCreateNestedCollection = "{\"request\": {\"content\": {\"identifier\": \"Test_QANested_" + rn
 			+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"
 			+ rn
@@ -466,6 +467,354 @@ public class ContentPublishV3TestCases extends BaseTest {
 		contentType("application/json").when().patch("/content/v3/update/" + nodeId).then().
 		//log().all().
 		spec(get400ResponseSpec());
+	}
+	
+	// Create and get Content
+	@Test
+	public void getValidContentExpectSuccess200(){
+		setURI();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String ecmlNode = jp.get("result.node_id");
+
+		// Get content and validate
+		setURI();
+		Response R1 =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				when().
+				get("/content/v3/read/"+ecmlNode).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		Assert.assertTrue(versionKey!=null);
+		Assert.assertEquals(ecmlNode, identifier);
+	}
+
+
+	// Get blank content
+	@Test
+	public void getblankContentExpect500(){
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		when().
+		get("/content/v3/read/").
+		then().
+		//log().all().
+		spec(get500ResponseSpec());
+	}
+
+	// Get invalid content
+	@Test
+	public void getInvalidContentExpect404(){
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		when().
+		get("/content/v3/read/F;NDSAF").
+		then().
+		//log().all().
+		spec(get404ResponseSpec());
+	}
+
+	// Create and get image content for content in draft status
+
+	@Test
+	public void getinvalidImageContentExpect400(){
+		setURI();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				extract().
+				response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String ecmlNode = jp.get("result.node_id");
+
+		// Get content and validate
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		when().
+		get("/content/v3/read/"+ecmlNode+".img").
+		then().
+		log().all().
+		spec(get404ResponseSpec());
+	}
+
+
+	// Create and get image content for valid content
+
+	@Test
+	public void getImageContentVaidExpectSuccess200(){
+		setURI();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		multiPart(new File(path+"/uploadContent.zip")).
+		then().
+		post("/content/v3/upload/"+nodeId);
+		//then().
+		//log().all().
+		//spec(get200ResponseSpec());
+
+		// Publish created content
+		setURI();
+		Response Rp2=
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+				when().
+				post("/content/v3/publish/"+nodeId).
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath j2 = Rp2.jsonPath();
+		String versionKey = j2.get("result.versionKey");
+
+		// Update Content
+		setURI();
+		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		body(jsonUpdateATContentBody).
+		with().
+		contentType("application/json").
+		then().
+		patch("/content/v3/update/"+nodeId);
+		//then().
+		//log().all().
+		//spec(get200ResponseSpec());
+
+		// Get and validate
+		setURI();
+		Response R2 =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				when().
+				get("/content/v3/read/"+nodeId+"?mode=edit").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String identifier = jP2.get("result.content.identifier");
+		Assert.assertFalse(identifier.contains(".img"));
+	}
+
+	// Get image content with fields 
+
+
+	//Get content with fields
+
+	@Test
+	public void getContentWithFieldsExpectSuccess200(){
+		setURI();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+		multiPart(new File(path+"/uploadContent.zip")).
+		then().
+		post("/content/v3/upload/"+nodeId);
+		//then().
+		//log().all().
+		//spec(get200ResponseSpec());
+
+		// Publish created content
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		then().
+		post("/content/v3/publish/"+nodeId);
+
+		// Get and validate
+		setURI();
+		Response R2 =
+				given().
+				spec(getRequestSpecification(contentType, validuserId, APIToken)).
+				when().
+				get("/content/v3/read/"+nodeId+"?fields=body,artifactUrl,downloadUrl").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String identifier = jP2.get("result.content.identifier");
+		String body = jP2.get("result.content.body");
+		String artifactUrl = jP2.get("result.content.artifactUrl");
+		Assert.assertFalse(identifier.contains(".img"));
+		Assert.assertTrue(body!=null && artifactUrl.endsWith(".zip"));
+
+	}
+
+	//Get Content List
+	@Test
+	public void getContentListExpectSuccess200()
+	{
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonGetContentList).
+		with().
+		contentType("application/json").
+		when().
+		post("/content/v3/list").
+		then().
+		log().all().
+		spec(get200ResponseSpec());
+
+	}
+
+
+	//Get Content List
+	@Test
+	public void getContentListEmptySearchExpect200()
+	{
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonGetContentListEmptySearch).
+		with().
+		contentType("application/json").
+		when().
+		post("/content/v3/list").
+		then().
+		log().all().
+		spec(get200ResponseSpec());
+
+	}
+
+
+	//Search Content List
+	@Test
+	public void searchContentListExpectSuccess200()
+	{
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonGetContentList).
+		with().
+		contentType("application/json").
+		when().
+		post("content/v3/search").
+		then().
+		log().all().
+		spec(get200ResponseSpec());
+
+	}
+
+	@Test
+	public void getContentExpectSuccess200()
+	{
+		setURI();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Get content and validate
+		setURI();
+		Response R1 = given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP1 = R1.jsonPath();
+		String identifier = jP1.get("result.content.identifier");
+		String versionKey = jP1.get("result.content.versionKey");
+		Assert.assertTrue(versionKey != null);
+		Assert.assertEquals(nodeId, identifier);
+
 	}
 
 	// Update content with metadata changes
@@ -2107,7 +2456,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		int count = 1;
 		while (count <= 2) {
 			setURI();
-			int rn = generateRandomInt(500, 999);
+			int rn = generateRandomInt(1999, 999999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
 			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name",
 					"LP_NFTT-" + rn + "");
@@ -2305,7 +2654,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		int count = 1;
 		while (count <= 2) {
 			setURI();
-			int rn = generateRandomInt(900, 1999);
+			int rn = generateRandomInt(1999, 1999999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
 			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name",
 					"LP_NFTT-" + rn + "");
