@@ -193,11 +193,51 @@ public class ContentV3Controller extends BaseController {
 					contentId);
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			requestMap.put("publish_type", "public");
+			
 			if (null == requestMap.get("lastPublishedBy")
 					|| StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())) {
 				return getExceptionResponseEntity(
 						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(),
 								"Publisher User Id is blank"),
+						apiId, null);
+			}
+
+			response = contentManager.publish(graphId, contentId, requestMap);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	/**
+	 * This method carries all the tasks related to 'Unlisted Publish' operation of content
+	 * work-flow.
+	 *
+	 * @param contentId
+	 *            The Content Id which needs to be published.
+	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/publish/unlisted/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> publishUnlisted(@PathVariable(value = "id") String contentId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "ekstep.learning.content.publish.unlisted";
+		Response response;
+		PlatformLogger.log(" as Unlisted content | Content Id : " + contentId);
+		try {
+			PlatformLogger.log("Calling the Manager for 'Unlisted Publish' Operation | [Content Id " + contentId + "]",
+					contentId);
+			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
+			requestMap.put("publish_type", "unlisted");
+			
+			if (null == requestMap.get("lastPublishedBy")
+					|| StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())) {
+				return getExceptionResponseEntity(
+						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(),
+								"Unlisted Publisher User Id is blank"),
 						apiId, null);
 			}
 
@@ -334,44 +374,6 @@ public class ContentV3Controller extends BaseController {
 		}
 	}
 	
-	/**
-	 * This method carries all the tasks related to 'Unlisted Publish' operation of content
-	 * work-flow.
-	 *
-	 * @param contentId
-	 *            The Content Id which needs to be published.
-	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
-	 */
-	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/publish/unlisted/{id:.+}", method = RequestMethod.POST)
-	@ResponseBody
-	public ResponseEntity<Response> publishUnlisted(@PathVariable(value = "id") String contentId,
-			@RequestBody Map<String, Object> map) {
-		String apiId = "ekstep.learning.content.publish.unlisted";
-		Response response;
-		PlatformLogger.log(" as Unlisted content | Content Id : " + contentId);
-		try {
-			PlatformLogger.log("Calling the Manager for 'Unlisted Publish' Operation | [Content Id " + contentId + "]",
-					contentId);
-			Request request = getRequest(map);
-			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			requestMap.put("unlist", "true");
-			
-			if (null == requestMap.get("lastPublishedBy")
-					|| StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())) {
-				return getExceptionResponseEntity(
-						new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_PUBLISHER.name(),
-								"Publisher User Id is blank"),
-						apiId, null);
-			}
-
-			response = contentManager.publish(graphId, contentId, requestMap);
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
 	protected String getAPIVersion() {
 		return API_VERSION_3;
 	}
