@@ -12,14 +12,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>audit-history-indexer</artifactId>
-			<version>0.0.6</version>
+			<version>0.0.7</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.3</version>
+			<version>0.0.4</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
