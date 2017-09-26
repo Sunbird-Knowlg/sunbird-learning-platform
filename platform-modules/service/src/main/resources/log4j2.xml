@@ -10,8 +10,9 @@
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
-				<TimeBasedTriggeringPolicy interval="24"
-					modulate="true" />
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
+				<OnStartupTriggeringPolicy />
 			</Policies>
 			<DefaultRolloverStrategy>
                 <Delete basePath="/data/logs/" maxDepth="1" testMode="false">
@@ -26,6 +27,8 @@
 				<Pattern>%d [%t] - %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
 			<DefaultRolloverStrategy>
@@ -41,6 +44,8 @@
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
 			<DefaultRolloverStrategy>
@@ -56,6 +61,8 @@
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
 			<DefaultRolloverStrategy>
@@ -71,6 +78,8 @@
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
+				<SizeBasedTriggeringPolicy size="250 MB" />
+				<TimeBasedTriggeringPolicy interval="24" modulate="true" />
 				<OnStartupTriggeringPolicy />
 			</Policies>
 			<DefaultRolloverStrategy>
