@@ -57,12 +57,10 @@ public class ImageTaggingService implements ISamzaService {
 		if (null == eid || !StringUtils.equalsIgnoreCase(eid, ImageWorkflowEnums.BE_OBJECT_LIFECYCLE.name())) {
 			return null;
 		}
-
 		Map<String, Object> edata = (Map<String, Object>) message.get("edata");
 		if (null == edata) {
 			return null;
 		}
-
 		Map<String, Object> eks = (Map<String, Object>) edata.get("eks");
 		if (null == eks) {
 			return null;
@@ -79,22 +77,18 @@ public class ImageTaggingService implements ISamzaService {
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
-
 		Map<String, Object> eks = getImageLifecycleData(message);
-
 		if (null == eks) {
 			metrics.incSkippedCounter();
 			return;
 		}
-
 		try {
 			String nodeId = (String) eks.get(ImageWorkflowEnums.id.name());
 			Node node = util.getNode(ImageWorkflowEnums.domain.name(), nodeId);
 			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ImageWorkflowEnums.content.name()))){
 				imageEnrichment(node);
 				metrics.incSuccessCounter();
-			}
-			else{
+			} else {
 				metrics.incSkippedCounter();
 			}
 		} catch (Exception e) {
@@ -104,11 +98,8 @@ public class ImageTaggingService implements ISamzaService {
 	}
 
 	private void imageEnrichment(Node node) throws Exception {
-
 		LOGGER.info("Processing image enrichment for node:" + node.getIdentifier());
-
 		Map<String, String> variantsMap = OptimizerUtil.optimizeImage(node.getIdentifier(), this.config.get("lp.tempfile.location"), node);
-
 		if (null == variantsMap)
 			variantsMap = new HashMap<String, String>();
 		if (StringUtils.isBlank(variantsMap.get(ImageWorkflowEnums.medium.name()))) {
@@ -135,7 +126,7 @@ public class ImageTaggingService implements ISamzaService {
 				util.updateNode(node);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			LOGGER.error("General Security Exception" + e.getMessage(), e);
 		}
 	}
 
@@ -150,7 +141,6 @@ public class ImageTaggingService implements ISamzaService {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node callVisionService(String image, Node node, Map<String, String> variantsMap) {
-
 		File file = HttpDownloadUtility.downloadFile(image, this.config.get("lp.tempfile.location"));
 		Map<String, Object> labels = new HashMap<String, Object>();
 		List<String> flags = new ArrayList<String>();
@@ -166,20 +156,17 @@ public class ImageTaggingService implements ISamzaService {
 			List<String> node_keywords = new ArrayList<String>();
 			if (null != node.getMetadata().get(ImageWorkflowEnums.keywords.name())) {
 				Object object = node.getMetadata().get(ImageWorkflowEnums.keywords.name());
-
 				if (object instanceof String[]) {
 					String[] stringArray = (String[]) node.getMetadata().get(ImageWorkflowEnums.keywords.name());
 					List keywords = Arrays.asList(stringArray);
 					node_keywords = setKeywords(keywords, labels);
 				}
-
 				if (object instanceof String) {
 					String keyword = (String) node.getMetadata().get(ImageWorkflowEnums.keywords.name());
 					node_keywords.add(keyword);
 					node_keywords = setKeywords(node_keywords, labels);
 				}
 			}
-
 			if (!node_keywords.isEmpty()) {
 				node.getMetadata().put(ImageWorkflowEnums.keywords.name(), node_keywords);
 			}
@@ -188,7 +175,6 @@ public class ImageTaggingService implements ISamzaService {
 			if (null != node.getMetadata().get(ImageWorkflowEnums.flaggedBy.name())) {
 				flaggedByList.addAll((Collection<? extends String>) node.getMetadata().get(ImageWorkflowEnums.flaggedBy.name()));
 			}
-
 			if (null != flags && (!flags.isEmpty())) {
 				node.getMetadata().put(ImageWorkflowEnums.flags.name(), flags);
 				flaggedByList.add(ImageWorkflowEnums.Ekstep.name());
@@ -197,9 +183,8 @@ public class ImageTaggingService implements ISamzaService {
 				node.getMetadata().put(ImageWorkflowEnums.status.name(), ImageWorkflowEnums.Flagged.name());
 				node.getMetadata().put(ImageWorkflowEnums.lastFlaggedOn.name(), new Date().toString());
 			}
-
 		} catch (Exception e) {
-
+			LOGGER.error("General Security Exception" + e.getMessage(), e);
 		}
 		return node;
 	}
@@ -215,7 +200,6 @@ public class ImageTaggingService implements ISamzaService {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<String> setKeywords(List<String> keywords, Map<String, Object> labels) {
-
 		if (null != labels && !labels.isEmpty()) {
 			for (Entry<String, Object> entry : labels.entrySet()) {
 				List<String> list = (List) entry.getValue();

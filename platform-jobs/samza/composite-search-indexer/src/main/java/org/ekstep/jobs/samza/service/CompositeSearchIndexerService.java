@@ -81,8 +81,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
+				LOGGER.info("fetched definition from cache");
 				DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
-				LOGGER.info("fetched definition from cache" + definitionNode.getIdentifier());
 				Map<String, Object> definition = mapper.convertValue(definitionNode,
 						new TypeReference<Map<String, Object>>() {
 						});

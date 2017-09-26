@@ -13,6 +13,7 @@ import org.neo4j.graphdb.Direction;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -75,7 +76,9 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 Graph graph = new Graph(this, graphId);
                 graph.getDefinitionNode(request);
             } catch (Exception e) {
-                handleException(e, getSender());
+//            	handleException(e, getSender());
+            	throw new ServerException("Something went wrong while fetching definition" , e.getMessage());
+               
             }
         }
     }
