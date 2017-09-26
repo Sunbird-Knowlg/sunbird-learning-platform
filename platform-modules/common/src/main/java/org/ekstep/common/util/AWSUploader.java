@@ -93,14 +93,12 @@ public class AWSUploader {
 		Region region = getS3Region(S3PropertyReader.getProperty(s3Region));
 		if (null != region)
 			s3.setRegion(region);
-		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucketName = S3PropertyReader.getProperty(s3Bucket, bucketRegion);
+		String bucketName = getBucketName();
 		s3.deleteObject(new DeleteObjectRequest(bucketName, key));
 	}
 
 	public static double getObjectSize(String key) throws IOException {
 		AmazonS3 s3 = new AmazonS3Client();
-		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
 		String bucket = getBucketName();
 		return s3.getObjectMetadata(bucket, key).getContentLength();
 	}
