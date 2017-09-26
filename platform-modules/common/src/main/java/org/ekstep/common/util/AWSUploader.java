@@ -101,7 +101,7 @@ public class AWSUploader {
 	public static double getObjectSize(String key) throws IOException {
 		AmazonS3 s3 = new AmazonS3Client();
 		String bucketRegion = S3PropertyReader.getProperty(s3Environment);
-		String bucket = S3PropertyReader.getProperty(getBucketName(), bucketRegion);
+		String bucket = getBucketName();
 		return s3.getObjectMetadata(bucket, key).getContentLength();
 	}
 
