@@ -26,6 +26,7 @@ import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.Platform;
 import com.ilimi.graph.dac.model.Node;
+import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigObject;
 import com.typesafe.config.ConfigValueFactory;
 
@@ -44,8 +45,8 @@ public class ImageTaggingService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.loadProperties(conf.toConfig());
+		com.typesafe.config.Config conf = ConfigFactory.parseMap(props);
+		Platform.loadProperties(conf);
 		System.out.println("Configuration Initialized" + conf);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();

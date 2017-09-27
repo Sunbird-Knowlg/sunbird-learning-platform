@@ -22,8 +22,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.ilimi.common.Platform;
 import com.ilimi.graph.model.node.DefinitionDTO;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValueFactory;
+import com.typesafe.config.ConfigFactory;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
@@ -41,8 +40,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		for (Entry<String, String> entry : config.entrySet()) {
 			props.put(entry.getKey(), entry.getValue());
 		}
-		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.loadProperties(conf.toConfig());
+		com.typesafe.config.Config conf = ConfigFactory.parseMap(props);
+		Platform.loadProperties(conf);
 		System.out.println("Configuration Initialized" + conf);
 		LOGGER.info("Service config initialized");
 		esUtil = new ElasticSearchUtil();
@@ -82,11 +81,11 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
-				LOGGER.info("fetched definition from cache");
 				DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
 				Map<String, Object> definition = mapper.convertValue(definitionNode,
 						new TypeReference<Map<String, Object>>() {
 						});
+				LOGGER.info("definition fetched from cache" + definitionNode.getIdentifier());
 				Map<String, String> relationMap = getRelationMap(objectType, definition);
 				String operationType = (String) message.get("operationType");
 				switch (operationType) {
