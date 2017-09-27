@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -16,15 +15,12 @@ import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.ConfigUtil;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 
-import com.ilimi.common.Platform;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.dac.enums.AuditHistoryConstants;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValueFactory;
 
 /**
  * The Class AuditHistoryService provides implementations of the core operations defined in the IMessageProcessor along
@@ -51,7 +47,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 	}
 
 	public void initialize(Config config) throws Exception {
-		ConfigUtil.loadProperties(config);
+		JSONUtils.loadProperties(config);
 		esUtil = new ElasticSearchUtil();
 		// Create index if not found
 		String settings = "{\"settings\":{\"index\":{\"index\":\""

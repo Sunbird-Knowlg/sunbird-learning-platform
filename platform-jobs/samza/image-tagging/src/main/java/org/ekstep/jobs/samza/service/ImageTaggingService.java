@@ -17,8 +17,8 @@ import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.ConfigUtil;
 import org.ekstep.jobs.samza.util.ImageWorkflowEnums;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.OptimizerUtil;
 import org.ekstep.jobs.samza.util.VisionApi;
@@ -38,7 +38,7 @@ public class ImageTaggingService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
-		ConfigUtil.loadProperties(config);
+		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");

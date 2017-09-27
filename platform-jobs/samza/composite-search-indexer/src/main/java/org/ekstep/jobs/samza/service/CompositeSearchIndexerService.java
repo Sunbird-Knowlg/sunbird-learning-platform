@@ -12,7 +12,7 @@ import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.ConfigUtil;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
@@ -32,7 +32,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 
 	@Override
 	public void initialize(Config config) throws Exception {
-		ConfigUtil.loadProperties(config);
+		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();
