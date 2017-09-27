@@ -200,8 +200,15 @@ public class PublishFinalizer extends BaseFinalizer {
 		if (BooleanUtils.isFalse(isAssetTypeContent)) {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
-			node.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-					ContentWorkflowPipelineParams.Live.name());
+			
+			String publishType = node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name()).toString();
+			if(null != publishType && StringUtils.isNotBlank(publishType)) {
+				if(ContentWorkflowPipelineParams.Public.name().equalsIgnoreCase(publishType)) {
+					node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
+				}else if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
+					node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
+				}
+			}
 			nodes.add(node);
 			List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 			List<String> childrenIds = new ArrayList<String>();
@@ -363,8 +370,14 @@ public class PublishFinalizer extends BaseFinalizer {
 			// Setting the Appropriate Metadata
 			contentImage.setIdentifier(contentId);
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
-			contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(),
-					ContentWorkflowPipelineParams.Live.name());
+			
+			String publishType = contentImage.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name()).toString();
+			if(ContentWorkflowPipelineParams.Public.name().equalsIgnoreCase(publishType)) {
+				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
+			}else if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
+				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
+			}
+			//contentImage.getMetadata().remove(ContentWorkflowPipelineParams.publish_type.name());
 			
 			if (null != dbNode) {
 				contentImage.setInRelations(dbNode.getInRelations());

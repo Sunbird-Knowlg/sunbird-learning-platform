@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,7 +194,7 @@ public class ContentV3Controller extends BaseController {
 					contentId);
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			requestMap.put("publish_type", "public");
+			requestMap.put("publish_type", ContentWorkflowPipelineParams.Public.name().toLowerCase());
 			
 			if (null == requestMap.get("lastPublishedBy")
 					|| StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())) {
@@ -231,7 +232,7 @@ public class ContentV3Controller extends BaseController {
 					contentId);
 			Request request = getRequest(map);
 			Map<String, Object> requestMap = (Map<String, Object>) request.getRequest().get("content");
-			requestMap.put("publish_type", "unlisted");
+			requestMap.put("publish_type", ContentWorkflowPipelineParams.Unlisted.name().toLowerCase());
 			
 			if (null == requestMap.get("lastPublishedBy")
 					|| StringUtils.isBlank(requestMap.get("lastPublishedBy").toString())) {

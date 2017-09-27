@@ -444,7 +444,8 @@ public class BasePipeline extends BaseManager {
 			if (null == node.getMetadata())
 				node.setMetadata(new HashMap<String, Object>());
 			String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
-			if ((onlyLive && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
+			if ((onlyLive && (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status) 
+					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Unlisted.name(), status)))
 					|| !onlyLive) {
 				metadata.putAll(node.getMetadata());
 				metadata.put(ContentWorkflowPipelineParams.identifier.name(), node.getIdentifier());

@@ -153,7 +153,8 @@ public class ContentBundle {
 			if (null != posterImage && StringUtils.isNotBlank((String) posterImage))
 				content.put(ContentWorkflowPipelineParams.appIcon.name(), posterImage);
 			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
-			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
+			if (!(StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status) 
+					|| StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Unlisted.name(), status)))
 				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
 		}
 		return downloadUrls;

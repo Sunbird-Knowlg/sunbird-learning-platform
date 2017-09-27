@@ -341,12 +341,16 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         }
                         Map<String, Object> dbMetadata = dbNode.getMetadata();
                         if (null != dbMetadata && !dbMetadata.isEmpty()) {
-                        	dbMetadata.remove(GraphDACParams.versionKey.name());
-                        	dbMetadata.remove(GraphDACParams.lastUpdatedBy.name());
-                            for (Entry<String, Object> entry : dbMetadata.entrySet()) {
-                                if (!datanode.getMetadata().containsKey(entry.getKey()))
-                                    datanode.getMetadata().put(entry.getKey(), entry.getValue());
+                        		dbMetadata.remove(GraphDACParams.versionKey.name());
+                        		dbMetadata.remove(GraphDACParams.lastUpdatedBy.name());
+                        		for (Entry<String, Object> entry : dbMetadata.entrySet()) {
+                        			if (!datanode.getMetadata().containsKey(entry.getKey()))
+                        				datanode.getMetadata().put(entry.getKey(), entry.getValue());
                             }
+                        }
+                        String status = datanode.getMetadata().get(GraphDACParams.status.name()).toString();
+                        if(GraphDACParams.Live.name().equalsIgnoreCase(status) || GraphDACParams.Unlisted.name().equalsIgnoreCase(status)) {
+                        		datanode.getMetadata().put(GraphDACParams.publish_type.name(), null);
                         }
                         getRelationsDelta(addRels, delRels, dbNode, datanode);
                         dbNodes.add(dbNode);
