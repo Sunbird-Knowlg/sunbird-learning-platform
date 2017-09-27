@@ -27,7 +27,8 @@ public class RoutingUtil {
 		try {
 			String baseKey = DACConfigurationConstants.DEFAULT_ROUTE_PROP_PREFIX + StringUtils.lowerCase(graphOperation.name())
 							+ DACConfigurationConstants.DEFAULT_PROPERTIES_NAMESPACE_SEPARATOR;
-			System.out.println("BaseKey: " + baseKey + "graphId : " + graphId + "operation: " + graphOperation);
+
+			System.out.println("Config: " + Platform.config);
 			if (Platform.config.hasPath(baseKey + graphId)) {
 				routeUrl = Platform.config.getString(baseKey + graphId);
 			} else if (Platform.config.hasPath(baseKey + DACConfigurationConstants.DEFAULT_NEO4J_BOLT_ROUTE_ID)) {
@@ -41,5 +42,8 @@ public class RoutingUtil {
 		}
 		return routeUrl;
 	}
-
+	public static void main(String[] args){
+		String url = getRoute("domain", GraphOperation.WRITE);
+		System.out.println("Url:"+url);
+	}
 }
