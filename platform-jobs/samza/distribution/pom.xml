@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.9</version>
+			<version>0.0.10</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -40,7 +40,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
-			<version>0.0.7</version>
+			<version>0.0.8</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>

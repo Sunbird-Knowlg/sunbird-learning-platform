@@ -43,6 +43,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
 		Platform.loadProperties(conf.toConfig());
+		System.out.println("Configuration Initialized" + conf);
 		LOGGER.info("Service config initialized");
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();

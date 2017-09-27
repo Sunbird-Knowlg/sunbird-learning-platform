@@ -46,6 +46,7 @@ public class ImageTaggingService implements ISamzaService {
 		}
 		ConfigObject conf = ConfigValueFactory.fromMap(props);
 		Platform.loadProperties(conf.toConfig());
+		System.out.println("Configuration Initialized" + conf);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
