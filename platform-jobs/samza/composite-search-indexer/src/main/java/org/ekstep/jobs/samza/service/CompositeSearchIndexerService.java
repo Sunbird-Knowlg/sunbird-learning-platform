@@ -118,11 +118,9 @@ public class CompositeSearchIndexerService implements ISamzaService {
 
 	@SuppressWarnings("rawtypes")
 	private Map<String, String> getRelationMap(String objectType, Map definitionNode) throws Exception {
-		Map<String, String> relationMap = new HashMap<String, String>();
 		Map<String, String> relationDefinition = retrieveRelations(definitionNode, "IN", "inRelations");
 		relationDefinition.putAll(retrieveRelations(definitionNode, "OUT", "outRelations"));
-		relationMap.put(objectType, relationDefinition.toString());
-		return relationMap;
+		return relationDefinition;
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -214,7 +212,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			if (null != removedRelations && !removedRelations.isEmpty()) {
 				for (Map<String, Object> rel : removedRelations) {
 					String key = rel.get("dir") + "_" + rel.get("type") + "_" + rel.get("rel");
-					String title = relationMap.get(key);
+					String title = (String) relationMap.get(key);
 					if (StringUtils.isNotBlank(title)) {
 						List<String> list = (List<String>) indexDocument.get(title);
 						if (null != list && !list.isEmpty()) {
