@@ -5,8 +5,6 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -16,16 +14,14 @@ import org.ekstep.jobs.samza.model.Event;
 import org.ekstep.jobs.samza.model.LifecycleEvent;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.ObjectLifecycleParams;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
-import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValueFactory;
 
 public class ObjectLifecycleService implements ISamzaService {
 	
@@ -40,12 +36,7 @@ public class ObjectLifecycleService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.loadProperties(conf.toConfig());
+		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		digest = MessageDigest.getInstance("MD5");
 		LearningRequestRouterPool.init();
@@ -57,7 +48,6 @@ public class ObjectLifecycleService implements ISamzaService {
 		if(null == message.get("syncMessage")){
 			if(null != message.get(ObjectLifecycleParams.operationType.name()) && message.get(ObjectLifecycleParams.operationType.name()).equals(ObjectLifecycleParams.DELETE.name())){
 				Event event = generateEventOnDelete(message);
-				event.setEts(message);
 				LOGGER.info("Event generated on deletion of node");
 				publishEvent(event, collector);
 				LOGGER.info("Event published on deletion of node");
@@ -96,6 +86,7 @@ public class ObjectLifecycleService implements ISamzaService {
 		String nodeUniqueId = (String)message.get(ObjectLifecycleParams.nodeUniqueId.name());
 		String objectType = (String)message.get(ObjectLifecycleParams.objectType.name());
 		lifecycleEvent.setId(nodeUniqueId);
+		lifecycleEvent.setState("");
 		lifecycleEvent.setType(objectType);
 		event.setEts(message);
 		event.setEdata(lifecycleEvent);

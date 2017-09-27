@@ -26,21 +26,21 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>object-lifecycle</artifactId>
-			<version>0.0.3</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>content-enrichment</artifactId>
 			<version>0.0.4</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
+			<artifactId>content-enrichment</artifactId>
+			<version>0.0.5</version>
+			<type>tar.gz</type>
+			<classifier>distribution</classifier>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
-			<version>0.0.10</version>
+			<version>0.0.11</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
