@@ -42,8 +42,4 @@ public class RoutingUtil {
 		}
 		return routeUrl;
 	}
-	public static void main(String[] args){
-		String url = getRoute("domain", GraphOperation.WRITE);
-		System.out.println("Url:"+url);
-	}
 }
