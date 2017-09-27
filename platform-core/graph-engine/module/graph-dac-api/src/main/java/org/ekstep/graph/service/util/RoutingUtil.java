@@ -41,6 +41,7 @@ public class RoutingUtil {
 		} catch (Exception e) {
 			PlatformLogger.log("Error fetching location from graph.properties", null, e);
 		}
+		System.out.println("routeUrl" + routeUrl);
 		return routeUrl;
 	}
 }
