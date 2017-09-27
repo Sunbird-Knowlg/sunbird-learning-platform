@@ -16,6 +16,7 @@ import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.jobs.samza.service.ISamzaService;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.ConfigUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 
@@ -50,12 +51,7 @@ public class AuditHistoryIndexerService implements ISamzaService {
 	}
 
 	public void initialize(Config config) throws Exception {
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.loadProperties(conf.toConfig());
+		ConfigUtil.loadProperties(config);
 		esUtil = new ElasticSearchUtil();
 		// Create index if not found
 		String settings = "{\"settings\":{\"index\":{\"index\":\""

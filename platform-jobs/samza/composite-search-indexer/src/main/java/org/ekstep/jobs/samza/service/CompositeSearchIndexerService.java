@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -14,15 +12,13 @@ import org.apache.samza.task.MessageCollector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.ConfigUtil;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-
-import com.ilimi.common.Platform;
 import com.ilimi.graph.model.node.DefinitionDTO;
-import com.typesafe.config.ConfigFactory;
 
 public class CompositeSearchIndexerService implements ISamzaService {
 
@@ -36,13 +32,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 
 	@Override
 	public void initialize(Config config) throws Exception {
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		com.typesafe.config.Config conf = ConfigFactory.parseMap(props);
-		Platform.loadProperties(conf);
-		System.out.println("Configuration Initialized" + conf);
+		ConfigUtil.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		esUtil = new ElasticSearchUtil();
 		LearningRequestRouterPool.init();

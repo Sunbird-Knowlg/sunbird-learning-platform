@@ -17,6 +17,7 @@ import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.ConfigUtil;
 import org.ekstep.jobs.samza.util.ImageWorkflowEnums;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.OptimizerUtil;
@@ -24,11 +25,7 @@ import org.ekstep.jobs.samza.util.VisionApi;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
-import com.ilimi.common.Platform;
 import com.ilimi.graph.dac.model.Node;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValueFactory;
 
 public class ImageTaggingService implements ISamzaService {
 
@@ -41,13 +38,7 @@ public class ImageTaggingService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		com.typesafe.config.Config conf = ConfigFactory.parseMap(props);
-		Platform.loadProperties(conf);
-		System.out.println("Configuration Initialized" + conf);
+		ConfigUtil.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");
