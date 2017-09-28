@@ -193,8 +193,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void createValidEcmlContentExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
 				spec(get200ResponseSpec()).extract().response();
 
@@ -204,10 +211,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Get content and validate
 		setURI();
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when()
+				.get("/content/v3/read/" + nodeId).
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
@@ -219,11 +231,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Ignore
 	public void createContentWithValidConceptExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateValidContentWithConcept).with().contentType(JSON).when().post("content/v3/create")
-				.then().
+		Response R = given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentWithConcept).
+				with().contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -231,10 +248,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Get content and validate
 		setURI();
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
@@ -251,10 +273,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.html-archive");
 		String jsonCreateValidContentHtml = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateValidContentHtml).with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentHtml).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -262,10 +292,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Get content and check
 		setURI();
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String status = jP1.get("result.content.status");
@@ -281,10 +316,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.android.package-archive");
 		String jsonCreateValidContentAPK = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateValidContentAPK).with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentAPK).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -292,10 +335,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Get content and check
 		setURI();
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String identifier = jP1.get("result.content.identifier");
@@ -314,13 +362,20 @@ public class ContentPublishV3TestCases extends BaseTest {
 			setURI();
 			int rn = generateRandomInt(2000, 29999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
-			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name",
-					"LP_NFTT-" + rn + "");
+			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFTT_" + rn + "").put("name","LP_NFTT-" + rn + "");
 			String jsonCreateValidChild = js.toString();
-			Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidChild)
-					.with().contentType(JSON).when().post("content/v3/create").then().
+			Response R = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					body(jsonCreateValidChild).
+					with().
+					contentType(JSON).
+					when().
+					post("content/v3/create").
+					then().
 					//log().all().
-					spec(get200ResponseSpec()).extract().response();
+					spec(get200ResponseSpec()).
+					extract().response();
 
 			// Extracting the JSON path
 			JsonPath jp = R.jsonPath();
@@ -336,10 +391,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Create collection
 		setURI();
 		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateContentCollection).with().contentType(JSON).when().post("content/v3/create").then().
+		Response R1 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateContentCollection).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Get collection and validate
 		JsonPath jp1 = R1.jsonPath();
@@ -347,10 +410,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Get collection
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		ArrayList<String> identifiers = jP2.get("result.content.children.identifier");
@@ -363,8 +431,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void createInvalidContentExpects400() {
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateInvalidContent).with()
-				.contentType(JSON).when().post("learning/v2/content").then().spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateInvalidContent).
+		with().
+		contentType(JSON).
+		when().
+		post("learning/v2/content").
+		then().
+		spec(get400ResponseSpec());
 	}
 
 	// Create content with invalid mimeType
@@ -374,10 +449,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.-archive");
 		String jsonCreateValidContentHtml = js.toString();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContentHtml).with()
-				.contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateValidContentHtml).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Create content with invalid contentType
@@ -387,18 +468,32 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("contentType", "TestContentType01");
 		String jsonCreateValidContentHtml = js.toString();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContentHtml).with()
-				.contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateValidContentHtml).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Create Existing content
 	@Test
 	public void createExistingContentExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -409,10 +504,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 		js.getJSONObject("request").getJSONObject("content").put("identifier", ecmlNode);
 		String jsonCreateExistingContent = js.toString();
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateExistingContent).with()
-				.contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateExistingContent).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
 
 	}
 
@@ -422,8 +523,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void createInvalidCollectionExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -431,12 +540,17 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Create collection
 		setURI();
-		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", ecmlNode).replace("id2",
-				invalidContentId);
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateContentCollection).with()
-				.contentType(JSON).when().post("content/v3/create").then().
-				//log().all().
-				spec(get400ResponseSpec());
+		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", ecmlNode).replace("id2",invalidContentId);
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonCreateContentCollection).
+		with().
+		contentType(JSON).
+		when().
+		post("content/v3/create").
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Update and get list
@@ -850,7 +964,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 		Response R1 = 
 				given().
 				spec(getRequestSpecification(contentType, userId, APIToken)).
-				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when().
+				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+				when().
 				post("/content/v3/publish/" + nodeId).
 				then().
 				//log().all().
@@ -884,7 +999,8 @@ public class ContentPublishV3TestCases extends BaseTest {
 		setURI();
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
-		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when().
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
 		post("/content/v3/publish/" + nodeId).
 		then().
 		//log().all().
@@ -911,8 +1027,16 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadContentWithoutIndexExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -920,11 +1044,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/UploadWithoutIndex.zip")).when().post("/content/v3/upload/" + nodeId)
-				.then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/UploadWithoutIndex.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Upload file with invalid ecml
@@ -933,8 +1060,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void uploadContentWithInvalidEcmlExpect400() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().extract().response();
+		Response R = given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -942,11 +1076,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadInvalidEcml.zip")).when().post("/content/v3/upload/" + nodeId).then()
-				.
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadInvalidEcml.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Upload html content without index.html
@@ -958,11 +1095,19 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.html-archive");
 		String jsonCreateValidContentHtml = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateValidContentHtml).with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentHtml).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
 				// spec(get200ResponseSpec()).
-		extract().response();
+				extract().
+				response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -970,10 +1115,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/Build-a-sentence.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get400ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/Build-a-sentence.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get400ResponseSpec());
 	}
 
 	// Upload file with invalid mimeType
