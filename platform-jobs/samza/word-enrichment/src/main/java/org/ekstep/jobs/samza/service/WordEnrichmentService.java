@@ -2,8 +2,11 @@ package org.ekstep.jobs.samza.service;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
@@ -11,6 +14,7 @@ import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.WordEnrichmentParams;
+import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ControllerUtil;
 
@@ -29,7 +33,12 @@ public class WordEnrichmentService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
+		Map<String, Object> props = new HashMap<String, Object>();
+		for (Entry<String, String> entry : config.entrySet()) {
+			props.put(entry.getKey(), entry.getValue());
+		}
 		JSONUtils.loadProperties(config);
+		LanguageMap.loadProperties(props);
 		LOGGER.info("Service config initialized");
 		LanguageRequestRouterPool.init();
 		LOGGER.info("Actors initialized");
