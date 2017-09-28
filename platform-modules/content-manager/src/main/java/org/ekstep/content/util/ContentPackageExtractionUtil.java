@@ -47,10 +47,10 @@ public class ContentPackageExtractionUtil {
 	/** The Constant DASH. */
 	private static final String DASH = "-";
 
+	private static final String S3_BUCKET = "s3.public.bucket.";
+	
 	/** The Constant s3Content. */
 	private static final String S3_CONTENT = "s3.content.folder";
-
-	private static final String S3_BUCKET_PREFIX = "s3.bucket.";
 
 	/** The Constant S3_ENVIRONMENT. */
 	private static final String S3_ENVIRONMENT = "s3.env";
@@ -106,9 +106,9 @@ public class ContentPackageExtractionUtil {
 			PlatformLogger.log("Currently Working Environment: " + s3Environment);
 
 			// Fetching Bucket Name
-			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET_PREFIX + s3Environment);
+			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET);
 			PlatformLogger.log("Current Storage Space Bucket Name: " + s3Bucket);
-
+			
 			// Fetching Source Prefix For Copy Objects in S3
 			String sourcePrefix = getExtractionPath(contentId, node, ExtractionType.snapshot);
 			PlatformLogger.log("Source Prefix: " + sourcePrefix);
