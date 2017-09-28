@@ -47,7 +47,7 @@ public class ContentPackageExtractionUtil {
 	/** The Constant DASH. */
 	private static final String DASH = "-";
 
-	private static final String S3_BUCKET = "s3.public.bucket.";
+	private static final String S3_BUCKET = "s3.public.bucket";
 	
 	/** The Constant s3Content. */
 	private static final String S3_CONTENT = "s3.content.folder";

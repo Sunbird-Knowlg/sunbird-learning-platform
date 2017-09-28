@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>publish-pipeline</artifactId>
-	<version>0.0.22</version>
+	<version>0.0.23</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.ekstep</groupId>
