@@ -15,6 +15,12 @@
 	<artifactId>samza-common</artifactId>
 	<dependencies>
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.12</version>
+		<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.samza</groupId>
 			<artifactId>samza-api</artifactId>
 			<version>${samza.version}</version>
