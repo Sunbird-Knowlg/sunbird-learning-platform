@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
@@ -15,16 +14,14 @@ import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
 import org.ekstep.content.util.PublishWebHookInvoker;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
-import com.ilimi.common.Platform;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.graph.dac.model.Node;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValueFactory;
 
 public class PublishPipelineService implements ISamzaService {
 
@@ -43,12 +40,7 @@ public class PublishPipelineService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.loadProperties(conf.toConfig());
+		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");	
@@ -59,7 +51,6 @@ public class PublishPipelineService implements ISamzaService {
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
 		Map<String, Object> eks = getPublishLifecycleData(message);
-
 		if (null == eks) {
 			metrics.incSkippedCounter();
 			return;
@@ -134,7 +125,7 @@ public class PublishPipelineService implements ISamzaService {
 		return identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 	}
 
-	public Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
+	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
 		return dedup(nodes).stream()
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getMimeType(),
 						"application/vnd.ekstep.content-collection")

@@ -2,25 +2,19 @@ package org.ekstep.jobs.samza.service;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.WordEnrichmentParams;
-import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.ControllerUtil;
 
-import com.ilimi.common.Platform;
-import com.typesafe.config.ConfigObject;
-import com.typesafe.config.ConfigValueFactory;
-
+@SuppressWarnings("unchecked")
 public class WordEnrichmentService implements ISamzaService {
 
 	static JobLogger LOGGER = new JobLogger(WordEnrichmentService.class);
@@ -35,13 +29,7 @@ public class WordEnrichmentService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		ConfigObject conf = ConfigValueFactory.fromMap(props);
-		Platform.loadProperties(conf.toConfig());
-		LanguageMap.loadProperties(props);
+		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		LanguageRequestRouterPool.init();
 		LOGGER.info("Actors initialized");
@@ -102,8 +90,7 @@ public class WordEnrichmentService implements ISamzaService {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public Map<String,Object> getTransactionEvent(Map<String,Object> message){
+	private Map<String,Object> getTransactionEvent(Map<String,Object> message){
 		if(!message.containsKey(WordEnrichmentParams.graphId.name()) || (!message.containsKey(WordEnrichmentParams.objectType.name())) || 
 				(!message.containsKey(WordEnrichmentParams.nodeType.name())) || 
 				(!message.containsKey(WordEnrichmentParams.operationType.name())) || (!message.containsKey(WordEnrichmentParams.transactionData.name())))
@@ -119,8 +106,7 @@ public class WordEnrichmentService implements ISamzaService {
         return transactionMap;   
 	}
 	
-	@SuppressWarnings("unchecked")
-	public boolean checkPropertyExist(Map<String,Object> transactionData, String property) {
+	private boolean checkPropertyExist(Map<String,Object> transactionData, String property) {
 		Map<String, Object> properties = (Map<String, Object>) transactionData.get(property);
 		if (properties != null && !properties.isEmpty()) {
 			return true;
@@ -128,8 +114,7 @@ public class WordEnrichmentService implements ISamzaService {
 		return false;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public boolean checkPropertyListExist(Map<String,Object> transactionData, String property) {
+	private boolean checkPropertyListExist(Map<String,Object> transactionData, String property) {
 		List<Map<String, Object>> properties = (List<Map<String, Object>>) transactionData.get(property);
 		if (properties != null && !properties.isEmpty()) {
 			return true;
@@ -137,8 +122,7 @@ public class WordEnrichmentService implements ISamzaService {
 		return false;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void enrichWord(Map<String,Object> transactionData,String languageId, String identifier) throws Exception{
+	private void enrichWord(Map<String,Object> transactionData, String languageId, String identifier) throws Exception{
 		Map<String, Object> properties = (Map<String, Object>) transactionData.get(WordEnrichmentParams.properties.name());
 		if (properties != null && !properties.isEmpty()) {
 			if (isEnrichNeeded(properties))
@@ -146,8 +130,7 @@ public class WordEnrichmentService implements ISamzaService {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void copyPrimaryMeaningMetadata(Map<String,Object> transactionData,String languageId, String identifier) throws Exception{
+	private void copyPrimaryMeaningMetadata(Map<String,Object> transactionData,String languageId, String identifier) throws Exception{
 	
 		List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData.get(WordEnrichmentParams.addedRelations.name());
 		if (null != addedRelations && !addedRelations.isEmpty()) {
@@ -174,9 +157,7 @@ public class WordEnrichmentService implements ISamzaService {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void syncWordsMetadata(Map<String,Object> transactionData,String languageId, String identifier) throws Exception{
-	
+	private void syncWordsMetadata(Map<String,Object> transactionData,String languageId, String identifier) throws Exception{
 		Map<String, Object> properties = (Map<String, Object>) transactionData.get(WordEnrichmentParams.properties.name());
 		if (properties != null && !properties.isEmpty()) {
 			if (isSyncNeeded(properties))
@@ -184,8 +165,7 @@ public class WordEnrichmentService implements ISamzaService {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	public boolean isEnrichNeeded(Map<String, Object> properties) {
+	private boolean isEnrichNeeded(Map<String, Object> properties) {
 		if (!properties.isEmpty()) {
 			for (Map.Entry<String, Object> propertyMap : properties.entrySet()) {
 				if (propertyMap != null && propertyMap.getKey() != null) {
@@ -205,8 +185,7 @@ public class WordEnrichmentService implements ISamzaService {
 		return false;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public boolean isSyncNeeded(Map<String, Object> properties) {
+	private boolean isSyncNeeded(Map<String, Object> properties) {
 		if (!properties.isEmpty()) {
 			for (Map.Entry<String, Object> propertyMap : properties.entrySet()) {
 				if (propertyMap != null && propertyMap.getKey() != null) {
@@ -242,17 +221,17 @@ public class WordEnrichmentService implements ISamzaService {
 		return false;
 	}
 	
-	public void enrichWord(String languageId, String identifier) throws Exception {
+	private void enrichWord(String languageId, String identifier) throws Exception {
 		LOGGER.info("Word Enrichment initialized for word -"+identifier);
 		util.enrichWord(languageId, identifier);
 	}
 	
-	public void copyPrimaryMeaningMetadata(String languageId, String identifier, Boolean meaningAdded) throws Exception {
+	private void copyPrimaryMeaningMetadata(String languageId, String identifier, Boolean meaningAdded) throws Exception {
 		LOGGER.info("copy primaryMeaning's metadata for word -"+identifier);
 		util.copyPrimaryMeaningMetadata(languageId, identifier, meaningAdded);
 	}
 	
-	public void syncWordsMetadata(String languageId, String identifier) throws Exception {
+	private void syncWordsMetadata(String languageId, String identifier) throws Exception {
 		LOGGER.info("sync Words Metadata for synset -"+identifier);
 		util.syncWordsMetadata(languageId, identifier);
 	}
