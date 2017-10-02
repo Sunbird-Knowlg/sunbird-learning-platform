@@ -49,7 +49,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		if (!BooleanUtils.isFalse(shouldindex)) {
 			LOGGER.info("Indexing event into ES");
 			try {
-				processMessage(message);
+				processMessage(message, metrics);
 				LOGGER.info("Composite record added/updated");
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
@@ -62,7 +62,7 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		}
 	}
 
-	public void processMessage(Map<String, Object> message) throws Exception {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics) throws Exception {
 		if (message != null && message.get("operationType") != null) {
 			String nodeType = (String) message.get("nodeType");
 			String objectType = (String) message.get("objectType");
@@ -72,6 +72,10 @@ public class CompositeSearchIndexerService implements ISamzaService {
 			case CompositeSearchConstants.NODE_TYPE_SET:
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
 				DefinitionDTO definitionNode = util.getDefinition(graphId, objectType);
+				if (null == definitionNode) {
+					metrics.incFailedCounter();
+					LOGGER.info("Failed to fetch definition node from cache");
+				}
 				Map<String, Object> definition = mapper.convertValue(definitionNode,
 						new TypeReference<Map<String, Object>>() {
 						});
@@ -170,7 +174,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 						String propertyName = (String) propertyMap.getKey();
 						// new value of the property
 						Object propertyNewValue = ((Map<String, Object>) propertyMap.getValue()).get("nv");
-						// New value from transaction data is null, then remove the property from document																	
+						// New value from transaction data is null, then remove
+						// the property from document
 						if (propertyNewValue == null)
 							indexDocument.remove(propertyName);
 						else {
