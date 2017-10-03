@@ -41,7 +41,6 @@ import com.ilimi.common.logger.PlatformLogger;
  */
 public class AWSUploader {
 
-	private static final String s3Bucket = "s3.bucket";
 	private static final String s3Environment = "s3.env";
 	private static final String s3Region = "s3.region";
 	private static final String s3 = "s3";
@@ -106,7 +105,7 @@ public class AWSUploader {
 	public static List<String> getObjectList(String prefix) {
 		AmazonS3 s3 = new AmazonS3Client();
 		PlatformLogger.log("Reading s3 Bucket and Region" , getBucketName() + " : " + s3Environment);
-		String bucketName = getBucketName();
+		String bucketName = getBucketName("config");
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
 		PlatformLogger.log("SummaryData returned from s3 object Listing" , summaries.size());
