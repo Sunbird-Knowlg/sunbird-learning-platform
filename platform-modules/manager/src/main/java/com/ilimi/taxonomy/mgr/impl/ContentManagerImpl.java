@@ -1296,6 +1296,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (BooleanUtils.isTrue(isNew)) {
 			metadata.put("isNew", true);
 			metadata.put("code", nodeId);
+			metadata.put("status", "Draft");
 			metadata.put(GraphDACParams.versionKey.name(), System.currentTimeMillis() + "");
 			metadata.put(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
 			Boolean root = (Boolean) map.get("root");
