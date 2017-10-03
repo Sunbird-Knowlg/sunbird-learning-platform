@@ -99,8 +99,11 @@ public class PublishPipelineService implements ISamzaService {
 
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
 		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare( n1.getCompatibilityLevel(), n2.getCompatibilityLevel());
-		NodeDTO maxNode = nodes.stream().max(comp).get();
-		return maxNode.getCompatibilityLevel();
+		Optional<NodeDTO> maxNode = nodes.stream().max(comp);
+		if (maxNode.isPresent())
+			return maxNode.get().getCompatibilityLevel();
+		else 
+			return 1;
 	}
 
 	private List<NodeDTO> dedup(List<NodeDTO> nodes) {
