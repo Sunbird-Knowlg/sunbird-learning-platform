@@ -919,7 +919,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (map.containsKey(ContentAPIParams.status.name()))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CREATE.name(),
 					"Error! Status cannot be set while creating a Content.");
-
+		// Checking for resourceType if contentType resource
+		if(map.containsKey(ContentAPIParams.contentType.name())){
+			if(map.get(ContentAPIParams.contentType.name()).equals("Resource")){
+				if(null == map.get(ContentAPIParams.resourceType.name())){
+					throw new ClientException(TaxonomyErrorCodes.ERR_CONTENT_MISSING_CONTENT_RESOURCE_TYPE.name(), "Required field resource Type is missing!");
+				}
+			}
+		}
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
