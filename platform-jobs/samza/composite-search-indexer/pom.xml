@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>composite-search-indexer</artifactId>
-	<version>0.0.13</version>
+	<version>0.0.14</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
