@@ -102,10 +102,10 @@ public class AWSUploader {
 		return s3.getObjectMetadata(bucket, key).getContentLength();
 	}
 
-	public static List<String> getObjectList(String prefix) {
+	public static List<String> getObjectList(String prefix, String bucketType) {
 		AmazonS3 s3 = new AmazonS3Client();
-		PlatformLogger.log("Reading s3 Bucket and Region" , getBucketName() + " : " + s3Environment);
-		String bucketName = getBucketName("config");
+		PlatformLogger.log("Reading s3 Bucket and Region" , getBucketName(bucketType) + " : " + s3Environment);
+		String bucketName = getBucketName(bucketType);
 		ObjectListing listing = s3.listObjects(bucketName, prefix);
 		List<S3ObjectSummary> summaries = listing.getObjectSummaries();
 		PlatformLogger.log("SummaryData returned from s3 object Listing" , summaries.size());
