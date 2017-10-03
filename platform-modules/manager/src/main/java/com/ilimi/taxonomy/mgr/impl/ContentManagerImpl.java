@@ -1372,7 +1372,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	//Method is introduced to decide whether image node should be created for the content or not.
 	private Node getNodeForUpdateHierarchy(String taxonomyId, String contentId, String operation, boolean notImageNode, boolean isRoot) {
 		Response response;
-		Node node = new Node();
 		if (isRoot)
 	        return getNodeForOperation(taxonomyId, contentId, operation, notImageNode);
 	    else {
@@ -1383,13 +1382,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
 			} else {
-				node = (Node) response.get(GraphDACParams.node.name());
+				Node node = (Node) response.get(GraphDACParams.node.name());
+				if("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
+	    				return getNodeForOperation(taxonomyId, contentId, operation, notImageNode);
+	    			}else {
+	    				return node;
+	    			}
 			}
-	    		if("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
-	    			return getNodeForOperation(taxonomyId, contentId, operation, notImageNode);
-	    		}else {
-	    			return node;
-	    		}
+	    		
 	    }
 	}
 		
