@@ -1374,7 +1374,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 									"Primary meaning field is mandatory for word", ResponseCode.SERVER_ERROR);
 						}
 
-						Response wordResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
+						Response wordResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate, true);
 						if (checkError(wordResponse)) {
 							errorMessages.add(wordUtil.getErrorMessage(wordResponse));
 						}
@@ -2099,7 +2099,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				item.put(LanguageParams.status.name(), LanguageParams.Live.name());
 			}
 
-			Response updateResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate);
+			Response updateResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate, false);
 			String wordId = (String) updateResponse.get(GraphDACParams.node_id.name());
 			if (StringUtils.isNotBlank(wordId))
 				lstNodeId.add(wordId);
@@ -2221,11 +2221,12 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	 *            the word ids
 	 * @param forceUpdate
 	 *            the force update
+	 * @param createReq TODO
 	 * @return the response
 	 */
 	@SuppressWarnings({ "unchecked", "unused" })
 	private Response createOrUpdateWord(String languageId, Map<String, Object> wordRequestMap, List<String> wordIds,
-			boolean forceUpdate) {
+			boolean forceUpdate, boolean createReq) {
 
 		List<String> errorMessages = new ArrayList<String>();
 		Response wordResponse = new Response();
@@ -2246,8 +2247,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			if (wordIdentifier == null) {
 				existingWordNode = wordUtil.searchWord(languageId, lemma);
 				if (existingWordNode != null) {
-					wordIdentifier = existingWordNode.getIdentifier();
-					wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);
+					/*wordIdentifier = existingWordNode.getIdentifier();
+					wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);*/
+					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(), "Word is already exist", ResponseCode.CLIENT_ERROR);
 				}
 			} else {
 				existingWordNode = getDataNode(languageId, wordIdentifier, LanguageParams.Word.name());
@@ -3357,7 +3359,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			for (Map<String, Object> word : wordRecords) {
 				PlatformLogger.log("Bulk word Update | word :" + word.toString());
 				List<String> lstNodeId = new ArrayList<>();
-				Response wordResponse = createOrUpdateWord(languageId, word, lstNodeId, true);
+				Response wordResponse = createOrUpdateWord(languageId, word, lstNodeId, true, false);
 				if (checkError(wordResponse)) {
 					errorMessages.add(wordUtil.getErrorMessage(wordResponse));
 					PlatformLogger.log("ClientException during bulk word update for word:" + word.toString(),
