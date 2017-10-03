@@ -1005,7 +1005,7 @@
             			"LessonPlanUnit",
             			"Resource"
 					],
-					"defaultValue": "Story",
+					"defaultValue": "Resource",
 					"renderingHints": "{ 'inputType': 'text',  'order': 14 }",
 					"indexed": true,
 					"draft": false
@@ -1048,6 +1048,7 @@
 						"E-resources for Professional Development",
 						"Micro practice videos"
 					],
+					"defaultValue": "Story",
 					"indexed": true,
 					"draft": false
 				},
