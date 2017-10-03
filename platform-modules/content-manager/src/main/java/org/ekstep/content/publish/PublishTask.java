@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -58,8 +59,11 @@ public class PublishTask implements Runnable {
 	
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
 		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare( n1.getCompatibilityLevel(), n2.getCompatibilityLevel());
-		NodeDTO maxNode = nodes.stream().max(comp).get();
-		return maxNode.getCompatibilityLevel();
+		Optional<NodeDTO> maxNode = nodes.stream().max(comp);
+		if (maxNode.isPresent())
+			return maxNode.get().getCompatibilityLevel();
+		else 
+			return 1;
 	}
 
 	private List<NodeDTO> dedup(List<NodeDTO> nodes) {
