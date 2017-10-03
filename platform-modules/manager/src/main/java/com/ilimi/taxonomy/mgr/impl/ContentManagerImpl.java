@@ -920,13 +920,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CREATE.name(),
 					"Error! Status cannot be set while creating a Content.");
 		// Checking for resourceType if contentType resource
-		if(map.containsKey(ContentAPIParams.contentType.name())){
-			if(map.get(ContentAPIParams.contentType.name()).equals("Resource")){
-				if(null == map.get(ContentAPIParams.resourceType.name())){
-					throw new ClientException(TaxonomyErrorCodes.ERR_CONTENT_MISSING_CONTENT_RESOURCE_TYPE.name(), "Required field resource Type is missing!");
-				}
-			}
-		}
+		validateNodeForContentType(map);
+		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
@@ -993,7 +988,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (map.containsKey(ContentAPIParams.status.name()))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
 					"Error! Status cannot be set while updating the Content.");
-
+		
+		// Checking for resourceType if contentType resource
+		validateNodeForContentType(map);
+				
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
@@ -1515,4 +1513,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return updateContent(contentId, map);
 	}
 
+	private void validateNodeForContentType(Map<String,Object> map){
+		if("Resource".equalsIgnoreCase((String)(map.get(ContentAPIParams.contentType.name()))) && 
+				StringUtils.isBlank((String)map.get(ContentAPIParams.resourceType.name()))){
+			throw new ClientException(TaxonomyErrorCodes.ERR_CONTENT_MISSING_CONTENT_RESOURCE_TYPE.name(), "Required field resource Type is missing!");
+		}		
+	}
 }
