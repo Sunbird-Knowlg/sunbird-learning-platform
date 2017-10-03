@@ -430,24 +430,29 @@ public class ProcessTransactionData {
 	private List<Map<String, Object>> getAddedRelationShipMessages(TransactionData data, String userId,
 			String requestId) {
 		Iterable<Relationship> createdRelations = data.createdRelationships();
-		return getRelationShipMessages(createdRelations, GraphDACParams.UPDATE.name(), false, userId, requestId);
+		return getRelationShipMessages(createdRelations, GraphDACParams.UPDATE.name(), false, userId, requestId, null);
 	}
 
 	private List<Map<String, Object>> getRemovedRelationShipMessages(TransactionData data, String userId,
 			String requestId) {
 		Iterable<Relationship> deletedRelations = data.deletedRelationships();
-		return getRelationShipMessages(deletedRelations, GraphDACParams.UPDATE.name(), true, userId, requestId);
+		Iterable<org.neo4j.graphdb.event.PropertyEntry<Relationship>> removedRelationshipProp = data.removedRelationshipProperties();
+		return getRelationShipMessages(deletedRelations, GraphDACParams.UPDATE.name(), true, userId, requestId, removedRelationshipProp);
 	}
 
 	private List<Map<String, Object>> getRelationShipMessages(Iterable<Relationship> relations, String operationType,
-			boolean delete, String userId, String requestId) {
+			boolean delete, String userId, String requestId, Iterable<org.neo4j.graphdb.event.PropertyEntry<Relationship>> removedRelationshipProp) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		try {
 			if (null != relations) {
 				for (Relationship rel : relations) {
 					Node startNode = rel.getStartNode();
 					Node endNode = rel.getEndNode();
-					Map<String, Object> relMetadata = rel.getAllProperties();
+					Map<String, Object> relMetadata = null;
+					if(delete)
+						relMetadata = getRelationShipPropertyEntry(rel.getId(), removedRelationshipProp);
+					else
+						relMetadata = rel.getAllProperties();
 					String relationTypeName = rel.getType().name();
 					if (StringUtils.equalsIgnoreCase(
 							startNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(),
@@ -564,6 +569,19 @@ public class ProcessTransactionData {
 		return lstMessageMap;
 	}
 
+	private Map<String, Object> getRelationShipPropertyEntry(Long relId,
+			Iterable<org.neo4j.graphdb.event.PropertyEntry<Relationship>> relProp) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		for (org.neo4j.graphdb.event.PropertyEntry<Relationship> pe : relProp) {
+			if (relId == pe.entity().getId()) {
+				if (pe.previouslyCommitedValue()!=null) {
+					map.put((String) pe.key(), pe.previouslyCommitedValue());
+				}
+			}
+		}
+		return map;
+	}
+	
 	private String getLabel(Node node) {
 		if (node.hasProperty("name")) {
 			return (String) node.getProperty("name");
