@@ -18,6 +18,7 @@ public class NodeDTO implements Serializable {
 	private Integer depth;
 	private String mimeType;
 	private String visibility;
+	private Integer compatibilityLevel;
 
 	public NodeDTO() {
 
@@ -155,4 +156,14 @@ public class NodeDTO implements Serializable {
 	public void setVisibility(String visibility) {
 		this.visibility = visibility;
 	}
+
+	public Integer getCompatibilityLevel() {
+		return compatibilityLevel;
+	}
+
+	public void setCompatibilityLevel(int compatibilityLevel) {
+		this.compatibilityLevel = compatibilityLevel;
+	}
+	
+	
 }

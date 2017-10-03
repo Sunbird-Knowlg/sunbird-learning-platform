@@ -160,13 +160,6 @@ public class PublishFinalizer extends BaseFinalizer {
 		// 1);
 
 		PlatformLogger.log("setting compatability level for textbook", null, LoggerEnum.INFO.name());
-		if (StringUtils.equalsIgnoreCase(
-				(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-				ContentWorkflowPipelineParams.TextBook.name())
-				|| StringUtils.equalsIgnoreCase(
-						(String) node.getMetadata().get(ContentWorkflowPipelineParams.contentType.name()),
-						ContentWorkflowPipelineParams.TextBookUnit.name()))
-			node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), 2);
 
 		PlatformLogger.log("setting compatability level for youtube, pdf and doc and epub", null, LoggerEnum.INFO.name());
 		String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
@@ -201,14 +194,13 @@ public class PublishFinalizer extends BaseFinalizer {
 			// Create ECAR Bundle
 			List<Node> nodes = new ArrayList<Node>();
 			
-			String publishType = node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name()).toString();
-			if(null != publishType && StringUtils.isNotBlank(publishType)) {
-				if(ContentWorkflowPipelineParams.Public.name().equalsIgnoreCase(publishType)) {
-					node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
-				}else if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
-					node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
-				}
+			String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
+			if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
+				node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
+			} else {
+				node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
 			}
+
 			nodes.add(node);
 			List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 			List<String> childrenIds = new ArrayList<String>();

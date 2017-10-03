@@ -241,6 +241,7 @@ public class ControllerUtil extends BaseLearningManager {
 		return null;
 	}
 	
+	
 	@SuppressWarnings("unchecked")
 	public List<NodeDTO> getNodesForPublish(Node node) {
 		List<NodeDTO> nodes = new ArrayList<NodeDTO>();
@@ -254,7 +255,7 @@ public class ControllerUtil extends BaseLearningManager {
 			imageNodeId = nodeId + ".img";
 		}
 		Request request = getRequest(node.getGraphId(), GraphEngineManagers.SEARCH_MANAGER, "executeQueryForProps");
-		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) WHERE s.visibility <> \"Default\" RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility";
+		String queryString = "MATCH p=(n:domain'{'IL_UNIQUE_ID:\"{0}\"'}')-[r:hasSequenceMember*0..10]->(s:domain) RETURN s.IL_UNIQUE_ID as identifier, s.name as name, length(p) as depth, s.status as status, s.mimeType as mimeType, s.visibility as visibility, s.compatibilityLevel as compatibilityLevel";
 		String query = MessageFormat.format(queryString, nodeId) + " UNION " + MessageFormat.format(queryString, imageNodeId) + " ORDER BY depth DESC;";
 		PlatformLogger.log("Query: "+query, null, LoggerEnum.INFO.name());
         request.put(GraphDACParams.query.name(), query);
@@ -264,6 +265,7 @@ public class ControllerUtil extends BaseLearningManager {
         props.add("depth");
         props.add("status");
         props.add("mimeType");
+        props.add("compatibilityLevel");
         props.add("visibility");
         request.put(GraphDACParams.property_keys.name(), props);
         Response response = getResponse(request);

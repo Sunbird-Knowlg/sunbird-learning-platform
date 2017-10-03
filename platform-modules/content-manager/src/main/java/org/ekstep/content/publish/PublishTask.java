@@ -48,8 +48,18 @@ public class PublishTask implements Runnable {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
 			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
+			if (!nodes.isEmpty()) {
+				int compatabilityLevel = getCompatabilityLevel(nodes);
+				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
+			}
 		}
 		publishNode(node, mimeType);
+	}
+	
+	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
+		final Comparator<NodeDTO> comp = (n1, n2) -> Integer.compare( n1.getCompatibilityLevel(), n2.getCompatibilityLevel());
+		NodeDTO maxNode = nodes.stream().max(comp).get();
+		return maxNode.getCompatibilityLevel();
 	}
 
 	private List<NodeDTO> dedup(List<NodeDTO> nodes) {
