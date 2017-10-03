@@ -654,12 +654,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 		
 		//Collections sort method is used to sort the child content list on the basis of index.
-		Collections.sort(children, new Comparator<NodeDTO>() {
-			@Override
-			public int compare(NodeDTO o1, NodeDTO o2) {
-				return o1.getIndex()-o2.getIndex();
-			}
-		});
+		if(null != children && !children.isEmpty()) {
+			Collections.sort(children, new Comparator<NodeDTO>() {
+				@Override
+				public int compare(NodeDTO o1, NodeDTO o2) {
+					return o1.getIndex()-o2.getIndex();
+				}
+			});
+		}
 
 		if (null != children && !children.isEmpty()) {
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
