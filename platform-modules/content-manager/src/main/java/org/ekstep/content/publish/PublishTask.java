@@ -46,13 +46,13 @@ public class PublishTask implements Runnable {
 	private void publishContent(Node node, String mimeType) {
 		PlatformLogger.log("Publish processing start for content", this.contentId, LoggerEnum.INFO.name());
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
-			List<NodeDTO> nodes = util.getNodesForPublish(node, "Default");
+			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
 			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
-			if (!nodes.isEmpty()) {
-				int compatabilityLevel = getCompatabilityLevel(nodes);
-				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
-			}
+//			if (!nodes.isEmpty()) {
+//				int compatabilityLevel = getCompatabilityLevel(nodes);
+//				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
+//			}
 		}
 		publishNode(node, mimeType);
 	}

@@ -86,13 +86,13 @@ public class PublishPipelineService implements ISamzaService {
 	private void publishContent(Node node, String mimeType) {
 		LOGGER.info("Publish processing start for content");
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
-			List<NodeDTO> nodes = util.getNodesForPublish(node, "Default");
+			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
 			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
-			if (!nodes.isEmpty()) {
-				int compatabilityLevel = getCompatabilityLevel(nodes);
-				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
-			}
+//			if (!nodes.isEmpty()) {
+//				int compatabilityLevel = getCompatabilityLevel(nodes);
+//				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
+//			}
 		}
 		publishNode(node, mimeType);
 	}
