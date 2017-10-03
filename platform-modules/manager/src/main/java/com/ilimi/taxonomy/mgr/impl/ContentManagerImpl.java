@@ -2,6 +2,8 @@ package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -650,6 +652,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String mode) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
+		
+		//Collections sort method is used to sort the child content list on the basis of index.
+		Collections.sort(children, new Comparator<NodeDTO>() {
+			@Override
+			public int compare(NodeDTO o1, NodeDTO o2) {
+				return o1.getIndex()-o2.getIndex();
+			}
+		});
+
 		if (null != children && !children.isEmpty()) {
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
 			for (NodeDTO dto : children) {
@@ -1351,6 +1362,30 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return response;
 	}
 
+	//Method is introduced to decide whether image node should be created for the content or not.
+	private Node getNodeForUpdateHierarchy(String taxonomyId, String contentId, String operation, boolean notImageNode, boolean isRoot) {
+		Response response;
+		Node node = new Node();
+		if (isRoot)
+	        return getNodeForOperation(taxonomyId, contentId, operation, notImageNode);
+	    else {
+	    		response = getDataNode(taxonomyId, contentId);
+	    		
+	    		PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			if (checkError(response)) {
+				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
+			} else {
+				node = (Node) response.get(GraphDACParams.node.name());
+			}
+	    		if("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
+	    			return getNodeForOperation(taxonomyId, contentId, operation, notImageNode);
+	    		}else {
+	    			return node;
+	    		}
+	    }
+	}
+		
 	@SuppressWarnings("unchecked")
 	private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
 			Map<String, Node> nodeMap) {
@@ -1359,7 +1394,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (StringUtils.isBlank(id)) {
 			Map<String, Object> map = (Map<String, Object>) entry.getValue();
 			Boolean root = (Boolean) map.get("root");
-			Node tmpnode = getNodeForOperation(graphId, nodeId, "update", false);
+			Node tmpnode = getNodeForUpdateHierarchy(graphId, nodeId, "update", false, root);
 			if (null != tmpnode) {
 				id = tmpnode.getIdentifier();
 				tmpnode.setOutRelations(null);
