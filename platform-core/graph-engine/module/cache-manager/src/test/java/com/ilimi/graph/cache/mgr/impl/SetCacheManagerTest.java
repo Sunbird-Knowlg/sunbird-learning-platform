@@ -127,11 +127,11 @@ public class SetCacheManagerTest {
 		List<String> members = new ArrayList<String>();
 		members.add("setMember_1");
 		members.add("setMember_2");
-		SetCacheManager.createSet("domain", "set_89", members);
-		List<String> berforeMemberList = SetCacheManager.getSetMembers("domain", "set_89");
+		SetCacheManager.createSet("domain", "set_94", members);
+		List<String> berforeMemberList = SetCacheManager.getSetMembers("domain", "set_94");
 		Assert.assertEquals("setMember_1", berforeMemberList.get(0));
-		SetCacheManager.dropSet("domain", "set_89");
-		List<String> afterMemberList = SetCacheManager.getSetMembers("domain", "set_89");
+		SetCacheManager.dropSet("domain", "set_94");
+		List<String> afterMemberList = SetCacheManager.getSetMembers("domain", "set_94");
 		Assert.assertEquals(true, null == afterMemberList || afterMemberList.isEmpty());
 	}
 	

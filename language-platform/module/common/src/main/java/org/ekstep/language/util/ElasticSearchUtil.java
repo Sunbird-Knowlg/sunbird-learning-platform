@@ -11,6 +11,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
 
 import io.searchbox.client.JestClient;
@@ -48,7 +49,7 @@ public class ElasticSearchUtil {
 	private String hostName;
 
 	/** The port. */
-	private String port;
+	private int port;
 
 	/** The default result limit. */
 	private int defaultResultLimit = 10000;
@@ -108,14 +109,12 @@ public class ElasticSearchUtil {
 	 * Initialize the util.
 	 */
 	public void initialize() {
-		hostName = PropertiesUtil.getProperty("elastic-search-host");
-		port = PropertiesUtil.getProperty("elastic-search-port");
-		if (PropertiesUtil.getProperty("bulk-load-batch-size") != null) {
-			BATCH_SIZE = Integer.parseInt(PropertiesUtil.getProperty("bulk-load-batch-size"));
-		}
-		if (PropertiesUtil.getProperty("connection-timeout") != null) {
-			CONNECTION_TIMEOUT = Integer.parseInt(PropertiesUtil.getProperty("connection-timeout"));
-		}
+		hostName = Platform.config.getString("elastic-search-host");
+		port = Platform.config.getInt("elastic-search-port");
+		if (Platform.config.hasPath("bulk-load-batch-size"))
+			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
+		if (Platform.config.hasPath("connection-timeout"))
+			CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
 	}
 
 	/**

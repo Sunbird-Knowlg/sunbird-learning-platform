@@ -39,10 +39,10 @@ public class GraphPolicyTest {
 	@Rule
 	public ExpectedException exception = ExpectedException.none();
 	
-//	@Test
-//	public void init(){
-//		graphDb.createGraph(graphId, null);
-//	}
+	@Test
+	public void init(){
+		graphDb.createGraph(graphId, null);
+	}
 	
 	@Test
 	public void createUniqueConstraint(){	
@@ -351,15 +351,16 @@ public class GraphPolicyTest {
 		Node node = new Node();
 		node.setGraphId(graphId);
 		node.setIdentifier("SCALA0012");
+		node.setObjectType("content");
+		node.setNodeType("DATA_NODE");
 		List<String> tags = new ArrayList<String>();
 		tags.add("programming languages");
 		Map<String, Object> scalaMap = new HashMap<String,Object>();
 		scalaMap.put("Title", "Learn Scala Language");
+		scalaMap.put("description", "testing new language");
 		node.setMetadata(scalaMap);
-		tags.add("oops");
-		node.setTags(tags);
 		Node res =  graphDb.upsertNode(graphId, node, request);
-		assertEquals(tags, res.getTags());
+		assertEquals(scalaMap.get("title"), res.getMetadata().get("title"));
 	}
 	
 	@Test

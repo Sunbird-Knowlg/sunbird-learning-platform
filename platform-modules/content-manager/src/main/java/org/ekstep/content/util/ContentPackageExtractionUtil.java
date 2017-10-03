@@ -28,6 +28,7 @@ import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.common.enums.ContentErrorCodes;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -39,19 +40,17 @@ import com.ilimi.graph.dac.model.Node;
  * @author Mohammad Azharuddin
  */
 public class ContentPackageExtractionUtil {
-
-	/** The logger. */
-
+	
 	/** The Constant AWS_UPLOAD_RESULT_URL_INDEX. */
 	private static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 
 	/** The Constant DASH. */
 	private static final String DASH = "-";
 
+	private static final String S3_BUCKET = "s3.public.bucket";
+	
 	/** The Constant s3Content. */
 	private static final String S3_CONTENT = "s3.content.folder";
-
-	private static final String S3_BUCKET_PREFIX = "s3.bucket.";
 
 	/** The Constant S3_ENVIRONMENT. */
 	private static final String S3_ENVIRONMENT = "s3.env";
@@ -107,9 +106,9 @@ public class ContentPackageExtractionUtil {
 			PlatformLogger.log("Currently Working Environment: " + s3Environment);
 
 			// Fetching Bucket Name
-			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET_PREFIX + s3Environment);
+			String s3Bucket = S3PropertyReader.getProperty(S3_BUCKET);
 			PlatformLogger.log("Current Storage Space Bucket Name: " + s3Bucket);
-
+			
 			// Fetching Source Prefix For Copy Objects in S3
 			String sourcePrefix = getExtractionPath(contentId, node, ExtractionType.snapshot);
 			PlatformLogger.log("Source Prefix: " + sourcePrefix);
@@ -283,7 +282,7 @@ public class ContentPackageExtractionUtil {
 	}
 
 	private String getH5PLibraryPath() {
-		String path = PropertiesUtil.getProperty(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
+		String path = Platform.config.getString(ContentConfigurationConstants.DEFAULT_H5P_LIBRARY_PATH_PROPERTY_KEY);
 		if (StringUtils.isBlank(path))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_LIBRARY.name(),
 					ContentErrorMessageConstants.INVALID_H5P_LIBRARY + " | [Invalid H5P Library Package Path.]");

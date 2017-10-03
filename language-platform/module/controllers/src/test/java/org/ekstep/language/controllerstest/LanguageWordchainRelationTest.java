@@ -20,11 +20,11 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class LanguageWordchainRelationTest {
@@ -162,7 +162,7 @@ public class LanguageWordchainRelationTest {
         System.out.println("Starting neo4j in embedded mode");
        
         graphDb = new GraphDatabaseFactory()
-		        .newEmbeddedDatabaseBuilder(new File(Configuration.getProperty("graph.dir")))
+		        .newEmbeddedDatabaseBuilder(new File(Platform.config.getString("graph.dir")))
 		        .setConfig( bolt.type, "BOLT" )
 		        .setConfig( bolt.enabled, "true" )
 		        .setConfig( bolt.address, "localhost:7687" )

@@ -1,29 +1,11 @@
 package org.ekstep.common.util;
 
-import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
-
-import com.ilimi.common.logger.LoggerEnum;
-import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.common.Platform;
 
 public class S3PropertyReader {
 	private static Properties prop = new Properties();
-	private static InputStream input = null;
-
-	static {
-		String filename = "amazonS3Config.properties";
-		input = S3PropertyReader.class.getClassLoader().getResourceAsStream(
-				filename);
-		if (input == null) {
-			PlatformLogger.log("Unable to find " , filename);
-		}
-		try {
-			prop.load(input);
-		} catch (Exception e) {
-			PlatformLogger.log("Error", e.getMessage(), LoggerEnum.ERROR.name());
-		}
-	}
 	
 	public static void loadProperties(Map<String, Object> props) {
 		prop.putAll(props);
@@ -34,11 +16,11 @@ public class S3PropertyReader {
 	}
 	
 	public static String getProperty(String key){
-		return prop.getProperty(key);
+		return Platform.config.getString(key);
 	}
 	
 	public static String getProperty(String key, String env){
 		String property = key + "." + env;
-		return prop.getProperty(property);
+		return Platform.config.getString(property);
 	}
 }

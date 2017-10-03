@@ -18,12 +18,12 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -50,7 +50,7 @@ abstract public class BaseTest {
         System.out.println("Starting neo4j in embedded mode");
        
         graphDb = new GraphDatabaseFactory()
-		        .newEmbeddedDatabaseBuilder(new File(Configuration.getProperty("graph.dir")))
+		        .newEmbeddedDatabaseBuilder(new File(Platform.config.getString("graph.dir")))
 		        .setConfig( bolt.type, "BOLT" )
 		        .setConfig( bolt.enabled, "true" )
 		        .setConfig( bolt.address, "localhost:7687" )

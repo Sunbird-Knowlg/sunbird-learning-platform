@@ -42,6 +42,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.esktep.search.util.CompositeSearchUtil;
 import org.springframework.stereotype.Component;
 

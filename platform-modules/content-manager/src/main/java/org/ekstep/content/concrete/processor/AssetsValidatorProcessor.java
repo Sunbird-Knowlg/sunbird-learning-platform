@@ -14,16 +14,13 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.content.util.PropertiesUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 
 public class AssetsValidatorProcessor extends AbstractProcessor {
-	
-	/** The logger. */
-	
 
 	public AssetsValidatorProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -109,15 +106,9 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	}
 	
 	private double getAssetFileSizeLimit() {
-		double size = 20971520;			// In Bytes, Default is 20MB
-		String limit = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name());
-		if (!StringUtils.isBlank(limit)) {
-			try {
-				size = Double.parseDouble(limit);
-			} catch(Exception e) {
-				PlatformLogger.log("Error While Getting the Asset File Size Limit.", size, e);
-			}
-		}
+		double size = 20971520;	
+		if(Platform.config.hasPath(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name()))
+			size = Platform.config.getDouble(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name());
 		return size;
 	}
 

@@ -22,8 +22,8 @@ import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
 import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.util.Constants;
-import org.ekstep.language.util.ElasticSearchUtil;
 import org.ekstep.language.util.WordUtil;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;

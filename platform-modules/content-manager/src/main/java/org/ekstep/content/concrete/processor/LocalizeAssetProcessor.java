@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.common.ContentErrorMessageConstants;
@@ -22,8 +21,7 @@ import org.ekstep.content.entity.Plugin;
 import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.processor.AbstractProcessor;
-import org.ekstep.content.util.PropertiesUtil;
-
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -51,7 +49,6 @@ import com.ilimi.common.logger.PlatformLogger;
 public class LocalizeAssetProcessor extends AbstractProcessor {
 
 	/** The logger. */
-	
 
 	/**
 	 * Instantiates a new localize asset processor and sets the base path andS
@@ -137,23 +134,19 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 			PlatformLogger.log("Skipped Media Downloads: " + skippedMedia + " | [Content Id '" + contentId + "']");
 			if (null != skippedMedia && !skippedMedia.isEmpty()) {
 				PlatformLogger.log("Fetching the Retry Count From Configuration. | [Content Id '" + contentId + "']");
-				String retryCount = PropertiesUtil
-						.getProperty(ContentWorkflowPipelineParams.RETRY_ASSET_DOWNLOAD_COUNT.name());
-				if (!StringUtils.isBlank(retryCount)) {
-					int retryCnt = NumberUtils.createInteger(retryCount);
-					PlatformLogger.log("Starting the Retry For Count: " + retryCnt + " | [Content Id '" + contentId + "']");
-					for (int i = 0; i < retryCnt; i++) {
-						PlatformLogger.log("Retrying Asset Download For " + i + 1 + " times" + " | [Content Id '" + contentId
-								+ "']");
-						if (null != skippedMedia && !skippedMedia.isEmpty()) {
-							Map<String, Object> result = downloadAssets(skippedMedia);
-							Map<String, String> successfulDownloads = (Map<String, String>) result
-									.get(ContentWorkflowPipelineParams.success.name());
-							skippedMedia = (List<Media>) downloadResultMap
-									.get(ContentWorkflowPipelineParams.skipped.name());
-							if (null != successfulDownloads && !successfulDownloads.isEmpty())
-								map.putAll(successfulDownloads);
-						}
+				int retryCnt = Platform.config.getInt(ContentWorkflowPipelineParams.RETRY_ASSET_DOWNLOAD_COUNT.name());
+				PlatformLogger.log("Starting the Retry For Count: " + retryCnt + " | [Content Id '" + contentId + "']");
+				for (int i = 0; i < retryCnt; i++) {
+					PlatformLogger.log(
+							"Retrying Asset Download For " + i + 1 + " times" + " | [Content Id '" + contentId + "']");
+					if (null != skippedMedia && !skippedMedia.isEmpty()) {
+						Map<String, Object> result = downloadAssets(skippedMedia);
+						Map<String, String> successfulDownloads = (Map<String, String>) result
+								.get(ContentWorkflowPipelineParams.success.name());
+						skippedMedia = (List<Media>) downloadResultMap
+								.get(ContentWorkflowPipelineParams.skipped.name());
+						if (null != successfulDownloads && !successfulDownloads.isEmpty())
+							map.putAll(successfulDownloads);
 					}
 				}
 			}
@@ -197,12 +190,12 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 								downloadPath += File.separator + ContentWorkflowPipelineParams.widgets.name();
 							else
 								downloadPath += File.separator + ContentWorkflowPipelineParams.assets.name();
-							
+
 							String subFolder = "";
-							if(!media.getSrc().startsWith("http")) {
+							if (!media.getSrc().startsWith("http")) {
 								File f = new File(media.getSrc());
 								subFolder = f.getParent();
-								if(f.exists()){
+								if (f.exists()) {
 									f.delete();
 								}
 								subFolder = StringUtils.stripStart(subFolder, File.separator);
@@ -210,14 +203,16 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 							if (StringUtils.isNotBlank(subFolder))
 								downloadPath += File.separator + subFolder;
 							createDirectoryIfNeeded(downloadPath);
-							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()), downloadPath);
+							File downloadedFile = HttpDownloadUtility.downloadFile(getDownloadUrl(media.getSrc()),
+									downloadPath);
 							PlatformLogger.log("Downloaded file : " + media.getSrc() + " - " + downloadedFile
 									+ " | [Content Id '" + contentId + "']");
 							if (null == downloadedFile)
 								skippedMediaDownloads.add(media);
 							else {
 								if (StringUtils.isNotBlank(subFolder))
-									downloadMap.put(media.getId(), subFolder + File.separator + downloadedFile.getName());
+									downloadMap.put(media.getId(),
+											subFolder + File.separator + downloadedFile.getName());
 								else
 									downloadMap.put(media.getId(), downloadedFile.getName());
 							}
@@ -233,28 +228,29 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 					successfulMediaDownloads.putAll(m);
 			}
 			pool.shutdown();
-			PlatformLogger.log("Successful Media Download Count for | [Content Id '"
-					+ contentId + "']", successfulMediaDownloads.size());
-			PlatformLogger.log("Skipped Media Download Count: | [Content Id '" + contentId
-					+ "']", skippedMediaDownloads.size());
+			PlatformLogger.log("Successful Media Download Count for | [Content Id '" + contentId + "']",
+					successfulMediaDownloads.size());
+			PlatformLogger.log("Skipped Media Download Count: | [Content Id '" + contentId + "']",
+					skippedMediaDownloads.size());
 			map.put(ContentWorkflowPipelineParams.success.name(), successfulMediaDownloads);
 			map.put(ContentWorkflowPipelineParams.skipped.name(), skippedMediaDownloads);
 		}
-		PlatformLogger.log("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']", map.keySet());
+		PlatformLogger.log("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']",
+				map.keySet());
 		return map;
 	}
-	
+
 	private String getDownloadUrl(String src) {
 		if (StringUtils.isNotBlank(src)) {
 			String env = S3PropertyReader.getProperty("s3.env");
 			String prefix = "";
-			PlatformLogger.log("Fetching s3 url from properties file fro environment:" , env);
-			prefix = S3PropertyReader.getProperty("s3.url."+env);
-			PlatformLogger.log("Fetching envioronment URL from properties file" , prefix);
+			PlatformLogger.log("Fetching s3 url from properties file fro environment:", env);
+			prefix = S3PropertyReader.getProperty("s3.url." + env);
+			PlatformLogger.log("Fetching envioronment URL from properties file", prefix);
 			if (!src.startsWith("http"))
 				src = prefix + src;
 		}
-		PlatformLogger.log("Returning src url" , src);
+		PlatformLogger.log("Returning src url", src);
 		return src;
 	}
 

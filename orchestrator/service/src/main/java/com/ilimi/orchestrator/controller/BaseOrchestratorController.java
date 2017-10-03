@@ -1,10 +1,7 @@
 package com.ilimi.orchestrator.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
@@ -27,7 +25,6 @@ public abstract class BaseOrchestratorController {
     
     private static final String API_ID_PREFIX = "orchestrator";
     private static final String API_VERSION = "2.0";
-    
     private static final String ekstep = "org.ekstep.";
     private static final String ilimi = "com.ilimi.";
     private static final String java = "java.";
@@ -158,24 +155,8 @@ public abstract class BaseOrchestratorController {
     
     protected String getEnvBaseUrl(){
     	if(StringUtils.isBlank(envUrl)){
-    		getProperty();
+    		envUrl = Platform.config.getString("env");
     	}
         return envUrl;
-    }
-    
-    private static void getProperty(){
-    	Properties prop = new Properties();
-    	InputStream input = null;
-    	String filename = "OrchestratorEnv.properties";
-		try {
-			input = BaseOrchestratorController.class.getClassLoader().getResourceAsStream(filename);
-			if (input == null) {
-				PlatformLogger.log("Unable to find " + filename);
-			}
-			prop.load(input);
-			envUrl = prop.getProperty("env");
-		} catch (IOException e) {
-			PlatformLogger.log("Exception", e.getMessage(), e);
-		}
     }
 }

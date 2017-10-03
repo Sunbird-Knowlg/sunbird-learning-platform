@@ -3,7 +3,6 @@ package org.ekstep.searchindex.elasticsearch;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,13 +13,12 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.transformer.IESResultTransformer;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
-
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -47,10 +45,9 @@ import net.sf.json.util.JSONStringer;
 
 public class ElasticSearchUtil {
 
-	
 	private JestClient client;
 	private String hostName;
-	private String port;
+	private int port;
 	public int defaultResultLimit = 10000;
 	public int defaultResultOffset = 0;
 	private int BATCH_SIZE = 1000;
@@ -93,14 +90,12 @@ public class ElasticSearchUtil {
 
 
 	public void initialize() {
-		hostName = PropertiesUtil.getProperty("elastic-search-host");
-		port = PropertiesUtil.getProperty("elastic-search-port");
-		if (PropertiesUtil.getProperty("bulk-load-batch-size") != null) {
-			BATCH_SIZE = Integer.parseInt(PropertiesUtil.getProperty("bulk-load-batch-size"));
-		}
-		if (PropertiesUtil.getProperty("connection-timeout") != null) {
-			CONNECTION_TIMEOUT = Integer.parseInt(PropertiesUtil.getProperty("connection-timeout"));
-		}
+		hostName = Platform.config.getString("elastic-search-host");
+		port = Platform.config.getInt("elastic-search-port");
+		if(Platform.config.hasPath("bulk-load-batch-size"))
+			BATCH_SIZE = Platform.config.getInt("bulk-load-batch-size");
+		if(Platform.config.hasPath("connection-timeout"))
+			CONNECTION_TIMEOUT = Platform.config.getInt("connection-timeout");
 	}
 	
 	public void finalize() {
@@ -109,27 +104,17 @@ public class ElasticSearchUtil {
 	}
 
 	public List<String> getQuerySearchFields() {
-		String querySearchFieldsProperty = PropertiesUtil.getProperty("query-search-fields");
-		List<String> querySearchFields = new ArrayList<String>();
-		if (querySearchFieldsProperty != null && !querySearchFieldsProperty.isEmpty()) {
-			String[] querySearchFieldsArray = querySearchFieldsProperty.split(",");
-			querySearchFields = Arrays.asList(querySearchFieldsArray);
-		}
+		List<String> querySearchFields = Platform.config.getStringList("query-search-fields");
 		return querySearchFields;
 	}
 
 	public List<String> getDateFields() {
-		String querySearchFieldsProperty = PropertiesUtil.getProperty("date-fields");
-		List<String> querySearchFields = new ArrayList<String>();
-		if (querySearchFieldsProperty != null && !querySearchFieldsProperty.isEmpty()) {
-			String[] querySearchFieldsArray = querySearchFieldsProperty.split(",");
-			querySearchFields = Arrays.asList(querySearchFieldsArray);
-		}
-		return querySearchFields;
+		List<String> dateFields = Platform.config.getStringList("date-fields");
+		return dateFields;
 	}
 
 	public String getTimeZone() {
-		String timeZoneProperty = PropertiesUtil.getProperty("time-zone");
+		String timeZoneProperty = Platform.config.getString("time-zone");
 		if (timeZoneProperty == null) {
 			timeZoneProperty = "0000";
 		}

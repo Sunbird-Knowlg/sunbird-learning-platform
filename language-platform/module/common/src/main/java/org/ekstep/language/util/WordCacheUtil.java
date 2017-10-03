@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
@@ -27,12 +28,11 @@ import redis.clients.jedis.JedisPoolConfig;
  * given word or similar sound word set from redis store
  * 
  * @author Karthik
+ *
+ * TODO: Should move this code to Cache-Manager OR Use Cache-Manager utils.
  */
 public class WordCacheUtil {
-
-	/** The LOGGER. */
 	
-
 	/** The jedis pool. */
 	private static JedisPool jedisPool;
 
@@ -82,21 +82,11 @@ public class WordCacheUtil {
 	}
 
 	static {
-		String redisHost = PropertiesUtil.getProperty("redis.host");
-		if (StringUtils.isNotBlank(redisHost))
-			host = redisHost;
-		String redisPort = PropertiesUtil.getProperty("redis.port");
-		if (StringUtils.isNotBlank(redisPort)) {
-			port = Integer.parseInt(redisPort);
-		}
-		String redisMaxConn = PropertiesUtil.getProperty("redis.maxConnections");
-		if (StringUtils.isNotBlank(redisMaxConn)) {
-			maxConnections = Integer.parseInt(redisMaxConn);
-		}
-		String dbIndex = PropertiesUtil.getProperty("redis.dbIndex");
-		if (StringUtils.isNotBlank(dbIndex)) {
-			index = Integer.parseInt(dbIndex);
-		}
+		if (Platform.config.hasPath("redis.host")) host = Platform.config.getString("redis.host");
+		if (Platform.config.hasPath("redis.port")) port = Platform.config.getInt("redis.port");
+		if (Platform.config.hasPath("redis.maxConnections")) maxConnections = Platform.config.getInt("redis.maxConnections");
+		if (Platform.config.hasPath("redis.dbIndex")) index = Platform.config.getInt("redis.dbIndex");
+
 		JedisPoolConfig config = new JedisPoolConfig();
 		config.setMaxTotal(maxConnections);
 		config.setBlockWhenExhausted(true);

@@ -5,8 +5,6 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.system.OutgoingMessageEnvelope;
@@ -15,14 +13,13 @@ import org.apache.samza.task.MessageCollector;
 import org.ekstep.jobs.samza.model.Event;
 import org.ekstep.jobs.samza.model.LifecycleEvent;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
-import org.ekstep.jobs.samza.util.ConsumerWorkflowEnums;
+import org.ekstep.jobs.samza.util.ObjectLifecycleParams;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
@@ -39,22 +36,23 @@ public class ObjectLifecycleService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		Configuration.loadProperties(props);
+		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		digest = MessageDigest.getInstance("MD5");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Learning actors initialized");
-		JedisFactory.initialize(props);
-		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		if(null == message.get("syncMessage")){
+			if(null != message.get(ObjectLifecycleParams.operationType.name()) && message.get(ObjectLifecycleParams.operationType.name()).equals(ObjectLifecycleParams.DELETE.name())){
+				Event event = generateEventOnDelete(message);
+				LOGGER.info("Event generated on deletion of node");
+				publishEvent(event, collector);
+				LOGGER.info("Event published on deletion of node");
+				metrics.incSuccessCounter();
+			}
 			Map<String, Object> stateChangeEvent = getStateChangeEvent(message);
 			if (stateChangeEvent != null) {
 				LOGGER.debug("State change identified - creating lifecycle event");
@@ -82,6 +80,20 @@ public class ObjectLifecycleService implements ISamzaService {
 		}
 	}
 
+	private Event generateEventOnDelete(Map<String, Object> message) {
+		Event event = new Event("BE_OBJECT_LIFECYCLE", "2.1", "ObjectLifecycleTask");
+		LifecycleEvent lifecycleEvent = new LifecycleEvent();
+		String nodeUniqueId = (String)message.get(ObjectLifecycleParams.nodeUniqueId.name());
+		String objectType = (String)message.get(ObjectLifecycleParams.objectType.name());
+		lifecycleEvent.setId(nodeUniqueId);
+		lifecycleEvent.setState("");
+		lifecycleEvent.setType(objectType);
+		event.setEts(message);
+		event.setEdata(lifecycleEvent);
+		LOGGER.info("Event generated for node deleted" + nodeUniqueId);
+		return event;
+	}
+
 	private String getMD5Hash(String event) {
 		digest.update(event.getBytes(), 0, event.length());
 		return new BigInteger(1, digest.digest()).toString(16);
@@ -95,38 +107,36 @@ public class ObjectLifecycleService implements ISamzaService {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> getStateChangeEvent(Map<String, Object> message) {
 
-		if (!message.containsKey(ConsumerWorkflowEnums.nodeUniqueId.name()))
+		if (!message.containsKey(ObjectLifecycleParams.nodeUniqueId.name()))
 			return null;
-		if (!message.containsKey(ConsumerWorkflowEnums.transactionData.name()))
+		if (!message.containsKey(ObjectLifecycleParams.transactionData.name()))
 			return null;
-		Map<String, Object> transactionMap = (Map<String, Object>) message.get(ConsumerWorkflowEnums.transactionData.name());
+		Map<String, Object> transactionMap = (Map<String, Object>) message.get(ObjectLifecycleParams.transactionData.name());
+		if (!transactionMap.containsKey(ObjectLifecycleParams.properties.name()))
+			return null;
+		Map<String, Object> propertiesMap = (Map<String, Object>) transactionMap.get(ObjectLifecycleParams.properties.name());
 
-		if (!transactionMap.containsKey(ConsumerWorkflowEnums.properties.name()))
-			return null;
-		Map<String, Object> propertiesMap = (Map<String, Object>) transactionMap.get(ConsumerWorkflowEnums.properties.name());
-
-		if (propertiesMap.containsKey(ConsumerWorkflowEnums.status.name())) {
-			return (Map<String, Object>) propertiesMap.get(ConsumerWorkflowEnums.status.name());
+		if (propertiesMap.containsKey(ObjectLifecycleParams.status.name())) {
+			return (Map<String, Object>) propertiesMap.get(ObjectLifecycleParams.status.name());
 		}
-
 		return null;
 	}
 
 	private Node getNode(Map<String, Object> message) throws Exception {
-		String nodeId = (String) message.get(ConsumerWorkflowEnums.nodeUniqueId.name());
-		if (message.get(ConsumerWorkflowEnums.nodeType.name()).equals(ConsumerWorkflowEnums.SET.name())
-				&& message.get(ConsumerWorkflowEnums.objectType.name()).equals(ConsumerWorkflowEnums.ItemSet.name())) {
+		String nodeId = (String) message.get(ObjectLifecycleParams.nodeUniqueId.name());
+		if (message.get(ObjectLifecycleParams.nodeType.name()).equals(ObjectLifecycleParams.SET.name())
+				&& message.get(ObjectLifecycleParams.objectType.name()).equals(ObjectLifecycleParams.ItemSet.name())) {
 			return getItemSetNode(nodeId);
 		} else {
-			return util.getNode(ConsumerWorkflowEnums.domain.name(), nodeId);
+			return util.getNode(ObjectLifecycleParams.domain.name(), nodeId);
 		}
 	}
 
 	private Node getItemSetNode(String identifier) throws Exception {
 		ControllerUtil util = new ControllerUtil();
-		Response resp = util.getSet(ConsumerWorkflowEnums.domain.name(), identifier);
+		Response resp = util.getSet(ObjectLifecycleParams.domain.name(), identifier);
 		Map<String, Object> map = (Map<String, Object>) resp.getResult();
-		Node node = (Node) map.get(ConsumerWorkflowEnums.node.name());
+		Node node = (Node) map.get(ObjectLifecycleParams.node.name());
 		if (null != node) {
 			return node;
 		}
@@ -143,15 +153,15 @@ public class ObjectLifecycleService implements ISamzaService {
 		String nodeId = node.getIdentifier();
 		String objectType = node.getObjectType();
 
-		if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
-				&& StringUtils.equalsIgnoreCase(prevstate, null) && StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.Draft.name())) {
-			lifecycleEvent.setPrevstate(ConsumerWorkflowEnums.Live.name());
-			lifecycleEvent.setState(ConsumerWorkflowEnums.Draft.name());
-		} else if (StringUtils.equalsIgnoreCase(objectType, ConsumerWorkflowEnums.ContentImage.name())
+		if (StringUtils.equalsIgnoreCase(objectType, ObjectLifecycleParams.ContentImage.name())
+				&& StringUtils.equalsIgnoreCase(prevstate, null) && StringUtils.equalsIgnoreCase(state, ObjectLifecycleParams.Draft.name())) {
+			lifecycleEvent.setPrevstate(ObjectLifecycleParams.Live.name());
+			lifecycleEvent.setState(ObjectLifecycleParams.Draft.name());
+		} else if (StringUtils.equalsIgnoreCase(objectType, ObjectLifecycleParams.ContentImage.name())
 				&& StringUtils.equalsIgnoreCase(prevstate, null)
-				&& StringUtils.equalsIgnoreCase(state, ConsumerWorkflowEnums.FlagDraft.name())) {
-			lifecycleEvent.setPrevstate(ConsumerWorkflowEnums.Flagged.name());
-			lifecycleEvent.setState(ConsumerWorkflowEnums.FlagDraft.name());
+				&& StringUtils.equalsIgnoreCase(state, ObjectLifecycleParams.FlagDraft.name())) {
+			lifecycleEvent.setPrevstate(ObjectLifecycleParams.Flagged.name());
+			lifecycleEvent.setState(ObjectLifecycleParams.FlagDraft.name());
 		} else {
 			prevstate = (prevstate == null) ? "" : prevstate;
 			lifecycleEvent.setPrevstate(prevstate);
@@ -159,23 +169,23 @@ public class ObjectLifecycleService implements ISamzaService {
 		}
 
 		if (StringUtils.endsWithIgnoreCase(nodeId, ".img")
-				&& StringUtils.endsWithIgnoreCase(objectType, ConsumerWorkflowEnums.Image.name())) {
+				&& StringUtils.endsWithIgnoreCase(objectType, ObjectLifecycleParams.Image.name())) {
 			nodeId = StringUtils.replace(nodeId, ".img", "");
-			objectType = StringUtils.replace(objectType, ConsumerWorkflowEnums.Image.name(), "");
+			objectType = StringUtils.replace(objectType, ObjectLifecycleParams.Image.name(), "");
 		}
 		lifecycleEvent.setId(nodeId);
 		lifecycleEvent.setType(objectType);
 
 		if (null != node.getMetadata()) {
 			Map<String, Object> nodeMap = (Map<String, Object>) node.getMetadata();
-			if (nodeMap.containsKey(ConsumerWorkflowEnums.name.name())) {
-				lifecycleEvent.setName((String) nodeMap.get(ConsumerWorkflowEnums.name.name()));
+			if (nodeMap.containsKey(ObjectLifecycleParams.name.name())) {
+				lifecycleEvent.setName((String) nodeMap.get(ObjectLifecycleParams.name.name()));
 			}
-			if (nodeMap.containsKey(ConsumerWorkflowEnums.code.name())) {
-				lifecycleEvent.setCode((String) nodeMap.get(ConsumerWorkflowEnums.code.name()));
+			if (nodeMap.containsKey(ObjectLifecycleParams.code.name())) {
+				lifecycleEvent.setCode((String) nodeMap.get(ObjectLifecycleParams.code.name()));
 			}
-			if (nodeMap.containsKey(ConsumerWorkflowEnums.channel.name())) {
-				event.setChannel((String) nodeMap.get(ConsumerWorkflowEnums.channel.name()));
+			if (nodeMap.containsKey(ObjectLifecycleParams.channel.name())) {
+				event.setChannel((String) nodeMap.get(ObjectLifecycleParams.channel.name()));
 			}
 		}
 		switch (objectType) {
@@ -211,12 +221,12 @@ public class ObjectLifecycleService implements ISamzaService {
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Concept.name())
-						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
+				if (rel.getEndNodeObjectType().equals(ObjectLifecycleParams.Concept.name())
+						&& rel.getRelationType().equals(ObjectLifecycleParams.isParentOf.name())) {
 					event.setParentid(rel.getEndNodeId());
 					event.setParenttype(rel.getEndNodeObjectType());
-				} else if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Dimension.name())
-						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
+				} else if (rel.getEndNodeObjectType().equals(ObjectLifecycleParams.Dimension.name())
+						&& rel.getRelationType().equals(ObjectLifecycleParams.isParentOf.name())) {
 					event.setParentid(rel.getEndNodeId());
 					event.setParenttype(rel.getEndNodeObjectType());
 				}
@@ -224,8 +234,8 @@ public class ObjectLifecycleService implements ISamzaService {
 		} else if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Concept.name())
-						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
+				if (rel.getEndNodeObjectType().equals(ObjectLifecycleParams.Concept.name())
+						&& rel.getRelationType().equals(ObjectLifecycleParams.isParentOf.name())) {
 					event.setParentid(rel.getEndNodeId());
 					event.setParenttype(rel.getEndNodeObjectType());
 				}
@@ -243,8 +253,8 @@ public class ObjectLifecycleService implements ISamzaService {
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Domain.name())
-						&& rel.getRelationType().equals(ConsumerWorkflowEnums.isParentOf.name())) {
+				if (rel.getEndNodeObjectType().equals(ObjectLifecycleParams.Domain.name())
+						&& rel.getRelationType().equals(ObjectLifecycleParams.isParentOf.name())) {
 					event.setParentid(rel.getEndNodeId());
 					event.setParenttype(rel.getEndNodeObjectType());
 				}
@@ -266,15 +276,15 @@ public class ObjectLifecycleService implements ISamzaService {
 			if (null != nodeMap && nodeMap.containsKey("contentType")) {
 				if (nodeMap.containsValue("Asset")) {
 					event.setType((String) nodeMap.get("contentType"));
-					event.setSubtype((String) nodeMap.get(ConsumerWorkflowEnums.mediaType.name()));
+					event.setSubtype((String) nodeMap.get(ObjectLifecycleParams.mediaType.name()));
 				} else if (nodeMap.containsValue("Plugin")) {
-					if (nodeMap.containsKey(ConsumerWorkflowEnums.category.name())) {
-						String[] category = (String[]) nodeMap.get(ConsumerWorkflowEnums.category.name());
+					if (nodeMap.containsKey(ObjectLifecycleParams.category.name())) {
+						String[] category = (String[]) nodeMap.get(ObjectLifecycleParams.category.name());
 						String subtype = "";
 						for (String str : category) {
 							subtype = str;
 						}
-						event.setType(ConsumerWorkflowEnums.Plugin.name());
+						event.setType(ObjectLifecycleParams.Plugin.name());
 						event.setSubtype(subtype);
 					}
 				} else {
@@ -293,7 +303,7 @@ public class ObjectLifecycleService implements ISamzaService {
 		} else if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			List<Relation> relations = node.getOutRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.Content.name())
+				if (rel.getEndNodeObjectType().equals(ObjectLifecycleParams.Content.name())
 						&& rel.getRelationType().equals("hasSequenceMember")) {
 					event.setParentid(rel.getEndNodeId());
 					event.setParenttype(rel.getEndNodeObjectType());
@@ -315,7 +325,7 @@ public class ObjectLifecycleService implements ISamzaService {
 			Map<String, Object> nodeMap = new HashMap<String, Object>();
 			nodeMap = (Map) node.getMetadata();
 			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
+				if (entry.getKey().equals(ObjectLifecycleParams.type.name())) {
 					event.setSubtype((String) entry.getValue());
 				}
 			}
@@ -323,8 +333,8 @@ public class ObjectLifecycleService implements ISamzaService {
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
 			for (Relation rel : relations) {
-				if (rel.getEndNodeObjectType().equals(ConsumerWorkflowEnums.ItemSet.name())
-						&& rel.getRelationType().equals(ConsumerWorkflowEnums.hasMember.name())) {
+				if (rel.getEndNodeObjectType().equals(ObjectLifecycleParams.ItemSet.name())
+						&& rel.getRelationType().equals(ObjectLifecycleParams.hasMember.name())) {
 					event.setParentid(rel.getEndNodeId());
 					event.setParenttype(rel.getEndNodeObjectType());
 				}
@@ -342,7 +352,7 @@ public class ObjectLifecycleService implements ISamzaService {
 		if (null != node.getMetadata()) {
 			Map<String, Object> nodeMap = (Map<String, Object>) node.getMetadata();
 			for (Map.Entry<String, Object> entry : nodeMap.entrySet()) {
-				if (entry.getKey().equals(ConsumerWorkflowEnums.type.name())) {
+				if (entry.getKey().equals(ObjectLifecycleParams.type.name())) {
 					event.setSubtype((String) entry.getValue());
 				}
 			}

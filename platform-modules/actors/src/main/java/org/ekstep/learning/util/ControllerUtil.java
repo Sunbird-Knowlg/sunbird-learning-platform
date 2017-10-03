@@ -11,8 +11,8 @@ import org.ekstep.contentstore.util.ContentStoreOperations;
 import org.ekstep.contentstore.util.ContentStoreParams;
 import org.ekstep.learning.common.enums.LearningActorNames;
 import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -220,7 +220,7 @@ public class ControllerUtil extends BaseLearningManager {
 	}
 
 	public Response getHirerachy(String identifier) {
-		String url = PropertiesUtil.getProperty("platform-api-url") + "/v3/content/hierarchy/" + identifier;
+		String url = Platform.config.getString("platform-api-url") + "/v3/content/hierarchy/" + identifier;
 		Response hirerachyRes = null;
 		try {
 			String result = HTTPUtil.makeGetRequest(url);

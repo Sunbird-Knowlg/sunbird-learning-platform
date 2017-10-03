@@ -8,8 +8,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
 
 public class WordEnrichMessageProcessor implements IMessageProcessor {
@@ -111,7 +111,7 @@ public class WordEnrichMessageProcessor implements IMessageProcessor {
 
 		try {
 
-		String url = PropertiesUtil.getProperty("language-api-url") + "/v1/language/tools/enrich/" + languageId;
+		String url = Platform.config.getString("language-api-url") + "/v1/language/tools/enrich/" + languageId;
 
 		Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 		Map<String, Object> requestMap = new HashMap<String, Object>();

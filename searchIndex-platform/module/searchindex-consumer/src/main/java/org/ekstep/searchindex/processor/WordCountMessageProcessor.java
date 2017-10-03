@@ -13,8 +13,8 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
 
 import net.sf.json.util.JSONBuilder;
@@ -77,7 +77,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 Map<String, Integer> wordsCountObj = entry.getValue();
 			 Integer wordsCount = wordsCountObj.get("wordsCount");
 			 Integer liveWordsCount = wordsCountObj.get("liveWordsCount");
-			 String url = PropertiesUtil.getProperty("platform-api-url") +"/v1/language/dictionary/updateWordCount/"+languageId;
+			 String url = Platform.config.getString("platform-api-url") +"/v1/language/dictionary/updateWordCount/"+languageId;
 			
 			 Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 			 Map<String, Object> requestMap = new HashMap<String, Object>();

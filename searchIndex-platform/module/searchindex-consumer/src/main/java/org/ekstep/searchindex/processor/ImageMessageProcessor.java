@@ -18,9 +18,9 @@ import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.searchindex.util.OptimizerUtil;
-import org.ekstep.searchindex.util.PropertiesUtil;
 import org.ekstep.searchindex.util.VisionApi;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -36,17 +36,11 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class ImageMessageProcessor implements IMessageProcessor {
 
-	/** The logger. */
-	
-
 	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 
 	/** The ObjectMapper */
 	private static ObjectMapper mapper = new ObjectMapper();
-
-	/** The Properties Util */
-	private static PropertiesUtil util = new PropertiesUtil();
 
 	/** The constructor */
 	public ImageMessageProcessor() {
@@ -146,8 +140,7 @@ public class ImageMessageProcessor implements IMessageProcessor {
 		Node node = OptimizerUtil.controllerUtil.getNode("domain", eks.get("cid").toString());
 		PlatformLogger.log("Getting Node from graphDB based on assetId", node);
 		try {
-			util.loadProperties("consumer-config.properties");
-			String key = util.getProperty("google.vision.tagging.enabled");
+			String key = Platform.config.getString("google.vision.tagging.enabled");
 			if ("true".equalsIgnoreCase(key)) {
 
 				Node data = callVisionService(image_url, node, variantsMap);

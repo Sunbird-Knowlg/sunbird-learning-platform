@@ -20,9 +20,9 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordInfoBean;
 import org.ekstep.language.util.Constants;
-import org.ekstep.language.util.PropertiesUtil;
 import org.ekstep.language.util.WordUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ClientException;
 
 /**
@@ -41,11 +41,10 @@ public class SSFParser {
 	private static String ATTRIBUTES_SEPARATOR = ",";
 
 	/** The default token count after word. */
-	private static int defaultTokenCountAfterWord = Integer
-			.parseInt(PropertiesUtil.getProperty("defaultTokenCountAfterWord"));
+	private static int defaultTokenCountAfterWord = Platform.config.getInt("defaultTokenCountAfterWord");
 
 	/** The ignore start words. */
-	private static String[] ignoreStartWords;
+	private static List<String> ignoreStartWords;
 
 	/** The tag names. */
 	private static String[] tagNames;
@@ -57,10 +56,10 @@ public class SSFParser {
 	private static String attributesTagIdentifier;
 
 	/** The special char reg ex. */
-	private static String specialCharRegEx = PropertiesUtil.getProperty("specialCharRegEx");
+	private static String specialCharRegEx = Platform.config.getString("specialCharRegEx");
 
 	/** The number reg ex. */
-	private static String numberRegEx = PropertiesUtil.getProperty("numberRegEx");
+	private static String numberRegEx = Platform.config.getString("numberRegEx");
 
 	/** The word util. */
 	private static WordUtil wordUtil = new WordUtil();
@@ -68,19 +67,18 @@ public class SSFParser {
 	// Gets properties required for processing
 	static {
 		// all words starting with any of these properties will be ignored
-		String ignoreStartWordsList = PropertiesUtil.getProperty("ignoreStartWordsList");
-		ignoreStartWords = ignoreStartWordsList.split(",");
-
+		ignoreStartWords = Platform.config.getStringList("ignoreStartWordsList");
+		
 		// tag names in the in SSF file
-		String tagNamesList = PropertiesUtil.getProperty("tagNamesList");
+		String tagNamesList = Platform.config.getString("tagNamesList");
 		tagNames = tagNamesList.split(",");
 
 		// tokens that need to be discarded
-		String discardTokensList = PropertiesUtil.getProperty("discardTokensList");
+		String discardTokensList = Platform.config.getString("discardTokensList");
 		discardTokens = discardTokensList.split(",");
 
 		// Tag that identifies the word properties
-		attributesTagIdentifier = PropertiesUtil.getProperty("attributesTagIdentifier");
+		attributesTagIdentifier = Platform.config.getString("attributesTagIdentifier");
 	}
 
 	/**

@@ -18,7 +18,7 @@ import com.ilimi.common.dto.Request;
 
 public class Neo4jGraphDacApiTest {
 
-	public static final String graphId = "testGraph";
+	public static final String graphId = "domain";
 	public static final String testId = "xyz";
 	public static GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
 	String IL_UNIQUE_ID = "JAVA001";

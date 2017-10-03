@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +17,6 @@ import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -26,10 +24,8 @@ import org.neo4j.graphdb.TransactionTerminatedException;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
-import com.datastax.driver.core.TableMetadata;
-import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 
@@ -131,7 +127,7 @@ public class TestSetup{
 				String definition;
 				try {
 					definition = FileUtils.readFileToString(fileEntry);
-					Response resp = createDefinition(Configuration.getProperty(TestParams.graphId.name()),
+					Response resp = createDefinition(Platform.config.getString(TestParams.graphId.name()),
 							definition);
 					definitions.put(fileEntry.getName(), resp.getResponseCode().toString());
 				} catch (IOException e) {
@@ -145,11 +141,11 @@ public class TestSetup{
 	private static void loadAllNodes() {
 		System.out.println("creating sample nodes for test");
 		InputStream in = csvReader(CONCEPT_CSV);
-		create(Configuration.getProperty(TestParams.graphId.name()), in);
+		create(Platform.config.getString(TestParams.graphId.name()), in);
 		InputStream in1 = csvReader(DIMENSION_CSV);
-		create(Configuration.getProperty(TestParams.graphId.name()), in1);
+		create(Platform.config.getString(TestParams.graphId.name()), in1);
 		InputStream in2 = csvReader(DOMAIN_CSV);
-		create(Configuration.getProperty(TestParams.graphId.name()), in2);
+		create(Platform.config.getString(TestParams.graphId.name()), in2);
 	}
 
 	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
@@ -186,7 +182,7 @@ public class TestSetup{
 		System.out.println("Starting neo4j in embedded mode");
 
 		graphDb = new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder(new File(Configuration.getProperty(GRAPH_DIRECTORY_PROPERTY_KEY)))
+				.newEmbeddedDatabaseBuilder(new File(Platform.config.getString(GRAPH_DIRECTORY_PROPERTY_KEY)))
 				.setConfig(bolt.type, TestParams.BOLT.name()).setConfig(bolt.enabled, BOLT_ENABLED)
 				.setConfig(bolt.address, NEO4J_SERVER_ADDRESS).newGraphDatabase();
 		registerShutdownHook(graphDb);
@@ -212,6 +208,6 @@ public class TestSetup{
 	private static void tearEmbeddedNeo4JSetup() {
 		System.out.println("deleting Graph...!!");
 		graphDb.shutdown();
-		deleteGraph(Configuration.getProperty(TestParams.graphId.name()));
+		deleteGraph(Platform.config.getString(TestParams.graphId.name()));
 	}
 }

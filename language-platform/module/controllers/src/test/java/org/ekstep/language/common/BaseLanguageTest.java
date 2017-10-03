@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -15,19 +14,17 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.engine.router.ActorBootstrap;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 public class BaseLanguageTest {
 
-	
-	private static ObjectMapper mapper = new ObjectMapper();
 	private static GraphDatabaseService graphDb;
 	protected static String TEST_LANGUAGE = "en";
 	protected static String TEST_COMMON_LANGUAGE = "language";
@@ -37,7 +34,6 @@ public class BaseLanguageTest {
 		ActorBootstrap.loadConfiguration();
 	}
 	
-	@SuppressWarnings("unused")
 	@BeforeClass
 	public static void init() throws Exception {
 		createGraph();
@@ -55,7 +51,7 @@ public class BaseLanguageTest {
         System.out.println("Starting neo4j in embedded mode");
        
         graphDb = new GraphDatabaseFactory()
-		        .newEmbeddedDatabaseBuilder(new File(Configuration.getProperty("graph.dir")))
+		        .newEmbeddedDatabaseBuilder(new File(Platform.config.getString("graph.dir")))
 		        .setConfig( bolt.type, "BOLT" )
 		        .setConfig( bolt.enabled, "true" )
 		        .setConfig( bolt.address, "localhost:7687" )

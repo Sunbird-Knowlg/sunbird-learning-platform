@@ -41,7 +41,6 @@ import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.stereotype.Component;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -81,10 +80,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 
 	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
-
-	/** The logger. */
 	
-
 	/**
 	 * Gets the word list.
 	 *

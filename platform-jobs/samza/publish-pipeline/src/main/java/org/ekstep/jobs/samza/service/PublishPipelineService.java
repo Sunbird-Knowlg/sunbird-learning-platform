@@ -5,27 +5,22 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
-import org.ekstep.common.util.ReadProperties;
-import org.ekstep.common.util.S3PropertyReader;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
-import org.ekstep.content.util.PropertiesUtil;
 import org.ekstep.content.util.PublishWebHookInvoker;
-import org.ekstep.contentstore.util.CassandraConnector;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
+import org.ekstep.jobs.samza.util.JSONUtils;
 import org.ekstep.jobs.samza.util.JobLogger;
 import org.ekstep.jobs.samza.util.PublishPipelineParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
+
 import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.graph.cache.factory.JedisFactory;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.model.Node;
 
 public class PublishPipelineService implements ISamzaService {
@@ -45,21 +40,10 @@ public class PublishPipelineService implements ISamzaService {
 	@Override
 	public void initialize(Config config) throws Exception {
 		this.config = config;
-		Map<String, Object> props = new HashMap<String, Object>();
-		for (Entry<String, String> entry : config.entrySet()) {
-			props.put(entry.getKey(), entry.getValue());
-		}
-		S3PropertyReader.loadProperties(props);
-		Configuration.loadProperties(props);
-		PropertiesUtil.loadProperties(props);
-		ReadProperties.loadProperties(props);
+		JSONUtils.loadProperties(config);
 		LOGGER.info("Service config initialized");
 		LearningRequestRouterPool.init();
 		LOGGER.info("Akka actors initialized");	
-		CassandraConnector.loadProperties(props);
-		LOGGER.info("Cassandra connection initialized");
-		JedisFactory.initialize(props);
-		LOGGER.info("Redis connection factory initialized");
 	}
 
 	@SuppressWarnings("unused")
@@ -67,7 +51,6 @@ public class PublishPipelineService implements ISamzaService {
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
 			throws Exception {
 		Map<String, Object> eks = getPublishLifecycleData(message);
-
 		if (null == eks) {
 			metrics.incSkippedCounter();
 			return;
@@ -142,7 +125,7 @@ public class PublishPipelineService implements ISamzaService {
 		return identifier + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
 	}
 
-	public Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
+	private Stream<NodeDTO> filterAndSortNodes(List<NodeDTO> nodes) {
 		return dedup(nodes).stream()
 				.filter(node -> StringUtils.equalsIgnoreCase(node.getMimeType(),
 						"application/vnd.ekstep.content-collection")

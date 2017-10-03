@@ -51,7 +51,6 @@ import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.Identifier;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -1172,7 +1171,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-		String graphPassportKey = Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+		String graphPassportKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
 		map.put("versionKey", graphPassportKey);
 		Node domainObj = ConvertToGraphNode.convertToGraphNode(map, definition, null);
 		Response updateResponse = updateNode(originalId, CONTENT_OBJECT_TYPE, domainObj);
@@ -1470,7 +1469,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private Response updateMimeType(String contentId, String mimeType) throws Exception {
 		Map<String, Object> map = new HashMap<>();
 		map.put("mimeType", mimeType);
-		map.put("versionKey", Configuration.getProperty(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
+		map.put("versionKey", Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY));
 		return updateContent(contentId, map);
 	}
 

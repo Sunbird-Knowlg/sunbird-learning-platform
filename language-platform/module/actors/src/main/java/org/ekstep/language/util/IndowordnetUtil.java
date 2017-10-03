@@ -22,7 +22,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
@@ -40,9 +39,6 @@ import akka.actor.ActorRef;
  * 
  */
 public class IndowordnetUtil {
-
-	/** The mapper. */
-	private ObjectMapper mapper = new ObjectMapper();
 
 	/** The comma separator. */
 	private final String COMMA_SEPARATOR = ",";
