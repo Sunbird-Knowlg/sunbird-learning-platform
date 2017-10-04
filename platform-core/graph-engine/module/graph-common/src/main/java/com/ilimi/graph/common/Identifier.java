@@ -1,15 +1,10 @@
 package com.ilimi.graph.common;
 
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.commons.lang3.StringUtils;
-
+import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
-import com.ilimi.graph.common.mgr.Configuration;
 
 public class Identifier {
 
@@ -18,21 +13,10 @@ public class Identifier {
 	private static AtomicInteger aInteger = new AtomicInteger(1); 
 
 	static {
-		try (InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties")) {
-			if (null != inputStream) {
-				Properties props = new Properties();
-				props.load(inputStream);
-				String envId = props.getProperty("environment.id");
-				if (StringUtils.isNotBlank(envId)) {
-					environmentId = Long.parseLong(envId);
-				}
-				String shard = props.getProperty("shard.id");
-				if (StringUtils.isNotBlank(shard))
-					shardId = shard;
-			}
-		} catch (Exception e) {
-			PlatformLogger.log("Error! While Loading Graph Properties.", null, e);
-		}
+			if(Platform.config.hasPath("environment.id"))
+				environmentId = Platform.config.getLong("environment.id");
+			if(Platform.config.hasPath("shard.id"))
+				shardId = Platform.config.getString("shard.id");
 	}
 	
 	public static String getUniqueIdFromNeo4jId(long id) {
