@@ -280,6 +280,10 @@ public class ControllerUtil extends BaseLearningManager {
 					obj.setStatus((String) properties.get("status"));
 					obj.setMimeType((String) properties.get("mimeType"));
 					obj.setVisibility((String) properties.get("visibility"));
+					Integer compatibilityLevel = 1;
+					if(null != properties.get("compatibilityLevel"))
+						compatibilityLevel = ((Long) properties.get("compatibilityLevel")).intValue();
+					obj.setCompatibilityLevel(compatibilityLevel);
 					nodes.add(obj);
 				}
 			}

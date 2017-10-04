@@ -49,10 +49,10 @@ public class PublishTask implements Runnable {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
 			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
-//			if (!nodes.isEmpty()) {
-//				int compatabilityLevel = getCompatabilityLevel(nodes);
-//				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
-//			}
+			if (!nodes.isEmpty()) {
+				int compatabilityLevel = getCompatabilityLevel(nodes);
+				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
+			}
 		}
 		publishNode(node, mimeType);
 	}
