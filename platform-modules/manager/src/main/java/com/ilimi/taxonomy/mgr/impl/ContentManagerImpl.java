@@ -120,7 +120,19 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	protected static final String URL_FIELD = "URL";
 
 	private PublishManager publishManager = new PublishManager();
+	
+	private static List<String> contentTypeList = new  ArrayList<String>();
 
+	static {
+		contentTypeList.add("Story");
+		contentTypeList.add("Worksheet");
+		contentTypeList.add("Game");
+		contentTypeList.add("Simulation");
+		contentTypeList.add("Puzzle");
+		contentTypeList.add("Diagnostic");
+		contentTypeList.add("ContentTemplate");
+		contentTypeList.add("ItemTemplate");
+	}
 	/**
 	 * Gets the data node.
 	 *
@@ -990,9 +1002,6 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (map.containsKey(ContentAPIParams.status.name()))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
 					"Error! Status cannot be set while updating the Content.");
-		
-		// Checking for resourceType if contentType resource
-		validateNodeForContentType(map);
 				
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		String originalId = contentId;
@@ -1516,9 +1525,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	private void validateNodeForContentType(Map<String,Object> map){
-		if("Resource".equalsIgnoreCase((String)(map.get(ContentAPIParams.contentType.name()))) && 
-				StringUtils.isBlank((String)map.get(ContentAPIParams.resourceType.name()))){
-			throw new ClientException(TaxonomyErrorCodes.ERR_CONTENT_MISSING_CONTENT_RESOURCE_TYPE.name(), "Required field resource Type is missing!");
-		}		
+		if(contentTypeList.contains((String)map.get(ContentAPIParams.contentType.name())))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(), ((String)map.get(ContentAPIParams.contentType.name())) + " is not a valid value for contentType");
 	}
 }
