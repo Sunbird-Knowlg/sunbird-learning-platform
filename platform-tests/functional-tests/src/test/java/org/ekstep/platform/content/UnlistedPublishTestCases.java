@@ -789,23 +789,6 @@ public class UnlistedPublishTestCases extends BaseTest{
 		return null;
 	}
 
-	/*
-	 * / Async publish validations - Other contents public void
-	 * asyncPublishValidationContents(String nodeId, String statusActual){ for
-	 * (int i=1000; i<=5000; i=i+1000){
-	 * try{Thread.sleep(i);}catch(InterruptedException
-	 * e){//System.out.println(e);} setURI(); Response R3 = given().
-	 * spec(getRequestSpec(contentType, userId)). when().
-	 * get("/learning/v2/content/"+nodeId). then(). ////log().all().
-	 * spec(get200ResponseSpec()). extract(). response();
-	 * 
-	 * // Validate the response JsonPath jp3 = R3.jsonPath(); String
-	 * statusUpdated = jp3.get("result.content.status");
-	 * //System.out.println(statusUpdated); if
-	 * (statusUpdated.equals("Processing")){ i=i+1000; } if
-	 * (statusUpdated.equals("Live")){ //System.out.println(statusUpdated); } } }
-	 */
-
 	// Async Publish validations - Collection
 	public void asyncPublishValidations(ArrayList<String> identifier1, String status, String nodeId,
 			String c_identifier, String node1, String node2) {
