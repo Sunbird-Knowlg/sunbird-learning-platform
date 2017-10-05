@@ -48,10 +48,12 @@ public class ObjectLifecycleService implements ISamzaService {
 		if(null == message.get("syncMessage")){
 			if(null != message.get(ObjectLifecycleParams.operationType.name()) && message.get(ObjectLifecycleParams.operationType.name()).equals(ObjectLifecycleParams.DELETE.name())){
 				Event event = generateEventOnDelete(message);
-				LOGGER.info("Event generated on deletion of node");
-				publishEvent(event, collector);
-				LOGGER.info("Event published on deletion of node");
-				metrics.incSuccessCounter();
+				if(null != event){
+					LOGGER.info("Event generated on deletion of node");
+					publishEvent(event, collector);
+					LOGGER.info("Event published on deletion of node");
+					metrics.incSuccessCounter();
+				}
 			}
 			Map<String, Object> stateChangeEvent = getStateChangeEvent(message);
 			if (stateChangeEvent != null) {
@@ -99,8 +101,9 @@ public class ObjectLifecycleService implements ISamzaService {
 				event.setEts(message);
 				event.setEdata(lifecycleEvent);
 			}
+			return event;
 	    }	
-		return event;
+		return null;
 	}
 
 	private String getMD5Hash(String event) {
