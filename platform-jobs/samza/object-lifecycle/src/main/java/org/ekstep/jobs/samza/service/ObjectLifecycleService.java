@@ -80,17 +80,26 @@ public class ObjectLifecycleService implements ISamzaService {
 		}
 	}
 
-	private Event generateEventOnDelete(Map<String, Object> message) {
+	public Event generateEventOnDelete(Map<String, Object> message) {
 		Event event = new Event("BE_OBJECT_LIFECYCLE", "2.1", "ObjectLifecycleTask");
 		LifecycleEvent lifecycleEvent = new LifecycleEvent();
 		String nodeUniqueId = (String)message.get(ObjectLifecycleParams.nodeUniqueId.name());
 		String objectType = (String)message.get(ObjectLifecycleParams.objectType.name());
-		lifecycleEvent.setId(nodeUniqueId);
-		lifecycleEvent.setState("");
-		lifecycleEvent.setType(objectType);
-		event.setEts(message);
-		event.setEdata(lifecycleEvent);
-		LOGGER.info("Event generated for node deleted" + nodeUniqueId);
+		if(!StringUtils.equalsIgnoreCase(objectType, "contentImage")){
+			Map<String,Object> stateChangeEvent = getStateChangeEvent(message);
+			if(null != stateChangeEvent){
+				String prevstate = (String) stateChangeEvent.get("ov");
+				String state = (String) stateChangeEvent.get("nv");
+				if(StringUtils.isNotBlank(state))
+					lifecycleEvent.setState(state);
+				if(StringUtils.isNotBlank(prevstate))
+					lifecycleEvent.setPrevstate(prevstate);
+				lifecycleEvent.setId(nodeUniqueId);
+				lifecycleEvent.setType(objectType);
+				event.setEts(message);
+				event.setEdata(lifecycleEvent);
+			}
+	    }	
 		return event;
 	}
 
@@ -270,27 +279,28 @@ public class ObjectLifecycleService implements ISamzaService {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void setContentMetadata(Node node, LifecycleEvent event) {
-		if (null != node.getMetadata()) {
-			Map<String, Object> nodeMap = new HashMap<String, Object>();
-			nodeMap = (Map) node.getMetadata();
-			if (null != nodeMap && nodeMap.containsKey("contentType")) {
-				if (nodeMap.containsValue("Asset")) {
-					event.setType((String) nodeMap.get("contentType"));
-					event.setSubtype((String) nodeMap.get(ObjectLifecycleParams.mediaType.name()));
-				} else if (nodeMap.containsValue("Plugin")) {
-					if (nodeMap.containsKey(ObjectLifecycleParams.category.name())) {
-						String[] category = (String[]) nodeMap.get(ObjectLifecycleParams.category.name());
-						String subtype = "";
-						for (String str : category) {
-							subtype = str;
-						}
-						event.setType(ObjectLifecycleParams.Plugin.name());
-						event.setSubtype(subtype);
+		Map<String, Object> nodeMap = (Map) node.getMetadata();
+		
+		if (null != nodeMap && nodeMap.containsKey("contentType")) {
+			String contentType = (String)nodeMap.get("contentType");
+			
+			if (StringUtils.equalsIgnoreCase(contentType, "Asset")) {
+				event.setType((String) nodeMap.get("contentType"));
+				event.setSubtype((String) nodeMap.get(ObjectLifecycleParams.mediaType.name()));
+			} 
+			else if (StringUtils.equalsIgnoreCase(contentType, "Plugin")) {
+				if (nodeMap.containsKey(ObjectLifecycleParams.category.name())) {
+					String[] category = (String[]) nodeMap.get(ObjectLifecycleParams.category.name());
+					String subtype = "";
+					for (String str : category) {
+						subtype = str;
 					}
-				} else {
-					event.setSubtype((String) nodeMap.get("contentType"));
+					event.setType(ObjectLifecycleParams.Plugin.name());
+					event.setSubtype(subtype);
 				}
-			}
+			} else {
+				event.setSubtype((String) nodeMap.get("contentType"));
+		  }
 		}
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			List<Relation> relations = node.getInRelations();
