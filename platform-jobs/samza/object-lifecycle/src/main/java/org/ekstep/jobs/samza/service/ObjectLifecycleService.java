@@ -46,7 +46,7 @@ public class ObjectLifecycleService implements ISamzaService {
 	@Override
 	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		if(null == message.get("syncMessage")){
-			if(null != message.get(ObjectLifecycleParams.operationType.name()) && message.get(ObjectLifecycleParams.operationType.name()).equals(ObjectLifecycleParams.DELETE.name())){
+			if("DELETE".equalsIgnoreCase((String)message.get(ObjectLifecycleParams.operationType.name()))){
 				Event event = generateEventOnDelete(message);
 				if(null != event){
 					LOGGER.info("Event generated on deletion of node");
