@@ -93,7 +93,9 @@ public class ObjectLifecycleService implements ISamzaService {
 				String prevstate = (String) stateChangeEvent.get("ov");
 				String state = (String) stateChangeEvent.get("nv");
 				if(StringUtils.isBlank(state))
-					lifecycleEvent.setState("Delete");
+				    lifecycleEvent.setState("Delete");
+				else
+				    lifecycleEvent.setState(state);
 				if(StringUtils.isNotBlank(prevstate))
 					lifecycleEvent.setPrevstate(prevstate);
 				lifecycleEvent.setId(nodeUniqueId);
