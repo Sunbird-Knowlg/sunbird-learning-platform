@@ -26,7 +26,7 @@ public class TagsWorkflowTest {
     
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Test
-	public void createContentWithTagsTest() throws JsonParseException, JsonMappingException, IOException{
+	public void createContentWithTagsTest() throws Exception{
 		
 		Map<String,Object> messageData = mapper.readValue(createValidContentWithTags, new TypeReference<Map<String, Object>>() {
 		});
@@ -40,7 +40,7 @@ public class TagsWorkflowTest {
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void createContentWithKeywords() throws JsonParseException, JsonMappingException, IOException{
+	public void createContentWithKeywords() throws Exception{
 		Map<String,Object> messageData = mapper.readValue(createValidContentWithKeywords, new TypeReference<Map<String, Object>>() {
 		});
 		Response response = mgr.createContent(messageData);

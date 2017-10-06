@@ -925,18 +925,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return isContentImage;
 	}
 
-	public Response createContent(Map<String, Object> map) {
+	public Response createContent(Map<String, Object> map) throws Exception{
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		// Checking for status
-		if (map.containsKey(ContentAPIParams.status.name()))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CREATE.name(),
-					"Error! Status cannot be set while creating a Content.");
 		// Checking for resourceType if contentType resource
 		validateNodeForContentType(map);
 		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		
+		// Restrict create API to create with Status
+		validateForStatusUpdate(definition, map);
+		
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
 			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
@@ -998,12 +998,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		// Restrict Update API to Update Status
-		if (map.containsKey(ContentAPIParams.status.name()))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
-					"Error! Status cannot be set while updating the Content.");
-				
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		
+		// Restrict Update API to Update Status
+		validateForStatusUpdate(definition, map);
+		
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
 		map.put("objectType", CONTENT_OBJECT_TYPE);
@@ -1527,5 +1526,13 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	private void validateNodeForContentType(Map<String,Object> map){
 		if(contentTypeList.contains((String)map.get(ContentAPIParams.contentType.name())))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(), ((String)map.get(ContentAPIParams.contentType.name())) + " is not a valid value for contentType");
+	}
+	
+	private void validateForStatusUpdate(DefinitionDTO definition, Map<String,Object> map) throws Exception{
+		if(BooleanUtils.isFalse(((Boolean)definition.getMetadata().get("allowStatusUpdate")))){
+			if (map.containsKey(ContentAPIParams.status.name()))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
+					"Error! Status cannot be set while updating the Content.");
+		}
 	}
 }
