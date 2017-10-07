@@ -26,7 +26,7 @@ public class ObjectDefinitionCache {
 			getDefinitionFromGraph(objectType, graphId);
 			definition = definitionMap.get(objectType);
 		}
-		PlatformLogger.log("DefinitionMap "+ definitionMap,LoggerEnum.INFO.name());
+		PlatformLogger.log("DefinitionMap "+ definitionMap);
 		return definition;
 	}
 	

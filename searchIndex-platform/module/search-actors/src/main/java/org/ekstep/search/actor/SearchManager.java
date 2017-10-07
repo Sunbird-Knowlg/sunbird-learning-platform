@@ -215,7 +215,7 @@ public class SearchManager extends SearchBaseActor {
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
-            PlatformLogger.log("SoftConstraints"+ searchObj.getSoftConstraints(), LoggerEnum.INFO.name());
+            PlatformLogger.log("SoftConstraints"+ searchObj.getSoftConstraints());
             
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
 			PlatformLogger.log("Fields: " , fieldsSearch);
