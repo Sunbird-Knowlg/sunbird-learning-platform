@@ -8,6 +8,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
 import com.ilimi.common.Platform;
+import com.ilimi.common.logger.LoggerEnum;
+import com.ilimi.common.logger.PlatformLogger;
 
 @SuppressWarnings("rawtypes")
 public class ObjectDefinitionCache {
@@ -24,6 +26,7 @@ public class ObjectDefinitionCache {
 			getDefinitionFromGraph(objectType, graphId);
 			definition = definitionMap.get(objectType);
 		}
+		PlatformLogger.log("DefinitionMap "+ definitionMap,LoggerEnum.INFO.name());
 		return definition;
 	}
 	
