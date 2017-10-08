@@ -215,7 +215,7 @@ public interface IContentManager {
 	 */
 	Response find(String graphId, String contentId, String mode, List<String> fields);
 	
-	Response createContent(Map<String, Object> map);
+	Response createContent(Map<String, Object> map) throws Exception;
 	
 	Response updateContent(String contentId, Map<String, Object> map) throws Exception;
 	

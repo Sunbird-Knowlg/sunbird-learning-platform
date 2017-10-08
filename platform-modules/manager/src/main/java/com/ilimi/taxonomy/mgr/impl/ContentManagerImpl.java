@@ -120,7 +120,19 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	protected static final String URL_FIELD = "URL";
 
 	private PublishManager publishManager = new PublishManager();
+	
+	private static List<String> contentTypeList = new  ArrayList<String>();
 
+	static {
+		contentTypeList.add("Story");
+		contentTypeList.add("Worksheet");
+		contentTypeList.add("Game");
+		contentTypeList.add("Simulation");
+		contentTypeList.add("Puzzle");
+		contentTypeList.add("Diagnostic");
+		contentTypeList.add("ContentTemplate");
+		contentTypeList.add("ItemTemplate");
+	}
 	/**
 	 * Gets the data node.
 	 *
@@ -654,12 +666,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
 		
 		//Collections sort method is used to sort the child content list on the basis of index.
-		Collections.sort(children, new Comparator<NodeDTO>() {
-			@Override
-			public int compare(NodeDTO o1, NodeDTO o2) {
-				return o1.getIndex()-o2.getIndex();
-			}
-		});
+		if(null != children && !children.isEmpty()) {
+			Collections.sort(children, new Comparator<NodeDTO>() {
+				@Override
+				public int compare(NodeDTO o1, NodeDTO o2) {
+					return o1.getIndex()-o2.getIndex();
+				}
+			});
+		}
 
 		if (null != children && !children.isEmpty()) {
 			List<Map<String, Object>> childList = new ArrayList<Map<String, Object>>();
@@ -911,18 +925,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return isContentImage;
 	}
 
-	public Response createContent(Map<String, Object> map) {
+	public Response createContent(Map<String, Object> map) throws Exception{
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		// Checking for status
-		if (map.containsKey(ContentAPIParams.status.name()))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_CREATE.name(),
-					"Error! Status cannot be set while creating a Content.");
 		// Checking for resourceType if contentType resource
 		validateNodeForContentType(map);
 		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		
+		// Restrict create API to create with Status
+		validateForStatusUpdate(definition, map);
+		
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
 			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
@@ -984,15 +998,11 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
-		// Restrict Update API to Update Status
-		if (map.containsKey(ContentAPIParams.status.name()))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
-					"Error! Status cannot be set while updating the Content.");
-		
-		// Checking for resourceType if contentType resource
-		validateNodeForContentType(map);
-				
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
+		
+		// Restrict Update API to Update Status
+		validateForStatusUpdate(definition, map);
+		
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
 		map.put("objectType", CONTENT_OBJECT_TYPE);
@@ -1514,9 +1524,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	private void validateNodeForContentType(Map<String,Object> map){
-		if("Resource".equalsIgnoreCase((String)(map.get(ContentAPIParams.contentType.name()))) && 
-				StringUtils.isBlank((String)map.get(ContentAPIParams.resourceType.name()))){
-			throw new ClientException(TaxonomyErrorCodes.ERR_CONTENT_MISSING_CONTENT_RESOURCE_TYPE.name(), "Required field resource Type is missing!");
-		}		
+		if(contentTypeList.contains((String)map.get(ContentAPIParams.contentType.name())))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(), ((String)map.get(ContentAPIParams.contentType.name())) + " is not a valid value for contentType");
+	}
+	
+	private void validateForStatusUpdate(DefinitionDTO definition, Map<String,Object> map) throws Exception{
+		if(BooleanUtils.isFalse(((Boolean)definition.getMetadata().get("allowStatusUpdate")))){
+			if (map.containsKey(ContentAPIParams.status.name()))
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
+					"Error! Status cannot be set while updating the Content.");
+		}
 	}
 }

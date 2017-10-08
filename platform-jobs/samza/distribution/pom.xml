@@ -26,14 +26,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>object-lifecycle</artifactId>
-			<version>0.0.6</version>
+			<version>0.0.8</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>content-enrichment</artifactId>
-			<version>0.0.7</version>
+			<version>0.0.8</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -54,7 +54,7 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>publish-pipeline</artifactId>
-			<version>0.0.25</version>
+			<version>0.0.30</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency> 

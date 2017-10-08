@@ -40,7 +40,7 @@ public class EpubMimeTypeMgrTest extends TestSetup {
 	public ExpectedException exception = ExpectedException.none();
 	
 	@Before
-	public void createEpubContent() throws JsonParseException, JsonMappingException, IOException{
+	public void createEpubContent() throws Exception{
 		Map<String,Object> messageData = mapper.readValue(createEpubContent, new TypeReference<Map<String, Object>>() {
 			});
 		Response result =  mgr.createContent(messageData);

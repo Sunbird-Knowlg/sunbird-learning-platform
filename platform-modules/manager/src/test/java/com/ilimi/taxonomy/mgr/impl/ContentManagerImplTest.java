@@ -48,7 +48,7 @@ public class ContentManagerImplTest extends TestSetup {
 	public ExpectedException exception = ExpectedException.none();
 
 	@BeforeClass
-	public static void beforeSetupTestSuit() {
+	public static void beforeSetupTestSuit() throws Exception {
 		System.out.println("ContentManagerImplTest -- Before");
 		seedContent();
 
@@ -63,7 +63,7 @@ public class ContentManagerImplTest extends TestSetup {
 	 * Create Content without body
 	 */
 	@Test
-	public void testCreateContent_01() {
+	public void testCreateContent_01() throws Exception {
 		try {
 			Map<String, Object> contentMap = mapper.readValue(createECMLContent,
 					new TypeReference<Map<String, Object>>() {
@@ -525,7 +525,7 @@ public class ContentManagerImplTest extends TestSetup {
 	}
 
 
-	private static void seedContent() {
+	private static void seedContent() throws Exception {
 		try {
 			// Create ECML Content
 			Map<String, Object> ecmlContentMap = mapper.readValue(createECMLContent,

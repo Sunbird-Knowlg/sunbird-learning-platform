@@ -76,7 +76,8 @@ public class ContentEnrichmentService implements ISamzaService {
 				} else {
 					// processData(node);
 				}
-				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name()).equals(COLLECTION_CONTENT_MIMETYPE)) {
+				if (node.getMetadata().get(ContentEnrichmentParams.mimeType.name()).equals(COLLECTION_CONTENT_MIMETYPE) && 
+						"Default".equalsIgnoreCase((String)node.getMetadata().get(ContentEnrichmentParams.visibility.name()))) {
 					processCollectionForTOC(node);
 				}
 			} else {

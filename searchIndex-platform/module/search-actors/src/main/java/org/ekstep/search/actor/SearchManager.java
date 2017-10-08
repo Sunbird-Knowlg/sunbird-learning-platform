@@ -184,9 +184,10 @@ public class SearchManager extends SearchBaseActor {
 						softConstraints = mapper.readValue(constraintString, Map.class);
 					}
 				} catch (Exception e) {
+					PlatformLogger.log("Invalid soft Constraints", e.getMessage(), e, LoggerEnum.ERROR.name());
 				}
 			}
-
+			PlatformLogger.log("Soft Constraints with only Mode: " , softConstraints);
 			if (null != softConstraints && !softConstraints.isEmpty()) {
 				Map<String, Object> softConstraintMap = new HashMap<>();
 				PlatformLogger.log("SoftConstraints:" , softConstraints);
@@ -214,7 +215,8 @@ public class SearchManager extends SearchBaseActor {
 				}
 				searchObj.setSoftConstraints(softConstraintMap);
 			}
-
+            PlatformLogger.log("SoftConstraints"+ searchObj.getSoftConstraints());
+            
 			List<String> fieldsSearch = getList(req.get(CompositeSearchParams.fields.name()));
 			PlatformLogger.log("Fields: " , fieldsSearch);
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));

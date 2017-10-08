@@ -363,14 +363,12 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.setIdentifier(contentId);
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			
-			String publishType = contentImage.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name()).toString();
-			if(ContentWorkflowPipelineParams.Public.name().equalsIgnoreCase(publishType)) {
-				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
-			}else if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
+			String publishType = (String) contentImage.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
+			if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
 				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
+			} else {
+				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
 			}
-			//contentImage.getMetadata().remove(ContentWorkflowPipelineParams.publish_type.name());
-			
 			if (null != dbNode) {
 				contentImage.setInRelations(dbNode.getInRelations());
 				contentImage.setOutRelations(dbNode.getOutRelations());

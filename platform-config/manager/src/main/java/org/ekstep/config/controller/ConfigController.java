@@ -148,7 +148,7 @@ public class ConfigController extends BaseController {
 	private Map<String, String> getUrlFromS3() throws JsonProcessingException {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
-		List<String> res = AWSUploader.getObjectList(folderName);
+		List<String> res = AWSUploader.getObjectList(folderName, "config");
 		PlatformLogger.log("ResourceBundle Urls fetched from s3" , res.size());
 		for (String data : res) {
 			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {

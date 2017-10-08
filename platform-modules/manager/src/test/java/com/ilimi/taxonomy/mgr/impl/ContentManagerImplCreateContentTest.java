@@ -45,9 +45,10 @@ public class ContentManagerImplCreateContentTest {
 	
 	/**
 	 * Create Content without contentDisposition and contentEncoding should take default values.
+	 * @throws Exception 
 	 */
 	@Test
-	public void testCreateContentWithDefaultEncodingAndDisposition() {
+	public void testCreateContentWithDefaultEncodingAndDisposition() throws Exception {
 		String contentId = "CONTENT_CREATE_TEST_1";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("identifier", contentId);
@@ -71,7 +72,7 @@ public class ContentManagerImplCreateContentTest {
 	
 	
 	@Test
-	public void testCreateContentWithKeywords() {
+	public void testCreateContentWithKeywords() throws Exception {
 		String contentId = "CONTENT_CREATE_TEST_2";
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("identifier", contentId);

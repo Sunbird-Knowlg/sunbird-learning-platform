@@ -7,12 +7,13 @@ import java.util.Map.Entry;
 import org.apache.samza.config.Config;
 import org.codehaus.jackson.map.ObjectMapper;
 
+
 import com.ilimi.common.Platform;
 import com.typesafe.config.ConfigFactory;
 
 public class JSONUtils {
 	
-	private static ObjectMapper mapper;
+	private static ObjectMapper mapper = new ObjectMapper();;
 	
 	public static String serialize(Object object) throws Exception {
 		return mapper.writeValueAsString(object);
