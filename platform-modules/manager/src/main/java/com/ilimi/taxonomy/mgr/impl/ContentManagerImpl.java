@@ -178,7 +178,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
 						"Invalid Content Identifier. | [Content Identifier does not Exists.]");
 
-			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
+			Node node = getNodeForOperation(taxonomyId, contentId, "upload");
 
 			isNodeUnderProcessing(node, "Upload");
 			if (StringUtils.isBlank(mimeType)) {
@@ -238,7 +238,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 						"fileUrl is blank.");
 			isImageContentId(contentId);
-			Node node = getNodeForOperation(taxonomyId, contentId, "upload", false);
+			Node node = getNodeForOperation(taxonomyId, contentId, "upload");
 			isNodeUnderProcessing(node, "Upload");
 			if (StringUtils.isBlank(mimeType)) {
 				mimeType = getMimeType(node);
@@ -416,7 +416,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (StringUtils.isBlank(contentId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
 
-		Node node = getNodeForOperation(taxonomyId, contentId, "optimize", false);
+		Node node = getNodeForOperation(taxonomyId, contentId, "optimize");
 		PlatformLogger.log("Got Node: ", node);
 
 		isNodeUnderProcessing(node, "Optimize");
@@ -550,7 +550,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		Response response = new Response();
 
-		Node node = getNodeForOperation(taxonomyId, contentId, "publish", false);
+		Node node = getNodeForOperation(taxonomyId, contentId, "publish");
 		PlatformLogger.log("Got Node: ", node);
 
 		isNodeUnderProcessing(node, "Publish");
@@ -605,7 +605,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		Response response = new Response();
 
-		Node node = getNodeForOperation(taxonomyId, contentId, "review", false);
+		Node node = getNodeForOperation(taxonomyId, contentId, "review");
 		PlatformLogger.log("Node: ", node);
 
 		isNodeUnderProcessing(node, "Review");
@@ -809,59 +809,47 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return contentImageId;
 	}
 
-	private Node getNodeForOperation(String taxonomyId, String contentId, String operation, boolean notImageNode) {
+	private Node getNodeForOperation(String taxonomyId, String contentId, String operation) {
 		PlatformLogger.log("Taxonomy Id: " + taxonomyId + " | Content Id: " + contentId);
 		Node node = new Node();
-		Response response;
-		if (notImageNode) {
+
+		PlatformLogger.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
+		String contentImageId = getContentImageIdentifier(contentId);
+		Response response = getDataNode(taxonomyId, contentImageId);
+		if (checkError(response)) {
+			PlatformLogger.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
+
+			PlatformLogger.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
 			response = getDataNode(taxonomyId, contentId);
 
 			PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
-			if (checkError(response)) {
+			if (checkError(response))
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-			} else {
-				node = (Node) response.get(GraphDACParams.node.name());
+
+			// Content Image Node is not Available so assigning the original
+			// Content Node as node
+			node = (Node) response.get(GraphDACParams.node.name());
+
+			if (!StringUtils.equalsIgnoreCase(operation, "publish")
+					&& !StringUtils.equalsIgnoreCase(operation, "review")) {
+				// Checking if given Content Id is Image Node
+				if (null != node && isContentImageObject(node))
+					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+							"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
+									+ "' does not Exist.]");
+
+				PlatformLogger.log("Fetched Content Node: ", node);
+				String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
+				if (StringUtils.isNotBlank(status)
+						&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
+								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
+					node = createContentImageNode(taxonomyId, contentImageId, node);
 			}
 		} else {
-			PlatformLogger.log("Fetching the Content Node. | [Content ID: " + contentId + "]");
-			String contentImageId = getContentImageIdentifier(contentId);
-			response = getDataNode(taxonomyId, contentImageId);
-			if (checkError(response)) {
-				PlatformLogger.log("Unable to Fetch Content Image Node for Content Id: " + contentId);
-
-				PlatformLogger.log("Trying to Fetch Content Node (Not Image Node) for Content Id: " + contentId);
-				response = getDataNode(taxonomyId, contentId);
-
-				PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
-				if (checkError(response))
-					throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-							"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
-
-				// Content Image Node is not Available so assigning the original
-				// Content Node as node
-				node = (Node) response.get(GraphDACParams.node.name());
-
-				if (!StringUtils.equalsIgnoreCase(operation, "publish")
-						&& !StringUtils.equalsIgnoreCase(operation, "review")) {
-					// Checking if given Content Id is Image Node
-					if (null != node && isContentImageObject(node))
-						throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
-								"Invalid Content Identifier! | [Given Content Identifier '" + node.getIdentifier()
-										+ "' does not Exist.]");
-
-					PlatformLogger.log("Fetched Content Node: ", node);
-					String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
-					if (StringUtils.isNotBlank(status)
-							&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
-									|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
-						node = createContentImageNode(taxonomyId, contentImageId, node);
-				}
-			} else {
-				// Content Image Node is Available so assigning it as node
-				node = (Node) response.get(GraphDACParams.node.name());
-				PlatformLogger.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
-			}
+			// Content Image Node is Available so assigning it as node
+			node = (Node) response.get(GraphDACParams.node.name());
+			PlatformLogger.log("Getting Content Image Node and assigning it as node" + node.getIdentifier());
 		}
 
 		PlatformLogger.log("Returning the Node for Operation with Identifier: " + node.getIdentifier());
@@ -1305,7 +1293,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			id = Identifier.getIdentifier(graphId, Identifier.getUniqueIdFromTimestamp());
 			newIdMap.put(nodeId, id);
 		} else {
-			tmpnode = getNodeForOperation(graphId, id, "create", false);
+			tmpnode = getNodeForOperation(graphId, id, "create");
 			if (null != tmpnode && StringUtils.isNotBlank(tmpnode.getIdentifier())) {
 				id = tmpnode.getIdentifier();
 				objectType = tmpnode.getObjectType();
@@ -1378,10 +1366,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	}
 
 	//Method is introduced to decide whether image node should be created for the content or not.
-	private Node getNodeForUpdateHierarchy(String taxonomyId, String contentId, String operation, boolean notImageNode, boolean isRoot) {
+	private Node getNodeForUpdateHierarchy(String taxonomyId, String contentId, String operation, boolean isRoot) {
 		Response response;
 		if (isRoot)
-	        return getNodeForOperation(taxonomyId, contentId, operation, notImageNode);
+	        return getNodeForOperation(taxonomyId, contentId, operation);
 	    else {
 	    		response = getDataNode(taxonomyId, contentId);
 	    		
@@ -1392,7 +1380,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			} else {
 				Node node = (Node) response.get(GraphDACParams.node.name());
 				if("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
-	    				return getNodeForOperation(taxonomyId, contentId, operation, notImageNode);
+	    				return getNodeForOperation(taxonomyId, contentId, operation);
 	    			}else {
 	    				return node;
 	    			}
@@ -1409,7 +1397,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		if (StringUtils.isBlank(id)) {
 			Map<String, Object> map = (Map<String, Object>) entry.getValue();
 			Boolean root = (Boolean) map.get("root");
-			Node tmpnode = getNodeForUpdateHierarchy(graphId, nodeId, "update", false, root);
+			Node tmpnode = getNodeForUpdateHierarchy(graphId, nodeId, "update", root);
 			if (null != tmpnode) {
 				id = tmpnode.getIdentifier();
 				tmpnode.setOutRelations(null);
