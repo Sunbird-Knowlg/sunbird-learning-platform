@@ -368,6 +368,48 @@ paths:
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
       security: []
+  '/publish/unlisted/{contentId}':
+    post:
+      tags:
+        - Workflow
+      summary: Unlists a Content
+      description: >-
+        The '/content/publish/unlisted/{contentId}' endpoint unlists a Content.
+        This endpoint is responsible for the Content 'Unlist' operation where
+        the user can mark their content as unlisted and the unlisted content
+        undergoes all the publish operations except the state change to LIVE.The
+        unlisted API will mark the status as 'Unlisted'. It takes content
+        identifier as path parameter
+      operationId: content.publish.unlisted
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ContentId'
+        - $ref: '#/parameters/unlistedPublishRequestBody'
+      responses:
+        '200':
+          description: Content Unlisted Successfully
+          schema:
+            $ref: '#/definitions/ContentPublishUnlistedResponse'
+        '400':
+          description: >-
+            Error While Unlisting Content! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
+          schema:
+            $ref: '#/definitions/ContentPublishUnlistedErrorResponse'
+        '404':
+          description: Content Id does not exist.
+          schema:
+            $ref: '#/definitions/ContentPublishUnlistedErrorResponse'
+        '500':
+          description: >-
+            Error While Unlisting the Content! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/ContentPublishUnlistedErrorResponse'
+      security: []
   /bundle:
     post:
       tags:
@@ -588,6 +630,13 @@ paths:
             $ref: '#/definitions/ContentRejectErrorResponse'
       security: []
 parameters:
+  unlistedPublishRequestBody:
+    name: Request
+    in: body
+    description: Content Unlist Publish which contains the request data
+    required: true
+    schema:
+      $ref: '#/definitions/ContentUnlistedPublishRequestObject'
   RejectFlagRequestBody:
     name: Request
     in: body
@@ -1800,6 +1849,19 @@ definitions:
         $ref: '#/definitions/FlagObject'
     required:
       - request
+  ContentUnlistedPublishRequestObject:
+    title: Content Unlist Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/unlistObject'
+    required:
+      - request
+  unlistObject:
+    properties:
+      lastUpdatedBy:
+        type: string
+        description: lastUpdatedBy
   FlagObject:
     properties:
       flagReasons:
@@ -2086,6 +2148,12 @@ definitions:
     allOf:
       - $ref: '#/definitions/ResultWithContentUrlAndNodeId'
       - $ref: '#/definitions/ResponseHeader'
+  ContentPublishUnlistedResponse:
+    title: Content Publish Unlisted Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithContentUrlAndNodeId'
+      - $ref: '#/definitions/ResponseHeader'
   ContentBundleResponse:
     title: Content Bundle Response
     type: object
@@ -2156,6 +2224,12 @@ definitions:
       - $ref: '#/definitions/EmptyResult'
       - $ref: '#/definitions/ResponseHeader'
   ContentPublishErrorResponse:
+    title: Publish Content Error Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/EmptyResult'
+      - $ref: '#/definitions/ResponseHeader'
+  ContentPublishUnlistedErrorResponse:
     title: Publish Content Error Response
     type: object
     allOf:

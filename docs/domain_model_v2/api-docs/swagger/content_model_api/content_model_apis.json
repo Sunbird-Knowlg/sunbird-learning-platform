@@ -2314,7 +2314,7 @@
             ]
         },
         "ContentUnlistedPublishRequestObject":{
-           "title": "Content Flag Request Object",
+           "title": "Content Unlist Request Object",
             "type": "object",
             "properties": {
                 "request": {
