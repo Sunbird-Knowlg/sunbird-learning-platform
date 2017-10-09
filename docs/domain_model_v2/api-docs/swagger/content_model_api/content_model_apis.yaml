@@ -2,7 +2,11 @@ swagger: '2.0'
 info:
   version: '3.0'
   title: Content Model API
-  description: 'The Content Model API deals with all the operations related to the Content in EkStep Platform, including the basic CRUD (Create, Update, Read and Delete) operations and also the high level operations as well such as upload, publish the Content in EkStep Platform.'
+  description: >-
+    The Content Model API deals with all the operations related to the Content
+    in EkStep Platform, including the basic CRUD (Create, Update, Read and
+    Delete) operations and also the high level operations as well such as
+    upload, publish the Content in EkStep Platform.
   license:
     name: EkStep License
     url: 'http:www.ekstep.in'
@@ -29,16 +33,25 @@ tags:
   - name: History
     description: Everything related to history of modifications with a Content
   - name: Flag
-    description: Everything related to Change in state of Content and its availability for further usage
+    description: >-
+      Everything related to Change in state of Content and its availability for
+      further usage
   - name: Reject
-    description: Everythhing related to Rejection of a Content which is in Review/FlagReview state
+    description: >-
+      Everythhing related to Rejection of a Content which is in
+      Review/FlagReview state
 paths:
   /create:
     post:
       tags:
         - Core
       summary: Creates a Content
-      description: 'The _content_ endpoint is used to create the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the content into the platfrom, The _content_ endpoint returns the node id as _node_id_ i.e. the identifier of created content.'
+      description: >-
+        The _content_ endpoint is used to create the content into the _EkStep
+        Platform_ with the metadata provided as part of request body, there are
+        certain fields marked as mandatory for which the value has to be given
+        in order to create the content into the platfrom, The _content_ endpoint
+        returns the node id as _node_id_ i.e. the identifier of created content.
       operationId: ekstep.learning.content.create
       produces:
         - application/json
@@ -50,11 +63,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentCreateResponse'
         '400':
-          description: 'Error While Content Creation! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Creation! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
           schema:
             $ref: '#/definitions/ContentCreateErrorResponse'
         '500':
-          description: 'Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Creation! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentCreateErrorResponse'
       security: []
@@ -63,7 +82,14 @@ paths:
       tags:
         - Core
       summary: Updates the Content
-      description: 'The _content/{contentId}_ endpoint with ''PATCH'' method is used to update the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to have the content into the platfrom i.e. the mandatory fields cannot be null or empty, The _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the identifier of updated content.'
+      description: >-
+        The _content/{contentId}_ endpoint with 'PATCH' method is used to update
+        the content into the _EkStep Platform_ with the metadata provided as
+        part of request body, there are certain fields marked as mandatory for
+        which the value has to be given in order to have the content into the
+        platfrom i.e. the mandatory fields cannot be null or empty, The
+        _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the
+        identifier of updated content.
       operationId: ekstep.learning.content.update
       produces:
         - application/json
@@ -76,7 +102,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentUpdateResponse'
         '400':
-          description: 'Error While Content Update! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Update! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
         '404':
@@ -84,7 +113,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
         '500':
-          description: 'Error While Content Update! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Update! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
       security: []
@@ -93,7 +125,13 @@ paths:
       tags:
         - Core
       summary: Get Content Object
-      description: 'The _content/{contentId}_ endpoint with ''GET'' method is used to fetch the content from the _EkStep Platform_. This endpoint returns the entire Content Object with default fields. The Consumer can get the non-default fields by passing the comma separated list of fields in a query parameter _fields_ For Example: _/content/{contentId}?fields?body,soundCredits_'
+      description: >-
+        The _content/{contentId}_ endpoint with 'GET' method is used to fetch
+        the content from the _EkStep Platform_. This endpoint returns the entire
+        Content Object with default fields. The Consumer can get the non-default
+        fields by passing the comma separated list of fields in a query
+        parameter _fields_ For Example:
+        _/content/{contentId}?fields?body,soundCredits_
       operationId: ekstep.learning.content.read
       produces:
         - application/json
@@ -105,7 +143,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentGetResponse'
         '400':
-          description: 'Error While Content Fetch! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Fetch! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
         '404':
@@ -113,7 +154,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
         '500':
-          description: 'Error While Content Fetch! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Fetch! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
       security: []
@@ -122,7 +166,11 @@ paths:
       tags:
         - Core
       summary: Deletes Content Object
-      description: 'The _content/{contentId}_ endpoint with ''DELETE'' method is used to delete (Retire) the content from the _EkStep Platform_. It consumes the Content Identifier as ''contentId'' on which the delete (Retire) operation has to be performed.'
+      description: >-
+        The _content/{contentId}_ endpoint with 'DELETE' method is used to
+        delete (Retire) the content from the _EkStep Platform_. It consumes the
+        Content Identifier as 'contentId' on which the delete (Retire) operation
+        has to be performed.
       operationId: ekstep.learning.content.retire
       produces:
         - application/json
@@ -134,7 +182,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentDeleteResponse'
         '400':
-          description: 'Error While Content Retire! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Retire! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
           schema:
             $ref: '#/definitions/ContentDeleteErrorResponse'
         '404':
@@ -142,7 +193,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentDeleteErrorResponse'
         '500':
-          description: 'Error While Content Retire! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Retire! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentDeleteErrorResponse'
       security: []
@@ -151,7 +205,17 @@ paths:
       tags:
         - Search
       summary: List all Contents
-      description: 'The _content/list_ endpoint is used to list all the content from the _EkStep Platform_. By deafult it returns only ''Live'' content But Content belongs to other status can also be queried by explicitly providing the metadata information in the Request body. Apart from this the Request body can have the sorting field information, order of sorting and a particular set of fields you want in output. The only difference between ''search'' and ''list'' operation is, the ''list'' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the ''search'' operation will return all the objects of type content.'
+      description: >-
+        The _content/list_ endpoint is used to list all the content from the
+        _EkStep Platform_. By deafult it returns only 'Live' content But Content
+        belongs to other status can also be queried by explicitly providing the
+        metadata information in the Request body. Apart from this the Request
+        body can have the sorting field information, order of sorting and a
+        particular set of fields you want in output. The only difference between
+        'search' and 'list' operation is, the 'list' operation only return the
+        Content of type story, worksheet and games i.e. the content playable on
+        Genie App while the 'search' operation will return all the objects of
+        type content.
       operationId: content.list
       produces:
         - application/json
@@ -163,11 +227,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentListResponse'
         '400':
-          description: 'Error While Listing Contents! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Listing Contents! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
           schema:
             $ref: '#/definitions/ContentListErrorResponse'
         '500':
-          description: 'Error While Listing Contents! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Listing Contents! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentListErrorResponse'
       security: []
@@ -176,7 +246,16 @@ paths:
       tags:
         - Search
       summary: Search the Content
-      description: 'The ''content/search'' endpoint is used to search the content in the _EkStep Platform_. It makes the search based on the Search Criteria provided in the Request Body. Apart from this the Request body can have the sorting field information, order of sorting and a particular set of fields you want in output.  The only difference between ''search'' and ''list'' operation is, the ''list'' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the ''search'' operation will return all the objects of type content.'
+      description: >-
+        The 'content/search' endpoint is used to search the content in the
+        _EkStep Platform_. It makes the search based on the Search Criteria
+        provided in the Request Body. Apart from this the Request body can have
+        the sorting field information, order of sorting and a particular set of
+        fields you want in output.  The only difference between 'search' and
+        'list' operation is, the 'list' operation only return the Content of
+        type story, worksheet and games i.e. the content playable on Genie App
+        while the 'search' operation will return all the objects of type
+        content.
       operationId: content.search
       produces:
         - application/json
@@ -188,11 +267,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentSearchResponse'
         '400':
-          description: 'Error While Content Search! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Search! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
           schema:
             $ref: '#/definitions/ContentSearchErrorResponse'
         '500':
-          description: 'Error While Content Search! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Search! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentSearchErrorResponse'
       security: []
@@ -201,7 +286,15 @@ paths:
       tags:
         - Workflow
       summary: Uploads a Content Package
-      description: 'The ''/content/upload/{contentId}'' endpoint uploads the Content package for the given ''contentId''. This endpoint is responsible for the Content ''Upload'' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter and content package file as file type body parameter. In response it returns the Content Url as ''content_url'' which is the address of storage space (S3) where the content is being uploaded and the Content node identifier as ''node_id'' for which the upload operation is being performed.'
+      description: >-
+        The '/content/upload/{contentId}' endpoint uploads the Content package
+        for the given 'contentId'. This endpoint is responsible for the Content
+        'Upload' operation which is considered to be one of the high-level
+        operation. It takes content identifier as path parameter and content
+        package file as file type body parameter. In response it returns the
+        Content Url as 'content_url' which is the address of storage space (S3)
+        where the content is being uploaded and the Content node identifier as
+        'node_id' for which the upload operation is being performed.
       operationId: content.upload
       produces:
         - application/json
@@ -214,7 +307,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentUploadResponse'
         '400':
-          description: 'Error While Content Upload! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Upload! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
         '404':
@@ -222,7 +318,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
         '500':
-          description: 'Error While Content Upload! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Upload! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
       security: []
@@ -231,7 +330,15 @@ paths:
       tags:
         - Workflow
       summary: Publishes a Content
-      description: 'The ''/content/publish/{contentId}'' endpoint publishes a Content whose Content identifier is given as ''contentId''. This endpoint is responsible for the Content ''Publish'' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter. In response it returns the Content Url as ''content_url'' which is the address of storage space (S3) where the content ECAR is being uploaded and the Content node identifier as ''node_id'' for which the publish operation is being performed.'
+      description: >-
+        The '/content/publish/{contentId}' endpoint publishes a Content whose
+        Content identifier is given as 'contentId'. This endpoint is responsible
+        for the Content 'Publish' operation which is considered to be one of the
+        high-level operation. It takes content identifier as path parameter. In
+        response it returns the Content Url as 'content_url' which is the
+        address of storage space (S3) where the content ECAR is being uploaded
+        and the Content node identifier as 'node_id' for which the publish
+        operation is being performed.
       operationId: content.publish
       produces:
         - application/json
@@ -243,7 +350,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentPublishResponse'
         '400':
-          description: 'Error While Content Publish! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Publish! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
         '404':
@@ -251,7 +361,10 @@ paths:
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
         '500':
-          description: 'Error While Content Publish! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Publish! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
       security: []
@@ -260,7 +373,14 @@ paths:
       tags:
         - Bundle
       summary: Bundle the Contents
-      description: The '/content/bundle' endpoint bundles the Contents whose identifiers are given. It consumes the list of Content identifiers as 'content_identifiers' and the bundle file name as 'file_name' which is the name of output bundle file. In response it returns the URL of Bundle Package file which is uploaded to storage space (S3). This endpoint performs the 'Bundle' operation for the given contents which is useful for offline access of EkStep Content.
+      description: >-
+        The '/content/bundle' endpoint bundles the Contents whose identifiers
+        are given. It consumes the list of Content identifiers as
+        'content_identifiers' and the bundle file name as 'file_name' which is
+        the name of output bundle file. In response it returns the URL of Bundle
+        Package file which is uploaded to storage space (S3). This endpoint
+        performs the 'Bundle' operation for the given contents which is useful
+        for offline access of EkStep Content.
       operationId: content.bundle
       produces:
         - application/json
@@ -272,11 +392,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentBundleResponse'
         '400':
-          description: 'Error While Content Bundling! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Content Bundling! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
           schema:
             $ref: '#/definitions/ContentBundleErrorResponse'
         '500':
-          description: 'Error While Content Bundling! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Content Bundling! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentBundleErrorResponse'
       security: []
@@ -285,7 +411,11 @@ paths:
       tags:
         - History
       summary: Returns the history of Contents modified
-      description: 'The ''/history/{content_id}'' endpoint returns history of the content_id with its modifications. It consumes the content identifier as request path variable. In response it returns the history of modifications performed on that particular content_id'
+      description: >-
+        The '/history/{content_id}' endpoint returns history of the content_id
+        with its modifications. It consumes the content identifier as request
+        path variable. In response it returns the history of modifications
+        performed on that particular content_id
       operationId: content.history
       produces:
         - application/json
@@ -297,11 +427,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentHistoryResponse'
         '400':
-          description: 'Error While fetching Content history! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While fetching Content history! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'.
           schema:
             $ref: '#/definitions/ContentHistoryErrorResponse'
         '500':
-          description: 'Error While fetching Content history! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While fetching Content history! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentHistoryErrorResponse'
       security: []
@@ -310,7 +446,11 @@ paths:
       tags:
         - Flag
       summary: Flags a particular Content
-      description: 'The ''/flag/{content_id}'' endpoint flags a particular content and makes it unavailbale for future usage. It consumes the content identifier as request path variable with flag request body. In response it returns the message that particular content has been flagged'
+      description: >-
+        The '/flag/{content_id}' endpoint flags a particular content and makes
+        it unavailbale for future usage. It consumes the content identifier as
+        request path variable with flag request body. In response it returns the
+        message that particular content has been flagged
       operationId: ekstep.learning.content.flag
       produces:
         - application/json
@@ -323,11 +463,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentFlagResponse'
         '400':
-          description: 'Error While flagging a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While flagging a particular content! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'.
           schema:
             $ref: '#/definitions/ContentFlagErrorResponse'
         '500':
-          description: 'Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While flagging a particular content! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentFlagErrorResponse'
       security: []
@@ -336,7 +482,11 @@ paths:
       tags:
         - Flag
       summary: Accepts a particular Content which is Flagged
-      description: 'The ''/flag/accept/{content_id}'' endpoint flags a particular content. It consumes the content identifier as request path variable with Accept flag request body. In response it returns the message that particular content which was flagged has been accepted'
+      description: >-
+        The '/flag/accept/{content_id}' endpoint flags a particular content. It
+        consumes the content identifier as request path variable with Accept
+        flag request body. In response it returns the message that particular
+        content which was flagged has been accepted
       operationId: ekstep.learning.content.acceptFlag
       produces:
         - application/json
@@ -349,11 +499,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentFlagAcceptResponse'
         '400':
-          description: 'Error While Accepting a content which is flagged! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While Accepting a content which is flagged! | Error occurred
+            while operation, mostly because of the input given by client, In
+            general it is 'Client Exception'.
           schema:
             $ref: '#/definitions/ContentAcceptFlagErrorResponse'
         '500':
-          description: 'Error While Accepting a content which is flagged! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While Accepting a content which is flagged! | Error occurred
+            while operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentAcceptFlagErrorResponse'
       security: []
@@ -362,7 +518,12 @@ paths:
       tags:
         - Flag
       summary: Rejects a particular Content which is flagged.
-      description: 'The ''/flag/reject/{content_id}'' endpoint rejects a particular content which is flagged and updates the status back to draft. It consumes the content identifier as request path variable with reject flag request body. In response it returns the message that particular content whcih was flagged has been rejected and the content is back to draft status'
+      description: >-
+        The '/flag/reject/{content_id}' endpoint rejects a particular content
+        which is flagged and updates the status back to draft. It consumes the
+        content identifier as request path variable with reject flag request
+        body. In response it returns the message that particular content whcih
+        was flagged has been rejected and the content is back to draft status
       operationId: ekstep.learning.content.rejectFlag
       produces:
         - application/json
@@ -375,11 +536,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentRejectFlagResponse'
         '400':
-          description: 'Error While rejecting flag of a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception''.'
+          description: >-
+            Error While rejecting flag of a particular content! | Error occurred
+            while operation, mostly because of the input given by client, In
+            general it is 'Client Exception'.
           schema:
             $ref: '#/definitions/ContentFlagErrorResponse'
         '500':
-          description: 'Error While rejecting flag of a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception''.'
+          description: >-
+            Error While rejecting flag of a particular content! | Error occurred
+            while operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentFlagErrorResponse'
       security: []
@@ -388,7 +555,12 @@ paths:
       tags:
         - Reject
       summary: Rejects a particular Content in Review State.
-      description: 'The ''/reject/{content_id}'' endpoint rejects a particular content which is in review state and pushes it to draft state. It consumes the content identifier as request path variable with reject request body. In response it returns the message that particular content has been rejected'
+      description: >-
+        The '/reject/{content_id}' endpoint rejects a particular content which
+        is in review state and pushes it to draft state. It consumes the content
+        identifier as request path variable with reject request body. In
+        response it returns the message that particular content has been
+        rejected
       operationId: ekstep.learning.content.reject
       produces:
         - application/json
@@ -401,11 +573,17 @@ paths:
           schema:
             $ref: '#/definitions/ContentRejectResponse'
         '400':
-          description: 'Error While Rejecting a particular content! | Error occurred while operation, mostly because of the input given by client, In general it is ''Client Exception'
+          description: >-
+            Error While Rejecting a particular content! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception
           schema:
             $ref: '#/definitions/ContentRejectErrorResponse'
         '500':
-          description: 'Error While flagging a particular content! | Error occurred while operation, mostly because of erroneous condition on server, In general it is ''Server Exception'' or ''Exception'
+          description: >-
+            Error While flagging a particular content! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception
           schema:
             $ref: '#/definitions/ContentRejectErrorResponse'
       security: []
@@ -456,7 +634,9 @@ parameters:
   ContentBundleRequestObject:
     name: Request
     in: body
-    description: Content Bundle Request Object which contains the list of Content identifiers to bundle and the bundle file name
+    description: >-
+      Content Bundle Request Object which contains the list of Content
+      identifiers to bundle and the bundle file name
     required: true
     schema:
       $ref: '#/definitions/ContentBundleRequestObject'
@@ -1999,4 +2179,3 @@ definitions:
     allOf:
       - $ref: '#/definitions/EmptyResult'
       - $ref: '#/definitions/ResponseHeader'
-
