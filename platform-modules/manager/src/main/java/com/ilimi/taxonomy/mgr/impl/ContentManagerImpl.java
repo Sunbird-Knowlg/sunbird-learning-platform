@@ -930,7 +930,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		// Checking for resourceType if contentType resource
-		validateNodeForContentType(map);
+//		validateNodeForContentType(map);
 		
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
 		
