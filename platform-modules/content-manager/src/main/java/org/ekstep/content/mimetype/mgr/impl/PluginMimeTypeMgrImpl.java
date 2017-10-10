@@ -24,6 +24,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.dac.model.Node;
 
@@ -97,7 +98,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
 		}
-		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id);
+		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id, LoggerEnum.INFO.name());
 		if (!StringUtils.equals(pluginId, id))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);
