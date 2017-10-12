@@ -59,16 +59,16 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		taskList.add(futureTask_Redis);
 		executor.execute(futureTask_Redis);
 
-		FutureTask<Map<String, Object>> futureTask_Mongo = new FutureTask<Map<String, Object>>(
+		FutureTask<Map<String, Object>> futureTask_Cassandra = new FutureTask<Map<String, Object>>(
 				new Callable<Map<String, Object>>() {
 					@Override
-					public Map<String, Object> call() {
-						return checkMongoDBHealth();
+					public Map<String, Object> call() throws Exception {
+						return checkCassandraHealth();
 					}
 				});
-		taskList.add(futureTask_Mongo);
-		executor.execute(futureTask_Mongo);
-
+		taskList.add(futureTask_Cassandra);
+		executor.execute(futureTask_Cassandra);
+		
 		for (int j = 0; j < taskList.size(); j++) {
 			FutureTask<Map<String, Object>> futureTask = taskList.get(j);
 			Map<String, Object> check = futureTask.get();
@@ -85,26 +85,24 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		return response;
 	}
 
-	private Map<String, Object> checkMongoDBHealth() {
+	private Map<String, Object> checkCassandraHealth(){
 		Map<String, Object> check = new HashMap<String, Object>();
-		check.put("name", "MongoDB");
-
+		check.put("name", "cassandra check");
+		
 		try {
-			boolean status = orchestratorService.isCollectionExist();
+			boolean status = orchestratorService.doConnectionEstablish();
 			check.put("healthy", status);
-			if (!status) {
+			if(!status) {
 				check.put("err", "404"); // error code, if any
-				check.put("errmsg", " MongoDB collection is not available"); 
+				check.put("errmsg", " Cassandra connection is not available"); 
 			}
-		} catch (Throwable e) {
+		}catch(Exception e) {
 			e.printStackTrace();
 			PlatformLogger.log("Exception", e.getMessage(), LoggerEnum.WARN.name());
-			check.put("healthy", false);
-			check.put("err", "503"); // error code, if any
-			check.put("errmsg", " MongoDB is not available"); 
+    			check.put("healthy", false);
+    			check.put("err", "503"); // error code, if any
+    			check.put("errmsg", "Cassandra connection is not available"); 
 		}
-
 		return check;
 	}
-
 }

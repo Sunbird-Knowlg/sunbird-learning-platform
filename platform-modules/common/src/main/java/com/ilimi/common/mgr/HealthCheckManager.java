@@ -59,5 +59,4 @@ public abstract class HealthCheckManager extends BaseManager{
         }
 		return check;
 	}
-
 }
