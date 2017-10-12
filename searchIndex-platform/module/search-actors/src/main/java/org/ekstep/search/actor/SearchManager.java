@@ -168,6 +168,19 @@ public class SearchManager extends SearchBaseActor {
 				notExists.add((String) notExistsObject);
 			}
 
+			Object notEqualsObj = req.get(CompositeSearchParams.not_equals.name());
+			if(notEqualsObj instanceof Map){
+				Map<String,Object> reqMap = (Map<String,Object>)notEqualsObj;
+				for(Map.Entry<String, Object> entry: reqMap.entrySet()){
+					Map<String, Object> property = new HashMap<String, Object>();
+					property.put(CompositeSearchParams.values.name(), entry.getValue());
+					property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+					property.put(CompositeSearchParams.operation.name(),
+							CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL);
+					properties.add(property);
+				}
+			}
+		
 			Map<String, Object> softConstraints = null;
 			if (null != req.get(CompositeSearchParams.softConstraints.name())) {
 				softConstraints = (Map<String, Object>) req.get(CompositeSearchParams.softConstraints.name());

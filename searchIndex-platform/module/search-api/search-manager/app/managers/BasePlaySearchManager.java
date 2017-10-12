@@ -153,8 +153,7 @@ public class BasePlaySearchManager extends Results {
 				List<Map<String,Object>> contentMap = (List<Map<String, Object>>) response.getResult().get("content");
 				for(Map<String,Object> content : contentMap){
 					if(content.containsKey("variants")){
-						String variants = (String) content.get("variants");
-						Map<String,Object> variantsMap = (Map<String,Object>) mapper.readValue(variants, Map.class);
+						Map<String,Object> variantsMap = (Map<String,Object>) mapper.readValue((String) content.get("variants"), Map.class);
 						content.put("variants",variantsMap);
 						contentMap.set(contentMap.indexOf(content), content);
 					}
