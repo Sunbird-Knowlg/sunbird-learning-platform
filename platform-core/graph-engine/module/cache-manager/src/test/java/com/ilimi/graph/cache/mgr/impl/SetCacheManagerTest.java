@@ -7,26 +7,50 @@ import org.junit.Test;
 import com.ilimi.common.exception.ClientException;
 
 public class SetCacheManagerTest {
-	
+
 	@Test(expected = ClientException.class)
 	public void createSetWithoutMembers() {
 		SetCacheManager.createSet("domain", "set_123", null);
 	}
-	
-	@Test(expected = ClientException.class)
-	public void createSetWithoutGraphId() {
-		SetCacheManager.createSet(null, "set_123", null);
-	}
-	
+
 	@Test(expected = ClientException.class)
 	public void createSetWithoutSetId() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_123");
 		SetCacheManager.createSet("domain", null, members);
 	}
+
+	@Test(expected = ClientException.class)
+	public void createSetWithoutGraphId() {
+		List<String> members = new ArrayList<String>();
+		members.add("do_123");
+		SetCacheManager.createSet(null, "set_123", members);
+	}
+
+	@Test(expected = ClientException.class)
+	public void createSetWithoutGraphIdAndSetId() {
+		List<String> members = new ArrayList<String>();
+		members.add("do_123");
+		SetCacheManager.createSet(null, null, members);
+	}
 	
+	@Test(expected = ClientException.class)
+	public void createSetWithoutGraphIdAndMembers() {
+		SetCacheManager.createSet(null, "set_123", null);
+	}
+	
+	@Test(expected = ClientException.class)
+	public void createSetWithoutMembersAndSetId() {
+		SetCacheManager.createSet("domain", "set_123", null);
+	}
+	
+	@Test(expected = ClientException.class)
+	public void createSetWithoutAllParams() {
+		SetCacheManager.createSet(null, null, null);
+	}
+
 	@Test
-	public void createSet(){
+	public void createSet() {
 		List<String> members = new ArrayList<String>();
 		members.add("test");
 		members.add("data");
@@ -35,38 +59,55 @@ public class SetCacheManagerTest {
 		Assert.assertEquals(false, membersList.isEmpty());
 		Assert.assertEquals(true, membersList.contains("data"));
 	}
-	
+
 	@Test
-	public void addSetMember(){
+	public void addSetMember() {
 		SetCacheManager.addSetMember("domain", "set_123", "testMember");
 		List<String> membersList = SetCacheManager.getSetMembers("domain", "set_123");
 		Assert.assertEquals(false, membersList.isEmpty());
 		Assert.assertTrue(membersList.contains("testMember"));
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void addSetMemberWithoutgraphId(){
+	public void addSetMemberWithoutgraphId() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_123456");
 		SetCacheManager.addSetMember(null, "set_123", "do_123456");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void addSetMemberWithoutSetId(){
+	public void addSetMemberWithoutSetId() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_123456");
 		SetCacheManager.addSetMember("domain", null, "do_123456");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void addSetMemberWithoutMemberId(){
+	public void addSetMemberWithoutMemberId() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_123456");
 		SetCacheManager.addSetMember("domain", "set_123", null);
 	}
 	
+	@Test(expected = ClientException.class)
+	public void addSetMemberWithoutMemberIdAndSetId() {
+		SetCacheManager.addSetMember("domain", null, null);
+	}
+
+	@Test(expected = ClientException.class)
+	public void addSetMemberWithoutMemberIdAndGraphId() {
+		List<String> members = new ArrayList<String>();
+		members.add("do_123456");
+		SetCacheManager.addSetMember(null, "set_123", null);
+	}
+	
+	@Test(expected = ClientException.class)
+	public void addSetMemberWithoutGraphIdAndSetId() {
+		SetCacheManager.addSetMember(null, null, "do_123456");
+	}
+	
 	@Test
-	public void addSetMembers(){
+	public void addSetMembers() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_1234567");
 		members.add("do_890");
@@ -75,29 +116,47 @@ public class SetCacheManagerTest {
 		Assert.assertEquals(true, memberIds.contains("do_1234567"));
 		Assert.assertEquals(true, memberIds.contains("do_890"));
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void addSetMembersWithoutGraphId(){
+	public void addSetMembersWithoutGraphId() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_1234567");
 		members.add("do_890");
 		SetCacheManager.addSetMembers(null, "set_123", members);
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void addSetMembersWithoutSetId(){
+	public void addSetMembersWithoutSetId() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_1234567");
 		members.add("do_890");
 		SetCacheManager.addSetMembers("domain", null, members);
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void addSetMembersWithoutMembers(){
-		SetCacheManager.addSetMembers("domain", "set_123", null);
+	public void addSetMembersWithoutMembersAndGraphId() {
+		SetCacheManager.addSetMembers(null, "set_123", null);
 	}
 	
-	public void removeSetMembers(){
+	@Test(expected = ClientException.class)
+	public void addSetMembersWithoutMembersAndSetId() {
+		SetCacheManager.addSetMembers("domain", null, null);
+	}
+	
+	@Test(expected = ClientException.class)
+	public void addSetMembersWithoutGraphIdAndSetId() {
+		List<String> members = new ArrayList<String>();
+		members.add("do_1234567");
+		members.add("do_890");
+		SetCacheManager.addSetMembers(null, null, members);
+	}
+	
+	@Test(expected = ClientException.class)
+	public void addSetMembersWithoutAllParams() {
+		SetCacheManager.addSetMembers(null, null, null);
+	}
+
+	public void removeSetMembers() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_1234567");
 		members.add("do_89012");
@@ -105,25 +164,40 @@ public class SetCacheManagerTest {
 		List<String> memberList = SetCacheManager.getSetMembers("domain", "set_123");
 		Assert.assertEquals(true, memberList.contains("do_1234567"));
 		Assert.assertEquals(false, memberList.contains("do_89012"));
-	}	
+	}
 
 	@Test(expected = ClientException.class)
-	public void removeSetMembersWithoutGraphId(){
+	public void removeSetMembersWithoutGraphId() {
 		SetCacheManager.removeSetMember(null, "set_123", "test");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void removeSetMembersWithoutSetId(){
+	public void removeSetMembersWithoutSetId() {
 		SetCacheManager.removeSetMember("domain", null, "test");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void removeSetMembersWithoutMembers(){
+	public void removeSetMembersWithoutMembersAndGraphId() {
 		SetCacheManager.removeSetMember("domain", "set_123", null);
 	}
 	
+	@Test(expected = ClientException.class)
+	public void removeSetMembersWithoutMembersAndSetId() {
+		SetCacheManager.removeSetMember("domain", null, null);
+	}
+	
+	@Test(expected = ClientException.class)
+	public void removeSetMembersWithoutSetIdAndGraphId() {
+		SetCacheManager.removeSetMember(null, null, "do_123455");
+	}
+	
+	@Test(expected = ClientException.class)
+	public void removeSetMembersWithoutAllParams() {
+		SetCacheManager.removeSetMember(null, null, null);
+	}
+
 	@Test
-	public void dropSet(){
+	public void dropSet() {
 		List<String> members = new ArrayList<String>();
 		members.add("setMember_1");
 		members.add("setMember_2");
@@ -134,59 +208,63 @@ public class SetCacheManagerTest {
 		List<String> afterMemberList = SetCacheManager.getSetMembers("domain", "set_94");
 		Assert.assertEquals(true, null == afterMemberList || afterMemberList.isEmpty());
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void dropSetMembersWithoutGraphId(){
+	public void dropSetMembersWithoutGraphId() {
 		SetCacheManager.dropSet(null, "set_123");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void dropSetMembersWithoutSetId(){
+	public void dropSetMembersWithoutSetId() {
 		SetCacheManager.dropSet("domain", null);
 	}
 	
+	@Test(expected = ClientException.class)
+	public void dropSetMembersWithoutGraphIdAndSetId() {
+		SetCacheManager.dropSet(null, null);
+	}
+	
 	@Test
-	public void getSetMembers(){
+	public void getSetMembers() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_123");
-		SetCacheManager.createSet("domain", "set_89", members);
-		List<String> berforeMemberList = SetCacheManager.getSetMembers("domain", "set_89");
+		SetCacheManager.createSet("domain", "set_90", members);
+		List<String> berforeMemberList = SetCacheManager.getSetMembers("domain", "set_90");
 		Assert.assertEquals("do_123", berforeMemberList.get(0));
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void getSetMembersWithoutGraphId(){
+	public void getSetMembersWithoutGraphId() {
 		SetCacheManager.getSetMembers(null, "set_123");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void getSetMembersWithoutSetId(){
+	public void getSetMembersWithoutSetId() {
 		SetCacheManager.getSetMembers("domain", null);
 	}
-	
+
 	@Test
-	public void getCardinality(){
+	public void getCardinality() {
 		List<String> members = new ArrayList<String>();
 		members.add("test");
 		members.add("data");
 		SetCacheManager.createSet("domain", "set_12390", members);
 		Long cardinality = SetCacheManager.getSetCardinality("domain", "set_12390");
-		Assert.assertEquals(false ,  null == cardinality);
+		Assert.assertEquals(false, null == cardinality);
 	}
-	
 
 	@Test(expected = ClientException.class)
-	public void getCardinalityWithoutGraphId(){
+	public void getCardinalityWithoutGraphId() {
 		SetCacheManager.getSetMembers(null, "set_123");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void getCardinalityWithoutSetId(){
+	public void getCardinalityWithoutSetId() {
 		SetCacheManager.getSetMembers("domain", null);
 	}
-	
+
 	@Test
-	public void isSetMember(){
+	public void isSetMember() {
 		List<String> members = new ArrayList<String>();
 		members.add("do_1234567");
 		members.add("do_890");
@@ -194,19 +272,19 @@ public class SetCacheManagerTest {
 		Boolean isMember = SetCacheManager.isSetMember("domain", "set_123", "do_890");
 		Assert.assertEquals(true, isMember);
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void isSetMemberWithoutGraphId(){	
+	public void isSetMemberWithoutGraphId() {
 		SetCacheManager.isSetMember(null, "set_123", "do_123");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void isSetMemberWithoutSetId(){
-		SetCacheManager.isSetMember("domain", null , "do_123");
+	public void isSetMemberWithoutSetId() {
+		SetCacheManager.isSetMember("domain", null, "do_123");
 	}
-	
+
 	@Test(expected = ClientException.class)
-	public void isSetMemberWithoutMemberId(){
+	public void isSetMemberWithoutMemberId() {
 		SetCacheManager.isSetMember("domain", "set_123", null);
 	}
 }
