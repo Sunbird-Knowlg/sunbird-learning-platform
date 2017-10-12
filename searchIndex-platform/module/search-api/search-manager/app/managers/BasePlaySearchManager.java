@@ -4,6 +4,8 @@ import static akka.pattern.Patterns.ask;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -120,6 +122,7 @@ public class BasePlaySearchManager extends Results {
 		return getResult(response, req.getId(), req.getVer(), msgId, resMsgId);
 	}
 
+	@SuppressWarnings("unchecked")
 	public String getResult(Response response, String apiId, String version, String msgId, String resMsgId) {
 		try {
 			if (response == null) {
@@ -146,8 +149,22 @@ public class BasePlaySearchManager extends Results {
 				params.setErrmsg(null);
 			}
 			response.setParams(params);
+			if(response.getResult().containsKey("content")){
+				List<Map<String,Object>> contentMap = (List<Map<String, Object>>) response.getResult().get("content");
+				for(Map<String,Object> content : contentMap){
+					if(content.containsKey("variants")){
+						String variants = (String) content.get("variants");
+						Map<String,Object> variantsMap = (Map<String,Object>) mapper.readValue(variants, Map.class);
+						content.put("variants",variantsMap);
+						contentMap.set(contentMap.indexOf(content), content);
+					}
+					response.getResult().put("content", contentMap);
+				}
+			}
 			return mapper.writeValueAsString(response);
 		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return "";
