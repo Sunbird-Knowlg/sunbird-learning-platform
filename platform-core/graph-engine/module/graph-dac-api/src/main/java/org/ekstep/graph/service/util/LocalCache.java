@@ -105,9 +105,8 @@ public class LocalCache {
 	 * @return the ttl
 	 */
 	private static void setTTL() {
-		String timeToLive = Platform.config.getString("platform.cache.ttl");
-		if (timeToLive != null)
-			ttl = Long.parseLong(timeToLive);
+		if(Platform.config.hasPath("platform.cache.ttl"))
+			ttl = Long.parseLong(Platform.config.getString("platform.cache.ttl"));
 	}
 
 	/**
