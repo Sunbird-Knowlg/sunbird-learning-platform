@@ -6,6 +6,8 @@ import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 
 public interface IOrchestratorDataService {
 
+	OrchestratorScript getScriptById(String id);
+
 	OrchestratorScript getScript(String name);
 
 	String createScript(OrchestratorScript script);
@@ -20,5 +22,5 @@ public interface IOrchestratorDataService {
 	
 	List<OrchestratorScript> getScriptsByRequestPath(String url, String type);
 
-	boolean doConnectionEstablish();
+	boolean isCollectionExist();
 }

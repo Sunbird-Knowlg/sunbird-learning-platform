@@ -59,16 +59,16 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		taskList.add(futureTask_Redis);
 		executor.execute(futureTask_Redis);
 
-		FutureTask<Map<String, Object>> futureTask_Cassandra = new FutureTask<Map<String, Object>>(
+		FutureTask<Map<String, Object>> futureTask_Mongo = new FutureTask<Map<String, Object>>(
 				new Callable<Map<String, Object>>() {
 					@Override
-					public Map<String, Object> call() throws Exception {
-						return checkCassandraHealth();
+					public Map<String, Object> call() {
+						return checkMongoDBHealth();
 					}
 				});
-		taskList.add(futureTask_Cassandra);
-		executor.execute(futureTask_Cassandra);
-		
+		taskList.add(futureTask_Mongo);
+		executor.execute(futureTask_Mongo);
+
 		for (int j = 0; j < taskList.size(); j++) {
 			FutureTask<Map<String, Object>> futureTask = taskList.get(j);
 			Map<String, Object> check = futureTask.get();
@@ -85,24 +85,26 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 		return response;
 	}
 
-	private Map<String, Object> checkCassandraHealth(){
+	private Map<String, Object> checkMongoDBHealth() {
 		Map<String, Object> check = new HashMap<String, Object>();
-		check.put("name", "cassandra check");
-		
+		check.put("name", "MongoDB");
+
 		try {
-			boolean status = orchestratorService.doConnectionEstablish();
+			boolean status = orchestratorService.isCollectionExist();
 			check.put("healthy", status);
-			if(!status) {
+			if (!status) {
 				check.put("err", "404"); // error code, if any
-				check.put("errmsg", " Cassandra connection is not available"); 
+				check.put("errmsg", " MongoDB collection is not available"); 
 			}
-		}catch(Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 			PlatformLogger.log("Exception", e.getMessage(), LoggerEnum.WARN.name());
-    			check.put("healthy", false);
-    			check.put("err", "503"); // error code, if any
-    			check.put("errmsg", "Cassandra connection is not available"); 
+			check.put("healthy", false);
+			check.put("err", "503"); // error code, if any
+			check.put("errmsg", " MongoDB is not available"); 
 		}
+
 		return check;
 	}
+
 }

@@ -8,8 +8,26 @@
        http://www.springframework.org/schema/data/mongo
        http://www.springframework.org/schema/data/mongo/spring-mongo-1.5.xsd">
 
-	<bean id="orchestratorDAC" 
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:mongo.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<mongo:db-factory dbname="${mongo.dbName}" host="${mongo.host}" port="${mongo.port}"/>
+
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg name="mongoDbFactory" ref="mongoDbFactory" />
+	</bean>
+
+	<bean id="orchestratorDAC"
 		class="com.ilimi.orchestrator.dac.service.impl.OrchestratorDataServiceImpl">
+		<constructor-arg name="mongoOps" ref="mongoTemplate" />
 	</bean>
 
 </beans>

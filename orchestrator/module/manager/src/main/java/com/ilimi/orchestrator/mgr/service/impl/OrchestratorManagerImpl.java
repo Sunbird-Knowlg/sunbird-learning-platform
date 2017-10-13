@@ -27,11 +27,8 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
     public void registerScript(OrchestratorScript script) {
         validateScript(script);
         try {
-            List<OrchestratorScript> scripts = null;
-            if (null != script.getRequestPath() && StringUtils.isNotBlank(script.getRequestPath().getUrl())) {
-            		scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(),
-            				script.getRequestPath().getType());
-            }
+            List<OrchestratorScript> scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(),
+                    script.getRequestPath().getType());
             if (null == scripts || scripts.isEmpty())
                 daoService.createScript(script);
             else {
@@ -85,9 +82,9 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
     public void updateScript(String name, OrchestratorScript script) {
         OrchestratorScript dbScript = daoService.getScript(name);
         if (null == dbScript) {
-        		dbScript = new OrchestratorScript();
-        		dbScript.setType(ScriptTypes.SCRIPT.name());
-        	}
+        	dbScript = new OrchestratorScript();
+        	dbScript.setType(ScriptTypes.SCRIPT.name());
+        }
         if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), dbScript.getType())) {
             validateScript(script);
             List<OrchestratorScript> scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(),
