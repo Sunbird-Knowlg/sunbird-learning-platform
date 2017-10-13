@@ -87,7 +87,7 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 
 	private Map<String, Object> checkCassandraHealth(){
 		Map<String, Object> check = new HashMap<String, Object>();
-		check.put("name", "cassandra check");
+		check.put("name", "cassandra db");
 		
 		try {
 			boolean status = orchestratorService.doConnectionEstablish();

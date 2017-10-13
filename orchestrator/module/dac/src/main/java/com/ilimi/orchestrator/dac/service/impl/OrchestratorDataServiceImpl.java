@@ -158,8 +158,8 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 		try {
 			ResultSet rs = session.execute(query);
 			if (null != rs) {
+				list = new ArrayList<>();
 				while (rs.iterator().hasNext()) {
-					list = new ArrayList<>();
 					Row row = rs.iterator().next();
 					OrchestratorScript orchestratorScript = mapper.readValue(row.getString("reqmap"), OrchestratorScript.class);
 					list.add(orchestratorScript);
@@ -188,8 +188,8 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 		try {
 			ResultSet rs = session.execute(query);
 			if (null != rs) {
+				list = new ArrayList<>();
 				while (rs.iterator().hasNext()) {
-					list = new ArrayList<>();
 					Row row = rs.iterator().next();
 					OrchestratorScript orchestratorScript = mapper.readValue(row.getString("reqmap"), OrchestratorScript.class);
 					list.add(orchestratorScript);
@@ -216,12 +216,17 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 		try {
 			ResultSet rs = session.execute(query);
 			if (null != rs) {
+				list = new ArrayList<>();
 				while (rs.iterator().hasNext()) {
-					list = new ArrayList<>();
 					Row row = rs.iterator().next();
 					OrchestratorScript orchestratorScript = mapper.readValue(row.getString("reqmap"), OrchestratorScript.class);
-					if(orchestratorScript.getRequestPath().getUrl().equals(url) && orchestratorScript.getRequestPath().getType().equalsIgnoreCase(type))
-						list.add(orchestratorScript);
+					if(null != orchestratorScript && null != orchestratorScript.getRequestPath()) {
+						if(null != orchestratorScript.getRequestPath().getUrl() && !orchestratorScript.getRequestPath().getUrl().isEmpty()
+								&& null != orchestratorScript.getRequestPath().getType() && !orchestratorScript.getRequestPath().getType().isEmpty()) {
+							if(orchestratorScript.getRequestPath().getUrl().equals(url) && orchestratorScript.getRequestPath().getType().equalsIgnoreCase(type))
+								list.add(orchestratorScript);
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
