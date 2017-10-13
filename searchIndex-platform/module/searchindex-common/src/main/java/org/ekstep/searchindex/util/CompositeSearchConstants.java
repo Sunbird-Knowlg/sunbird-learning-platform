@@ -31,6 +31,10 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_NOT_LIKE = "NT_LIKE";
 	public static final String SEARCH_OPERATION_EQUAL = "EQ";
 	public static final String SEARCH_OPERATION_NOT_EQUAL = "NT_EQ";
+	public static final String SEARCH_OPERATION_NOT_EQUAL_OPERATOR = "!=";
+	public static final String SEARCH_OPERATION_NOT_EQUAL_TEXT = "notEquals";
+	public static final String SEARCH_OPERATION_NOT_EQUAL_TEXT_UPPERCASE = "NE";
+	public static final String SEARCH_OPERATION_NOT_EQUAL_TEXT_LOWERCASE = "ne";
 	public static final String SEARCH_OPERATION_STARTS_WITH = "SW";
 	public static final String SEARCH_OPERATION_ENDS_WITH = "EW";
 	public static final String SEARCH_OPERATION_OR = "OR";
