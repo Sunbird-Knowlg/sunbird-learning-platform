@@ -20,7 +20,7 @@ import com.jayway.restassured.specification.ResponseSpecification;
 
 public class BaseTest 
 {
-	ResponseSpecBuilder builderres = new ResponseSpecBuilder();
+	public ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 	public String liveStatus = "Live";
 	public String contentType = "application/json";
 	public String uploadContentType = "multipart/form-data";
