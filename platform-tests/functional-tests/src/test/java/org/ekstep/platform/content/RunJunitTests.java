@@ -11,9 +11,8 @@ import org.ekstep.platform.domain.ItemSetAPITests;
 import org.junit.runner.RunWith;
 	
 	@RunWith(Suite.class)
-	//@Suite.SuiteClasses({CompositeSearchV3TestCases.class, ConceptAPIV3Tests.class, DimensionAPIV3Tests.class, DomainAPITests.class, ItemSetAPITests.class, ContentPublishV3TestCases.class, ContentBundleV3TestCases.class})
-//	@Suite.SuiteClasses({CompositeSearchV3TestCases.class, ConceptAPIV3Tests.class, ContentSuggestionTests.class, ContentPublishV3TestCases.class})
-	@Suite.SuiteClasses({CompositeSearchV3TestCases.class, ConceptAPIV3Tests.class, ContentSuggestionTests.class})
+//	@Suite.SuiteClasses({CompositeSearchV3TestCases.class, ConceptAPIV3Tests.class, DimensionAPIV3Tests.class, DomainAPITests.class, ItemSetAPITests.class, ContentPublishV3TestCases.class, ContentBundleV3TestCases.class})
+	@Suite.SuiteClasses({CompositeSearchV3TestCases.class, ConceptAPIV3Tests.class, ContentSuggestionTests.class, DomainAPITests.class, ItemSetAPITests.class})
 	public class RunJunitTests {
 	
 	}
