@@ -22,7 +22,7 @@
             </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingFile name="PerfLogAppender" fileName="/data/logs/search_perf_mw.log"
-			filePattern="/data/logs/search_perf_mw-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			filePattern="/data/logs/search_perf_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] - %msg%n</Pattern>
 			</PatternLayout>
@@ -39,7 +39,7 @@
             </DefaultRolloverStrategy>
 		</RollingFile>
 		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/search_telemetry_event_mw.log"
-			filePattern="/data/logs/search_telemetry_event_mw-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			filePattern="/data/logs/search_telemetry_event_mw-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>

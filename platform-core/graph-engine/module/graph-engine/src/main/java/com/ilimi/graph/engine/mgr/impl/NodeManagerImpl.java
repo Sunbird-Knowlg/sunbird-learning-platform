@@ -348,7 +348,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         				datanode.getMetadata().put(entry.getKey(), entry.getValue());
                             }
                         }
-                        String status = datanode.getMetadata().get(GraphDACParams.status.name()).toString();
+                        String status = (String)datanode.getMetadata().get(GraphDACParams.status.name());
                         if(GraphDACParams.Live.name().equalsIgnoreCase(status) || GraphDACParams.Unlisted.name().equalsIgnoreCase(status)) {
                         		datanode.getMetadata().put(GraphDACParams.publish_type.name(), null);
                         }

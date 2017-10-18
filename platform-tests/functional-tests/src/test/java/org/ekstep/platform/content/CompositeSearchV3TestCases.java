@@ -13,6 +13,9 @@ import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.ResponseSpecification;
+
+import static org.hamcrest.Matchers.*;
 
 
 public class CompositeSearchV3TestCases extends BaseTest {
@@ -34,6 +37,8 @@ public class CompositeSearchV3TestCases extends BaseTest {
 	String invalidContentId = "TestQa_"+rn+"";
 	String jsonCreateValidWord = "{\"request\":{\"words\":[{\"lemma\":\"देख_ी_"+rn+"\",\"sampleUsages\":[\"महिला एक बाघ को देखीै\"],\"pronunciations\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/dekhi.mp3\"],\"pictures\":[\"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/language_assets/seeing.png\"],\"phonologic_complexity\":13.25,\"orthographic_complexity\":0.7}]}}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_NFT_\"}}";
+	
+	String reqBodyWithSoftConstraints = "{\"request\":{\"facets\":[\"contentType\",\"domain\",\"ageGroup\",\"language\",\"gradeLevel\"],\"mode\":\"soft\",\"query\":\"hindi\",\"limit\":100,\"filters\":{\"gradeLevel\":[\"Grade 1\"],\"medium\":[\"English\"],\"status\":[\"Live\"],\"objectType\":[\"Content\"],\"contentType\":[\"Story\",\"Worksheet\",\"Collection\",\"Game\",\"TextBook\"],\"ageGroup\":[\"<5\",\"5-6\"],\"board\":[\"NCERT\"],\"compatibilityLevel\":{\"max\":3,\"min\":1}}}}";
 	
 	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
@@ -389,6 +394,32 @@ public class CompositeSearchV3TestCases extends BaseTest {
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
+	}
+	
+	@Test
+	public void compositeSearchWithsoftConstraintsExpectSuccess200() {
+		setURI();
+		given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body(reqBodyWithSoftConstraints).
+		with().
+			contentType(JSON).
+		when().
+			post("/composite/v3/search").
+		then().
+			spec(get200ResponseSpec()).
+			spec(checkSoftConstraintsResponse());
+	}
+
+	private ResponseSpecification checkSoftConstraintsResponse() {
+		builderres.expectBody("result.count",  greaterThan(0));
+		builderres.expectBody("result.facets[0].values.size()",  greaterThan(0));
+		builderres.expectBody("result.facets[1].values.size()",  greaterThan(0));
+		builderres.expectBody("result.facets[2].values.size()",  greaterThan(0));
+		builderres.expectBody("result.facets[3].values.size()",  greaterThan(0));
+		builderres.expectBody("result.facets[4].values.size()",  greaterThan(0));
+		ResponseSpecification responseSpec = builderres.build();
+		return responseSpec;
 	}
 	
 	// Content clean up	

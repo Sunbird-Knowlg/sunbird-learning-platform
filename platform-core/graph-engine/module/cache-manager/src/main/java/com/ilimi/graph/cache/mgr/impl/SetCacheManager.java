@@ -106,7 +106,6 @@ public class SetCacheManager {
 		String key = CacheKeyGenerator.getSetMembersKey(graphId, setId);
 			try {
 				Long cardinality = jedis.scard(key);
-				System.out.println(cardinality);
 				return cardinality;
 			} catch (Exception e) {
 				throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SET_GET_MEMBERS.name(), e.getMessage(), e);
