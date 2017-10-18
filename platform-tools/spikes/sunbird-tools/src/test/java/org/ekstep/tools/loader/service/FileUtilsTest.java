@@ -7,12 +7,10 @@ package org.ekstep.tools.loader.service;
 
 import java.io.File;
 import java.net.URL;
+
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -52,7 +50,7 @@ public class FileUtilsTest {
         protocol = url.getProtocol();
         System.out.println("-> " + protocol);
         
-        String url3 = "sample.csv";
+		String url3 = "file://sample.csv";
         url2 = new URL(url3);
         protocol = url2.getProtocol();
         System.out.println(protocol);

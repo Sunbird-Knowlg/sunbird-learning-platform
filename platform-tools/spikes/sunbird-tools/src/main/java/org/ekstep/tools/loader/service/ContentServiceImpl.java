@@ -5,18 +5,19 @@
  */
 package org.ekstep.tools.loader.service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.request.BaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.tools.loader.utils.FileUtil;
 import org.ekstep.tools.loader.utils.JsonUtil;
 import org.ekstep.tools.loader.utils.RestUtil;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.request.BaseRequest;
 
 /**
  *
@@ -26,7 +27,7 @@ public class ContentServiceImpl implements ContentService {
     
     static Logger logger = LogManager.getLogger(ContentServiceImpl.class);
     
-    private static final String API_TOKEN = "sunbird.api.token";
+	private static final String API_TOKEN = "sunbird.api.token";
     
     private static final String API_CONTENT_GET = "api.content.get";
     private static final String API_CONTENT_CREATE = "api.content.create";
@@ -57,6 +58,8 @@ public class ContentServiceImpl implements ContentService {
         String createUrl = context.getString(API_CONTENT_CREATE);
         String body = JsonUtil.wrap(content, "content").toString();
         BaseRequest request = Unirest.post(createUrl).body(body);
+
+		logger.debug("########## Request : " + body);
         HttpResponse<JsonNode> createResponse = RestUtil.execute(request);
         
         if (RestUtil.isSuccessful(createResponse)) {

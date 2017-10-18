@@ -7,105 +7,142 @@ package org.ekstep.tools.loader.service;
 
 import java.io.File;
 import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.tools.loader.destination.ConceptDestination;
+import org.ekstep.tools.loader.destination.ContentDestination;
+import org.ekstep.tools.loader.destination.Destination;
+import org.ekstep.tools.loader.destination.SysoutDestination;
 
 /**
  *
  * @author feroz
  */
 public class BulkLoaderService implements ProgressCallback {
-    static Logger logger = LogManager.getLogger(BulkLoaderService.class);
-    
-    private File csvFile;
-    private File tfmFile;
-    private String keyColumn;
-    private List<String> lookupFiles;
-    private String userID;
+	static Logger logger = LogManager.getLogger(BulkLoaderService.class);
 
-    /**
-     * @return the csvFile
-     */
-    public File getCsvFile() {
-        return csvFile;
-    }
+	private File csvFile;
+	private File tfmFile;
+	private String keyColumn;
+	private List<String> lookupFiles;
+	private String userID;
+	private String context;
 
-    /**
-     * @param csvFile the csvFile to set
-     */
-    public void setCsvFile(File csvFile) {
-        this.csvFile = csvFile;
-    }
+	/**
+	 * @return the csvFile
+	 */
+	public File getCsvFile() {
+		return csvFile;
+	}
 
-    
-    /**
-     * @return the tfmFile
-     */
-    public File getTfmFile() {
-        return tfmFile;
-    }
+	/**
+	 * @param csvFile
+	 *            the csvFile to set
+	 */
+	public void setCsvFile(File csvFile) {
+		this.csvFile = csvFile;
+	}
 
-    /**
-     * @param tfmFile the tfmFile to set
-     */
-    public void setTfmFile(File tfmFile) {
-        this.tfmFile = tfmFile;
-    }
-    
-    /**
-     * @return the keyColumn
-     */
-    public String getKeyColumn() {
-        return keyColumn;
-    }
+	/**
+	 * @return the tfmFile
+	 */
+	public File getTfmFile() {
+		return tfmFile;
+	}
 
-    /**
-     * @param keyColumn the keyColumn to set
-     */
-    public void setKeyColumn(String keyColumn) {
-        this.keyColumn = keyColumn;
-    }
+	/**
+	 * @param tfmFile
+	 *            the tfmFile to set
+	 */
+	public void setTfmFile(File tfmFile) {
+		this.tfmFile = tfmFile;
+	}
 
-    /**
-     * @return the userID
-     */
-    public String getUserID() {
-        return userID;
-    }
+	/**
+	 * @return the keyColumn
+	 */
+	public String getKeyColumn() {
+		return keyColumn;
+	}
 
-    /**
-     * @param userID the userID to set
-     */
-    public void setUserID(String userID) {
-        this.userID = userID;
-    }
-    
-    public void execute(ProgressCallback callback) throws Exception {
-        Source source = new CsvParserSource(csvFile, keyColumn);
-        Processor mapper = new JsonMapperProcessor(getTfmFile());
-        Processor merger = new JsonMergeProcessor();
-        Destination destination = new SysoutDestination();
-        
-        logger.info("Step 1 of 4 - Reading input data");
-        List<Record> data = source.process(callback);
-        
-        logger.info("Step 2 of 4 - Transforming input data");
-        data = mapper.process(data, callback);
-        
-        logger.info("Step 3 of 4 - Merging input data rows");
-        data = merger.process(data, callback);
-        
-        logger.info("Step 4 of 4 - Loading the transformed data");
-        destination.process(data, callback);
-    }
+	/**
+	 * @param keyColumn
+	 *            the keyColumn to set
+	 */
+	public void setKeyColumn(String keyColumn) {
+		this.keyColumn = keyColumn;
+	}
 
-    @Override
-    public void progress(int totalSteps, int completedSteps) {
-        if (completedSteps % 2 == 0) {
-            if (completedSteps > totalSteps) completedSteps = totalSteps;
-            double progress = (double) completedSteps / (double) totalSteps * 100d;
-            String progStr = String.format("%.2f",progress);
-            logger.info("      Completed " + progStr + " %");
-        }
-    }
+	/**
+	 * @return the userID
+	 */
+	public String getUserID() {
+		return userID;
+	}
+
+	/**
+	 * @param userID
+	 *            the userID to set
+	 */
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
+
+	/**
+	 * @return the context
+	 */
+	public String getContext() {
+		return context;
+	}
+
+	/**
+	 * @param context
+	 *            the context to set
+	 */
+	public void setContext(String context) {
+		this.context = context;
+	}
+
+	public void execute(ProgressCallback callback) throws Exception {
+		Source source = new CsvParserSource(csvFile, keyColumn);
+		Processor mapper = new JsonMapperProcessor(getTfmFile());
+		Processor merger = new JsonMergeProcessor();
+		Destination destination = new SysoutDestination();
+
+		logger.info("Step 1 of 4 - Reading input data");
+		List<Record> data = source.process(callback);
+
+		logger.info("Step 2 of 4 - Transforming input data");
+		data = mapper.process(data, callback);
+
+		logger.info("Step 3 of 4 - Merging input data rows");
+		data = merger.process(data, callback);
+
+		logger.info("Step 4 of 4 - Loading the transformed data");
+		switch (context) {
+		case "content":
+			destination = new ContentDestination();
+			break;
+
+		case "concept":
+			destination = new ConceptDestination();
+			break;
+		default:
+			break;
+		}
+
+		destination.process(data, callback);
+	}
+
+	@Override
+	public void progress(int totalSteps, int completedSteps) {
+		if (completedSteps % 2 == 0) {
+			if (completedSteps > totalSteps)
+				completedSteps = totalSteps;
+			double progress = (double) completedSteps / (double) totalSteps * 100d;
+			String progStr = String.format("%.2f", progress);
+			logger.info("      Completed " + progStr + " %");
+		}
+	}
 }
