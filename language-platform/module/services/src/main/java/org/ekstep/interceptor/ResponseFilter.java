@@ -21,9 +21,7 @@ import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.logger.PlatformLogger;
 
 public class ResponseFilter implements Filter {
-
 	
-
 	@Override
 	public void init(FilterConfig filterConfig) throws ServletException {
 

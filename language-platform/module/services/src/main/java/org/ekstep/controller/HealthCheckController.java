@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
+import com.ilimi.common.dto.CoverageIgnore;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.mgr.HealthCheckManager;
-
+@CoverageIgnore
 @Controller
 @RequestMapping("health")
 public class HealthCheckController extends BaseController {
