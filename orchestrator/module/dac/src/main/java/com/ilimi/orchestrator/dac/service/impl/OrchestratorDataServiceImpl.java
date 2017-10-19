@@ -82,9 +82,11 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			
 			Map<String, String> scriptMap = new HashMap<>();
 			try {
-				scriptMap.put("name", script.getName());
+				String temp = script.getName().replace("'", "''");
+				scriptMap.put("name", temp);
 				scriptMap.put("type", script.getType());
-				scriptMap.put("reqmap", mapper.writeValueAsString(script));
+				temp = mapper.writeValueAsString(script).replace("'", "''");
+				scriptMap.put("reqmap", temp);
 				
 				String query = getInsertQuery(scriptMap);
 				session.execute(query);
@@ -106,9 +108,11 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			
 			Map<String, String> scriptMap = new HashMap<>();
 			try {
-				scriptMap.put("name", command.getName());
+				String temp = command.getName().replace("'", "''");
+				scriptMap.put("name", temp);
 				scriptMap.put("type", command.getType());
-				scriptMap.put("reqmap", mapper.writeValueAsString(command));
+				temp = mapper.writeValueAsString(command).replace("'", "''");
+				scriptMap.put("reqmap", temp);
 				
 				String query = getInsertQuery(scriptMap);
 				session.execute(query);
@@ -129,9 +133,11 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			Session session = CassandraConnector.getSession();
 			Map<String, String> scriptMap = new HashMap<>();
 			try {
-				scriptMap.put("name", script.getName());
+				String temp = script.getName().replace("'", "''");
+				scriptMap.put("name", temp);
 				scriptMap.put("type", script.getType());
-				scriptMap.put("reqmap", mapper.writeValueAsString(script));
+				temp = mapper.writeValueAsString(script).replace("'", "''");
+				scriptMap.put("reqmap", temp);
 				
 				String query = getInsertQuery(scriptMap);
 				session.execute(query);
@@ -350,62 +356,5 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				.append(StringUtils.removeEnd(insertValues.toString(), ", ")).append(")");
 		}
 		return sb.toString();
-	}
-	
-	
-	public static void main(String[] args) {
-		OrchestratorScript os = null;
-		String req = "{\n" + 
-				"  \"name\" : \"getSetMembers4\",\n" + 
-				"  \"type\" : \"SCRIPT\",\n" + 
-				"  \"body\": \"package require java\\nset response [getCollectionMembers $graph_id $set_id \\\"SET\\\"]\\nreturn $response\",   \n" + 
-				"  \"parameters\": [\n" + 
-				"      {\n" + 
-				"          \"name\": \"graph_id\",\n" + 
-				"          \"index\": 0,\n" + 
-				"          \"routingParam\": true\n" + 
-				"        },\n" + 
-				"        {\n" + 
-				"          \"name\": \"set_id\",\n" + 
-				"          \"index\": 1,\n" + 
-				"          \"routingParam\": false\n" + 
-				"        }\n" + 
-				"    ],\n" + 
-				"    \"requestPath\": {\n" + 
-				"        \"type\" : \"GET\",\n" + 
-				"    \"url\" : \"/v1/graph/*/getSetMembers2/*\",\n" + 
-				"    \"pathParams\": [\"graph_id\", \"set_id\"]\n" + 
-				"    }\n" + 
-				"}";
-		
-		OrchestratorDataServiceImpl orchestratorDataServiceImpl = new OrchestratorDataServiceImpl();
-		
-		try {
-			os = orchestratorDataServiceImpl.mapper.readValue(req, OrchestratorScript.class);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//System.out.println(orchestratorDataServiceImpl.doConnectionEstablish());
-		//orchestratorDataServiceImpl.updateScript(os);
-		//List<OrchestratorScript> list = orchestratorDataServiceImpl.getScriptsByRequestPath("/v1/graph/*/getSetMembers1/*", "GET");
-		//List<OrchestratorScript> list = orchestratorDataServiceImpl.getAllCommands();
-		//for(OrchestratorScript o : list) {
-		//	System.out.println(o.getRequestPath().getUrl());
-		//}
-		List<OrchestratorScript> o = orchestratorDataServiceImpl.getAllScripts();//getScript("getSetMembers1");
-		//System.out.println(o.getName() + "***" + o.getId()==null?"":o.getId());
-		
-		//orchestratorDataServiceImpl.remove("SCRIPT", "getSetMembers1");
-		
-		/*Map<String, String> primaryKeyConditions = new HashMap<>();
-		primaryKeyConditions.put("name", name);
-		
-		Map<String, String> nonPrimaryKeyConditions = new HashMap<>();
-		nonPrimaryKeyConditions.put("type", type);
-		String s = orchestratorDataServiceImpl.getDeleteQueryByConditions(primaryKeyConditions, nonPrimaryKeyConditions);
-		System.out.println(s);*/
-		
-		
 	}
 }
