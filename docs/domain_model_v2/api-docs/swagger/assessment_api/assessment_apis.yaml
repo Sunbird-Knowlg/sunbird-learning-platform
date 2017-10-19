@@ -257,51 +257,6 @@
                 "security": []
             }
         },
-        "/items/list": {
-            "post": {
-                "summary": "Returns list of AssessmentItems",
-                "description": "This API is used to list all assessmentItem from the _EkStep Platform_.This endpoint returns the assessmentItems  with default fields. ",
-                "tags": [
-                    "AssessmentItem"
-                ],
-                "operationId": "ekstep.learning.item.list",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "assessmentSearchRequest",
-                        "in": "body",
-                        "required": true,
-                        "description": "searchAssessmentRequest",
-                        "schema": {
-                            "$ref": "#/definitions/listAssessmentRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "AssessmentItems fetched Successfully",
-                        "schema": {
-                            "$ref": "#/definitions/listAssessmentItemResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Error While fetching the assessmentItems! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
-                        "schema": {
-                            "$ref": "#/definitions/FailedResponseHeader"
-                        }
-                    },
-                    "500": {
-                        "description": "Error While fetching the assessmentItems! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-                        "schema": {
-                            "$ref": "#/definitions/FailedResponseHeader"
-                        }
-                    }
-                },
-                "security": []
-            }
-        },
         "/itemsets/create": {
             "post": {
                 "summary": "Creates an itemset",
