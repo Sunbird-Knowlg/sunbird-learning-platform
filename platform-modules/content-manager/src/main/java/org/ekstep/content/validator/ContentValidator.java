@@ -524,4 +524,11 @@ public class ContentValidator {
 		}
 		return false;
 	}
+
+	public String getContentId(String contentId) {
+		if(StringUtils.endsWithAny(contentId, ".img"))
+			contentId = contentId.replace(".img", "");
+		return contentId;
+	}
+	
 }

@@ -43,6 +43,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		PlatformLogger.log("Uploaded File: " , uploadFile.getName(), null, LoggerEnum.INFO.name());
 
 		ContentValidator validator = new ContentValidator();
+		contentId = validator.getContentId(contentId);
 		if (validator.isValidPluginPackage(uploadFile)) {
 			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId, null, LoggerEnum.INFO.name());
 			String basePath = getBasePath(contentId);
