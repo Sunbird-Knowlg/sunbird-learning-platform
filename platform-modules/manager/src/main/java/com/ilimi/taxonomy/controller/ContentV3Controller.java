@@ -182,7 +182,7 @@ public class ContentV3Controller extends BaseController {
 	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = {"/publish/{id:.+}", "/public/publish/{id:.+}"}, method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map) {
@@ -220,11 +220,11 @@ public class ContentV3Controller extends BaseController {
 	 * @return The Response entity with Content Id and ECAR URL in its Result Set.
 	 */
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/publish/unlisted/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/unlisted/publish/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> publishUnlisted(@PathVariable(value = "id") String contentId,
 			@RequestBody Map<String, Object> map) {
-		String apiId = "ekstep.learning.content.publish.unlisted";
+		String apiId = "ekstep.learning.content.unlisted.publish";
 		Response response;
 		PlatformLogger.log(" as Unlisted content | Content Id : " + contentId);
 		try {
