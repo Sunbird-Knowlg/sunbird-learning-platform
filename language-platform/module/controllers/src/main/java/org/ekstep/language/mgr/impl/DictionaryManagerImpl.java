@@ -2864,13 +2864,15 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	private String getSynonymId(Node word) {
 
 		List<Relation> inRelation = word.getInRelations();
-		for (Relation rel : inRelation) {
-			String relType = rel.getRelationType();
-			Map<String, Object> startNodeMetadata = rel.getStartNodeMetadata();
-			String startNodeObjType = (String) startNodeMetadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
-			if (relType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
-					&& startNodeObjType.equalsIgnoreCase(LanguageObjectTypes.Synset.name())) {
-				return rel.getStartNodeId();
+		if (inRelation != null && !inRelation.isEmpty()) {
+			for (Relation rel : inRelation) {
+				String relType = rel.getRelationType();
+				Map<String, Object> startNodeMetadata = rel.getStartNodeMetadata();
+				String startNodeObjType = (String) startNodeMetadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+				if (relType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
+						&& startNodeObjType.equalsIgnoreCase(LanguageObjectTypes.Synset.name())) {
+					return rel.getStartNodeId();
+				}
 			}
 		}
 		return null;
