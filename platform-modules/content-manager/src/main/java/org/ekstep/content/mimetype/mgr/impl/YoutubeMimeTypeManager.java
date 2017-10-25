@@ -51,7 +51,7 @@ public class YoutubeMimeTypeManager extends BaseMimeTypeManager implements IMime
 	@Override
 	public Response upload(String contentId, Node node, String fileUrl) {
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), fileUrl);
-		return updateContentNode(node.getIdentifier(), node, fileUrl);
+		return updateContentNode(contentId, node, fileUrl);
 	}
 
 	/*

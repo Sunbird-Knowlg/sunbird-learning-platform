@@ -105,7 +105,7 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 				response = updateContentNode(node.getIdentifier(), node, fileUrl);
 			} else {
 				node.getMetadata().put(ContentAPIParams.status.name(), "Live");
-				response = updateContentNode(node.getIdentifier(), node, fileUrl);
+				response = updateContentNode(contentId, node, fileUrl);
 			}
 			if (null != file && file.exists()) file.delete();
 			return response;
