@@ -55,6 +55,7 @@ public interface IMimeTypeManager {
 	 * operation using file URL. Other than Preliminary validation it perform all the tasks of
 	 * Content Upload. This Method is directly backed by Content Work-flow
 	 * Pipeline.
+	 * @param contentId 
 	 * 
 	 *
 	 * @param node
@@ -66,7 +67,7 @@ public interface IMimeTypeManager {
 	 *         <code>node_id</code> and the <code>artifactUrl</code> property
 	 *         i.e. the <code>URL</code> where the file is uploaded.
 	 */
-	public Response upload(Node node, String fileUrl);
+	public Response upload(String contentId, Node node, String fileUrl);
 
 	/**
 	 * The <code>publish</code> method is a vital method in Content work-flow

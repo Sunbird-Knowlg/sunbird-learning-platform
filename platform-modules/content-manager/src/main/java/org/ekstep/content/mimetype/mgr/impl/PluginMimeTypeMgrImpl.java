@@ -33,8 +33,6 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
-	
-
 	/* (non-Javadoc)
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)
 	 */
@@ -43,7 +41,6 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 		PlatformLogger.log("Uploaded File: " , uploadFile.getName(), null, LoggerEnum.INFO.name());
 
 		ContentValidator validator = new ContentValidator();
-		contentId = validator.getContentId(contentId);
 		if (validator.isValidPluginPackage(uploadFile)) {
 			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId, null, LoggerEnum.INFO.name());
 			String basePath = getBasePath(contentId);
@@ -75,11 +72,11 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	}
 	
 	@Override
-	public Response upload(Node node, String fileUrl) {
+	public Response upload(String contentId, Node node, String fileUrl) {
 		File file = null;
 		try {
 			file = copyURLToFile(fileUrl);
-			return upload(node.getIdentifier(), node, file, false);
+			return upload(contentId, node, file, false);
 		} catch (Exception e) {
 			throw e;
 		} finally {

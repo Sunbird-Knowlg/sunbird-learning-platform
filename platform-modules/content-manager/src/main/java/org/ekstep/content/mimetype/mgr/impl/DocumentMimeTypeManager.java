@@ -64,7 +64,7 @@ public class DocumentMimeTypeManager extends BaseMimeTypeManager implements IMim
 	}
 	
 	@Override
-	public Response upload(Node node, String fileUrl) {
+	public Response upload(String contentId, Node node, String fileUrl) {
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), fileUrl);
 		return updateContentNode(node.getIdentifier(), node, fileUrl);
 	}

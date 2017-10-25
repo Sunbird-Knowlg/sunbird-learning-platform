@@ -33,9 +33,6 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
-	
-	
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -49,7 +46,7 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 	}
 	
 	@Override
-	public Response upload(Node node, String fileUrl) {
+	public Response upload(String contentId, Node node, String fileUrl) {
 		return ERROR(ContentErrorCodes.ERR_CONTENT_UPLOAD_NO_SUPPORT.name(), "Upload/Update url is not supported for collections.", ResponseCode.CLIENT_ERROR);
 	}
 
