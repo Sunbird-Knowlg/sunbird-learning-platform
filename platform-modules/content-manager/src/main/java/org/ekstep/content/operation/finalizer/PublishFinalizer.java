@@ -369,6 +369,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			} else {
 				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
 			}
+			contentImage.getMetadata().put(ContentWorkflowPipelineParams.publish_type.name(), null);
 			if (null != dbNode) {
 				contentImage.setInRelations(dbNode.getInRelations());
 				contentImage.setOutRelations(dbNode.getOutRelations());
