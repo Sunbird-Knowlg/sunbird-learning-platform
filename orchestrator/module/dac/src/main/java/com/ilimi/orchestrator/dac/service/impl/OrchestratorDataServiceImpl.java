@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.contentstore.util.CassandraConnector;
 import org.ekstep.contentstore.util.ContentStoreParams;
+import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -21,6 +22,7 @@ import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.ScriptTypes;
 import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 
+@Component
 public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 
 	private ObjectMapper mapper = new ObjectMapper();
@@ -227,8 +229,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 					Row row = rs.iterator().next();
 					OrchestratorScript orchestratorScript = mapper.readValue(row.getString("reqmap"), OrchestratorScript.class);
 					if(null != orchestratorScript && null != orchestratorScript.getRequestPath()) {
-						if(null != orchestratorScript.getRequestPath().getUrl() && !orchestratorScript.getRequestPath().getUrl().isEmpty()
-								&& null != orchestratorScript.getRequestPath().getType() && !orchestratorScript.getRequestPath().getType().isEmpty()) {
+						if(StringUtils.isNotBlank(orchestratorScript.getRequestPath().getUrl()) && StringUtils.isNotBlank(orchestratorScript.getRequestPath().getType())) {
 							if(orchestratorScript.getRequestPath().getUrl().equals(url) && orchestratorScript.getRequestPath().getType().equalsIgnoreCase(type))
 								list.add(orchestratorScript);
 						}

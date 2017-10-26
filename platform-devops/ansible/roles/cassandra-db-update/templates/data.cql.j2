@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS content_store.content_data (
 
 ALTER TABLE content_store.content_data ADD oldBody blob;
 
+CREATE KEYSPACE IF NOT EXISTS script_store WITH replication = {
+  'class': 'SimpleStrategy',
+  'replication_factor': '1'
+};
+
 CREATE TABLE IF NOT EXISTS script_store.script_data (
   name text,
   type text,
