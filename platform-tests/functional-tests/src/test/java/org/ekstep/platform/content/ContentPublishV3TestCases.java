@@ -1142,7 +1142,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Upload Content
 		setURI();
 		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadApk.apk")).when().post("/content/v3/upload/" + nodeId).then().
+				.multiPart(new File(path + "/uploadAPK.apk")).when().post("/content/v3/upload/" + nodeId).then().
 				//log().all().
 				spec(get400ResponseSpec());
 	}
