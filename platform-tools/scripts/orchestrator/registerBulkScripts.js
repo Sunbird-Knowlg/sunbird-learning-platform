@@ -2,8 +2,6 @@
 var fs = require("fs");
 var Client = require('node-rest-client').Client;
 var client = new Client();
-client.registerMethod("registerCommand", "http://localhost:8080/learning-service/v1/orchestrator/register/command", "POST");
-client.registerMethod("registerScript", "http://localhost:8080/learning-service/v1/orchestrator/register/script", "POST");
 
 var fields = ['name', 'apiId', 'version', 'description', 'body', 'type', 'cmdClass', 'parameters', 'requestPath', 'actorPath'];
 console.log("\n *START* \n");
@@ -13,6 +11,27 @@ if(process.argv[2] == null){
 	console.log("Eg: node readsync.js /Users/amitpriyadarshi/software_application/node_js_application/read_json/commands.json");
 	process.exit(1);
 }else{
+	if(process.argv[3] == null){
+		console.log("Please pass host name as seocond argument. \n 1. dev : For Dev Environment \n 2. qa : For QA Environment \n 3. localhost : For localhost");
+		process.exit(1);
+	}else{
+		if(process.argv[3] == 'dev'){
+			console.log('Using Dev Environment.');
+			client.registerMethod("registerCommand", "https://dev.ekstep.in/api/v1/orchestrator/register/command", "POST");
+			client.registerMethod("registerScript", "https://dev.ekstep.in/api/v1/orchestrator/register/script", "POST");
+		}else if(process.argv[3] == 'qa'){
+			console.log('Using Qa Environment.');
+			client.registerMethod("registerCommand", "https://qa.ekstep.in/api/v1/orchestrator/register/command", "POST");
+			client.registerMethod("registerScript", "https://qa.ekstep.in/api/v1/orchestrator/register/script", "POST");
+		}else if(process.argv[3] == 'localhost'){
+			console.log('Using Localhost Environment.');
+			client.registerMethod("registerCommand", "http://localhost:8080/learning-service/v1/orchestrator/register/command", "POST");
+			client.registerMethod("registerScript", "http://localhost:8080/learning-service/v1/orchestrator/register/script", "POST");
+		}else{
+			console.log("Please pass host name as seocond argument. \n 1. dev : For Dev Environment \n 2. qa : For QA Environment \n 3. localhost : For localhost");
+			process.exit(1);
+		}
+	}
 	contents = fs.readFileSync(process.argv[2]);
 }
 var jsonContent = JSON.parse(contents);
