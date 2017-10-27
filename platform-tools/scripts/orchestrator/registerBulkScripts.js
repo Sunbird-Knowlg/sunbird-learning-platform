@@ -1,5 +1,10 @@
 // Read Synchrously
 var fs = require("fs");
+var Client = require('node-rest-client').Client;
+var client = new Client();
+client.registerMethod("registerCommand", "http://localhost:8080/learning-service/v1/orchestrator/register/command", "POST");
+client.registerMethod("registerScript", "http://localhost:8080/learning-service/v1/orchestrator/register/script", "POST");
+
 var fields = ['name', 'apiId', 'version', 'description', 'body', 'type', 'cmdClass', 'parameters', 'requestPath', 'actorPath'];
 console.log("\n *START* \n");
 var contents;
@@ -53,7 +58,7 @@ for(var eachJson in jsonContent){
 					if(paraKey == "datatype"){
 						jsonPara.datatype = jsonContent[eachJson].parameters[parameter][paraKey];
 					}
-					if(paraKey == "routingParam"){
+					if(paraKey == "routing_param"){
 						jsonPara.routingParam = jsonContent[eachJson].parameters[parameter][paraKey];
 					}
 					if(paraKey == "routingId"){
@@ -115,37 +120,23 @@ for(var eachJson in jsonContent){
 			jsonObj.actorPath = jsonActorPath;
 		}
 	}
-	//Example POST method invocation 
 	
-	var Client = require('node-rest-client').Client;
- 	var client = new Client();
+ 	var args = {
+		data: jsonObj,
+		headers: { "Content-Type": "application/json" }
+	};
 	if(jsonObj.type == "COMMAND"){
-		// set content-type header and data as json in args parameter 
-		var args = {
-    		data: jsonObj,
-    		headers: { "Content-Type": "application/json" }
-		};
- 		// registering remote methods 
-		client.registerMethod("postMethod", "http://localhost:8080/learning-service/v1/orchestrator/register/command", "POST");
- 
-		client.methods.postMethod(args, function (data, response) {
+ 		// console.log("args:", JSON.stringify(args));
+		client.methods.registerCommand(args, function (data, response) {
     		// parsed response body as js object 
-    		//console.log(data);
+    		// console.log(data);
     	});
 		//console.log("*****" + jsonObj.name + "*******");
 	}
 	if(jsonObj.type == "SCRIPT"){
-		// set content-type header and data as json in args parameter 
-		var args = {
-    		data: jsonObj,
-    		headers: { "Content-Type": "application/json" }
-		};
  		// registering remote methods 
-		client.registerMethod("postMethod", "http://localhost:8080/learning-service/v1/orchestrator/register/script", "POST");
- 
-		client.methods.postMethod(args, function (data, response) {
-    		// parsed response body as js object 
-    		//console.log(data);
+		client.methods.registerScript(args, function (data, response) {
+    		// console.log(response);
     	});
 	}
 //console.log("************" + count + "*************" + jsonObj.name + "*********");
