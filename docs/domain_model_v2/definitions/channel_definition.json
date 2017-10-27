@@ -9,7 +9,7 @@
           "description": "Name of the content",
           "category": "General",
           "dataType": "Text",
-          "required": false,
+          "required": true,
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 1}",
@@ -33,7 +33,7 @@
           "description": "Unique code for the content",
           "category": "General",
           "dataType": "Text",
-          "required": false,
+          "required": true,
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 2}",
@@ -117,7 +117,7 @@
           "category": "technical",
           "dataType": "json",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
@@ -125,7 +125,28 @@
         }
       ],
       "inRelations":[],
-      "outRelations":[],
+      "outRelations":[
+  			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"CategoryInstance"
+				],
+				"title": "category_instance",
+				"description": "category instance associated with this channel",
+				"required": false,
+				"renderingHints": "{ 'order': 26 }"
+			},
+			{
+				"relationName": "associatedTo",
+				"objectTypes": [
+					"Framework"
+				],
+				"title": "framework",
+				"description": "framework associated with this channel",
+				"required": false,
+				"renderingHints": "{ 'order': 26 }"
+			}
+	  ],
       "systemTags": [],
       "metadata": {
         "ttl": 24,
