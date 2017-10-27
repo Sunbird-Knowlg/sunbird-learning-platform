@@ -132,6 +132,16 @@
 								<exclude>**/ConsumerThread**</exclude>
 								<exclude>**/AuditHistoryMessageProcessor**</exclude>
 								<exclude>**/WordCountMessageProcessor**</exclude>
+								<exclude>**/LanguageEnrichmentMessageProcessor</exclude>
+								<exclude>**/WordTranslationMessageProcessor</exclude>
+								<exclude>**/WordEnrichMessageProcessor</exclude>
+								<exclude>**/RetireParentContentProcessor</exclude>
+								<exclude>**/ObjectLifecycleMessageProcessor</exclude>
+								<exclude>**/IMessageProcessor</exclude>
+								<exclude>**/ImageMessageProcessor</exclude>
+								<exclude>**/FlagParentContentProcessor</exclude>
+								<exclude>**/ContentEnrichmentMessageProcessor</exclude>
+								<exclude>**/BaseProcessor</exclude>
 							</excludes>
 						</instrumentation>
 						<check>

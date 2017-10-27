@@ -5,6 +5,8 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 
+import com.ilimi.common.dto.CoverageIgnore;
+@CoverageIgnore
 @SuppressWarnings("deprecation")
 public class HibernateSessionFactory {
 

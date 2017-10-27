@@ -34,8 +34,6 @@ import akka.actor.ActorRef;
 
 public class SearchManager extends SearchBaseActor {
 
-	
-
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
@@ -406,6 +404,13 @@ public class SearchManager extends SearchBaseActor {
 										CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
 								break;
 							}
+							case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_OPERATOR:
+							case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT:
+							case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT_LOWERCASE:
+							case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL_TEXT_UPPERCASE:
+								property.put(CompositeSearchParams.operation.name(),
+										CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL);
+								break;
 							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
 							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
 							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:

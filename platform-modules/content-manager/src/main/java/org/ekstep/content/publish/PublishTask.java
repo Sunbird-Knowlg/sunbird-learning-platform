@@ -48,7 +48,7 @@ public class PublishTask implements Runnable {
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
+			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
 			if (!nodes.isEmpty()) {
 				int compatabilityLevel = getCompatabilityLevel(nodes);
 				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
@@ -135,8 +135,11 @@ public class PublishTask implements Runnable {
 		stream.forEach(nodeDTO -> System.out.println(nodeDTO.getIdentifier() + "," + nodeDTO.getMimeType()));
 	}
 
-	private void publishCollectionNode(NodeDTO node) {
+	private void publishCollectionNode(NodeDTO node, String publishType) {
 		Node graphNode = util.getNode("domain", node.getIdentifier());
+		if(null != publishType && StringUtils.isNotEmpty(publishType)) {
+			graphNode.getMetadata().put("publish_type", publishType);
+		}
 		publishNode(graphNode, node.getMimeType());
 	}
 

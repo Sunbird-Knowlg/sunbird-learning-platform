@@ -5,12 +5,6 @@
  */
 package org.ekstep.tools.loader.service;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.request.BaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +12,13 @@ import org.ekstep.tools.loader.utils.JsonUtil;
 import org.ekstep.tools.loader.utils.RestUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.request.BaseRequest;
 
 /**
  *
@@ -115,7 +116,8 @@ public class ConceptServiceImpl implements ConceptService {
         String body = JsonUtil.wrap(conceptIds, "conceptIds").toString();
         BaseRequest retireRequest = Unirest.delete(retireUrl).body(body);
         HttpResponse<JsonNode> retireResponse = RestUtil.execute(retireRequest);
-        
+		System.out.println("Retire Url : " + retireUrl);
+		System.out.println(body);
         String response = "OK";
         if (RestUtil.isSuccessful(retireResponse)) {
             logger.debug("Retired " + conceptIds);

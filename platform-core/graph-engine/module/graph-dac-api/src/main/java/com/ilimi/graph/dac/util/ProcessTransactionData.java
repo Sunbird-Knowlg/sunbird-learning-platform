@@ -39,8 +39,10 @@ public class ProcessTransactionData {
 	public void processTxnData(TransactionData data) {
 		try {
 			List<Map<String, Object>> kafkaMessages = getMessageObj(data);
-			if (kafkaMessages != null && !kafkaMessages.isEmpty())
+			if (kafkaMessages != null && !kafkaMessages.isEmpty()) {
+				PlatformLogger.log("Kafka message: ", kafkaMessages);
 				LogAsyncGraphEvent.pushMessageToLogger(kafkaMessages);
+			}
 		} catch (Exception e) {
 			PlatformLogger.log("Exception", e.getMessage(), e);
 		}

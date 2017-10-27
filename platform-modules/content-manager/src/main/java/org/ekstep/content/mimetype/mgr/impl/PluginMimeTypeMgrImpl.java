@@ -33,18 +33,16 @@ import com.ilimi.graph.dac.model.Node;
  */
 public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager{
 	
-	
-
 	/* (non-Javadoc)
 	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File)
 	 */
 	@Override
 	public Response upload(String contentId, Node node, File uploadFile, boolean isAsync) {
-		PlatformLogger.log("Uploaded File: " , uploadFile.getName());
+		PlatformLogger.log("Uploaded File: " , uploadFile.getName(), null, LoggerEnum.INFO.name());
 
 		ContentValidator validator = new ContentValidator();
 		if (validator.isValidPluginPackage(uploadFile)) {
-			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId);
+			PlatformLogger.log("Calling Upload Content For Node ID: " + contentId, null, LoggerEnum.INFO.name());
 			String basePath = getBasePath(contentId);
 			// Extract the ZIP File 
 			extractContentPackage(uploadFile, basePath);
@@ -74,11 +72,11 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	}
 	
 	@Override
-	public Response upload(Node node, String fileUrl) {
+	public Response upload(String contentId, Node node, String fileUrl) {
 		File file = null;
 		try {
 			file = copyURLToFile(fileUrl);
-			return upload(node.getIdentifier(), node, file, false);
+			return upload(contentId, node, file, false);
 		} catch (Exception e) {
 			throw e;
 		} finally {
@@ -98,7 +96,7 @@ public class PluginMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_MANIFEST_PARSE_ERROR.name(),
 					ContentErrorMessageConstants.MANIFEST_PARSE_CONFIG_ERROR, e);
 		}
-		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id, LoggerEnum.INFO.name());
+		PlatformLogger.log("pluginId:" + pluginId + "ManifestId:" + id, null, LoggerEnum.INFO.name());
 		if (!StringUtils.equals(pluginId, id))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PLUGIN_ID.name(),
 					ContentErrorMessageConstants.INVALID_PLUGIN_ID_ERROR);

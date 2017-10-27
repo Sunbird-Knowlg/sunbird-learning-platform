@@ -120,8 +120,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	protected static final String URL_FIELD = "URL";
 
 	private PublishManager publishManager = new PublishManager();
-	
-	private static List<String> contentTypeList = new  ArrayList<String>();
+
+	private static List<String> contentTypeList = new ArrayList<String>();
 
 	static {
 		contentTypeList.add("Story");
@@ -133,6 +133,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		contentTypeList.add("ContentTemplate");
 		contentTypeList.add("ItemTemplate");
 	}
+
 	/**
 	 * Gets the data node.
 	 *
@@ -163,7 +164,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		PlatformLogger.log("Graph ID: " + taxonomyId);
 		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
 		boolean updateMimeType = false;
-		
+
 		try {
 			if (StringUtils.isBlank(taxonomyId))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
@@ -187,20 +188,21 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				setMimeTypeForUpload(mimeType, node);
 				updateMimeType = true;
 			}
-			
+
 			PlatformLogger.log("Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
-			PlatformLogger.log("Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
+			PlatformLogger.log(
+					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
 			Response res = mimeTypeManager.upload(contentId, node, uploadedFile, false);
-			
+
 			if (updateMimeType && !checkError(res)) {
 				node.getMetadata().put("versionKey", res.getResult().get("versionKey"));
 				Response response = updateMimeType(contentId, mimeType);
 				if (checkError(response))
 					return response;
 			}
-			
+
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
 			throw e;
@@ -251,15 +253,15 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 					"Fetching Mime-Type Factory For Mime-Type: " + mimeType + " | [Content ID: " + contentId + "]");
 			String contentType = (String) node.getMetadata().get("contentType");
 			IMimeTypeManager mimeTypeManager = MimeTypeManagerFactory.getManager(contentType, mimeType);
-			Response res = mimeTypeManager.upload(node, fileUrl);
-			
+			Response res = mimeTypeManager.upload(contentId, node, fileUrl);
+
 			if (updateMimeType && !checkError(res)) {
 				node.getMetadata().put("versionKey", res.getResult().get("versionKey"));
 				Response response = updateMimeType(contentId, mimeType);
 				if (checkError(response))
 					return response;
 			}
-			
+
 			return checkAndReturnUploadResponse(res);
 		} catch (ClientException e) {
 			throw e;
@@ -276,7 +278,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		node.getMetadata().put("mimeType", mimeType);
 		updateDefaultValuesByMimeType(node.getMetadata(), mimeType);
 	}
-	
+
 	private Response checkAndReturnUploadResponse(Response res) {
 		if (checkError(res)) {
 			return res;
@@ -664,13 +666,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			String mode) {
 		Map<String, Object> contentMap = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
 		List<NodeDTO> children = (List<NodeDTO>) contentMap.get("children");
-		
-		//Collections sort method is used to sort the child content list on the basis of index.
-		if(null != children && !children.isEmpty()) {
+
+		// Collections sort method is used to sort the child content list on the
+		// basis of index.
+		if (null != children && !children.isEmpty()) {
 			Collections.sort(children, new Comparator<NodeDTO>() {
 				@Override
 				public int compare(NodeDTO o1, NodeDTO o2) {
-					return o1.getIndex()-o2.getIndex();
+					return o1.getIndex() - o2.getIndex();
 				}
 			});
 		}
@@ -913,18 +916,18 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return isContentImage;
 	}
 
-	public Response createContent(Map<String, Object> map) throws Exception{
+	public Response createContent(Map<String, Object> map) throws Exception {
 		if (null == map)
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		// Checking for resourceType if contentType resource
-		validateNodeForContentType(map);
-		
+		// validateNodeForContentType(map);
+
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-		
+
 		// Restrict create API to create with Status
 		validateForStatusUpdate(definition, map);
-		
+
 		String mimeType = (String) map.get("mimeType");
 		if (StringUtils.isNotBlank(mimeType)) {
 			if (!StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType))
@@ -987,10 +990,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			return ERROR("ERR_CONTENT_INVALID_OBJECT", "Invalid Request", ResponseCode.CLIENT_ERROR);
 
 		DefinitionDTO definition = getDefinition(GRAPH_ID, CONTENT_OBJECT_TYPE);
-		
+
 		// Restrict Update API to Update Status
 		validateForStatusUpdate(definition, map);
-		
+
 		String originalId = contentId;
 		String objectType = CONTENT_OBJECT_TYPE;
 		map.put("objectType", CONTENT_OBJECT_TYPE);
@@ -1143,7 +1146,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		else
 			fields = new ArrayList<String>(fields);
 
-		// TODO: this is only for backward compatibility. remove after this release.
+		// TODO: this is only for backward compatibility. remove after this
+		// release.
 		if (fields.contains("tags")) {
 			fields.remove("tags");
 			fields.add("keywords");
@@ -1365,30 +1369,30 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return response;
 	}
 
-	//Method is introduced to decide whether image node should be created for the content or not.
+	// Method is introduced to decide whether image node should be created for
+	// the content or not.
 	private Node getNodeForUpdateHierarchy(String taxonomyId, String contentId, String operation, boolean isRoot) {
 		Response response;
 		if (isRoot)
-	        return getNodeForOperation(taxonomyId, contentId, operation);
-	    else {
-	    		response = getDataNode(taxonomyId, contentId);
-	    		
-	    		PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
+			return getNodeForOperation(taxonomyId, contentId, operation);
+		else {
+			response = getDataNode(taxonomyId, contentId);
+
+			PlatformLogger.log("Checking for Fetched Content Node (Not Image Node) for Content Id: " + contentId);
 			if (checkError(response)) {
 				throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
 						"Error! While Fetching the Content for Operation | [Content Id: " + contentId + "]");
 			} else {
 				Node node = (Node) response.get(GraphDACParams.node.name());
 				if("Parent".equalsIgnoreCase(node.getMetadata().get("visibility").toString())) {
-	    				return getNodeForOperation(taxonomyId, contentId, operation);
-	    			}else {
-	    				return node;
-	    			}
+					return getNodeForOperation(taxonomyId, contentId, operation);
+				}else {
+					return node;
+				}
 			}
-	    		
-	    }
+		}
 	}
-		
+
 	@SuppressWarnings("unchecked")
 	private void updateNodeHierarchyRelations(String graphId, Entry<String, Object> entry, Map<String, String> idMap,
 			Map<String, Node> nodeMap) {
@@ -1511,13 +1515,14 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		return updateContent(contentId, map);
 	}
 
-	private void validateNodeForContentType(Map<String,Object> map){
-		if(contentTypeList.contains((String)map.get(ContentAPIParams.contentType.name())))
-			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(), ((String)map.get(ContentAPIParams.contentType.name())) + " is not a valid value for contentType");
+	private void validateNodeForContentType(Map<String, Object> map) {
+		if (contentTypeList.contains((String) map.get(ContentAPIParams.contentType.name())))
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_INVALID_CONTENT.name(),
+					((String) map.get(ContentAPIParams.contentType.name())) + " is not a valid value for contentType");
 	}
-	
-	private void validateForStatusUpdate(DefinitionDTO definition, Map<String,Object> map) throws Exception{
-		if(BooleanUtils.isFalse(((Boolean)definition.getMetadata().get("allowStatusUpdate")))){
+
+	private void validateForStatusUpdate(DefinitionDTO definition, Map<String, Object> map) throws Exception {
+		if(BooleanUtils.isFalse(((Boolean) definition.getMetadata().get("allowStatusUpdate")))) {
 			if (map.containsKey(ContentAPIParams.status.name()))
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_UPDATE.name(),
 					"Error! Status cannot be set while updating the Content.");

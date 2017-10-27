@@ -574,13 +574,14 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Update content status to live
 		setURI();
 		jsonUpdateContentValid = jsonUpdateContentValid.replace("version_Key", versionKey);
+		System.out.println(jsonUpdateContentValid);
 		given().
 		spec(getRequestSpecification(contentType, userId, APIToken)).
 		body(jsonUpdateContentValid).
 		with().
 		contentType("application/json").when().patch("/content/v3/update/" + nodeId).then().
 		//log().all().
-		spec(get400ResponseSpec());
+		spec(get200ResponseSpec());
 	}
 	
 	// Create and get Content
@@ -1141,7 +1142,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		// Upload Content
 		setURI();
 		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadApk.apk")).when().post("/content/v3/upload/" + nodeId).then().
+				.multiPart(new File(path + "/uploadAPK.apk")).when().post("/content/v3/upload/" + nodeId).then().
 				//log().all().
 				spec(get400ResponseSpec());
 	}
@@ -1347,10 +1348,17 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void reviewContentExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1358,17 +1366,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -1377,17 +1394,26 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 			// Setting status to review
 			setURI();
-			given().spec(getRequestSpecification(contentType, userId, APIToken)).body("{\"request\":{\"content\":{}}}")
-					.when().post("/content/v3/review/" + nodeId).then().
-					//log().all().
-					spec(get200ResponseSpec());
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body("{\"request\":{\"content\":{}}}").
+			when().
+			post("/content/v3/review/" + nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
 
 			// Get content and validate
 			setURI();
-			Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-					.get("/content/v3/read/" + nodeId).then().
+			Response R1 = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/" + nodeId).
+					then().
 					//log().all().
-					spec(get200ResponseSpec()).extract().response();
+					spec(get200ResponseSpec()).
+					extract().response();
 
 			JsonPath jP1 = R1.jsonPath();
 			String status = jP1.get("result.content.status");
@@ -1432,11 +1458,17 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Ignore
 	public void reivewATContentExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
 				// spec(get200ResponseSpec()).
-		extract().response();
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1451,17 +1483,28 @@ public class ContentPublishV3TestCases extends BaseTest {
 		}
 		setURI();
 		jsonUpdateATContentBody = jsonUpdateATContentBody.replace("version_Key", versionKey);
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonUpdateATContentBody).with()
-				.contentType("application/json").when().patch("/content/v3/update/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body(jsonUpdateATContentBody).
+		with().
+		contentType("application/json").
+		when().
+		patch("/content/v3/update/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -1469,17 +1512,25 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Setting status to review
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken)).body("{\"request\":{\"content\":{}}}")
-				.when().post("/content/v3/review/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{}}}").
+		when().
+		post("/content/v3/review/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
-		Response R1 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
+		Response R1 = given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP1 = R1.jsonPath();
 		String status = jP1.get("result.content.status");
@@ -1493,8 +1544,15 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void publishContentExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
 				spec(get200ResponseSpec()).extract().response();
 
@@ -1504,17 +1562,27 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().
+				response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2698,7 +2766,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 		int count = 1;
 		while (count <= 2) {
 			setURI();
-			int rn = generateRandomInt(500, 999);
+			int rn = generateRandomInt(500, 99999);
 			JSONObject js = new JSONObject(jsonCreateValidContent);
 			js.getJSONObject("request").getJSONObject("content").put("identifier", "LP_NFT_T_" + rn + "").put("name",
 					"LP_NFT_T-" + rn + "");
@@ -2756,6 +2824,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				when().
 				delete("/content/v3/retire/" + node2).
 				then().
+				//log().all().
 				spec(get200ResponseSpec());
 			}
 			count++;

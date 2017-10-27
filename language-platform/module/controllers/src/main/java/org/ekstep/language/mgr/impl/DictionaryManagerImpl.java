@@ -1613,19 +1613,29 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			for (Relation rel : relations) {
 				if (StringUtils.equalsIgnoreCase(LanguageParams.Word.name(), rel.getEndNodeObjectType())
 						&& !StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.name())) {
+					PlatformLogger
+							.log("correcting synset for synser id -" + synset.getIdentifier() + " and relation type - "
+									+ rel.getRelationType() + "related word Id -" + rel.getEndNodeId());
 					update = true;
 					String wordId = rel.getEndNodeId();
 					try {
 						Node wordNode = getDataNode(languageId, wordId, LanguageParams.Word.name());
-						String primaryMeaningId = (String) wordNode.getMetadata()
-								.get(LanguageParams.primaryMeaningId.name());
+						DefinitionDTO defintion = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+						Map<String, Object> map = ConvertGraphNode.convertGraphNode(wordNode, languageId, defintion, null);
+						List<Node> synsets = wordUtil.getSynsets(wordNode);
+						String primaryMeaningId = wordUtil.updatePrimaryMeaning(languageId, map, synsets);
+
+//						String primaryMeaningId = (String) wordNode.getMetadata()
+//								.get(LanguageParams.primaryMeaningId.name());
 						String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
 						if (primaryMeaningId == null) {
-							primaryMeaningId = createSynset(languageId, lemma, new ArrayList<>(), null);
+							primaryMeaningId = createSynset(languageId, lemma, wordNode.getIdentifier(), new ArrayList<>(), null);
+							//set primary meaning id into words metadata
 							setPrimaryMeaningId(languageId, wordId, primaryMeaningId);
+							//add relation between word and newly created primary meaning/synset
+							addRelation(languageId, LanguageParams.Synset.name(), primaryMeaningId,
+									RelationTypes.SYNONYM.relationName(), wordId);
 						}
-						addRelation(languageId, LanguageParams.Synset.name(), primaryMeaningId,
-								RelationTypes.SYNONYM.name(), wordId);
 
 						deleteRelation(languageId, LanguageParams.Synset.name(), synset.getIdentifier(),
 								rel.getRelationType(), wordId);
@@ -2132,7 +2142,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			Node synsetNode = getDataNode(languageId, meaningId, "Synset");
 			// Added for correcting synset relationship between from synset and
 			// words to synset and synset
-			//synsetNode = correctSynset(languageId, synsetNode);
+			synsetNode = correctSynset(languageId, synsetNode);
 			DefinitionDTO synsetDefintion = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
 			Map<String, Object> synsetMap = getSynsetMap(synsetNode, synsetDefintion);
 
@@ -2864,13 +2874,15 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 	private String getSynonymId(Node word) {
 
 		List<Relation> inRelation = word.getInRelations();
-		for (Relation rel : inRelation) {
-			String relType = rel.getRelationType();
-			Map<String, Object> startNodeMetadata = rel.getStartNodeMetadata();
-			String startNodeObjType = (String) startNodeMetadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
-			if (relType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
-					&& startNodeObjType.equalsIgnoreCase(LanguageObjectTypes.Synset.name())) {
-				return rel.getStartNodeId();
+		if (inRelation != null && !inRelation.isEmpty()) {
+			for (Relation rel : inRelation) {
+				String relType = rel.getRelationType();
+				Map<String, Object> startNodeMetadata = rel.getStartNodeMetadata();
+				String startNodeObjType = (String) startNodeMetadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+				if (relType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())
+						&& startNodeObjType.equalsIgnoreCase(LanguageObjectTypes.Synset.name())) {
+					return rel.getStartNodeId();
+				}
 			}
 		}
 		return null;
@@ -3326,6 +3338,9 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 		} else {
 			try {
 				Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+				// Added for correcting synset relationship between from synset and
+				// words to synset and synset
+				node = correctSynset(languageId, node);
 				Map<String, Object> map = getSynsetMap(languageId, node);
 				Response response = copyResponse(getNodeRes);
 				response.put(LanguageObjectTypes.Synset.name(), map);

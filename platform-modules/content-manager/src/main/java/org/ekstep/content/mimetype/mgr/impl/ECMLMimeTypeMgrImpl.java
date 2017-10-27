@@ -158,11 +158,11 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	}
 	
 	@Override
-	public Response upload(Node node, String fileUrl) {
+	public Response upload(String contentId, Node node, String fileUrl) {
 		File file = null;
 		try {
 			file = copyURLToFile(fileUrl);
-			return upload(node.getIdentifier(), node, file, false);
+			return upload(contentId, node, file, false);
 		} catch (Exception e) {
 			throw e;
 		} finally {

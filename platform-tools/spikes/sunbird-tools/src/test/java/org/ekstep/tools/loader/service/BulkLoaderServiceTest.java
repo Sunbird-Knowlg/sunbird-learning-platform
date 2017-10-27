@@ -7,6 +7,7 @@ package org.ekstep.tools.loader.service;
 
 import java.io.File;
 import java.net.URL;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,12 +42,13 @@ public class BulkLoaderServiceTest {
         String keyColumn = "code";
         String userID = "feroz";
         
+
         BulkLoaderService svc = new BulkLoaderService();
         svc.setCsvFile(csvData);
         svc.setTfmFile(transformation);
         svc.setKeyColumn(keyColumn);
         svc.setUserID(userID);
-        
+		svc.setContext("");
         svc.execute(svc);
         
     }

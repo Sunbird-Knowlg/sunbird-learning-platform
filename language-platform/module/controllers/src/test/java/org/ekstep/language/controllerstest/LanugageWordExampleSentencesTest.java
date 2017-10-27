@@ -29,7 +29,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
 
-@Ignore
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
