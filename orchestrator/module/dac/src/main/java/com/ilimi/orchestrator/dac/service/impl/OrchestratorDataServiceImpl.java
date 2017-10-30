@@ -8,13 +8,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.contentstore.util.CassandraConnector;
-import org.ekstep.contentstore.util.ContentStoreParams;
 import org.springframework.stereotype.Component;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.ilimi.cassandra.connector.util.CassandraConnector;
+import com.ilimi.cassandra.connector.util.CassandraConnectorStoreParam;
 import com.ilimi.common.Platform;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
@@ -67,7 +67,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				}
 			} catch (Exception e) {
 				PlatformLogger.log("Error! Executing Get Script.", e.getMessage(), e);
-				throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error fetching script from Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching script from Orchestrator Store.");
 			}
 			return orchestratorScript;
 		}
@@ -96,7 +96,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				return script.getName();
 			} catch (Exception e) {
 				PlatformLogger.log("Error! Executing create Script.", e.getMessage(), e);
-				throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error creating script in Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error creating script in Orchestrator Store.");
 			}
 		}
 		return null;
@@ -122,7 +122,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				return command.getName();
 			} catch (Exception e) {
 				PlatformLogger.log("Error! Executing create Command.", e.getMessage(), e);
-				throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error creating command in Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error creating command in Orchestrator Store.");
 			}
 		}
 		return null;
@@ -145,7 +145,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				session.execute(query);
 			} catch (Exception e) {
 				PlatformLogger.log("Error! Executing update Script.", e.getMessage(), e);
-				throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error updating script in Orchestrator Store.");
+				throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error updating script in Orchestrator Store.");
 			}
 		}
 	}
@@ -175,7 +175,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Error! Executing Get All Scripts.", e.getMessage(), e);
-			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error fetching all Scripts from Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching all Scripts from Orchestrator Store.");
 		}
 		return list;
 	}
@@ -205,7 +205,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Error! Executing Get All Commands.", e.getMessage(), e);
-			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error fetching all Commands from Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching all Commands from Orchestrator Store.");
 		}
 		return list;
 	}
@@ -238,7 +238,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			}
 		} catch (Exception e) {
 			PlatformLogger.log("Error! Executing Get Scripts By RequestPath.", e.getMessage(), e);
-			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error fetching Scripts By RequestPath Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error fetching Scripts By RequestPath Orchestrator Store.");
 		}
 		return list;
 	}
@@ -254,7 +254,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				return false;
 		}catch(Exception e) {
 			PlatformLogger.log("Error! Executing do Establish Connection.", e.getMessage(), e);
-			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error in establishing connection with Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error in establishing connection with Orchestrator Store.");
 		}
 			
 	}
@@ -273,7 +273,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			session.execute(query);
 		}catch(Exception e) {
 			PlatformLogger.log("Error! Executing Remove script.", e.getMessage(), e);
-			throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Error in removing script from Orchestrator Store.");
+			throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Error in removing script from Orchestrator Store.");
 		}
 	}
 	
@@ -285,7 +285,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			primaryKeyConditionFields.append(" WHERE ");
 			for(String field : primaryKeyConditions.keySet()) {
 				if (null != field && StringUtils.isBlank(field))
-					throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
+					throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
 				
 				primaryKeyConditionFields.append(field).append(" = '").append(primaryKeyConditions.get(field)).append("' and ");
 			}
@@ -295,7 +295,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			nonPrimaryKeyConfitionFields.append(" IF ");
 			for(String field : nonPrimaryKeyConditions.keySet()) {
 				if (null != field && StringUtils.isBlank(field))
-					throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
+					throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
 				
 				nonPrimaryKeyConfitionFields.append(field).append(" = '").append(nonPrimaryKeyConditions.get(field)).append("' and ");
 			}
@@ -312,7 +312,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			StringBuilder selectFields = new StringBuilder();
 			for (String property : properties) {
 				if (null != property && StringUtils.isBlank(property))
-					throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
+					throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
 				
 				selectFields.append(property).append(", ");
 			}
@@ -324,7 +324,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 				conditionFields.append(" where ");
 				for(String field : conditions.keySet()) {
 					if (null != field && StringUtils.isBlank(field))
-						throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
+						throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
 					
 					conditionFields.append(field).append(" = '").append(conditions.get(field)).append("' and ");
 				}
@@ -345,7 +345,7 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
 			insertValues.append("(");
 			for (String property : properties) {
 				if (null != property && StringUtils.isBlank(property))
-					throw new ServerException(ContentStoreParams.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
+					throw new ServerException(CassandraConnectorStoreParam.ERR_SERVER_ERROR.name(), "Invalid property name. Please specify a valid property name");
 				
 				if(null != (String)scriptMap.get(property)) {
 					insertFields.append(property.trim()).append(", ");
