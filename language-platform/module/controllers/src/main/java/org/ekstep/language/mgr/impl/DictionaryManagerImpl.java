@@ -1342,6 +1342,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
 		try {
 			Response createRes = OK();
+			Response errorRes = null;
 			List<String> lstNodeId = new ArrayList<String>();
 			List<String> errorMessages = new ArrayList<String>();
 			List<Map> items = (List<Map>) request.get(LanguageParams.words.name());
@@ -1356,6 +1357,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 							throw new ClientException(LanguageErrorCodes.ERR_CREATE_WORD.name(),
 									"Word - lemma can not be empty");
 						lemma = lemma.trim();
+						if(languageId.equalsIgnoreCase("en"))
+							lemma = lemma.toLowerCase();
 						item.put(LanguageParams.lemma.name(), lemma);
 						boolean isValid = isValidWord(lemma, languageId);
 						if (!isValid) {
@@ -1377,6 +1380,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 						Response wordResponse = createOrUpdateWord(languageId, item, lstNodeId, forceUpdate, true);
 						if (checkError(wordResponse)) {
 							errorMessages.add(wordUtil.getErrorMessage(wordResponse));
+							errorRes = wordResponse;
 						}
 						List<String> errorMessage = (List<String>) wordResponse
 								.get(LanguageParams.error_messages.name());
@@ -1393,6 +1397,10 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			} catch (Exception e) {
 				errorMessages.add(e.getMessage());
 			}
+			if(items.size()==1&&errorRes!=null) {
+				return errorRes;
+			}
+				
 			createRes.put(GraphDACParams.node_ids.name(), lstNodeId);
 			if (!errorMessages.isEmpty()) {
 				createRes.put(LanguageParams.error_messages.name(), errorMessages);
@@ -2089,6 +2097,8 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 			String lemma = (String) item.get(LanguageParams.lemma.name());
 			if (lemma != null) {
 				lemma = lemma.trim();
+				if(languageId.equalsIgnoreCase("en"))
+					lemma = lemma.toLowerCase();
 				item.put(LanguageParams.lemma.name(), lemma);
 				boolean isValid = isValidWord(lemma, languageId);
 				if (!isValid) {
@@ -2259,7 +2269,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 				if (existingWordNode != null) {
 					/*wordIdentifier = existingWordNode.getIdentifier();
 					wordRequestMap.put(LanguageParams.identifier.name(), wordIdentifier);*/
-					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(), "Word is already exist", ResponseCode.CLIENT_ERROR);
+					return ERROR(LanguageErrorCodes.ERR_DUPLICATE_WORD.name(), "Word is already exist", ResponseCode.CLIENT_ERROR);
 				}
 			} else {
 				existingWordNode = getDataNode(languageId, wordIdentifier, LanguageParams.Word.name());

@@ -74,5 +74,7 @@ public enum LanguageErrorCodes {
 
     ERROR_VIRAMA_NOT_FOUND,
     
-    ERR_INVALID_COMPLEXITY_RANGE;
+    ERR_INVALID_COMPLEXITY_RANGE,
+    
+    ERR_DUPLICATE_WORD;
 }
