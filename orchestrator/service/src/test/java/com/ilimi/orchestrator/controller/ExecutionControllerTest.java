@@ -1,6 +1,7 @@
 package com.ilimi.orchestrator.controller;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -25,23 +26,22 @@ public class ExecutionControllerTest {
 
 	@Autowired
 	private WebApplicationContext context;
-	
-	/** The actions. */
+	MockMvc mockMvc;
 	private ResultActions actions;
+	
+	@Before
+	public void setup() {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
+	}
 	
 	@Ignore
 	@Test
 	public void testExecution() throws Exception {
-		MockMvc mockMvc;
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		
 		String path = "/v3/channel/create";
-
 		String json = "{\"request\":{\"channel\":{\"name\":\"content\",\"description\":\"\",\"code\":\"org.ekstep.test\",\"contentFilter\":{\"filters\":{\"gradeLevel\":[\"Grade 3\"]}}}}}";
-		actions = mockMvc.perform(
-				MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(json));
+		actions = mockMvc.perform(MockMvcRequestBuilders.post(path).contentType(MediaType.APPLICATION_JSON).content(json));
 		System.out.println("Response:" + actions.andReturn().getResponse().getContentAsString());
 		Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
-		
-		
 	}
 }
