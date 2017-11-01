@@ -27,8 +27,14 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
     public void registerScript(OrchestratorScript script) {
         validateScript(script);
         try {
-            List<OrchestratorScript> scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(),
-                    script.getRequestPath().getType());
+            List<OrchestratorScript> scripts = null;
+            if (null != script.getRequestPath()) {
+            		if(StringUtils.isNotBlank(script.getRequestPath().getUrl()) && 
+            				StringUtils.isNotBlank(script.getRequestPath().getType())) {
+            			scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(),
+                				script.getRequestPath().getType());
+            		}
+            }
             if (null == scripts || scripts.isEmpty())
                 daoService.createScript(script);
             else {
@@ -45,10 +51,14 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
         validateCommand(command);
         try {
             List<OrchestratorScript> scripts = null;
-            if (null != command.getRequestPath() && StringUtils.isNotBlank(command.getRequestPath().getUrl())) {
-                scripts = daoService.getScriptsByRequestPath(command.getRequestPath().getUrl(),
-                        command.getRequestPath().getType());
+            if (null != command.getRequestPath()) {
+            		if(StringUtils.isNotBlank(command.getRequestPath().getUrl()) && 
+            				StringUtils.isNotBlank(command.getRequestPath().getType())) {
+            			scripts = daoService.getScriptsByRequestPath(command.getRequestPath().getUrl(),
+                                command.getRequestPath().getType());
+            		}
             }
+            		
             if (null == scripts || scripts.isEmpty())
                 daoService.createCommand(command);
             else {
@@ -82,22 +92,29 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
     public void updateScript(String name, OrchestratorScript script) {
         OrchestratorScript dbScript = daoService.getScript(name);
         if (null == dbScript) {
-        	dbScript = new OrchestratorScript();
-        	dbScript.setType(ScriptTypes.SCRIPT.name());
-        }
+        		dbScript = new OrchestratorScript();
+        		dbScript.setType(ScriptTypes.SCRIPT.name());
+        	}
         if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), dbScript.getType())) {
             validateScript(script);
-            List<OrchestratorScript> scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(),
-                    script.getRequestPath().getType());
             boolean valid = true;
-            if (null != scripts && !scripts.isEmpty()) {
-                for (OrchestratorScript s : scripts) {
-                    if (!StringUtils.equals(s.getName(), dbScript.getName())) {
-                        valid = false;
-                        break;
-                    }
-                }
+            List<OrchestratorScript> scripts = null;
+            if (null != script.getRequestPath()) {
+            		if(StringUtils.isNotBlank(script.getRequestPath().getUrl()) && 
+            				StringUtils.isNotBlank(script.getRequestPath().getType())) {
+            			scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(), 
+            					script.getRequestPath().getType());
+            			if (null != scripts && !scripts.isEmpty()) {
+                        for (OrchestratorScript s : scripts) {
+                            if (!StringUtils.equals(s.getName(), dbScript.getName())) {
+                                valid = false;
+                                break;
+                            }
+                        }
+                     }
+            		}
             }
+            
             if (valid) {
                 dbScript.setName(script.getName());
                 dbScript.setBody(script.getBody());
@@ -126,17 +143,20 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
             validateCommand(command);
             boolean valid = true;
             List<OrchestratorScript> scripts = null;
-            if (null != command.getRequestPath() && StringUtils.isNotBlank(command.getRequestPath().getUrl())) {
-                scripts = daoService.getScriptsByRequestPath(command.getRequestPath().getUrl(),
-                        command.getRequestPath().getType());
-                if (null != scripts && !scripts.isEmpty()) {
-                    for (OrchestratorScript s : scripts) {
-                        if (!StringUtils.equals(s.getName(), dbCommand.getName())) {
-                            valid = false;
-                            break;
-                        }
-                    }
-                }
+            if (null != command.getRequestPath()) {
+            		if(StringUtils.isNotBlank(command.getRequestPath().getUrl()) && 
+            				StringUtils.isNotBlank(command.getRequestPath().getType())) {
+            			scripts = daoService.getScriptsByRequestPath(command.getRequestPath().getUrl(), 
+            					command.getRequestPath().getType());
+            			if (null != scripts && !scripts.isEmpty()) {
+            				for (OrchestratorScript s : scripts) {
+            					if (!StringUtils.equals(s.getName(), dbCommand.getName())) {
+            						valid = false;
+            						break;
+            					}
+            				}
+            			}
+            		}
             }
             if (valid) {
                 dbCommand.setName(command.getName());

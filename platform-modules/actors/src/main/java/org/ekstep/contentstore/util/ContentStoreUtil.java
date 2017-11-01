@@ -18,6 +18,7 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
+import com.ilimi.cassandra.connector.util.CassandraConnector;
 import com.ilimi.common.Platform;
 import com.ilimi.common.enums.CompositeSearchParams;
 import com.ilimi.common.exception.ClientException;

@@ -10,20 +10,10 @@
 	<artifactId>learning-actors</artifactId>
 	<dependencies>
 		<dependency>
-    		<groupId>com.datastax.cassandra</groupId>
-    		<artifactId>cassandra-driver-core</artifactId>
-    		<version>3.1.2</version>
-		</dependency>
-		<dependency>
-		    <groupId>com.datastax.cassandra</groupId>
-		    <artifactId>cassandra-driver-mapping</artifactId>
-		    <version>3.1.2</version>
-		</dependency>
-		<dependency>
 			<groupId>com.ilimi</groupId>
-			<artifactId>ekstep-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
+  			<artifactId>cassandra-connector</artifactId>
+  			<version>1.0-SNAPSHOT</version>
+  			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.ilimi</groupId>

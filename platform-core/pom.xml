@@ -22,6 +22,7 @@
 
 	<modules>
 		<module>platform-common</module>
+		<module>cassandra-connector</module>
 		<module>graph-engine</module>
 		<module>platform-dac</module>
 	</modules>

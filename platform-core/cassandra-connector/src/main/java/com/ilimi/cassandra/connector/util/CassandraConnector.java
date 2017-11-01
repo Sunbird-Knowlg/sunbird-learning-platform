@@ -1,4 +1,4 @@
-package org.ekstep.contentstore.util;
+package com.ilimi.cassandra.connector.util;
 
 import org.apache.commons.lang3.StringUtils;
 import com.datastax.driver.core.Cluster;
@@ -7,11 +7,6 @@ import com.ilimi.common.Platform;
 import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 
-/**
- * Class used for connecting to Cassandra database.
- * 
- * @author rayulu, rashmi
- */
 public class CassandraConnector {
 
 	/** Cassandra Cluster. */
@@ -71,4 +66,5 @@ public class CassandraConnector {
 			}
 		});
 	}
+	
 }
