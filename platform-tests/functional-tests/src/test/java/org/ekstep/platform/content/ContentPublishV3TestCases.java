@@ -52,10 +52,7 @@ import net.lingala.zip4j.core.ZipFile;
 public class ContentPublishV3TestCases extends BaseTest {
 
 	int rn = generateRandomInt(0, 9999999);
-	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn
-			+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"
-			+ rn
-			+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
+	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonCreateValidContentWithConcept = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_" + rn
 			+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\"\"concepts\":[{\"identifier\":\"LO1\",\"name\":\"Word Meaning\",\"objectType\":\"Concept\",\"relation\":\"associatedTo\",\"description\":\"Understanding meaning of words\",\"index\":null,\"status\":null,\"depth\":null,\"mimeType\":null,\"visibility\":null}],,\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"
 			+ rn
@@ -79,7 +76,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			+ "\",\"osId\": \"org.ekstep.app\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"
 			+ rn
 			+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"]}}}";
-	String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"body\": \"{\"theme\":{\"id\":\"theme\",\"version\":\"1.0\",\"startStage\":\"5bc9ae69-8e3c-4ea2-91a8-9d1c8aeabc08\",\"stage\":[{\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"id\":\"5bc9ae69-8e3c-4ea2-91a8-9d1c8aeabc08\",\"rotate\":null,\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true,\"color\":\"#FFFFFF\",\"genieControls\":false,\"instructions\":\"\"}\"},\"manifest\":{\"media\":[]},\"org.ekstep.text\":[{\"x\":35.97,\"y\":34.81,\"minWidth\":20,\"w\":35,\"maxWidth\":500,\"fill\":\"#000000\",\"fontStyle\":\"normal\",\"fontWeight\":\"normal\",\"stroke\":\"rgba(255, 255, 255, 0)\",\"strokeWidth\":1,\"opacity\":1,\"editable\":false,\"lineHeight\":1.3,\"h\":5.02,\"rotate\":0,\"textType\":\"text\",\"z-index\":0,\"font\":\"NotoSans\",\"fontsize\":48,\"weight\":\"\",\"id\":\"dc623358-a349-4515-9a19-dd75ac0e5b96\",\"config\":{\"__cdata\":\"{\"opacity\":100,\"strokeWidth\":1,\"stroke\":\"rgba(255, 255, 255, 0)\",\"autoplay\":false,\"visible\":true,\"text\":\"Vignesh \",\"color\":\"#000000\",\"fontfamily\":\"NotoSans\",\"fontsize\":18,\"fontweight\":false,\"fontstyle\":false,\"align\":\"left\"}\"}}]}],\"manifest\":{\"media\":[{\"id\":\"org.ekstep.text\",\"plugin\":\"org.ekstep.text\",\"ver\":\"1.0\",\"src\":\"/content-plugins/org.ekstep.text-1.0/renderer/supertextplugin.js\",\"type\":\"plugin\"},{\"id\":\"org.ekstep.text_manifest\",\"plugin\":\"org.ekstep.text\",\"ver\":\"1.0\",\"src\":\"/content-plugins/org.ekstep.text-1.0/manifest.json\",\"type\":\"json\"}]},\"plugin-manifest\":{\"plugin\":[{\"id\":\"org.ekstep.text\",\"ver\":\"1.0\",\"type\":\"plugin\",\"depends\":\"\"}]},\"compatibilityVersion\":2}}\"}}";
+	String jsonUpdateATContentBody = "{\"request\": {\"content\": {\"versionKey\": \"version_Key\", \"body\": \"{\\\"theme\\\":{\\\"id\\\":\\\"theme\\\",\\\"version\\\":\\\"1.0\\\",\\\"startStage\\\":\\\"cd168631-889c-4414-909d-a85a83ca3a68\\\",\\\"stage\\\":[{\\\"x\\\":0,\\\"y\\\":0,\\\"w\\\":100,\\\"h\\\":100,\\\"id\\\":\\\"cd168631-889c-4414-909d-a85a83ca3a68\\\",\\\"rotate\\\":null,\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true,\\\"color\\\":\\\"#FFFFFF\\\",\\\"genieControls\\\":false,\\\"instructions\\\":\\\"\\\"}\\\"},\\\"param\\\":[{\\\"name\\\":\\\"next\\\",\\\"value\\\":\\\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\\\"}],\\\"manifest\\\":{\\\"media\\\":[{\\\"assetId\\\":\\\"do_11233272325713920013\\\"}]},\\\"image\\\":[{\\\"asset\\\":\\\"do_11233272325713920013\\\",\\\"x\\\":20,\\\"y\\\":20,\\\"w\\\":49.81,\\\"h\\\":88.56,\\\"rotate\\\":0,\\\"z-index\\\":0,\\\"id\\\":\\\"d434956b-672c-4204-bdd1-864dbae40c0c\\\",\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true}\\\"}}]},{\\\"x\\\":0,\\\"y\\\":0,\\\"w\\\":100,\\\"h\\\":100,\\\"id\\\":\\\"b4a01a33-a6e4-4c63-b37a-11c783c950b5\\\",\\\"rotate\\\":null,\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true,\\\"color\\\":\\\"#FFFFFF\\\",\\\"genieControls\\\":false,\\\"instructions\\\":\\\"\\\"}\\\"},\\\"param\\\":[{\\\"name\\\":\\\"previous\\\",\\\"value\\\":\\\"cd168631-889c-4414-909d-a85a83ca3a68\\\"}],\\\"manifest\\\":{\\\"media\\\":[{\\\"assetId\\\":\\\"do_11233272325713920013\\\"},{\\\"assetId\\\":\\\"do_10095813\\\"}]},\\\"image\\\":[{\\\"asset\\\":\\\"do_11233272325713920013\\\",\\\"x\\\":20,\\\"y\\\":20,\\\"w\\\":49.81,\\\"h\\\":88.56,\\\"rotate\\\":0,\\\"z-index\\\":0,\\\"id\\\":\\\"cc35e88c-1630-414b-9d50-a343c522e316\\\",\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true}\\\"}},{\\\"asset\\\":\\\"do_10095813\\\",\\\"x\\\":20,\\\"y\\\":20,\\\"w\\\":49.49,\\\"h\\\":87.98,\\\"rotate\\\":0,\\\"z-index\\\":1,\\\"id\\\":\\\"7849c5a6-0013-44a6-97ae-c5872974d500\\\",\\\"config\\\":{\\\"__cdata\\\":\\\"{\\\"opacity\\\":100,\\\"strokeWidth\\\":1,\\\"stroke\\\":\\\"rgba(255, 255, 255, 0)\\\",\\\"autoplay\\\":false,\\\"visible\\\":true}\\\"}}]}],\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"do_11233272325713920013\\\",\\\"src\\\":\\\"/assets/public/content/do_11233272325713920013/artifact/5c568572a97acec4f01f596694396418_1505459382119.jpeg\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"do_10095813\\\",\\\"src\\\":\\\"/assets/public/content/c7a7d301f288f1afe24117ad59083b2a_1475430290462.jpeg\\\",\\\"type\\\":\\\"image\\\"}]},\\\"plugin-manifest\\\":{\\\"plugin\\\":[]},\\\"compatibilityVersion\\\":2}}\"}}}";
 	String jsonUpdateChildren = "{\"request\":{\"content\":{\"children\":[],\"versionKey\":\"version_Key\"}}}";
 	String jsonPublishContent = "{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}";
 	String jsonUpdateMetadata = "{\"request\":{\"content\":{\"versionKey\":\"version_key\",\"language\":[\"Tamil\",\"Telugu\"]}}}";
@@ -3911,8 +3908,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with draft textbook unit and
-	// visibility-Parent
+	// Create, upload and publish nested textbook with draft textbook unit and visibility-Parent
 	@Test
 	public void publishNestedTextBookDraftTBUnitParentExpectSuccess200() {
 		String node1 = null;
@@ -4065,8 +4061,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with draft textbook unit and
-	// visibility-Default
+	// Create, upload and publish nested textbook with draft textbook unit and visibility-Default
 	@Test
 	public void publishNestedTextBookDraftTBUnitDefaultExpectSuccess200() {
 		String node1 = null;
@@ -4218,8 +4213,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with Live textbook unit and
-	// visibility-Parent
+	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
 	@Test
 	public void publishNestedTextBookLiveTBUnitParentExpectSuccess200() {
 		String node1 = null;
@@ -4380,8 +4374,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with Live textbook unit and
-	// visibility-Parent
+	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent
 	@Test
 	public void publishNestedTextBookLiveTBUnitDefaultExpectSuccess200() {
 		String node1 = null;
@@ -4539,8 +4532,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with Draft textbook unit and
-	// visibility-Default with draft children
+	// Create, upload and publish nested textbook with Draft textbook unit and visibility-Default with draft children
 	@Test
 	public void publishNestedTextBookDraftTBUnitDraftChildrenExpectSuccess200() {
 		String node1 = null;
@@ -4675,8 +4667,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with Draft textbook unit and
-	// visibility-Parent with draft children
+	// Create, upload and publish nested textbook with Draft textbook unit and visibility-Parent with draft children
 	@Test
 	public void publishNestedTextBookDraftTBUnitParentDraftChildrenExpectSuccess200() {
 		String node1 = null;
@@ -4814,8 +4805,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with Live textbook unit and
-	// visibility-Default and live children
+	// Create, upload and publish nested textbook with Live textbook unit and visibility-Default and live children
 	@Ignore
 	public void publishNestedTextBookLiveTBUnitDefaultLiveChildrenExpectSuccess200() {
 		String node1 = null;
@@ -4999,8 +4989,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with Live textbook unit and
-	// visibility-Parent and live children
+	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent and live children
 	@Test
 	public void publishNestedTextBookLiveTBUnitParentLiveChildrenExpectSuccess200() {
 		String node1 = null;
@@ -5177,8 +5166,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 				|| n_status.equals("Processing") && n_identifier.equals(textBookId) && n_identifier1.contains(nodeId));
 	}
 
-	// Create, upload and publish nested textbook with Live textbook unit and
-	// visibility-Parent and live children
+	// Create, upload and publish nested textbook with Live textbook unit and visibility-Parent and live children
 	@Test
 	public void publishNestedTextBookWithMultipleTBUnitParentExpectSuccess200() {
 		String node1 = null;
@@ -5518,21 +5506,29 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Publish created content
 		setURI();
-		given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").when()
-				.post("/content/v3/publish/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get content and validate
 		setURI();
-		Response R5 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId).then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
-		JsonPath jP5 = R5.jsonPath();
-		String statusActual = jP5.get("result.content.status");
+		JsonPath jP2 = R2.jsonPath();
+		String statusActual = jP2.get("result.content.status");
 
 		try {
 			// Validating the status

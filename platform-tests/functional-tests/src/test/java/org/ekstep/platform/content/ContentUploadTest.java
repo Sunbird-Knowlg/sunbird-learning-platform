@@ -76,6 +76,7 @@ public class ContentUploadTest extends BaseTest{
 //				spec(get200ResponseSpec()).
 				extract().response();
 		
+		// Upload Conent
 		setURI();
 		Response R2 =
 			given().
@@ -90,40 +91,44 @@ public class ContentUploadTest extends BaseTest{
 		JsonPath jP2 = R2.jsonPath();
 		String content_url = jP2.get("result.content_url");
 		
-			setURI();
-				given().
-				spec(getRequestSpecification(contentType, validuserId, APIToken)).
-				body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
-				when().
-				post("/content/v3/publish/"+ nodeId).
-				then().
-				log().all().
-//				spec(get200ResponseSpec()).
-				extract().response();
-
-				setURI();
-				Thread.sleep(5000);
-				Response R3 = given().
-						spec(getRequestSpecification(contentType, userId, APIToken)).
-						when().
-						get("/content/v3/read/" + nodeId).
-						then().
-						//log().all().
-						spec(get200ResponseSpec()).extract().response();
-
-				// Validate the response
-				JsonPath jp2 = R3.jsonPath();
-				String statusValue = jp2.get("result.content.status");
-				String c_identifier = jp2.get("result.content.identifier");
-				// String downloadUrl = jp2.get("result.content.downloadUrl");
-				asyncPublishValidations(null, statusValue, nodeId, c_identifier, null, null);
-				
+		// Publish content
 		setURI();
+		given().
+		spec(getRequestSpecification(contentType, validuserId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/"+ nodeId).
+		then().
+		log().all().
+//		spec(get200ResponseSpec()).
+		extract().response();
+
+		// Content read
+		setURI();
+		Thread.sleep(5000);
+		Response R3 = given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).extract().response();
+
+		// Validate the response
+		JsonPath jp2 = R3.jsonPath();
+		String statusValue = jp2.get("result.content.status");
+		String c_identifier = jp2.get("result.content.identifier");
+		// String downloadUrl = jp2.get("result.content.downloadUrl");
+		asyncPublishValidations(null, statusValue, nodeId, c_identifier, null, null);
+		
+		setURI();
+		Thread.sleep(5000);
 		Response R4 =
 			given().
-			spec(getRequestSpecification(null, validuserId, APIToken, content_url)).
+			spec(getRequestSpecification(uploadContentType, validuserId, APIToken)).
+			multiPart("fileUrl", new File(content_url), "text/plain").
 			then().
-			post("/content/v3/upload/" + nodeId).
+			post("/content/v3/upload/"+nodeId).
 			then().
 			log().all().
 //			spec(get200ResponseSpec()).

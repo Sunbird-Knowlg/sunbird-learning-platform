@@ -23,6 +23,7 @@ public class BaseTest
 	public ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 	public String liveStatus = "Live";
 	public String contentType = "application/json";
+	public String UrlContentType = "text/plain";
 	public String uploadContentType = "multipart/form-data";
 	public String userId = "ilimi";
 	
@@ -72,6 +73,7 @@ public class BaseTest
 	{
 		RequestSpecBuilder builderreq = new RequestSpecBuilder();
 		builderreq.addHeader("user-id", user_id);
+		builderreq.addHeader("Content-Type", content_type);
 		builderreq.addHeader("Authorization", APIToken);
 		builderreq.addHeader("fileUrl", fileUrl);
 		RequestSpecification requestSpec = builderreq.build();

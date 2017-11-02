@@ -54,7 +54,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		when().
 		get("/domain/v3/numeracy/concepts/list").
 		then().
-		//log().all().
+		log().all().
 		spec(get200ResponseSpec()).
 		body("result.concepts.status", hasItems("Live"));
 	}
@@ -154,8 +154,8 @@ public class ConceptAPIV3Tests extends BaseTest {
 		String conceptId = jp1.get("result.node_id");
 
 		//getConcept API call to verify if the above dimension has been created.
-		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
@@ -179,7 +179,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 				when().
 				post("/domain/v3/numeracy/concepts/create").
 				then().
-				//log().all().
+				log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -188,8 +188,8 @@ public class ConceptAPIV3Tests extends BaseTest {
 		String conceptId = jp1.get("result.node_id");
 
 		//getDimension API call to verify if the above dimension has been created.
-		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
@@ -222,8 +222,8 @@ public class ConceptAPIV3Tests extends BaseTest {
 		String conceptId = jp1.get("result.node_id");
 
 		//getDimension API call to verify if the above dimension has been created.
-		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
 		when().
@@ -249,9 +249,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		spec(get400ResponseSpec());
 	}
 
-
-	// TODO: check and fix
-	@Ignore 
+	// Create duplicate concept
 	@Test
 	public void createDuplicateConceptExpect400()
 	{
@@ -264,10 +262,9 @@ public class ConceptAPIV3Tests extends BaseTest {
 		contentType(JSON).
 		when().
 		post("/domain/v3/literacy/concepts/create");
-		
-		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
-		
+				
 		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
 		body(jsonBodyForCreateDuplicateConcept).
