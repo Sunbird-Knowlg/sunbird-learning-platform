@@ -40,6 +40,12 @@
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
+		<dependency>
+		    <groupId>org.neo4j</groupId>
+		    <artifactId>neo4j-management</artifactId>
+		    <version>${neo4j.version}</version>
+		    <scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
