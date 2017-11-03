@@ -75,8 +75,10 @@ public class DefinitionCache extends BaseGraphManager {
 	
 	private static DefinitionDTO getDefinitionFromCache(String graphId, String objectType) {
 		DefinitionDTO dto = (DefinitionDTO) NodeCacheManager.getDefinitionNode(graphId, objectType);
-		if (null == dto)
-			return getDefinitionNodeFromGraph(graphId, objectType);
+		if (null == dto) {
+			dto = getDefinitionNodeFromGraph(graphId, objectType);
+			NodeCacheManager.saveDefinitionNode(graphId, objectType, dto);
+		}
 		return dto;
 	}
 
