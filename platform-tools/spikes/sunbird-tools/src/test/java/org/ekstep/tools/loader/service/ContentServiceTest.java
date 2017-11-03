@@ -5,16 +5,18 @@
  */
 package org.ekstep.tools.loader.service;
 
+import java.net.URL;
+import java.nio.charset.Charset;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.google.common.io.Resources;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.net.URL;
-import java.nio.charset.Charset;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  *
@@ -46,8 +48,7 @@ public class ContentServiceTest {
     @Test
     public void testCreate() throws Exception {
         
-        ContentServiceImpl service = new ContentServiceImpl();
-        service.init(context);
+		ContentService service = new ContentServiceImpl(context);
         service.create(content, context);
 
         if (content.get("content_id") != null) {

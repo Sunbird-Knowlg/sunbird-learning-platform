@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
 	private static Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
 	public void init(ExecutionContext context) {
-		RestUtil.init(context, Constants.API_TOKEN);
+		RestUtil.init(context, Constants.SUNBIRD_API_TOKEN);
 	}
 
 	/*

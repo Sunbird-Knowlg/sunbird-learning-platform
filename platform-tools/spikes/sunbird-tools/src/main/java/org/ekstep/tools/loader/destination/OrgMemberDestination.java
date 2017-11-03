@@ -10,18 +10,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.tools.loader.service.ContentService;
-import org.ekstep.tools.loader.service.ContentServiceImpl;
 import org.ekstep.tools.loader.service.ExecutionContext;
+import org.ekstep.tools.loader.service.OrganisationServiceImpl;
 import org.ekstep.tools.loader.service.ProgressCallback;
 import org.ekstep.tools.loader.service.Record;
 import org.ekstep.tools.loader.shell.ShellContext;
 import org.ekstep.tools.loader.utils.JsonUtil;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.typesafe.config.Config;
 
@@ -29,26 +26,27 @@ import com.typesafe.config.Config;
  * @author pradyumna
  *
  */
-public class ContentDestination implements Destination {
+public class OrgMemberDestination implements Destination {
 
-	private static Logger logger = LogManager.getLogger(ContentDestination.class);
+	private Logger logger = LogManager.getLogger(OrgMemberDestination.class);
+
 	private Config config = null;
 	private String user = null;
 	private ExecutionContext context = null;
 	private ShellContext shellContext = null;
-	private FileWriter outputFile = null;
+	private FileWriter outputFile;
 	private File file = null;
 
 	/**
 	 * 
 	 */
-	public ContentDestination() {
-		file = new File("ContentOutput.csv");
+	public OrgMemberDestination() {
+		file = new File("OrgMemberOutput.csv");
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
 				outputFile = new FileWriter(file, true);
-				outputFile.write("ContentID , ContentName, Status \n");
+				outputFile.write("OrganisationID , UserId, Status \n");
 				outputFile.close();
 			} catch (IOException e) {
 				logger.debug("Error while creating file");
@@ -57,8 +55,8 @@ public class ContentDestination implements Destination {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
+	 * @see org.ekstep.tools.loader.destination.Destination#process(java.util.List, org.ekstep.tools.loader.service.ProgressCallback)
 	 */
 	@Override
 	public void process(List<Record> data, ProgressCallback callback) {
@@ -66,50 +64,28 @@ public class ContentDestination implements Destination {
 		config = shellContext.getCurrentConfig().resolve();
 		user = shellContext.getCurrentUser();
 		context = new ExecutionContext(config, user);
-		ContentService service = new ContentServiceImpl(context);
+		String orgID = null, userId = null;
 		int rowNum = 1;
 		int totalRows = data.size();
-		String contentId = null, name = null;
-		JsonArray contentIds = new JsonArray();
 
+		OrganisationServiceImpl service = new OrganisationServiceImpl();
+
+		service.init(context);
 		writeOutput("\n------------------- Begin ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 		for (Record record : data) {
-			String response = null;
 			try {
-				JsonObject content = record.getJsonData();
-				logger.debug(content.toString());
-				if (StringUtils.isNotBlank(JsonUtil.getFromObject(content, "content_id"))) {
-					contentId = service.update(content, context);
-					if (null != contentId) {
-						response = "Success";
-					} else {
-						response = JsonUtil.getFromObject(content, "response");
-					}
-					writeOutput(contentId + " , " + "updatedContent" + " , " + response);
-				} else {
-					name = record.getJsonData().get("name").toString();
-					contentId = service.create(record.getJsonData(), context);
-					if (null != contentId) {
-						response = "Success";
-					} else {
-						response = JsonUtil.getFromObject(content, "response");
-					}
-					writeOutput(contentId + " , " + name + " , " + response);
-					contentIds.add(contentId);
-				}
-				rowNum++;
-
+				JsonObject member = record.getJsonData();
+				orgID = JsonUtil.getFromObject(member, "orgId");
+				userId = JsonUtil.getFromObject(member, "userId");
+				String response = service.addOrgMember(member, context);
+				writeOutput(orgID + "," + userId + "," + response);
 			} catch (Exception e) {
-				e.printStackTrace();
-				writeOutput(contentId + " , " + name + " , " + e.getMessage());
+				writeOutput(orgID + "," + userId + "," + e.getMessage());
 			}
 			callback.progress(totalRows, rowNum++);
+
 		}
 		writeOutput("\n------------------- END ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
-		/* Needs to be removed. For testing purpose only */
-		// System.out.println("Calling retire method to delete the content");
-		// service.retire(contentIds, context);
-
 	}
 
 	/**
@@ -121,11 +97,10 @@ public class ContentDestination implements Destination {
 			outputFile = new FileWriter(file, true);
 			outputFile.append(output + "\n");
 			outputFile.close();
-			logger.debug("Content Output  :: " + output);
+			logger.debug("OrgMember Output  :: " + output);
 		} catch (IOException e) {
 			logger.debug("error while wrting to outputfile" + e.getMessage());
 		}
 
 	}
-
 }

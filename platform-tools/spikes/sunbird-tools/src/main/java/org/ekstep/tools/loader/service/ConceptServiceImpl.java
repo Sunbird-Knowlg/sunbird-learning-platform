@@ -8,6 +8,7 @@ package org.ekstep.tools.loader.service;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.tools.loader.utils.Constants;
 import org.ekstep.tools.loader.utils.JsonUtil;
 import org.ekstep.tools.loader.utils.RestUtil;
 import org.json.JSONArray;
@@ -27,26 +28,18 @@ import com.mashape.unirest.request.BaseRequest;
 public class ConceptServiceImpl implements ConceptService {
 
     private static final Logger logger = LogManager.getLogger(ConceptServiceImpl.class);
-    private static final String API_TOKEN = "ekstep.api.token";
-
-    private static final String API_CONCEPT_SEARCH = "api.concept.search";
-    private static final String API_CONCEPT_CREATE = "api.concept.create";
-    private static final String API_CONCEPT_UPDATE = "api.concept.update";
-    private static final String API_CONCEPT_RETIRE = "api.concept.retire";
-    private static final String API_DIMENSION_CREATE = "api.dimension.create";
-    private static final String API_DIMENSION_UPDATE = "api.dimension.update";
-    private static final String API_DIMENSION_RETIRE = "api.dimension.retire";
 
     public void init(ExecutionContext context) {
-        RestUtil.init(context, API_TOKEN);
+		RestUtil.init(context, Constants.EKSTEP_API_TOKEN);
     }
         
     @Override
     public String create(JsonObject concept, ExecutionContext context) throws Exception {
         
-        String createUrl = context.getString(API_CONCEPT_CREATE);
+		String createUrl = context.getString(Constants.API_CONCEPT_CREATE);
         String conceptType = JsonUtil.getFromObject(concept,"conceptType");
-        if (conceptType.equalsIgnoreCase("dimension")) createUrl = context.getString(API_DIMENSION_CREATE);
+		if (conceptType.equalsIgnoreCase("dimension"))
+			createUrl = context.getString(Constants.API_DIMENSION_CREATE);
         
         String conceptId = JsonUtil.getFromObject(concept,"identifier");
         String framework = JsonUtil.getFromObject(concept,"framework");
@@ -76,15 +69,18 @@ public class ConceptServiceImpl implements ConceptService {
 
     @Override
     public String update(JsonObject concept, ExecutionContext context) throws Exception {
-        String updateUrl = context.getString(API_CONCEPT_UPDATE);
+		String updateUrl = context.getString(Constants.API_CONCEPT_UPDATE);
         String conceptType = JsonUtil.getFromObject(concept,"conceptType");
-        if (conceptType.equalsIgnoreCase("dimension")) updateUrl = context.getString(API_DIMENSION_UPDATE);
+		if (conceptType.equalsIgnoreCase("dimension"))
+			updateUrl = context.getString(Constants.API_DIMENSION_UPDATE);
         
         // Set the parent object by searching for parent identifier
         setParent(concept, context);
         
         String conceptId = JsonUtil.getFromObject(concept,"identifier");
         String framework = JsonUtil.getFromObject(concept,"framework");
+		concept.remove("identifier");
+		concept.remove("framework");
         String body = JsonUtil.wrap(concept, "object").toString();
         
         BaseRequest request = Unirest.patch(updateUrl)
@@ -96,11 +92,12 @@ public class ConceptServiceImpl implements ConceptService {
         if (RestUtil.isSuccessful(updateResponse)) {
             conceptId = RestUtil.getFromResponse(updateResponse, "result.node_id");
             concept.addProperty("identifier", conceptId);
+			concept.addProperty("framework", framework);
             concept.addProperty("response", "OK");
             logger.debug("Updated Concept " + conceptId);
         }
         else {
-            
+			conceptId = null;
             String error = RestUtil.getFromResponse(updateResponse, "params.errmsg");
             concept.addProperty("response", error);
             logger.debug("Update Concept Failed : " + error);
@@ -111,7 +108,7 @@ public class ConceptServiceImpl implements ConceptService {
 
     @Override
     public String retire(JsonArray conceptIds, ExecutionContext context) throws Exception {
-        String retireUrl = context.getString(API_CONCEPT_RETIRE);
+		String retireUrl = context.getString(Constants.API_CONCEPT_RETIRE);
         
         String body = JsonUtil.wrap(conceptIds, "conceptIds").toString();
         BaseRequest retireRequest = Unirest.delete(retireUrl).body(body);
@@ -146,7 +143,7 @@ public class ConceptServiceImpl implements ConceptService {
     
     public static String getConceptByCode(ExecutionContext context, String code) throws Exception {
         
-        String searchUrl = context.getString(API_CONCEPT_SEARCH);
+		String searchUrl = context.getString(Constants.API_CONCEPT_SEARCH);
         String query = "{\"request\":{\"filters\":{\"objectType\":[\"Concept\", \"Dimension\"],\"code\":\"" + code +  "\", \"status\":[\"Live\", \"Draft\", \"Retired\"]},\"fields\":[\"name\",\"identifier\"],\"limit\":1,\"offset\":0}}";
         
         BaseRequest request = Unirest.post(searchUrl).body(query);

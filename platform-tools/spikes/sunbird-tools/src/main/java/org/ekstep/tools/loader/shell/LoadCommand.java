@@ -26,7 +26,7 @@ public class LoadCommand implements CommandMarker {
 		return callService(csvFile, tfmFile, keyColumn, "content");
 	}
 
-	@CliCommand(value = "load concept", help = "Bulk load content to the target environment")
+	@CliCommand(value = "load concept", help = "Bulk load concept to the target environment")
 	public String loadConcept(
 			@CliOption(key = { "input" }, mandatory = true, help = "Input CSV file") final File csvFile,
 			@CliOption(key = { "mapping" }, mandatory = true, help = "Mapping file") final File tfmFile,
@@ -36,6 +36,29 @@ public class LoadCommand implements CommandMarker {
 			throws Exception {
 
 		return callService(csvFile, tfmFile, keyColumn, "concept");
+	}
+
+	@CliCommand(value = "load org", help = "Bulk load organisation to the target environment")
+	public String loadOrganisation(
+			@CliOption(key = { "input" }, mandatory = true, help = "Input CSV file") final File csvFile,
+			@CliOption(key = { "mapping" }, mandatory = true, help = "Mapping file") final File tfmFile,
+			@CliOption(key = {
+					"key-column" }, mandatory = true, help = "Name of the key column in csv") final String keyColumn,
+			@CliOption(key = { "dry-run" }, mandatory = false, help = "Dry-run only") final boolean dryRun)
+			throws Exception {
+
+		return callService(csvFile, tfmFile, keyColumn, "organisation");
+	}
+
+	@CliCommand(value = "load user", help = "Bulk load users to the target environment")
+	public String loadUser(@CliOption(key = { "input" }, mandatory = true, help = "Input CSV file") final File csvFile,
+			@CliOption(key = { "mapping" }, mandatory = true, help = "Mapping file") final File tfmFile,
+			@CliOption(key = {
+					"key-column" }, mandatory = true, help = "Name of the key column in csv") final String keyColumn,
+			@CliOption(key = { "dry-run" }, mandatory = false, help = "Dry-run only") final boolean dryRun)
+			throws Exception {
+
+		return callService(csvFile, tfmFile, keyColumn, "user");
 	}
 
 	private String callService(File inputFile, File tfmFile, String keyColumn, String command) throws Exception {

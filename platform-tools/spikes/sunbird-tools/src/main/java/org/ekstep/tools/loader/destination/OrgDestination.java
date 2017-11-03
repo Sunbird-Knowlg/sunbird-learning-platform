@@ -13,15 +13,13 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.tools.loader.service.ContentService;
-import org.ekstep.tools.loader.service.ContentServiceImpl;
 import org.ekstep.tools.loader.service.ExecutionContext;
+import org.ekstep.tools.loader.service.OrganisationServiceImpl;
 import org.ekstep.tools.loader.service.ProgressCallback;
 import org.ekstep.tools.loader.service.Record;
 import org.ekstep.tools.loader.shell.ShellContext;
 import org.ekstep.tools.loader.utils.JsonUtil;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.typesafe.config.Config;
 
@@ -29,9 +27,8 @@ import com.typesafe.config.Config;
  * @author pradyumna
  *
  */
-public class ContentDestination implements Destination {
-
-	private static Logger logger = LogManager.getLogger(ContentDestination.class);
+public class OrgDestination implements Destination {
+	private static Logger logger = LogManager.getLogger(OrgDestination.class);
 	private Config config = null;
 	private String user = null;
 	private ExecutionContext context = null;
@@ -42,13 +39,13 @@ public class ContentDestination implements Destination {
 	/**
 	 * 
 	 */
-	public ContentDestination() {
-		file = new File("ContentOutput.csv");
+	public OrgDestination() {
+		file = new File("OrgOutput.csvs");
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
 				outputFile = new FileWriter(file, true);
-				outputFile.write("ContentID , ContentName, Status \n");
+				outputFile.write("OrganisationID , OrganisationName, Status \n");
 				outputFile.close();
 			} catch (IOException e) {
 				logger.debug("Error while creating file");
@@ -59,6 +56,7 @@ public class ContentDestination implements Destination {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 */
 	@Override
 	public void process(List<Record> data, ProgressCallback callback) {
@@ -66,50 +64,50 @@ public class ContentDestination implements Destination {
 		config = shellContext.getCurrentConfig().resolve();
 		user = shellContext.getCurrentUser();
 		context = new ExecutionContext(config, user);
-		ContentService service = new ContentServiceImpl(context);
+		String orgID = null, status = null, orgName = null;
 		int rowNum = 1;
 		int totalRows = data.size();
-		String contentId = null, name = null;
-		JsonArray contentIds = new JsonArray();
 
+		OrganisationServiceImpl service = new OrganisationServiceImpl();
+
+		service.init(context);
 		writeOutput("\n------------------- Begin ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 		for (Record record : data) {
-			String response = null;
 			try {
-				JsonObject content = record.getJsonData();
-				logger.debug(content.toString());
-				if (StringUtils.isNotBlank(JsonUtil.getFromObject(content, "content_id"))) {
-					contentId = service.update(content, context);
-					if (null != contentId) {
-						response = "Success";
-					} else {
-						response = JsonUtil.getFromObject(content, "response");
-					}
-					writeOutput(contentId + " , " + "updatedContent" + " , " + response);
+				JsonObject org = record.getJsonData();
+				if (checkForOrgStatus(org)) {
+					orgID = service.updateOrgStatus(org, context);
+					status = JsonUtil.getFromObject(org, "response");
+					writeOutput(orgID + "," + "StatusUpdate" + "," + status);
 				} else {
-					name = record.getJsonData().get("name").toString();
-					contentId = service.create(record.getJsonData(), context);
-					if (null != contentId) {
-						response = "Success";
+					orgName = JsonUtil.getFromObject(org, "orgName");
+					orgID = service.createOrg(org, context);
+					if (StringUtils.isNotEmpty(orgID)) {
+						status = "Success";
 					} else {
-						response = JsonUtil.getFromObject(content, "response");
+						status = JsonUtil.getFromObject(org, "response");
 					}
-					writeOutput(contentId + " , " + name + " , " + response);
-					contentIds.add(contentId);
+
+					writeOutput(orgID + "," + orgName + "," + status);
 				}
-				rowNum++;
 
 			} catch (Exception e) {
-				e.printStackTrace();
-				writeOutput(contentId + " , " + name + " , " + e.getMessage());
+				writeOutput(orgID + "," + orgName + "," + e.getMessage());
 			}
 			callback.progress(totalRows, rowNum++);
 		}
-		writeOutput("\n------------------- END ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
-		/* Needs to be removed. For testing purpose only */
-		// System.out.println("Calling retire method to delete the content");
-		// service.retire(contentIds, context);
+		writeOutput("\n------------------- End ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
+	}
 
+	/**
+	 * @param org
+	 * @return
+	 */
+	private boolean checkForOrgStatus(JsonObject org) {
+		if (StringUtils.isNotBlank(JsonUtil.getFromObject(org, "orgId"))
+				&& null != JsonUtil.getFromObject(org, "status") && org.keySet().size() == 2)
+			return true;
+		return false;
 	}
 
 	/**
@@ -121,7 +119,7 @@ public class ContentDestination implements Destination {
 			outputFile = new FileWriter(file, true);
 			outputFile.append(output + "\n");
 			outputFile.close();
-			logger.debug("Content Output  :: " + output);
+			logger.debug("Organisation Output  :: " + output);
 		} catch (IOException e) {
 			logger.debug("error while wrting to outputfile" + e.getMessage());
 		}

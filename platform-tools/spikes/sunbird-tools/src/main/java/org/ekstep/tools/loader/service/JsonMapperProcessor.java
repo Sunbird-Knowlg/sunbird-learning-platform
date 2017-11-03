@@ -5,27 +5,31 @@
  */
 package org.ekstep.tools.loader.service;
 
-import org.ekstep.tools.loader.utils.JsonUtil;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigRenderOptions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.tools.loader.functions.LookupFunction;
 import org.ekstep.tools.loader.functions.SluggifyFunction;
 import org.ekstep.tools.loader.functions.SplitFunction;
+import org.ekstep.tools.loader.utils.JsonUtil;
 import org.jtwig.JtwigModel;
 import org.jtwig.JtwigTemplate;
 import org.jtwig.environment.EnvironmentConfiguration;
 import org.jtwig.environment.EnvironmentConfigurationBuilder;
-import org.apache.logging.log4j.Logger;
 import org.jtwig.value.convert.string.StringConverter;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.ConfigParseOptions;
+import com.typesafe.config.ConfigRenderOptions;
+import com.typesafe.config.ConfigSyntax;
 
 /**
  *
@@ -132,10 +136,13 @@ public class JsonMapperProcessor implements Processor {
 
             // Step 1 - Transform using Jtwig Template
             String configStr = template.render(model);
+			configStr.replaceAll("\\\\/", "/");
+			logger.debug("Config String  : " + configStr);
             logger.debug("Row " + index + " mappings complete");
 
             // Step 2 - Parse using HOCON spec
-            Config conf = ConfigFactory.parseString(configStr);
+			Config conf = ConfigFactory.parseString(configStr,
+					ConfigParseOptions.defaults().setSyntax(ConfigSyntax.PROPERTIES).setAllowMissing(true));
             logger.debug("Row " + index + " converted to JSON");
 
             // Step 3 - Convert to an in-memory JSON object

@@ -5,12 +5,14 @@
  */
 package org.ekstep.tools.loader.utils;
 
+import java.util.Iterator;
+import java.util.Map;
+
+import org.apache.commons.text.StringEscapeUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.util.Iterator;
-import java.util.Map;
-import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
  *
@@ -101,7 +103,7 @@ public class JsonUtil {
     }
     
     public static String escape(String input) {
-        return StringEscapeUtils.escapeJson(input);
+		return StringEscapeUtils.escapeJson(input);
     }
     
     public static String getFromObject(JsonObject object, String property) {

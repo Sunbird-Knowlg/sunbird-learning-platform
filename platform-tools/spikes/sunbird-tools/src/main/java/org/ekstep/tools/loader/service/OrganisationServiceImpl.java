@@ -24,7 +24,7 @@ public class OrganisationServiceImpl implements OrganisationService {
 	private static Logger logger = LogManager.getLogger(OrganisationServiceImpl.class);
 
 	public void init(ExecutionContext context) {
-		RestUtil.init(context, Constants.API_TOKEN);
+		RestUtil.init(context, Constants.SUNBIRD_API_TOKEN);
 	}
 
 	/* (non-Javadoc)

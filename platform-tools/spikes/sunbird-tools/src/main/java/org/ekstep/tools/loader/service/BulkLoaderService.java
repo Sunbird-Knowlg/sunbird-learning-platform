@@ -10,10 +10,18 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.tools.loader.destination.ArtifactDestination;
 import org.ekstep.tools.loader.destination.ConceptDestination;
 import org.ekstep.tools.loader.destination.ContentDestination;
 import org.ekstep.tools.loader.destination.Destination;
+import org.ekstep.tools.loader.destination.OrgDestination;
+import org.ekstep.tools.loader.destination.OrgMemberDestination;
+import org.ekstep.tools.loader.destination.PublishDestination;
+import org.ekstep.tools.loader.destination.RetireConceptDestination;
+import org.ekstep.tools.loader.destination.RetireContentDestination;
+import org.ekstep.tools.loader.destination.ReviewDestination;
 import org.ekstep.tools.loader.destination.SysoutDestination;
+import org.ekstep.tools.loader.destination.UserDestination;
 
 /**
  *
@@ -128,6 +136,39 @@ public class BulkLoaderService implements ProgressCallback {
 		case "concept":
 			destination = new ConceptDestination();
 			break;
+
+		case "organisation":
+			destination = new OrgDestination();
+			break;
+
+		case "user":
+			destination = new UserDestination();
+			break;
+
+		case "addMember":
+			destination = new OrgMemberDestination();
+			break;
+
+		case "artifact":
+			destination = new ArtifactDestination();
+			break;
+
+		case "review":
+			destination = new ReviewDestination();
+			break;
+
+		case "publish":
+			destination = new PublishDestination();
+			break;
+
+		case "retireContent":
+			destination = new RetireContentDestination();
+			break;
+
+		case "retireConcept":
+			destination = new RetireConceptDestination();
+			break;
+
 		default:
 			break;
 		}

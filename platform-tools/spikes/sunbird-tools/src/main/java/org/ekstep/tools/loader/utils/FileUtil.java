@@ -5,16 +5,13 @@
  */
 package org.ekstep.tools.loader.utils;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -67,16 +64,22 @@ public class FileUtil {
     }
     
     public static String upload(String url, String destination) throws Exception {
-        
+		Unirest.clearDefaultHeaders();
         if (existsLocally(url)) {
-            HttpResponse<JsonNode> jsonResponse = Unirest.post(destination).field("file", new File(url)).asJson();
-            String uploadedUrl = jsonResponse.getBody().getObject().getString("fileUrl");
-            return uploadedUrl;
+			HttpResponse<JsonNode> jsonResponse = Unirest.put(destination).field("file", new File(url)).asJson();
+			String uploadUrl = null;
+			if (200 == jsonResponse.getStatus()) {
+				uploadUrl = destination.split("\\?")[0];
+			}
+			return uploadUrl;
         }
         else {
-            HttpResponse<JsonNode> jsonResponse = Unirest.post(destination).field("fileUrl", url).asJson();
-            String uploadedUrl = jsonResponse.getBody().getObject().getString("fileUrl");
-            return uploadedUrl;
+			HttpResponse<JsonNode> jsonResponse = Unirest.put(destination).field("fileUrl", url).asJson();
+			String uploadedUrl = null;
+			if (200 == jsonResponse.getStatus()) {
+				uploadedUrl = destination.split("\\?")[0];
+			}
+			return uploadedUrl;
         }
     }
     
