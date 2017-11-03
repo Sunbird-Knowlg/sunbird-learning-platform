@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>composite-search-indexer</artifactId>
-	<version>0.0.14</version>
+	<version>0.0.15</version>
 	<dependencies>
 		<dependency>
 			<groupId>org.elasticsearch</groupId>
@@ -22,16 +22,16 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>org.neo4j</groupId>
-		    <artifactId>neo4j-bolt</artifactId>
-		    <version>3.0.4</version>
-   			<scope>test</scope>
- 		</dependency>
+			<groupId>org.neo4j</groupId>
+			<artifactId>neo4j-bolt</artifactId>
+			<version>3.0.4</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
-		    <groupId>org.mockito</groupId>
-		    <artifactId>mockito-all</artifactId>
-		    <version>1.10.19</version>
-		    <scope>test</scope>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>1.10.19</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.ilimi</groupId>
