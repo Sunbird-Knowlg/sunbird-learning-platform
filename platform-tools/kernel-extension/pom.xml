@@ -54,11 +54,6 @@
                         	<format>html</format>
                         	<format>xml</format>
                     	</formats>
-                    	<instrumentation>
-            				<excludes>
-            					<exclude>**/**</exclude>
-            				</excludes>
-          				</instrumentation>
           				<check>
           					<haltOnFailure>false</haltOnFailure>
           				</check>
