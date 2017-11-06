@@ -105,7 +105,7 @@ public class GraphV3Controller extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/definitions/update/{id:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/definitions/update/{id:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> updateDefinition(@PathVariable(value = "id") String id, @RequestBody String json,
 			@RequestHeader(value = "user-id") String userId) {
