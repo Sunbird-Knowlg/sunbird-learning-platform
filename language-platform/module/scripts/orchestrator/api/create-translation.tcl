@@ -51,6 +51,43 @@ proc getErrorResponse {message code respCode} {
 	return $err_response
 }
 
+proc getSynsetLanguage {synset} {
+
+	set languageId ""
+	if {[string match *:* $synset] == 1} {
+		#if synset contains :, then extract language_id by splitting and getting its languageId from 0th position
+		set languageId [lindex [split $synset ":"] 0]
+	} elseif {[string match *_* $synset] == 1} {
+		#if synset contains _, then extract language_id by splitting and getting its languageId from 0th position
+		set languageId [lindex [split $synset "_"] 0]
+	} else {
+		#if synset does not contain either : or _, then assume it is en
+		set languageId "en"
+	}
+
+	return $languageId
+}
+
+proc checkOnlyOneSynsetPerLanguageExist {synsetList} {
+
+	set synsetList [java::cast List $synsetList]
+	set synsets [java::new HashSet $synsetList] 
+	puts "synsets [$synsets toString]"
+	set languageIds [java::new ArrayList]
+
+	java::for {String synset} $synsets {
+		puts "synset $synset"
+		set synsetLanguageId [getSynsetLanguage $synset]
+		if {![$languageIds contains $synsetLanguageId]} {
+			$languageIds add $synsetLanguageId
+		} else {
+			return false
+		}
+		
+	}
+	return true
+}
+
 set object_type "TranslationSet"
 set node_id $word_id
 set language_id $language_id
@@ -95,7 +132,7 @@ java::for {String translationKey} [$translations keySet] {
 		java::for {String synsetEntry} $synset_list {
 			if {![$synsetIds contains $synsetEntry]} {
 				set msg "One Synset per Language can only be linked"
-				set code "SYNSET_NOT_FOUND"
+				set code "ERR_SYNSET_EXIST"
 				set respCode 400
 				return [getErrorResponse $msg $code $respCode]
 			}
@@ -141,7 +178,8 @@ java::for {String translationKey} [$translations keySet] {
 		set check_error [check_response_error $search_response]
 		if {$check_error} {
 			return $search_response;
-		} else {
+		}
+		 else {
 				set graph_nodes [get_resp_value $search_response "node_list"]
 				set translationExists [isNotEmpty $graph_nodes]
 				logs "translations word_id $word_id, language_id $language_id, translationExists $translationExists"
@@ -163,6 +201,7 @@ java::for {String translationKey} [$translations keySet] {
 								$members add $synsetId						
 							}
 						}
+						set collectionIdsToBeDeleted [java::new ArrayList]
 						if {$translationSize > 0} {
 							java::for {Node graph_node} $graph_nodes {
 								set collection_node_id [getProperty $graph_node "identifier"]
@@ -172,10 +211,25 @@ java::for {String translationKey} [$translations keySet] {
 									if {$not_empty_list} {
 										$members addAll $synset_ids
 									}
-									set dropResp [dropCollection $graph_id $collection_node_id $collection_type]
+									#set dropResp [dropCollection $graph_id $collection_node_id $collection_type]
+									$collectionIdsToBeDeleted add $collection_node_id
 								}
 							}
 						}
+
+						$synset_list addAll $members
+
+						if {[checkOnlyOneSynsetPerLanguageExist $synset_list]} {
+							java::for {String collection_node_id} $collectionIdsToBeDeleted {
+								set dropResp [dropCollection $graph_id $collection_node_id $collection_type]
+							}
+						} else {
+							set msg "One Synset per Language can only be linked"
+							set code "ERR_SYNSET_EXIST"
+							set respCode 400
+							return [getErrorResponse $msg $code $respCode]
+						}
+
 						set membersSize [$members size] 
 						if {$membersSize > 0} {
 							logs "translations addMembers word_id $word_id, language_id $language_id, members [$members toString]"
