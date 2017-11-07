@@ -136,11 +136,11 @@ public class HttpDownloadUtility {
 
 	}
 
-	public static void DeleteFiles(List<File> files) {
+	public static void deleteFiles(List<File> files) {
 		for (File file : files) {
 			if (file.exists() && !file.isDirectory()) {
 				if (file.delete()) {
-					System.out.println(file.getName() + " is deleted!");
+					System.out.println(file.getAbsolutePath() + " is deleted!");
 				}
 			}
 		}

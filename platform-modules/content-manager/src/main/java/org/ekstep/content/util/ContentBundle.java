@@ -202,7 +202,7 @@ public class ContentBundle {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					HttpDownloadUtility.DeleteFiles(downloadedFiles);
+					HttpDownloadUtility.deleteFiles(downloadedFiles);
 				}
 			}
 			return null;
