@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.dto.SearchDTO;
@@ -109,10 +110,13 @@ public class SearchProcessor {
 									synsetWordLangList = (List<Map>) wordTranslationList.get(graphId);
 								}
 								String lemma = (String) indexWordDocument.get("lemma");
-								Map<String, String> wordMap = new HashMap<String, String>();
-								wordMap.put("id", wordId);
-								wordMap.put("lemma", lemma);
-								synsetWordLangList.add(wordMap);
+								String status = (String) indexWordDocument.get("status");
+								if(!StringUtils.equalsIgnoreCase(status, "Retired")) {
+									Map<String, String> wordMap = new HashMap<String, String>();
+									wordMap.put("id", wordId);
+									wordMap.put("lemma", lemma);
+									synsetWordLangList.add(wordMap);									
+								}
 								wordTranslationList.put(graphId, synsetWordLangList);
 							}
 
