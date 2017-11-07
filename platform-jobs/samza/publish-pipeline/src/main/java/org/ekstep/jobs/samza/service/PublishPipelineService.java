@@ -188,7 +188,7 @@ public class PublishPipelineService implements ISamzaService {
 					e.getMessage());
 		} finally {
 			try {
-				FileUtils.deleteDirectory(new File(basePath));
+				FileUtils.deleteDirectory(new File(basePath.replace(nodeId, "")));
 			} catch (Exception e2) {
 				LOGGER.error("Error while deleting base Path: " + basePath, e2);
 				e2.printStackTrace();

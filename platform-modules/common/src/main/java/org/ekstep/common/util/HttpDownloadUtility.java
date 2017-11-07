@@ -141,6 +141,8 @@ public class HttpDownloadUtility {
 			if (file.exists() && !file.isDirectory()) {
 				if (file.delete()) {
 					System.out.println(file.getAbsolutePath() + " is deleted!");
+				} else {
+					System.out.println(file.getAbsolutePath() + " not deleted!");
 				}
 			}
 		}
