@@ -160,6 +160,7 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	private void publishCollectionNode(NodeDTO node, String publishType) {
+		LOGGER.info("In publishCollectionNode ***** PublishType: " + publishType + " ****");
 		Node graphNode = util.getNode("domain", node.getIdentifier());
 		if(StringUtils.isNotEmpty(publishType)) {
 			graphNode.getMetadata().put("publish_type", publishType);
