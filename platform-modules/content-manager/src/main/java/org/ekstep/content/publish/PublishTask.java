@@ -137,7 +137,7 @@ public class PublishTask implements Runnable {
 
 	private void publishCollectionNode(NodeDTO node, String publishType) {
 		Node graphNode = util.getNode("domain", node.getIdentifier());
-		if(null != publishType && StringUtils.isNotEmpty(publishType)) {
+		if(StringUtils.isNotEmpty(publishType)) {
 			graphNode.getMetadata().put("publish_type", publishType);
 		}
 		publishNode(graphNode, node.getMimeType());

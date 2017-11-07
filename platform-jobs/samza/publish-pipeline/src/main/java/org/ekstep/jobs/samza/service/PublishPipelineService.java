@@ -13,6 +13,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
@@ -25,6 +27,7 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 
 public class PublishPipelineService implements ISamzaService {
@@ -91,7 +94,7 @@ public class PublishPipelineService implements ISamzaService {
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
+			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
 			if (!nodes.isEmpty()) {
 				int compatabilityLevel = getCompatabilityLevel(nodes);
 				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
@@ -156,12 +159,18 @@ public class PublishPipelineService implements ISamzaService {
 				});
 	}
 
-	private void publishCollectionNode(NodeDTO node) {
+	private void publishCollectionNode(NodeDTO node, String publishType) {
 		Node graphNode = util.getNode("domain", node.getIdentifier());
+		if(StringUtils.isNotEmpty(publishType)) {
+			graphNode.getMetadata().put("publish_type", publishType);
+		}
 		publishNode(graphNode, node.getMimeType());
 	}
 
 	private void publishNode(Node node, String mimeType) {
+		if (null == node)
+			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
+					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
 		String nodeId = node.getIdentifier().replace(".img", "");
 		LOGGER.info("Publish processing start for node: " + nodeId);
 		String basePath = PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location"));
