@@ -19,14 +19,14 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.16</version>
+			<version>0.0.17</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>object-lifecycle</artifactId>
-			<version>0.0.10</version>
+			<version>0.0.11</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
