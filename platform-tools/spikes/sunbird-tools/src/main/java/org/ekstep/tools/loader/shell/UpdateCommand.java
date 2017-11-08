@@ -150,6 +150,8 @@ public class UpdateCommand implements CommandMarker {
 		strb.append("submit review ===> Submit content for review \n");
 		strb.append("publish       ===> Publish the contents \n");
 		strb.append("update orgsts ===> Update Organisation status \n");
+		strb.append("retire content===> Retires content based on contentId \n");
+		strb.append("retire concept===> Retires concept based on conceptId \n");
 
 		return strb.toString();
 

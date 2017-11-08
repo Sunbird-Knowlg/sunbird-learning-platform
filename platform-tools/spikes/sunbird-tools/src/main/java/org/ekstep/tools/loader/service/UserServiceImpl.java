@@ -23,7 +23,14 @@ public class UserServiceImpl implements UserService {
 
 	private static Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
-	public void init(ExecutionContext context) {
+	/**
+	 * @param context
+	 */
+	public UserServiceImpl(ExecutionContext context) {
+		init(context);
+	}
+
+	private void init(ExecutionContext context) {
 		RestUtil.init(context, Constants.SUNBIRD_API_TOKEN);
 	}
 
@@ -35,8 +42,9 @@ public class UserServiceImpl implements UserService {
 		String createUrl = context.getString(Constants.API_USER_CREATE);
 
 		String userId = null;
-
-		String body = user.toString();
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", user);
+		String body = wrapper.toString();
 		BaseRequest request = Unirest.post(createUrl).body(body);
 		HttpResponse<JsonNode> response = RestUtil.execute(request);
 
@@ -59,12 +67,13 @@ public class UserServiceImpl implements UserService {
 	 */
 	@Override
 	public String updateUser(JsonObject user, ExecutionContext context) throws Exception {
-		String createUrl = context.getString(Constants.API_USER_UPDATE);
+		String url = context.getString(Constants.API_USER_UPDATE);
 
 		String userId = JsonUtil.getFromObject(user, "userId");
-
-		String body = user.toString();
-		BaseRequest request = Unirest.post(createUrl).body(body);
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", user);
+		String body = wrapper.toString();
+		BaseRequest request = Unirest.post(url).body(body);
 		HttpResponse<JsonNode> response = RestUtil.execute(request);
 
 		if (RestUtil.isSuccessful(response)) {
