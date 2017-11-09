@@ -666,6 +666,9 @@ public class ContentEnrichmentService implements ISamzaService {
 			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			LOGGER.info("Collection " + node.getIdentifier() + " channel:" + node.getMetadata().get("channel"));
+			LOGGER.info("Collection " + node.getIdentifier() + " appId:" + node.getMetadata().get("appId"));
+			LOGGER.info("Collection " + node.getIdentifier() + " consumerId:" + node.getMetadata().get("consumerId"));
 			util.updateNode(node);
 		}
 	}

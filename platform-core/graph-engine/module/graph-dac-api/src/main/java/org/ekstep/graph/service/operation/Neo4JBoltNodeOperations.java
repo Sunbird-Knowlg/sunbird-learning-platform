@@ -27,6 +27,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
 import com.ilimi.graph.cache.util.RedisStoreUtil;
@@ -526,14 +527,17 @@ public class Neo4JBoltNodeOperations {
 	private void setRequestContextToNode(Node node, Request request) {
 		if (null != request && null != request.getContext()) {
 			String channel = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
+			PlatformLogger.log("Channel from request: " + channel, null, LoggerEnum.ERROR.name());
 			if (StringUtils.isNotBlank(channel))
 				node.getMetadata().put(GraphDACParams.channel.name(), channel);
 			
 			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
+			PlatformLogger.log("ConsumerId from request: " + consumerId, null, LoggerEnum.ERROR.name());
 			if (StringUtils.isNotBlank(consumerId))
 				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
 			
 			String appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
+			PlatformLogger.log("App Id from request: " + appId, null, LoggerEnum.ERROR.name());
 			if (StringUtils.isNotBlank(appId))
 				node.getMetadata().put(GraphDACParams.appId.name(), appId);
 		}

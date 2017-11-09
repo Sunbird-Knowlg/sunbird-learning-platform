@@ -13,7 +13,7 @@
 		<hadoop.version>2.6.2</hadoop.version>
 	</properties>
 	<artifactId>content-enrichment</artifactId>
-	<version>0.0.14</version>
+	<version>0.0.15</version>
 	<dependencies>
 		<dependency>
 			<groupId>com.ilimi</groupId>
