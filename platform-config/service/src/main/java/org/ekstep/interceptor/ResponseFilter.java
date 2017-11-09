@@ -40,9 +40,16 @@ public class ResponseFilter implements Filter {
 		String consumerId = httpRequest.getHeader("X-Consumer-ID");
 		String channelId = httpRequest.getHeader("X-Channel-Id");
 		String appId = httpRequest.getHeader("X-App-Id");
-		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
-		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
-		ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
+		if (StringUtils.isNotBlank(consumerId))
+			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CONSUMER_ID.name(), consumerId);
+
+		if (StringUtils.isNotBlank(channelId))
+			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), channelId);
+		else
+			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.CHANNEL_ID.name(), "in.ekstep");
+		
+		if (StringUtils.isNotBlank(appId))
+			ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.APP_ID.name(), appId);
 
 		if (!isMultipart) {
 			RequestWrapper requestWrapper = new RequestWrapper(httpRequest);
