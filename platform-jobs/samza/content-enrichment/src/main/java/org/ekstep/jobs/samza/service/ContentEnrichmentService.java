@@ -70,9 +70,11 @@ public class ContentEnrichmentService implements ISamzaService {
 		}
 		try {
 			Node node = getNode(eks);
+			LOGGER.info("Collection " + node.getIdentifier() + " channel: "+ node.getMetadata().get("channel"));
 			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ContentEnrichmentParams.content.name()))){
 				if (node.getMetadata().get(ContentEnrichmentParams.contentType.name()).equals(ContentEnrichmentParams.Collection.name())) {
 					processCollection(node);
+					LOGGER.info("Collection " + node.getIdentifier() + " after processCollection channel: "+ node.getMetadata().get("channel"));
 				} else {
 					// processData(node);
 				}
