@@ -17,7 +17,6 @@
 		<version.compiler.plugin>2.3.1</version.compiler.plugin>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
-		<cobertura.skip>true</cobertura.skip>
 	</properties>
 
 	<modules>
@@ -42,30 +41,6 @@
 						<target>1.8</target>
 					</configuration>
 				</plugin>
-
-				<plugin>
-        			<groupId>org.codehaus.mojo</groupId>
-        			<artifactId>cobertura-maven-plugin</artifactId>
-        			<version>2.7</version>
-        			<configuration>
-        				<aggregate>true</aggregate>
-        				<outputDirectory>coverageReport</outputDirectory>
-        				<formats>
-                        	<format>html</format>
-                        	<format>xml</format>
-                    	</formats>
-                    	<instrumentation>
-            				<excludes>
-            					<exclude>**/**</exclude>
-            				</excludes>
-          				</instrumentation>
-          				<check>
-          					<haltOnFailure>false</haltOnFailure>
-          				</check>
-          				<skip>true</skip>
-        			</configuration>
-      			</plugin>
-				
 			</plugins>
 		</pluginManagement>
 	</build>

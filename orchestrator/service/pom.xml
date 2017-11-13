@@ -67,27 +67,6 @@
 	<build>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>cobertura-maven-plugin</artifactId>
-					<version>2.7</version>
-					<configuration>
-						<aggregate>true</aggregate>
-						<outputDirectory>coverageReport</outputDirectory>
-						<formats>
-							<format>html</format>
-							<format>xml</format>
-						</formats>
-						<instrumentation>
-							<excludes>
-								<exclude>**/**</exclude>
-							</excludes>
-						</instrumentation>
-						<check>
-							<haltOnFailure>false</haltOnFailure>
-						</check>
-					</configuration>
-				</plugin>
 			</plugins>
 		</pluginManagement>
 		<finalName>orchestrator-service</finalName>
