@@ -109,6 +109,9 @@ public class ImageTaggingService implements ISamzaService {
 		try {
 			String key = config.get("google.vision.tagging.enabled");
 			LOGGER.info("Fetching google.vision property from config" + key);
+			LOGGER.info("Image " + node.getIdentifier() + " channel:" + node.getMetadata().get("channel"));
+			LOGGER.info("Image " + node.getIdentifier() + " appId:" + node.getMetadata().get("appId"));
+			LOGGER.info("Image " + node.getIdentifier() + " consumerId:" + node.getMetadata().get("consumerId"));
 			if ("true".equalsIgnoreCase(key)) {
 				Node data = callVisionService(image_url, node, variantsMap);
 				data.getMetadata().put(ImageWorkflowEnums.variants.name(), variantsMap);

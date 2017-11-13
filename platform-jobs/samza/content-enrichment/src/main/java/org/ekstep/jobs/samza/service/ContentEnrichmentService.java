@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.S3PropertyReader;
+import org.ekstep.graph.service.common.DACConfigurationConstants;
 import org.ekstep.jobs.samza.service.task.JobMetrics;
 import org.ekstep.jobs.samza.util.ContentEnrichmentParams;
 import org.ekstep.jobs.samza.util.JSONUtils;
@@ -26,6 +27,7 @@ import org.ekstep.learning.common.enums.ContentAPIParams;
 import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
+import com.ilimi.common.Platform;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -70,9 +72,13 @@ public class ContentEnrichmentService implements ISamzaService {
 		}
 		try {
 			Node node = getNode(eks);
+			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+			node.getMetadata().put(GraphDACParams.versionKey.name(), versionKey);
+			LOGGER.info("Collection " + node.getIdentifier() + " channel: "+ node.getMetadata().get("channel"));
 			if ((null != node) && (node.getObjectType().equalsIgnoreCase(ContentEnrichmentParams.content.name()))){
 				if (node.getMetadata().get(ContentEnrichmentParams.contentType.name()).equals(ContentEnrichmentParams.Collection.name())) {
 					processCollection(node);
+					LOGGER.info("Collection " + node.getIdentifier() + " after processCollection channel: "+ node.getMetadata().get("channel"));
 				} else {
 					// processData(node);
 				}
@@ -666,6 +672,10 @@ public class ContentEnrichmentService implements ISamzaService {
 			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
+			LOGGER.info("Collection " + node.getIdentifier() + " version key: "+ node.getMetadata().get(GraphDACParams.versionKey.name()));
+			LOGGER.info("Collection " + node.getIdentifier() + " channel:" + node.getMetadata().get("channel"));
+			LOGGER.info("Collection " + node.getIdentifier() + " appId:" + node.getMetadata().get("appId"));
+			LOGGER.info("Collection " + node.getIdentifier() + " consumerId:" + node.getMetadata().get("consumerId"));
 			util.updateNode(node);
 		}
 	}

@@ -195,6 +195,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			List<Node> nodes = new ArrayList<Node>();
 			
 			String publishType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
+			PlatformLogger.log("In finalize ******* publishType: " + publishType + " ***", null,  LoggerEnum.INFO.name());
 			if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
 				node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
 			} else {
@@ -364,6 +365,7 @@ public class PublishFinalizer extends BaseFinalizer {
 			contentImage.setObjectType(ContentWorkflowPipelineParams.Content.name());
 			
 			String publishType = (String) contentImage.getMetadata().get(ContentWorkflowPipelineParams.publish_type.name());
+			PlatformLogger.log("In migrateContentImageObjectData ******* publishType: " + publishType + " ***", null,  LoggerEnum.INFO.name());
 			if(ContentWorkflowPipelineParams.Unlisted.name().equalsIgnoreCase(publishType)) {
 				contentImage.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Unlisted.name());
 			} else {

@@ -76,6 +76,20 @@ public class TestNeo4JCluster {
 	}
 	
 	@Test
+	public void updateProperty() {
+		try {
+			String uniqueId = createNode(graphDb);
+			try(	Transaction tx1 = graphDb.beginTx()){
+				Node nodeData = graphDb.findNode(name, "IL_UNIQUE_ID", uniqueId);
+				nodeData.setProperty("description", "update description property");
+				tx1.success();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Test
 	public void removeProperty() {
 		try {
 			String uniqueId = createNode(graphDb);
@@ -217,6 +231,7 @@ public class TestNeo4JCluster {
 				node.setProperty("IL_UNIQUE_ID", uniqueId);
 				node.setProperty("name", "Name_" + uniqueId);
 				node.setProperty("IL_SYS_NODE_TYPE", "DATA_NODE");
+				node.setProperty("description", "test description");
 				tx.success();	
 			 }
 		} catch (Exception e) {

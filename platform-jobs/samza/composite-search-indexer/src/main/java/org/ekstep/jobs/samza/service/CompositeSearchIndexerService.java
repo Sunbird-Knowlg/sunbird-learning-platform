@@ -47,10 +47,10 @@ public class CompositeSearchIndexerService implements ISamzaService {
 		Object index = message.get("index");
 		Boolean shouldindex = BooleanUtils.toBoolean(null == index ? "true" : index.toString());
 		if (!BooleanUtils.isFalse(shouldindex)) {
-			LOGGER.info("Indexing event into ES");
+			LOGGER.debug("Indexing event into ES");
 			try {
 				processMessage(message, metrics);
-				LOGGER.info("Composite record added/updated");
+				LOGGER.debug("Composite record added/updated");
 				metrics.incSuccessCounter();
 			} catch (Exception ex) {
 				LOGGER.error("Failed to process message", message, ex);
@@ -79,7 +79,8 @@ public class CompositeSearchIndexerService implements ISamzaService {
 				Map<String, Object> definition = mapper.convertValue(definitionNode,
 						new TypeReference<Map<String, Object>>() {
 						});
-				LOGGER.info("definition fetched from cache" + definitionNode.getIdentifier());
+				LOGGER.debug("definition fetched from cache: " + definitionNode.getIdentifier());
+				LOGGER.info(uniqueId + " is indexing into ES.");
 				Map<String, String> relationMap = getRelationMap(objectType, definition);
 				String operationType = (String) message.get("operationType");
 				switch (operationType) {

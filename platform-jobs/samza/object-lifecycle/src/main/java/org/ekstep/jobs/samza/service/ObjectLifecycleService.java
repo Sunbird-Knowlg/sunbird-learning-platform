@@ -49,34 +49,32 @@ public class ObjectLifecycleService implements ISamzaService {
 			if("DELETE".equalsIgnoreCase((String)message.get(ObjectLifecycleParams.operationType.name()))){
 				Event event = generateEventOnDelete(message);
 				if(null != event){
-					LOGGER.info("Event generated on deletion of node");
+					LOGGER.debug("Event generated on deletion of node");
 					publishEvent(event, collector);
-					LOGGER.info("Event published on deletion of node");
+					LOGGER.debug("Event published on deletion of node");
 					metrics.incSuccessCounter();
 				}
 			}
 			Map<String, Object> stateChangeEvent = getStateChangeEvent(message);
 			if (stateChangeEvent != null) {
-				LOGGER.debug("State change identified - creating lifecycle event");
 				try {
 					Node node = getNode(message);
 					if(null == node) {
 						metrics.incSkippedCounter();
 						return;
 					}
-					LOGGER.info("Node fetched from graph");
+					LOGGER.info("State change identified - creating lifecycle event for: " + node.getIdentifier());
 					Event event = generateLifecycleEvent(stateChangeEvent, node);
 					event.setEts(message);
-					LOGGER.info("Event generated");
 					publishEvent(event, collector);
-					LOGGER.info("Event published");
+					LOGGER.debug("Event generated and published");
 					metrics.incSuccessCounter();
 				} catch (Exception ex) {
 					metrics.incFailedCounter();
 					LOGGER.error("Failed to process message", message, ex);
 				}
 			} else {
-				LOGGER.info("Learning event not qualified for lifecycle event");
+				LOGGER.debug("Learning event not qualified for lifecycle event");
 				metrics.incSkippedCounter();
 			}
 		}

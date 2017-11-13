@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -63,7 +64,8 @@ public class BaseLanguageTest {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				graphDb.shutdown();
+				if(new File(Platform.config.getString("graph.dir")).exists())
+					graphDb.shutdown();
 			}
 		});
 	}
@@ -96,6 +98,8 @@ public class BaseLanguageTest {
 			if (!resp.getParams().getStatus().equalsIgnoreCase("successful")) {
 				System.out.println(resp.getParams().getErr() + resp.getParams().getErrmsg());
 			}
+			
+			FileUtils.deleteDirectory(new File(Platform.config.getString("graph.dir")));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

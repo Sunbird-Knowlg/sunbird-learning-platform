@@ -27,6 +27,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LoggerEnum;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
 import com.ilimi.graph.cache.util.RedisStoreUtil;
@@ -59,9 +60,7 @@ public class Neo4JBoltNodeOperations {
 					DACErrorMessageConstants.INVALID_NODE + " | [Upsert Node Operation Failed.]");
 
 		PlatformLogger.log("Applying the Consumer Authorization Check for Node Id: " + node.getIdentifier());
-		node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
-		node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
-		node.getMetadata().put(GraphDACParams.appId.name(), getAppId(request));
+		setRequestContextToNode(node, request);
 		authorizationValidator.validateAuthorization(graphId, node, request);
 		PlatformLogger.log("Consumer is Authorized for Node Id: " + node.getIdentifier());
 
@@ -138,9 +137,7 @@ public class Neo4JBoltNodeOperations {
 			node.setGraphId(graphId);
 
 			PlatformLogger.log("Adding Authorization Metadata.");
-			node.getMetadata().put(GraphDACParams.consumerId.name(), getConsumerId(request));
-			node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
-			node.getMetadata().put(GraphDACParams.appId.name(), getAppId(request));
+			setRequestContextToNode(node, request);
 
 			PlatformLogger.log("Populating Parameter Map.");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
@@ -217,8 +214,7 @@ public class Neo4JBoltNodeOperations {
 		PlatformLogger.log("Node Update Operation has been Validated for Node Id: " + node.getIdentifier());
 		
 		// Adding Channel and App Id
-		node.getMetadata().put(GraphDACParams.channel.name(), getChannel(request));
-		node.getMetadata().put(GraphDACParams.appId.name(), getAppId(request));
+		setRequestContextToNode(node, request);
 
 		Driver driver = DriverUtil.getDriver(graphId, GraphOperation.WRITE);
 		PlatformLogger.log("Driver Initialised. | [Graph Id: " + graphId + "]");
@@ -528,44 +524,25 @@ public class Neo4JBoltNodeOperations {
 		return value.asObject();
 	}
 
-	private String getConsumerId(Request request) {
-		String consumerId = "";
-		try {
-			if (null != request && null != request.getContext()) {
-				consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
-			}
-		} catch (Exception e) {
-			PlatformLogger.log("Error! While Fetching the Consumer Id From Request.", e.getMessage(), e);
+	private void setRequestContextToNode(Node node, Request request) {
+		if (null != request && null != request.getContext()) {
+			String channel = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
+			PlatformLogger.log("Channel from request: " + channel + " for content: "+ node.getIdentifier(), null, LoggerEnum.DEBUG.name());
+			if (StringUtils.isNotBlank(channel))
+				node.getMetadata().put(GraphDACParams.channel.name(), channel);
+			
+			String consumerId = (String) request.getContext().get(GraphDACParams.CONSUMER_ID.name());
+			PlatformLogger.log("ConsumerId from request: " + consumerId + " for content: "+ node.getIdentifier(), null, LoggerEnum.DEBUG.name());
+			if (StringUtils.isNotBlank(consumerId))
+				node.getMetadata().put(GraphDACParams.consumerId.name(), consumerId);
+			
+			String appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
+			PlatformLogger.log("App Id from request: " + appId + " for content: "+ node.getIdentifier(), null, LoggerEnum.DEBUG.name());
+			if (StringUtils.isNotBlank(appId))
+				node.getMetadata().put(GraphDACParams.appId.name(), appId);
 		}
-		return consumerId;
-	}
-
-	private String getChannel(Request request) {
-		String channelId = "";
-		try {
-			if (null != request && null != request.getContext()) {
-				channelId = (String) request.getContext().get(GraphDACParams.CHANNEL_ID.name());
-				if (StringUtils.isBlank(channelId))
-					channelId = DACConfigurationConstants.DEFAULT_CHANNEL_ID;
-			}
-		} catch (Exception e) {
-			PlatformLogger.log("Error! While Fetching the Channel Id From Request.", e.getMessage(), e);
-		}
-		return channelId;
 	}
 	
-	private String getAppId(Request request) {
-		String appId = "";
-		try {
-			if (null != request && null != request.getContext()) {
-				appId = (String) request.getContext().get(GraphDACParams.APP_ID.name());
-			}
-		} catch (Exception e) {
-			PlatformLogger.log("Error! While Fetching the App Id From Request.", e.getMessage(), e);
-		}
-		return appId;
-	}
-
 	private void updateRedisCache(String graphId, org.neo4j.driver.v1.types.Node neo4JNode, String nodeId, String nodeType) {
 
 		if(!graphId.equalsIgnoreCase("domain"))

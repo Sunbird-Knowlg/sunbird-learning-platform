@@ -202,7 +202,7 @@ public class ContentBundle {
 					e.printStackTrace();
 					throw e;
 				} finally {
-					HttpDownloadUtility.DeleteFiles(downloadedFiles);
+					HttpDownloadUtility.deleteFiles(downloadedFiles);
 				}
 			}
 			return null;
@@ -210,6 +210,13 @@ public class ContentBundle {
 			e.printStackTrace();
 			throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(),
 					"[Error! something went wrong while bundling ECAR]", e);
+		} finally {
+			try {
+				FileUtils.deleteDirectory(new File(bundlePath));
+			} catch (IOException e) {
+				e.printStackTrace();
+				PlatformLogger.log("Error while deleting the bundle base path", null, e);
+			}
 		}
 	}
 

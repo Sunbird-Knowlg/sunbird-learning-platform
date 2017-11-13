@@ -846,6 +846,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 				if (StringUtils.isNotBlank(status)
 						&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
+								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Unlisted.name(), status)
 								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 					node = createContentImageNode(taxonomyId, contentImageId, node);
 			}
@@ -1041,6 +1042,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		boolean isFlaggedReviewState = StringUtils.equalsIgnoreCase("FlagReview", status);
 		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
 		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
+		boolean isUnlistedState = StringUtils.equalsIgnoreCase("Unlisted", status);
 		boolean logEvent = false;
 		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
@@ -1054,7 +1056,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		boolean checkError = false;
 		Response createResponse = null;
-		if (isLiveState || isFlaggedState) {
+		if (isLiveState || isUnlistedState || isFlaggedState) {
 			if (isImageObjectCreationNeeded) {
 				graphNode.setIdentifier(contentImageId);
 				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);

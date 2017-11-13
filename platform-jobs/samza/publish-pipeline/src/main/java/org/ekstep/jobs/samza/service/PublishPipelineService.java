@@ -1,5 +1,6 @@
 package org.ekstep.jobs.samza.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -7,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.samza.config.Config;
 import org.apache.samza.task.MessageCollector;
+import org.ekstep.content.common.ContentErrorMessageConstants;
+import org.ekstep.content.enums.ContentErrorCodeConstants;
 import org.ekstep.content.enums.ContentWorkflowPipelineParams;
 import org.ekstep.content.pipeline.initializer.InitializePipeline;
 import org.ekstep.content.publish.PublishManager;
@@ -22,6 +27,7 @@ import org.ekstep.learning.router.LearningRequestRouterPool;
 import org.ekstep.learning.util.ControllerUtil;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 
 public class PublishPipelineService implements ISamzaService {
@@ -84,11 +90,11 @@ public class PublishPipelineService implements ISamzaService {
 	}
 	
 	private void publishContent(Node node, String mimeType) {
-		LOGGER.info("Publish processing start for content");
+		LOGGER.debug("Publish processing start for content");
 		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
-			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO));
+			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
 			if (!nodes.isEmpty()) {
 				int compatabilityLevel = getCompatabilityLevel(nodes);
 				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
@@ -153,23 +159,31 @@ public class PublishPipelineService implements ISamzaService {
 				});
 	}
 
-	private void publishCollectionNode(NodeDTO node) {
+	private void publishCollectionNode(NodeDTO node, String publishType) {
+		LOGGER.info("In publishCollectionNode ***** PublishType: " + publishType + " ****");
 		Node graphNode = util.getNode("domain", node.getIdentifier());
+		if(StringUtils.isNotEmpty(publishType)) {
+			graphNode.getMetadata().put("publish_type", publishType);
+		}
 		publishNode(graphNode, node.getMimeType());
 	}
 
 	private void publishNode(Node node, String mimeType) {
+		if (null == node)
+			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTENT.name(), ContentErrorMessageConstants.INVALID_CONTENT
+					+ " | ['null' or Invalid Content Node (Object). Async Publish Operation Failed.]");
 		String nodeId = node.getIdentifier().replace(".img", "");
-		LOGGER.info("Publish processing start for node", nodeId);
+		LOGGER.info("Publish processing start for node: " + nodeId);
+		String basePath = PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location"));
+		LOGGER.info("Base path to store files: " + basePath);
 		try {
 			setContentBody(node, mimeType);
-			LOGGER.info("Fetched body from cassandra");
+			LOGGER.debug("Fetched body from cassandra");
 			parameterMap.put(PublishPipelineParams.node.name(), node);
 			parameterMap.put(PublishPipelineParams.ecmlType.name(),
 					PublishManager.isECMLContent(mimeType));
-			LOGGER.info("Fetch basePath" + PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")));
-			InitializePipeline pipeline = new InitializePipeline(PublishManager.getBasePath(nodeId, this.config.get("lp.tempfile.location")), nodeId);
-			LOGGER.info("Initializing the publish pipeline" + this.config.get("lp.tempfile.location") );
+			LOGGER.info("Initializing the publish pipeline for: " + node.getIdentifier());
+			InitializePipeline pipeline = new InitializePipeline(basePath, nodeId);
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -182,6 +196,13 @@ public class PublishPipelineService implements ISamzaService {
 			util.updateNode(node);
 			PublishWebHookInvoker.invokePublishWebKook(contentId, ContentWorkflowPipelineParams.Failed.name(),
 					e.getMessage());
+		} finally {
+			try {
+				FileUtils.deleteDirectory(new File(basePath.replace(nodeId, "")));
+			} catch (Exception e2) {
+				LOGGER.error("Error while deleting base Path: " + basePath, e2);
+				e2.printStackTrace();
+			}
 		}
 	}
 

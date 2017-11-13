@@ -3269,7 +3269,7 @@ public class DictionaryManagerImpl extends BaseLanguageManager implements IDicti
 								List<NodeDTO> list = relMap.get(title);
 								String lemma = (String) rel.getEndNodeMetadata().get(LanguageParams.lemma.name());
 								String status = (String) rel.getEndNodeMetadata().get(LanguageParams.status.name());
-								if (status != LanguageParams.Retired.name())
+								if (!StringUtils.equalsIgnoreCase(status, LanguageParams.Retired.name()))
 									list.add(new NodeDTO(rel.getEndNodeId(), lemma, rel.getEndNodeObjectType()));
 							}
 						} else{

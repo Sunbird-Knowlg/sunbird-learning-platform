@@ -282,7 +282,7 @@ public class ControllerUtil extends BaseLearningManager {
 					obj.setVisibility((String) properties.get("visibility"));
 					Integer compatibilityLevel = 1;
 					if(null != properties.get("compatibilityLevel"))
-						compatibilityLevel = ((Long) properties.get("compatibilityLevel")).intValue();
+						compatibilityLevel = ((Number) properties.get("compatibilityLevel")).intValue();
 					obj.setCompatibilityLevel(compatibilityLevel);
 					nodes.add(obj);
 				}

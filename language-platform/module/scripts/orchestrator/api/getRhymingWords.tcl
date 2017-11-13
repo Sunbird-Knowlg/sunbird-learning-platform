@@ -38,10 +38,15 @@ proc getWordList {wordIds language_id} {
 			set wordObject [java::cast Map $wordObj]		
 			set identifier [$wordObject get "identifier"]
 			set lemma [$wordObject get "lemma"]
-			set word [java::new HashMap]
-			$word put "lemma" $lemma
-			$word put "identifier" $identifier
-			$result add $word
+			set status [$wordObject get "status"]
+			set statusNull [java::isnull $wordsList]
+			#set status [$status toString]
+			if { $statusNull ==0 && $status != "Retired" } {
+				set word [java::new HashMap]
+				$word put "lemma" $lemma
+				$word put "identifier" $identifier
+				$result add $word	
+			}
 		}	
 	}
 	return $result
