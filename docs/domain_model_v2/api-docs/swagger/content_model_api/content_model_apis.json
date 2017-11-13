@@ -357,7 +357,7 @@
                 "security": []
             }
         },
-        "/publish/{contentId}": {
+        "/public/publish/{contentId}": {
             "post": {
                 "tags": [
                     "Workflow"
@@ -402,7 +402,7 @@
                 "security": []
             }
         },
-         "/publish/unlisted/{contentId}": {
+         "/unlisted/publish/{contentId}": {
             "post": {
                 "tags": [
                     "Workflow"
