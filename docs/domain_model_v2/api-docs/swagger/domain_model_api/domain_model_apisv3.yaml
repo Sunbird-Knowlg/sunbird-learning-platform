@@ -1915,7 +1915,7 @@ paths:
                 description: 'API response code '
       security: []
   '/{domainId}/concepts/retire/{conceptId}':
-    post:
+    delete:
       summary: Retires Specific Concept.
       description: >-
         This API retires the Concept. The concept is marked as deprecated and

@@ -1,5 +1,11 @@
 package org.ekstep.tools.loader.service;
 
+import java.net.URL;
+import java.nio.charset.Charset;
+
+import org.junit.Before;
+import org.junit.Test;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -12,10 +18,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.net.URL;
-import java.nio.charset.Charset;
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  *
@@ -25,18 +27,18 @@ public class ConceptServiceTest {
     
     private JsonObject concept = null;
     private Config config = null;
-    private String user = null;
+	private String user = null, authToken = null, clientId = null;
     private ExecutionContext context = null;
     
     public ConceptServiceTest() {
-    }
+	}
     
     @Before
     public void loadConcept() throws Exception {
         config = ConfigFactory.parseResources("loader.conf");
         config = config.resolve();
         user = "bulk-loader-test";
-        context = new ExecutionContext(config, user);
+		context = new ExecutionContext(config, user, authToken, clientId);
         
         URL resource = Resources.getResource("concept.json");
         String conceptData = Resources.toString(resource, Charset.defaultCharset());
@@ -47,14 +49,32 @@ public class ConceptServiceTest {
     @Test
     public void testCreate() throws Exception {
         
-        ConceptServiceImpl service = new ConceptServiceImpl();
-        service.init(context);
+		ConceptServiceImpl service = new ConceptServiceImpl(context);
         service.create(concept, context);
 
         if (concept.get("identifier") != null) {
             JsonArray conceptIds = new JsonArray();
             conceptIds.add(concept.get("identifier"));
-            service.retire(conceptIds, context);
+			service.retire(concept.get("identifier").getAsString(), context, concept.get("framework").getAsString());
         }
     }
+
+	@Test
+	public void testUpdate() throws Exception {
+
+		ConceptServiceImpl service = new ConceptServiceImpl(context);
+		service.create(concept, context);
+
+		if (concept.get("identifier") != null) {
+			String conceptId = concept.get("identifier").getAsString();
+			String updateData = "{\"identifier\":\"" + conceptId + "\", \"framework\":\""
+					+ concept.get("framework").getAsString() + "\", \"name\":\"ConceptUpdateTest\"}";
+			JsonParser parser = new JsonParser();
+			JsonObject updateConcept = parser.parse(updateData).getAsJsonObject();
+			service.update(updateConcept, context);
+
+			service.retire(conceptId, context, concept.get("framework").getAsString());
+
+		}
+	}
 }

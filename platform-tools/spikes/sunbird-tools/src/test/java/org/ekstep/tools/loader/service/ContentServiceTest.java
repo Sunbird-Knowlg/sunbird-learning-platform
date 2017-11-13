@@ -26,7 +26,7 @@ public class ContentServiceTest {
     
     private JsonObject content = null;
     private Config config = null;
-    private String user = null;
+	private String user = null, authToken = null, clientId = null;
     private ExecutionContext context = null;
     
     public ContentServiceTest() {
@@ -36,8 +36,10 @@ public class ContentServiceTest {
     public void loadContent() throws Exception {
         config = ConfigFactory.parseResources("loader.conf");
         config = config.resolve();
-        user = "bulk-loader-test";
-        context = new ExecutionContext(config, user);
+		user = "pradTest";
+		authToken = "363e69d1-81be-3a64-8f35-e3c9b7f441c6";
+		clientId = "0123709530078822407";
+		context = new ExecutionContext(config, user, authToken, clientId);
         
         URL resource = Resources.getResource("content.json");
         String contentData = Resources.toString(resource, Charset.defaultCharset());

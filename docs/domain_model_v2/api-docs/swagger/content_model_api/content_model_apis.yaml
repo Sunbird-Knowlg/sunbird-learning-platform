@@ -325,7 +325,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
       security: []
-  '/publish/{contentId}':
+  '/public/publish/{contentId}':
     post:
       tags:
         - Workflow
@@ -368,7 +368,7 @@ paths:
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
       security: []
-  '/publish/unlisted/{contentId}':
+  '/unlisted/publish/{contentId}':
     post:
       tags:
         - Workflow

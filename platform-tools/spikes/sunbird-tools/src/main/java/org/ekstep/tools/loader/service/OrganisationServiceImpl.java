@@ -23,7 +23,14 @@ public class OrganisationServiceImpl implements OrganisationService {
 
 	private static Logger logger = LogManager.getLogger(OrganisationServiceImpl.class);
 
-	public void init(ExecutionContext context) {
+	/**
+	 * 
+	 */
+	public OrganisationServiceImpl(ExecutionContext context) {
+		init(context);
+	}
+
+	private void init(ExecutionContext context) {
 		RestUtil.init(context, Constants.SUNBIRD_API_TOKEN);
 	}
 
@@ -34,7 +41,10 @@ public class OrganisationServiceImpl implements OrganisationService {
 		String createUrl = context.getString(Constants.API_ORG_CREATE);
 
 		String orgId = null;
-		String body = org.toString();
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", org);
+		String body = wrapper.toString();
+		Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
 		BaseRequest request = Unirest.post(createUrl).body(body);
 		HttpResponse<JsonNode> response = RestUtil.execute(request);
 
@@ -60,8 +70,10 @@ public class OrganisationServiceImpl implements OrganisationService {
 		String updateUrl = context.getString(Constants.API_ORG_UPDATE);
 
 		String orgId = JsonUtil.getFromObject(updateOrg, "organisationId");
-
-		String body = updateOrg.toString();
+		Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", updateOrg);
+		String body = wrapper.toString();
 		BaseRequest request = Unirest.post(updateUrl).body(body);
 		HttpResponse<JsonNode> response = RestUtil.execute(request);
 
@@ -97,9 +109,12 @@ public class OrganisationServiceImpl implements OrganisationService {
 		String updateUrl = context.getString(Constants.API_ORG_UPDATE_STATUS);
 
 		String orgId = JsonUtil.getFromObject(orgStatus, "organisationId");
+		Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", orgStatus);
+		String body = wrapper.toString();
+		BaseRequest request = Unirest.patch(updateUrl).body(body);
 
-		String body = orgStatus.toString();
-		BaseRequest request = Unirest.post(updateUrl).body(body);
 		HttpResponse<JsonNode> response = RestUtil.execute(request);
 
 		if (RestUtil.isSuccessful(response)) {
@@ -124,7 +139,9 @@ public class OrganisationServiceImpl implements OrganisationService {
 	public String addOrgMember(JsonObject member, ExecutionContext context) throws Exception {
 		String addMemberUrl = context.getString(Constants.API_ADD_MEMBER);
 
-		String body = member.toString();
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", member);
+		String body = wrapper.toString();
 		BaseRequest request = Unirest.post(addMemberUrl).body(body);
 		HttpResponse<JsonNode> addMemberResponse = RestUtil.execute(request);
 
@@ -146,7 +163,9 @@ public class OrganisationServiceImpl implements OrganisationService {
 	public String removeOrgMember(JsonObject member, ExecutionContext context) throws Exception {
 		String addMemberUrl = context.getString(Constants.API_REMOVE_MEMBER);
 
-		String body = member.toString();
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", member);
+		String body = wrapper.toString();
 		BaseRequest request = Unirest.post(addMemberUrl).body(body);
 		HttpResponse<JsonNode> addMemberResponse = RestUtil.execute(request);
 

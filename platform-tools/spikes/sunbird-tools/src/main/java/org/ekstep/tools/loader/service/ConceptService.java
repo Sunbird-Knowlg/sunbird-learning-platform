@@ -5,7 +5,6 @@
  */
 package org.ekstep.tools.loader.service;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 /**
@@ -15,5 +14,6 @@ import com.google.gson.JsonObject;
 public interface ConceptService {
     public String create(JsonObject concept, ExecutionContext context) throws Exception ;
     public String update(JsonObject concept, ExecutionContext context) throws Exception ;
-    public String retire(JsonArray conceptIds, ExecutionContext context) throws Exception ;
+
+	public String retire(String conceptId, ExecutionContext context, String domain) throws Exception;
 }

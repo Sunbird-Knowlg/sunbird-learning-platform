@@ -13,15 +13,12 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.tools.loader.service.ContentService;
-import org.ekstep.tools.loader.service.ContentServiceImpl;
 import org.ekstep.tools.loader.service.ExecutionContext;
 import org.ekstep.tools.loader.service.ProgressCallback;
 import org.ekstep.tools.loader.service.Record;
-import org.ekstep.tools.loader.shell.ShellContext;
 import org.ekstep.tools.loader.utils.JsonUtil;
 
 import com.google.gson.JsonObject;
-import com.typesafe.config.Config;
 
 /**
  * @author pradyumna
@@ -31,18 +28,16 @@ public class PublishDestination implements Destination {
 
 	private Logger logger = LogManager.getLogger(PublishDestination.class);
 
-	private Config config = null;
-	private String user = null;
 	private ExecutionContext context = null;
-	private ShellContext shellContext = null;
 	private FileWriter outputFile;
 	private File file = null;
+	private static final String OUTPUT_FILE = "PublishContentOutput.csv";
 
 	/**
 	 * 
 	 */
 	public PublishDestination() {
-		file = new File("PublishContentOutput.csv");
+		file = new File(OUTPUT_FILE);
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -61,17 +56,14 @@ public class PublishDestination implements Destination {
 	 */
 	@Override
 	public void process(List<Record> data, ProgressCallback callback) {
-		shellContext = ShellContext.getInstance();
-		config = shellContext.getCurrentConfig().resolve();
-		user = shellContext.getCurrentUser();
-		context = new ExecutionContext(config, user);
+		ContentService service = (ContentService) ServiceProvider.getService("content");
+		context = ServiceProvider.getContext();
 		String contentId = null, status = null;
 		int rowNum = 1;
 		int totalRows = data.size();
 
-		ContentService service = new ContentServiceImpl(context);
-
-		writeOutput("\n------------------- Begin ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
+		ServiceProvider.writeOutput(file,
+				"\n------------------- Begin ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 		for (Record record : data) {
 
 			try {
@@ -81,30 +73,15 @@ public class PublishDestination implements Destination {
 				if (status.equalsIgnoreCase("OK")) {
 					status = "Success";
 				}
-				writeOutput(contentId + "," + status);
+				ServiceProvider.writeOutput(file, contentId + "," + status);
 
 			} catch (Exception e) {
-				writeOutput(contentId + "," + e.getMessage());
+				ServiceProvider.writeOutput(file, contentId + "," + e.getMessage());
 			}
 			callback.progress(totalRows, rowNum++);
 		}
-		writeOutput("\n------------------- END ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
-	}
-
-	/**
-	 * @param string
-	 * @throws IOException
-	 */
-	private void writeOutput(String output) {
-		try {
-			outputFile = new FileWriter(file, true);
-			outputFile.append(output + "\n");
-			outputFile.close();
-			logger.debug("Publish content Output  :: " + output);
-		} catch (IOException e) {
-			logger.debug("error while wrting to outputfile" + e.getMessage());
-		}
-
+		ServiceProvider.writeOutput(file,
+				"\n------------------- END ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 	}
 
 }

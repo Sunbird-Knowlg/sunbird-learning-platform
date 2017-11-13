@@ -2581,7 +2581,7 @@
       }
     },
     "/{domainId}/concepts/retire/{conceptId}": {
-      "post": {
+      "delete": {
         "summary": "Retires Specific Concept.",
         "description": "This API retires the Concept. The concept is marked as deprecated and the concept data is still retained in the system.",
         "tags": [

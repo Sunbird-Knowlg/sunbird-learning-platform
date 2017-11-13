@@ -1,0 +1,366 @@
+swagger: '2.0'
+info:
+  version: '3.0'
+  title: Channel API
+  description: >-
+    A Channel in platform is used to define and configure the content filters
+    are used for searching the content for partners.With this flexibility
+    partner can to restrict learners to a specific set of content, when genie is
+    launched via partner app.
+  license:
+    name: EkStep License
+    url: 'http:www.EkStep.in'
+basePath: /channel/v3
+host: api.ekstep.in
+securityDefinitions: {}
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+tags:
+  - name: channel
+    description: Everything related to CRUD Operations of the channel
+paths:
+  /channel/create:
+    post:
+      summary: Creates an Channel
+      description: 'This API creates an channel for partner, based on the request body'
+      tags:
+        - channel
+      operationId: ekstep.learning.channel.create
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ChannelRequestObject'
+      responses:
+        '200':
+          description: Channel Created Successfully
+          schema:
+            $ref: '#/definitions/ChannelCreateResponse'
+        '400':
+          description: >-
+            Error While creating channel! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Creating channel! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/channel/read/{channelId}':
+    get:
+      summary: Gets an Channel
+      description: >-
+        This API is used to fetch an channel from the _EkStep Platform_.This
+        endpoint returns the entire channel Object with default fields. 
+      tags:
+        - channel
+      operationId: ekstep.learning.channel.read
+      produces:
+        - application/json
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          description: channelId
+          type: string
+      responses:
+        '200':
+          description: channel fetched Successfully
+          schema:
+            $ref: '#/definitions/ChannelGetResponse'
+        '400':
+          description: >-
+            Error While fetching the channel! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching the channel! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/channel/update/{channelId}':
+    patch:
+      summary: Updates the given channel
+      description: >-
+        This API is used to update an channel based on the request body provided
+        from the _EkStep Platform_. This endpoint return node_Id on updation
+      tags:
+        - channel
+      operationId: ekstep.learning.channel.update
+      produces:
+        - application/json
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          type: string
+        - $ref: '#/parameters/ChannelRequestObject'
+      responses:
+        '200':
+          description: Channel Updated Successfully
+          schema:
+            $ref: '#/definitions/ChannelUpdateResponse'
+        '400':
+          description: >-
+            Error While Updating the channel! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Updating the channel! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /channel/list:
+    post:
+      summary: Lists an channel
+      description: >-
+        This API is used to list and retrieve all channel from the channel
+        repository based on the given list creteria in the request body
+      tags:
+        - channel
+      operationId: ekstep.learning.channel.list
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/listChannelRequest'
+      responses:
+        '200':
+          description: channel listed Successfully
+          schema:
+            $ref: '#/definitions/ChannelListResponse'
+        '400':
+          description: >-
+            Error While fetching all channel lists! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching all channel lists! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+parameters:
+  ChannelRequestObject:
+    name: Request
+    in: body
+    description: Channel Request Object which contains the channel object
+    required: true
+    schema:
+      $ref: '#/definitions/ChannelRequestObject'
+  listChannelRequest:
+    name: Request
+    in: body
+    description: Channel Request Object which contains the channel object
+    required: true
+    schema:
+      $ref: '#/definitions/ChannelListRequestObject'
+definitions:
+  ChannelListRequestObject:
+    title: Channel list Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/ChannelListObject'
+    required:
+      - request
+  ChannelListObject:
+    properties:
+      sortBy:
+        type: string
+        description: sortBy
+  ChannelRequestObject:
+    title: Channel Request Object
+    type: object
+    properties:
+      request:
+        $ref: '#/definitions/ChannelObject'
+    required:
+      - request
+  ChannelObject:
+    title: Channel Object
+    type: object
+    properties:
+      channel:
+        $ref: '#/definitions/Channel'
+    required:
+      - channel
+  ChannelCreateResponse:
+    description: Create Content Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  ChannelUpdateResponse:
+    title: Update Content Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithNodeId'
+      - $ref: '#/definitions/ResponseHeader'
+  ChannelGetResponse:
+    title: Get channel Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithChannelResponse'
+      - $ref: '#/definitions/ResponseHeader'
+  ResultWithChannelResponse:
+    title: Get channel Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/Channel'
+      - $ref: '#/definitions/ResponseHeader'
+  Channel:
+    title: Channel Metadata
+    type: object
+    properties:
+      identifier:
+        type: string
+        description: Identifier of the channel
+      name:
+        type: string
+        description: Name of the channel
+      code:
+        type: string
+        description: Unique code for the channel
+      contentFilter:
+        type: string
+        description: Example - 'Delhi Curriculum'
+      status:
+        type: string
+        description: Status of the channel
+  ResultWithNodeId:
+    title: Result Containing Node Id
+    type: object
+    properties:
+      result:
+        $ref: '#/definitions/NodeId'
+  ResponseHeader:
+    title: ResponseHeader
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/ResponseParams'
+      responseCode:
+        type: object
+        description: 'API response code '
+  ResponseParams:
+    title: Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message
+  ChannelListResponse:
+    title: List channel Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/ResultWithChannelResponseArray'
+      - $ref: '#/definitions/ResponseHeader'
+  ResultWithChannelResponseArray:
+    title: Response channel Array with TTL
+    type: object
+    allOf:
+      - $ref: '#/definitions/TTL'
+      - $ref: '#/definitions/ChannelResponseArray'
+  TTL:
+    title: TTL
+    type: object
+    properties:
+      ttl:
+        type: number
+        format: double
+        description: TTL (Time)
+  NodeId:
+    title: Node Id
+    type: object
+    properties:
+      node_id:
+        type: string
+        description: Node Identifier
+  ChannelResponseArray:
+    title: Response channel Array
+    type: object
+    properties:
+      content:
+        type: array
+        items:
+          $ref: '#/definitions/Channel'
+  FailedResponseHeader:
+    title: Failure Response
+    type: object
+    properties:
+      id:
+        type: string
+        description: API Identifier
+      ver:
+        type: string
+        description: API version information
+      ts:
+        type: string
+        description: API execution timespan
+      params:
+        $ref: '#/definitions/FailedResponseParams'
+      responseCode:
+        type: string
+        description: responseCode
+  FailedResponseParams:
+    title: Failed Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        type: string
+        description: Response Message Id
+      msgid:
+        type: string
+        description: Message Id
+      err:
+        type: string
+        description: Error Code
+      status:
+        type: string
+        description: Response Status
+      errmsg:
+        type: string
+        description: Error Message

@@ -6,6 +6,8 @@ package org.ekstep.tools.loader.destination;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,12 +16,10 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.tools.loader.service.ExecutionContext;
 import org.ekstep.tools.loader.service.ProgressCallback;
 import org.ekstep.tools.loader.service.Record;
-import org.ekstep.tools.loader.service.UserServiceImpl;
-import org.ekstep.tools.loader.shell.ShellContext;
+import org.ekstep.tools.loader.service.UserService;
 import org.ekstep.tools.loader.utils.JsonUtil;
 
 import com.google.gson.JsonObject;
-import com.typesafe.config.Config;
 
 /**
  * @author pradyumna
@@ -28,10 +28,29 @@ import com.typesafe.config.Config;
 public class UserDestination implements Destination {
 
 	private Logger logger = LogManager.getLogger(UserDestination.class);
-	private Config config = null;
-	private String user = null;
 	private ExecutionContext context = null;
-	private ShellContext shellContext = null;
+	private FileWriter outputFile = null;
+	private File file = null;
+
+	private static final String OUTPUT_FILE = "UsersOutput.csv";
+
+	/**
+	 * 
+	 */
+	public UserDestination() {
+		file = new File(OUTPUT_FILE);
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+				outputFile = new FileWriter(file, true);
+				outputFile.write("UserID , Name, Status \n");
+				outputFile.close();
+			} catch (IOException e) {
+				logger.debug("Error while creating file");
+			}
+
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -41,17 +60,14 @@ public class UserDestination implements Destination {
 	 */
 	@Override
 	public void process(List<Record> data, ProgressCallback callback) {
-		shellContext = ShellContext.getInstance();
-		config = shellContext.getCurrentConfig().resolve();
-		user = shellContext.getCurrentUser();
-		context = new ExecutionContext(config, user);
 		String userID = null, status = null, name = null;
 		int rowNum = 1;
 		int totalRows = data.size();
 
-		UserServiceImpl service = new UserServiceImpl();
-		service.init(context);
-
+		UserService service = (UserService) ServiceProvider.getService("user");
+		context = ServiceProvider.getContext();
+		ServiceProvider.writeOutput(file,
+				"\n------------------- Begin ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 		for (Record record : data) {
 			try {
 				JsonObject userRec = record.getJsonData();
@@ -67,40 +83,16 @@ public class UserDestination implements Destination {
 						status = JsonUtil.getFromObject(userRec, "response");
 					}
 				}
-
-				writeOutput(userID + "," + name + "," + status);
+				logger.debug("User Output : " + userID + " , " + name + " , " + status);
+				ServiceProvider.writeOutput(file, userID + "," + name + "," + status);
 
 			} catch (Exception e) {
-				writeOutput(userID + "," + name + "," + e.getMessage());
+				logger.error(e);
+				ServiceProvider.writeOutput(file, userID + "," + name + "," + e.getMessage());
 			}
 			callback.progress(totalRows, rowNum++);
 		}
-
+		ServiceProvider.writeOutput(file,
+				"\n------------------- End ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 	}
-
-	/**
-	 * @param string
-	 * @throws IOException
-	 */
-	private void writeOutput(String output) {
-		FileWriter outputFile;
-		File file = new File("UsersOutput.csv");
-		try {
-			if (!file.exists()) {
-				file.createNewFile();
-				outputFile = new FileWriter(file, true);
-				outputFile.write("UserID , Name, Status \n");
-			} else {
-				outputFile = new FileWriter(file, true);
-			}
-
-			outputFile.append(output + "\n");
-			outputFile.close();
-			logger.debug("Users Output  :: " + output);
-		} catch (IOException e) {
-			logger.debug("error while wrting to outputfile" + e.getMessage());
-		}
-
-	}
-
 }

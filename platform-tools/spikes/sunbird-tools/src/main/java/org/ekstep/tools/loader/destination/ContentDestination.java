@@ -14,16 +14,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.tools.loader.service.ContentService;
-import org.ekstep.tools.loader.service.ContentServiceImpl;
 import org.ekstep.tools.loader.service.ExecutionContext;
 import org.ekstep.tools.loader.service.ProgressCallback;
 import org.ekstep.tools.loader.service.Record;
-import org.ekstep.tools.loader.shell.ShellContext;
 import org.ekstep.tools.loader.utils.JsonUtil;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.typesafe.config.Config;
 
 /**
  * @author pradyumna
@@ -32,10 +29,7 @@ import com.typesafe.config.Config;
 public class ContentDestination implements Destination {
 
 	private static Logger logger = LogManager.getLogger(ContentDestination.class);
-	private Config config = null;
-	private String user = null;
 	private ExecutionContext context = null;
-	private ShellContext shellContext = null;
 	private FileWriter outputFile = null;
 	private File file = null;
 
@@ -62,11 +56,8 @@ public class ContentDestination implements Destination {
 	 */
 	@Override
 	public void process(List<Record> data, ProgressCallback callback) {
-		shellContext = ShellContext.getInstance();
-		config = shellContext.getCurrentConfig().resolve();
-		user = shellContext.getCurrentUser();
-		context = new ExecutionContext(config, user);
-		ContentService service = new ContentServiceImpl(context);
+		ContentService service = (ContentService) ServiceProvider.getService("content");
+		context = ServiceProvider.getContext();
 		int rowNum = 1;
 		int totalRows = data.size();
 		String contentId = null, name = null;
