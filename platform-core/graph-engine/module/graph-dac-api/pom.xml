@@ -76,7 +76,7 @@
 		<dependency>
 			<groupId>org.neo4j.driver</groupId>
 			<artifactId>neo4j-java-driver</artifactId>
-			<version>1.4.3</version>
+			<version>1.4.5</version>
 		</dependency>
 		<dependency>
 			<groupId>net.iot-solutions.graphdb</groupId>
