@@ -32,13 +32,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>content-enrichment</artifactId>
-			<version>0.0.17</version>
-			<type>tar.gz</type>
-			<classifier>distribution</classifier>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
 			<version>0.0.20</version>
 			<type>tar.gz</type>

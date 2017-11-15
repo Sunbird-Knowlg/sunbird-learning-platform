@@ -21,7 +21,6 @@
 		<module>common</module>
 		<module>audit-history-indexer</module>
 		<module>composite-search-indexer</module>
-		<module>content-enrichment</module>
 		<module>publish-pipeline</module>
 		<module>upload-content</module>
 		<module>image-tagging</module>
