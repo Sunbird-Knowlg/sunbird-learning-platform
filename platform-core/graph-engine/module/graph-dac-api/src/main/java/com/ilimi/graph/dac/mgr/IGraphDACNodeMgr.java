@@ -1,26 +1,27 @@
 package com.ilimi.graph.dac.mgr;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 
 public interface IGraphDACNodeMgr {
 
-    void upsertNode(Request request);
+	Response upsertNode(Request request);
     
-    void addNode(Request request);
+	Response addNode(Request request);
     
-    void updateNode(Request request);
+	Response updateNode(Request request);
 
-    void importNodes(Request request);
+	Response importNodes(Request request);
 
-    void updatePropertyValue(Request request);
+	Response updatePropertyValue(Request request);
 
-    void updatePropertyValues(Request request);
+	Response updatePropertyValues(Request request);
 
-    void removePropertyValue(Request request);
+	Response removePropertyValue(Request request);
 
-    void removePropertyValues(Request request);
+	Response removePropertyValues(Request request);
 
-    void deleteNode(Request request);
+	Response deleteNode(Request request);
     
-    void upsertRootNode(Request request);
+	Response upsertRootNode(Request request);
 }

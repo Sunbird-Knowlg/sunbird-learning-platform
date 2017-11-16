@@ -17,17 +17,15 @@ import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.ICollection;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
@@ -36,6 +34,7 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     private String id;
     protected Map<String, Object> metadata;
     protected String memberObjectType;
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
     public AbstractCollection(BaseGraphManager manager, String graphId, String id, Map<String, Object> metadata) {
         super(manager, graphId);
@@ -145,12 +144,10 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
 
     @SuppressWarnings("unchecked")
     protected Future<Boolean> checkMemberNode(Request req, final String memberId, final ExecutionContext ec) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
         request.setOperation("getNodeByUniqueId");
         request.put(GraphDACParams.node_id.name(), memberId);
-        Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> dacFuture = getNodeByUniqueId(request);
         Future<Boolean> validMembers = dacFuture.map(new Mapper<Object, Boolean>() {
             @Override
             public Boolean apply(Object parameter) {
@@ -175,12 +172,10 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     
     @SuppressWarnings("unchecked")
     protected Future<Boolean> checkMemberNodes(Request req, final List<String> memberIds, final ExecutionContext ec) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
         request.setOperation("getNodesByUniqueIds");
         request.put(GraphDACParams.node_ids.name(), memberIds);
-        Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> dacFuture = Futures.successful(searchMgr.getNodesByUniqueIds(request));
         Future<Boolean> validMembers = dacFuture.map(new Mapper<Object, Boolean>() {
             @Override
             public Boolean apply(Object parameter) {
@@ -208,10 +203,9 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     }
 
     protected Future<Node> getNodeObject(Request req, ExecutionContext ec, String setId) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-        Request request = getRequestObject(req, GraphDACManagers.DAC_SEARCH_MANAGER, "getNodeByUniqueId", GraphDACParams.node_id.name(),
-                setId);
-        Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+		Request request = new Request();
+		request.put(GraphDACParams.node_id.name(), setId);
+		Future<Object> dacFuture = getNodeByUniqueId(request);
         Future<Node> nodeFuture = dacFuture.map(new Mapper<Object, Node>() {
             @Override
             public Node apply(Object parameter) {
@@ -304,5 +298,10 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
         }
         return array;
     }
+
+	private Future<Object> getNodeByUniqueId(Request request) {
+		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
+		return response;
+	}
 
 }

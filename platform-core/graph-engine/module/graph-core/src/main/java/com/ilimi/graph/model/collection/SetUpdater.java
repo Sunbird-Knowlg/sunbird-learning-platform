@@ -12,21 +12,19 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.node.MetadataNode;
 import com.ilimi.graph.model.node.ValueNode;
 import com.ilimi.graph.model.relation.HasValueRelation;
 import com.ilimi.graph.model.relation.UsedBySetRelation;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -140,12 +138,10 @@ public class SetUpdater extends AbstractDomainObject {
 
     private Future<Node> getNodeObject(Request req, String nodeId) {
         ExecutionContext ec = manager.getContext().dispatcher();
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+		IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-        request.setOperation("getNodeByUniqueId");
         request.put(GraphDACParams.node_id.name(), nodeId);
-        Future<Object> future = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> future = Futures.successful(searchMgr.getNodeByUniqueId(request));
         Future<Node> nodeFuture = future.map(new Mapper<Object, Node>() {
             @Override
             public Node apply(Object obj) {

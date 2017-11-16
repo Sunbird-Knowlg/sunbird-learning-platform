@@ -12,13 +12,12 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.router.GraphDACManagers;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
 
-import akka.actor.ActorRef;
+import akka.dispatch.Futures;
 import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
 
@@ -50,12 +49,10 @@ public abstract class AbstractIndexNode extends AbstractDomainObject {
         promise.success(map);
     }
 
-    protected Future<Object> getNodeObject(Request req, ActorRef dacRouter, String nodeId) {
+	protected Future<Object> getNodeObject(Request req, IGraphDACSearchMgr searchMgr, String nodeId) {
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-        request.setOperation("getNodeByUniqueId");
         request.put(GraphDACParams.node_id.name(), nodeId);
-        Future<Object> future = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> future = Futures.successful(searchMgr.getNodeByUniqueId(request));
         return future;
     }
 

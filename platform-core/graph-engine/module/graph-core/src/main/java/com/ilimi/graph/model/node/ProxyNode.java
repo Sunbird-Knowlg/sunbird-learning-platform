@@ -15,16 +15,16 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
@@ -35,6 +35,8 @@ public class ProxyNode extends AbstractNode {
     private String graphId;
     private String identifier;
 
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
     
     public ProxyNode(BaseGraphManager manager, String graphId, String nodeId, String objectType,
             Map<String, Object> metadata,String identifier) {
@@ -69,13 +71,10 @@ public class ProxyNode extends AbstractNode {
     }
 
     public Future<Node> getNodeObject(Request req) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-        request.setOperation("getNodeByUniqueId");
         request.put(GraphDACParams.node_id.name(), getNodeId());
         request.put(GraphDACParams.get_tags.name(), true);
-        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
         Future<Node> message = response.map(new Mapper<Object, Node>() {
             @Override
             public Node apply(Object parameter) {
@@ -94,12 +93,9 @@ public class ProxyNode extends AbstractNode {
     @Override
     public void removeProperty(Request req) {
         try {
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-            request.setOperation("removePropertyValue");
             request.copyRequestValueObjects(req.getRequest());
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(nodeMgr.removePropertyValue(request));
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
             manager.ERROR(e, getParent());
@@ -115,12 +111,9 @@ public class ProxyNode extends AbstractNode {
         } else {
             checkMetadata(property.getPropertyName(), property.getPropertyValue());
             try {
-                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request request = new Request(req);
-                request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-                request.setOperation("updatePropertyValue");
                 request.copyRequestValueObjects(req.getRequest());
-                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+				Future<Object> response = Futures.successful(nodeMgr.updatePropertyValue(request));
                 manager.returnResponse(response, getParent());
             } catch (Exception e) {
                 manager.ERROR(e, getParent());
@@ -129,12 +122,9 @@ public class ProxyNode extends AbstractNode {
     }
 
     public Future<String> createNode(final Request req) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-        request.setOperation("addNode");
         request.put(GraphDACParams.node.name(), toNode());
-        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(nodeMgr.addNode(request));
         Future<String> message = response.map(new Mapper<Object, String>() {
             @Override
             public String apply(Object parameter) {
@@ -162,12 +152,10 @@ public class ProxyNode extends AbstractNode {
     public Future<String> updateNode(Request req) {
         try {
             checkMetadata(metadata);
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
             request.setOperation("updateNode");
             request.put(GraphDACParams.node.name(), toNode());
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(nodeMgr.updateNode(request));
             Future<String> message = response.map(new Mapper<Object, String>() {
                 @Override
                 public String apply(Object parameter) {

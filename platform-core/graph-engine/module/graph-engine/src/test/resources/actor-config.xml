@@ -21,10 +21,10 @@
 			<graph id="*" count="4"></graph>
 		</manager>
 	</graph-managers>
-	<dac-managers>
+	<!-- <dac-managers>
 		<manager
 			classes="com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-	</dac-managers>
+	</dac-managers> -->
 </actor-config>

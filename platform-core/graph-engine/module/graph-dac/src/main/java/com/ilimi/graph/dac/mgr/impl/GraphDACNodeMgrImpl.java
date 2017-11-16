@@ -1,59 +1,35 @@
 package com.ilimi.graph.dac.mgr.impl;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.common.DACErrorCodeConstants;
 import org.ekstep.graph.service.common.DACErrorMessageConstants;
-import org.ekstep.graph.service.factory.GraphServiceFactory;
+import org.ekstep.graph.service.operation.Neo4JBoltNodeOperations;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.mgr.BaseGraphManager;
+import com.ilimi.graph.common.mgr.GraphDACMgr;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
-
-import akka.actor.ActorRef;
 
 /**
  * The Class GraphDACNodeMgrImpl.
  * 
  * @author Mohammad Azharuddin
  */
-public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNodeMgr {
+public class GraphDACNodeMgrImpl extends GraphDACMgr implements IGraphDACNodeMgr {
 
-	private static IGraphDatabaseService service = GraphServiceFactory.getDatabaseService();
+	// private static IGraphDatabaseService service =
+	// GraphServiceFactory.getDatabaseService();
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
-	 * .dto.Request, akka.actor.ActorRef)
-	 */
-	protected void invokeMethod(Request request, ActorRef parent) {
-		String methodName = request.getOperation();
-		try {
-			Method method = GraphDACActorPoolMgr.getMethod(GraphDACManagers.DAC_NODE_MANAGER, methodName);
-			if (null == method) {
-				throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_INVALID_OPERATION.name(),
-						"Operation '" + methodName + "' not found");
-			} else {
-				method.invoke(this, request);
-			}
-		} catch (Exception e) {
-			ERROR(e, parent);
-		}
-	}
+	private static Neo4JBoltNodeOperations service = new Neo4JBoltNodeOperations();
 
 	/*
 	 * (non-Javadoc)
@@ -63,7 +39,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 * Request)
 	 */
 	@Override
-	public void upsertNode(Request request) {
+	public Response upsertNode(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		com.ilimi.graph.dac.model.Node node = (com.ilimi.graph.dac.model.Node) request.get(GraphDACParams.node.name());
 		if (null == node || StringUtils.isBlank(node.getNodeType()) || StringUtils.isBlank(node.getIdentifier()))
@@ -92,9 +68,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 										+ node.getIdentifier() + " and Graph Id: " + graphId + "]");
 				}
 
-				OK(responseMap, getSender());
+				return OK(responseMap);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -107,7 +83,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 * Request)
 	 */
 	@Override
-	public void addNode(Request request) {
+	public Response addNode(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		com.ilimi.graph.dac.model.Node node = (com.ilimi.graph.dac.model.Node) request.get(GraphDACParams.node.name());
 		if (null == node || StringUtils.isBlank(node.getNodeType()))
@@ -124,9 +100,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 					responseMap.put(GraphDACParams.versionKey.name(),
 							addedNode.getMetadata().get(GraphDACParams.versionKey.name()));
 				
-				OK(responseMap, getSender());
+				return OK(responseMap);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -139,7 +115,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 * Request)
 	 */
 	@Override
-	public void updateNode(Request request) {
+	public Response updateNode(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		com.ilimi.graph.dac.model.Node node = (com.ilimi.graph.dac.model.Node) request.get(GraphDACParams.node.name());
 		if (null == node || StringUtils.isBlank(node.getNodeType()) || StringUtils.isBlank(node.getIdentifier()))
@@ -168,9 +144,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 										+ node.getIdentifier() + " and Graph Id: " + graphId + "]");
 				}
 				
-				OK(responseMap, getSender());
+				return OK(responseMap);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -184,7 +160,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public void importNodes(Request request) {
+	public Response importNodes(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<com.ilimi.graph.dac.model.Node> nodes = (List<com.ilimi.graph.dac.model.Node>) request
 				.get(GraphDACParams.node_list.name());
@@ -194,9 +170,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 		else {
 			try {
 				service.importNodes(graphId, nodes, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -209,7 +185,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 * common.dto.Request)
 	 */
 	@Override
-	public void updatePropertyValue(Request request) {
+	public Response updatePropertyValue(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String nodeId = (String) request.get(GraphDACParams.node_id.name());
 		Property property = (Property) request.get(GraphDACParams.metadata.name());
@@ -219,9 +195,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 		} else {
 			try {
 				service.updatePropertyValue(graphId, nodeId, property, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -235,7 +211,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void updatePropertyValues(Request request) {
+	public Response updatePropertyValues(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String nodeId = (String) request.get(GraphDACParams.node_id.name());
 		Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
@@ -245,9 +221,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 		} else {
 			try {
 				service.updatePropertyValues(graphId, nodeId, metadata, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -260,7 +236,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 * common.dto.Request)
 	 */
 	@Override
-	public void removePropertyValue(Request request) {
+	public Response removePropertyValue(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String nodeId = (String) request.get(GraphDACParams.node_id.name());
 		String key = (String) request.get(GraphDACParams.property_key.name());
@@ -270,9 +246,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 		} else {
 			try {
 				service.removePropertyValue(graphId, nodeId, key, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -286,7 +262,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void removePropertyValues(Request request) {
+	public Response removePropertyValues(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String nodeId = (String) request.get(GraphDACParams.node_id.name());
 		List<String> keys = (List<String>) request.get(GraphDACParams.property_keys.name());
@@ -296,9 +272,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 		} else {
 			try {
 				service.removePropertyValues(graphId, nodeId, keys, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -311,7 +287,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 * Request)
 	 */
 	@Override
-	public void deleteNode(Request request) {
+	public Response deleteNode(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String nodeId = (String) request.get(GraphDACParams.node_id.name());
 		if (!validateRequired(nodeId)) {
@@ -320,9 +296,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 		} else {
 			try {
 				service.deleteNode(graphId, nodeId, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
@@ -335,13 +311,13 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
 	 * dto.Request)
 	 */
 	@Override
-	public void upsertRootNode(Request request) {
+	public Response upsertRootNode(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		try {
 			service.upsertRootNode(graphId, request);
-			OK(getSender());
+			return OK();
 		} catch (Exception e) {
-			ERROR(e, getSender());
+			return ERROR(e);
 		}
 	}
 

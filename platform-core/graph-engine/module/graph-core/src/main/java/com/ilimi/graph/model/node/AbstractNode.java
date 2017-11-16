@@ -16,18 +16,18 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.INode;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
@@ -37,6 +37,8 @@ import scala.concurrent.Future;
  * @author Mohammad Azharuddin
  */
 public abstract class AbstractNode extends AbstractDomainObject implements INode {
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
     /** The node id. */
     private String nodeId;
@@ -55,7 +57,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
      * @param nodeId the node id
      * @param metadata the metadata
      */
-    protected AbstractNode(BaseGraphManager manager, String graphId, String nodeId, Map<String, Object> metadata) {
+	protected AbstractNode(BaseGraphManager manager, String graphId, String nodeId, Map<String, Object> metadata) {
         super(manager, graphId);
         if (null == manager || StringUtils.isBlank(graphId)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_NODE.name(), "Invalid Node");
@@ -77,12 +79,9 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
                 public void onSuccess(Map<String, List<String>> messages) throws Throwable {
                     List<String> errMessages = getErrorMessages(messages);
                     if (null == errMessages || errMessages.isEmpty()) {
-                        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                         Request request = new Request(req);
-                        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-                        request.setOperation("addNode");
                         request.put(GraphDACParams.node.name(), toNode());
-                        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+						Future<Object> response = Futures.successful(nodeMgr.addNode(request));
                         manager.returnResponse(response, getParent());
                     } else {
                         manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Node validation failed",
@@ -107,13 +106,10 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
                     "Get Property: Required Properties are missing");
         } else {
             try {
-                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request request = new Request(req);
-                request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-                request.setOperation("getNodeProperty");
                 request.put(GraphDACParams.node_id.name(), this.nodeId);
                 request.put(GraphDACParams.property_key.name(), key);
-                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+				Future<Object> response = Futures.successful(searchMgr.getNodeProperty(request));
                 manager.returnResponse(response, getParent());
             } catch (Exception e) {
                 manager.ERROR(e, getParent());
@@ -154,12 +150,9 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     @Override
     public void delete(Request req) {
         try {
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-            request.setOperation("deleteNode");
             request.put(GraphDACParams.node_id.name(), getNodeId());
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(nodeMgr.deleteNode(request));
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
             manager.ERROR(e, getParent());

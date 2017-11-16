@@ -21,6 +21,12 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.mgr.IGraphDACGraphMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
@@ -28,20 +34,16 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.node.MetadataNode;
 import com.ilimi.graph.model.node.RelationNode;
 import com.ilimi.graph.model.node.ValueNode;
 import com.ilimi.graph.model.relation.UsedBySetRelation;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
@@ -59,6 +61,9 @@ public class Set extends AbstractCollection {
 	private List<Relation> inRelations;
 	private List<Relation> outRelations;
 	private ObjectMapper mapper = new ObjectMapper();
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
+	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
 
 	public static enum SET_TYPES {
 		MATERIALISED_SET, CRITERIA_SET;
@@ -92,12 +97,10 @@ public class Set extends AbstractCollection {
 	}
 
 	public Future<Node> getSetObject(Request req) {
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		Request request = new Request(req);
-		request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 		request.setOperation("getNodeByUniqueId");
 		request.put(GraphDACParams.node_id.name(), getNodeId());
-		Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
 		Future<Node> message = response.map(new Mapper<Object, Node>() {
 			@Override
 			public Node apply(Object parameter) {
@@ -157,12 +160,10 @@ public class Set extends AbstractCollection {
 							ResponseCode.RESOURCE_NOT_FOUND, getParent());
 				} else {
 					if (null != criteria && StringUtils.equals(SET_TYPES.CRITERIA_SET.name(), getSetType())) {
-						ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 						final Request request = new Request(req);
-						request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 						request.setOperation("searchNodes");
 						request.put(GraphDACParams.search_criteria.name(), criteria);
-						Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+						Future<Object> dacFuture = Futures.successful(searchMgr.searchNodes(request));
 						dacFuture.onComplete(new OnComplete<Object>() {
 							@Override
 							public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -225,10 +226,9 @@ public class Set extends AbstractCollection {
 				manager.returnResponseOnFailure(addResp, getParent());
 			}
 			Request updateReq = new Request(req);
-			updateReq.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
 			updateReq.setOperation("updateNode");
 			updateReq.put(GraphDACParams.node.name(), toNode());
-			Future<Object> response = Patterns.ask(GraphDACActorPoolMgr.getDacRouter(), updateReq, timeout);
+			Future<Object> response = Futures.successful(nodeMgr.updateNode(updateReq));
 			updateRelations(req, node);
 			manager.returnResponse(response, getParent());
  		} else {
@@ -527,12 +527,10 @@ public class Set extends AbstractCollection {
          		SetCacheManager.dropSet(graphId, setId);
                 Future<Object> response = null;
                 
-				ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 				Request dacRequest = new Request(req);
-				dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 				dacRequest.setOperation("deleteCollection");
 				dacRequest.put(GraphDACParams.collection_id.name(), setId);
-				dacRouter.tell(dacRequest, manager.getSelf());
+				Futures.successful(graphMgr.deleteCollection(dacRequest));
 
 				manager.returnResponse(response, getParent());
 			}
@@ -547,12 +545,10 @@ public class Set extends AbstractCollection {
 				throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_COLLECTION_MISSING_REQ_PARAMS.name(),
 						"Required parameters are missing...");
 			} else {
-				ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 				Request request = new Request(req);
-				request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 				request.setOperation("getNodeByUniqueId");
 				request.put(GraphDACParams.node_id.name(), this.getNodeId());
-				Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+				Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
 				manager.returnResponse(response, getParent());
 			}
 		} catch (Exception e) {
@@ -634,12 +630,10 @@ public class Set extends AbstractCollection {
 	private void createCriteriaSet(final Request req) {
 		try {
 			final ExecutionContext ec = manager.getContext().dispatcher();
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			final Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 			request.setOperation("searchNodes");
 			request.put(GraphDACParams.search_criteria.name(), this.criteria);
-			Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> dacFuture = Futures.successful(searchMgr.searchNodes(request));
 			dacFuture.onComplete(new OnComplete<Object>() {
 				@Override
 				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -689,12 +683,10 @@ public class Set extends AbstractCollection {
 	}
 
 	public void createSetNode(final Request req, final ExecutionContext ec) {
-		final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		Request request = new Request(req);
-		request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
 		request.setOperation("addNode");
 		request.put(GraphDACParams.node.name(), toNode());
-		Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> dacFuture = Futures.successful(nodeMgr.addNode(request));
 		dacFuture.onComplete(new OnComplete<Object>() {
 			@Override
 			public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -706,13 +698,12 @@ public class Set extends AbstractCollection {
 					setNodeId(setId);
 					if (null != memberIds && memberIds.size() > 0) {
 						Request dacRequest = new Request(req);
-						dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 						dacRequest.setOperation("createCollection");
 						dacRequest.put(GraphDACParams.collection_id.name(), setId);
 						dacRequest.put(GraphDACParams.relation_type.name(),
 								RelationTypes.SET_MEMBERSHIP.relationName());
 						dacRequest.put(GraphDACParams.members.name(), memberIds);
-						dacRouter.tell(dacRequest, manager.getSelf());
+						Futures.successful(graphMgr.createCollection(dacRequest));
 					}
 					req.getContext().get(GraphDACParams.graph_id.name());
 					SetCacheManager.createSet(graphId, setId, memberIds);
@@ -786,9 +777,7 @@ public class Set extends AbstractCollection {
 					newRels.put(type, ids);
 				}
 			}
-			final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			PlatformLogger.log("Creating " + (out ? "outgoing" : "incoming") + " relations | count: " , newRels.size());
 			for (Entry<String, List<String>> entry : newRels.entrySet()) {
 				if (out) {
@@ -802,7 +791,8 @@ public class Set extends AbstractCollection {
 					request.put(GraphDACParams.end_node_id.name(), getNodeId());
 					request.setOperation("addIncomingRelations");
 				}
-				dacRouter.tell(request, manager.getSelf());
+				// dacRouter.tell(request, manager.getSelf());
+				Futures.successful(graphMgr.addIncomingRelations(request));
 			}
 		}
 	}
@@ -819,24 +809,25 @@ public class Set extends AbstractCollection {
 	 *            relations
 	 */
 	private void deleteRelations(Request req, Map<String, List<String>> delRels, boolean out) {
-		final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		if (null != delRels && delRels.size() > 0) {
 			PlatformLogger.log("Deleting " + (out ? "outgoing" : "incoming") + " relations | count: " , delRels.size());
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			for (Entry<String, List<String>> entry : delRels.entrySet()) {
 				if (out) {
 					request.put(GraphDACParams.start_node_id.name(), getNodeId());
 					request.put(GraphDACParams.relation_type.name(), entry.getKey());
 					request.put(GraphDACParams.end_node_id.name(), entry.getValue());
 					request.setOperation("deleteOutgoingRelations");
+					Futures.successful(graphMgr.deleteIncomingRelations(request));
 				} else {
 					request.put(GraphDACParams.start_node_id.name(), entry.getValue());
 					request.put(GraphDACParams.relation_type.name(), entry.getKey());
 					request.put(GraphDACParams.end_node_id.name(), getNodeId());
 					request.setOperation("deleteIncomingRelations");
+					Futures.successful(graphMgr.deleteIncomingRelations(request));
 				}
-				dacRouter.tell(request, manager.getSelf());
+				// dacRouter.tell(request, manager.getSelf());
+
 			}
 		}
 	}
@@ -900,14 +891,12 @@ public class Set extends AbstractCollection {
 		req.getContext().get(GraphDACParams.graph_id.name());
  		SetCacheManager.addSetMember(graphId, setId, memberId);
  		
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		Request dacRequest = new Request(req);
-		dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 		dacRequest.setOperation("addRelation");
 		dacRequest.put(GraphDACParams.start_node_id.name(), setId);
 		dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 		dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-		Future<Object> dacResponse = Patterns.ask(dacRouter, dacRequest, timeout);
+		Future<Object> dacResponse = Futures.successful(graphMgr.addRelation(dacRequest));
 		futures.add(dacResponse);
 		return mergeFutures(futures);
 	}
@@ -917,15 +906,13 @@ public class Set extends AbstractCollection {
 		req.getContext().get(GraphDACParams.graph_id.name());
  		SetCacheManager.addSetMembers(graphId, setId, memberIds);
 
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		for (String memberId : memberIds) {
 			Request dacRequest = new Request(req);
-			dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			dacRequest.setOperation("addRelation");
 			dacRequest.put(GraphDACParams.start_node_id.name(), setId);
 			dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
 			dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-			Future<Object> dacResponse = Patterns.ask(dacRouter, dacRequest, timeout);
+			Future<Object> dacResponse = Futures.successful(graphMgr.addRelation(dacRequest));
 			futures.add(dacResponse);
 		}
 		return mergeFutures(futures);
@@ -933,14 +920,12 @@ public class Set extends AbstractCollection {
 
 	private Future<Object> removeMemberFromSet(Request req, String setId, String memberId) {
 		List<Future<Object>> futures = new ArrayList<Future<Object>>();
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		Request dacRequest = new Request(req);
-		dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 		dacRequest.setOperation("deleteRelation");
 		dacRequest.put(GraphDACParams.start_node_id.name(), setId);
 		dacRequest.put(GraphDACParams.relation_type.name(), new String(RelationTypes.SET_MEMBERSHIP.relationName()));
 		dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-		Future<Object> dacResponse = Patterns.ask(dacRouter, dacRequest, timeout);
+		Future<Object> dacResponse = Futures.successful(graphMgr.deleteRelation(dacRequest));
 		futures.add(dacResponse);
 		
 		//get from redis cache
@@ -992,12 +977,10 @@ public class Set extends AbstractCollection {
 
 	private void updateIndexRelations(final Request req, final ExecutionContext ec,
 			final List<Future<String>> futures) {
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		Request request = new Request(req);
-		request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 		request.setOperation("getNodeByUniqueId");
 		request.put(GraphDACParams.node_id.name(), getNodeId());
-		Future<Object> setResponse = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> setResponse = Futures.successful(searchMgr.getNodeByUniqueId(request));
 		setResponse.onComplete(new OnComplete<Object>() {
 			@Override
 			public void onComplete(Throwable arg0, Object arg1) throws Throwable {

@@ -15,20 +15,22 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.PlatformLogger;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.mgr.IGraphDACGraphMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.cache.DefinitionCache;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -39,6 +41,10 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     protected String endNodeId;
     protected Map<String, Object> metadata;
     
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
+	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
+
     protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId,
             Map<String, Object> metadata) {
         this(manager, graphId, startNodeId, endNodeId);
@@ -68,15 +74,12 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                 public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
                     List<String> errMessages = getErrorMessages(messageMap);
                     if (null == errMessages || errMessages.isEmpty()) {
-                        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                         Request request = new Request(req);
-                        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-                        request.setOperation("addRelation");
                         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
                         request.put(GraphDACParams.relation_type.name(), getRelationType());
                         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
                         request.put(GraphDACParams.metadata.name(), getMetadata());
-                        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+						Future<Object> response = Futures.successful(graphMgr.addRelation(request));
                         manager.returnResponse(response, getParent());
                     } else {
                         manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
@@ -90,15 +93,12 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     }
 
     public Future<String> createRelation(final Request req) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-        request.setOperation("addRelation");
         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
         request.put(GraphDACParams.relation_type.name(), getRelationType());
         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
         request.put(GraphDACParams.metadata.name(), getMetadata());
-        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(graphMgr.addRelation(request));
         Future<String> message = response.map(new Mapper<Object, String>() {
             @Override
             public String apply(Object parameter) {
@@ -120,12 +120,9 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     @Override
     public void delete(Request req) {
         try {
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-            request.setOperation("deleteRelation");
             request.copyRequestValueObjects(req.getRequest());
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.deleteRelation(request));
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
         	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_DELETE.name() + " Error occured while deleting the relation" + e.getMessage(), null, e);
@@ -135,14 +132,12 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 
     @Override
     public Future<String> deleteRelation(Request req) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
         request.setOperation("deleteRelation");
         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
         request.put(GraphDACParams.relation_type.name(), getRelationType());
         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
-        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(graphMgr.deleteRelation(request));
         Future<String> message = response.map(new Mapper<Object, String>() {
             @Override
             public String apply(Object parameter) {
@@ -206,15 +201,12 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     public void getProperty(Request req) {
         try {
             String key = (String) req.get(GraphDACParams.property_key.name());
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-            request.setOperation("getRelationProperty");
             request.put(GraphDACParams.start_node_id.name(), this.startNodeId);
             request.put(GraphDACParams.relation_type.name(), getRelationType());
             request.put(GraphDACParams.end_node_id.name(), this.endNodeId);
             request.put(GraphDACParams.property_key.name(), key);
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getRelationProperty(request));
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
         	PlatformLogger.log(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name() + " Error in fetching the relation properties" + e.getMessage(), null, e);
@@ -254,12 +246,10 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 
     protected Future<Node> getNode(Request request, String nodeId) {
         try {
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request newReq = new Request(request);
-            newReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
             newReq.setOperation("getNodeByUniqueId");
             newReq.put(GraphDACParams.node_id.name(), nodeId);
-            Future<Object> response = Patterns.ask(dacRouter, newReq, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
             Future<Node> node = response.map(new Mapper<Object, Node>() {
                 @Override
                 public Node apply(Object parameter) {
@@ -281,14 +271,11 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 
     protected Future<String> checkCycle(Request req) {
         try {
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-            request.setOperation("checkCyclicLoop");
             request.put(GraphDACParams.start_node_id.name(), this.endNodeId);
             request.put(GraphDACParams.relation_type.name(), getRelationType());
             request.put(GraphDACParams.end_node_id.name(), this.startNodeId);
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.checkCyclicLoop(request));
             Future<String> message = response.map(new Mapper<Object, String>() {
                 @Override
                 public String apply(Object parameter) {

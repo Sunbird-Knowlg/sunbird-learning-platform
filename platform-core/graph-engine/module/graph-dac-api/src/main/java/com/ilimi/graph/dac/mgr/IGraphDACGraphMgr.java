@@ -1,38 +1,39 @@
 package com.ilimi.graph.dac.mgr;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 
 public interface IGraphDACGraphMgr {
 
-    void createGraph(Request request);
+	Response createGraph(Request request);
     
-    void createUniqueConstraint(Request request);
+	Response createUniqueConstraint(Request request);
     
-    void createIndex(Request request);
+	Response createIndex(Request request);
 
-    void deleteGraph(Request request);
+	Response deleteGraph(Request request);
 
-    void addRelation(Request request);
+	Response addRelation(Request request);
 
-    void deleteRelation(Request request);
+	Response deleteRelation(Request request);
 
-    void updateRelation(Request request);
+	Response updateRelation(Request request);
 
-    void removeRelationMetadata(Request request);
+	Response removeRelationMetadata(Request request);
 
-    void importGraph(Request request);
+	Response importGraph(Request request);
 
-    void createCollection(Request request);
+	Response createCollection(Request request);
 
-    void deleteCollection(Request request);
+	Response deleteCollection(Request request);
 
-    void addOutgoingRelations(Request request);
+	Response addOutgoingRelations(Request request);
 
-    void addIncomingRelations(Request request);
+	Response addIncomingRelations(Request request);
     
-    void deleteIncomingRelations(Request request);
+	Response deleteIncomingRelations(Request request);
     
-    void deleteOutgoingRelations(Request request);
+	Response deleteOutgoingRelations(Request request);
     
-    void bulkUpdateNodes(Request request);
+	Response bulkUpdateNodes(Request request);
 }

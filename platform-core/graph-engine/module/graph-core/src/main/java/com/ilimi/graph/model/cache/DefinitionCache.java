@@ -9,18 +9,17 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.graph.cache.mgr.impl.NodeCacheManager;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
-import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 
 import akka.actor.ActorRef;
-import akka.pattern.Patterns;
+import akka.dispatch.Futures;
 import akka.util.Timeout;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -85,17 +84,16 @@ public class DefinitionCache extends BaseGraphManager {
 	@SuppressWarnings("unchecked")
 	private static DefinitionDTO getDefinitionNodeFromGraph(String graphId, String objectType) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+			IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 			Request request = new Request();
 			request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 			request.setOperation("searchNodes");
 			SearchCriteria sc = new SearchCriteria();
 			sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
 			sc.setObjectType(objectType);
 			sc.setResultSize(1);
 			request.put(GraphDACParams.search_criteria.name(), sc);
-			Future<Object> future = Patterns.ask(dacRouter, request, Configuration.TIMEOUT);
+			Future<Object> future = Futures.successful(searchMgr.searchNodes(request));
 			Object obj = Await.result(future, WAIT_TIMEOUT.duration());
 			if (obj instanceof Response) {
 				Response res = (Response) obj;

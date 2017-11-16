@@ -21,17 +21,16 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
 import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 import scala.concurrent.Future;
 
 public class DefinitionNode extends AbstractNode {
@@ -222,12 +221,10 @@ public class DefinitionNode extends AbstractNode {
                     ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), voList, getParent());
         } else {
             try {
-                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+				GraphDACNodeMgrImpl nodeMgr = new GraphDACNodeMgrImpl();
                 final Request request = new Request(req);
-                request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-                request.setOperation("upsertNode");
                 request.put(GraphDACParams.node.name(), toNode());
-                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+				Future<Object> response = Futures.successful(nodeMgr.upsertNode(request));
                 manager.onFailureResponse(response, getParent());
                 response.onSuccess(new OnSuccess<Object>() {
                     @Override
@@ -262,16 +259,14 @@ public class DefinitionNode extends AbstractNode {
                     "Required parameters are missing");
         } else {
             try {
-                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+				IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
                 Request request = new Request(req);
-                request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-                request.setOperation("searchNodes");
                 SearchCriteria sc = new SearchCriteria();
                 sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
                 sc.setObjectType(objectType);
                 sc.setResultSize(1);
                 request.put(GraphDACParams.search_criteria.name(), sc);
-                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+				Future<Object> response = Futures.successful(searchMgr.searchNodes(request));
                 response.onComplete(new OnComplete<Object>() {
                     @Override
                     public void onComplete(Throwable arg0, Object arg1) throws Throwable {

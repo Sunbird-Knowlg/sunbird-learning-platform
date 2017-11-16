@@ -1,49 +1,29 @@
 package com.ilimi.graph.dac.mgr.impl;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.graph.service.IGraphDatabaseService;
-import org.ekstep.graph.service.factory.GraphServiceFactory;
+import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
-import com.ilimi.graph.common.mgr.BaseGraphManager;
+import com.ilimi.graph.common.mgr.GraphDACMgr;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.mgr.IGraphDACGraphMgr;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.importer.ImportData;
 
-import akka.actor.ActorRef;
+public class GraphDACGraphMgrImpl extends GraphDACMgr implements IGraphDACGraphMgr {
 
-public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACGraphMgr {
-
-	private static IGraphDatabaseService service = GraphServiceFactory.getDatabaseService();
-
-	protected void invokeMethod(Request request, ActorRef parent) {
-		String methodName = request.getOperation();
-		try {
-			Method method = GraphDACActorPoolMgr.getMethod(GraphDACManagers.DAC_GRAPH_MANAGER, methodName);
-			if (null == method) {
-				throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_INVALID_OPERATION.name(),
-						"Operation '" + methodName + "' not found");
-			} else {
-				method.invoke(this, request);
-			}
-		} catch (Exception e) {
-			ERROR(e, parent);
-		}
-	}
+	private static Neo4JBoltGraphOperations service = new Neo4JBoltGraphOperations();
 
 	@Override
-	public void createGraph(Request request) {
+	public Response createGraph(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		if (StringUtils.isBlank(graphId)) {
 			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
@@ -54,16 +34,16 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 			try {
 				Neo4jGraphFactory.createGraph(graphId);
 				Neo4jGraphFactory.getGraphDb(graphId, request);
-				OK(GraphDACParams.graph_id.name(), graphId, getSender());
+				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void createUniqueConstraint(Request request) {
+	public Response createUniqueConstraint(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<String> indexProperties = (List<String>) request.get(GraphDACParams.property_keys.name());
 		if (!validateRequired(indexProperties)) {
@@ -72,16 +52,16 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.createGraphUniqueContraint(graphId, indexProperties, request);
-				OK(GraphDACParams.graph_id.name(), graphId, getSender());
+				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void createIndex(Request request) {
+	public Response createIndex(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<String> indexProperties = (List<String>) request.get(GraphDACParams.property_keys.name());
 		if (!validateRequired(indexProperties)) {
@@ -90,15 +70,15 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.createIndex(graphId, indexProperties, request);
-				OK(GraphDACParams.graph_id.name(), graphId, getSender());
+				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@Override
-	public void deleteGraph(Request request) {
+	public Response deleteGraph(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		if (StringUtils.isBlank(graphId)) {
 			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
@@ -108,15 +88,15 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.deleteGraph(graphId, request);
-				OK(GraphDACParams.graph_id.name(), graphId, getSender());
+				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addOutgoingRelations(Request request) {
+	public Response addOutgoingRelations(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -127,15 +107,15 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.createOutgoingRelations(graphId, startNodeId, endNodeIds, relationType, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addIncomingRelations(Request request) {
+	public Response addIncomingRelations(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<String> startNodeIds = (List<String>) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -146,15 +126,15 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.createIncomingRelations(graphId, startNodeIds, endNodeId, relationType, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@Override
-	public void addRelation(Request request) {
+	public Response addRelation(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -165,16 +145,16 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.createRelation(graphId, startNodeId, endNodeId, relationType, request);
-				OK(GraphDACParams.graph_id.name(), graphId, getSender());
+				return OK(GraphDACParams.graph_id.name(), graphId);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteIncomingRelations(Request request) {
+	public Response deleteIncomingRelations(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<String> startNodeIds = (List<String>) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -185,16 +165,16 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.deleteIncomingRelations(graphId, startNodeIds, endNodeId, relationType, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void deleteOutgoingRelations(Request request) {
+	public Response deleteOutgoingRelations(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -205,15 +185,15 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.deleteOutgoingRelations(graphId, startNodeId, endNodeIds, relationType, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@Override
-	public void deleteRelation(Request request) {
+	public Response deleteRelation(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -224,16 +204,16 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.deleteRelation(graphId, startNodeId, endNodeId, relationType, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void updateRelation(Request request) {
+	public Response updateRelation(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -245,17 +225,17 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else if (null != metadata && metadata.size() > 0) {
 			try {
 				service.updateRelation(graphId, startNodeId, endNodeId, relationType, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		} else {
-			OK(getSender());
+			return OK();
 		}
 	}
 
 	@Override
-	public void removeRelationMetadata(Request request) {
+	public Response removeRelationMetadata(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
 		String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -267,18 +247,18 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else if (StringUtils.isNotBlank(key)) {
 			try {
 				service.removeRelationMetadataByKey(graphId, startNodeId, endNodeId, relationType, key, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		} else {
-			OK(getSender());
+			return OK();
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void createCollection(Request request) {
+	public Response createCollection(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String collectionId = (String) request.get(GraphDACParams.collection_id.name());
 		com.ilimi.graph.dac.model.Node collection = (com.ilimi.graph.dac.model.Node) request
@@ -293,14 +273,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 			try {
 				service.createCollection(graphId, collectionId, collection, relationType, members, indexProperty,
 						request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
-	public void deleteCollection(Request request) {
+	public Response deleteCollection(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String collectionId = (String) request.get(GraphDACParams.collection_id.name());
 		if (!validateRequired(collectionId)) {
@@ -309,15 +289,15 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				service.deleteCollection(graphId, collectionId, request);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@Override
-	public void importGraph(Request request) {
+	public Response importGraph(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		String taskId = request.get(GraphDACParams.task_id.name()) == null ? null
 				: (String) request.get(GraphDACParams.task_id.name());
@@ -327,16 +307,16 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		} else {
 			try {
 				Map<String, List<String>> messages = service.importGraph(graphId, taskId, input, request);
-				OK(GraphDACParams.messages.name(), messages, getSender());
+				return OK(GraphDACParams.messages.name(), messages);
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void bulkUpdateNodes(Request request) {
+	public Response bulkUpdateNodes(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<Map<String, Object>> newNodes = (List<Map<String, Object>>) request.get(GraphDACParams.newNodes.name());
 		List<Map<String, Object>> modifiedNodes = (List<Map<String, Object>>) request.get(GraphDACParams.modifiedNodes.name());
@@ -350,9 +330,9 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 			try {
 				service.bulkUpdateNodes(graphId, newNodes, modifiedNodes, addOutRelations, removeOutRelations,
 						addInRelations, removeInRelations);
-				OK(getSender());
+				return OK();
 			} catch (Exception e) {
-				ERROR(e, getSender());
+				return ERROR(e);
 			}
 		}
 	}

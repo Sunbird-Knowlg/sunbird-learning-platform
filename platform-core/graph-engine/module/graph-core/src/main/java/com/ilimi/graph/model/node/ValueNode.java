@@ -12,19 +12,19 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.relation.HasTagRelation;
 import com.ilimi.graph.model.relation.HasValueRelation;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
@@ -41,6 +41,8 @@ public class ValueNode extends AbstractIndexNode {
     private String relationType = HasValueRelation.RELATION_NAME;
     public static final String VALUE_NODE_VALUE_KEY = "VALUE_NODE_VALUE";
     public static final String VALUE_NODE_TYPE_KEY = "VALUE_NODE_TYPE";
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
     public ValueNode(BaseGraphManager manager, String graphId, String objectType, String name, Object value) {
         super(manager, graphId);
@@ -81,8 +83,7 @@ public class ValueNode extends AbstractIndexNode {
         final Promise<Map<String, Object>> promise = Futures.promise();
         Future<Map<String, Object>> future = promise.future();
         final ExecutionContext ec = manager.getContext().dispatcher();
-        final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-        Future<Object> getFuture = getNodeObject(req, dacRouter, getSourceNodeId());
+		Future<Object> getFuture = getNodeObject(req, searchMgr, getSourceNodeId());
         getFuture.onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -108,10 +109,8 @@ public class ValueNode extends AbstractIndexNode {
                     }
                     if (!found) {
                         Request request = new Request(req);
-                        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-                        request.setOperation("addNode");
                         request.put(GraphDACParams.node.name(), toNode());
-                        Future<Object> createFuture = Patterns.ask(dacRouter, request, timeout);
+						Future<Object> createFuture = Futures.successful(nodeMgr.addNode(request));
                         createFuture.onComplete(new OnComplete<Object>() {
                             @Override
                             public void onComplete(Throwable arg0, Object arg1) throws Throwable {

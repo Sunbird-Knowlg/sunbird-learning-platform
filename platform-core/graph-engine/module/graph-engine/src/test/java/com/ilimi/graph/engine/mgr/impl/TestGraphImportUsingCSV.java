@@ -11,9 +11,7 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.helpers.collection.Iterators;
 
@@ -26,8 +24,7 @@ import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
@@ -38,6 +35,7 @@ import com.ilimi.graph.importer.OutputStreamValue;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import akka.dispatch.Futures;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import scala.concurrent.Await;
@@ -100,13 +98,12 @@ public class TestGraphImportUsingCSV {
     }
 
     private String getNodeProperty(String uniqueId, String propertyName) throws Exception {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+
         Request request = getRequest();
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
         request.setOperation("getNodeProperty");
         request.put(GraphDACParams.node_id.name(), uniqueId);
         request.put(GraphDACParams.property_key.name(), propertyName);
-        Future<Object> req = Patterns.ask(dacRouter, request, t);
+		Future<Object> req = Futures.successful(new GraphDACSearchMgrImpl().getNodeProperty(request));
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         Property property = (Property) response.get(GraphDACParams.property.name());

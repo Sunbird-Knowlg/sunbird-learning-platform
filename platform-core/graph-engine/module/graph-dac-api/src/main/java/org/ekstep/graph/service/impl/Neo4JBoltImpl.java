@@ -8,6 +8,7 @@ import org.ekstep.graph.service.IGraphDatabaseService;
 import org.ekstep.graph.service.operation.Neo4JBoltGraphOperations;
 import org.ekstep.graph.service.operation.Neo4JBoltNodeOperations;
 import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
+import org.springframework.stereotype.Service;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -20,6 +21,7 @@ import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.importer.ImportData;
 
+@Service
 public class Neo4JBoltImpl implements IGraphDatabaseService {
 
 	Neo4JBoltGraphOperations graphOperations = new Neo4JBoltGraphOperations();

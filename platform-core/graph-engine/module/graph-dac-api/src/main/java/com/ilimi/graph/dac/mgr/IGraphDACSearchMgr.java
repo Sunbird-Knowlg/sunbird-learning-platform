@@ -1,38 +1,39 @@
 package com.ilimi.graph.dac.mgr;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 
 public interface IGraphDACSearchMgr {
 
-    void getNodeById(Request request);
+	Response getNodeById(Request request);
 
-    void getNodeByUniqueId(Request request);
+	Response getNodeByUniqueId(Request request);
 
-    void getNodesByUniqueIds(Request request);
+	Response getNodesByUniqueIds(Request request);
 
-    void getNodesByProperty(Request request);
+	Response getNodesByProperty(Request request);
 
-    void getNodeProperty(Request request);
+	Response getNodeProperty(Request request);
 
-    void getAllRelations(Request request);
+	Response getAllRelations(Request request);
 
-    void getAllNodes(Request request);
+	Response getAllNodes(Request request);
 
-    void getRelation(Request request);
+	Response getRelation(Request request);
 
-    void getRelationProperty(Request request);
+	Response getRelationProperty(Request request);
 
-    void checkCyclicLoop(Request request);
+	Response checkCyclicLoop(Request request);
     
-    void executeQuery(Request request);
+	Response executeQuery(Request request);
 
-    void searchNodes(Request request);
+	Response searchNodes(Request request);
 
-    void getNodesCount(Request request);
+	Response getNodesCount(Request request);
 
-    void traverse(Request request);
+	Response traverse(Request request);
     
-    void traverseSubGraph(Request request);
+	Response traverseSubGraph(Request request);
     
-    void getSubGraph(Request request);
+	Response getSubGraph(Request request);
 }

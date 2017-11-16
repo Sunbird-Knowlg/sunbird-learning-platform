@@ -25,26 +25,29 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.cache.DefinitionCache;
 import com.ilimi.graph.model.relation.RelationHandler;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
 
 public class DataNode extends AbstractNode {
+
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
 
 	private String objectType;
 	private List<Relation> inRelations;
@@ -149,12 +152,9 @@ public class DataNode extends AbstractNode {
 	}
 
 	public Future<Node> getNodeObject(Request req) {
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		Request request = new Request(req);
-		request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-		request.setOperation("getNodeByUniqueId");
 		request.put(GraphDACParams.node_id.name(), getNodeId());
-		Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
 		Future<Node> message = response.map(new Mapper<Object, Node>() {
 			@Override
 			public Node apply(Object parameter) {
@@ -321,12 +321,9 @@ public class DataNode extends AbstractNode {
 	@Override
 	public void removeProperty(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-			request.setOperation("removePropertyValue");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(nodeMgr.removePropertyValue(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			manager.ERROR(e, getParent());
@@ -342,12 +339,9 @@ public class DataNode extends AbstractNode {
 		} else {
 			checkMetadata(property.getPropertyName(), property.getPropertyValue());
 			try {
-				ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 				Request request = new Request(req);
-				request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-				request.setOperation("updatePropertyValue");
 				request.copyRequestValueObjects(req.getRequest());
-				Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+				Future<Object> response = Futures.successful(nodeMgr.updatePropertyValue(request));
 				manager.returnResponse(response, getParent());
 			} catch (Exception e) {
 				manager.ERROR(e, getParent());
@@ -356,12 +350,9 @@ public class DataNode extends AbstractNode {
 	}
 
 	public Future<Response> createNode(final Request req) {
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-        request.setOperation("addNode");
         request.put(GraphDACParams.node.name(), toNode());
-        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(nodeMgr.addNode(request));
         Future<Response> message = response.map(new Mapper<Object, Response>() {
             @Override
             public Response apply(Object parameter) {
@@ -398,12 +389,9 @@ public class DataNode extends AbstractNode {
 	public Future<Response> updateNode(Request req) {
 		try {
 			checkMetadata(metadata);
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-			request.setOperation("updateNode");
 			request.put(GraphDACParams.node.name(), toNode());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(nodeMgr.updateNode(request));
 			Future<Response> message = response.map(new Mapper<Object, Response>() {
 				@Override
 				public Response apply(Object parameter) {

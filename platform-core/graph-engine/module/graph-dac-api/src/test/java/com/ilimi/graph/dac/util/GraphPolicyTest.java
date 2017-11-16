@@ -9,7 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.ekstep.graph.service.IGraphDatabaseService;
-import org.ekstep.graph.service.factory.GraphServiceFactory;
+import org.ekstep.graph.service.impl.Neo4JBoltImpl;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -33,7 +33,7 @@ public class GraphPolicyTest {
 	
 	static String graphId =  "domain";
 	static String graphId1 =  "123";
-	static IGraphDatabaseService graphDb = GraphServiceFactory.getDatabaseService();
+	static IGraphDatabaseService graphDb = new Neo4JBoltImpl();;
 	String relationType = "ASSOCIATED_TO"; 
 	
 	@Rule

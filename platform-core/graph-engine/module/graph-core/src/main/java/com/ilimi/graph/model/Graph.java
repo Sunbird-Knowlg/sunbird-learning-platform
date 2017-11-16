@@ -36,11 +36,15 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.mgr.IGraphDACGraphMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.importer.ImportData;
@@ -59,12 +63,10 @@ import com.ilimi.graph.reader.JsonGraphReader;
 import com.ilimi.graph.writer.GraphWriterFactory;
 import com.ilimi.graph.writer.RDFGraphWriter;
 
-import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
 import akka.util.Timeout;
 import scala.Tuple2;
 import scala.concurrent.Await;
@@ -77,6 +79,9 @@ public class Graph extends AbstractDomainObject {
 
 	public static final String ERROR_MESSAGES = "ERROR_MESSAGES";
 	public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
+	private static IGraphDACSearchMgr searchMgr = new GraphDACSearchMgrImpl();
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
 
 	public Graph(BaseGraphManager manager, String graphId) {
 		super(manager, graphId);
@@ -84,11 +89,8 @@ public class Graph extends AbstractDomainObject {
 
 	public void create(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			request.setOperation("createGraph");
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.createGraph(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -98,12 +100,9 @@ public class Graph extends AbstractDomainObject {
 
 	public void createUniqueConstraint(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			request.setOperation("createUniqueConstraint");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.createUniqueConstraint(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_UNIQUE_CONSTRAINT_UNKNOWN_ERROR.name(),
@@ -113,12 +112,9 @@ public class Graph extends AbstractDomainObject {
 
 	public void createIndex(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			request.setOperation("createIndex");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.createIndex(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_INDEX_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -126,14 +122,14 @@ public class Graph extends AbstractDomainObject {
 		}
 	}
 
-	public List<Node> getAllSetObjects(ActorRef dacRouter, Request req) throws Exception {
+	public List<Node> getAllSetObjects(Request req) throws Exception {
 
 		int batch = 1000;
 		int start = 0;
 		boolean found = true;
 		List<Node> allNodes = new ArrayList<>();
 		while (found) {
-			List<Node> nodes = getSetNodes(dacRouter, req, start, batch);
+			List<Node> nodes = getSetNodes(req, start, batch);
 			if (null != nodes && !nodes.isEmpty()) {
 				allNodes.addAll(nodes);
 				start += batch;
@@ -146,17 +142,15 @@ public class Graph extends AbstractDomainObject {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Node> getSetNodes(ActorRef dacRouter, Request req, int startPosition, int batchSize) throws Exception {
+	private List<Node> getSetNodes(Request req, int startPosition, int batchSize) throws Exception {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.SET.name());
 		sc.setResultSize(batchSize);
 		sc.setStartPosition(startPosition);
 
 		final Request setNodesReq = new Request(req);
-		setNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-		setNodesReq.setOperation("searchNodes");
 		setNodesReq.put(GraphDACParams.search_criteria.name(), sc);
-		Future<Object> setNodesResponse = Patterns.ask(dacRouter, setNodesReq, timeout);
+		Future<Object> setNodesResponse = Futures.successful(searchMgr.searchNodes(setNodesReq));
 
 		Object obj = Await.result(setNodesResponse, WAIT_TIMEOUT.duration());
 		if (obj instanceof Response) {
@@ -173,10 +167,9 @@ public class Graph extends AbstractDomainObject {
 	public void load(Request req) {
 		try {
 			final ExecutionContext ec = manager.getContext().dispatcher();
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 
 			// get all sets
-			List<Node> setNodes = getAllSetObjects(dacRouter, req);
+			List<Node> setNodes = getAllSetObjects(req);
 			if (null != setNodes && !setNodes.isEmpty()) {
 				System.out.println("Total sets: " + setNodes.size());
 				for (Node node : setNodes) {
@@ -199,12 +192,10 @@ public class Graph extends AbstractDomainObject {
 
 			// get all definition nodes
 			final Request defNodesReq = new Request(req);
-			defNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			defNodesReq.setOperation("getNodesByProperty");
 			Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DEFINITION_NODE.name());
 			defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
-			Future<Object> defNodesResponse = Patterns.ask(dacRouter, defNodesReq, timeout);
+			Future<Object> defNodesResponse = Futures.successful(searchMgr.getNodeProperty(defNodesReq));
 			defNodesResponse.onComplete(new OnComplete<Object>() {
 				@Override
 				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -261,30 +252,23 @@ public class Graph extends AbstractDomainObject {
 		try {
 			final ExecutionContext ec = manager.getContext().dispatcher();
 
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			// get all definition nodes
 			Request defNodesReq = new Request(req);
-			defNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			defNodesReq.setOperation("getNodesByProperty");
 			Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DEFINITION_NODE.name());
 			defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
-			Future<Object> defNodesResponse = Patterns.ask(dacRouter, defNodesReq, timeout);
+			Future<Object> defNodesResponse = Futures.successful(searchMgr.getNodesByProperty(defNodesReq));
 
 			// get all data nodes
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("getNodesByProperty");
 			Property property = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 					SystemNodeTypes.DATA_NODE.name());
 			request.put(GraphDACParams.metadata.name(), property);
-			Future<Object> dataNodesResponse = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> dataNodesResponse = Futures.successful(searchMgr.getNodeProperty(request));
 
 			// get all relations
 			Request relsRequest = new Request(req);
-			relsRequest.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			relsRequest.setOperation("getAllRelations");
-			Future<Object> relationsResponse = Patterns.ask(dacRouter, relsRequest, timeout);
+			Future<Object> relationsResponse = Futures.successful(searchMgr.getAllRelations(relsRequest));
 
 			// List<Future<List<String>>> validationMessages = new
 			// ArrayList<Future<List<String>>>();
@@ -337,11 +321,8 @@ public class Graph extends AbstractDomainObject {
 
 	public void delete(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			request.setOperation("deleteGraph");
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.deleteGraph(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_DELETE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -360,13 +341,10 @@ public class Graph extends AbstractDomainObject {
 		metadata.put(GraphEngineParams.status.name(), GraphEngineParams.Pending.name());
 		node.setMetadata(metadata);
 
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		final Request req = new Request();
-		req.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-		req.setOperation("addNode");
 		req.put(GraphDACParams.node.name(), node);
 		req.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-		Future<Object> future = Patterns.ask(dacRouter, req, timeout);
+		Future<Object> future = Futures.successful(nodeMgr.addNode(request));
 		Object obj = Await.result(future, WAIT_TIMEOUT.duration());
 		if (obj instanceof Response) {
 			Response reponse = (Response) obj;
@@ -377,10 +355,7 @@ public class Graph extends AbstractDomainObject {
 
 	public void addOutRelations(Request request) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-			request.setOperation("addOutgoingRelations");
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.addOutgoingRelations(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_RELATION_NODE_FAILED.name(),
@@ -390,10 +365,8 @@ public class Graph extends AbstractDomainObject {
 
 	public void addInRelations(Request request) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			request.setOperation("addIncomingRelations");
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.addIncomingRelations(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_RELATION_NODE_FAILED.name(),
@@ -425,17 +398,14 @@ public class Graph extends AbstractDomainObject {
 					inputStream.setInputStream(new ByteArrayInputStream(bytes));
 					final ByteArrayInputStream byteInputStream = new ByteArrayInputStream(bytes);
 
-					final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 					final ExecutionContext ec = manager.getContext().dispatcher();
 
 					// Fetch Definition Nodes
 					final Request defNodesReq = new Request(request);
-					defNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-					defNodesReq.setOperation("getNodesByProperty");
 					Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
 							SystemNodeTypes.DEFINITION_NODE.name());
 					defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
-					Future<Object> defNodesResponse = Patterns.ask(dacRouter, defNodesReq, timeout);
+					Future<Object> defNodesResponse = Futures.successful(searchMgr.getNodesByProperty(defNodesReq));
 
 					// Create Definition Nodes Property Map from Future.
 					Future<Map<String, Map<String, MetadataDefinition>>> propDataMapFuture = defNodesResponse
@@ -500,9 +470,7 @@ public class Graph extends AbstractDomainObject {
 									request.put(GraphDACParams.import_input_object.name(), importData);
 									request.put(GraphDACParams.task_id.name(), taskId);
 									// Use ImportData object and import Graph.
-									request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-									request.setOperation("importGraph");
-									Future<Object> importResponse = Patterns.ask(dacRouter, request, timeout);
+									Future<Object> importResponse = Futures.successful(graphMgr.importGraph(request));
 									importResponse.onComplete(new OnComplete<Object>() {
 										@Override
 										public void onComplete(Throwable throwable, Object arg1) throws Throwable {
@@ -608,12 +576,9 @@ public class Graph extends AbstractDomainObject {
 
 	public void searchNodes(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("searchNodes");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.searchNodes(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -624,14 +589,11 @@ public class Graph extends AbstractDomainObject {
 	@SuppressWarnings("unchecked")
 	public Future<List<Map<String, Object>>> executeQuery(Request req, String query, Map<String, Object> params) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("executeQuery");
 			request.put(GraphDACParams.query.name(), query);
 			if (null != params && !params.isEmpty())
 				request.put(GraphDACParams.params.name(), params);
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.executeQuery(request));
 			Future<List<Map<String, Object>>> future = response.map(new Mapper<Object, List<Map<String, Object>>>() {
 				@Override
 				public List<Map<String, Object>> apply(Object parameter) {
@@ -666,14 +628,11 @@ public class Graph extends AbstractDomainObject {
 					"Object Type is required for GetNodesByObjectType API");
 		} else {
 			try {
-				ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 				Request request = new Request(req);
-				request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-				request.setOperation("getNodesByProperty");
 				request.copyRequestValueObjects(req.getRequest());
 				Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType);
 				request.put(GraphDACParams.metadata.name(), property);
-				Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+				Future<Object> response = Futures.successful(searchMgr.getNodesByProperty(request));
 				response.onComplete(new OnComplete<Object>() {
 					@Override
 					public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -709,12 +668,9 @@ public class Graph extends AbstractDomainObject {
 	@SuppressWarnings("unchecked")
 	public void getNodesByProperty(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("getNodesByProperty");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getNodesByProperty(request));
 			response.onComplete(new OnComplete<Object>() {
 				@Override
 				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -747,12 +703,9 @@ public class Graph extends AbstractDomainObject {
 
 	public void getDataNode(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("getNodeByUniqueId");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
 			response.onComplete(new OnComplete<Object>() {
 				@Override
 				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -780,12 +733,9 @@ public class Graph extends AbstractDomainObject {
 
 	public void getDataNodes(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("getNodesByUniqueIds");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getNodesByUniqueIds(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -795,12 +745,10 @@ public class Graph extends AbstractDomainObject {
 	
 	public void executeQueryForProps(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 			request.setOperation("executeQueryForProps");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.executeQuery(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_EXECUTE_QUERY_FOR_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
@@ -839,12 +787,9 @@ public class Graph extends AbstractDomainObject {
 	@SuppressWarnings("unchecked")
 	public void getDefinitionNodes(final Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("searchNodes");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.searchNodes(request));
 			response.onComplete(new OnComplete<Object>() {
 				@Override
 				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -879,12 +824,10 @@ public class Graph extends AbstractDomainObject {
 
 	public void getNodesCount(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 			request.setOperation("getNodesCount");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getNodesCount(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -894,12 +837,10 @@ public class Graph extends AbstractDomainObject {
 
 	public void traverse(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 			request.setOperation("traverse");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.traverse(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -909,12 +850,10 @@ public class Graph extends AbstractDomainObject {
 
 	public void traverseSubGraph(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 			request.setOperation("traverseSubGraph");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.traverseSubGraph(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -924,12 +863,9 @@ public class Graph extends AbstractDomainObject {
 
 	public void getSubGraph(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-			request.setOperation("getSubGraph");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getSubGraph(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(),
@@ -978,13 +914,11 @@ public class Graph extends AbstractDomainObject {
 						}
 					}
 					if (null == messageMap || messageMap.isEmpty()) {
-						ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 						List<Future<Object>> futures = new ArrayList<Future<Object>>();
 						final Request req = new Request(request);
-						req.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
 						req.setOperation("importNodes");
 						req.put(GraphDACParams.node_list.name(), nodes);
-						Future<Object> response = Patterns.ask(dacRouter, req, timeout);
+						Future<Object> response = Futures.successful(nodeMgr.importNodes(request));
 						futures.add(response);
 						response.onComplete(new OnComplete<Object>() {
 							@Override
@@ -1017,7 +951,6 @@ public class Graph extends AbstractDomainObject {
 	public void exportGraph(final Request request) {
 		try {
 			final ExecutionContext ec = manager.getContext().dispatcher();
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			final String format = (String) request.get(GraphEngineParams.format.name());
 			SearchCriteria sc = null;
 			if (null != request.get(GraphEngineParams.search_criteria.name()))
@@ -1026,24 +959,21 @@ public class Graph extends AbstractDomainObject {
 			Future<Object> nodesResponse = null;
 			if (null == sc) {
 				Request nodesReq = new Request(request);
-				nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 				nodesReq.setOperation("getAllNodes");
-				nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+				nodesResponse = Futures.successful(searchMgr.getAllNodes(nodesReq));
 			} else {
 				Request nodesReq = new Request(request);
-				nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 				nodesReq.setOperation("searchNodes");
 				nodesReq.put(GraphDACParams.search_criteria.name(), sc);
 				nodesReq.put(GraphDACParams.get_tags.name(), true);
-				nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+				nodesResponse = Futures.successful(searchMgr.searchNodes(nodesReq));
 			}
 
 			Future<Object> relationsResponse = null;
 			if (!StringUtils.equalsIgnoreCase(ImportType.CSV.name(), format)) {
 				Request relationsReq = new Request(request);
-				relationsReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 				relationsReq.setOperation("getAllRelations");
-				relationsResponse = Patterns.ask(dacRouter, relationsReq, timeout);
+				relationsResponse = Futures.successful(searchMgr.getAllRelations(relationsReq));
 			} else {
 				Object blankResponse = new Response();
 				relationsResponse = Futures.successful(blankResponse);
@@ -1264,12 +1194,10 @@ public class Graph extends AbstractDomainObject {
 	}
 
 	public void exportNode(Request req) {
-		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 		Request request = new Request(req);
-		request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 		request.setOperation("getNodeByUniqueId");
 		request.copyRequestValueObjects(req.getRequest());
-		Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
 		response.onComplete(new OnComplete<Object>() {
 			@Override
 			public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -1295,12 +1223,10 @@ public class Graph extends AbstractDomainObject {
 
 	public void upsertRootNode(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
 			request.setOperation("upsertRootNode");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(nodeMgr.upsertRootNode(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), e.getMessage(), e);
@@ -1309,12 +1235,10 @@ public class Graph extends AbstractDomainObject {
 
 	public void getProxyNode(Request req) {
 		try {
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
 			Request request = new Request(req);
-			request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
 			request.setOperation("getNodeByUniqueId");
 			request.copyRequestValueObjects(req.getRequest());
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(searchMgr.getNodeByUniqueId(request));
 			response.onComplete(new OnComplete<Object>() {
 				@Override
 				public void onComplete(Throwable arg0, Object arg1) throws Throwable {
@@ -1407,8 +1331,6 @@ public class Graph extends AbstractDomainObject {
 				}
 			}
 			
-			ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-			request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
 			request.setOperation("bulkUpdateNodes");
 			request.put(GraphDACParams.newNodes.name(), newNodes);
 			request.put(GraphDACParams.modifiedNodes.name(), modifiedNodes);
@@ -1416,7 +1338,7 @@ public class Graph extends AbstractDomainObject {
 			request.put(GraphDACParams.removedOutRelations.name(), removeOutRelations);
 			request.put(GraphDACParams.addedInRelations.name(), addInRelations);
 			request.put(GraphDACParams.removedInRelations.name(), removeInRelations);
-			Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+			Future<Object> response = Futures.successful(graphMgr.bulkUpdateNodes(request));
 			manager.returnResponse(response, getParent());
 		} catch (Exception e) {
 			throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_RELATION_NODE_FAILED.name(),

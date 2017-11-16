@@ -1,18 +1,17 @@
 package com.ilimi.graph.dac.mgr.impl;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.ekstep.graph.service.IGraphDatabaseService;
-import org.ekstep.graph.service.factory.GraphServiceFactory;
+import org.ekstep.graph.service.operation.Neo4JBoltSearchOperations;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.mgr.BaseGraphManager;
+import com.ilimi.graph.common.mgr.GraphDACMgr;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
@@ -25,31 +24,16 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 
-import akka.actor.ActorRef;
+public class GraphDACSearchMgrImpl extends GraphDACMgr implements IGraphDACSearchMgr {
+	
+	// private static IGraphDatabaseService service = new Neo4JBoltImpl();
 
-public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDACSearchMgr {
+	private static Neo4JBoltSearchOperations service = new Neo4JBoltSearchOperations();
 	
-	private static IGraphDatabaseService service = GraphServiceFactory.getDatabaseService();
-	
-    protected void invokeMethod(Request request, ActorRef parent) {
-        String methodName = request.getOperation();
-        try {
-            Method method = GraphDACActorPoolMgr.getMethod(GraphDACManagers.DAC_SEARCH_MANAGER, methodName);
-            if (null == method) {
-                throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_INVALID_OPERATION.name(), "Operation '" + methodName + "' not found");
-            } else {
-                method.invoke(this, request);
-            }
-        } catch (Exception e) {
-            ERROR(e, parent);
-        }
-    }
 
     @Override
-    public void getNodeById(Request request) {
+	public Response getNodeById(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         Long nodeId = (Long) request.get(GraphDACParams.node_id.name());
         Boolean getTags = (Boolean) request.get(GraphDACParams.get_tags.name());
@@ -57,14 +41,14 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         try {
             Node node = service.getNodeById(graphId, nodeId, getTags, request);
-            OK(GraphDACParams.node.name(), node, getSender());
+			return OK(GraphDACParams.node.name(), node);
         } catch (Exception e) {
-            ERROR(e, getSender());
+			return ERROR(e);
         }
     }
 
     @Override
-    public void getNodeByUniqueId(Request request) {
+	public Response getNodeByUniqueId(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String nodeId = (String) request.get(GraphDACParams.node_id.name());
         Boolean getTags = (Boolean) request.get(GraphDACParams.get_tags.name());
@@ -73,14 +57,14 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
                 Node node = service.getNodeByUniqueId(graphId, nodeId, getTags, request);
-                OK(GraphDACParams.node.name(), node, getSender());
+				return OK(GraphDACParams.node.name(), node);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
     
-    public void executeQueryForProps(Request request) {
+	public Response executeQueryForProps(Request request) {
     		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
     		String query = (String) request.get(GraphDACParams.query.name());
     		List<String> propKeys = (List<String>) request.get(GraphDACParams.property_keys.name());
@@ -89,15 +73,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
     		} else {
     			try {
                 List<Map<String, Object>> nodes = service.executeQueryForProps(graphId, query, propKeys);
-                OK(GraphDACParams.properties.name(), nodes, getSender());
+				return OK(GraphDACParams.properties.name(), nodes);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
     		}
     }
 
     @Override
-    public void getNodesByProperty(Request request) {
+	public Response getNodesByProperty(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         Property property = (Property) request.get(GraphDACParams.metadata.name());
         Boolean getTags = (Boolean) request.get(GraphDACParams.get_tags.name());
@@ -106,16 +90,16 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
             	List<Node> nodeList = service.getNodesByProperty(graphId, property, getTags, request);
-                OK(GraphDACParams.node_list.name(), nodeList, getSender());
+				return OK(GraphDACParams.node_list.name(), nodeList);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
     
     @SuppressWarnings("unchecked")
 	@Override
-	public void getNodesByUniqueIds(Request request) {
+	public Response getNodesByUniqueIds(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<String> nodeIds = (List<String>) request.get(GraphDACParams.node_ids.name());
 		if (!validateRequired(nodeIds)) {
@@ -133,16 +117,16 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
 			searchCriteria.addMetadata(mc);
 			searchCriteria.setCountQuery(false);
             try {
-                List<Node> nodes = service.getNodesByUniqueIds(graphId, searchCriteria, request);
-                OK(GraphDACParams.node_list.name(), nodes, getSender());
+				List<Node> nodes = service.getNodeByUniqueIds(graphId, searchCriteria, request);
+				return OK(GraphDACParams.node_list.name(), nodes);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
 		}
 	}
 
     @Override
-    public void getNodeProperty(Request request) {
+	public Response getNodeProperty(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String nodeId = (String) request.get(GraphDACParams.node_id.name());
         String key = (String) request.get(GraphDACParams.property_key.name());
@@ -151,37 +135,37 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
                 Property property = service.getNodeProperty(graphId, nodeId, key, request);
-                OK(GraphDACParams.property.name(), property, getSender());
+				return OK(GraphDACParams.property.name(), property);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
-    public void getAllNodes(Request request) {
+	public Response getAllNodes(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
         	List<Node> nodes = service.getAllNodes(graphId, request);
-            OK(GraphDACParams.node_list.name(), nodes, getSender());
+			return OK(GraphDACParams.node_list.name(), nodes);
         } catch (Exception e) {
-            ERROR(e, getSender());
+			return ERROR(e);
         }
     }
 
     @Override
-    public void getAllRelations(Request request) {
+	public Response getAllRelations(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
         	List<Relation> relations = service.getAllRelations(graphId, request);
-            OK(GraphDACParams.relations.name(), relations, getSender());
+			return OK(GraphDACParams.relations.name(), relations);
         } catch (Exception e) {
-            ERROR(e, getSender());
+			return ERROR(e);
         }
     }
 
     @Override
-    public void getRelationProperty(Request request) {
+	public Response getRelationProperty(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
         String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -192,15 +176,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
                 Property property = service.getRelationProperty(graphId, startNodeId, relationType, endNodeId, key, request);
-                OK(GraphDACParams.property.name(), property, getSender());
+				return OK(GraphDACParams.property.name(), property);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
-    public void getRelation(Request request) {
+	public Response getRelation(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
         String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -210,15 +194,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
                 Relation relation = service.getRelation(graphId, startNodeId, relationType, endNodeId, request);
-                OK(GraphDACParams.relation.name(), relation, getSender());
+				return OK(GraphDACParams.relation.name(), relation);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
-    public void checkCyclicLoop(Request request) {
+	public Response checkCyclicLoop(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
         String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -228,16 +212,16 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
             	Map<String, Object> voMap = service.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, request);                
-            	OK(voMap, getSender());
+				return OK(voMap);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void executeQuery(Request request) {
+	public Response executeQuery(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String query = (String) request.get(GraphDACParams.query.name());
         Map<String, Object> paramMap = (Map<String, Object>) request.get(GraphDACParams.params.name());
@@ -246,15 +230,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
             	List<Map<String, Object>> resultList = service.executeQuery(graphId, query, paramMap, request);
-                OK(GraphDACParams.results.name(), resultList, getSender());
+				return OK(GraphDACParams.results.name(), resultList);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
-    public void searchNodes(Request request) {
+	public Response searchNodes(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         SearchCriteria searchCriteria = (SearchCriteria) request.get(GraphDACParams.search_criteria.name());
         Boolean getTags = (Boolean) request.get(GraphDACParams.get_tags.name());
@@ -263,15 +247,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
             	List<Node> nodes = service.searchNodes(graphId, searchCriteria, getTags, request);
-                OK(GraphDACParams.node_list.name(), nodes, getSender());
+				return OK(GraphDACParams.node_list.name(), nodes);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
-    public void getNodesCount(Request request) {
+	public Response getNodesCount(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         SearchCriteria searchCriteria = (SearchCriteria) request.get(GraphDACParams.search_criteria.name());
         if (!validateRequired(searchCriteria)) {
@@ -279,15 +263,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
                 Long count = service.getNodesCount(graphId, searchCriteria, request);
-                OK(GraphDACParams.count.name(), count, getSender());
+				return OK(GraphDACParams.count.name(), count);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
-    public void traverse(Request request) {
+	public Response traverse(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         Traverser traverser = (Traverser) request.get(GraphDACParams.traversal_description.name());
         if (!validateRequired(traverser)) {
@@ -295,15 +279,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
             	SubGraph subGraph = service.traverse(graphId, traverser, request);
-                OK(GraphDACParams.sub_graph.name(), subGraph, getSender());
+				return OK(GraphDACParams.sub_graph.name(), subGraph);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
     
     @Override
-    public void traverseSubGraph(Request request) {
+	public Response traverseSubGraph(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         Traverser traverser = (Traverser) request.get(GraphDACParams.traversal_description.name());
         if (!validateRequired(traverser)) {
@@ -311,15 +295,15 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
             	Graph subGraph = service.traverseSubGraph(graphId, traverser, request);
-                OK(GraphDACParams.sub_graph.name(), subGraph, getSender());
+				return OK(GraphDACParams.sub_graph.name(), subGraph);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }
 
     @Override
-    public void getSubGraph(Request request) {
+	public Response getSubGraph(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
         String relationType = (String) request.get(GraphDACParams.relation_type.name());
@@ -329,9 +313,9 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             try {
                 Graph subGraph = service.getSubGraph(graphId, startNodeId, relationType, depth, request);
-                OK(GraphDACParams.sub_graph.name(), subGraph, getSender());
+				return OK(GraphDACParams.sub_graph.name(), subGraph);
             } catch (Exception e) {
-                ERROR(e, getSender());
+				return ERROR(e);
             }
         }
     }

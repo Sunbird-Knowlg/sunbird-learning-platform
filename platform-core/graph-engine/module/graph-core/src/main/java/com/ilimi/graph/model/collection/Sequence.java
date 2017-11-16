@@ -15,19 +15,23 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
-import com.ilimi.graph.dac.router.GraphDACManagers;
+import com.ilimi.graph.dac.mgr.IGraphDACGraphMgr;
+import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
+import com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl;
+import com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 
-import akka.actor.ActorRef;
+import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
-import akka.pattern.Patterns;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 
 public class Sequence extends AbstractCollection {
 
     private List<String> memberIds;
+
+	private static IGraphDACNodeMgr nodeMgr = new GraphDACNodeMgrImpl();
+	private static IGraphDACGraphMgr graphMgr = new GraphDACGraphMgrImpl();
 
     public Sequence(BaseGraphManager manager, String graphId, String id) {
         super(manager, graphId, id, null); // TODO: Will add metadata if required.
@@ -82,9 +86,7 @@ public class Sequence extends AbstractCollection {
                     manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_UNKNOWN_ERROR.name(),
                             null, ResponseCode.CLIENT_ERROR, getParent());
                 } else {
-                    ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                     Request dacRequest = new Request(req);
-                    dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                     dacRequest.setOperation("addRelation");
                     dacRequest.put(GraphDACParams.start_node_id.name(), sequenceId);
                     dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
@@ -92,7 +94,7 @@ public class Sequence extends AbstractCollection {
                     Map<String, Object> map = new HashMap<String, Object>();
                     map.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
                     dacRequest.put(GraphDACParams.metadata.name(), map);
-                    dacRouter.tell(dacRequest, manager.getSelf());
+					Futures.successful(graphMgr.addRelation(dacRequest));
                     manager.OK(getParent());
                 }
             } catch (Exception e) {
@@ -112,14 +114,12 @@ public class Sequence extends AbstractCollection {
             } else {
             	req.getContext().get(GraphDACParams.graph_id.name());
          		SequenceCacheManager.removeSequenceMember(graphId, sequenceId, memberId);
-                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
-                dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                 dacRequest.setOperation("deleteRelation");
                 dacRequest.put(GraphDACParams.start_node_id.name(), sequenceId);
                 dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
                 dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-                dacRouter.tell(dacRequest, manager.getSelf());
+				Futures.successful(graphMgr.deleteRelation(dacRequest));
                 manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
             }
         } catch (Exception e) {
@@ -172,12 +172,10 @@ public class Sequence extends AbstractCollection {
             } else {
             	req.getContext().get(GraphDACParams.graph_id.name());
          		SequenceCacheManager.dropSequence(graphId, sequenceId);
-                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
-                dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                 dacRequest.setOperation("deleteCollection");
                 dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
-                dacRouter.tell(dacRequest, manager.getSelf());
+				Futures.successful(graphMgr.deleteCollection(dacRequest));
                 manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
             }
         } catch (Exception e) {
@@ -208,12 +206,10 @@ public class Sequence extends AbstractCollection {
     }
 
     private void createSequenceObject(final Request req, final ExecutionContext ec) {
-        final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
         request.setOperation("addNode");
         request.put(GraphDACParams.node.name(), toNode());
-        Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+		Future<Object> dacFuture = Futures.successful(nodeMgr.addNode(request));
 
         dacFuture.onComplete(new OnComplete<Object>() {
             @Override
@@ -233,13 +229,12 @@ public class Sequence extends AbstractCollection {
 
                             if (null != memberIds && memberIds.size() > 0) {
                                 Request dacRequest = new Request(req);
-                                dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                                 dacRequest.setOperation("createCollection");
                                 dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
                                 dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
                                 dacRequest.put(GraphDACParams.index.name(), SystemProperties.IL_SEQUENCE_INDEX.name());
                                 dacRequest.put(GraphDACParams.members.name(), memberIds);
-                                dacRouter.tell(dacRequest, manager.getSelf());
+								Futures.successful(graphMgr.createCollection(dacRequest));
                             }
                             manager.OK(GraphDACParams.sequence_id.name(), sequenceId, getParent());
                         }
