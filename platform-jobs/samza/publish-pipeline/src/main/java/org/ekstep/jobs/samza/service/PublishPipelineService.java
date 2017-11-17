@@ -79,8 +79,7 @@ public class PublishPipelineService implements ISamzaService {
 	}
 
 	@Override
-	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector)
-			throws Exception {
+	public void processMessage(Map<String, Object> message, JobMetrics metrics, MessageCollector collector) throws Exception {
 		Map<String, Object> eks = getPublishLifecycleData(message);
 		if (null == eks || eks.isEmpty()) {
 			metrics.incSkippedCounter();
@@ -88,63 +87,20 @@ public class PublishPipelineService implements ISamzaService {
 		}
 		String nodeId = (String) eks.get(PublishPipelineParams.id.name());
 		try {
-			processMessagePublishPipeline(nodeId, metrics);
-			processMessageContentEnrichment(nodeId, metrics);
+			Node node = getNode(nodeId);
+			if (null != node) {
+				LOGGER.info("Node fetched for publish and content enrichment operation : " + node.getIdentifier());
+				publishContent(node);
+				metrics.incSuccessCounter();
+			} else {
+				metrics.incSkippedCounter();
+			}
 		}catch(Exception e) {
 			LOGGER.error("Failed to process message", message, e);
 			metrics.incFailedCounter();
 		}
 	}
 	
-	public void processMessagePublishPipeline(String nodeId, JobMetrics metrics) throws Exception {
-		Node node = getNode(nodeId);
-		if (null != node) {
-			LOGGER.info("Node fetched for publish operation " + node.getIdentifier());
-			String mimeType = (String) node.getMetadata().get(PublishPipelineParams.mimeType.name());
-			publishContent(node, mimeType);
-			metrics.incSuccessCounter();
-		} else {
-			metrics.incSkippedCounter();
-		}
-	}
-	
-	public void processMessageContentEnrichment(String nodeId, JobMetrics metrics) throws Exception {
-		Node node = getNode(nodeId);
-		if (null != node) {
-			LOGGER.info("Node fetched for content enrichment operation " + node.getIdentifier());
-			if(checkContentState(node)) {
-				if (StringUtils.equalsIgnoreCase(node.getObjectType(), PublishPipelineParams.content.name())) {
-					if(StringUtils.equalsIgnoreCase(((String)node.getMetadata().get(PublishPipelineParams.contentType.name())), PublishPipelineParams.Collection.name())) {
-						LOGGER.info("Collection " + node.getIdentifier() + " channel: "+ node.getMetadata().get(PublishPipelineParams.channel.name()));
-						String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
-						node.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
-						processCollection(node);
-						LOGGER.info("Collection " + node.getIdentifier() + " after processCollection channel: "+ node.getMetadata().get(PublishPipelineParams.channel.name()));
-					}
-					if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(PublishPipelineParams.mimeType.name()), COLLECTION_CONTENT_MIMETYPE) &&
-							StringUtils.equalsIgnoreCase((String)node.getMetadata().get(PublishPipelineParams.visibility.name()), PublishPipelineParams.Default.name())) {
-						processCollectionForTOC(node);
-					}
-				}else {
-					metrics.incSkippedCounter();
-				}
-			}else {
-				metrics.incSkippedCounter();
-			}
-		}else {
-			metrics.incSkippedCounter();
-		}
-		
-	}
-	
-	private boolean checkContentState(Node node) {
-		if(StringUtils.equalsIgnoreCase(PublishPipelineParams.Live.name(), (String)node.getMetadata().get("status")) ||
-				StringUtils.equalsIgnoreCase(PublishPipelineParams.Unlisted.name(), (String)node.getMetadata().get("status"))) {
-			return true;
-		}
-		return false;
-	}
-
 	private Node getNode(String nodeId) {
 		Node node = null;
 		String imgNodeId = nodeId + DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX;
@@ -155,18 +111,28 @@ public class PublishPipelineService implements ISamzaService {
 		return node;
 	}
 	
-	private void publishContent(Node node, String mimeType) {
-		LOGGER.debug("Publish processing start for content");
-		if (StringUtils.equalsIgnoreCase("application/vnd.ekstep.content-collection", mimeType)) {
+	private void publishContent(Node node) throws Exception{
+		LOGGER.debug("Publish processing start for content: " + node.getIdentifier());
+		if (StringUtils.equalsIgnoreCase((String) node.getMetadata().get(PublishPipelineParams.mimeType.name()), COLLECTION_CONTENT_MIMETYPE)) {
 			List<NodeDTO> nodes = util.getNodesForPublish(node);
 			Stream<NodeDTO> nodesToPublish = filterAndSortNodes(nodes);
 			nodesToPublish.forEach(nodeDTO -> publishCollectionNode(nodeDTO, (String)node.getMetadata().get("publish_type")));
 			if (!nodes.isEmpty()) {
-				int compatabilityLevel = getCompatabilityLevel(nodes);
-				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), compatabilityLevel);
+				node.getMetadata().put(ContentWorkflowPipelineParams.compatibilityLevel.name(), getCompatabilityLevel(nodes));
 			}
 		}
-		publishNode(node, mimeType);
+		publishNode(node, (String) node.getMetadata().get(PublishPipelineParams.mimeType.name()));
+		LOGGER.debug("Publish processing done for content: " + node.getIdentifier());
+		
+		LOGGER.debug("Content Enrichment start for content: " + node.getIdentifier());
+		String nodeId = node.getIdentifier().replace(".img", "");
+		Node publishedNode = util.getNode(PublishPipelineParams.domain.name(), nodeId);
+		if(StringUtils.equalsIgnoreCase(((String)publishedNode.getMetadata().get(PublishPipelineParams.mimeType.name())), COLLECTION_CONTENT_MIMETYPE)) {
+			String versionKey = Platform.config.getString(DACConfigurationConstants.PASSPORT_KEY_BASE_PROPERTY);
+			publishedNode.getMetadata().put(PublishPipelineParams.versionKey.name(), versionKey);
+			processCollection(publishedNode);
+			LOGGER.debug("Content Enrichment done for content: " + node.getIdentifier());
+		}
 	}
 
 	private Integer getCompatabilityLevel(List<NodeDTO> nodes) {
@@ -252,8 +218,7 @@ public class PublishPipelineService implements ISamzaService {
 			pipeline.init(PublishPipelineParams.publish.name(), parameterMap);
 		} catch (Exception e) {
 			e.printStackTrace();
-			LOGGER
-					.info("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
+			LOGGER.info("Something Went Wrong While Performing 'Content Publish' Operation in Async Mode. | [Content Id: "
 							+ nodeId + "]", e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.publishError.name(), e.getMessage());
 			node.getMetadata().put(PublishPipelineParams.status.name(),
@@ -303,10 +268,9 @@ public class PublishPipelineService implements ISamzaService {
 
 		String graphId = node.getGraphId();
 		String contentId = node.getIdentifier();
-		LOGGER.info("Enrich collection node - " + contentId);
-		Map<String, Object> dataMap = new HashMap<>();
+		Map<String, Object> dataMap = null;
 		dataMap = processChildren(node, graphId, dataMap);
-		LOGGER.info("Children nodes process for collection - " + contentId);
+		LOGGER.debug("Children nodes process for collection - " + contentId);
 		if(null != dataMap){
 			for (Map.Entry<String, Object> entry : dataMap.entrySet()) {
 				if ("concepts".equalsIgnoreCase(entry.getKey()) || "keywords".equalsIgnoreCase(entry.getKey())) {
@@ -343,11 +307,18 @@ public class PublishPipelineService implements ISamzaService {
 				keywordsList.addAll(keywords);
 				node.getMetadata().put("keywords", keywordsList);
 			}
-			util.updateNode(node);
-			List<String> concepts = new ArrayList<>();
+		}
+		
+		if(StringUtils.equalsIgnoreCase((String)node.getMetadata().get(PublishPipelineParams.visibility.name()), PublishPipelineParams.Default.name())) {
+			processCollectionForTOC(node);
+		}
+		
+		util.updateNode(node);
+		if(null != dataMap) {
 			if(null != dataMap.get("concepts")){
+				List<String> concepts = new ArrayList<>();
 				concepts.addAll((Collection<? extends String>) dataMap.get("concepts"));
-				if (null != concepts && !concepts.isEmpty()) {
+				if (!concepts.isEmpty()) {
 					util.addOutRelations(graphId, contentId, concepts, RelationTypes.ASSOCIATED_TO.relationName());
 				}
 			}
@@ -358,6 +329,7 @@ public class PublishPipelineService implements ISamzaService {
 		List<String> children;
 		children = getChildren(node);
 		if(!children.isEmpty()){
+			dataMap = new HashMap<String, Object>();
 			for (String child : children) {
 				Node childNode = util.getNode(graphId, child);
 				dataMap = mergeMap(dataMap, processChild(childNode));
@@ -512,11 +484,6 @@ public class PublishPipelineService implements ISamzaService {
 			node.getMetadata().put(ContentAPIParams.mimeTypesCount.name(), mimeTypeMap);
 			node.getMetadata().put(ContentAPIParams.contentTypesCount.name(), contentTypeMap);
 			node.getMetadata().put(ContentAPIParams.leafNodesCount.name(), leafCount);
-			LOGGER.info("Collection " + node.getIdentifier() + " version key: "+ node.getMetadata().get(GraphDACParams.versionKey.name()));
-			LOGGER.info("Collection " + node.getIdentifier() + " channel:" + node.getMetadata().get("channel"));
-			LOGGER.info("Collection " + node.getIdentifier() + " appId:" + node.getMetadata().get("appId"));
-			LOGGER.info("Collection " + node.getIdentifier() + " consumerId:" + node.getMetadata().get("consumerId"));
-			util.updateNode(node);
 		}
 	}
 	
