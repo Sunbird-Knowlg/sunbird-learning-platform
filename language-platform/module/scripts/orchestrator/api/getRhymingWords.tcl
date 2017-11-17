@@ -26,8 +26,7 @@ proc getWordList {wordIds language_id} {
 	set null_var [java::null]
 	set empty_list [java::new ArrayList]
 	set empty_map [java::new HashMap]
-
-	set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $limit]
+	set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $null_var $limit]
 	set searchResultsMap [$searchResponse getResult]
 	set wordsList [java::cast List [$searchResultsMap get "results"]]
 	set wordsListNull [java::isnull $wordsList]
@@ -39,13 +38,15 @@ proc getWordList {wordIds language_id} {
 			set identifier [$wordObject get "identifier"]
 			set lemma [$wordObject get "lemma"]
 			set status [$wordObject get "status"]
-			set statusNull [java::isnull $wordsList]
-			#set status [$status toString]
-			if { $statusNull ==0 && $status != "Retired" } {
-				set word [java::new HashMap]
-				$word put "lemma" $lemma
-				$word put "identifier" $identifier
-				$result add $word	
+			set statusNull [java::isnull $status]
+			if { $statusNull ==0 } {
+				set status [$status toString]
+				if { $status != "Retired" } {
+					set word [java::new HashMap]
+					$word put "lemma" $lemma
+					$word put "identifier" $identifier
+					$result add $word	
+				}				
 			}
 		}	
 	}
@@ -86,7 +87,6 @@ proc getRhymingSoundWords {word_node language_id} {
 	}
 	return [java::new ArrayList]
 }
-
 set searchProperty [java::new HashMap]
 $searchProperty put "lemma" $lemma
 set property [create_search_property $searchProperty]

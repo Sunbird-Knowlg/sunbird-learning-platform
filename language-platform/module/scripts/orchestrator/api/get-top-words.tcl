@@ -38,7 +38,7 @@ set null_var [java::null]
 set empty_list [java::new ArrayList]
 set empty_map [java::new HashMap]
 
-set searchResponse [indexSearch $null_var $null_var $filters $exists $notExists $sortMap $empty_list $null_var $limit]
+set searchResponse [indexSearch $null_var $null_var $filters $exists $notExists $sortMap $empty_list $null_var $null_var $limit]
 set searchResultsMap [$searchResponse getResult]
 set compositeSearchResponse [groupSearchResultByObjectType $searchResultsMap]
 return $compositeSearchResponse

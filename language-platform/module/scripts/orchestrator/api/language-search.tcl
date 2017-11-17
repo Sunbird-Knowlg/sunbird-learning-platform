@@ -119,7 +119,7 @@ if {$wordChainsQuery == "true"} {
 $request_map put "filters" $filters
 
 #do the search on elasticsearch
-set searchResponse [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit]
+set searchResponse [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fields $fuzzy $limit]
 set searchResultsMap [$searchResponse getResult]
 
 #if its not a traversal search, group results by object type and return
