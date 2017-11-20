@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -23,8 +24,8 @@ import com.ilimi.taxonomy.content.common.TestSetup;
 import junit.framework.Assert;
 
 /**
- * Test Cases for code coverage of Upload Content. This Class covers test caes
- * for both upload(). see ContentManagerImpl
+ * Test Cases for code coverage of Upload Content. This Class covers test cases
+ * for both upload().
  * 
  * @see ContentManagerImpl
  * @author gauraw
@@ -39,6 +40,9 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	static Map<String, Object> versionKeyMap = new HashMap<String, Object>();
 
 	static ObjectMapper mapper = new ObjectMapper();
+	
+	static ClassLoader classLoader = ContentManagerImplUploadContentTest.class.getClassLoader();
+	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 
 	static String taxonomyId = "domain";
 
@@ -117,7 +121,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 		try {
 			String contentId = "U_Document_001";
 			String mimeType = "application/pdf";
-			File file1 = new File("./src/test/resources/UploadFiles/pdf.pdf");
+			File file1 = new File(path+"/pdf.pdf");
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
@@ -150,7 +154,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 		try {
 			String contentId = "U_Document_002";
 			String mimeType = "";
-			File file1 = new File("./src/test/resources/UploadFiles/pdf.pdf");
+			File file1 = new File(path+"/pdf.pdf");
 			String absPath = file1.getAbsolutePath();
 			File file = new File(absPath);
 
@@ -252,7 +256,7 @@ public class ContentManagerImplUploadContentTest extends TestSetup {
 	@Test(timeout = 1000000000000000L)
 	public void testUploadContent_04() {
 		try {
-			String contentId = "U_Document_15";
+			String contentId = "U_Document_004";
 			String mimeType = "";
 			String fileUrl = "https://ekstep-public-dev.s3-ap-south-1.amazonaws.com/content/u_document_04/artifact/pdf.pdf";
 
