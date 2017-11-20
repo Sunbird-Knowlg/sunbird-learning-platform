@@ -19,28 +19,28 @@
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>composite-search-indexer</artifactId>
-			<version>0.0.20</version>
+			<version>0.0.21</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>object-lifecycle</artifactId>
-			<version>0.0.14</version>
+			<version>0.0.15</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>image-tagging</artifactId>
-			<version>0.0.20</version>
+			<version>0.0.21</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>word-enrichment</artifactId>
-			<version>0.0.20</version>
+			<version>0.0.21</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
 		</dependency>
@@ -50,7 +50,7 @@
 			<version>0.0.41</version>
 			<type>tar.gz</type>
 			<classifier>distribution</classifier>
-		</dependency> 
+		</dependency>
 	<!--<dependency>
 			<groupId>org.ekstep</groupId>
 			<artifactId>upload-content</artifactId>

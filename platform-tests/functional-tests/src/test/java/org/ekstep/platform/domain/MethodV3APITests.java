@@ -3,10 +3,12 @@ package org.ekstep.platform.domain;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
+
 
 
 public class MethodV3APITests extends BaseTest {
@@ -20,6 +22,15 @@ public class MethodV3APITests extends BaseTest {
 	String JsonSaveMethodWithDomainAsConceptAndWithNonExistingConcept ="{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"LP_FT_"+generateRandomInt(99, 99999)+"\",\"identifier\":\"LP_FT_"+generateRandomInt(99, 99999)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"Num:C1:QA_test\"}],\"concepts\": [{\"identifier\": \"literacy\"},{\"identifier\": \"concept_act\"}]}}}";
 	String JsonUpdateMethodValid = "{\"request\":{ \"object\":{ \"description\":\"Updated QA\",\"name\":\"Sort Collections QA updated\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"cp1\", \"cp2\"],\"interactivity\": [\"in1\", \"in2\"],\"parent\": [{\"identifier\": \"Num:C1:QA\"}]}}}";
 
+	@Before
+	public void delay(){
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	// Get literacy methods list 
 	@Test
 	public void getLiteracyMethodsExpectSuccess200()

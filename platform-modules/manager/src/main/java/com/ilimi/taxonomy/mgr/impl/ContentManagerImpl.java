@@ -160,9 +160,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unused")
 	@Override
 	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
-		PlatformLogger.log("Content ID: " + contentId);
-		PlatformLogger.log("Graph ID: " + taxonomyId);
-		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
+		PlatformLogger.log("Graph ID: " + taxonomyId + "Content ID: "+contentId);
+	
+		
+		
 		boolean updateMimeType = false;
 
 		try {
@@ -175,6 +176,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null == uploadedFile)
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 						"Upload file is blank.");
+			PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
+			
 			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
 						"Invalid Content Identifier. | [Content Identifier does not Exists.]");

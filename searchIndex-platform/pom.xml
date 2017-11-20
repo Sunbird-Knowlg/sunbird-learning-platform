@@ -22,7 +22,6 @@
 	</properties>
 
 	<modules>
-		<module>module/searchindex-consumer</module>
 		<module>module/searchindex-elasticsearch</module>
 		<module>module/searchindex-common</module>
 		<module>module/search-actors</module>

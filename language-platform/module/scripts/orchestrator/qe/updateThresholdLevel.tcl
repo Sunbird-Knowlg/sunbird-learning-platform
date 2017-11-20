@@ -16,7 +16,7 @@ proc getWordMap {words} {
 	set empty_list [java::new ArrayList]
 	set empty_map [java::new HashMap]
 
-	set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $limit]
+	set searchResponse [indexSearch $null_var $null_var $filters $empty_list $empty_list $empty_map $empty_list $null_var $null_var $limit]
 	set searchResultsMap [$searchResponse getResult]
 	set wordsList [java::cast List [$searchResultsMap get "results"]]
 	set wordsListNull [java::isnull $wordsList]

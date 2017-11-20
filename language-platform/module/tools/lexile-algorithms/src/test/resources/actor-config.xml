@@ -1,5 +1,5 @@
 <actor-config>
-	<init system="ActorSystem">
+	<init system="LanguageActorSystem">
 		<init-routers>
 			<init-router name="RequestRouter" count="4"
 				class="com.ilimi.graph.engine.router.RequestRouter"></init-router>
