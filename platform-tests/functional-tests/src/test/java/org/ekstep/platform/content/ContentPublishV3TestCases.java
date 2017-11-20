@@ -57,10 +57,7 @@ public class ContentPublishV3TestCases extends BaseTest {
 			+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\"\"concepts\":[{\"identifier\":\"LO1\",\"name\":\"Word Meaning\",\"objectType\":\"Concept\",\"relation\":\"associatedTo\",\"description\":\"Understanding meaning of words\",\"index\":null,\"status\":null,\"depth\":null,\"mimeType\":null,\"visibility\":null}],,\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"
 			+ rn
 			+ "\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
-	String jsonCreateContentCollection = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Collection_" + rn
-			+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"
-			+ rn
-			+ "\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}}}";
+	String jsonCreateContentCollection = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Collection_" + rn+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"+ rn+ "\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}}}";
 	String jsonCreateTextbookUnit = "{\"request\": {\"content\": {\"identifier\": \"LP_NFT_Collection_" + rn
 			+ "\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_NFT_"
 			+ rn
@@ -1534,9 +1531,323 @@ public class ContentPublishV3TestCases extends BaseTest {
 		//System.out.println(status);
 		Assert.assertEquals(status, "Review");
 	}
+	
+	// Reject valid content
+	@Test
+	public void rejectValidContentExpectSuccess200(){
+		setURI();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
 
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+
+		// Get body and validate
+		setURI();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String body = jP2.get("result.content.body");
+		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		if (isValidXML(body) || isValidJSON(body)) {
+
+			// Setting status to review
+			setURI();
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body("{\"request\":{\"content\":{}}}").
+			when().
+			post("/content/v3/review/" + nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
+			
+			// Get content and validate
+			setURI();
+			Response R1 = given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/" + nodeId).
+					then().
+					//log().all().
+					spec(get200ResponseSpec()).
+					extract().response();
+
+			JsonPath jP1 = R1.jsonPath();
+			String status = jP1.get("result.content.status");
+			//System.out.println(status);
+			Assert.assertEquals(status, "Review");
+			
+			// Reject the content
+			setURI();
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body("{\"request\":{}}").
+			when().
+			post("/content/v3/reject/"+nodeId).
+			then().
+			log().all(). 
+			spec(get200ResponseSpec());
+			
+			// Get content and validate
+			setURI();
+			Response R3 = given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/" + nodeId).
+					then().
+					//log().all().
+					spec(get200ResponseSpec()).
+					extract().response();
+
+			JsonPath jP3 = R3.jsonPath();
+			String statusNew = jP3.get("result.content.status");
+			//System.out.println(status);
+			Assert.assertEquals(statusNew, "Draft");
+		}
+	}
+
+	// Reject content with invalid content id
+	@Test
+	public void rejectContentWithInvalidContentIdExpect4xx(){
+
+		// Reject the content
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{}}").
+		when().
+		post("/content/v3/reject/ajksdhvkja").
+		then().
+		log().all(). 
+		spec(get404ResponseSpec());
+	}
+	
+	// Reject content with Draft status
+	@Test
+	public void rejectDraftContentExpect400(){
+		setURI();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+		
+		// Reject Content
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{}}").
+		when().
+		post("/content/v3/reject/"+nodeId).
+		then().
+		log().all(). 
+		spec(get400ResponseSpec());
+	}
+	
+	// Reject content with flagReview Status
+	@Test
+	public void rejectFlagReviewContentExpectSuccess200(){
+		setURI();
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().response();
+
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String nodeId = jp.get("result.node_id");
+		
+		// Upload zip file
+		setURI();
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId);
+		//then().
+		//log().all().
+		//spec(get200ResponseSpec());
+
+		// Get body and validate
+		setURI();
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
+				//log().all().
+				//spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP2 = R2.jsonPath();
+		String body = jP2.get("result.content.body");
+		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
+		if (isValidXML(body) || isValidJSON(body)) {
+
+			// Publish created content
+			setURI();
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+			when().
+			post("/content/v3/publish/" + nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());
+			
+			// Get Versionkey
+			setURI();
+			try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);}
+			Response R4 = 
+					given().
+					spec(getRequestSpecification(contentType, userId, APIToken)).
+					when().
+					get("/content/v3/read/" + nodeId).
+					then().
+					//log().all().
+					//spec(get200ResponseSpec()).
+					extract().response();
+			
+			JsonPath jP4 = R4.jsonPath();
+			String version_key = jP4.get("result.content.versionKey");
+		
+		// Flag the content
+		setURI();
+		Response R5 =
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"flagReasons\":[\"Copyright Violation\"],\"flaggedBy\":\"Vignesh\",\"versionKey\":"+version_key+"}}").
+		with().
+		contentType(JSON).
+		when().
+		post("/content/v3/flag/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec()).				
+		extract().response();
+		
+		JsonPath jP5 = R5.jsonPath();
+		String version_key2 = jP5.get("result.versionKey");
+		
+		// Accept Flag
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"versionKey\":"+version_key2+"}}").
+		with().
+		contentType(JSON).
+		when().
+		post("/content/v3/flag/accept/"+nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Review the flagDraftcontent
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{}}}").
+		when().
+		post("/content/v3/review/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Get content and validate the reviewed content
+		setURI();
+		Response R8 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" +nodeId+"?mode=edit").
+				then().
+				log().all().
+				//spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP8 = R8.jsonPath();
+		String statusNew = jP8.get("result.content.status");
+		Assert.assertTrue(statusNew.equals("FlagReview"));
+		
+		// Reject flag review content
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{}}").
+		when().
+		post("/content/v3/reject/"+nodeId).
+		then().
+		log().all(). 
+		spec(get200ResponseSpec());
+		
+		// Get content and validate
+		setURI();
+		Response R3 = given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId).
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().response();
+
+		JsonPath jP3 = R3.jsonPath();
+		String statusUpdated = jP3.get("result.content.status");
+		//System.out.println(status);
+		Assert.assertEquals(statusUpdated, "Draft");
+		}
+	}		
+	
 	// Create, upload, publish and validate ECML content
-
+	
 	// Create content
 	@Test
 	public void publishContentExpectSuccess200() {
@@ -1762,10 +2073,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("name", ".TestContent!23.");
 		String jsonCreateValidContentSpclChar = js.toString();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken))
-				.body(jsonCreateValidContentSpclChar).with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContentSpclChar).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1773,18 +2092,27 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -1793,17 +2121,25 @@ public class ContentPublishV3TestCases extends BaseTest {
 			Assert.assertTrue(accessURL(nodeId));
 		}
 	}
-	// Upload content with valid Ecml (With external JSON for item data, another
-	// controller with __cdata item data )
+	
+	// Upload content with valid Ecml (With external JSON for item data, another controller with __cdata item data )
 
 	// Create content
 	@Test
 	public void publishContentWithExternaJSONItemDataCDataExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -1811,19 +2147,28 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/ExternalJsonItemDataCdata.zip")).when()
-				.post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/ExternalJsonItemDataCdata.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().
+				response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
@@ -2068,10 +2413,18 @@ public class ContentPublishV3TestCases extends BaseTest {
 	@Test
 	public void publishContentNewZipExpectSuccess200() {
 		setURI();
-		Response R = given().spec(getRequestSpecification(contentType, userId, APIToken)).body(jsonCreateValidContent)
-				.with().contentType(JSON).when().post("content/v3/create").then().
+		Response R = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("content/v3/create").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().response();
 
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
@@ -2079,47 +2432,86 @@ public class ContentPublishV3TestCases extends BaseTest {
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/uploadContent.zip")).when().post("/content/v3/upload/" + nodeId).then().
-				//log().all().
-				spec(get200ResponseSpec());
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/uploadContent.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R2 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
+		Response R2 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().
+				response();
 
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
 		Assert.assertTrue((isValidXML(body) || isValidJSON(body)));
 		if (isValidXML(body) || isValidJSON(body)) {
-			Assert.assertTrue(accessURL(nodeId));
+			
+			// Publish created content
+			setURI();
+			given().
+			spec(getRequestSpecification(contentType, userId, APIToken)).
+			body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+			when().
+			post("/content/v3/publish/" + nodeId).
+			then().
+			//log().all().
+			spec(get200ResponseSpec());		
 		}
 
 		// Upload Content
 		setURI();
-		given().spec(getRequestSpecification(uploadContentType, userId, APIToken))
-				.multiPart(new File(path + "/tweenAndaudioSprite.zip")).when().post("/content/v3/upload/" + nodeId)
-				.then().
-				//log().all().
-				spec(get200ResponseSpec());
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		given().
+		spec(getRequestSpecification(uploadContentType, userId, APIToken)).
+		multiPart(new File(path + "/tweenAndaudioSprite.zip")).
+		when().
+		post("/content/v3/upload/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Publish created content
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType, userId, APIToken)).
+		body("{\"request\":{\"content\":{\"lastPublishedBy\":\"Test\"}}}").
+		when().
+		post("/content/v3/publish/" + nodeId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
 
 		// Get body and validate
 		setURI();
-		Response R3 = given().spec(getRequestSpecification(contentType, userId, APIToken)).when()
-				.get("/content/v3/read/" + nodeId + "?fields=body").then().
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		Response R3 = 
+				given().
+				spec(getRequestSpecification(contentType, userId, APIToken)).
+				when().
+				get("/content/v3/read/" + nodeId + "?fields=body").
+				then().
 				//log().all().
-				spec(get200ResponseSpec()).extract().response();
+				spec(get200ResponseSpec()).
+				extract().
+				response();
 
 		JsonPath jP3 = R3.jsonPath();
 		String bodyNew = jP3.get("result.content.body");
-		//System.out.println(bodyNew);
-		Assert.assertTrue(body != bodyNew);
-		Assert.assertTrue((isValidXML(bodyNew) || isValidJSON(bodyNew)));
-		Assert.assertTrue(accessURL(nodeId));
 		if (isValidXML(bodyNew) || isValidJSON(bodyNew)) {
+			Assert.assertTrue(body != bodyNew);
 		}
 	}
 

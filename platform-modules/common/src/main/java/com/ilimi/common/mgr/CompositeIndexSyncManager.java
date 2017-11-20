@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -18,6 +17,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.common.util.LogAsyncGraphEvent;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;

@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
+import org.ekstep.tools.loader.service.RegisterService;
 import org.springframework.shell.core.CommandMarker;
 import org.springframework.shell.core.annotation.CliCommand;
 import org.springframework.shell.core.annotation.CliOption;
@@ -41,12 +42,30 @@ public class ConnectCommand implements CommandMarker {
 			Config conf = ConfigFactory.parseFile(confFile);
 			context.setCurrentConfig(conf);
 			context.setCurrentUser(user);
+			setAuthToken(context, user);
+			/*context.setAuthToken("3f0c407c-8ce6-320c-b2f1-ef6adb3348a1");
+			context.setClientId("0123697446204784640");*/
+			context.setPassword(password);
 			return "Connected to " + conf.getString("env") + " as " + user;
 		} else {
 			return "Invalid User Cred";
 		}
 
 
+	}
+
+	/**
+	 * @param context
+	 * @param user
+	 */
+	private void setAuthToken(ShellContext context, String user) {
+
+		File file = new File("authToken.txt");
+		String line = fetchLine(file, user);
+		if (null != line) {
+			context.setAuthToken(line.split(",")[1]);
+			context.setClientId(line.split(",")[2]);
+		}
 	}
 
 	/**
@@ -73,9 +92,11 @@ public class ConnectCommand implements CommandMarker {
 				String line = fetchLine(credFile, user);
 				if (null != line) {
 					String encPassword = line.split(",")[1];
-					if (!password.contentEquals(decrypt(encPassword, user))) {
+					String decPass = decrypt(encPassword, user);
+					if (!(password).equals(decPass)) {
 						return false;
 					} else {
+
 						return true;
 					}
 				} else {
@@ -154,7 +175,7 @@ public class ConnectCommand implements CommandMarker {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return strData;
+		return strData.replace(key, "");
 	}
 
 	@CliCommand(value = "logout", help = "Disconnect from the target environment")
@@ -174,14 +195,18 @@ public class ConnectCommand implements CommandMarker {
 
 	@CliCommand(value = "register", help = "One Time Registration to connect to apis")
 	public String register(
-			@CliOption(key = { "user" }, mandatory = true, help = "User name to Register") final String user) {
+			@CliOption(key = { "user" }, mandatory = true, help = "User name to Register") final String user,
+			@CliOption(key = { "conf" }, mandatory = true, help = "Configfile") final File conf) throws Exception {
 
-		
-		String clientId = "";
-		String masterKey = "";
-
-		return "Registered as :" + user + "\nwith Client Id : " + clientId + "\nand  Master Key : " + masterKey
+		RegisterService service = new RegisterService();
+		String registeredkey = service.register(user, conf);
+		String clientId = registeredkey.split(",")[2];
+		String masterKey = registeredkey.split(",")[1];
+		if (null != masterKey && null != clientId)
+			return "Registered as :" + user + "\nwith Client Id : " + clientId + "\nand  Master Key : " + masterKey
 				+ "\n The ClientID and MasterKey is copied in a file. But, please save the clientId and Master key for future use.";
-		
+		else {
+			return "Unable to register!! Try Again after some time";
+		}
 	}
 }

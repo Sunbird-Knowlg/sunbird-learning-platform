@@ -160,9 +160,10 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 	@SuppressWarnings("unused")
 	@Override
 	public Response upload(String contentId, String taxonomyId, File uploadedFile, String mimeType) {
-		PlatformLogger.log("Content ID: " + contentId);
-		PlatformLogger.log("Graph ID: " + taxonomyId);
-		PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
+		PlatformLogger.log("Graph ID: " + taxonomyId + "Content ID: "+contentId);
+	
+		
+		
 		boolean updateMimeType = false;
 
 		try {
@@ -175,6 +176,8 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 			if (null == uploadedFile)
 				throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 						"Upload file is blank.");
+			PlatformLogger.log("Uploaded File: ", uploadedFile.getAbsolutePath());
+			
 			if (StringUtils.endsWithIgnoreCase(contentId, DEFAULT_CONTENT_IMAGE_OBJECT_SUFFIX))
 				throw new ClientException(ContentErrorCodes.OPERATION_DENIED.name(),
 						"Invalid Content Identifier. | [Content Identifier does not Exists.]");
@@ -846,6 +849,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 				String status = (String) node.getMetadata().get(TaxonomyAPIParams.status.name());
 				if (StringUtils.isNotBlank(status)
 						&& (StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Live.name(), status)
+								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Unlisted.name(), status)
 								|| StringUtils.equalsIgnoreCase(TaxonomyAPIParams.Flagged.name(), status)))
 					node = createContentImageNode(taxonomyId, contentImageId, node);
 			}
@@ -1041,6 +1045,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 		boolean isFlaggedReviewState = StringUtils.equalsIgnoreCase("FlagReview", status);
 		boolean isFlaggedState = StringUtils.equalsIgnoreCase("Flagged", status);
 		boolean isLiveState = StringUtils.equalsIgnoreCase("Live", status);
+		boolean isUnlistedState = StringUtils.equalsIgnoreCase("Unlisted", status);
 		boolean logEvent = false;
 		String inputStatus = (String) map.get("status");
 		if (null != inputStatus) {
@@ -1054,7 +1059,7 @@ public class ContentManagerImpl extends BaseContentManager implements IContentMa
 
 		boolean checkError = false;
 		Response createResponse = null;
-		if (isLiveState || isFlaggedState) {
+		if (isLiveState || isUnlistedState || isFlaggedState) {
 			if (isImageObjectCreationNeeded) {
 				graphNode.setIdentifier(contentImageId);
 				graphNode.setObjectType(CONTENT_IMAGE_OBJECT_TYPE);

@@ -239,11 +239,11 @@ public class ChannelWorkflowTests extends BaseTest {
 				when().
 				post("/learning/v2/channel/list").
 				then().
-		//		log().all().
+				log().all().
 				spec(get200ResponseSpec())
 				.extract().
 				response();
-		
+			
 		// Extracting the JSON path
 				JsonPath jp1 = R1.jsonPath();
 				String node1 = jp1.get("result.node_id");

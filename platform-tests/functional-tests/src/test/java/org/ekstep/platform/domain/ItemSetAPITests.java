@@ -1,4 +1,4 @@
-package org.ekstep.platform.domain;
+	package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;

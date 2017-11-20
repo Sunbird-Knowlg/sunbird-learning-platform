@@ -20,7 +20,7 @@
         }
     ],
     "requestPath": {
-        "type": "PATCH",
+        "type": "DELETE",
         "url": "/v3/domains/*/concepts/retire/*",
         "pathParams": [
           "domainId",

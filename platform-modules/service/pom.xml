@@ -52,12 +52,6 @@
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>searchindex-consumer</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -78,27 +72,6 @@
 					<configuration>
 						<source>${maven.compiler.source}</source>
 						<target>${maven.compiler.source}</target>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>cobertura-maven-plugin</artifactId>
-					<version>2.7</version>
-					<configuration>
-						<aggregate>true</aggregate>
-						<outputDirectory>coverageReport</outputDirectory>
-						<formats>
-							<format>html</format>
-							<format>xml</format>
-						</formats>
-						<instrumentation>
-							<excludes>
-								<exclude>**/**</exclude>
-							</excludes>
-						</instrumentation>
-						<check>
-							<haltOnFailure>false</haltOnFailure>
-						</check>
 					</configuration>
 				</plugin>
 			</plugins>

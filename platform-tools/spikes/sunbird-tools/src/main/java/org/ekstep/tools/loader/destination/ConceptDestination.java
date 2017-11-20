@@ -6,21 +6,20 @@ package org.ekstep.tools.loader.destination;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.tools.loader.service.ConceptServiceImpl;
+import org.ekstep.tools.loader.service.ConceptService;
 import org.ekstep.tools.loader.service.ExecutionContext;
 import org.ekstep.tools.loader.service.ProgressCallback;
 import org.ekstep.tools.loader.service.Record;
-import org.ekstep.tools.loader.shell.ShellContext;
 import org.ekstep.tools.loader.utils.JsonUtil;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.typesafe.config.Config;
 
 /**
  * @author pradyumna
@@ -29,26 +28,36 @@ import com.typesafe.config.Config;
 public class ConceptDestination implements Destination {
 
 	private static Logger logger = LogManager.getLogger(ContentDestination.class);
-	private Config config = null;
-	private String user = null;
 	private ExecutionContext context = null;
+	private FileWriter outputFile;
+	private File file = null;
 
+	public ConceptDestination() {
+		file = new File("ConceptOutput.csv");
+		if (!file.exists()) {
+			try {
+				file.createNewFile();
+				outputFile = new FileWriter(file, true);
+				outputFile.write("ConceptID , ConceptName, Status \n");
+				outputFile.close();
+			} catch (IOException e) {
+				logger.debug("Error while creating file");
+			}
+
+		}
+	}
 	/* (non-Javadoc)
 	 * @see org.ekstep.tools.loader.service.Destination#process(java.util.List, org.ekstep.tools.loader.service.ProgressCallback)
 	 */
 	@Override
 	public void process(List<Record> data, ProgressCallback callback) {
-		ShellContext shellContext = ShellContext.getInstance();
-		config = shellContext.getCurrentConfig().resolve();
-		user = shellContext.getCurrentUser();
-		ConceptServiceImpl service = new ConceptServiceImpl();
-		context = new ExecutionContext(config, user);
+		ConceptService service = (ConceptService) ServiceProvider.getService("concept");
+		context = ServiceProvider.getContext();
 		int rowNum = 1;
 		int totalRows = data.size();
-		JsonArray conceptIds = new JsonArray();
-		String name =null, conceptId = null, status = null;
+		String name = null, conceptId = null, status = null;
 		
-		service.init(context);
+		writeOutput("\n------------------- Begin ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 
 		for (Record record : data) {
 			try {
@@ -72,7 +81,6 @@ public class ConceptDestination implements Destination {
 					}
 					writeOutput(conceptId + " , " + name + " , " + status);
 					System.out.println("Concept Name : " + name + "\t" + "ConceptId : " + conceptId);
-					conceptIds.add(conceptId);
 				}
 
 			} catch (Exception e) {
@@ -80,12 +88,7 @@ public class ConceptDestination implements Destination {
 			}
 			callback.progress(totalRows, rowNum++);
 		}
-
-		/* Needs to be removed. For testing purpose only */
-
-		// System.out.println("Calling retire method to delete the concepts");
-		//
-		// service.retire(conceptIds, context);
+		writeOutput("\n------------------- End ::" + LocalDate.now() + " " + LocalTime.now() + "------------\n");
 	}
 
 	/**
@@ -93,17 +96,8 @@ public class ConceptDestination implements Destination {
 	 * @throws IOException
 	 */
 	private void writeOutput(String output) {
-		FileWriter outputFile;
-		File file = new File("ConceptOutput.csv");
 		try {
-			if (!file.exists()) {
-				file.createNewFile();
-				outputFile = new FileWriter(file, true);
-				outputFile.write("ConceptID , ConceptName, Status \n");
-			} else {
-				outputFile = new FileWriter(file, true);
-			}
-
+			outputFile = new FileWriter(file, true);
 			outputFile.append(output + "\n");
 			outputFile.close();
 			logger.debug("Concept Output  :: " + output);

@@ -5,16 +5,17 @@
  */
 package org.ekstep.tools.loader.utils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.ekstep.tools.loader.service.ExecutionContext;
+import org.json.JSONObject;
+
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.BaseRequest;
 import com.mashape.unirest.request.body.Body;
 import com.mashape.unirest.request.body.RequestBodyEntity;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ekstep.tools.loader.service.ExecutionContext;
-import org.json.JSONObject;
 
 /**
  *
@@ -29,11 +30,14 @@ public class RestUtil {
         String apiKey = context.getString(tokenKey);
         String channel = context.getString(CHANNEL);
         String userId = context.getCurrentUser();
+		String authToken = context.getAuthToken();
+		String clientId = context.getClientId();
         
-        Unirest.setDefaultHeader("Content-Type", "application/json");
-        Unirest.setDefaultHeader("accept", "application/json");
-        Unirest.setDefaultHeader("X-Channel-id", channel);
-        Unirest.setDefaultHeader("X-Authenticated-Userid", userId);
+		Unirest.setDefaultHeader("Content-Type", "application/json");
+		Unirest.setDefaultHeader("accept", "application/json");
+		Unirest.setDefaultHeader("X-Channel-id", channel);
+		Unirest.setDefaultHeader("x-authenticated-client-token", authToken);
+		Unirest.setDefaultHeader("x-authenticated-client-id", clientId);
         Unirest.setDefaultHeader("Authorization", "Bearer " + apiKey);
     }
     
@@ -48,7 +52,7 @@ public class RestUtil {
             }
         }
         
-        HttpResponse<JsonNode> response = request.asJson();
+		HttpResponse<JsonNode> response = request.asJson();
         
         if (logger.isTraceEnabled()) {
             logger.trace("Response: " + response.getStatusText() + " : " + response.getBody());

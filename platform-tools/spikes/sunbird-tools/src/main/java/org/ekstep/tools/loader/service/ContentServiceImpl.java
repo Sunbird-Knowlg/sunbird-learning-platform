@@ -37,14 +37,14 @@ public class ContentServiceImpl implements ContentService {
 	}
 
 	private void init(ExecutionContext context) {
-		RestUtil.init(context, Constants.EKSTEP_API_TOKEN);
+		RestUtil.init(context, Constants.SUNBIRD_API_TOKEN);
     }
     
     @Override
     public String create(JsonObject content, ExecutionContext context) throws Exception {
         
         String contentId = null;
-        
+		content = setCreatedBy(content, context);
         // Step 0 - (TODO) Validate the object to make sure it is clean to upload
 		if (ValidationUtil.validateCreateContent(content)) {
 			// Step 1 - If the content has a thumbnail, upload it
@@ -82,7 +82,7 @@ public class ContentServiceImpl implements ContentService {
         return contentId;
     }
 
-    @Override
+	@Override
     public String update(JsonObject content, ExecutionContext context) throws Exception {
         
         String content_id = JsonUtil.getFromObject(content,"content_id");
@@ -90,6 +90,7 @@ public class ContentServiceImpl implements ContentService {
 
         // Step 1 - Get versionKey, otherwise update will fail
 		String getUrl = context.getString(Constants.API_CONTENT_GET);
+		Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
         BaseRequest getRequest = Unirest.get(getUrl).routeParam("content_id", content_id);
         HttpResponse<JsonNode> getResponse = RestUtil.execute(getRequest);
 
@@ -117,6 +118,7 @@ public class ContentServiceImpl implements ContentService {
 		String retireUrl = context.getString(Constants.API_CONTENT_RETIRE);
         
         String body = JsonUtil.wrap(contentIds, "contentIds").toString();
+		Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
         BaseRequest retireRequest = Unirest.delete(retireUrl).body(body);
         HttpResponse<JsonNode> retireResponse = RestUtil.execute(retireRequest);
         
@@ -142,7 +144,7 @@ public class ContentServiceImpl implements ContentService {
         if (StringUtils.isNotBlank(artifactUrl)) {
             
             // Upload only if it is a local file and exists
-			
+			Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
 			if (FileUtil.existsLocally(artifactUrl)) {
 				// Step1 - get the signed url to upload the file to
 				String uploadSignUrl = context.getString(Constants.API_CONTENT_UPLOAD_URL);
@@ -160,17 +162,13 @@ public class ContentServiceImpl implements ContentService {
 				logger.debug("Uploaded artifact to signed url. Final URL = " + artifactUrl);
 			}
 			Unirest.clearDefaultHeaders();
-			Unirest.setDefaultHeader("Content-Type", "multipart/form-data");
-			Unirest.setDefaultHeader("user-id", context.getCurrentUser());
-			Unirest.setDefaultHeader("Authorization", "Bearer " + context.getString(Constants.EKSTEP_API_TOKEN));
+			init(context);
+			Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
             // Step 3 - When the file is available remote
 			String uploadUrl = context.getString(Constants.API_CONTENT_UPLOAD);
 			BaseRequest artifactRequest = Unirest.post(uploadUrl).routeParam("content_id", contentId)
 					.header("content-type", "multipart/form-data; boundary=---bound")
-					.body("-----bound\r\nContent-Disposition: form-data; name=\"fileUrl\"\r\n\r\n" + artifactUrl
-							+ "\r\n-----bound--\r\n");
-
-			/*artifactRequest.getHttpRequest().getBody().*/
+					.queryString("fileUrl", artifactUrl);
 
 			HttpResponse<JsonNode> artifactResponse = RestUtil.execute(artifactRequest);
 			if (RestUtil.isSuccessful(artifactResponse)) {
@@ -217,7 +215,11 @@ public class ContentServiceImpl implements ContentService {
         if (StringUtils.isEmpty(content_id)) throw new IllegalArgumentException("Content ID is mandatory for submitting for review.");
         
 		String reviewUrl = context.getString(Constants.API_CONTENT_REVIEW);
-        BaseRequest request = Unirest.post(reviewUrl).routeParam("content_id", content_id).body("{}");
+		JsonObject requestBody = new JsonObject();
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", requestBody);
+		Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
+		BaseRequest request = Unirest.post(reviewUrl).routeParam("content_id", content_id)/*.body(wrapper.toString())*/;
         HttpResponse<JsonNode> response = RestUtil.execute(request);
         
         String code = "OK";
@@ -243,6 +245,8 @@ public class ContentServiceImpl implements ContentService {
 
 		String publishUrl = context.getString(Constants.API_CONTENT_PUBLISH);
         String body = JsonUtil.wrap(publishedBy, "content").toString();
+        
+		Unirest.setDefaultHeader("x-authenticated-user-token", context.getAcessToken());
 		BaseRequest request = Unirest.post(publishUrl).routeParam("content_id", content_id).body(body);
         HttpResponse<JsonNode> response = RestUtil.execute(request);
         
@@ -258,4 +262,26 @@ public class ContentServiceImpl implements ContentService {
         
         return code;
     }
+
+	/**
+	 * @param content
+	 * @param context
+	 * @return
+	 * @throws Exception
+	 */
+	private JsonObject setCreatedBy(JsonObject content, ExecutionContext context) throws Exception {
+		String url = context.getString("api.profile.read");
+		JsonObject requestBody = new JsonObject();
+		requestBody.addProperty("loginId", context.getCurrentUser());
+		JsonObject wrapper = new JsonObject();
+		wrapper.add("request", requestBody);
+
+		String body = wrapper.toString();
+		BaseRequest request = Unirest.post(url).body(body);
+		HttpResponse<JsonNode> response = RestUtil.execute(request);
+		if (RestUtil.isSuccessful(response)) {
+			content.addProperty("createdBy", RestUtil.getFromResponse(response, "result.response.identifier"));
+		}
+		return content;
+	}
 }

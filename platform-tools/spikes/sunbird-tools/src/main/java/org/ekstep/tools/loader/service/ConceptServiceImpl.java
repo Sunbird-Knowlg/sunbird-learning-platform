@@ -29,7 +29,14 @@ public class ConceptServiceImpl implements ConceptService {
 
     private static final Logger logger = LogManager.getLogger(ConceptServiceImpl.class);
 
-    public void init(ExecutionContext context) {
+	/**
+	 * 
+	 */
+	public ConceptServiceImpl(ExecutionContext context) {
+		init(context);
+	}
+
+	private void init(ExecutionContext context) {
 		RestUtil.init(context, Constants.EKSTEP_API_TOKEN);
     }
         
@@ -107,17 +114,19 @@ public class ConceptServiceImpl implements ConceptService {
     }
 
     @Override
-    public String retire(JsonArray conceptIds, ExecutionContext context) throws Exception {
+	public String retire(String conceptId, ExecutionContext context, String domain) throws Exception {
 		String retireUrl = context.getString(Constants.API_CONCEPT_RETIRE);
+		JsonObject reqBody = new JsonObject();
+		reqBody.add("request", new JsonObject());
+		String body = reqBody.toString();
         
-        String body = JsonUtil.wrap(conceptIds, "conceptIds").toString();
-        BaseRequest retireRequest = Unirest.delete(retireUrl).body(body);
+		BaseRequest retireRequest = Unirest.delete(retireUrl).routeParam("domain", domain)
+				.routeParam("concept_id",
+				conceptId).body(body);
         HttpResponse<JsonNode> retireResponse = RestUtil.execute(retireRequest);
-		System.out.println("Retire Url : " + retireUrl);
-		System.out.println(body);
         String response = "OK";
         if (RestUtil.isSuccessful(retireResponse)) {
-            logger.debug("Retired " + conceptIds);
+			logger.debug("Retired " + conceptId);
             response = "OK";
         }
         else {

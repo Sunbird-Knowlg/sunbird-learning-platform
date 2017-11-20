@@ -54,14 +54,14 @@ public class ConceptAPIV3Tests extends BaseTest {
 		when().
 		get("/domain/v3/numeracy/concepts/list").
 		then().
-		log().all().
+		//log().all().
 		spec(get200ResponseSpec()).
 		body("result.concepts.status", hasItems("Live"));
 	}
 
 	// Get list literacy concepts
 
-	@Test
+	@Ignore
 	public void getLiteracyConceptsExpectSuccess200()
 	{
 		setURI();
@@ -179,7 +179,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 				when().
 				post("/domain/v3/numeracy/concepts/create").
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -233,6 +233,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 		spec(get200ResponseSpec());
 	}
 
+	// Create concept with invalid domain
 	@Ignore
 	public void createConceptWithInvalidDomainExpect4xx()
 	{
@@ -275,6 +276,155 @@ public class ConceptAPIV3Tests extends BaseTest {
 		then().
 		//log().all().
 		spec(get400ResponseSpec());
+	}
+	
+	//Retire literacy concept
+	@Test
+	public void deleteLiteracyConceptExpectSuccess200(){
+		setURI();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType,userId,APIToken)).
+				body(jsonBodyForCreateConcept).
+				with().
+				contentType(JSON).
+				when().
+				post("/domain/v3/literacy/concepts/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jp1 = R.jsonPath();
+		String conceptId = jp1.get("result.node_id");
+
+		//getConcept API call to verify if the above dimension has been created.
+		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		given().
+		spec(getRequestSpecification(contentType,userId,APIToken)).
+		when().
+		get("/domain/v3/literacy/concepts/read/"+conceptId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());		
+
+		// Retire created concept
+		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);}  		
+		given().
+		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
+		when().
+		delete("/domain/v3/literacy/concepts/retire/"+conceptId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+	}
+	
+	//Retire numeracy concept
+	@Test
+	public void deleteNumeracyConceptExpectSuccess200(){
+		setURI();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType,userId,APIToken)).
+				body(jsonBodyForCreateConcept).
+				with().
+				contentType(JSON).
+				when().
+				post("/domain/v3/numeracy/concepts/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jp1 = R.jsonPath();
+		String conceptId = jp1.get("result.node_id");
+
+		//getDimension API call to verify if the above dimension has been created.
+		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		given().
+		spec(getRequestSpecification(contentType,userId,APIToken)).
+		when().
+		get("/domain/v3/numeracy/concepts/read/"+conceptId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Retire created concept
+		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		given().
+		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
+		when().
+		delete("/domain/v3/numeracy/concepts/retire/"+conceptId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+	}
+	
+	//Retire Science Concept
+	@Test
+	public void deleteScienceConceptExpectSuccess200(){
+		setURI();
+		Response R =
+				given().
+				spec(getRequestSpecification(contentType,userId,APIToken)).
+				body(jsonBodyForCreateConcept).
+				with().
+				contentType(JSON).
+				when().
+				post("/domain/v3/science/concepts/create").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
+		JsonPath jp1 = R.jsonPath();
+		String conceptId = jp1.get("result.node_id");
+
+		//getDimension API call to verify if the above dimension has been created.
+		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		given().
+		spec(getRequestSpecification(contentType,userId,APIToken)).
+		when().
+		get("/domain/v3/science/concepts/read/"+conceptId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Retire created concept
+		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
+		given().
+		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
+		when().
+		delete("/domain/v3/science/concepts/retire/"+conceptId).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+	}
+	
+	// Retire invalid Concept
+	@Test
+	public void deleteInvalidConceptExpect4xx(){
+		setURI();
+		given().
+		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
+		when().
+		delete("/domain/v3/science/concepts/retire/fajdsvjd").
+		then().
+		//log().all().
+		spec(get404ResponseSpec());
 	}
 
 	@Ignore
