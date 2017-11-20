@@ -279,7 +279,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 	}
 	
 	//Retire literacy concept
-	@Ignore
+	@Test
 	public void deleteLiteracyConceptExpectSuccess200(){
 		setURI();
 		Response R =
@@ -312,8 +312,10 @@ public class ConceptAPIV3Tests extends BaseTest {
 
 		// Retire created concept
 		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);}  		
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
 		when().
 		delete("/domain/v3/literacy/concepts/retire/"+conceptId).
 		then().
@@ -322,7 +324,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 	}
 	
 	//Retire numeracy concept
-	@Ignore
+	@Test
 	public void deleteNumeracyConceptExpectSuccess200(){
 		setURI();
 		Response R =
@@ -355,8 +357,10 @@ public class ConceptAPIV3Tests extends BaseTest {
 		
 		// Retire created concept
 		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
 		when().
 		delete("/domain/v3/numeracy/concepts/retire/"+conceptId).
 		then().
@@ -365,7 +369,7 @@ public class ConceptAPIV3Tests extends BaseTest {
 	}
 	
 	//Retire Science Concept
-	@Ignore
+	@Test
 	public void deleteScienceConceptExpectSuccess200(){
 		setURI();
 		Response R =
@@ -398,8 +402,10 @@ public class ConceptAPIV3Tests extends BaseTest {
 		
 		// Retire created concept
 		setURI();
+		try{Thread.sleep(5000);}catch(InterruptedException e){System.out.println(e);} 
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
 		when().
 		delete("/domain/v3/science/concepts/retire/"+conceptId).
 		then().
@@ -408,16 +414,17 @@ public class ConceptAPIV3Tests extends BaseTest {
 	}
 	
 	// Retire invalid Concept
-	@Ignore
+	@Test
 	public void deleteInvalidConceptExpect4xx(){
 		setURI();
 		given().
 		spec(getRequestSpecification(contentType,userId,APIToken)).
+		body("{\"request\":{}}").
 		when().
 		delete("/domain/v3/science/concepts/retire/fajdsvjd").
 		then().
 		//log().all().
-		spec(get400ResponseSpec());
+		spec(get404ResponseSpec());
 	}
 
 	@Ignore

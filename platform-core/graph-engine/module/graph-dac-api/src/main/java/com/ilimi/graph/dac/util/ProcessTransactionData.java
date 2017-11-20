@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -19,6 +18,7 @@ import org.neo4j.graphdb.event.TransactionData;
 import com.ilimi.common.dto.ExecutionContext;
 import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.logger.PlatformLogger;
+import com.ilimi.common.util.LogAsyncGraphEvent;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
