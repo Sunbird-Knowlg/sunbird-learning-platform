@@ -33,6 +33,7 @@ import junit.framework.Assert;
  */
 
 @SuppressWarnings("deprecation")
+@Ignore
 public class ContentManagerImplUploadContentTest extends TestSetup {
 
 	static ContentManagerImpl contentManager = new ContentManagerImpl();
