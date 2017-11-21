@@ -173,9 +173,8 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
      * @see com.ilimi.graph.model.INode#validateNode(com.ilimi.common.dto.Request)
      */
     @Override
-    public Future<Map<String, List<String>>> validateNode(Request request) {
-        Future<List<String>> metadataValidation = Futures.successful(null);
-        return getMessageMap(metadataValidation, manager.getContext().dispatcher());
+    public Map<String, List<String>> validateNode(Request request) {
+        return getMessageMap(null, manager.getContext().dispatcher());
     }
 
     /**
@@ -238,20 +237,14 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
      * @param ec the ec
      * @return the message map
      */
-    protected Future<Map<String, List<String>>> getMessageMap(Future<List<String>> aggregate, ExecutionContext ec) {
-        Future<Map<String, List<String>>> messageMap = aggregate.map(new Mapper<List<String>, Map<String, List<String>>>() {
-            @Override
-            public Map<String, List<String>> apply(List<String> parameter) {
-                Map<String, List<String>> map = new HashMap<String, List<String>>();
-                List<String> messages = new ArrayList<String>();
-                if (null != parameter && !parameter.isEmpty()) {
-                    messages.addAll(parameter);
-                }
-                map.put(getNodeId(), messages);
-                return map;
-            }
-        }, ec);
-        return messageMap;
+    protected Map<String, List<String>> getMessageMap(List<String> aggregate, ExecutionContext ec) {
+    		Map<String, List<String>> map = new HashMap<String, List<String>>();
+        List<String> messages = new ArrayList<String>();
+        if (null != aggregate && !aggregate.isEmpty()) {
+            messages.addAll(aggregate);
+        }
+        map.put(getNodeId(), messages);
+        return map;
     }
 
     /**

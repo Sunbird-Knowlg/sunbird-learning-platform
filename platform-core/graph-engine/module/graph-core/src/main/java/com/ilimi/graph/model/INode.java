@@ -6,8 +6,6 @@ import java.util.Map;
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.dac.model.Node;
 
-import scala.concurrent.Future;
-
 public interface INode extends IPropertyContainer {
 
     String getNodeId();
@@ -20,6 +18,6 @@ public interface INode extends IPropertyContainer {
 
     void updateMetadata(Request request);
 
-    Future<Map<String, List<String>>> validateNode(Request request);
+    Map<String, List<String>> validateNode(Request request);
 
 }

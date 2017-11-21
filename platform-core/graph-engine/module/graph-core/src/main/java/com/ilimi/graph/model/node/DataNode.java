@@ -385,6 +385,29 @@ public class DataNode extends AbstractNode {
         }, manager.getContext().dispatcher());
         return message;
     }
+	
+	
+	public Response createNode1(final Request req) {
+        Request request = new Request(req);
+        request.put(GraphDACParams.node.name(), toNode());
+        Response res = nodeMgr.addNode(request);
+        
+        if (manager.checkError(res)) {
+            return res;
+        } else {
+            String identifier = (String) res.get(GraphDACParams.node_id.name());
+            String versionKey = (String) res.get(GraphDACParams.versionKey.name());
+            if (manager.validateRequired(identifier) && manager.validateRequired(versionKey)) {
+                setNodeId(identifier);
+                setVersionKey(versionKey);
+                return res;
+            } else {
+            		return manager.getErrorResponse(GraphEngineErrorCodes.ERR_GRAPH_CREATE_NODE_ERROR.name(), 
+            			"Error creating node in the graph", ResponseCode.SERVER_ERROR);
+            }
+        }
+    }
+	
 
 	public Future<Response> updateNode(Request req) {
 		try {
@@ -425,15 +448,13 @@ public class DataNode extends AbstractNode {
 	}
 
 	@Override
-	public Future<Map<String, List<String>>> validateNode(Request req) {
+	public Map<String, List<String>> validateNode(Request req) {
 		checkMetadata(metadata);
 		try {
-			final ExecutionContext ec = manager.context().dispatcher();
 			final List<String> messages = new ArrayList<String>();
+			Map<String, List<String>> map = new HashMap<String, List<String>>();
 			if (StringUtils.isBlank(objectType)) {
 				messages.add("Object type not set for node: " + getNodeId());
-				Future<List<String>> message = Futures.successful(messages);
-				return getMessageMap(message, ec);
 			} else {
 				DefinitionDTO dto = DefinitionCache.getDefinitionNode(graphId, objectType);
 				if (null != dto) {
@@ -443,10 +464,9 @@ public class DataNode extends AbstractNode {
 				} else {
 					messages.add("Definition node not found for Object Type: " + objectType);
 				}
-				Map<String, List<String>> map = new HashMap<String, List<String>>();
-				map.put(getNodeId(), messages);
-				return Futures.successful(map);
 			}
+			map.put(getNodeId(), messages);
+			return map;
 		} catch (Exception e) {
 			throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);
 		}
