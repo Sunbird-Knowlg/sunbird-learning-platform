@@ -53,7 +53,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
 			}
 			else {
-				String event = generateEvent(LoggerEnum.INFO.name(), "Start_Event", message);
+				String event = generateEvent(LoggerEnum.INFO.name(), "Job_Start_Event", message);
 				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
 			}
 		}
@@ -66,7 +66,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	}
 	
 	public void postProcess(Map<String,Object> message, MessageCollector collector) {
-		String event = generateEvent(LoggerEnum.INFO.name(), "End_Event", message);
+		String event = generateEvent(LoggerEnum.INFO.name(), "Job_End_Event", message);
 		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
 	}
 	
