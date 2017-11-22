@@ -30,6 +30,7 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.engine.common.TestSetUp;
 import com.ilimi.graph.engine.loadtest.TestUtil;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
@@ -46,7 +47,7 @@ import scala.concurrent.duration.Duration;
  *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NodeMgrImplTest {
+public class NodeMgrImplTest extends TestSetUp {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
@@ -99,7 +100,6 @@ public class NodeMgrImplTest {
 			"        ]\n" + 
 			"      }";
 	static ActorRef reqRouter = null;
-
 	static Map<String, String> contentVersion = new HashMap<String, String>();
 	static long timeout = 50000;
 	protected static Timeout t = new Timeout(Duration.create(60, TimeUnit.SECONDS));

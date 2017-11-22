@@ -1,10 +1,12 @@
 <actor-config>
-	<init system="ActorSystem">
+	<init system="LearningActorSystem">
 		<init-routers>
 			<init-router name="RequestRouter" count="4"
 				class="com.ilimi.graph.engine.router.RequestRouter"></init-router>
 			<init-router name="DACRouter" count="4"
 				class="com.ilimi.graph.engine.router.DACRequestRouter"></init-router>
+			<init-router name="TclExecutor" count="8"
+				class="com.ilimi.orchestrator.interpreter.actor.TclExecutorActor"></init-router>
 		</init-routers>
 	</init>
 	<graph-managers>
@@ -21,10 +23,10 @@
 			<graph id="*" count="4"></graph>
 		</manager>
 	</graph-managers>
-	<!-- <dac-managers>
+	<dac-managers>
 		<manager
 			classes="com.ilimi.graph.dac.mgr.impl.GraphDACGraphMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACNodeMgrImpl,com.ilimi.graph.dac.mgr.impl.GraphDACSearchMgrImpl">
 			<graph id="*" count="4"></graph>
 		</manager>
-	</dac-managers> -->
+	</dac-managers>
 </actor-config>
