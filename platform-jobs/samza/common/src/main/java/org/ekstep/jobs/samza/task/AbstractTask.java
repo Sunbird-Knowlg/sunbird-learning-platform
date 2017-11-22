@@ -41,7 +41,7 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 		Map<String, Object> message = (Map<String, Object>) envelope.getMessage();
 		preProcess(message, collector);
 		process(message, collector, coordinator);
-		postProcess(message, collector);
+//		postProcess(message, collector);
 	}
 	
 	public abstract void process(Map<String, Object> message, MessageCollector collector, TaskCoordinator coordinator) throws Exception;
@@ -52,10 +52,10 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 				String event = generateEvent(LoggerEnum.ERROR.name(), "Samza Job De-serialization error" + message, null);
 				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
 			}
-			else {
-				String event = generateEvent(LoggerEnum.INFO.name(), "Job_Start_Event", message);
-				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
-			}
+//			else {
+//				String event = generateEvent(LoggerEnum.INFO.name(), "Job_Start_Event", message);
+//				collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
+//			}
 		}
 		else {
 			Map<String,Object> map = new HashMap<String,Object>();
@@ -66,8 +66,6 @@ public abstract class AbstractTask implements StreamTask, InitableTask, Windowab
 	}
 	
 	public void postProcess(Map<String,Object> message, MessageCollector collector) {
-		String event = generateEvent(LoggerEnum.INFO.name(), "Job_End_Event", message);
-		collector.send(new OutgoingMessageEnvelope(new SystemStream("kafka", this.config.get("backend_telemetry_topic")), event));
 	}
 	
 	private String generateEvent(String logLevel, String message, Map<String, Object> data) {
